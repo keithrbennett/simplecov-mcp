@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+# Convenience single-level require path
+require "simplecov/mcp"
+

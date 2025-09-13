@@ -1,0 +1,45 @@
+# Bundler
+/.bundle/
+/vendor/bundle/
+
+# Build artifacts
+/pkg/
+*.gem
+
+# Coverage
+/coverage/
+.resultset.json
+coverage/.resultset.json
+tmp/.resultset.json
+
+# Docs
+/doc/
+/.yardoc/
+/yardoc/
+
+# Temp files
+/tmp/
+*.swp
+*.swo
+*.tmp
+
+# Local environment/config
+/.env
+/.env.*
+/.direnv/
+.ruby-version
+.ruby-gemset
+.rbenv-version
+
+# Editors/IDE
+.DS_Store
+.idea/
+.vscode/
+.byebug_history
+
+# Logs
+/log/
+
+# Lockfile (for libraries)
+Gemfile.lock
+
