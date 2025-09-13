@@ -15,7 +15,7 @@ Add to your Gemfile or install directly:
 gem install simplecov-mcp
 ```
 
-Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `coverage.mcp`.
+Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `simplecov-mcp`.
 
 ## Usage
 
@@ -34,15 +34,15 @@ Search order for resultset:
 Run in a project directory with a SimpleCov resultset:
 
 ```
-coverage.mcp
+simplecov-mcp
 ```
 
 Forces CLI mode:
 
 ```
-coverage.mcp --cli
+simplecov-mcp --cli
 # or
-COVERAGE_MCP_CLI=1 coverage.mcp
+COVERAGE_MCP_CLI=1 simplecov-mcp
 ``;
 
 Example output:
@@ -74,7 +74,7 @@ Available tools:
 Example (manual):
 
 ```
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb"}}}' | coverage.mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb"}}}' | simplecov-mcp
 ```
 
 ### Notes
@@ -89,7 +89,7 @@ Standard Ruby gem structure. After cloning:
 
 ```
 bundle install
-ruby -Ilib bin/coverage.mcp --cli
+ruby -Ilib exe/simplecov-mcp --cli
 ```
 
 ## License

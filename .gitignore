@@ -8,9 +8,9 @@
 
 # Coverage
 /coverage/
-.resultset.json
-coverage/.resultset.json
-tmp/.resultset.json
+/.resultset.json
+/coverage/.resultset.json
+/tmp/.resultset.json
 
 # Docs
 /doc/
@@ -43,3 +43,5 @@ tmp/.resultset.json
 # Lockfile (for libraries)
 Gemfile.lock
 
+# RSpec
+.rspec_status
