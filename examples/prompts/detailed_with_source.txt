@@ -1,0 +1,3 @@
+Show detailed per-line coverage for lib/foo.rb and include annotated source.
+Prefer JSON with an array of {line, hits, covered} plus a "source" array of {line, code, hits, covered}.
+

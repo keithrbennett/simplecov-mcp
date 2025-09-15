@@ -24,7 +24,7 @@ This codebase does not require, and is not connected to, the `simplecov` library
 
 Add to your Gemfile or install directly:
 
-```
+```sh
 gem install simplecov-mcp
 ```
 
@@ -45,7 +45,7 @@ Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `simplecov
 
 Run in a project directory with a SimpleCov resultset:
 
-```
+```sh
 simplecov-mcp            # same as 'list'
 ```
 
@@ -71,7 +71,7 @@ Global flags (OptionParser):
 
 Select a nonstandard resultset path:
 
-```
+```sh
 simplecov-mcp --cli --resultset build/coverage/.resultset.json
 # or
 SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp --cli
@@ -79,7 +79,7 @@ SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp --cli
 
 You can also pass a directory that contains `.resultset.json` (common when the file lives in a `coverage/` folder):
 
-```
+```sh
 simplecov-mcp --cli --resultset coverage
 # or via env
 SIMPLECOV_RESULTSET=coverage simplecov-mcp --cli
@@ -87,7 +87,7 @@ SIMPLECOV_RESULTSET=coverage simplecov-mcp --cli
 
 Forces CLI mode:
 
-```
+```sh
 simplecov-mcp --cli
 # or
 COVERAGE_MCP_CLI=1 simplecov-mcp
@@ -95,7 +95,7 @@ COVERAGE_MCP_CLI=1 simplecov-mcp
 
 Example output:
 
-```
+```text
 ┌───────────────────────────┬──────────┬──────────┬────────┐
 │ File                      │        % │  Covered │  Total │
 ├───────────────────────────┼──────────┼──────────┼────────┤
@@ -128,19 +128,19 @@ Notes:
 
 Example (manual):
 
-```
+```sh
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb"}}}' | simplecov-mcp
 ```
 
 With an explicit resultset path:
 
-```
+```sh
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"build/coverage/.resultset.json"}}}' | simplecov-mcp
 ```
 
 With a resultset directory:
 
-```
+```sh
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"coverage"}}}' | simplecov-mcp
 ```
 
@@ -174,14 +174,14 @@ To run `simplecov-mcp` globally, your PATH must include where Ruby installs exec
 
 Standard Ruby gem structure. After cloning:
 
-```
+```sh
 bundle install
 ruby -Ilib exe/simplecov-mcp --cli
 ```
 
 Run tests with coverage (SimpleCov writes to `coverage/`):
 
-```
+```sh
 bundle exec rspec
 # open coverage/index.html for HTML report, or run exe/simplecov-mcp for table summary
 ```

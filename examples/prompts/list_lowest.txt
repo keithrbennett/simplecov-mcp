@@ -1,0 +1,3 @@
+List the 10 files with the lowest coverage percentage in this project.
+Return a JSON object with "files": [ { file, percentage, covered, total }, ... ] sorted ascending by percentage.
+

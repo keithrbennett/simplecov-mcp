@@ -1,0 +1,1 @@
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"all_files_coverage","arguments":{"root":"examples/fixtures/demo_project"}}}

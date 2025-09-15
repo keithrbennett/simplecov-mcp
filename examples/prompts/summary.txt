@@ -1,0 +1,3 @@
+Get the coverage summary for lib/foo.rb from the current project.
+Use the SimpleCov coverage MCP tools. Return a one-line answer with percent and covered/total.
+
