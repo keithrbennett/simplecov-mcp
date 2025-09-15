@@ -45,6 +45,14 @@ simplecov-mcp --cli --resultset build/coverage/.resultset.json
 SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp --cli
 ```
 
+You can also pass a directory that contains `.resultset.json` (common when the file lives in a `coverage/` folder):
+
+```
+simplecov-mcp --cli --resultset coverage
+# or via env
+SIMPLECOV_RESULTSET=coverage simplecov-mcp --cli
+```
+
 Forces CLI mode:
 
 ```
@@ -81,7 +89,9 @@ Available tools:
 
 Notes:
 
-- `resultset` lets clients pass a nonstandard path to `.resultset.json` directly (absolute or relative to `root`).
+- `resultset` lets clients pass a nonstandard path to `.resultset.json` directly (absolute or relative to `root`). It may be:
+  - a file path to `.resultset.json`, or
+  - a directory path containing `.resultset.json` (e.g., `coverage/`).
 - If `resultset` is omitted, the server checks `SIMPLECOV_RESULTSET`, then searches `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json` in that order.
 
 Example (manual):
@@ -94,6 +104,12 @@ With an explicit resultset path:
 
 ```
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"build/coverage/.resultset.json"}}}' | simplecov-mcp
+```
+
+With a resultset directory:
+
+```
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"coverage"}}}' | simplecov-mcp
 ```
 
 CLI vs MCP summary:

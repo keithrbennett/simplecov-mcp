@@ -21,13 +21,16 @@ module Simplecov
       def find_resultset(root, resultset: nil)
         if resultset && !resultset.to_s.empty?
           path = File.absolute_path(resultset, root)
-          return path if File.file?(path)
-          raise "Specified resultset not found: #{path}"
+          if (resolved = resolve_resultset_candidate(path, strict: true))
+            return resolved
+          end
         end
 
         if (env = ENV["SIMPLECOV_RESULTSET"]) && !env.empty?
           path = File.absolute_path(env, root)
-          return path if File.file?(path)
+          if (resolved = resolve_resultset_candidate(path, strict: false))
+            return resolved
+          end
         end
         RESULTSET_CANDIDATES
           .map { |p| File.absolute_path(p, root) }
@@ -42,6 +45,18 @@ module Simplecov
         _suite, data = raw.max_by { |_k, v| (v["timestamp"] || v["created_at"] || 0).to_i }
         cov = data["coverage"] or raise "No 'coverage' key in .resultset.json"
         cov.transform_keys { |k| File.absolute_path(k, root) }
+      end
+
+      def resolve_resultset_candidate(path, strict:)
+        return path if File.file?(path)
+        if File.directory?(path)
+          candidate = File.join(path, ".resultset.json")
+          return candidate if File.file?(candidate)
+          raise "No .resultset.json found in directory: #{path}" if strict
+          return nil
+        end
+        raise "Specified resultset not found: #{path}" if strict
+        nil
       end
 
       def lookup_lines(cov, file_abs)

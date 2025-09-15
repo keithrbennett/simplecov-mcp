@@ -50,5 +50,24 @@ RSpec.describe Simplecov::Mcp::CoverageModel do
       expect(files.last[:file]).to eq(File.expand_path("lib/foo.rb", root))
     end
   end
-end
 
+  describe "resultset directory handling" do
+    it "accepts a directory containing .resultset.json" do
+      model = described_class.new(root: root, resultset: "coverage")
+      data = model.summary_for("lib/foo.rb")
+      expect(data[:summary]["total"]).to eq(3)
+      expect(data[:summary]["covered"]).to eq(2)
+    end
+
+    it "uses SIMPLECOV_RESULTSET when it is a directory" do
+      begin
+        ENV["SIMPLECOV_RESULTSET"] = "coverage"
+        model = described_class.new(root: root)
+        data = model.summary_for("lib/foo.rb")
+        expect(data[:summary]["covered"]).to eq(2)
+      ensure
+        ENV.delete("SIMPLECOV_RESULTSET")
+      end
+    end
+  end
+end
