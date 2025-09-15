@@ -161,6 +161,25 @@ To use this MCP server with popular coding AI assistants:
 - **Google AI Studio / Gemini**: Add to MCP server configuration. See [Gemini MCP setup documentation](https://ai.google.dev/gemini-api/docs/mcp)
 - **Warp AI**: Configure via Settings → AI → MCP Servers. See [Warp MCP configuration guide](https://docs.warp.dev/features/ai/mcp)
 
+## Troubleshooting
+
+- MCP client fails to start or times out
+  - Likely cause: launching `simplecov-mcp` with an older Ruby that cannot load the `mcp` gem. This gem requires Ruby >= 3.2.
+  - Check the Ruby your MCP client uses: run `ruby -v` in the same environment your client inherits; ensure it reports 3.2+.
+  - Fix PATH or select a newer Ruby via rbenv/rvm/asdf, then retry. You can configure your MCP client to point to the shim/binary for that Ruby version. For example:
+    - rbenv shim: `~/.rbenv/shims/simplecov-mcp`
+    - asdf shim: `~/.asdf/shims/simplecov-mcp`
+    - RVM wrapper: `/Users/you/.rvm/wrappers/ruby-3.3.0/simplecov-mcp` (adjust version)
+    - Codex CLI example (`~/.codex/config.toml`):
+      ```toml
+      # Use the Ruby 3.2+ shim for the MCP server
+      [tools.simplecov_mcp]
+      command = "/Users/you/.rbenv/shims/simplecov-mcp"
+      cwd = "/path/to/your/project"
+      ```
+  - Validate manually: `simplecov-mcp --cli` (or from this repo: `ruby -Ilib exe/simplecov-mcp --cli`). If you see the coverage table, the binary starts correctly.
+  - On failures, check `~/coverage_mcp.log` for details.
+
 ### Notes
 
 - Library entrypoint: `require "simplecov/mcp"` or `require "simplecov_mcp"`
