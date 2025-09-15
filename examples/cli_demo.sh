@@ -7,18 +7,34 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 CLI=("exe/simplecov-mcp")
-PROJ="spec/fixtures/project1"
+PROJ="examples/fixtures/demo_project"
 RESULTSET_DIR="coverage" # directory containing .resultset.json under PROJ
 
 run() {
-  echo
-  echo "+ ${CLI[*]} $*"
+  cat <<BANNER
+
+
+
+-------------------------------------------------------------------------------
++ ${CLI[*]} $*
+-------------------------------------------------------------------------------
+
+BANNER
   "${CLI[@]}" "$@"
+
 }
 
-echo "== simplecov-mcp CLI demo =="
-echo "Project root:     $PROJ"
-echo "Resultset (dir):  $RESULTSET_DIR"
+cat <<INTRO
+== simplecov-mcp CLI demo ==
+
+Note: Project root and resultset JSON file normally do not need to be specified.
+We set --root here to use the examples/fixtures/demo_project nondefault location,
+and later demonstrate a nondefault resultset via SIMPLECOV_RESULTSET.
+
+Project root:     $PROJ
+Resultset (dir):  $RESULTSET_DIR
+
+INTRO
 
 # 1) List all files (table)
 run list --root "$PROJ"
@@ -45,10 +61,17 @@ run detailed lib/foo.rb --root "$PROJ" --json
 # 7) Raw lines array (JSON)
 run raw lib/foo.rb --root "$PROJ" --json
 
-# 8) Using environment variable for resultset directory (instead of --resultset)
+# 8) Using environment variable for a NONDEFAULT resultset location
+#    Copy the default resultset into a simple alt directory to simulate a custom layout.
+ALT_DIR="$PROJ/alt_resultset"
+mkdir -p "$ALT_DIR"
+cp -f "$PROJ/coverage/.resultset.json" "$ALT_DIR/.resultset.json"
 echo 
-echo "+ SIMPLECOV_RESULTSET=$RESULTSET_DIR ${CLI[*]} list --root $PROJ"
-SIMPLECOV_RESULTSET="$RESULTSET_DIR" "${CLI[@]}" list --root "$PROJ"
+echo "+ SIMPLECOV_RESULTSET=$PROJ/alt_resultset ${CLI[*]} list --root $PROJ"
+SIMPLECOV_RESULTSET="$PROJ/alt_resultset" "${CLI[@]}" list --root "$PROJ"
 
 echo
 echo "== Done =="
+
+# Cleanup files created for the nondefault resultset demo
+rm -rf "$ALT_DIR"

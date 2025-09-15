@@ -5,7 +5,20 @@ MCP server + CLI for inspecting SimpleCov coverage data.
 This gem provides:
 
 - An MCP (Model Context Protocol) server exposing tools to query coverage for files.
-- A human-friendly CLI that prints a sorted table of file coverage.
+- A flexible CLI with subcommands to list all files, show a file summary, print raw coverage arrays, list uncovered lines, and display detailed per-line hits. Supports JSON output, displaying annotated source code (full file or uncovered lines with context), and custom resultset locations.
+
+## Features
+
+- MCP server tools for coverage queries: raw, summary, uncovered, detailed, and all-files list.
+- CLI subcommands: `list`, `summary`, `raw`, `uncovered`, `detailed` (default `list`).
+- JSON output with `--json` for machine use; human-readable tables/rows by default.
+- Annotated source snippets with `--source[=full|uncovered]` and `--source-context N`; optional colors with `--color/--no-color`.
+- Flexible resultset location: `--resultset PATH` or `SIMPLECOV_RESULTSET`; accepts file or directory; sensible default search order.
+- Works installed as a gem, via Bundler (`bundle exec`), or directly from this repo’s `exe/` (symlink-safe).
+
+## SimpleCov Independence
+
+This codebase does not require, and is not connected to, the `simplecov` library at runtime. Its only interaction is reading the JSON resultset file that SimpleCov generates (`.resultset.json`). As long as that file exists in your project (in a default or specified location), the CLI and MCP server can operate without `require "simplecov"` in your app or test process.
 
 ## Installation
 
@@ -19,15 +32,14 @@ Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `simplecov
 
 ## Usage
 
-Environment variable:
+### Resultset Location
 
-- `SIMPLECOV_RESULTSET` — optional explicit path to `.resultset.json`.
-
-Search order for resultset:
-
-1. `.resultset.json`
-2. `coverage/.resultset.json`
-3. `tmp/.resultset.json`
+- Defaults (search order):
+  1. `.resultset.json`
+  2. `coverage/.resultset.json`
+  3. `tmp/.resultset.json`
+- Override via CLI: `--resultset PATH` (PATH may be the file itself or a directory containing `.resultset.json`).
+- Override via environment: `SIMPLECOV_RESULTSET=PATH` (file or directory). This takes precedence over defaults. The CLI flag, when present, takes precedence over the environment variable.
 
 ### CLI Mode
 
@@ -79,7 +91,7 @@ Forces CLI mode:
 simplecov-mcp --cli
 # or
 COVERAGE_MCP_CLI=1 simplecov-mcp
-``;
+```
 
 Example output:
 
@@ -87,9 +99,9 @@ Example output:
 ┌───────────────────────────┬──────────┬──────────┬────────┐
 │ File                      │        % │  Covered │  Total │
 ├───────────────────────────┼──────────┼──────────┼────────┤
+│ spec/user_spec.rb         │    85.71 │       12 │     14 │
 │ lib/models/user.rb        │    92.31 │       12 │     13 │
 │ lib/services/auth.rb      │   100.00 │        8 │      8 │
-│ spec/user_spec.rb         │    85.71 │       12 │     14 │
 └───────────────────────────┴──────────┴──────────┴────────┘
 ```
 
@@ -142,6 +154,21 @@ CLI vs MCP summary:
 - Library entrypoint: `require "simplecov/mcp"` or `require "simplecov_mcp"`
 - Programmatic run: `Simplecov::Mcp.run(ARGV)`
 - Logs basic diagnostics to `~/coverage_mcp.log`.
+
+## Executables and PATH
+
+To run `simplecov-mcp` globally, your PATH must include where Ruby installs executables.
+
+- Version managers
+  - RVM, rbenv, asdf, chruby typically add the right bin/shim directories to PATH.
+  - Ensure your shell is initialized (e.g., rbenv init, asdf reshim ruby after installs).
+- Without a manager
+  - Add the gem bin dir to PATH: see it with `gem env` (look for "EXECUTABLE DIRECTORY") or `ruby -e 'puts Gem.bindir'`.
+  - Example: `export PATH="$HOME/.gem/ruby/3.2.0/bin:$PATH"` (adjust version).
+- Alternatives
+  - Use Bundler: `bundle exec simplecov-mcp` with cwd set to your project.
+  - Symlink the repo executable into a bin on your PATH; the script resolves its lib/ via realpath.
+  - Or configure Codex to run the executable by filename (`simplecov-mcp`) and inherit the current workspace as cwd.
 
 ## Development
 
