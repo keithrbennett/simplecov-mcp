@@ -3,9 +3,9 @@
 module Simplecov
   module Mcp
     class CoverageModel
-      def initialize(root: ".")
+      def initialize(root: ".", resultset: nil)
         @root = File.absolute_path(root || ".")
-        @cov  = CovUtil.load_latest_coverage(@root)
+        @cov  = CovUtil.load_latest_coverage(@root, resultset: resultset)
       end
 
       # Returns { file: <abs>, lines: [hits|nil,...] }
@@ -56,4 +56,3 @@ module Simplecov
     end
   end
 end
-

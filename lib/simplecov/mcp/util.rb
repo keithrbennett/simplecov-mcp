@@ -18,7 +18,13 @@ module Simplecov
         # ignore logging failures
       end
 
-      def find_resultset(root)
+      def find_resultset(root, resultset: nil)
+        if resultset && !resultset.to_s.empty?
+          path = File.absolute_path(resultset, root)
+          return path if File.file?(path)
+          raise "Specified resultset not found: #{path}"
+        end
+
         if (env = ENV["SIMPLECOV_RESULTSET"]) && !env.empty?
           path = File.absolute_path(env, root)
           return path if File.file?(path)
@@ -30,8 +36,8 @@ module Simplecov
       end
 
       # returns { abs_path => {"lines" => [hits|nil,...]} }
-      def load_latest_coverage(root)
-        rs = find_resultset(root)
+      def load_latest_coverage(root, resultset: nil)
+        rs = find_resultset(root, resultset: resultset)
         raw = JSON.parse(File.read(rs))
         _suite, data = raw.max_by { |_k, v| (v["timestamp"] || v["created_at"] || 0).to_i }
         cov = data["coverage"] or raise "No 'coverage' key in .resultset.json"
@@ -91,4 +97,3 @@ module Simplecov
     end
   end
 end
-

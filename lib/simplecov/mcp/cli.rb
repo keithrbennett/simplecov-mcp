@@ -5,9 +5,11 @@ module Simplecov
     class CoverageCLI
       def initialize
         @root = "."
+        @resultset = nil
       end
 
       def run(argv)
+        @resultset = extract_resultset(argv)
         if force_cli?(argv)
           show_default_report
         else
@@ -27,8 +29,20 @@ module Simplecov
         return STDIN.tty?
       end
 
+      # Supports --resultset=<path> or --resultset <path>
+      def extract_resultset(argv)
+        argv.each_with_index do |arg, i|
+          if arg.start_with?("--resultset=")
+            return arg.split("=", 2)[1]
+          elsif arg == "--resultset" && i + 1 < argv.length
+            return argv[i + 1]
+          end
+        end
+        nil
+      end
+
       def show_default_report
-        model = CoverageModel.new(root: @root)
+        model = CoverageModel.new(root: @root, resultset: @resultset)
         file_summaries = model.all_files(sort_order: :ascending).map do |row|
           row.dup.tap do |h|
             h[:file] = Pathname.new(h[:file]).relative_path_from(Pathname.new(Dir.pwd)).to_s
@@ -95,4 +109,3 @@ module Simplecov
     end
   end
 end
-

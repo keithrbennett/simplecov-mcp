@@ -37,6 +37,14 @@ Run in a project directory with a SimpleCov resultset:
 simplecov-mcp
 ```
 
+Select a nonstandard resultset path:
+
+```
+simplecov-mcp --cli --resultset build/coverage/.resultset.json
+# or
+SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp --cli
+```
+
 Forces CLI mode:
 
 ```
@@ -65,17 +73,33 @@ When stdin has data (e.g., from an MCP client), the program runs as an MCP serve
 
 Available tools:
 
-- `coverage_raw(path, root=".")`
-- `coverage_summary(path, root=".")`
-- `uncovered_lines(path, root=".")`
-- `coverage_detailed(path, root=".")`
-- `all_files_coverage(root=".")`
+- `coverage_raw(path, root=".", resultset=nil)`
+- `coverage_summary(path, root=".", resultset=nil)`
+- `uncovered_lines(path, root=".", resultset=nil)`
+- `coverage_detailed(path, root=".", resultset=nil)`
+- `all_files_coverage(root=".", resultset=nil)`
+
+Notes:
+
+- `resultset` lets clients pass a nonstandard path to `.resultset.json` directly (absolute or relative to `root`).
+- If `resultset` is omitted, the server checks `SIMPLECOV_RESULTSET`, then searches `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json` in that order.
 
 Example (manual):
 
 ```
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb"}}}' | simplecov-mcp
 ```
+
+With an explicit resultset path:
+
+```
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"build/coverage/.resultset.json"}}}' | simplecov-mcp
+```
+
+CLI vs MCP summary:
+
+- CLI: pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
+- MCP: pass `resultset` in tool arguments, or set `SIMPLECOV_RESULTSET`.
 
 ### Notes
 

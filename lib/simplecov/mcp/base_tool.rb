@@ -7,7 +7,8 @@ module Simplecov
         type: "object",
         properties: {
           path: { type: "string", description: "Absolute or project-relative file path" },
-          root: { type: "string", description: "Project root for resolution", default: "." }
+          root: { type: "string", description: "Project root for resolution", default: "." },
+          resultset: { type: "string", description: "Path to .resultset.json (absolute or relative to root)" }
         },
         required: ["path"]
       }
@@ -15,4 +16,3 @@ module Simplecov
     end
   end
 end
-

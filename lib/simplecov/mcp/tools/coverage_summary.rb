@@ -6,8 +6,8 @@ module Simplecov
       description "Return {covered,total,pct} for a file"
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: ".", server_context:)
-          model = CoverageModel.new(root: root)
+        def call(path:, root: ".", resultset: nil, server_context:)
+          model = CoverageModel.new(root: root, resultset: resultset)
           data = model.summary_for(path)
           ::MCP::Tool::Response.new([{ type: "json", json: data }],
                               meta: { mimeType: "application/json" })
@@ -19,4 +19,3 @@ module Simplecov
     end
   end
 end
-

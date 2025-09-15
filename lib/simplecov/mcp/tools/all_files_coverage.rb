@@ -8,12 +8,13 @@ module Simplecov
         type: "object",
         properties: {
           root: { type: "string", description: "Project root for resolution", default: "." },
+          resultset: { type: "string", description: "Path to .resultset.json (absolute or relative to root)" },
           sort_order: { type: "string", description: "Sort order for coverage percentage: ascending or descending", default: "ascending", enum: ["ascending", "descending"] }
         }
       )
       class << self
-        def call(root: ".", sort_order: "ascending", server_context:)
-          model = CoverageModel.new(root: root)
+        def call(root: ".", resultset: nil, sort_order: "ascending", server_context:)
+          model = CoverageModel.new(root: root, resultset: resultset)
           files = model.all_files(sort_order: sort_order)
           ::MCP::Tool::Response.new([{ type: "json", json: { files: files } }],
                               meta: { mimeType: "application/json" })
@@ -25,4 +26,3 @@ module Simplecov
     end
   end
 end
-
