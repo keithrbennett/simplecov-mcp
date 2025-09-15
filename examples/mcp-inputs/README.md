@@ -23,7 +23,7 @@ simplecov-mcp < examples/mcp-inputs/coverage_summary.json
 
 ### Formatting Tips (jq and rexe)
 
-You can use tools like `jq` or `rexe` to format the JSON input and output, which is especially helpful for debugging.
+You can use tools like [jq](https://github.com/jqlang/jq) or [rexe](https://github.com/keithrbennett/rexe) to format the JSON input and output, which is especially helpful for debugging.
 
 **Pretty-print an input file:**
 
