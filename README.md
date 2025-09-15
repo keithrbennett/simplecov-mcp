@@ -149,6 +149,18 @@ CLI vs MCP summary:
 - CLI: use subcommands. Pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
 - MCP: pass `resultset` in tool arguments, or set `SIMPLECOV_RESULTSET`.
 
+### Configuring AI Assistants
+
+To use this MCP server with popular coding AI assistants:
+
+- **Claude Code**: Add the server to your `claude_code_config.json`. See [Claude Code MCP configuration guide](https://docs.anthropic.com/en/docs/claude-code/mcp#configuring-mcp-servers)
+- **Codeium Windsurf**: Configure in Settings → MCP Servers. See [Windsurf MCP documentation](https://docs.codeium.com/windsurf/mcp)
+- **Continue**: Add to your `config.json` under `mcpServers`. See [Continue MCP setup guide](https://docs.continue.dev/reference/config#mcp-servers)
+- **Cursor**: Configure via Settings → Features → Model Context Protocol. See [Cursor MCP documentation](https://docs.cursor.com/advanced/mcp)
+- **Codex**: Configure MCP servers in your workspace settings. See [Codex MCP integration guide](https://docs.codex.so/mcp)
+- **Google AI Studio / Gemini**: Add to MCP server configuration. See [Gemini MCP setup documentation](https://ai.google.dev/gemini-api/docs/mcp)
+- **Warp AI**: Configure via Settings → AI → MCP Servers. See [Warp MCP configuration guide](https://docs.warp.dev/features/ai/mcp)
+
 ### Notes
 
 - Library entrypoint: `require "simplecov/mcp"` or `require "simplecov_mcp"`
