@@ -26,4 +26,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'mcp', '~> 0.2'
   spec.add_runtime_dependency 'awesome_print', '>= 1.9.2', '< 2'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'simplecov', '>= 0.21'
 end

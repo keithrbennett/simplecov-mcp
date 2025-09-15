@@ -116,6 +116,13 @@ bundle install
 ruby -Ilib exe/simplecov-mcp --cli
 ```
 
+Run tests with coverage (SimpleCov writes to `coverage/`):
+
+```
+bundle exec rspec
+# open coverage/index.html for HTML report, or run exe/simplecov-mcp for table summary
+```
+
 ## License
 
 MIT

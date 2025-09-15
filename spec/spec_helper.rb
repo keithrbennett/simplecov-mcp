@@ -1,5 +1,17 @@
 # frozen_string_literal: true
 
+# Enable SimpleCov for this project (coverage output in ./coverage)
+begin
+  require "simplecov"
+  SimpleCov.start do
+    enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
+    add_filter %r{^/spec/}
+    track_files "lib/**/*.rb"
+  end
+rescue LoadError
+  warn "SimpleCov not available; skipping coverage"
+end
+
 ENV.delete("SIMPLECOV_RESULTSET")
 
 require "rspec"
@@ -16,4 +28,3 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 end
-
