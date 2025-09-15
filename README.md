@@ -52,6 +52,9 @@ Global flags (OptionParser):
 - `--root PATH` — project root (default `.`)
 - `--json` — print JSON output for machine use
 - `--sort-order ascending|descending` — for `list`
+- `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
+- `--source-context N` — for `--source=uncovered`, lines of context (default 2)
+- `--color` / `--no-color` — enable/disable ANSI colors in source output
 - `--help` — show usage
 
 Select a nonstandard resultset path:

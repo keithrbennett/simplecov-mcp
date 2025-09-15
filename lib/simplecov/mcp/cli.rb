@@ -13,6 +13,9 @@ module Simplecov
         @sort_order = "ascending"
         @cmd = nil
         @cmd_args = []
+        @source_mode = nil   # nil, "full", or "uncovered"
+        @source_context = 2  # lines of context for uncovered mode
+        @color = STDOUT.tty?
       end
 
       def run(argv)
@@ -49,7 +52,14 @@ module Simplecov
         end
 
         op = OptionParser.new do |o|
-          o.banner = "Usage: simplecov-mcp [subcommand] [options] [args]\n\nSubcommands: list | summary <path> | raw <path> | uncovered <path> | detailed <path>"
+          o.banner = "Usage: simplecov-mcp [subcommand] [options] [args]"
+          o.separator ""
+          o.separator "Subcommands:"
+          o.separator "  list                    Show table of all files"
+          o.separator "  summary <path>          Show covered/total/% for a file"
+          o.separator "  raw <path>              Show the SimpleCov 'lines' array"
+          o.separator "  uncovered <path>        Show uncovered lines and a summary"
+          o.separator "  detailed <path>         Show per-line rows with hits/covered"
           o.separator ""
           o.separator "Modes:"
           o.on("--cli", "Force CLI mode (table report)") { @force_cli = true }
@@ -57,10 +67,21 @@ module Simplecov
 
           o.separator ""
           o.separator "Options:"
-          o.on("--resultset PATH", String, "Path or directory for .resultset.json") { |v| @resultset = v }
+          o.on("--resultset PATH", String, "Path or directory that contains .resultset.json") { |v| @resultset = v }
           o.on("--root PATH", String, "Project root (default '.')") { |v| @root = v }
           o.on("--json", "Output JSON for machine consumption") { @json = true }
           o.on("--sort-order ORDER", String, ["ascending", "descending"], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
+          o.on("--source[=MODE]", [:full, :uncovered], "Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)") do |v|
+            @source_mode = (v || :full).to_s
+          end
+          o.on("--source-context N", Integer, "For --source=uncovered, show N context lines (default 2)") { |v| @source_context = v }
+          o.on("--color", "Enable ANSI colors for source output") { @color = true }
+          o.on("--no-color", "Disable ANSI colors") { @color = false }
+          o.separator ""
+          o.separator "Examples:"
+          o.separator "  simplecov-mcp list --resultset coverage"
+          o.separator "  simplecov-mcp summary lib/foo.rb --json --resultset coverage"
+          o.separator "  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2"
           o.on("-h", "--help", "Show help") do
             puts o
             exit 0
@@ -74,13 +95,14 @@ module Simplecov
         model = CoverageModel.new(root: @root, resultset: @resultset)
         rows = model.all_files(sort_order: sort_order)
         if @json
-          puts JSON.pretty_generate({ files: rows })
+          files = rows.map { |row| row.merge(file: rel_to_root(row[:file])) }
+          puts JSON.pretty_generate({ files: files })
           return
         end
 
         file_summaries = rows.map do |row|
           row.dup.tap do |h|
-            h[:file] = Pathname.new(h[:file]).relative_path_from(Pathname.new(Dir.pwd)).to_s
+            h[:file] = rel_to_root(h[:file])
           end
         end
 
@@ -180,17 +202,24 @@ module Simplecov
       def handle_summary(model, args)
         handle_with_path(args, "summary") do |path|
           data = model.summary_for(path)
-          break if maybe_output_json(data)
+          if @source_mode && @json
+            data = relativize_file(data)
+            src = build_source_payload(model, path)
+            data[:source] = src
+            break puts(JSON.pretty_generate(data))
+          end
+          break if maybe_output_json(relativize_file(data))
           rel = rel_path(data[:file])
           s = data[:summary]
           printf "%8.2f%%  %6d/%-6d  %s\n", s["pct"], s["covered"], s["total"], rel
+          print_source_for(model, path) if @source_mode
         end
       end
 
       def handle_raw(model, args)
         handle_with_path(args, "raw") do |path|
           data = model.raw_for(path)
-          break if maybe_output_json(data)
+          break if maybe_output_json(relativize_file(data))
           rel = rel_path(data[:file])
           puts "File: #{rel}"
           puts data[:lines].inspect
@@ -200,22 +229,36 @@ module Simplecov
       def handle_uncovered(model, args)
         handle_with_path(args, "uncovered") do |path|
           data = model.uncovered_for(path)
-          break if maybe_output_json(data)
+          if @source_mode && @json
+            data = relativize_file(data)
+            src = build_source_payload(model, path)
+            data[:source] = src
+            break puts(JSON.pretty_generate(data))
+          end
+          break if maybe_output_json(relativize_file(data))
           rel = rel_path(data[:file])
           puts "File: #{rel}"
           puts "Uncovered lines: #{data[:uncovered].join(', ')}"
           s = data[:summary]
           printf "Summary: %8.2f%%  %6d/%-6d\n", s["pct"], s["covered"], s["total"]
+          print_source_for(model, path) if @source_mode
         end
       end
 
       def handle_detailed(model, args)
         handle_with_path(args, "detailed") do |path|
           data = model.detailed_for(path)
-          break if maybe_output_json(data)
+          if @source_mode && @json
+            data = relativize_file(data)
+            src = build_source_payload(model, path)
+            data[:source] = src
+            break puts(JSON.pretty_generate(data))
+          end
+          break if maybe_output_json(relativize_file(data))
           rel = rel_path(data[:file])
           puts "File: #{rel}"
           puts format_detailed_rows(data[:lines])
+          print_source_for(model, path) if @source_mode
         end
       end
 
@@ -225,13 +268,95 @@ module Simplecov
       end
 
       def rel_path(abs)
-        Pathname.new(abs).relative_path_from(Pathname.new(Dir.pwd)).to_s
+        rel_to_root(abs)
       end
 
       def maybe_output_json(obj)
         return false unless @json
         puts JSON.pretty_generate(obj)
         true
+      end
+
+      def print_source_for(model, path)
+        raw = model.raw_for(path)
+        abs = raw[:file]
+        lines_cov = raw[:lines]
+        src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
+        unless src
+          puts "[source not available]"
+          return
+        end
+        rows = build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
+        puts format_source_rows(rows)
+      end
+
+      def build_source_payload(model, path)
+        raw = model.raw_for(path)
+        abs = raw[:file]
+        lines_cov = raw[:lines]
+        src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
+        return nil unless src
+        build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
+      end
+
+      def build_source_rows(src_lines, cov_lines, mode:, context: 2)
+        n = src_lines.length
+        include_line = Array.new(n, mode == "full")
+        if mode == "uncovered"
+          misses = []
+          cov_lines.each_with_index do |hits, i|
+            misses << i if !hits.nil? && hits.to_i == 0
+          end
+          misses.each do |i|
+            a = [0, i - context].max
+            b = [n - 1, i + context].min
+            (a..b).each { |j| include_line[j] = true }
+          end
+        end
+        out = []
+        src_lines.each_with_index do |code, i|
+          next unless include_line[i]
+          hits = cov_lines[i]
+          covered = hits.nil? ? nil : hits.to_i > 0
+          out << { line: i + 1, code: code, hits: hits, covered: covered }
+        end
+        out
+      end
+
+      def format_source_rows(rows)
+        marker = ->(covered, hits) do
+          case covered
+          when true then colorize("✓", :green)
+          when false then colorize("·", :red)
+          else colorize(" ", :dim)
+          end
+        end
+        lines = []
+        lines << sprintf("%6s  %2s | %s", "Line", " ", "Source")
+        lines << sprintf("%6s  %2s-+-%s", "------", "--", "-" * 60)
+        rows.each do |r|
+          m = marker.call(r[:covered], r[:hits])
+          lines << sprintf("%6d  %2s | %s", r[:line], m, r[:code])
+        end
+        lines.join("\n")
+      end
+
+      def colorize(text, color)
+        return text unless @color
+        codes = { green: 32, red: 31, dim: 2 }
+        code = codes[color] || 0
+        "\e[#{code}m#{text}\e[0m"
+      end
+
+      def rel_to_root(path)
+        Pathname.new(path).relative_path_from(Pathname.new(File.absolute_path(@root))).to_s
+      end
+
+      def relativize_file(h)
+        return h unless h.is_a?(Hash) && h[:file]
+        dup = h.dup
+        dup[:file] = rel_to_root(dup[:file])
+        dup
       end
     end
   end
