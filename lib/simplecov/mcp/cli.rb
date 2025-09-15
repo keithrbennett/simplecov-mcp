@@ -6,11 +6,12 @@ module Simplecov
       def initialize
         @root = "."
         @resultset = nil
+        @force_cli = false
       end
 
       def run(argv)
-        @resultset = extract_resultset(argv)
-        if force_cli?(argv)
+        parse_options!(argv)
+        if prefer_cli?
           show_default_report
         else
           run_mcp_server
@@ -22,23 +23,33 @@ module Simplecov
 
       private
 
-      def force_cli?(argv)
-        return true  if ENV["COVERAGE_MCP_CLI"] == "1"
-        return true  if argv.include?("--cli") || argv.include?("--report")
+      def prefer_cli?
+        return true if ENV["COVERAGE_MCP_CLI"] == "1"
+        return true if @force_cli
         # If interactive TTY, prefer CLI; else (e.g., pipes), run MCP.
-        return STDIN.tty?
+        STDIN.tty?
       end
 
-      # Supports --resultset=<path> or --resultset <path>
-      def extract_resultset(argv)
-        argv.each_with_index do |arg, i|
-          if arg.start_with?("--resultset=")
-            return arg.split("=", 2)[1]
-          elsif arg == "--resultset" && i + 1 < argv.length
-            return argv[i + 1]
+      def parse_options!(argv)
+        require "optparse"
+
+        op = OptionParser.new do |o|
+          o.banner = "Usage: simplecov-mcp [--cli] [--resultset PATH]"
+          o.separator ""
+          o.separator "Modes:"
+          o.on("--cli", "Force CLI mode (table report)") { @force_cli = true }
+          o.on("--report", "Alias for --cli") { @force_cli = true }
+
+          o.separator ""
+          o.separator "Options:"
+          o.on("--resultset PATH", String, "Path or directory for .resultset.json") { |v| @resultset = v }
+          o.on("--root PATH", String, "Project root (default '.')") { |v| @root = v }
+          o.on("-h", "--help", "Show help") do
+            puts o
+            exit 0
           end
         end
-        nil
+        op.parse!(argv)
       end
 
       def show_default_report

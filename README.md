@@ -37,6 +37,13 @@ Run in a project directory with a SimpleCov resultset:
 simplecov-mcp
 ```
 
+Flags (parsed via Ruby OptionParser):
+
+- `--cli` (alias `--report`) – force CLI table output
+- `--resultset PATH` – path or directory for `.resultset.json`
+- `--root PATH` – project root (default `.`)
+- `--help` – show usage
+
 Select a nonstandard resultset path:
 
 ```
