@@ -34,15 +34,25 @@ Search order for resultset:
 Run in a project directory with a SimpleCov resultset:
 
 ```
-simplecov-mcp
+simplecov-mcp            # same as 'list'
 ```
 
-Flags (parsed via Ruby OptionParser):
+Subcommands:
 
-- `--cli` (alias `--report`) – force CLI table output
-- `--resultset PATH` – path or directory for `.resultset.json`
-- `--root PATH` – project root (default `.`)
-- `--help` – show usage
+- `list` — show the table of all files (sorted ascending by default)
+- `summary <path>` — show covered/total/% for a file
+- `raw <path>` — show the original SimpleCov lines array
+- `uncovered <path>` — show uncovered lines and summary
+- `detailed <path>` — show per-line rows with hits and covered
+
+Global flags (OptionParser):
+
+- `--cli` (alias `--report`) — force CLI output
+- `--resultset PATH` — path or directory for `.resultset.json`
+- `--root PATH` — project root (default `.`)
+- `--json` — print JSON output for machine use
+- `--sort-order ascending|descending` — for `list`
+- `--help` — show usage
 
 Select a nonstandard resultset path:
 
@@ -121,7 +131,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 CLI vs MCP summary:
 
-- CLI: pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
+- CLI: use subcommands. Pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
 - MCP: pass `resultset` in tool arguments, or set `SIMPLECOV_RESULTSET`.
 
 ### Notes
