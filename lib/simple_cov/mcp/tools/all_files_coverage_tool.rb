@@ -5,7 +5,7 @@ require_relative '../base_tool'
 
 module SimpleCov
   module Mcp
-    class AllFilesCoverage < BaseTool
+    class AllFilesCoverageTool < BaseTool
       description 'Return coverage percentage for all files in the project'
       input_schema(
         type: 'object',
@@ -22,7 +22,7 @@ module SimpleCov
           ::MCP::Tool::Response.new([{ type: 'json', json: { files: files } }],
                               meta: { mimeType: 'application/json' })
         rescue => e
-          handle_mcp_error(e, 'AllFilesCoverage')
+          handle_mcp_error(e, 'AllFilesCoverageTool')
         end
       end
     end

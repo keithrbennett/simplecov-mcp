@@ -5,7 +5,7 @@ require_relative '../model'
 
 module SimpleCov
   module Mcp
-    class CoverageDetailed < BaseTool
+    class CoverageDetailedTool < BaseTool
       description 'Verbose per-line objects [{line,hits,covered}] (token-heavy)'
       input_schema(**input_schema_def)
       class << self
@@ -15,7 +15,7 @@ module SimpleCov
           ::MCP::Tool::Response.new([{ type: 'json', json: data }],
                               meta: { mimeType: 'application/json' })
         rescue => e
-          handle_mcp_error(e, 'CoverageDetailed')
+          handle_mcp_error(e, 'CoverageDetailedTool')
         end
       end
     end

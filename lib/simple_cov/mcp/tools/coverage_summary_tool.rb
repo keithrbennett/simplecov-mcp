@@ -5,17 +5,17 @@ require_relative '../model'
 
 module SimpleCov
   module Mcp
-    class CoverageRaw < BaseTool
-      description "Return the original SimpleCov 'lines' array for a file"
+    class CoverageSummaryTool < BaseTool
+      description 'Return {covered,total,pct} for a file'
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: '.', resultset: nil, server_context:)
           model = CoverageModel.new(root: root, resultset: resultset)
-          data = model.raw_for(path)
+          data = model.summary_for(path)
           ::MCP::Tool::Response.new([{ type: 'json', json: data }],
                               meta: { mimeType: 'application/json' })
         rescue => e
-          handle_mcp_error(e, 'CoverageRaw')
+          handle_mcp_error(e, 'CoverageSummaryTool')
         end
       end
     end
