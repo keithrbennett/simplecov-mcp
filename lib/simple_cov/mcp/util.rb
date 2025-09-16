@@ -11,6 +11,7 @@ module SimpleCov
     module CovUtil
       module_function
 
+      
       def log(msg)
         path = File.expand_path("~/coverage_mcp.log")
         File.open(path, "a") { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
@@ -88,7 +89,7 @@ module SimpleCov
           covered += 1 if hits.to_i > 0
         end
         pct = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
-        { "covered" => covered, "total" => total, "pct" => pct }
+        { 'covered' => covered, 'total' => total, 'pct' => pct }
       end
 
       def uncovered(arr)
@@ -105,7 +106,7 @@ module SimpleCov
         arr.each_with_index do |hits, i|
           next if hits.nil?
           h = hits.to_i
-          rows << { line: i + 1, hits: h, covered: h.positive? }
+          rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? }
         end
         rows
       end

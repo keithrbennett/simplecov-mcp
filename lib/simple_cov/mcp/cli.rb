@@ -95,24 +95,24 @@ module SimpleCov
         model = CoverageModel.new(root: @root, resultset: @resultset)
         rows = model.all_files(sort_order: sort_order)
         if @json
-          files = rows.map { |row| row.merge(file: rel_to_root(row[:file])) }
+          files = rows.map { |row| row.merge('file' => rel_to_root(row['file'])) }
           puts JSON.pretty_generate({ files: files })
           return
         end
 
         file_summaries = rows.map do |row|
           row.dup.tap do |h|
-            h[:file] = rel_to_root(h[:file])
+            h['file'] = rel_to_root(h['file'])
           end
         end
 
         # Format as table with box-style borders
-        max_file_length = file_summaries.map { |f| f[:file].length }.max.to_i
+        max_file_length = file_summaries.map { |f| f['file'].length }.max.to_i
         max_file_length = [max_file_length, "File".length].max
 
         # Calculate maximum numeric values for proper column widths
-        max_covered = file_summaries.map { |f| f[:covered].to_s.length }.max
-        max_total = file_summaries.map { |f| f[:total].to_s.length }.max
+        max_covered = file_summaries.map { |f| f['covered'].to_s.length }.max
+        max_total = file_summaries.map { |f| f['total'].to_s.length }.max
 
         # Define column widths
         file_width = max_file_length + 2  # Extra padding
@@ -145,10 +145,10 @@ module SimpleCov
         # Data rows
         file_summaries.each do |file_data|
           printf "│ %-#{file_width}s │ %#{pct_width - 1}.2f%% │ %#{covered_width}d │ %#{total_width}d │\n",
-                 file_data[:file],
-                 file_data[:percentage],
-                 file_data[:covered],
-                 file_data[:total]
+                 file_data['file'],
+                 file_data['percentage'],
+                 file_data['covered'],
+                 file_data['total']
         end
 
         # Bottom border
@@ -190,7 +190,7 @@ module SimpleCov
         out << sprintf("%6s  %6s  %7s", "Line", "Hits", "Covered")
         out << sprintf("%6s  %6s  %7s", "-----", "----", "-------")
         rows.each do |r|
-          out << sprintf("%6d  %6d  %7s", r[:line], r[:hits], r[:covered] ? "yes" : "no")
+          out << sprintf("%6d  %6d  %7s", r['line'], r['hits'], r['covered'] ? "yes" : "no")
         end
         out.join("\n")
       end
@@ -205,12 +205,12 @@ module SimpleCov
           if @source_mode && @json
             data = relativize_file(data)
             src = build_source_payload(model, path)
-            data[:source] = src
+            data['source'] = src
             break puts(JSON.pretty_generate(data))
           end
           break if maybe_output_json(relativize_file(data))
-          rel = rel_path(data[:file])
-          s = data[:summary]
+          rel = rel_path(data['file'])
+          s = data['summary']
           printf "%8.2f%%  %6d/%-6d  %s\n", s["pct"], s["covered"], s["total"], rel
           print_source_for(model, path) if @source_mode
         end
@@ -220,9 +220,9 @@ module SimpleCov
         handle_with_path(args, "raw") do |path|
           data = model.raw_for(path)
           break if maybe_output_json(relativize_file(data))
-          rel = rel_path(data[:file])
+          rel = rel_path(data['file'])
           puts "File: #{rel}"
-          puts data[:lines].inspect
+          puts data['lines'].inspect
         end
       end
 
@@ -232,14 +232,14 @@ module SimpleCov
           if @source_mode && @json
             data = relativize_file(data)
             src = build_source_payload(model, path)
-            data[:source] = src
+            data['source'] = src
             break puts(JSON.pretty_generate(data))
           end
           break if maybe_output_json(relativize_file(data))
-          rel = rel_path(data[:file])
+          rel = rel_path(data['file'])
           puts "File: #{rel}"
-          puts "Uncovered lines: #{data[:uncovered].join(', ')}"
-          s = data[:summary]
+          puts "Uncovered lines: #{data['uncovered'].join(', ')}"
+          s = data['summary']
           printf "Summary: %8.2f%%  %6d/%-6d\n", s["pct"], s["covered"], s["total"]
           print_source_for(model, path) if @source_mode
         end
@@ -251,13 +251,13 @@ module SimpleCov
           if @source_mode && @json
             data = relativize_file(data)
             src = build_source_payload(model, path)
-            data[:source] = src
+            data['source'] = src
             break puts(JSON.pretty_generate(data))
           end
           break if maybe_output_json(relativize_file(data))
-          rel = rel_path(data[:file])
+          rel = rel_path(data['file'])
           puts "File: #{rel}"
-          puts format_detailed_rows(data[:lines])
+          puts format_detailed_rows(data['lines'])
           print_source_for(model, path) if @source_mode
         end
       end
@@ -279,8 +279,8 @@ module SimpleCov
 
       def print_source_for(model, path)
         raw = model.raw_for(path)
-        abs = raw[:file]
-        lines_cov = raw[:lines]
+        abs = raw['file']
+        lines_cov = raw['lines']
         src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
         unless src
           puts "[source not available]"
@@ -292,8 +292,8 @@ module SimpleCov
 
       def build_source_payload(model, path)
         raw = model.raw_for(path)
-        abs = raw[:file]
-        lines_cov = raw[:lines]
+        abs = raw['file']
+        lines_cov = raw['lines']
         src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
         return nil unless src
         build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
@@ -335,8 +335,8 @@ module SimpleCov
         lines << sprintf("%6s  %2s | %s", "Line", " ", "Source")
         lines << sprintf("%6s  %2s-+-%s", "------", "--", "-" * 60)
         rows.each do |r|
-          m = marker.call(r[:covered], r[:hits])
-          lines << sprintf("%6d  %2s | %s", r[:line], m, r[:code])
+          m = marker.call(r['covered'], r['hits'])
+          lines << sprintf("%6d  %2s | %s", r['line'], m, r['code'])
         end
         lines.join("\n")
       end
@@ -353,9 +353,9 @@ module SimpleCov
       end
 
       def relativize_file(h)
-        return h unless h.is_a?(Hash) && h[:file]
+        return h unless h.is_a?(Hash) && h['file']
         dup = h.dup
-        dup[:file] = rel_to_root(dup[:file])
+        dup['file'] = rel_to_root(dup['file'])
         dup
       end
     end

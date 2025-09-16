@@ -48,20 +48,20 @@ model = SimpleCov::Mcp::CoverageModel.new(
 
 # List all files with coverage summary, sorted ascending by % (default)
 files = model.all_files
-# => [ { file: "/abs/path/lib/foo.rb", covered: 12, total: 14, percentage: 85.71 }, ... ]
+# => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71 }, ... ]
 
 # Per-file summaries
 summary = model.summary_for("lib/foo.rb")
-# => { file: "/abs/.../lib/foo.rb", summary: {"covered"=>12, "total"=>14, "pct"=>85.71} }
+# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'pct'=>85.71} }
 
 raw = model.raw_for("lib/foo.rb")
-# => { file: "/abs/.../lib/foo.rb", lines: [nil, 1, 0, 3, ...] }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...] }
 
 uncovered = model.uncovered_for("lib/foo.rb")
-# => { file: "/abs/.../lib/foo.rb", uncovered: [5, 9, 12], summary: { ... } }
+# => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... } }
 
 detailed = model.detailed_for("lib/foo.rb")
-# => { file: "/abs/.../lib/foo.rb", lines: [{line: 1, hits: 1, covered: true}, ...], summary: { ... } }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... } }
 ```
 
 Resultset resolution:
@@ -98,8 +98,8 @@ require "simplecov_mcp"
 
 model = SimpleCov::Mcp::CoverageModel.new(root: Dir.pwd)
 res   = model.uncovered_for("lib/foo.rb")
-if res[:uncovered].any?
-  warn "Uncovered lines in lib/foo.rb: #{res[:uncovered].join(", ")}"
+if res['uncovered'].any?
+  warn "Uncovered lines in lib/foo.rb: #{res['uncovered'].join(", ")}"
   exit 1
 end
 ```
@@ -110,7 +110,7 @@ Example: enforce a project-wide minimum percentage
 require "simplecov_mcp"
 
 threshold = 90.0
-min = model.all_files.map { |r| r[:percentage] }.min || 100.0
+min = model.all_files.map { |r| r['percentage'] }.min || 100.0
 if min < threshold
   warn "Min coverage %.2f%% is below threshold %.2f%%" % [min, threshold]
   exit 1
