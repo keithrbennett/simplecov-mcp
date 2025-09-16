@@ -1,11 +1,22 @@
 # frozen_string_literal: true
 
+require_relative 'util'
+require_relative 'errors'
+
 module SimpleCov
   module Mcp
     class CoverageModel
       def initialize(root: '.', resultset: nil)
         @root = File.absolute_path(root || '.')
-        @cov  = CovUtil.load_latest_coverage(@root, resultset: resultset)
+        begin
+          @cov  = CovUtil.load_latest_coverage(@root, resultset: resultset)
+        rescue Errno::ENOENT => e
+          raise FileError.new("Coverage data not found at #{resultset || @root}")
+        rescue JSON::ParserError => e
+          raise CoverageDataError.new("Invalid coverage data format")
+        rescue => e
+          raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
+        end
       end
 
       # Returns { 'file' => <abs>, 'lines' => [hits|nil,...] }
@@ -51,7 +62,13 @@ module SimpleCov
 
       def resolve(path)
         abs = File.absolute_path(path, @root)
-        [abs, CovUtil.lookup_lines(@cov, abs)]
+        lines = CovUtil.lookup_lines(@cov, abs)
+        if lines.nil?
+          raise FileError.new("No coverage data found for file: #{path}")
+        end
+        [abs, lines]
+      rescue Errno::ENOENT => e
+        raise FileError.new("File not found: #{path}")
       end
     end
   end

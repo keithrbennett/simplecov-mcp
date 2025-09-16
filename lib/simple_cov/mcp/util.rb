@@ -13,7 +13,7 @@ module SimpleCov
 
       
       def log(msg)
-        path = File.expand_path('~/coverage_mcp.log')
+        path = File.expand_path('~/simplecov_mcp.log')
         File.open(path, 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
       rescue StandardError
         # ignore logging failures
@@ -44,7 +44,7 @@ module SimpleCov
         rs = find_resultset(root, resultset: resultset)
         raw = JSON.parse(File.read(rs))
         _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
-        cov = data['coverage'] or raise "No 'coverage' key in .resultset.json"
+        cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
         cov.transform_keys { |k| File.absolute_path(k, root) }
       end
 
@@ -53,10 +53,10 @@ module SimpleCov
         if File.directory?(path)
           candidate = File.join(path, '.resultset.json')
           return candidate if File.file?(candidate)
-          raise 'No .resultset.json found in directory: #{path}' if strict
+          raise "No .resultset.json found in directory: #{path}" if strict
           return nil
         end
-        raise 'Specified resultset not found: #{path}' if strict
+        raise "Specified resultset not found: #{path}" if strict
         nil
       end
 

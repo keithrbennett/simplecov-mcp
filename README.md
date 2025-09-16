@@ -86,7 +86,69 @@ Sorting:
 model.all_files(sort_order: :descending) # or :ascending (default)
 ```
 
-Error handling tips:
+## Error Handling
+
+This tool provides different error handling behavior depending on how it's used:
+
+### CLI Mode
+When used as a command-line tool, errors are displayed as user-friendly messages without stack traces:
+
+```bash
+$ simplecov-mcp summary nonexistent.rb
+File error: No coverage data found for the specified file
+```
+
+For debugging, set the `SIMPLECOV_MCP_DEBUG=1` environment variable to see full stack traces.
+
+### Library Mode
+When used as a Ruby library, errors are raised as custom exception classes that can be caught and handled:
+
+```ruby
+begin
+  SimpleCov::Mcp.run_as_library(['summary', 'missing.rb'])
+rescue SimpleCov::Mcp::FileError => e
+  puts "Handled gracefully: #{e.user_friendly_message}"
+end
+```
+
+Available exception classes:
+- `SimpleCov::Mcp::Error` - Base error class
+- `SimpleCov::Mcp::FileError` - File not found or access issues
+- `SimpleCov::Mcp::CoverageDataError` - Invalid or missing coverage data
+- `SimpleCov::Mcp::ConfigurationError` - Configuration problems
+- `SimpleCov::Mcp::UsageError` - Command usage errors
+
+### MCP Server Mode
+When running as an MCP server, errors are handled internally and returned as structured responses to the MCP client. The MCP server uses:
+
+- **Logging enabled** - Errors are logged to `~/simplecov_mcp.log` for server debugging
+- **Clean error messages** - User-friendly messages are returned to the client (no stack traces unless `SIMPLECOV_MCP_DEBUG=1`)
+- **Structured responses** - Errors are returned as proper MCP tool responses, not exceptions
+
+The MCP server automatically configures error handling appropriately for server usage.
+
+### Custom Error Handlers
+Library usage defaults to no logging to avoid side effects, but you can customize this:
+
+```ruby
+# Default library behavior - no logging
+SimpleCov::Mcp.run_as_library(['summary', 'file.rb'])
+
+# Custom error handler with logging enabled
+handler = SimpleCov::Mcp::ErrorHandler.new(
+  log_errors: true,         # Enable logging for library usage
+  show_stack_traces: false  # Clean error messages
+)
+SimpleCov::Mcp.run_as_library(argv, error_handler: handler)
+
+# Or configure globally for MCP tools
+SimpleCov::Mcp.configure_error_handling do |handler|
+  handler.log_errors = true
+  handler.show_stack_traces = true  # For debugging
+end
+```
+
+### Legacy Error Handling Tips
 
 - Missing resultset: `SimpleCov::Mcp::CovUtil.find_resultset` raises with guidance to run tests or set `SIMPLECOV_RESULTSET`.
 - Missing file coverage: lookups raise `"No coverage entry found for <path>"`.
@@ -272,13 +334,13 @@ To use this MCP server with popular coding AI assistants:
       cwd = "/path/to/your/project"
       ```
   - Validate manually: `simplecov-mcp --cli` (or from this repo: `ruby -Ilib exe/simplecov-mcp --cli`). If you see the coverage table, the binary starts correctly.
-  - On failures, check `~/coverage_mcp.log` for details.
+  - On failures, check `~/simplecov_mcp.log` for details.
 
 ### Notes
 
 - Library entrypoint: `require "simple_cov/mcp"` or `require "simplecov_mcp"`
 - Programmatic run: `SimpleCov::Mcp.run(ARGV)`
-- Logs basic diagnostics to `~/coverage_mcp.log`.
+- Logs basic diagnostics to `~/simplecov_mcp.log`.
 
 ## Executables and PATH
 

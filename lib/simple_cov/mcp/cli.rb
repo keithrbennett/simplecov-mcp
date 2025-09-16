@@ -5,7 +5,10 @@ module SimpleCov
     class CoverageCLI
       SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
 
-      def initialize
+      # Initialize CLI with optional custom error handler for library usage.
+      # When error_handler is nil, creates a default handler suitable for CLI usage
+      # with user-friendly error messages and optional debug stack traces.
+      def initialize(error_handler: nil)
         @root = '.'
         @resultset = nil
         @force_cli = false
@@ -16,6 +19,7 @@ module SimpleCov
         @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
+        @error_handler = error_handler || create_cli_error_handler
       end
 
       def run(argv)
@@ -29,9 +33,10 @@ module SimpleCov
         else
           run_mcp_server
         end
+      rescue SimpleCov::Mcp::Error => e
+        handle_user_facing_error(e)
       rescue => e
-        CovUtil.log("CLI fatal error: #{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}")
-        raise
+        @error_handler.handle_error(e, context: 'CLI execution')
       end
 
       private
@@ -156,8 +161,18 @@ module SimpleCov
       end
 
       def run_mcp_server
+        # Configure error handling for MCP server mode
+        # MCP framework handles error responses, so we want:
+        # - Logging enabled for server debugging
+        # - Clean error messages (no stack traces unless debug mode)
+        # - Let MCP framework handle the actual error responses to clients
+        SimpleCov::Mcp.configure_error_handling do |handler|
+          handler.log_errors = true
+          handler.show_stack_traces = ENV['SIMPLECOV_MCP_DEBUG'] == '1'
+        end
+
         server = ::MCP::Server.new(
-          name:    'ruby_coverage_server',
+          name:    'simplecov_mcp',
           version: SimpleCov::Mcp::VERSION,
           tools:   [CoverageRaw, CoverageSummary, UncoveredLines, CoverageDetailed, AllFilesCoverage]
         )
@@ -172,17 +187,14 @@ module SimpleCov
         when 'raw'       then handle_raw(model, args)
         when 'uncovered' then handle_uncovered(model, args)
         when 'detailed'  then handle_detailed(model, args)
-        else sub_usage('list | summary <path> | raw <path> | uncovered <path> | detailed <path>')
+        else raise UsageError.for_subcommand('list | summary <path> | raw <path> | uncovered <path> | detailed <path>')
         end
+      rescue SimpleCov::Mcp::Error => e
+        handle_user_facing_error(e)
       rescue => e
-        CovUtil.log("CLI subcommand error (#{cmd}): #{e.class}: #{e.message}")
-        raise
+        @error_handler.handle_error(e, context: "subcommand '#{cmd}'")
       end
 
-      def sub_usage(usage)
-        warn "Usage: simplecov-mcp #{usage}"
-        exit 1
-      end
 
       def format_detailed_rows(rows)
         # Simple aligned columns: line, hits, covered
@@ -263,8 +275,12 @@ module SimpleCov
       end
 
       def handle_with_path(args, name)
-        path = args.shift or return sub_usage("#{name} <path>")
+        path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
         yield(path)
+      rescue Errno::ENOENT => e
+        raise FileError.new("File not found: #{path}")
+      rescue Errno::EACCES => e
+        raise FileError.new("Permission denied: #{path}")
       end
 
       def rel_path(abs)
@@ -357,6 +373,30 @@ module SimpleCov
         dup = h.dup
         dup['file'] = rel_to_root(dup['file'])
         dup
+      end
+
+      def create_cli_error_handler
+        # For CLI usage, we want logging enabled and stack traces for debugging
+        show_traces = ENV['SIMPLECOV_MCP_DEBUG'] == '1'
+        ErrorHandler.new(
+          log_errors: true,
+          show_stack_traces: show_traces
+        )
+      end
+
+      def handle_user_facing_error(error)
+        if running_as_cli?
+          warn error.user_friendly_message
+          exit 1
+        else
+          # When used as library, re-raise the custom error
+          raise error
+        end
+      end
+
+      def running_as_cli?
+        # We're running as CLI if we have a command or forced CLI mode
+        @cmd || @force_cli || prefer_cli?
       end
     end
   end

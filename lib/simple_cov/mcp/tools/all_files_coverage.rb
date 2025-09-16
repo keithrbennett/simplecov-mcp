@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative '../model'
+require_relative '../base_tool'
+
 module SimpleCov
   module Mcp
-    class AllFilesCoverage < ::MCP::Tool
+    class AllFilesCoverage < BaseTool
       description 'Return coverage percentage for all files in the project'
       input_schema(
         type: 'object',
@@ -19,8 +22,7 @@ module SimpleCov
           ::MCP::Tool::Response.new([{ type: 'json', json: { files: files } }],
                               meta: { mimeType: 'application/json' })
         rescue => e
-          CovUtil.log("AllFilesCoverage error: #{e.class}: #{e.message}")
-          ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{e.class}: #{e.message}" }])
+          handle_mcp_error(e, 'AllFilesCoverage')
         end
       end
     end

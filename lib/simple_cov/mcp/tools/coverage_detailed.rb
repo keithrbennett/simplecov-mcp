@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../base_tool'
+require_relative '../model'
+
 module SimpleCov
   module Mcp
     class CoverageDetailed < BaseTool
@@ -12,8 +15,7 @@ module SimpleCov
           ::MCP::Tool::Response.new([{ type: 'json', json: data }],
                               meta: { mimeType: 'application/json' })
         rescue => e
-          CovUtil.log("CoverageDetailed error: #{e.class}: #{e.message}")
-          ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{e.class}: #{e.message}" }])
+          handle_mcp_error(e, 'CoverageDetailed')
         end
       end
     end
