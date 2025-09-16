@@ -28,3 +28,22 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
 end
+
+# Shared test helpers
+module TestIOHelpers
+  # Suppress stdout/stderr within the given block, yielding the StringIOs
+  def silence_output
+    original_stdout = $stdout
+    original_stderr = $stderr
+    $stdout = StringIO.new
+    $stderr = StringIO.new
+    yield $stdout, $stderr
+  ensure
+    $stdout = original_stdout
+    $stderr = original_stderr
+  end
+end
+
+RSpec.configure do |config|
+  config.include TestIOHelpers
+end
