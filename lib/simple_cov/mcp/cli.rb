@@ -6,14 +6,14 @@ module SimpleCov
       SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
 
       def initialize
-        @root = "."
+        @root = '.'
         @resultset = nil
         @force_cli = false
         @json = false
-        @sort_order = "ascending"
+        @sort_order = 'ascending'
         @cmd = nil
         @cmd_args = []
-        @source_mode = nil   # nil, "full", or "uncovered"
+        @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
       end
@@ -37,7 +37,7 @@ module SimpleCov
       private
 
       def prefer_cli?
-        return true if ENV["COVERAGE_MCP_CLI"] == "1"
+        return true if ENV['COVERAGE_MCP_CLI'] == '1'
         return true if @force_cli
         return true if @cmd # subcommand provided → CLI
         # If interactive TTY, prefer CLI; else (e.g., pipes), run MCP.
@@ -45,44 +45,44 @@ module SimpleCov
       end
 
       def parse_options!(argv)
-        require "optparse"
+        require 'optparse'
 
         if !argv.empty? && SUBCOMMANDS.include?(argv[0])
           @cmd = argv.shift
         end
 
         op = OptionParser.new do |o|
-          o.banner = "Usage: simplecov-mcp [subcommand] [options] [args]"
-          o.separator ""
-          o.separator "Subcommands:"
-          o.separator "  list                    Show table of all files"
-          o.separator "  summary <path>          Show covered/total/% for a file"
+          o.banner = 'Usage: simplecov-mcp [subcommand] [options] [args]'
+          o.separator ''
+          o.separator 'Subcommands:'
+          o.separator '  list                    Show table of all files'
+          o.separator '  summary <path>          Show covered/total/% for a file'
           o.separator "  raw <path>              Show the SimpleCov 'lines' array"
-          o.separator "  uncovered <path>        Show uncovered lines and a summary"
-          o.separator "  detailed <path>         Show per-line rows with hits/covered"
-          o.separator ""
-          o.separator "Modes:"
-          o.on("--cli", "Force CLI mode (table report)") { @force_cli = true }
-          o.on("--report", "Alias for --cli") { @force_cli = true }
+          o.separator '  uncovered <path>        Show uncovered lines and a summary'
+          o.separator '  detailed <path>         Show per-line rows with hits/covered'
+          o.separator ''
+          o.separator 'Modes:'
+          o.on('--cli', 'Force CLI mode (table report)') { @force_cli = true }
+          o.on('--report', 'Alias for --cli') { @force_cli = true }
 
-          o.separator ""
-          o.separator "Options:"
-          o.on("--resultset PATH", String, "Path or directory that contains .resultset.json") { |v| @resultset = v }
-          o.on("--root PATH", String, "Project root (default '.')") { |v| @root = v }
-          o.on("--json", "Output JSON for machine consumption") { @json = true }
-          o.on("--sort-order ORDER", String, ["ascending", "descending"], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
-          o.on("--source[=MODE]", [:full, :uncovered], "Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)") do |v|
+          o.separator ''
+          o.separator 'Options:'
+          o.on('--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
+          o.on('--root PATH', String, "Project root (default '.')") { |v| @root = v }
+          o.on('--json', 'Output JSON for machine consumption') { @json = true }
+          o.on('--sort-order ORDER', String, ['ascending', 'descending'], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
+          o.on('--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
             @source_mode = (v || :full).to_s
           end
-          o.on("--source-context N", Integer, "For --source=uncovered, show N context lines (default 2)") { |v| @source_context = v }
-          o.on("--color", "Enable ANSI colors for source output") { @color = true }
-          o.on("--no-color", "Disable ANSI colors") { @color = false }
-          o.separator ""
-          o.separator "Examples:"
-          o.separator "  simplecov-mcp list --resultset coverage"
-          o.separator "  simplecov-mcp summary lib/foo.rb --json --resultset coverage"
-          o.separator "  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2"
-          o.on("-h", "--help", "Show help") do
+          o.on('--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
+          o.on('--color', 'Enable ANSI colors for source output') { @color = true }
+          o.on('--no-color', 'Disable ANSI colors') { @color = false }
+          o.separator ''
+          o.separator 'Examples:'
+          o.separator '  simplecov-mcp list --resultset coverage'
+          o.separator '  simplecov-mcp summary lib/foo.rb --json --resultset coverage'
+          o.separator '  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2'
+          o.on('-h', '--help', 'Show help') do
             puts o
             exit 0
           end
@@ -108,7 +108,7 @@ module SimpleCov
 
         # Format as table with box-style borders
         max_file_length = file_summaries.map { |f| f['file'].length }.max.to_i
-        max_file_length = [max_file_length, "File".length].max
+        max_file_length = [max_file_length, 'File'.length].max
 
         # Calculate maximum numeric values for proper column widths
         max_covered = file_summaries.map { |f| f['covered'].to_s.length }.max
@@ -117,8 +117,8 @@ module SimpleCov
         # Define column widths
         file_width = max_file_length + 2  # Extra padding
         pct_width = 8
-        covered_width = [max_covered, "Covered".length].max + 2
-        total_width = [max_total, "Total".length].max + 2
+        covered_width = [max_covered, 'Covered'.length].max + 2
+        total_width = [max_total, 'Total'.length].max + 2
 
         # Horizontal line for each column span
         h_line = ->(col_width) { '─' * (col_width + 2) }
@@ -133,14 +133,14 @@ module SimpleCov
         }
 
         # Top border
-        puts border_line.call("┌", "┬", "┐")
+        puts border_line.call('┌', '┬', '┐')
 
         # Header row
         printf "│ %-#{file_width}s │ %#{pct_width}s │ %#{covered_width}s │ %#{total_width}s │\n",
-               "File", " %", "Covered", "Total"
+               'File', ' %', 'Covered', 'Total'
 
         # Header separator
-        puts border_line.call("├", "┼", "┤")
+        puts border_line.call('├', '┼', '┤')
 
         # Data rows
         file_summaries.each do |file_data|
@@ -152,12 +152,12 @@ module SimpleCov
         end
 
         # Bottom border
-        puts border_line.call("└", "┴", "┘")
+        puts border_line.call('└', '┴', '┘')
       end
 
       def run_mcp_server
         server = ::MCP::Server.new(
-          name:    "ruby_coverage_server",
+          name:    'ruby_coverage_server',
           version: SimpleCov::Mcp::VERSION,
           tools:   [CoverageRaw, CoverageSummary, UncoveredLines, CoverageDetailed, AllFilesCoverage]
         )
@@ -167,12 +167,12 @@ module SimpleCov
       def run_subcommand(cmd, args)
         model = CoverageModel.new(root: @root, resultset: @resultset)
         case cmd
-        when "list"      then handle_list(model)
-        when "summary"   then handle_summary(model, args)
-        when "raw"       then handle_raw(model, args)
-        when "uncovered" then handle_uncovered(model, args)
-        when "detailed"  then handle_detailed(model, args)
-        else sub_usage("list | summary <path> | raw <path> | uncovered <path> | detailed <path>")
+        when 'list'      then handle_list(model)
+        when 'summary'   then handle_summary(model, args)
+        when 'raw'       then handle_raw(model, args)
+        when 'uncovered' then handle_uncovered(model, args)
+        when 'detailed'  then handle_detailed(model, args)
+        else sub_usage('list | summary <path> | raw <path> | uncovered <path> | detailed <path>')
         end
       rescue => e
         CovUtil.log("CLI subcommand error (#{cmd}): #{e.class}: #{e.message}")
@@ -187,10 +187,10 @@ module SimpleCov
       def format_detailed_rows(rows)
         # Simple aligned columns: line, hits, covered
         out = []
-        out << sprintf("%6s  %6s  %7s", "Line", "Hits", "Covered")
-        out << sprintf("%6s  %6s  %7s", "-----", "----", "-------")
+        out << sprintf('%6s  %6s  %7s', 'Line', 'Hits', 'Covered')
+        out << sprintf('%6s  %6s  %7s', '-----', '----', '-------')
         rows.each do |r|
-          out << sprintf("%6d  %6d  %7s", r['line'], r['hits'], r['covered'] ? "yes" : "no")
+          out << sprintf('%6d  %6d  %7s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
         end
         out.join("\n")
       end
@@ -200,7 +200,7 @@ module SimpleCov
       end
 
       def handle_summary(model, args)
-        handle_with_path(args, "summary") do |path|
+        handle_with_path(args, 'summary') do |path|
           data = model.summary_for(path)
           if @source_mode && @json
             data = relativize_file(data)
@@ -211,13 +211,13 @@ module SimpleCov
           break if maybe_output_json(relativize_file(data))
           rel = rel_path(data['file'])
           s = data['summary']
-          printf "%8.2f%%  %6d/%-6d  %s\n", s["pct"], s["covered"], s["total"], rel
+          printf '%8.2f%%  %6d/%-6d  %s\n', s['pct'], s['covered'], s['total'], rel
           print_source_for(model, path) if @source_mode
         end
       end
 
       def handle_raw(model, args)
-        handle_with_path(args, "raw") do |path|
+        handle_with_path(args, 'raw') do |path|
           data = model.raw_for(path)
           break if maybe_output_json(relativize_file(data))
           rel = rel_path(data['file'])
@@ -227,7 +227,7 @@ module SimpleCov
       end
 
       def handle_uncovered(model, args)
-        handle_with_path(args, "uncovered") do |path|
+        handle_with_path(args, 'uncovered') do |path|
           data = model.uncovered_for(path)
           if @source_mode && @json
             data = relativize_file(data)
@@ -240,13 +240,13 @@ module SimpleCov
           puts "File: #{rel}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           s = data['summary']
-          printf "Summary: %8.2f%%  %6d/%-6d\n", s["pct"], s["covered"], s["total"]
+          printf 'Summary: %8.2f%%  %6d/%-6d\n', s['pct'], s['covered'], s['total']
           print_source_for(model, path) if @source_mode
         end
       end
 
       def handle_detailed(model, args)
-        handle_with_path(args, "detailed") do |path|
+        handle_with_path(args, 'detailed') do |path|
           data = model.detailed_for(path)
           if @source_mode && @json
             data = relativize_file(data)
@@ -283,7 +283,7 @@ module SimpleCov
         lines_cov = raw['lines']
         src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
         unless src
-          puts "[source not available]"
+          puts '[source not available]'
           return
         end
         rows = build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
@@ -301,8 +301,8 @@ module SimpleCov
 
       def build_source_rows(src_lines, cov_lines, mode:, context: 2)
         n = src_lines.length
-        include_line = Array.new(n, mode == "full")
-        if mode == "uncovered"
+        include_line = Array.new(n, mode == 'full')
+        if mode == 'uncovered'
           misses = []
           cov_lines.each_with_index do |hits, i|
             misses << i if !hits.nil? && hits.to_i == 0
@@ -326,17 +326,17 @@ module SimpleCov
       def format_source_rows(rows)
         marker = ->(covered, hits) do
           case covered
-          when true then colorize("✓", :green)
-          when false then colorize("·", :red)
-          else colorize(" ", :dim)
+          when true then colorize('✓', :green)
+          when false then colorize('·', :red)
+          else colorize(' ', :dim)
           end
         end
         lines = []
-        lines << sprintf("%6s  %2s | %s", "Line", " ", "Source")
-        lines << sprintf("%6s  %2s-+-%s", "------", "--", "-" * 60)
+        lines << sprintf('%6s  %2s | %s', 'Line', ' ', 'Source')
+        lines << sprintf('%6s  %2s-+-%s', '------', '--', '-' * 60)
         rows.each do |r|
           m = marker.call(r['covered'], r['hits'])
-          lines << sprintf("%6d  %2s | %s", r['line'], m, r['code'])
+          lines << sprintf('%6d  %2s | %s', r['line'], m, r['code'])
         end
         lines.join("\n")
       end

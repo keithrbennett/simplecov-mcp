@@ -8,8 +8,8 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 # Fail fast with a helpful message if Ruby is too old for this gem
 begin
-  require "rubygems"
-  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new("3.2")
+  require 'rubygems'
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
     $stderr.puts "simplecov-mcp requires Ruby >= 3.2 (current: #{RUBY_VERSION})."
     $stderr.puts "Please run with a supported Ruby version (e.g., via rbenv, rvm, asdf)."
     exit 1
@@ -18,6 +18,6 @@ rescue StandardError
   # If anything goes wrong, let the app load and potentially fail with a more specific error.
 end
 
-require "simplecov_mcp"
+require 'simplecov_mcp'
 
 SimpleCov::Mcp.run(ARGV)

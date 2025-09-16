@@ -3,9 +3,9 @@
 module SimpleCov
   module Mcp
     RESULTSET_CANDIDATES = [
-      ".resultset.json",
-      "coverage/.resultset.json",
-      "tmp/.resultset.json"
+      '.resultset.json',
+      'coverage/.resultset.json',
+      'tmp/.resultset.json'
     ].freeze
 
     module CovUtil
@@ -13,8 +13,8 @@ module SimpleCov
 
       
       def log(msg)
-        path = File.expand_path("~/coverage_mcp.log")
-        File.open(path, "a") { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
+        path = File.expand_path('~/coverage_mcp.log')
+        File.open(path, 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
       rescue StandardError
         # ignore logging failures
       end
@@ -27,7 +27,7 @@ module SimpleCov
           end
         end
 
-        if (env = ENV["SIMPLECOV_RESULTSET"]) && !env.empty?
+        if (env = ENV['SIMPLECOV_RESULTSET']) && !env.empty?
           path = File.absolute_path(env, root)
           if (resolved = resolve_resultset_candidate(path, strict: false))
             return resolved
@@ -39,43 +39,43 @@ module SimpleCov
           raise "Could not find .resultset.json under #{root.inspect}; run tests or set SIMPLECOV_RESULTSET"
       end
 
-      # returns { abs_path => {"lines" => [hits|nil,...]} }
+      # returns { abs_path => {'lines' => [hits|nil,...]} }
       def load_latest_coverage(root, resultset: nil)
         rs = find_resultset(root, resultset: resultset)
         raw = JSON.parse(File.read(rs))
-        _suite, data = raw.max_by { |_k, v| (v["timestamp"] || v["created_at"] || 0).to_i }
-        cov = data["coverage"] or raise "No 'coverage' key in .resultset.json"
+        _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
+        cov = data['coverage'] or raise "No 'coverage' key in .resultset.json"
         cov.transform_keys { |k| File.absolute_path(k, root) }
       end
 
       def resolve_resultset_candidate(path, strict:)
         return path if File.file?(path)
         if File.directory?(path)
-          candidate = File.join(path, ".resultset.json")
+          candidate = File.join(path, '.resultset.json')
           return candidate if File.file?(candidate)
-          raise "No .resultset.json found in directory: #{path}" if strict
+          raise 'No .resultset.json found in directory: #{path}' if strict
           return nil
         end
-        raise "Specified resultset not found: #{path}" if strict
+        raise 'Specified resultset not found: #{path}' if strict
         nil
       end
 
       def lookup_lines(cov, file_abs)
-        if (h = cov[file_abs]) && h["lines"].is_a?(Array)
-          return h["lines"]
+        if (h = cov[file_abs]) && h['lines'].is_a?(Array)
+          return h['lines']
         end
 
         # try without current working directory prefix
         cwd = Dir.pwd
-        without = file_abs.sub(/\A#{Regexp.escape(cwd)}\//, "")
-        if (h = cov[without]) && h["lines"].is_a?(Array)
-          return h["lines"]
+        without = file_abs.sub(/\A#{Regexp.escape(cwd)}\//, '')
+        if (h = cov[without]) && h['lines'].is_a?(Array)
+          return h['lines']
         end
 
         # fallback: basename match
         base = File.basename(file_abs)
-        kv = cov.find { |k, v| File.basename(k) == base && v["lines"].is_a?(Array) }
-        kv and return kv[1]["lines"]
+        kv = cov.find { |k, v| File.basename(k) == base && v['lines'].is_a?(Array) }
+        kv and return kv[1]['lines']
 
         raise "No coverage entry found for #{file_abs}"
       end
