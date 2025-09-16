@@ -32,6 +32,100 @@ Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `simplecov
 
 ## Usage
 
+### Library Usage (Ruby)
+
+Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCov::Mcp::CoverageModel`.
+
+Basics:
+
+```ruby
+require "simplecov_mcp" # or: require "simple_cov/mcp"
+
+model = SimpleCov::Mcp::CoverageModel.new(
+  root: ".",                 # project root (defaults to ".")
+  resultset: nil              # optional: file or directory for .resultset.json
+)
+
+# List all files with coverage summary, sorted ascending by % (default)
+files = model.all_files
+# => [ { file: "/abs/path/lib/foo.rb", covered: 12, total: 14, percentage: 85.71 }, ... ]
+
+# Per-file summaries
+summary = model.summary_for("lib/foo.rb")
+# => { file: "/abs/.../lib/foo.rb", summary: {"covered"=>12, "total"=>14, "pct"=>85.71} }
+
+raw = model.raw_for("lib/foo.rb")
+# => { file: "/abs/.../lib/foo.rb", lines: [nil, 1, 0, 3, ...] }
+
+uncovered = model.uncovered_for("lib/foo.rb")
+# => { file: "/abs/.../lib/foo.rb", uncovered: [5, 9, 12], summary: { ... } }
+
+detailed = model.detailed_for("lib/foo.rb")
+# => { file: "/abs/.../lib/foo.rb", lines: [{line: 1, hits: 1, covered: true}, ...], summary: { ... } }
+```
+
+Resultset resolution:
+
+- If `resultset:` is provided, it may be:
+  - a file path to `.resultset.json`, or
+  - a directory containing `.resultset.json` (e.g., `coverage/`).
+- If `resultset:` is omitted, resolution follows:
+  1) `ENV["SIMPLECOV_RESULTSET"]` (file or directory), then
+  2) `.resultset.json`, 3) `coverage/.resultset.json`, 4) `tmp/.resultset.json` under `root`.
+
+Path semantics:
+
+- Methods accept paths relative to `root` or absolute paths. Internally, the model resolves to an absolute path and looks up coverage by:
+  1) exact absolute path,
+  2) the path without the current working directory prefix,
+  3) filename (basename) match as a last resort.
+
+Sorting:
+
+```ruby
+model.all_files(sort_order: :descending) # or :ascending (default)
+```
+
+Error handling tips:
+
+- Missing resultset: `SimpleCov::Mcp::CovUtil.find_resultset` raises with guidance to run tests or set `SIMPLECOV_RESULTSET`.
+- Missing file coverage: lookups raise `"No coverage entry found for <path>"`.
+
+Example: fail CI if a file has uncovered lines
+
+```ruby
+require "simplecov_mcp"
+
+model = SimpleCov::Mcp::CoverageModel.new(root: Dir.pwd)
+res   = model.uncovered_for("lib/foo.rb")
+if res[:uncovered].any?
+  warn "Uncovered lines in lib/foo.rb: #{res[:uncovered].join(", ")}"
+  exit 1
+end
+```
+
+Example: enforce a project-wide minimum percentage
+
+```ruby
+require "simplecov_mcp"
+
+threshold = 90.0
+min = model.all_files.map { |r| r[:percentage] }.min || 100.0
+if min < threshold
+  warn "Min coverage %.2f%% is below threshold %.2f%%" % [min, threshold]
+  exit 1
+end
+```
+
+Public API stability:
+
+- Consider the following public and stable under SemVer:
+  - `SimpleCov::Mcp::CoverageModel.new(root:, resultset:)`
+  - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
+  - Return shapes shown above (keys and value types)
+- CLI (`SimpleCov::Mcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
+- Internal helpers under `SimpleCov::Mcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
+
 ### Resultset Location
 
 - Defaults (search order):
@@ -220,4 +314,3 @@ bundle exec rspec
 ## License
 
 MIT
-
