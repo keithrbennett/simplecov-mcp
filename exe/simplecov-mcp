@@ -20,4 +20,4 @@ end
 
 require "simplecov_mcp"
 
-Simplecov::Mcp.run(ARGV)
+SimpleCov::Mcp.run(ARGV)

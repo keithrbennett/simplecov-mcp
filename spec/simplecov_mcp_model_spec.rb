@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-RSpec.describe Simplecov::Mcp::CoverageModel do
+RSpec.describe SimpleCov::Mcp::CoverageModel do
   let(:root)  { (FIXTURES / "project1").to_s }
   subject(:model) { described_class.new(root: root) }
 

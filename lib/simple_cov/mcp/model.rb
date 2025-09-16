@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     class CoverageModel
       def initialize(root: ".", resultset: nil)

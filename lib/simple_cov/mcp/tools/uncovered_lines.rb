@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     class UncoveredLines < BaseTool
       description "Return only uncovered executable line numbers plus a summary"

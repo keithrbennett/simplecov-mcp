@@ -18,7 +18,7 @@ require_relative "mcp/tools/coverage_detailed"
 require_relative "mcp/tools/all_files_coverage"
 require_relative "mcp/cli"
 
-module Simplecov
+module SimpleCov
   module Mcp
     def self.run(argv)
       CoverageCLI.new.run(argv)

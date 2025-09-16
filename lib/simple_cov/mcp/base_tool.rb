@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     class BaseTool < ::MCP::Tool
       INPUT_SCHEMA = {

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     class AllFilesCoverage < ::MCP::Tool
       description "Return coverage percentage for all files in the project"

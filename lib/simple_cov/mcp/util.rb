@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     RESULTSET_CANDIDATES = [
       ".resultset.json",

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Simplecov
+module SimpleCov
   module Mcp
     class CoverageCLI
       SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
@@ -158,7 +158,7 @@ module Simplecov
       def run_mcp_server
         server = ::MCP::Server.new(
           name:    "ruby_coverage_server",
-          version: Simplecov::Mcp::VERSION,
+          version: SimpleCov::Mcp::VERSION,
           tools:   [CoverageRaw, CoverageSummary, UncoveredLines, CoverageDetailed, AllFilesCoverage]
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative 'lib/simplecov/mcp/version'
+require_relative 'lib/simple_cov/mcp/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'simplecov-mcp'
-  spec.version       = Simplecov::Mcp::VERSION
+  spec.version       = SimpleCov::Mcp::VERSION
   spec.authors       = ['Keith R. Bennett']
   spec.email         = ['keithrbennett@gmail.com']
 

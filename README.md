@@ -182,8 +182,8 @@ To use this MCP server with popular coding AI assistants:
 
 ### Notes
 
-- Library entrypoint: `require "simplecov/mcp"` or `require "simplecov_mcp"`
-- Programmatic run: `Simplecov::Mcp.run(ARGV)`
+- Library entrypoint: `require "simple_cov/mcp"` or `require "simplecov_mcp"`
+- Programmatic run: `SimpleCov::Mcp.run(ARGV)`
 - Logs basic diagnostics to `~/coverage_mcp.log`.
 
 ## Executables and PATH
@@ -220,3 +220,4 @@ bundle exec rspec
 ## License
 
 MIT
+
