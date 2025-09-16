@@ -20,17 +20,10 @@ module SimpleCovMcp
       # Handle errors consistently across all MCP tools
       # Returns an MCP::Tool::Response with appropriate error message
       def self.handle_mcp_error(error, tool_name)
-        case error
-        when SimpleCovMcp::Error
-          # Custom errors already have user-friendly messages
-          log_mcp_error(error, tool_name)
-          ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{error.user_friendly_message}" }])
-        else
-          # Convert and handle standard errors through global error handler
-          converted = SimpleCovMcp.error_handler.convert_standard_error(error)
-          log_mcp_error(converted, tool_name)
-          ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{converted.user_friendly_message}" }])
-        end
+        # Normalize to a SimpleCovMcp::Error so we can handle/log uniformly
+        normalized = error.is_a?(SimpleCovMcp::Error) ? error : SimpleCovMcp.error_handler.convert_standard_error(error)
+        log_mcp_error(normalized, tool_name)
+        ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{normalized.user_friendly_message}" }])
       end
 
       private
