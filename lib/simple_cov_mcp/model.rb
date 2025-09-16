@@ -3,9 +3,8 @@
 require_relative 'util'
 require_relative 'errors'
 
-module SimpleCov
-  module Mcp
-    class CoverageModel
+module SimpleCovMcp
+  class CoverageModel
       def initialize(root: '.', resultset: nil)
         @root = File.absolute_path(root || '.')
         begin
@@ -70,6 +69,5 @@ module SimpleCov
       rescue Errno::ENOENT => e
         raise FileError.new("File not found: #{path}")
       end
-    end
   end
 end

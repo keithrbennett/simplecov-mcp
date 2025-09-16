@@ -3,9 +3,8 @@
 require_relative '../model'
 require_relative '../base_tool'
 
-module SimpleCov
-  module Mcp
-    class AllFilesCoverageTool < BaseTool
+module SimpleCovMcp
+  class AllFilesCoverageTool < BaseTool
       description 'Return coverage percentage for all files in the project'
       input_schema(
         type: 'object',
@@ -25,6 +24,5 @@ module SimpleCov
           handle_mcp_error(e, 'AllFilesCoverageTool')
         end
       end
-    end
   end
 end

@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module SimpleCov
-  module Mcp
-    class CoverageCLI
+module SimpleCovMcp
+  class CoverageCLI
       SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
 
       # Initialize CLI for pure CLI usage only.
@@ -27,7 +26,7 @@ module SimpleCov
         else
           show_default_report(sort_order: @sort_order)
         end
-      rescue SimpleCov::Mcp::Error => e
+      rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
       rescue => e
         @error_handler.handle_error(e, context: 'CLI execution')
@@ -154,7 +153,7 @@ module SimpleCov
         when 'detailed'  then handle_detailed(model, args)
         else raise UsageError.for_subcommand('list | summary <path> | raw <path> | uncovered <path> | detailed <path>')
         end
-      rescue SimpleCov::Mcp::Error => e
+      rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
       rescue => e
         @error_handler.handle_error(e, context: "subcommand '#{cmd}'")
@@ -345,6 +344,5 @@ module SimpleCov
         warn error.user_friendly_message
         exit 1
       end
-    end
   end
 end

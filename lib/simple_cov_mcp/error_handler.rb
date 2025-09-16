@@ -2,8 +2,7 @@
 
 require_relative 'errors'
 
-module SimpleCov
-  module Mcp
+module SimpleCovMcp
     # Handles error reporting and logging with configurable behavior
     class ErrorHandler
       attr_accessor :log_errors, :show_stack_traces, :logger
@@ -19,7 +18,7 @@ module SimpleCov
         log_error(error, context)
 
         if reraise
-          if error.is_a?(SimpleCov::Mcp::Error)
+          if error.is_a?(SimpleCovMcp::Error)
             # Re-raise our custom errors as-is
             raise error
           else
@@ -126,8 +125,7 @@ module SimpleCov
       attr_writer :error_handler
 
       def error_handler
-        @error_handler or raise "Error handler not configured. Use one of: SimpleCov::Mcp.run, .run_as_library, or set .error_handler= explicitly"
+        @error_handler or raise "Error handler not configured. Use one of: SimpleCovMcp.run, .run_as_library, or set .error_handler= explicitly"
       end
     end
-  end
 end

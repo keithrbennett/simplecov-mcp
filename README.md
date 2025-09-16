@@ -28,20 +28,20 @@ Add to your Gemfile or install directly:
 gem install simplecov-mcp
 ```
 
-Require path is `simplecov/mcp` (also `simplecov_mcp`). Executable is `simplecov-mcp`.
+Require path is `simple_cov_mcp` (also `simplecov_mcp`). Legacy `simple_cov/mcp` is supported via shim. Executable is `simplecov-mcp`.
 
 ## Usage
 
 ### Library Usage (Ruby)
 
-Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCov::Mcp::CoverageModel`.
+Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCovMcp::CoverageModel`.
 
 Basics:
 
 ```ruby
-require "simplecov_mcp" # or: require "simple_cov/mcp"
+require "simple_cov_mcp" # or: require "simplecov_mcp" (legacy: "simple_cov/mcp")
 
-model = SimpleCov::Mcp::CoverageModel.new(
+model = SimpleCovMcp::CoverageModel.new(
   root: ".",                 # project root (defaults to ".")
   resultset: nil              # optional: file or directory for .resultset.json
 )
@@ -105,18 +105,18 @@ When used as a Ruby library, errors are raised as custom exception classes that 
 
 ```ruby
 begin
-  SimpleCov::Mcp.run_as_library(['summary', 'missing.rb'])
-rescue SimpleCov::Mcp::FileError => e
+  SimpleCovMcp.run_as_library(['summary', 'missing.rb'])
+rescue SimpleCovMcp::FileError => e
   puts "Handled gracefully: #{e.user_friendly_message}"
 end
 ```
 
 Available exception classes:
-- `SimpleCov::Mcp::Error` - Base error class
-- `SimpleCov::Mcp::FileError` - File not found or access issues
-- `SimpleCov::Mcp::CoverageDataError` - Invalid or missing coverage data
-- `SimpleCov::Mcp::ConfigurationError` - Configuration problems
-- `SimpleCov::Mcp::UsageError` - Command usage errors
+- `SimpleCovMcp::Error` - Base error class
+- `SimpleCovMcp::FileError` - File not found or access issues
+- `SimpleCovMcp::CoverageDataError` - Invalid or missing coverage data
+- `SimpleCovMcp::ConfigurationError` - Configuration problems
+- `SimpleCovMcp::UsageError` - Command usage errors
 
 ### MCP Server Mode
 When running as an MCP server, errors are handled internally and returned as structured responses to the MCP client. The MCP server uses:
@@ -132,17 +132,17 @@ Library usage defaults to no logging to avoid side effects, but you can customiz
 
 ```ruby
 # Default library behavior - no logging
-SimpleCov::Mcp.run_as_library(['summary', 'file.rb'])
+SimpleCovMcp.run_as_library(['summary', 'file.rb'])
 
 # Custom error handler with logging enabled
-handler = SimpleCov::Mcp::ErrorHandler.new(
+handler = SimpleCovMcp::ErrorHandler.new(
   log_errors: true,         # Enable logging for library usage
   show_stack_traces: false  # Clean error messages
 )
-SimpleCov::Mcp.run_as_library(argv, error_handler: handler)
+SimpleCovMcp.run_as_library(argv, error_handler: handler)
 
 # Or configure globally for MCP tools
-SimpleCov::Mcp.configure_error_handling do |handler|
+SimpleCovMcp.configure_error_handling do |handler|
   handler.log_errors = true
   handler.show_stack_traces = true  # For debugging
 end
@@ -156,9 +156,9 @@ end
 Example: fail CI if a file has uncovered lines
 
 ```ruby
-require "simplecov_mcp"
+require "simple_cov_mcp"
 
-model = SimpleCov::Mcp::CoverageModel.new(root: Dir.pwd)
+model = SimpleCovMcp::CoverageModel.new(root: Dir.pwd)
 res   = model.uncovered_for("lib/foo.rb")
 if res['uncovered'].any?
   warn "Uncovered lines in lib/foo.rb: #{res['uncovered'].join(", ")}"
@@ -169,7 +169,7 @@ end
 Example: enforce a project-wide minimum percentage
 
 ```ruby
-require "simplecov_mcp"
+require "simple_cov_mcp"
 
 threshold = 90.0
 min = model.all_files.map { |r| r['percentage'] }.min || 100.0
@@ -182,11 +182,11 @@ end
 Public API stability:
 
 - Consider the following public and stable under SemVer:
-  - `SimpleCov::Mcp::CoverageModel.new(root:, resultset:)`
+  - `SimpleCovMcp::CoverageModel.new(root:, resultset:)`
   - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
   - Return shapes shown above (keys and value types)
-- CLI (`SimpleCov::Mcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
-- Internal helpers under `SimpleCov::Mcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
+- CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
+- Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
 
 ### Resultset Location
 
@@ -338,8 +338,8 @@ To use this MCP server with popular coding AI assistants:
 
 ### Notes
 
-- Library entrypoint: `require "simple_cov/mcp"` or `require "simplecov_mcp"`
-- Programmatic run: `SimpleCov::Mcp.run(ARGV)`
+- Library entrypoint: `require "simple_cov_mcp"` (also `simplecov_mcp`). Legacy `simple_cov/mcp` is supported.
+- Programmatic run: `SimpleCovMcp.run(ARGV)`
 - Logs basic diagnostics to `~/simplecov_mcp.log`.
 
 ## Executables and PATH

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module SimpleCov
-  module Mcp
+module SimpleCovMcp
     # Base error class for all SimpleCov MCP errors
     class Error < StandardError
       attr_reader :original_error
@@ -47,5 +46,4 @@ module SimpleCov
         message
       end
     end
-  end
 end

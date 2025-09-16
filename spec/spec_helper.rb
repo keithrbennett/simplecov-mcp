@@ -18,7 +18,7 @@ require 'rspec'
 require 'pathname'
 require 'json'
 
-require 'simple_cov/mcp'
+require 'simple_cov_mcp'
 
 FIXTURES = Pathname.new(File.expand_path('fixtures', __dir__))
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCov::Mcp::CoverageCLI do
+RSpec.describe SimpleCovMcp::CoverageCLI do
   let(:root) { (FIXTURES / 'project1').to_s }
 
   def run_cli(*argv)

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-module SimpleCov
-  module Mcp
+module SimpleCovMcp
     RESULTSET_CANDIDATES = [
       '.resultset.json',
       'coverage/.resultset.json',
@@ -111,5 +110,4 @@ module SimpleCov
         rows
       end
     end
-  end
 end

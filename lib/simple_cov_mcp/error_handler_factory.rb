@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-module SimpleCov
-  module Mcp
-    module ErrorHandlerFactory
+module SimpleCovMcp
+  module ErrorHandlerFactory
       # Error handler for CLI usage
       # - Logs errors for debugging
       # - Shows stack traces only in debug mode
@@ -35,6 +34,5 @@ module SimpleCov
           show_stack_traces: ENV['SIMPLECOV_MCP_DEBUG'] == '1'
         )
       end
-    end
   end
 end
