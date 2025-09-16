@@ -246,7 +246,7 @@ Forces CLI mode:
 ```sh
 simplecov-mcp --cli
 # or
-COVERAGE_MCP_CLI=1 simplecov-mcp
+SIMPLECOV_MCP_CLI=1 simplecov-mcp
 ```
 
 Example output:

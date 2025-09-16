@@ -88,7 +88,7 @@ module SimpleCovMcp
 
     def self.should_run_cli?(argv)
       # Force CLI mode if environment variable is set
-      return true if ENV['COVERAGE_MCP_CLI'] == '1'
+      return true if ENV['SIMPLECOV_MCP_CLI'] == '1'
 
       # If a subcommand is provided, run CLI
       return true if CoverageCLI::SUBCOMMANDS.include?(argv[0])

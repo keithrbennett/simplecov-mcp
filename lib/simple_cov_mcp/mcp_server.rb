@@ -9,7 +9,7 @@ module SimpleCovMcp
 
       def run
         server = ::MCP::Server.new(
-          name:    'simplecov_mcp',
+          name:    'simplecov-mcp',
           version: SimpleCovMcp::VERSION,
           tools:   [AllFilesCoverageTool, CoverageDetailedTool, CoverageRawTool, CoverageSummaryTool, UncoveredLinesTool]
         )
