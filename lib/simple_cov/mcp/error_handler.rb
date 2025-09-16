@@ -126,22 +126,7 @@ module SimpleCov
       attr_writer :error_handler
 
       def error_handler
-        @error_handler ||= create_library_error_handler
-      end
-
-      def configure_error_handling
-        yield(error_handler) if block_given?
-      end
-
-      private
-
-      def create_library_error_handler
-        # For library usage, default to no logging to avoid side effects
-        # Users can override this if they want logging
-        ErrorHandler.new(
-          log_errors: false,
-          show_stack_traces: false
-        )
+        @error_handler or raise "Error handler not configured. Use one of: SimpleCov::Mcp.run, .run_as_library, or set .error_handler= explicitly"
       end
     end
   end

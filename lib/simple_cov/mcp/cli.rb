@@ -5,13 +5,11 @@ module SimpleCov
     class CoverageCLI
       SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
 
-      # Initialize CLI with optional custom error handler for library usage.
-      # When error_handler is nil, creates a default handler suitable for CLI usage
-      # with user-friendly error messages and optional debug stack traces.
+      # Initialize CLI for pure CLI usage only.
+      # Always runs as CLI, no mode detection needed.
       def initialize(error_handler: nil)
         @root = '.'
         @resultset = nil
-        @force_cli = false
         @json = false
         @sort_order = 'ascending'
         @cmd = nil
@@ -19,19 +17,15 @@ module SimpleCov
         @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
-        @error_handler = error_handler || create_cli_error_handler
+        @error_handler = error_handler || ErrorHandlerFactory.for_cli
       end
 
       def run(argv)
         parse_options!(argv)
-        if prefer_cli?
-          if @cmd
-            run_subcommand(@cmd, @cmd_args)
-          else
-            show_default_report(sort_order: @sort_order)
-          end
+        if @cmd
+          run_subcommand(@cmd, @cmd_args)
         else
-          run_mcp_server
+          show_default_report(sort_order: @sort_order)
         end
       rescue SimpleCov::Mcp::Error => e
         handle_user_facing_error(e)
@@ -40,14 +34,6 @@ module SimpleCov
       end
 
       private
-
-      def prefer_cli?
-        return true if ENV['COVERAGE_MCP_CLI'] == '1'
-        return true if @force_cli
-        return true if @cmd # subcommand provided → CLI
-        # If interactive TTY, prefer CLI; else (e.g., pipes), run MCP.
-        STDIN.tty?
-      end
 
       def parse_options!(argv)
         require 'optparse'
@@ -66,9 +52,6 @@ module SimpleCov
           o.separator '  uncovered <path>        Show uncovered lines and a summary'
           o.separator '  detailed <path>         Show per-line rows with hits/covered'
           o.separator ''
-          o.separator 'Modes:'
-          o.on('--cli', 'Force CLI mode (table report)') { @force_cli = true }
-          o.on('--report', 'Alias for --cli') { @force_cli = true }
 
           o.separator ''
           o.separator 'Options:'
@@ -160,24 +143,6 @@ module SimpleCov
         puts border_line.call('└', '┴', '┘')
       end
 
-      def run_mcp_server
-        # Configure error handling for MCP server mode
-        # MCP framework handles error responses, so we want:
-        # - Logging enabled for server debugging
-        # - Clean error messages (no stack traces unless debug mode)
-        # - Let MCP framework handle the actual error responses to clients
-        SimpleCov::Mcp.configure_error_handling do |handler|
-          handler.log_errors = true
-          handler.show_stack_traces = ENV['SIMPLECOV_MCP_DEBUG'] == '1'
-        end
-
-        server = ::MCP::Server.new(
-          name:    'simplecov_mcp',
-          version: SimpleCov::Mcp::VERSION,
-          tools:   [AllFilesCoverageTool, CoverageDetailedTool, CoverageRawTool, CoverageSummaryTool, UncoveredLinesTool]
-        )
-        ::MCP::Server::Transports::StdioTransport.new(server).open
-      end
 
       def run_subcommand(cmd, args)
         model = CoverageModel.new(root: @root, resultset: @resultset)
@@ -375,28 +340,10 @@ module SimpleCov
         dup
       end
 
-      def create_cli_error_handler
-        # For CLI usage, we want logging enabled and stack traces for debugging
-        show_traces = ENV['SIMPLECOV_MCP_DEBUG'] == '1'
-        ErrorHandler.new(
-          log_errors: true,
-          show_stack_traces: show_traces
-        )
-      end
 
       def handle_user_facing_error(error)
-        if running_as_cli?
-          warn error.user_friendly_message
-          exit 1
-        else
-          # When used as library, re-raise the custom error
-          raise error
-        end
-      end
-
-      def running_as_cli?
-        # We're running as CLI if we have a command or forced CLI mode
-        @cmd || @force_cli || prefer_cli?
+        warn error.user_friendly_message
+        exit 1
       end
     end
   end
