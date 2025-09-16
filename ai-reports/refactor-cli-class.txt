@@ -1,0 +1,5 @@
+The CoverageCLI class violates single responsibility principle by handling CLI commands, MCP server hosting, and library integration all in one class. This creates
+   confusing methods like prefer_cli?, running_as_cli?, and complex conditional logic throughout. Please refactor this into three focused classes: (1) CoverageCLI for
+   pure CLI functionality that always runs as CLI, (2) MCPServer class to handle MCP server operations, and (3) keep CoverageModel for library usage. Update the main
+  entry points (SimpleCov::Mcp.run, run_as_library, etc.) to instantiate the appropriate class directly rather than routing through the multi-purpose CLI class. This
+  will eliminate the need for mode-detection methods and make the error handling straightforward since each class will have a clear, single purpose."
