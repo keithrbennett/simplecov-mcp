@@ -182,7 +182,7 @@ end
 Public API stability:
 
 - Consider the following public and stable under SemVer:
-  - `SimpleCovMcp::CoverageModel.new(root:, resultset:, strict_staleness: false)`
+  - `SimpleCovMcp::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
   - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
   - Return shapes shown above (keys and value types)
 - CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
@@ -205,8 +205,7 @@ When strict staleness checking is enabled, the model (and CLI) raise a
 `CoverageDataStaleError` if a source file appears newer than the coverage data
 or the line counts differ.
 
-- Enable per instance: `SimpleCovMcp::CoverageModel.new(strict_staleness: true)`
-- Or via env: `SIMPLECOV_MCP_STRICT_STALENESS=1`
+- Enable per instance: `SimpleCovMcp::CoverageModel.new(staleness: 'error')`
 
 The error message is detailed and includes:
 
@@ -248,6 +247,8 @@ Global flags (OptionParser):
 - `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
 - `--source-context N` — for `--source=uncovered`, lines of context (default 2)
 - `--color` / `--no-color` — enable/disable ANSI colors in source output
+- `--stale off|error` — staleness checking mode (default `off`)
+- `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
 - `--help` — show usage
 
 Select a nonstandard resultset path:
@@ -294,11 +295,11 @@ When stdin has data (e.g., from an MCP client), the program runs as an MCP serve
 
 Available tools:
 
-- `coverage_raw(path, root=".", resultset=nil)`
-- `coverage_summary(path, root=".", resultset=nil)`
-- `uncovered_lines(path, root=".", resultset=nil)`
-- `coverage_detailed(path, root=".", resultset=nil)`
-- `all_files_coverage(root=".", resultset=nil)`
+- `coverage_raw(path, root=".", resultset=nil, stale='off')`
+- `coverage_summary(path, root=".", resultset=nil, stale='off')`
+- `uncovered_lines(path, root=".", resultset=nil, stale='off')`
+- `coverage_detailed(path, root=".", resultset=nil, stale='off')`
+- `all_files_coverage(root=".", resultset=nil, stale='off', tracked_globs=nil)`
 
 Notes:
 
@@ -306,6 +307,8 @@ Notes:
   - a file path to `.resultset.json`, or
   - a directory path containing `.resultset.json` (e.g., `coverage/`).
 - If `resultset` is omitted, the server checks `SIMPLECOV_RESULTSET`, then searches `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json` in that order.
+- `stale` controls staleness checking per call (`off` or `error`).
+- For `all_files_coverage`, `tracked_globs` detects new project files missing from coverage, and the tool also flags covered files that are newer than the coverage timestamp or present in coverage but deleted in the project.
 
 Example (manual):
 
@@ -330,18 +333,6 @@ CLI vs MCP summary:
 - CLI: use subcommands. Pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
 - MCP: pass `resultset` in tool arguments, or set `SIMPLECOV_RESULTSET`.
 
-### Configuring AI Assistants
-
-To use this MCP server with popular coding AI assistants:
-
-- **Claude Code**: Add the server to your `claude_code_config.json`. See [Claude Code MCP configuration guide](https://docs.anthropic.com/en/docs/claude-code/mcp#configuring-mcp-servers)
-- **Codeium Windsurf**: Configure in Settings → MCP Servers. See [Windsurf MCP documentation](https://docs.codeium.com/windsurf/mcp)
-- **Continue**: Add to your `config.json` under `mcpServers`. See [Continue MCP setup guide](https://docs.continue.dev/reference/config#mcp-servers)
-- **Cursor**: Configure via Settings → Features → Model Context Protocol. See [Cursor MCP documentation](https://docs.cursor.com/advanced/mcp)
-- **Codex**: Configure MCP servers in your workspace settings. See [Codex MCP integration guide](https://docs.codex.so/mcp)
-- **Google AI Studio / Gemini**: Add to MCP server configuration. See [Gemini MCP setup documentation](https://ai.google.dev/gemini-api/docs/mcp)
-- **Warp AI**: Configure via Settings → AI → MCP Servers. See [Warp MCP configuration guide](https://docs.warp.dev/features/ai/mcp)
-
 ## Troubleshooting
 
 - MCP client fails to start or times out
@@ -365,9 +356,9 @@ To use this MCP server with popular coding AI assistants:
 
 - Library entrypoint: `require "simple_cov_mcp"` (also `simplecov_mcp`). Legacy `simple_cov/mcp` is supported.
 - Programmatic run: `SimpleCovMcp.run(ARGV)`
-- Staleness checks: pass `strict_staleness: true` to `CoverageModel` to raise
-  if source mtimes are newer than coverage or line counts mismatch. Environment
-  variable `SIMPLECOV_MCP_STRICT_STALENESS=1` remains supported as the default.
+- Staleness checks: pass `staleness: 'error'` to `CoverageModel` (or use CLI `--stale error`) to
+  raise if source mtimes are newer than coverage or line counts mismatch. Use
+  `--tracked-globs` (CLI) or `tracked_globs` (API/MCP) to flag new files.
 - Logs basic diagnostics to `~/simplecov_mcp.log`.
 
 ## Executables and PATH
