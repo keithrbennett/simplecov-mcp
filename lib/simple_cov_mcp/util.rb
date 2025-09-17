@@ -47,6 +47,15 @@ module SimpleCovMcp
         cov.transform_keys { |k| File.absolute_path(k, root) }
       end
 
+      # Returns the timestamp (Integer seconds) for the latest coverage entry
+      # in the resultset. Used for staleness checks against source mtimes.
+      def latest_timestamp(root, resultset: nil)
+        rs = find_resultset(root, resultset: resultset)
+        raw = JSON.parse(File.read(rs))
+        _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
+        (data['timestamp'] || data['created_at'] || 0).to_i
+      end
+
       def resolve_resultset_candidate(path, strict:)
         return path if File.file?(path)
         if File.directory?(path)

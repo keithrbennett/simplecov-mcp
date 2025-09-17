@@ -266,8 +266,14 @@ module SimpleCovMcp
           puts '[source not available]'
           return
         end
-        rows = build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
-        puts format_source_rows(rows)
+        begin
+          rows = build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
+          puts format_source_rows(rows)
+        rescue StandardError
+          # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
+          # and fall back to a neutral message rather than raising.
+          puts '[source not available]'
+        end
       end
 
       def build_source_payload(model, path)
@@ -280,23 +286,28 @@ module SimpleCovMcp
       end
 
       def build_source_rows(src_lines, cov_lines, mode:, context: 2)
+        # Normalize inputs defensively to avoid type errors in formatting
+        coverage_lines = cov_lines || []
+        context_line_count = context.to_i rescue 2
+        context_line_count = 0 if context_line_count.negative?
+
         n = src_lines.length
         include_line = Array.new(n, mode == 'full')
         if mode == 'uncovered'
           misses = []
-          cov_lines.each_with_index do |hits, i|
+          coverage_lines.each_with_index do |hits, i|
             misses << i if !hits.nil? && hits.to_i == 0
           end
           misses.each do |i|
-            a = [0, i - context].max
-            b = [n - 1, i + context].min
+            a = [0, i - context_line_count].max
+            b = [n - 1, i + context_line_count].min
             (a..b).each { |j| include_line[j] = true }
           end
         end
         out = []
         src_lines.each_with_index do |code, i|
           next unless include_line[i]
-          hits = cov_lines[i]
+          hits = coverage_lines[i]
           covered = hits.nil? ? nil : hits.to_i > 0
           out << { line: i + 1, code: code, hits: hits, covered: covered }
         end

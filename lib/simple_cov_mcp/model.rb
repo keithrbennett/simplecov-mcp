@@ -7,6 +7,7 @@ module SimpleCovMcp
   class CoverageModel
       def initialize(root: '.', resultset: nil)
         @root = File.absolute_path(root || '.')
+        @resultset = resultset
         begin
           @cov  = CovUtil.load_latest_coverage(@root, resultset: resultset)
         rescue Errno::ENOENT => e
@@ -18,28 +19,28 @@ module SimpleCovMcp
         end
       end
 
-      # Returns { 'file' => <abs>, 'lines' => [hits|nil,...] }
+      # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
       def raw_for(path)
-        abs, arr = resolve(path)
-        { 'file' => abs, 'lines' => arr }
+        file_abs, coverage_lines = resolve(path)
+        { 'file' => file_abs, 'lines' => coverage_lines }
       end
 
-      # Returns { 'file' => <abs>, 'summary' => {'covered'=>, 'total'=>, 'pct'=>} }
+      # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'pct'=>} }
       def summary_for(path)
-        abs, arr = resolve(path)
-        { 'file' => abs, 'summary' => CovUtil.summary(arr) }
+        file_abs, coverage_lines = resolve(path)
+        { 'file' => file_abs, 'summary' => CovUtil.summary(coverage_lines) }
       end
 
-      # Returns { 'file' => <abs>, 'uncovered' => [line,...], 'summary' => {...} }
+      # Returns { 'file' => <absolute_path>, 'uncovered' => [line,...], 'summary' => {...} }
       def uncovered_for(path)
-        abs, arr = resolve(path)
-        { 'file' => abs, 'uncovered' => CovUtil.uncovered(arr), 'summary' => CovUtil.summary(arr) }
+        file_abs, coverage_lines = resolve(path)
+        { 'file' => file_abs, 'uncovered' => CovUtil.uncovered(coverage_lines), 'summary' => CovUtil.summary(coverage_lines) }
       end
 
-      # Returns { 'file' => <abs>, 'lines' => [{'line'=>,'hits'=>,'covered'=>},...], 'summary' => {...} }
+      # Returns { 'file' => <absolute_path>, 'lines' => [{'line'=>,'hits'=>,'covered'=>},...], 'summary' => {...} }
       def detailed_for(path)
-        abs, arr = resolve(path)
-        { 'file' => abs, 'lines' => CovUtil.detailed(arr), 'summary' => CovUtil.summary(arr) }
+        file_abs, coverage_lines = resolve(path)
+        { 'file' => file_abs, 'lines' => CovUtil.detailed(coverage_lines), 'summary' => CovUtil.summary(coverage_lines) }
       end
 
       # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' => }, ... ]
@@ -60,14 +61,64 @@ module SimpleCovMcp
       private
 
       def resolve(path)
-        abs = File.absolute_path(path, @root)
-        lines = CovUtil.lookup_lines(@cov, abs)
-        if lines.nil?
+        file_abs = File.absolute_path(path, @root)
+        coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
+        check_staleness!(file_abs, coverage_lines, path) if stale_check_enabled?(file_abs)
+        if coverage_lines.nil?
           raise FileError.new("No coverage data found for file: #{path}")
         end
-        [abs, lines]
+        [file_abs, coverage_lines]
       rescue Errno::ENOENT => e
         raise FileError.new("File not found: #{path}")
+      end
+
+      def stale_check_enabled?(file_abs)
+        ENV['SIMPLECOV_MCP_STRICT_STALENESS'] == '1' && File.file?(file_abs)
+      end
+
+      def check_staleness!(file_abs, coverage_lines, path)
+        src_len    = File.foreach(file_abs).count
+        cov_len    = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
+        cov_timestamp = CovUtil.latest_timestamp(@root, resultset: @resultset)
+        file_mtime = File.mtime(file_abs)
+
+        if coverage_line_count_mismatch?(cov_len, src_len) || source_newer_than_coverage?(file_mtime, cov_timestamp)
+          details = build_stale_detail_string(file_mtime, cov_timestamp, src_len, cov_len)
+          raise CoverageDataError.new("Coverage data appears stale for #{path}:#{details}")
+        end
+      rescue CoverageDataError
+        raise
+      rescue StandardError
+        # Ignore staleness check failures; proceed without blocking
+      end
+
+      def coverage_line_count_mismatch?(cov_len, src_len)
+        cov_len > 0 && cov_len != src_len
+      end
+
+      def source_newer_than_coverage?(file_mtime, cov_timestamp)
+        cov_timestamp && file_mtime && file_mtime.to_i > cov_timestamp.to_i
+      end
+
+      def build_stale_detail_string(file_mtime, cov_timestamp, src_len, cov_len)
+        source_ts = format_source_file_timestamp(file_mtime) || 'not found'
+        cov_ts  = format_coverage_file_timestamp(cov_timestamp) || 'not found'
+        "\nFile     - time: #{source_ts}, lines: #{src_len}" \
+        "\nCoverage - time: #{cov_ts}, lines: #{cov_len}"
+      end
+
+      def format_coverage_file_timestamp(cov_timestamp)
+        return nil unless cov_timestamp
+        Time.at(cov_timestamp.to_i).utc.iso8601
+      rescue StandardError
+        cov_timestamp.to_s
+      end
+
+      def format_source_file_timestamp(file_mtime)
+        return nil unless file_mtime
+        file_mtime.is_a?(Time) ? file_mtime.utc.iso8601 : file_mtime.to_s
+      rescue StandardError
+        file_mtime.to_s
       end
   end
 end
