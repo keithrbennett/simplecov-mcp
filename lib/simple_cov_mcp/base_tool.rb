@@ -12,7 +12,7 @@ module SimpleCovMcp
           path: { type: 'string', description: 'Absolute or project-relative file path' },
           root: { type: 'string', description: 'Project root for resolution', default: '.' },
           resultset: { type: 'string', description: 'Path to .resultset.json (absolute or relative to root)' },
-          strict_staleness: { type: 'boolean', description: 'If true, raise if source appears newer than coverage (per-call override)' }
+          stale: { type: 'string', description: 'Staleness mode: off|error', enum: %w[off error] }
         },
         required: ['path']
       }
