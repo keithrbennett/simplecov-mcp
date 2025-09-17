@@ -36,6 +36,70 @@ module SimpleCovMcp
       end
     end
 
+    # Coverage data is present but appears stale compared to source files
+    class CoverageDataStaleError < CoverageDataError
+      attr_reader :file_path, :file_mtime, :cov_timestamp, :src_len, :cov_len, :resultset_path
+
+      def initialize(message = nil, original_error = nil, file_path: nil, file_mtime: nil, cov_timestamp: nil, src_len: nil, cov_len: nil, resultset_path: nil)
+        super(message, original_error)
+        @file_path = file_path
+        @file_mtime = file_mtime
+        @cov_timestamp = cov_timestamp
+        @src_len = src_len
+        @cov_len = cov_len
+        @resultset_path = resultset_path
+      end
+
+      def user_friendly_message
+        base = "Coverage data stale: #{message || default_message}"
+        base + build_details
+      end
+
+      private
+
+      def default_message
+        fp = file_path || 'file'
+        "Coverage data appears stale for #{fp}"
+      end
+
+      def build_details
+        file_utc, file_local = format_time_both(@file_mtime)
+        cov_utc,  cov_local  = format_epoch_both(@cov_timestamp)
+        delta_str = format_delta_seconds(@file_mtime, @cov_timestamp)
+        details = []
+        details << "\nFile     - time: #{file_utc || 'not found'} (local #{file_local || 'n/a'}), lines: #{@src_len}"
+        details << "\nCoverage - time: #{cov_utc  || 'not found'} (local #{cov_local  || 'n/a'}), lines: #{@cov_len}"
+        details << "\nDelta    - file is #{delta_str} newer than coverage" if delta_str
+        details << "\nResultset - #{@resultset_path}" if @resultset_path
+        details.join
+      end
+
+      def format_epoch_both(epoch_seconds)
+        return [nil, nil] unless epoch_seconds
+        t = Time.at(epoch_seconds.to_i)
+        [t.utc.iso8601, t.getlocal.iso8601]
+      rescue StandardError
+        [epoch_seconds.to_s, epoch_seconds.to_s]
+      end
+
+      def format_time_both(time)
+        return [nil, nil] unless time
+        t = time.is_a?(Time) ? time : Time.parse(time.to_s)
+        [t.utc.iso8601, t.getlocal.iso8601]
+      rescue StandardError
+        [time.to_s, time.to_s]
+      end
+
+      def format_delta_seconds(file_mtime, cov_timestamp)
+        return nil unless file_mtime && cov_timestamp
+        seconds = file_mtime.to_i - cov_timestamp.to_i
+        sign = seconds >= 0 ? '+' : '-'
+        "#{sign}#{seconds.abs}s"
+      rescue StandardError
+        nil
+      end
+    end
+
     # Command line usage errors
     class UsageError < Error
       def self.for_subcommand(usage_fragment)

@@ -63,6 +63,22 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     include_examples 'maps error to exit 1 with message'
   end
 
+  it 'emits detailed stale coverage info and exits 1' do
+    begin
+      ENV['SIMPLECOV_MCP_STRICT_STALENESS'] = '1'
+      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
+      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage')
+      expect(status).to eq(1)
+      expect(err).to include('Coverage data stale:')
+      expect(err).to match(/File\s+- time:/)
+      expect(err).to match('Coverage\s+- time:')
+      expect(err).to match(/Delta\s+- file is [+-]?\d+s newer than coverage/)
+      expect(err).to match('Resultset\s+-')
+    ensure
+      ENV.delete('SIMPLECOV_MCP_STRICT_STALENESS')
+    end
+  end
+
   # Note on text-mode source rendering tests:
   # - "Text-mode source" refers to the ASCII source view printed by the CLI
   #   when passing --source or --source=uncovered (checkmarks/dots, line nums).

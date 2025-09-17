@@ -182,7 +182,7 @@ end
 Public API stability:
 
 - Consider the following public and stable under SemVer:
-  - `SimpleCovMcp::CoverageModel.new(root:, resultset:)`
+  - `SimpleCovMcp::CoverageModel.new(root:, resultset:, strict_staleness: false)`
   - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
   - Return shapes shown above (keys and value types)
 - CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
@@ -198,6 +198,31 @@ Public API stability:
 - Override via environment: `SIMPLECOV_RESULTSET=PATH` (file or directory). This takes precedence over defaults. The CLI flag, when present, takes precedence over the environment variable.
 
 ### CLI Mode
+
+### Stale Coverage Errors
+
+When strict staleness checking is enabled, the model (and CLI) raise a
+`CoverageDataStaleError` if a source file appears newer than the coverage data
+or the line counts differ.
+
+- Enable per instance: `SimpleCovMcp::CoverageModel.new(strict_staleness: true)`
+- Or via env: `SIMPLECOV_MCP_STRICT_STALENESS=1`
+
+The error message is detailed and includes:
+
+- File and Coverage times (UTC and local) and line counts
+- A delta indicating how much newer the file is than coverage
+- The absolute path to the `.resultset.json` used
+
+Example excerpt:
+
+```
+Coverage data stale: Coverage data appears stale for lib/foo.rb
+File      - time: 2025-09-16T14:03:22Z (local 2025-09-16T07:03:22-07:00), lines: 226
+Coverage  - time: 2025-09-15T21:11:09Z (local 2025-09-15T14:11:09-07:00), lines: 220
+Delta     - file is +123s newer than coverage
+Resultset - /path/to/your/project/coverage/.resultset.json
+```
 
 Run in a project directory with a SimpleCov resultset:
 
@@ -340,6 +365,9 @@ To use this MCP server with popular coding AI assistants:
 
 - Library entrypoint: `require "simple_cov_mcp"` (also `simplecov_mcp`). Legacy `simple_cov/mcp` is supported.
 - Programmatic run: `SimpleCovMcp.run(ARGV)`
+- Staleness checks: pass `strict_staleness: true` to `CoverageModel` to raise
+  if source mtimes are newer than coverage or line counts mismatch. Environment
+  variable `SIMPLECOV_MCP_STRICT_STALENESS=1` remains supported as the default.
 - Logs basic diagnostics to `~/simplecov_mcp.log`.
 
 ## Executables and PATH
