@@ -65,9 +65,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'emits detailed stale coverage info and exits 1' do
     begin
-      ENV['SIMPLECOV_MCP_STRICT_STALENESS'] = '1'
       allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
-      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage')
+      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'error')
       expect(status).to eq(1)
       expect(err).to include('Coverage data stale:')
       expect(err).to match(/File\s+- time:/)
@@ -75,19 +74,16 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       expect(err).to match(/Delta\s+- file is [+-]?\d+s newer than coverage/)
       expect(err).to match('Resultset\s+-')
     ensure
-      ENV.delete('SIMPLECOV_MCP_STRICT_STALENESS')
     end
   end
 
   it 'honors --no-strict-staleness to disable checks' do
     begin
-      ENV['SIMPLECOV_MCP_STRICT_STALENESS'] = '1'
       allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
-      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--no-strict-staleness')
+      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'off')
       expect(status).to eq(0)
       expect(err).to eq("")
     ensure
-      ENV.delete('SIMPLECOV_MCP_STRICT_STALENESS')
     end
   end
 
