@@ -8,10 +8,20 @@ module SimpleCovMcp
       end
 
       def run
+        tools = [
+          Tools::AllFilesCoverageTool,
+          Tools::CoverageDetailedTool,
+          Tools::CoverageRawTool,
+          Tools::CoverageSummaryTool,
+          Tools::UncoveredLinesTool,
+          Tools::CoverageTableTool,
+          Tools::VersionTool
+        ]
+
         server = ::MCP::Server.new(
           name:    'simplecov-mcp',
           version: SimpleCovMcp::VERSION,
-          tools:   [AllFilesCoverageTool, CoverageDetailedTool, CoverageRawTool, CoverageSummaryTool, UncoveredLinesTool, VersionTool]
+          tools:   tools
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
       end

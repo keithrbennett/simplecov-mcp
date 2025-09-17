@@ -4,7 +4,8 @@ require_relative '../base_tool'
 require_relative '../model'
 
 module SimpleCovMcp
-  class UncoveredLinesTool < BaseTool
+  module Tools
+    class UncoveredLinesTool < BaseTool
       description 'Return only uncovered executable line numbers plus a summary'
       input_schema(**input_schema_def)
       class << self
@@ -18,5 +19,6 @@ module SimpleCovMcp
           handle_mcp_error(e, 'UncoveredLinesTool')
         end
       end
+    end
   end
 end

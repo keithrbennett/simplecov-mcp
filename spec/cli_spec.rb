@@ -53,7 +53,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'exposes expected subcommands via constant' do
-    expect(described_class::SUBCOMMANDS).to eq(%w[list summary raw uncovered detailed])
+    expect(described_class::SUBCOMMANDS).to eq(%w[list summary raw uncovered detailed version])
   end
 
   it 'can include source in JSON payload (nil if file missing)' do

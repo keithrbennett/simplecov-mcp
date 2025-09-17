@@ -4,7 +4,8 @@ require_relative '../base_tool'
 require_relative '../model'
 
 module SimpleCovMcp
-  class CoverageSummaryTool < BaseTool
+  module Tools
+    class CoverageSummaryTool < BaseTool
       description 'Return {covered,total,pct} for a file'
       input_schema(**input_schema_def)
       class << self
@@ -18,5 +19,6 @@ module SimpleCovMcp
           handle_mcp_error(e, 'CoverageSummaryTool')
         end
       end
+    end
   end
 end

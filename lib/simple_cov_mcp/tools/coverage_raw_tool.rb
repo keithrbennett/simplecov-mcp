@@ -4,7 +4,8 @@ require_relative '../base_tool'
 require_relative '../model'
 
 module SimpleCovMcp
-  class CoverageRawTool < BaseTool
+  module Tools
+    class CoverageRawTool < BaseTool
       description "Return the original SimpleCov 'lines' array for a file"
       input_schema(**input_schema_def)
       class << self
@@ -18,5 +19,6 @@ module SimpleCovMcp
           handle_mcp_error(e, 'CoverageRawTool')
         end
       end
+    end
   end
 end
