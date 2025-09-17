@@ -29,6 +29,12 @@ module SimpleCovMcp
       end
     end
 
+    # More specific file errors
+    class FileNotFoundError < FileError; end
+    class FilePermissionError < FileError; end
+    class NotAFileError < FileError; end
+    class ResultsetNotFoundError < FileError; end
+
     # Coverage data related errors
     class CoverageDataError < Error
       def user_friendly_message

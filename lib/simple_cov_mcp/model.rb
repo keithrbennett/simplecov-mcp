@@ -83,8 +83,8 @@ module SimpleCovMcp
         raise FileError.new("No coverage data found for file: #{path}")
       end
       [file_abs, coverage_lines]
-    rescue Errno::ENOENT => e
-      raise FileError.new("File not found: #{path}")
+      rescue Errno::ENOENT => e
+        raise FileNotFoundError.new("File not found: #{path}")
     end
 
       # staleness handled by StalenessChecker

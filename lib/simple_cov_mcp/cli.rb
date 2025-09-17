@@ -248,9 +248,9 @@ module SimpleCovMcp
         path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
         yield(path)
       rescue Errno::ENOENT => e
-        raise FileError.new("File not found: #{path}")
+        raise FileNotFoundError.new("File not found: #{path}")
       rescue Errno::EACCES => e
-        raise FileError.new("Permission denied: #{path}")
+        raise FilePermissionError.new("Permission denied: #{path}")
       end
 
       def rel_path(abs)

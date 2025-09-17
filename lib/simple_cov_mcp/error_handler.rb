@@ -34,13 +34,13 @@ module SimpleCovMcp
         case error
         when Errno::ENOENT
           filename = extract_filename(error.message)
-          FileError.new("File not found: #{filename}", error)
+          FileNotFoundError.new("File not found: #{filename}", error)
         when Errno::EACCES
           filename = extract_filename(error.message)
-          FileError.new("Permission denied accessing file: #{filename}", error)
+          FilePermissionError.new("Permission denied accessing file: #{filename}", error)
         when Errno::EISDIR
           filename = extract_filename(error.message)
-          FileError.new("Expected file but found directory: #{filename}", error)
+          NotAFileError.new("Expected file but found directory: #{filename}", error)
         when JSON::ParserError
           CoverageDataError.new("Invalid coverage data format - JSON parsing failed: #{error.message}", error)
         when ArgumentError
@@ -69,7 +69,7 @@ module SimpleCovMcp
           elsif error.message.include?('Specified resultset not found')
             # Extract path from error message
             path_info = error.message.match(/not found: (.+)$/)&.[](1) || "specified path"
-            FileError.new("Resultset file not found: #{path_info}", error)
+            ResultsetNotFoundError.new("Resultset file not found: #{path_info}", error)
           else
             Error.new("An unexpected error occurred: #{error.message}", error)
           end
