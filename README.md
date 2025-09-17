@@ -74,6 +74,35 @@ detailed = model.detailed_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... } }
 ```
 
+### MCP Quick Start
+
+- Prereqs: Ruby 3.2+; run tests once so `coverage/.resultset.json` exists.
+- One-off MCP requests can be made by piping JSON-RPC to the server:
+
+```sh
+# Per-file summary (staleness off)
+echo '{
+  "jsonrpc":"2.0","id":1,
+  "method":"tools/call",
+  "params":{
+    "name":"coverage_summary",
+    "arguments":{ "path":"lib/foo.rb", "resultset":"coverage", "stale":"off" }
+  }
+}' | simplecov-mcp
+
+# All files with project-level staleness checks
+echo '{
+  "jsonrpc":"2.0","id":2,
+  "method":"tools/call",
+  "params":{
+    "name":"all_files_coverage",
+    "arguments":{ "resultset":"coverage", "stale":"error", "tracked_globs":["lib/**/*.rb"] }
+  }
+}' | simplecov-mcp
+```
+
+Tip: In an MCP-capable editor/agent, configure `simplecov-mcp` as a stdio server and call the same tool names with the `arguments` shown above.
+
 Resultset resolution:
 
 - If `resultset:` is provided, it may be:
