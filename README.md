@@ -39,11 +39,21 @@ Use this gem programmatically to inspect coverage without running the CLI or MCP
 Basics:
 
 ```ruby
-require "simple_cov_mcp" # or: require "simplecov_mcp" (legacy: "simple_cov/mcp")
+require "simple_cov_mcp"
 
+# Defaults (omit args; shown here with comments):
+# - root: "."
+# - resultset: resolved from SIMPLECOV_RESULTSET or common paths under root
+# - staleness: "off" (no stale checks)
+# - tracked_globs: nil (no project-level file-set checks)
+model = SimpleCovMcp::CoverageModel.new
+
+# Custom configuration (non-default values):
 model = SimpleCovMcp::CoverageModel.new(
-  root: ".",                 # project root (defaults to ".")
-  resultset: nil              # optional: file or directory for .resultset.json
+  root: "/path/to/project",        # non-default project root
+  resultset: "build/coverage",      # file or directory containing .resultset.json
+  staleness: "error",               # enable stale checks (raise on stale)
+  tracked_globs: ["lib/**/*.rb"]    # for 'all_files' staleness: flag new/missing files
 )
 
 # List all files with coverage summary, sorted ascending by % (default)
