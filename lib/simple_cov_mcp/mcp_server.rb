@@ -11,7 +11,7 @@ module SimpleCovMcp
         server = ::MCP::Server.new(
           name:    'simplecov-mcp',
           version: SimpleCovMcp::VERSION,
-          tools:   [AllFilesCoverageTool, CoverageDetailedTool, CoverageRawTool, CoverageSummaryTool, UncoveredLinesTool]
+          tools:   [AllFilesCoverageTool, CoverageDetailedTool, CoverageRawTool, CoverageSummaryTool, UncoveredLinesTool, VersionTool]
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
       end

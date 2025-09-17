@@ -2,7 +2,7 @@
 
 module SimpleCovMcp
   class CoverageCLI
-      SUBCOMMANDS = %w[list summary raw uncovered detailed].freeze
+      SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
 
       # Initialize CLI for pure CLI usage only.
       # Always runs as CLI, no mode detection needed.
@@ -52,6 +52,7 @@ module SimpleCovMcp
           o.separator "  raw <path>              Show the SimpleCov 'lines' array"
           o.separator '  uncovered <path>        Show uncovered lines and a summary'
           o.separator '  detailed <path>         Show per-line rows with hits/covered'
+          o.separator '  version                 Show version information'
           o.separator ''
 
           o.separator ''
@@ -157,7 +158,8 @@ module SimpleCovMcp
         when 'raw'       then handle_raw(model, args)
         when 'uncovered' then handle_uncovered(model, args)
         when 'detailed'  then handle_detailed(model, args)
-        else raise UsageError.for_subcommand('list | summary <path> | raw <path> | uncovered <path> | detailed <path>')
+        when 'version'   then handle_version
+        else raise UsageError.for_subcommand('list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version')
         end
       rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
@@ -179,6 +181,14 @@ module SimpleCovMcp
 
       def handle_list(model)
         show_default_report(sort_order: @sort_order)
+      end
+
+      def handle_version
+        if @json
+          puts JSON.pretty_generate({ version: SimpleCovMcp::VERSION })
+        else
+          puts "SimpleCovMcp version #{SimpleCovMcp::VERSION}"
+        end
       end
 
       def handle_summary(model, args)

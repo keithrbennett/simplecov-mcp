@@ -9,8 +9,8 @@ This gem provides:
 
 ## Features
 
-- MCP server tools for coverage queries: raw, summary, uncovered, detailed, and all-files list.
-- CLI subcommands: `list`, `summary`, `raw`, `uncovered`, `detailed` (default `list`).
+- MCP server tools for coverage queries: raw, summary, uncovered, detailed, all-files list, and version.
+- CLI subcommands: `list`, `summary`, `raw`, `uncovered`, `detailed`, `version` (default `list`).
 - JSON output with `--json` for machine use; human-readable tables/rows by default.
 - Annotated source snippets with `--source[=full|uncovered]` and `--source-context N`; optional colors with `--color/--no-color`.
 - Flexible resultset location: `--resultset PATH` or `SIMPLECOV_RESULTSET`; accepts file or directory; sensible default search order.
@@ -275,6 +275,7 @@ Subcommands:
 - `raw <path>` — show the original SimpleCov lines array
 - `uncovered <path>` — show uncovered lines and summary
 - `detailed <path>` — show per-line rows with hits and covered
+- `version` — show version information
 
 Global flags (OptionParser):
 
@@ -339,6 +340,7 @@ Available tools:
 - `uncovered_lines(path, root=".", resultset=nil, stale='off')`
 - `coverage_detailed(path, root=".", resultset=nil, stale='off')`
 - `all_files_coverage(root=".", resultset=nil, stale='off', tracked_globs=nil)`
+- `version()` — returns version information
 
 Notes:
 
