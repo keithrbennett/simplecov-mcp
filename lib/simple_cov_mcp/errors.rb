@@ -100,6 +100,63 @@ module SimpleCovMcp
       end
     end
 
+    # Project-level stale coverage (global) — coverage timestamp older than
+    # one or more source files, or new tracked files missing from coverage.
+    class CoverageDataProjectStaleError < CoverageDataError
+      attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files, :resultset_path
+
+      def initialize(message = nil, original_error = nil, cov_timestamp: nil, newer_files: [], missing_files: [], deleted_files: [], resultset_path: nil)
+        super(message, original_error)
+        @cov_timestamp = cov_timestamp
+        @newer_files = Array(newer_files)
+        @missing_files = Array(missing_files)
+        @deleted_files = Array(deleted_files)
+        @resultset_path = resultset_path
+      end
+
+      def user_friendly_message
+        base = "Coverage data stale (project): #{message || default_message}"
+        base + build_details
+      end
+
+      private
+
+      def default_message
+        'Coverage data appears stale for project'
+      end
+
+      def build_details
+        cov_utc, cov_local = format_epoch_both(@cov_timestamp)
+        parts = []
+        parts << "\nCoverage  - time: #{cov_utc || 'not found'} (local #{cov_local || 'n/a'})"
+        unless @newer_files.empty?
+          parts << "\nNewer files (#{@newer_files.size}):"
+          parts.concat(@newer_files.first(10).map { |f| "  - #{f}" })
+          parts << "  ..." if @newer_files.size > 10
+        end
+        unless @missing_files.empty?
+          parts << "\nMissing files (new in project, not in coverage, #{@missing_files.size}):"
+          parts.concat(@missing_files.first(10).map { |f| "  - #{f}" })
+          parts << "  ..." if @missing_files.size > 10
+        end
+        unless @deleted_files.empty?
+          parts << "\nCoverage-only files (deleted or moved in project, #{@deleted_files.size}):"
+          parts.concat(@deleted_files.first(10).map { |f| "  - #{f}" })
+          parts << "  ..." if @deleted_files.size > 10
+        end
+        parts << "\nResultset - #{@resultset_path}" if @resultset_path
+        parts.join
+      end
+
+      def format_epoch_both(epoch_seconds)
+        return [nil, nil] unless epoch_seconds
+        t = Time.at(epoch_seconds.to_i)
+        [t.utc.iso8601, t.getlocal.iso8601]
+      rescue StandardError
+        [epoch_seconds.to_s, epoch_seconds.to_s]
+      end
+    end
+
     # Command line usage errors
     class UsageError < Error
       def self.for_subcommand(usage_fragment)

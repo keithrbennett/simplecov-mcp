@@ -50,4 +50,26 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       end
     end
   end
+CoverageDataProjectStaleErrCoverageDataProjectStaleErroror
+  it 'all_files raises project-level stale when any source file is newer than coverage' do
+    with_stubbed_coverage_timestamp(0) do
+      model = described_class.new(root: root, strict_staleness: true)
+      expect { model.all_files }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+    end
+  end
+
+  it 'all_files detects new files via tracked_globs' do
+    with_stubbed_coverage_timestamp(Time.now.to_i) do
+      tmp = File.join(root, 'lib', 'brand_new_file.rb')
+      begin
+        File.write(tmp, "# new file\n")
+        model = described_class.new(root: root, strict_staleness: true)
+        expect {
+          model.all_files(tracked_globs: ['lib/**/*.rb'])
+        }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+      ensure
+        File.delete(tmp) if File.exist?(tmp)
+      end
+    end
+  end
 end

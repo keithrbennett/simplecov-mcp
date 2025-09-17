@@ -79,6 +79,18 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
   end
 
+  it 'honors --no-strict-staleness to disable checks' do
+    begin
+      ENV['SIMPLECOV_MCP_STRICT_STALENESS'] = '1'
+      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
+      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--no-strict-staleness')
+      expect(status).to eq(0)
+      expect(err).to eq("")
+    ensure
+      ENV.delete('SIMPLECOV_MCP_STRICT_STALENESS')
+    end
+  end
+
   # Note on text-mode source rendering tests:
   # - "Text-mode source" refers to the ASCII source view printed by the CLI
   #   when passing --source or --source=uncovered (checkmarks/dots, line nums).

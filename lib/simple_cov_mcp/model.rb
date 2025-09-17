@@ -53,19 +53,24 @@ module SimpleCovMcp
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' => }, ... ]
-    def all_files(sort_order: :ascending)
-      rows = @cov.map do |abs_path, data|
-        next unless data['lines'].is_a?(Array)
-        s = CovUtil.summary(data['lines'])
-        { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'] }
-      end.compact
+      def all_files(sort_order: :ascending, check_stale: @strict_staleness, tracked_globs: nil)
+        rows = @cov.map do |abs_path, data|
+          next unless data['lines'].is_a?(Array)
+          s = CovUtil.summary(data['lines'])
+          { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'] }
+        end.compact
 
-      rows.sort! do |a, b|
-        pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
-        pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+        if check_stale
+          cov_timestamp = CovUtil.latest_timestamp(@root, resultset: @resultset)
+          check_all_files_staleness!(cov_timestamp, tracked_globs: tracked_globs)
+        end
+
+        rows.sort! do |a, b|
+          pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+          pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+        end
+        rows
       end
-      rows
-    end
 
     private
 
@@ -118,9 +123,59 @@ module SimpleCovMcp
       cov_len > 0 && cov_len != src_len
     end
 
-    def source_newer_than_coverage?(file_mtime, cov_timestamp)
-      cov_timestamp && file_mtime && file_mtime.to_i > cov_timestamp.to_i
-    end
+      def source_newer_than_coverage?(file_mtime, cov_timestamp)
+        cov_timestamp && file_mtime && file_mtime.to_i > cov_timestamp.to_i
+      end
+
+      def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
+        begin
+          resultset_path = SimpleCovMcp::CovUtil.find_resultset(@root, resultset: @resultset)
+        rescue StandardError
+          resultset_path = nil
+        end
+
+        coverage_files = @cov.keys
+        newer = []
+        deleted = []
+        coverage_files.each do |abs|
+          if File.file?(abs)
+            newer << rel_to_root(abs) if File.mtime(abs).to_i > cov_timestamp.to_i
+          else
+            deleted << rel_to_root(abs)
+          end
+        end
+
+        missing = []
+        if tracked_globs && !Array(tracked_globs).empty?
+          patterns = Array(tracked_globs).map { |g| File.absolute_path(g, @root) }
+          tracked = patterns.flat_map { |p| Dir.glob(p, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
+                            .select { |p| File.file?(p) }
+          covered_set = coverage_files.to_set rescue coverage_files
+          tracked.each do |abs|
+            missing << rel_to_root(abs) unless covered_set.include?(abs)
+          end
+        end
+
+        if !newer.empty? || !missing.empty? || !deleted.empty?
+          raise CoverageDataProjectStaleError.new(
+            nil,
+            nil,
+            cov_timestamp: cov_timestamp,
+            newer_files: newer,
+            missing_files: missing,
+            deleted_files: deleted,
+            resultset_path: resultset_path
+          )
+        end
+      rescue SimpleCovMcp::Error
+        raise
+      rescue StandardError
+        # swallow staleness calculation issues during all_files
+      end
+
+      def rel_to_root(path)
+        Pathname.new(path).relative_path_from(Pathname.new(File.absolute_path(@root))).to_s
+      end
 
     # Detailed stale message construction moved to CoverageDataStaleError
   end

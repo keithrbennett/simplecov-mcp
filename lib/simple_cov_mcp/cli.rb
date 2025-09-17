@@ -17,6 +17,8 @@ module SimpleCovMcp
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
         @error_handler = error_handler || ErrorHandlerFactory.for_cli
+        @strict_staleness = (ENV['SIMPLECOV_MCP_STRICT_STALENESS'] == '1')
+        @tracked_globs = nil
       end
 
       def run(argv)
@@ -64,6 +66,8 @@ module SimpleCovMcp
           o.on('--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
           o.on('--color', 'Enable ANSI colors for source output') { @color = true }
           o.on('--no-color', 'Disable ANSI colors') { @color = false }
+          o.on('--[no-]strict-staleness', 'Enable/disable staleness checks (per-call)') { |v| @strict_staleness = v }
+          o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
           o.separator ''
           o.separator 'Examples:'
           o.separator '  simplecov-mcp list --resultset coverage'
@@ -79,8 +83,8 @@ module SimpleCovMcp
       end
 
       def show_default_report(sort_order: :ascending)
-        model = CoverageModel.new(root: @root, resultset: @resultset)
-        rows = model.all_files(sort_order: sort_order)
+        model = CoverageModel.new(root: @root, resultset: @resultset, strict_staleness: @strict_staleness)
+        rows = model.all_files(sort_order: sort_order, check_stale: @strict_staleness, tracked_globs: @tracked_globs)
         if @json
           files = rows.map { |row| row.merge('file' => rel_to_root(row['file'])) }
           puts JSON.pretty_generate({ files: files })
@@ -144,7 +148,7 @@ module SimpleCovMcp
 
 
       def run_subcommand(cmd, args)
-        model = CoverageModel.new(root: @root, resultset: @resultset)
+        model = CoverageModel.new(root: @root, resultset: @resultset, strict_staleness: @strict_staleness)
         case cmd
         when 'list'      then handle_list(model)
         when 'summary'   then handle_summary(model, args)
