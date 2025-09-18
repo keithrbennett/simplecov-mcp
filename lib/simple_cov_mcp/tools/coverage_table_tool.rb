@@ -20,9 +20,12 @@ module SimpleCovMcp
 
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', server_context:)
-          # Capture the output of the CLI's table report
+          # Capture the output of the CLI's table report while honoring CLI options
           output = StringIO.new
           cli = CoverageCLI.new
+          cli.instance_variable_set(:@root, root || '.')
+          cli.instance_variable_set(:@resultset, resultset)
+          cli.instance_variable_set(:@stale_mode, (stale || 'off').to_s)
           cli.show_default_report(sort_order: sort_order.to_sym, output: output)
           ::MCP::Tool::Response.new([{ type: 'text', text: output.string }])
         rescue => e
