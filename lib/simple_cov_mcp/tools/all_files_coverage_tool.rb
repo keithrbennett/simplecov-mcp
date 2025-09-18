@@ -6,15 +6,43 @@ require_relative '../base_tool'
 module SimpleCovMcp
   module Tools
     class AllFilesCoverageTool < BaseTool
-      description 'Return coverage percentage for all files in the project'
+      description <<~DESC
+        Use this when the user wants coverage percentages for every tracked file in the project.
+        Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
+        Inputs: optional project root, alternate .resultset path, sort order, staleness mode, and tracked_globs to alert on new files.
+        Output: JSON {"files": [{"file","covered","total","percentage"}, ...]} sorted as requested.
+        Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
+      DESC
       input_schema(
         type: 'object',
+        additionalProperties: false,
         properties: {
-          root: { type: 'string', description: 'Project root for resolution', default: '.' },
-          resultset: { type: 'string', description: 'Path to .resultset.json (absolute or relative to root)' },
-          sort_order: { type: 'string', description: 'Sort order for coverage percentage: ascending or descending', default: 'ascending', enum: ['ascending', 'descending'] },
-          stale: { type: 'string', description: 'Staleness mode: off|error', enum: ['off', 'error'] },
-          tracked_globs: { type: 'array', description: 'Globs (project-relative) to detect new files missing from coverage', items: { type: 'string' } }
+          root: {
+            type: 'string',
+            description: 'Project root used to resolve relative inputs.',
+            default: '.'
+          },
+          resultset: {
+            type: 'string',
+            description: 'Path to the SimpleCov .resultset.json file.'
+          },
+          sort_order: {
+            type: 'string',
+            description: "Sort order for coverage percentages. 'ascending' highlights the riskiest files first.",
+            default: 'ascending',
+            enum: ['ascending', 'descending']
+          },
+          stale: {
+            type: 'string',
+            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            enum: ['off', 'error'],
+            default: 'off'
+          },
+          tracked_globs: {
+            type: 'array',
+            description: 'Glob patterns for files that should exist in the coverage report (helps flag new files).',
+            items: { type: 'string' }
+          }
         }
       )
       class << self

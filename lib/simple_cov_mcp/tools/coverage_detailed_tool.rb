@@ -6,7 +6,13 @@ require_relative '../model'
 module SimpleCovMcp
   module Tools
     class CoverageDetailedTool < BaseTool
-      description 'Verbose per-line objects [{line,hits,covered}] (token-heavy)'
+      description <<~DESC
+        Use this when the user needs per-line coverage data for a single file.
+        Do not use this for high-level counts; coverage.summary is cheaper for aggregate numbers.
+        Inputs: file path (required) plus optional root/resultset/stale mode inherited from BaseTool.
+        Output: JSON object with "file", "lines" => [{"line": 12, "hits": 0, "covered": false}], plus "summary" with totals.
+        Example: "Show detailed coverage for lib/simple_cov_mcp/model.rb".
+      DESC
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: '.', resultset: nil, stale: 'off', server_context:)

@@ -7,14 +7,38 @@ require_relative '../base_tool'
 module SimpleCovMcp
   module Tools
     class CoverageTableTool < BaseTool
-      description 'Returns the coverage summary table as a formatted string'
+      description <<~DESC
+        Use this when a user wants the plain text coverage table exactly like `simplecov-mcp --table` would print (no ANSI colors).
+        Do not use this for machine-readable data; coverage.all_files returns structured JSON.
+        Inputs: optional project root/resultset path/sort order/staleness mode matching the CLI flags.
+        Output: text block containing the formatted coverage table with headers and percentages.
+        Example: "Show me the CLI coverage table sorted descending".
+      DESC
       input_schema(
         type: 'object',
+        additionalProperties: false,
         properties: {
-          root: { type: 'string', description: 'Project root for resolution', default: '.' },
-          resultset: { type: 'string', description: 'Path to .resultset.json (absolute or relative to root)' },
-          sort_order: { type: 'string', description: 'Sort order for coverage percentage: ascending or descending', default: 'ascending', enum: ['ascending', 'descending'] },
-          stale: { type: 'string', description: 'Staleness mode: off|error', enum: ['off', 'error'] }
+          root: {
+            type: 'string',
+            description: 'Project root used to resolve relative inputs.',
+            default: '.'
+          },
+          resultset: {
+            type: 'string',
+            description: 'Path to the SimpleCov .resultset.json file.'
+          },
+          sort_order: {
+            type: 'string',
+            description: "Sort order for the printed coverage table (ascending or descending).",
+            default: 'ascending',
+            enum: ['ascending', 'descending']
+          },
+          stale: {
+            type: 'string',
+            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            enum: ['off', 'error'],
+            default: 'off'
+          }
         }
       )
 

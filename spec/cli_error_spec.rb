@@ -88,7 +88,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   # Note on text-mode source rendering tests:
-  # - "Text-mode source" refers to the ASCII source view printed by the CLI
+  # - "Text-mode source" refers to the plain-text source view (no ANSI colors)
   #   when passing --source or --source=uncovered (checkmarks/dots, line nums).
   # - Direct tests are omitted here because behavior depends on how paths are
   #   resolved (relative vs absolute) in combination with --root/--resultset

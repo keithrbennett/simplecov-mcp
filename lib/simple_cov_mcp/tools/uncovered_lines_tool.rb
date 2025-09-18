@@ -6,7 +6,13 @@ require_relative '../model'
 module SimpleCovMcp
   module Tools
     class UncoveredLinesTool < BaseTool
-      description 'Return only uncovered executable line numbers plus a summary'
+      description <<~DESC
+        Use this when the user wants to know which lines in a file still lack coverage.
+        Do not use this for overall percentages; coverage.summary is faster when counts are enough.
+        Inputs: file path (required) plus optional root/resultset/stale mode inherited from BaseTool.
+        Output: JSON object with keys "file", "uncovered" (array of integers), and "summary" {"covered","total","pct"}.
+        Example: "List uncovered lines for lib/simple_cov_mcp/tools/coverage_summary_tool.rb".
+      DESC
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: '.', resultset: nil, stale: 'off', server_context:)

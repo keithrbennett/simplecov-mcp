@@ -8,11 +8,28 @@ module SimpleCovMcp
   class BaseTool < ::MCP::Tool
       INPUT_SCHEMA = {
         type: 'object',
+        additionalProperties: false,
         properties: {
-          path: { type: 'string', description: 'Absolute or project-relative file path' },
-          root: { type: 'string', description: 'Project root for resolution', default: '.' },
-          resultset: { type: 'string', description: 'Path to .resultset.json (absolute or relative to root)' },
-          stale: { type: 'string', description: 'Staleness mode: off|error', enum: %w[off error] }
+          path: {
+            type: 'string',
+            description: 'Repo-relative or absolute path to the file whose coverage data you need.',
+            examples: ['lib/simple_cov_mcp/model.rb']
+          },
+          root: {
+            type: 'string',
+            description: 'Project root used to resolve relative paths (defaults to current workspace).',
+            default: '.'
+          },
+          resultset: {
+            type: 'string',
+            description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
+          },
+          stale: {
+            type: 'string',
+            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            enum: %w[off error],
+            default: 'off'
+          }
         },
         required: ['path']
       }
