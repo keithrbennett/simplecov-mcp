@@ -21,6 +21,7 @@ require_relative 'simple_cov_mcp/tools/coverage_detailed_tool'
 require_relative 'simple_cov_mcp/tools/all_files_coverage_tool'
 require_relative 'simple_cov_mcp/tools/coverage_table_tool'
 require_relative 'simple_cov_mcp/tools/version_tool'
+require_relative 'simple_cov_mcp/tools/help_tool'
 require_relative 'simple_cov_mcp/mcp_server'
 require_relative 'simple_cov_mcp/cli'
 

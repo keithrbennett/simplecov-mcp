@@ -15,6 +15,7 @@ module SimpleCovMcp
           Tools::CoverageSummaryTool,
           Tools::UncoveredLinesTool,
           Tools::CoverageTableTool,
+          Tools::HelpTool,
           Tools::VersionTool
         ]
 
