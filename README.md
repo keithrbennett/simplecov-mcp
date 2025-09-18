@@ -79,26 +79,14 @@ detailed = model.detailed_for("lib/foo.rb")
 - Prereqs: Ruby 3.2+; run tests once so `coverage/.resultset.json` exists.
 - One-off MCP requests can be made by piping JSON-RPC to the server:
 
+**Important**: JSON-RPC messages must be on a single line (no line breaks). Multi-line JSON will cause parse errors.
+
 ```sh
 # Per-file summary (staleness off)
-echo '{
-  "jsonrpc":"2.0","id":1,
-  "method":"tools/call",
-  "params":{
-    "name":"coverage_summary",
-    "arguments":{ "path":"lib/foo.rb", "resultset":"coverage", "stale":"off" }
-  }
-}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb","resultset":"coverage","stale":"off"}}}' | simplecov-mcp
 
 # All files with project-level staleness checks
-echo '{
-  "jsonrpc":"2.0","id":2,
-  "method":"tools/call",
-  "params":{
-    "name":"all_files_coverage",
-    "arguments":{ "resultset":"coverage", "stale":"error", "tracked_globs":["lib/**/*.rb"] }
-  }
-}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"resultset":"coverage","stale":"error","tracked_globs":["lib/**/*.rb"]}}}' | simplecov-mcp
 ```
 
 Tip: In an MCP-capable editor/agent, configure `simplecov-mcp` as a stdio server and call the same tool names with the `arguments` shown above.
@@ -335,12 +323,12 @@ When stdin has data (e.g., from an MCP client), the program runs as an MCP serve
 
 Available tools:
 
-- `coverage_raw(path, root=".", resultset=nil, stale='off')`
-- `coverage_summary(path, root=".", resultset=nil, stale='off')`
-- `uncovered_lines(path, root=".", resultset=nil, stale='off')`
-- `coverage_detailed(path, root=".", resultset=nil, stale='off')`
-- `all_files_coverage(root=".", resultset=nil, stale='off', tracked_globs=nil)`
-- `version()` — returns version information
+- `coverage_raw_tool(path, root=".", resultset=nil, stale='off')`
+- `coverage_summary_tool(path, root=".", resultset=nil, stale='off')`
+- `uncovered_lines_tool(path, root=".", resultset=nil, stale='off')`
+- `coverage_detailed_tool(path, root=".", resultset=nil, stale='off')`
+- `all_files_coverage_tool(root=".", resultset=nil, stale='off', tracked_globs=nil)`
+- `version_tool()` — returns version information
 
 Notes:
 
@@ -351,22 +339,22 @@ Notes:
 - `stale` controls staleness checking per call (`off` or `error`).
 - For `all_files_coverage`, `tracked_globs` detects new project files missing from coverage, and the tool also flags covered files that are newer than the coverage timestamp or present in coverage but deleted in the project.
 
-Example (manual):
+Example (manual - note single-line JSON-RPC format):
 
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb"}}}' | simplecov-mcp
 ```
 
 With an explicit resultset path:
 
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"build/coverage/.resultset.json"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb","resultset":"build/coverage/.resultset.json"}}}' | simplecov-mcp
 ```
 
 With a resultset directory:
 
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","resultset":"coverage"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb","resultset":"coverage"}}}' | simplecov-mcp
 ```
 
 CLI vs MCP summary:
