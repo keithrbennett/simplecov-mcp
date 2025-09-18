@@ -48,6 +48,9 @@ ruby -Ilib exe/simplecov-mcp --cli
 
 # Test MCP server (single-line JSON-RPC)
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | ruby -Ilib exe/simplecov-mcp
+ 
+# Discover available tools before issuing a request
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | ruby -Ilib exe/simplecov-mcp
 ```
 
 ### Building
@@ -85,7 +88,14 @@ Searches for `.resultset.json` in this order:
 - `coverage_detailed_tool` - Per-line coverage with hit counts
 - `all_files_coverage_tool` - Project-wide coverage table
 - `coverage_table_tool` - Formatted coverage table
+- `help_tool` - Indexed guidance on the tools above
 - `version_tool` - Version information
+
+### Prompt & Response Examples
+- **Prompt:** “What’s the coverage for `lib/simple_cov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }` and report `summary` from the response.
+- **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
+- **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
+- **Uncertain?** Call `help_tool` (optionally with `{ "query": "uncovered" }`) before proceeding.
 
 ## Testing Notes
 

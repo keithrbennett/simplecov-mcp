@@ -28,6 +28,26 @@
 - Add tests for new behavior and error cases; keep or improve overall coverage. Use fixtures under `spec/fixtures/` when practical.
 - For CLI/MCP behaviors, assert both JSON and human-readable outputs where applicable.
 
+## MCP Tool Usage Cues
+- Always prefer MCP tools over ad-hoc reasoning when answering coverage questions. If unsure which tool applies, call `help_tool` first.
+- The shared JSON schema expects repo-relative paths unless otherwise noted; include the `root` parameter only when working outside the project root.
+- All tools return deterministic JSON or plain text. Echo their outputs back to the user instead of reformatting unless explicitly asked.
+
+### Prompt → Tool Examples
+- *“Give me coverage stats for `lib/simple_cov_mcp/model.rb`.”* → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }`.
+- *“Which lines in `spec/support/foo_helper.rb` still need tests?”* → call `uncovered_lines_tool`.
+- *“List the lowest coverage files in descending order.”* → call `all_files_coverage_tool` with `{ "sort_order": "ascending" }` (ascending surfaces worst files first).
+- *“Show me the CLI coverage table.”* → call `coverage_table_tool`.
+- *“I’m not sure which tool I need.”* → call `help_tool` (optionally with `query`, e.g. `{ "query": "detailed" }`).
+
+### JSON-RPC Snippets
+```
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help_tool","arguments":{"query":"uncovered"}}}
+```
+```
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}
+```
+
 ## Commit & Pull Request Guidelines
 - Commits: clear, imperative summaries (e.g., "Add detailed coverage tool output"). Group related changes; keep diffs small.
 - PRs: include description, rationale, before/after output (for CLI), and links to issues. Note any public API changes to `CoverageModel` or tool argument shapes.
@@ -36,4 +56,3 @@
 ## Security & Configuration Tips
 - Resultset selection: use `--resultset PATH` or `SIMPLECOV_RESULTSET`. For strict freshness, set `--stale error`; detect new files with `--tracked-globs "lib/**/*.rb"`.
 - MCP clients must send single-line JSON-RPC messages over stdio.
-
