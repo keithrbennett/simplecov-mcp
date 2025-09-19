@@ -41,6 +41,24 @@ module SimpleCovMcp
       end
     end
 
+    # Compute whether a specific file appears stale relative to coverage.
+    # Ignores mode and never raises; returns true when:
+    # - the file is missing/deleted, or
+    # - the file mtime is newer than the coverage timestamp, or
+    # - the source line count differs from the coverage lines array length (when present).
+    def stale_for_file?(file_abs, coverage_lines)
+      ts = coverage_timestamp
+      return true unless File.file?(file_abs)
+
+      fm = File.mtime(file_abs)
+      cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
+      src_len = safe_count_lines(file_abs)
+      (fm && fm.to_i > ts.to_i) || (cov_len.positive? && src_len != cov_len)
+    rescue StandardError
+      # Be conservative: if we cannot determine, mark as stale
+      true
+    end
+
     # Raise CoverageDataProjectStaleError if any covered file is newer or if
     # tracked files are missing from coverage, or coverage includes deleted files.
     def check_project!(coverage_map)

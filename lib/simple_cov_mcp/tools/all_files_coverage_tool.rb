@@ -10,7 +10,7 @@ module SimpleCovMcp
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
         Inputs: optional project root, alternate .resultset path, sort order, staleness mode, and tracked_globs to alert on new files.
-        Output: JSON {"files": [{"file","covered","total","percentage"}, ...]} sorted as requested.
+        Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...]} sorted as requested. "stale" is a boolean.
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
       input_schema(

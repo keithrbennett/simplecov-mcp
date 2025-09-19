@@ -53,12 +53,14 @@ module SimpleCovMcp
       { 'file' => file_abs, 'lines' => CovUtil.detailed(coverage_lines), 'summary' => CovUtil.summary(coverage_lines) }
     end
 
-    # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' => }, ... ]
+    # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
       def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
+        stale_checker = StalenessChecker.new(root: @root, resultset: @resultset, mode: 'off', tracked_globs: tracked_globs)
         rows = @cov.map do |abs_path, data|
           next unless data['lines'].is_a?(Array)
           s = CovUtil.summary(data['lines'])
-          { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'] }
+          stale = stale_checker.stale_for_file?(abs_path, data['lines'])
+          { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'], 'stale' => stale }
         end.compact
 
         if check_stale

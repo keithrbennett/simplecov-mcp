@@ -10,6 +10,7 @@ This gem provides:
 ## Features
 
 - MCP server tools for coverage queries: raw, summary, uncovered, detailed, all-files list, and version.
+ - Per-file staleness flag in list outputs to highlight files newer than coverage or with line-count mismatches (shown as a compact '!' column in the CLI).
 - CLI subcommands: `list`, `summary`, `raw`, `uncovered`, `detailed`, `version` (default `list`).
 - JSON output with `--json` for machine use; human-readable tables/rows by default.
 - Annotated source snippets with `--source[=full|uncovered]` and `--source-context N`; optional colors with `--color/--no-color`.
@@ -58,7 +59,7 @@ model = SimpleCovMcp::CoverageModel.new(
 
 # List all files with coverage summary, sorted ascending by % (default)
 files = model.all_files
-# => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71 }, ... ]
+# => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false }, ... ]
 
 # Per-file summaries
 summary = model.summary_for("lib/foo.rb")
@@ -215,7 +216,7 @@ Public API stability:
 - Consider the following public and stable under SemVer:
   - `SimpleCovMcp::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
   - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
-  - Return shapes shown above (keys and value types)
+  - Return shapes shown above (keys and value types). For `all_files`, each row also includes `'stale' => true|false`.
 - CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
 - Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
 
@@ -310,13 +311,13 @@ SIMPLECOV_MCP_CLI=1 simplecov-mcp
 Example output:
 
 ```text
-┌───────────────────────────┬──────────┬──────────┬────────┐
-│ File                      │        % │  Covered │  Total │
-├───────────────────────────┼──────────┼──────────┼────────┤
-│ spec/user_spec.rb         │    85.71 │       12 │     14 │
-│ lib/models/user.rb        │    92.31 │       12 │     13 │
-│ lib/services/auth.rb      │   100.00 │        8 │      8 │
-└───────────────────────────┴──────────┴──────────┴────────┘
+┌───────────────────────────┬──────────┬──────────┬────────┬───┐
+│ File                      │        % │  Covered │  Total │ ! │
+├───────────────────────────┼──────────┼──────────┼────────┼───┤
+│ spec/user_spec.rb         │    85.71 │       12 │     14 │   │
+│ lib/models/user.rb        │    92.31 │       12 │     13 │ ! │
+│ lib/services/auth.rb      │   100.00 │        8 │      8 │   │
+└───────────────────────────┴──────────┴──────────┴────────┴───┘
 ```
 
 Files are sorted by percentage (ascending), then by path.
@@ -332,6 +333,7 @@ Available tools:
 - `uncovered_lines_tool(path, root=".", resultset=nil, stale='off')`
 - `coverage_detailed_tool(path, root=".", resultset=nil, stale='off')`
 - `all_files_coverage_tool(root=".", resultset=nil, stale='off', tracked_globs=nil)`
+  - Returns `{ files: [{"file","covered","total","percentage","stale"}, ...] }` where `stale` is a boolean.
 - `version_tool()` — returns version information
 
 Notes:

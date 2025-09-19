@@ -63,6 +63,10 @@ module SimpleCovMcp
         covered_width = [max_covered, 'Covered'.length].max + 2
         total_width = [max_total, 'Total'.length].max + 2
 
+        stale_header = 'Stale'
+        stale_width = stale_header.length
+        # Use String#center for concise centering
+
         # Horizontal line for each column span
         h_line = ->(col_width) { '─' * (col_width + 2) }
 
@@ -72,6 +76,7 @@ module SimpleCovMcp
           middle + h_line.(pct_width) +
           middle + h_line.(covered_width) +
           middle + h_line.(total_width) +
+          middle + h_line.(stale_width) +
           right
         }
 
@@ -79,19 +84,21 @@ module SimpleCovMcp
         output.puts border_line.call('┌', '┬', '┐')
 
         # Header row
-        output.printf "│ %-#{file_width}s │ %#{pct_width}s │ %#{covered_width}s │ %#{total_width}s │\n",
-               'File', ' %', 'Covered', 'Total'
+        output.printf "│ %-#{file_width}s │ %#{pct_width}s │ %#{covered_width}s │ %#{total_width}s │ %#{stale_width}s │\n",
+               'File', ' %', 'Covered', 'Total', stale_header.to_s.center(stale_width)
 
         # Header separator
         output.puts border_line.call('├', '┼', '┤')
 
         # Data rows
         file_summaries.each do |file_data|
-          output.printf "│ %-#{file_width}s │ %#{pct_width - 1}.2f%% │ %#{covered_width}d │ %#{total_width}d │\n",
+          stale_text_str = file_data['stale'] ? '!' : ''
+          output.printf "│ %-#{file_width}s │ %#{pct_width - 1}.2f%% │ %#{covered_width}d │ %#{total_width}d │ %#{stale_width}s │\n",
                  file_data['file'],
                  file_data['percentage'],
                  file_data['covered'],
-                 file_data['total']
+                 file_data['total'],
+                 stale_text_str.center(stale_width)
         end
 
         # Bottom border

@@ -16,8 +16,8 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     model = instance_double(SimpleCovMcp::CoverageModel)
     allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
     allow(model).to receive(:all_files).and_return([
-      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10 },
-      { 'file' => "#{root}/lib/bar.rb", 'percentage' => 50.0, 'covered' => 5, 'total' => 10 }
+      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
+      { 'file' => "#{root}/lib/bar.rb", 'percentage' =>  50.0, 'covered' =>  5, 'total' => 10, 'stale' => true }
     ])
 
     response = described_class.call(root: root, stale: stale, server_context: server_context)
@@ -31,6 +31,8 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     expect(output).to include('File')
     expect(output).to include('Covered')
     expect(output).to include('Total')
+    # Staleness column header reads 'Stale'
+    expect(output).to include(' │ Stale │')
 
     # Should list fixture files from the demo project
     expect(output).to include('lib/foo.rb')
@@ -45,7 +47,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   it 'configures the CLI to enforce stale checking when requested' do
     model = instance_double(SimpleCovMcp::CoverageModel)
     allow(model).to receive(:all_files).and_return([
-      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10 }
+      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false }
     ])
     expect(SimpleCovMcp::CoverageModel).to receive(:new).with(
       root: root,
