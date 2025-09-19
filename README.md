@@ -113,6 +113,10 @@ Sorting:
 model.all_files(sort_order: :descending) # or :ascending (default)
 ```
 
+## Example Prompts
+
+Using simplecov-mcp, show me a table of all files and their coverages.
+
 ## Error Handling
 
 This tool provides different error handling behavior depending on how it's used:
