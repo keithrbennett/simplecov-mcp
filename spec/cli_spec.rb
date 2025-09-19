@@ -47,6 +47,14 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(asc['files']).to be_an(Array)
     expect(asc['files'].first['file']).to end_with('lib/bar.rb')
 
+    # Includes counts for total/ok/stale and they are consistent
+    expect(asc['counts']).to include('total', 'ok', 'stale')
+    total = asc['counts']['total']
+    ok = asc['counts']['ok']
+    stale = asc['counts']['stale']
+    expect(total).to eq(asc['files'].length)
+    expect(ok + stale).to eq(total)
+
     output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'descending')
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')

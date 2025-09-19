@@ -10,7 +10,7 @@ module SimpleCovMcp
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
         Inputs: optional project root, alternate .resultset path, sort order, staleness mode, and tracked_globs to alert on new files.
-        Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...]} sorted as requested. "stale" is a boolean.
+        Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}} sorted as requested. "stale" is a boolean.
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
       input_schema(
@@ -49,7 +49,11 @@ module SimpleCovMcp
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', tracked_globs: nil, server_context:)
           model = CoverageModel.new(root: root, resultset: resultset, staleness: stale, tracked_globs: tracked_globs)
           files = model.all_files(sort_order: sort_order, check_stale: (stale.to_s == 'error'), tracked_globs: tracked_globs)
-          ::MCP::Tool::Response.new([{ type: 'json', json: { files: files } }],
+          total = files.length
+          stale_count = files.count { |f| f['stale'] }
+          ok_count = total - stale_count
+          payload = { files: files, counts: { total: total, ok: ok_count, stale: stale_count } }
+          ::MCP::Tool::Response.new([{ type: 'json', json: payload }],
                               meta: { mimeType: 'application/json' })
         rescue => e
           handle_mcp_error(e, 'AllFilesCoverageTool')

@@ -39,7 +39,10 @@ module SimpleCovMcp
         rows = model.all_files(sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
         if @json
           files = rows.map { |row| row.merge('file' => rel_to_root(row['file'])) }
-          output.puts JSON.pretty_generate({ files: files })
+          total = files.length
+          stale_count = files.count { |f| f['stale'] }
+          ok_count = total - stale_count
+          output.puts JSON.pretty_generate({ files: files, counts: { total: total, ok: ok_count, stale: stale_count } })
           return
         end
 
@@ -103,6 +106,12 @@ module SimpleCovMcp
 
         # Bottom border
         output.puts border_line.call('└', '┴', '┘')
+
+        # Summary counts line
+        total = file_summaries.length
+        stale_count = file_summaries.count { |f| f['stale'] }
+        ok_count = total - stale_count
+        output.puts "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
       end
 
       private
