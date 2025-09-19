@@ -42,6 +42,9 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     expect(output).to include('┌')
     expect(output).to include('│')
     expect(output).to include('└')
+
+    # Summary counts line appears after the table
+    expect(output).to include('Files: total 2, ok 1, stale 1')
   end
 
   it 'configures the CLI to enforce stale checking when requested' do
