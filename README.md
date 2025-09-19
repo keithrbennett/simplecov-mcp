@@ -118,6 +118,18 @@ model.all_files(sort_order: :descending) # or :ascending (default)
 
 Using simplecov-mcp, show me a table of all files and their coverages.
 
+----
+
+Using simplecov-mcp, find the uncovered code lines and report to me:
+
+* the most important coverage omissions to address
+* the simplest coverage omissions to address
+* analyze the risk of the current state of coverage
+* propose a plan of action (if any) to improve coverage state
+
+----
+
+
 ## Error Handling
 
 This tool provides different error handling behavior depending on how it's used:
