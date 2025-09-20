@@ -28,11 +28,11 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
     response = described_class.call(root: root, server_context: server_context)
     entry = response.payload.first
-    json = entry[:json] || entry['json']
+    json = JSON.parse(entry['text'])
 
-    expect(json).to have_key(:files).or have_key('files')
-    files = json[:files] || json['files']
-    counts = json[:counts] || json['counts']
+    expect(json).to have_key('files')
+    files = json['files']
+    counts = json['counts']
 
     expect(files.length).to eq(2)
     expect(counts).to include('total' => 2).or include(total: 2)
