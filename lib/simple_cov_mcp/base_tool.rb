@@ -44,6 +44,22 @@ module SimpleCovMcp
         ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{normalized.user_friendly_message}" }])
       end
 
+      # Respond with JSON as a resource to avoid clients mutating content types.
+      # The resource embeds the JSON string with a clear MIME type.
+      def self.respond_json(payload, name: 'data.json', pretty: false)
+        json = pretty ? JSON.pretty_generate(payload) : JSON.generate(payload)
+        ::MCP::Tool::Response.new([
+          {
+            'type' => 'resource',
+            'resource' => {
+              'mimeType' => 'application/json',
+              'text' => json,
+              'name' => name
+            }
+          }
+        ])
+      end
+
       private
 
       def self.log_mcp_error(error, tool_name)

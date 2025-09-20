@@ -28,7 +28,9 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
     response = described_class.call(root: root, server_context: server_context)
     entry = response.payload.first
-    json = JSON.parse(entry['text'])
+    expect(entry['type']).to eq('resource')
+    expect(entry['resource']).to include('mimeType' => 'application/json')
+    json = JSON.parse(entry['resource']['text'])
 
     expect(json).to have_key('files')
     files = json['files']

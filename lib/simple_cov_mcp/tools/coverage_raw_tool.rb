@@ -19,7 +19,7 @@ module SimpleCovMcp
           mode = stale
           model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
           data = model.raw_for(path)
-          ::MCP::Tool::Response.new([{ type: 'text', text: JSON.pretty_generate(data) }])
+          respond_json(data, name: 'coverage_raw.json', pretty: true)
         rescue => e
           handle_mcp_error(e, 'CoverageRawTool')
         end

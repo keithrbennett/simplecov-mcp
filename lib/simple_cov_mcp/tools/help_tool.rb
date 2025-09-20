@@ -89,9 +89,7 @@ module SimpleCovMcp
           entries = filter_entries(entries, query) if query && !query.strip.empty?
 
           data = { query: query, tools: entries }
-          ::MCP::Tool::Response.new([
-            { 'type' => 'text', 'text' => JSON.generate(data) }
-          ])
+          respond_json(data, name: 'tools_help.json')
         rescue => e
           handle_mcp_error(e, 'HelpTool')
         end

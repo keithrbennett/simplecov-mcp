@@ -92,6 +92,12 @@ echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"all_files_
 
 Tip: In an MCP-capable editor/agent, configure `simplecov-mcp` as a stdio server and call the same tool names with the `arguments` shown above.
 
+Response content types (MCP):
+
+- JSON data returns as a single `type: "resource"` item with `resource.mimeType: "application/json"` and the JSON string in `resource.text` (e.g., `name: "coverage_summary.json"`).
+- Human-readable strings (e.g., the table and version) return as `type: "text"`.
+- Errors return as `type: "text"` with a friendly message.
+
 Resultset resolution:
 
 - If `resultset:` is provided, it may be:
@@ -120,7 +126,7 @@ Using simplecov-mcp, show me a table of all files and their coverages.
 
 ----
 
-Using simplecov-mcp, find the uncovered code lines and report to me:
+Using simplecov-mcp, find the uncovered code lines and report to me, in a markdown file:
 
 * the most important coverage omissions to address
 * the simplest coverage omissions to address
@@ -347,6 +353,11 @@ Available tools:
 - `all_files_coverage_tool(root=".", resultset=nil, stale='off', tracked_globs=nil)`
   - Returns `{ files: [{"file","covered","total","percentage","stale"}, ...] }` where `stale` is a boolean.
 - `version_tool()` — returns version information
+
+Response shape and content types:
+
+- JSON tools above return a single content item `{ "type": "resource", "resource": { "mimeType": "application/json", "text": "{...}", "name": "<tool>.json" } }`.
+- `coverage_table_tool` and `version_tool` return `{ "type": "text", "text": "..." }`.
 
 Notes:
 

@@ -92,7 +92,8 @@ Searches for `.resultset.json` in this order:
 - `version_tool` - Version information
 
 ### Prompt & Response Examples
-- **Prompt:** “What’s the coverage for `lib/simple_cov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }` and report `summary` from the response.
+- JSON responses are returned as `type: "resource"` with `resource.mimeType: "application/json"` and JSON in `resource.text`. Text-only outputs (table, version) remain `type: "text"`.
+- **Prompt:** “What’s the coverage for `lib/simple_cov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }` and parse JSON from `content[0].resource.text`.
 - **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
 - **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
 - **Uncertain?** Call `help_tool` (optionally with `{ "query": "uncovered" }`) before proceeding.
