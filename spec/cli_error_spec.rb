@@ -70,17 +70,60 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
   end
 
-  # Note on text-mode source rendering tests:
-  # - "Text-mode source" refers to the plain-text source view (no ANSI colors)
-  #   when passing --source or --source=uncovered (checkmarks/dots, line nums).
-  # - Direct tests are omitted here because behavior depends on how paths are
-  #   resolved (relative vs absolute) in combination with --root/--resultset
-  #   and whether the source file is readable. In uncovered mode, we observed
-  #   a crash ("can't convert nil into Integer") when coverage arrays include
-  #   nils or don’t line up with file lines. JSON paths avoid this formatting
-  #   nuance and are already covered elsewhere.
-  # - Once the uncovered+source crash is guarded (treat out-of-range/nil hits
-  #   defensively and only format integers where expected), we can add a
-  #   regression: run `uncovered` with --source=uncovered against the fixtures
-  #   and assert exit status 0 and rendered source.
+  it 'handles source rendering errors gracefully with fallback message' do
+    # Test that source rendering with problematic coverage data doesn't crash
+    # This is a regression test for the "can't convert nil into Integer" crash
+    # that was previously mentioned in comments
+    out, err, status = run_cli_with_status(
+      'uncovered', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
+      '--source=uncovered', '--source-context', '2', '--no-color'
+    )
+    
+    expect(status).to eq(0)
+    expect(err).to eq("")
+    expect(out).to include('File: lib/foo.rb')
+    expect(out).to include('Uncovered lines: 2')
+    # Should either show rendered source or graceful fallback
+    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+  end
+  
+  it 'renders source with full mode without crashing' do
+    # Additional regression test for source rendering with full mode
+    out, err, status = run_cli_with_status(
+      'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
+      '--source=full', '--no-color'
+    )
+    
+    expect(status).to eq(0)
+    expect(err).to eq("")
+    expect(out).to include('lib/foo.rb')
+    expect(out).to include('66.67%')
+    # Should either show rendered source or graceful fallback
+    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+  end
+  
+  it 'shows fallback message when source file is unreadable' do
+    # Test the fallback path when source files can't be read
+    # Temporarily rename the source file to make it unreadable
+    foo_path = File.join(root, 'lib', 'foo.rb')
+    temp_path = "#{foo_path}.hidden"
+    
+    begin
+      File.rename(foo_path, temp_path) if File.exist?(foo_path)
+      
+      out, err, status = run_cli_with_status(
+        'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
+        '--source=full', '--no-color'
+      )
+      
+      expect(status).to eq(0)
+      expect(err).to eq("")
+      expect(out).to include('lib/foo.rb')
+      expect(out).to include('66.67%')
+      expect(out).to include('[source not available]')
+    ensure
+      # Restore the file
+      File.rename(temp_path, foo_path) if File.exist?(temp_path)
+    end
+  end
 end
