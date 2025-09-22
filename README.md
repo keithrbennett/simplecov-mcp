@@ -74,6 +74,18 @@ uncovered = model.uncovered_for("lib/foo.rb")
 
 detailed = model.detailed_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... } }
+
+# Generate formatted table string (same as CLI output)
+table = model.format_table
+# => returns formatted table string with borders, headers, and summary counts
+
+# Custom table with specific rows and sort order
+custom_rows = [
+  { 'file' => '/abs/.../lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false },
+  { 'file' => '/abs/.../lib/bar.rb', 'covered' => 8, 'total' => 10, 'percentage' => 80.0, 'stale' => true }
+]
+custom_table = model.format_table(custom_rows, sort_order: :descending)
+# => formatted table with the provided rows in descending order
 ```
 
 ### MCP Quick Start
@@ -234,8 +246,9 @@ Public API stability:
 
 - Consider the following public and stable under SemVer:
   - `SimpleCovMcp::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
-  - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`
+  - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`, `#format_table(rows: nil, sort_order:, check_stale:, tracked_globs:)`
   - Return shapes shown above (keys and value types). For `all_files`, each row also includes `'stale' => true|false`.
+  - `#format_table` returns a formatted table string with Unicode borders and summary counts.
 - CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
 - Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
 

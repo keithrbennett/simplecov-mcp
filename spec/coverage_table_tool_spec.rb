@@ -12,42 +12,23 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   end
 
   def run_tool(stale: 'off')
-    # Stub the CoverageModel to avoid file system access
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
-    allow(model).to receive(:all_files).and_return([
-      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
-      { 'file' => "#{root}/lib/bar.rb", 'percentage' =>  50.0, 'covered' =>  5, 'total' => 10, 'stale' => true }
-    ])
-
-    response = described_class.call(root: root, stale: stale, server_context: server_context)
-    response.payload.first[:text]
+    # Let real CoverageModel work to test actual format_table behavior
+    described_class.call(root: root, stale: stale, server_context: server_context).payload.first[:text]
   end
 
   it 'returns a formatted table as a string' do
     output = run_tool
 
-    # Contains a header row and at least one data row with expected columns
-    expect(output).to include('File')
-    expect(output).to include('Covered')
-    expect(output).to include('Total')
-    # Staleness column header reads 'Stale'
-    expect(output).to include(' │ Stale │')
-
-    # Should list fixture files from the demo project
-    expect(output).to include('lib/foo.rb')
-    expect(output).to include('lib/bar.rb')
-
-    # Check for table borders
-    expect(output).to include('┌')
-    expect(output).to include('│')
-    expect(output).to include('└')
-
-    # Summary counts line appears after the table
-    expect(output).to include('Files: total 2, ok 1, stale 1')
+    # Contains table structure, headers, and file data
+    expect(output).to include(
+      '┌', '┬', '┐', '│', '├', '┼', '┤', '└', '┴', '┘',
+      'File', 'Covered', 'Total', ' │ Stale │',
+      'lib/foo.rb', 'lib/bar.rb',
+      'Files: total 2, ok 0, stale 2'
+    )
   end
 
-  it 'configures the CLI to enforce stale checking when requested' do
+  it 'configures CLI to enforce stale checking when requested' do
     model = instance_double(SimpleCovMcp::CoverageModel)
     allow(model).to receive(:all_files).and_return([
       { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false }
@@ -58,6 +39,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
       staleness: 'error',
       tracked_globs: nil
     ).and_return(model)
+    allow(model).to receive(:format_table).and_return("Mock table output")
 
     described_class.call(root: root, stale: 'error', server_context: server_context)
   end

@@ -52,66 +52,7 @@ module SimpleCovMcp
           end
         end
 
-        # Format as table with box-style borders
-        max_file_length = file_summaries.map { |f| f['file'].length }.max.to_i
-        max_file_length = [max_file_length, 'File'.length].max
-
-        # Calculate maximum numeric values for proper column widths
-        max_covered = file_summaries.map { |f| f['covered'].to_s.length }.max
-        max_total = file_summaries.map { |f| f['total'].to_s.length }.max
-
-        # Define column widths
-        file_width = max_file_length + 2  # Extra padding
-        pct_width = 8
-        covered_width = [max_covered, 'Covered'.length].max + 2
-        total_width = [max_total, 'Total'.length].max + 2
-
-        stale_header = 'Stale'
-        stale_width = stale_header.length
-        # Use String#center for concise centering
-
-        # Horizontal line for each column span
-        h_line = ->(col_width) { '─' * (col_width + 2) }
-
-        # Border line lambda
-        border_line = ->(left, middle, right) {
-          left   + h_line.(file_width) +
-          middle + h_line.(pct_width) +
-          middle + h_line.(covered_width) +
-          middle + h_line.(total_width) +
-          middle + h_line.(stale_width) +
-          right
-        }
-
-        # Top border
-        output.puts border_line.call('┌', '┬', '┐')
-
-        # Header row
-        output.printf "│ %-#{file_width}s │ %#{pct_width}s │ %#{covered_width}s │ %#{total_width}s │ %#{stale_width}s │\n",
-               'File', ' %', 'Covered', 'Total', stale_header.to_s.center(stale_width)
-
-        # Header separator
-        output.puts border_line.call('├', '┼', '┤')
-
-        # Data rows
-        file_summaries.each do |file_data|
-          stale_text_str = file_data['stale'] ? '!' : ''
-          output.printf "│ %-#{file_width}s │ %#{pct_width - 1}.2f%% │ %#{covered_width}d │ %#{total_width}d │ %#{stale_width}s │\n",
-                 file_data['file'],
-                 file_data['percentage'],
-                 file_data['covered'],
-                 file_data['total'],
-                 stale_text_str.center(stale_width)
-        end
-
-        # Bottom border
-        output.puts border_line.call('└', '┴', '┘')
-
-        # Summary counts line
-        total = file_summaries.length
-        stale_count = file_summaries.count { |f| f['stale'] }
-        ok_count = total - stale_count
-        output.puts "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
+        output.puts model.format_table(file_summaries, sort_order: sort_order)
       end
 
       private

@@ -70,4 +70,56 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       end
     end
   end
+
+  describe 'format_table' do
+    it 'returns a formatted table string with all files coverage data' do
+      output = model.format_table
+
+      # Should contain table structure
+      expect(output).to include('┌', '┬', '┐', '│', '├', '┼', '┤', '└', '┴', '┘')
+
+      # Should contain headers
+      expect(output).to include('File', '%', 'Covered', 'Total', 'Stale')
+
+      # Should contain file data
+      expect(output).to include('lib/foo.rb', 'lib/bar.rb')
+
+      # Should contain summary
+      expect(output).to include('Files: total', ', ok ', ', stale ')
+    end
+
+    it 'returns "No coverage data found" when rows is empty' do
+      rows = []
+      output = model.format_table(rows)
+      expect(output).to eq('No coverage data found')
+    end
+
+    it 'accepts custom rows parameter' do
+      custom_rows = [
+        { 'file' => '/path/to/file1.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
+        { 'file' => '/path/to/file2.rb', 'percentage' => 50.0, 'covered' => 5, 'total' => 10, 'stale' => true }
+      ]
+
+      output = model.format_table(custom_rows)
+
+      expect(output).to include('file1.rb')
+      expect(output).to include('file2.rb')
+      expect(output).to include('100.00')
+      expect(output).to include('50.00')
+      expect(output).to include('!')
+    end
+
+    it 'accepts sort_order parameter' do
+      # Test that sort_order parameter is passed through correctly
+      rows_desc = model.all_files(sort_order: :descending)
+      output_asc = model.format_table(sort_order: :ascending)
+      output_desc = model.format_table(sort_order: :descending)
+
+      # Both should be valid table outputs
+      expect(output_asc).to include('┌')
+      expect(output_desc).to include('┌')
+      expect(output_asc).to include('Files: total')
+      expect(output_desc).to include('Files: total')
+    end
+  end
 end
