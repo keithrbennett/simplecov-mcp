@@ -5,23 +5,6 @@ require 'spec_helper'
 RSpec.describe SimpleCovMcp::CoverageCLI do
   let(:root) { (FIXTURES / 'project1').to_s }
 
-  def run_cli_with_status(*argv)
-    cli = described_class.new
-    status = nil
-    out_str = err_str = nil
-    silence_output do |out, err|
-      begin
-        cli.run(argv.flatten)
-        status = 0
-      rescue SystemExit => e
-        status = e.status
-      end
-      out_str = out.string
-      err_str = err.string
-    end
-    [out_str, err_str, status]
-  end
-
   it 'errors with usage when summary path is missing' do
     _out, err, status = run_cli_with_status('summary', '--root', root, '--resultset', 'coverage')
     expect(status).to eq(1)
