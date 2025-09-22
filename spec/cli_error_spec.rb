@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageCLI do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'shows help and exits 0' do
     out, err, status = run_cli_with_status('--help')

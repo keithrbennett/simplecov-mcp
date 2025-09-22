@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'SimpleCov MCP Integration Tests' do
-  let(:project_root) { (FIXTURES / 'project1').to_s }
+  let(:project_root) { (FIXTURES_DIR / 'project1').to_s }
   let(:coverage_dir) { File.join(project_root, 'coverage') }
   let(:resultset_path) { File.join(coverage_dir, '.resultset.json') }
 

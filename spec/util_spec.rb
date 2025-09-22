@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CovUtil do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset_file) { File.join(root, 'coverage', '.resultset.json') }
 
   it 'latest_timestamp returns integer from fixture' do

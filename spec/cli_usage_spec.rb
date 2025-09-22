@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageCLI do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'errors with usage when summary path is missing' do
     _out, err, status = run_cli_with_status('summary', '--root', root, '--resultset', 'coverage')

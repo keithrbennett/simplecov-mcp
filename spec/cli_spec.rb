@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageCLI do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli(*argv)
     cli = described_class.new

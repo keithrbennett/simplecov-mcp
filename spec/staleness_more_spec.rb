@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'Additional staleness cases' do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   describe SimpleCovMcp::CoverageModel do
     it 'raises file-level stale when source and coverage lengths differ' do

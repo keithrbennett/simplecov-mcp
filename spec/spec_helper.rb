@@ -20,7 +20,7 @@ require 'json'
 
 require 'simple_cov_mcp'
 
-FIXTURES = Pathname.new(File.expand_path('fixtures', __dir__))
+FIXTURES_DIR = Pathname.new(File.expand_path('fixtures', __dir__))
 
 # Test timestamp constants for consistent and documented test data
 # Main fixture coverage timestamp: 1720000000 = 2024-07-03 16:26:40 UTC

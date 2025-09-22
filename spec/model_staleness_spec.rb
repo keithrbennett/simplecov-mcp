@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
-  let(:root) { (FIXTURES / 'project1').to_s }
+  let(:root) { (FIXTURES_DIR / 'project1').to_s }
   
   def with_stubbed_coverage_timestamp(ts) = begin
     allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(ts)
