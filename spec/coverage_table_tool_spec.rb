@@ -8,7 +8,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
   before do
-    stub_const('MCP::Tool::Response', Struct.new(:payload))
+    setup_mcp_response_stub
   end
 
   def run_tool(stale: 'off')

@@ -7,7 +7,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
   before do
-    stub_const('MCP::Tool::Response', Struct.new(:payload))
+    setup_mcp_response_stub
   end
 
   it 'returns a text payload with the version string' do

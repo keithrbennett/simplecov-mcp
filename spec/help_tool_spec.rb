@@ -7,15 +7,7 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
   before do
-    response_class = Class.new do
-      attr_reader :payload, :meta
-
-      def initialize(payload)
-        @payload = payload
-        @meta = nil
-      end
-    end
-    stub_const('MCP::Tool::Response', response_class)
+    setup_mcp_response_stub
   end
 
   it 'returns guidance for each registered tool' do

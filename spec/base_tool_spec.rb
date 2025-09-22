@@ -19,12 +19,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
       nil
     end
     SimpleCovMcp.error_handler = handler
-    # Stub MCP::Tool::Response once for all examples; capture the payload
-    fake_resp = Class.new do
-      attr_reader :payload
-      def initialize(payload) = @payload = payload
-    end
-    stub_const('MCP::Tool::Response', fake_resp)
+    setup_mcp_response_stub
   end
 
   after do
