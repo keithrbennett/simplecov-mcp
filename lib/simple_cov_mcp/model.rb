@@ -77,7 +77,15 @@ module SimpleCovMcp
 
       # Returns formatted table string for all files coverage data
       def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-        rows ||= all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+        if rows.nil?
+          rows = all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+        else
+          # Apply sorting to provided rows
+          rows.sort! do |a, b|
+            pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+            pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+          end
+        end
 
         return "No coverage data found" if rows.empty?
 

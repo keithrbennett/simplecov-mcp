@@ -2,8 +2,12 @@
   "RSpec": {
     "timestamp": 1720000000,
     "coverage": {
-      "lib/foo.rb": { "lines": [1, 0, null, 2] },
-      "lib/bar.rb": { "lines": [0, 0, 1] }
+      "lib/foo.rb": {
+        "lines": [1, 0, null, 2]
+      },
+      "lib/bar.rb": {
+        "lines": [0, 0, 1]
+      }
     }
   }
 }

@@ -86,7 +86,26 @@ custom_rows = [
 ]
 custom_table = model.format_table(custom_rows, sort_order: :descending)
 # => formatted table with the provided rows in descending order
+
+# Filter files by directory (e.g., only show files in lib/)
+all_files_data = model.all_files
+lib_files = all_files_data.select { |file| file['file'].include?('/lib/') }
+lib_files_table = model.format_table(lib_files, sort_order: :ascending)
+# => formatted table showing only files from lib/ directory
+
+# Filter by pattern (e.g., only show test files)
+test_files = all_files_data.select { |file| file['file'].include?('_spec.rb') || file['file'].include?('_test.rb') }
+test_files_table = model.format_table(test_files, sort_order: :descending)
+# => formatted table showing only test/spec files, sorted by coverage
+
+# For more advanced filtering examples including staleness analysis and CI/CD integration,
+# see examples/filter_and_table_demo.rb and examples/filter_and_table_demo-output.md
 ```
+
+**Complete Example Script**: 
+See [examples/filter_and_table_demo.rb](examples/filter_and_table_demo.rb) for a comprehensive 
+demonstration of library usage including directory filtering, pattern matching, coverage thresholds,
+and staleness analysis. Run it with `ruby examples/filter_and_table_demo.rb`.
 
 ### MCP Quick Start
 
@@ -106,7 +125,7 @@ echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"all_files_
 Tip: In an MCP-capable editor/agent, configure `simplecov-mcp` as a stdio server and call the same tool names with the `arguments` shown above.
 
 Response content types (MCP):
-
+Library Usage (Ruby)
 - JSON data returns as a single `type: "resource"` item with `resource.mimeType: "application/json"` and the JSON string in `resource.text` (e.g., `name: "coverage_summary.json"`).
 - Human-readable strings (e.g., the table and version) return as `type: "text"`.
 - Errors return as `type: "text"` with a friendly message.

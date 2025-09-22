@@ -121,5 +121,28 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(output_asc).to include('Files: total')
       expect(output_desc).to include('Files: total')
     end
+
+    it 'sorts table output correctly when provided with custom rows' do
+      # Get all files data to use as custom rows
+      all_files_data = model.all_files
+
+      # Test ascending sort with custom rows
+      output_asc = model.format_table(all_files_data, sort_order: :ascending)
+      lines_asc = output_asc.split("\n")
+      bar_line_asc = lines_asc.find { |line| line.include?('bar.rb') }
+      foo_line_asc = lines_asc.find { |line| line.include?('foo.rb') }
+
+      # In ascending order, bar.rb (33.33%) should come before foo.rb (66.67%)
+      expect(lines_asc.index(bar_line_asc)).to be < lines_asc.index(foo_line_asc)
+
+      # Test descending sort with custom rows
+      output_desc = model.format_table(all_files_data, sort_order: :descending)
+      lines_desc = output_desc.split("\n")
+      bar_line_desc = lines_desc.find { |line| line.include?('bar.rb') }
+      foo_line_desc = lines_desc.find { |line| line.include?('foo.rb') }
+
+      # In descending order, foo.rb (66.67%) should come before bar.rb (33.33%)
+      expect(lines_desc.index(foo_line_desc)).to be < lines_desc.index(bar_line_desc)
+    end
   end
 end
