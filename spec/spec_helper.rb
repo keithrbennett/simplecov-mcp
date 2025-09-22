@@ -65,7 +65,56 @@ module CLITestHelpers
   end
 end
 
+# MCP Tool shared examples and helpers
+module MCPToolTestHelpers
+  def setup_mcp_response_stub
+    # Standardized MCP::Tool::Response stub that works for all tools
+    response_class = Class.new do
+      attr_reader :payload, :meta
+      def initialize(payload, meta: nil)
+        @payload = payload
+        @meta = meta
+      end
+    end
+    stub_const('MCP::Tool::Response', response_class)
+  end
+  
+  def expect_mcp_json_resource(response, expected_keys: [])
+    item = response.payload.first
+    
+    # Standard MCP resource structure
+    expect(item['type']).to eq('resource')
+    expect(item['resource']).to include('mimeType' => 'application/json')
+    expect(item['resource']).to have_key('name')
+    expect(item['resource']).to have_key('text')
+    
+    # Parse and validate JSON content
+    data = JSON.parse(item['resource']['text'])
+    
+    # Check for expected keys
+    expected_keys.each do |key|
+      expect(data).to have_key(key)
+    end
+    
+    [data, item] # Return for additional custom assertions
+  end
+end
+
+RSpec.shared_examples 'an MCP tool that returns JSON resource' do
+  let(:server_context) { instance_double('ServerContext').as_null_object }
+  
+  before do
+    setup_mcp_response_stub
+  end
+  
+  it 'returns a properly structured MCP JSON resource' do
+    response = subject
+    expect_mcp_json_resource(response)
+  end
+end
+
 RSpec.configure do |config|
   config.include TestIOHelpers
   config.include CLITestHelpers
+  config.include MCPToolTestHelpers
 end
