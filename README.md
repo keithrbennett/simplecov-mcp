@@ -1,11 +1,12 @@
 # simplecov-mcp
 
-MCP server + CLI for inspecting SimpleCov coverage data.
+MCP server + CLI + includable library for inspecting SimpleCov coverage data.
 
 This gem provides:
 
 - An MCP (Model Context Protocol) server exposing tools to query coverage for files.
 - A flexible CLI with subcommands to list all files, show a file summary, print raw coverage arrays, list uncovered lines, and display detailed per-line hits. Supports JSON output, displaying annotated source code (full file or uncovered lines with context), and custom resultset locations.
+- An includable Ruby library for programmatic access to coverage data via the `SimpleCovMcp::CoverageModel` API.
 
 ## Features
 
@@ -261,7 +262,7 @@ The error message is detailed and includes:
 
 - File and Coverage times (UTC and local) and line counts
 - A delta indicating how much newer the file is than coverage
-- The absolute path to the `.resultset.json` used
+- The absolute path to the r`.resultset.json` used
 
 Example excerpt:
 
