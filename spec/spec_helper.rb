@@ -22,6 +22,19 @@ require 'simple_cov_mcp'
 
 FIXTURES = Pathname.new(File.expand_path('fixtures', __dir__))
 
+# Test timestamp constants for consistent and documented test data
+# Main fixture coverage timestamp: 1720000000 = 2024-07-03 16:26:40 UTC
+# This represents when the coverage data in spec/fixtures/project1/coverage/.resultset.json was "generated"
+FIXTURE_COVERAGE_TIMESTAMP = 1_720_000_000
+
+# Very old timestamp: 0 = 1970-01-01 00:00:00 UTC (Unix epoch)
+# Used in tests to simulate stale coverage (much older than any real file)
+VERY_OLD_TIMESTAMP = 0
+
+# Test timestamps for stale error formatting tests
+# 1000 = 1970-01-01 00:16:40 UTC (16 minutes and 40 seconds after epoch)
+TEST_FILE_TIMESTAMP = 1_000
+
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!

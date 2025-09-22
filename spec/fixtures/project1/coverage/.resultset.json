@@ -1,4 +1,5 @@
 {
+  "_comment": "Test fixture - timestamp 1720000000 = 2024-07-03 16:26:40 UTC (see FIXTURE_COVERAGE_TIMESTAMP in spec_helper.rb)",
   "RSpec": {
     "timestamp": 1720000000,
     "coverage": {

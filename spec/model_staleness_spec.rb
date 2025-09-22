@@ -11,7 +11,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   end
 
   it "raises stale error when staleness mode is 'error' and file is newer" do
-    with_stubbed_coverage_timestamp(0) do
+    with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: 'error')
       expect {
         model.summary_for('lib/foo.rb')
@@ -20,13 +20,13 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   end
 
   it "does not check staleness when mode is 'off'" do
-    with_stubbed_coverage_timestamp(0) do
+    with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: 'off')
       expect { model.summary_for('lib/foo.rb') }.not_to raise_error
     end
   end
   it 'all_files raises project-level stale when any source file is newer than coverage' do
-    with_stubbed_coverage_timestamp(0) do
+    with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: 'error')
       expect { model.all_files }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
     end

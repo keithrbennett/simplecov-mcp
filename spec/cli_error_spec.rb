@@ -48,7 +48,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'emits detailed stale coverage info and exits 1' do
     begin
-      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
+      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(VERY_OLD_TIMESTAMP)
       _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'error')
       expect(status).to eq(1)
       expect(err).to include('Coverage data stale:')
@@ -62,7 +62,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'honors --no-strict-staleness to disable checks' do
     begin
-      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(0)
+      allow(SimpleCovMcp::CovUtil).to receive(:latest_timestamp).and_return(VERY_OLD_TIMESTAMP)
       _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'off')
       expect(status).to eq(0)
       expect(err).to eq("")

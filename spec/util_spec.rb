@@ -9,7 +9,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
   it 'latest_timestamp returns integer from fixture' do
     ts = described_class.latest_timestamp(root, resultset: 'coverage')
     expect(ts).to be_a(Integer)
-    expect(ts).to eq(1_720_000_000)
+    expect(ts).to eq(FIXTURE_COVERAGE_TIMESTAMP)
   end
 
   it 'find_resultset honors SIMPLECOV_RESULTSET file path' do
