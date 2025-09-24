@@ -10,10 +10,10 @@
 ## Build, Test, and Development Commands
 - Setup: `bundle install`
 - Run tests (default Rake task): `bundle exec rake` or `bundle exec rspec`
-- Run CLI from repo: `ruby -Ilib exe/simplecov-mcp --cli`
+- Run CLI from repo: `ruby -Ilib exe/simplecov-mcp`
 - Common CLI examples:
-  - List table: `simplecov-mcp --cli --resultset coverage`
-  - File summary: `simplecov-mcp --cli summary lib/foo.rb`
+  - List table: `simplecov-mcp --resultset coverage`
+  - File summary: `simplecov-mcp summary lib/foo.rb`
   - Strict staleness: add `--stale error`
 
 ## Coding Style & Naming Conventions

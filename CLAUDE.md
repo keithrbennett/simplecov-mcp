@@ -44,7 +44,7 @@ Tests generate coverage data to `coverage/.resultset.json` which the tool can th
 ### Manual Testing
 ```bash
 # Test CLI locally during development
-ruby -Ilib exe/simplecov-mcp --cli
+ruby -Ilib exe/simplecov-mcp
 
 # Test MCP server (single-line JSON-RPC)
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | ruby -Ilib exe/simplecov-mcp

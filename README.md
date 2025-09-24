@@ -323,7 +323,6 @@ Subcommands:
 
 Global flags (OptionParser):
 
-- `--cli` (alias `--report`) — force CLI output
 - `--resultset PATH` — path or directory for `.resultset.json`
 - `--root PATH` — project root (default `.`)
 - `--json` — print JSON output for machine use
@@ -338,24 +337,22 @@ Global flags (OptionParser):
 Select a nonstandard resultset path:
 
 ```sh
-simplecov-mcp --cli --resultset build/coverage/.resultset.json
+simplecov-mcp --resultset build/coverage/.resultset.json
 # or
-SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp --cli
+SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp
 ```
 
 You can also pass a directory that contains `.resultset.json` (common when the file lives in a `coverage/` folder):
 
 ```sh
-simplecov-mcp --cli --resultset coverage
+simplecov-mcp --resultset coverage
 # or via env
-SIMPLECOV_RESULTSET=coverage simplecov-mcp --cli
+SIMPLECOV_RESULTSET=coverage simplecov-mcp
 ```
 
-Forces CLI mode:
+Force CLI mode:
 
 ```sh
-simplecov-mcp --cli
-# or
 SIMPLECOV_MCP_CLI=1 simplecov-mcp
 ```
 
@@ -421,7 +418,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 CLI vs MCP summary:
 
-- CLI: use subcommands. Pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
+- CLI: use subcommands and global flags. Pass `--resultset PATH` or set `SIMPLECOV_RESULTSET`.
 - MCP: pass `resultset` in tool arguments, or set `SIMPLECOV_RESULTSET`.
 
 ## Troubleshooting
@@ -440,7 +437,7 @@ CLI vs MCP summary:
       command = "/Users/you/.rbenv/shims/simplecov-mcp"
       cwd = "/path/to/your/project"
       ```
-  - Validate manually: `simplecov-mcp --cli` (or from this repo: `ruby -Ilib exe/simplecov-mcp --cli`). If you see the coverage table, the binary starts correctly.
+  - Validate manually: `simplecov-mcp` (or from this repo: `ruby -Ilib exe/simplecov-mcp`). If you see the coverage table, the binary starts correctly.
   - On failures, check `~/simplecov_mcp.log` for details.
 
 ### Notes
@@ -473,7 +470,7 @@ Standard Ruby gem structure. After cloning:
 
 ```sh
 bundle install
-ruby -Ilib exe/simplecov-mcp --cli
+ruby -Ilib exe/simplecov-mcp
 ```
 
 Run tests with coverage (SimpleCov writes to `coverage/`):
