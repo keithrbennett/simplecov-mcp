@@ -107,22 +107,50 @@ See [examples/filter_and_table_demo.rb](examples/filter_and_table_demo.rb) for a
 demonstration of library usage including directory filtering, pattern matching, coverage thresholds,
 and staleness analysis. Run it with `ruby examples/filter_and_table_demo.rb`.
 
-### MCP Quick Start
+### MCP Server Integration
 
-- Prereqs: Ruby 3.2+; run tests once so `coverage/.resultset.json` exists.
-- One-off MCP requests can be made by piping JSON-RPC to the server:
+#### Prerequisites
+- Ruby 3.2+ with `simplecov-mcp` gem installed
+- SimpleCov coverage data (run tests to generate `coverage/.resultset.json`)
+- MCP-compatible client (editor, agent, or tool) (needed only for MCP mode, not for CLI or library modes)
+
+#### Quick Test (Manual)
+Test the MCP server manually by piping JSON-RPC messages:
 
 **Important**: JSON-RPC messages must be on a single line (no line breaks). Multi-line JSON will cause parse errors.
 
 ```sh
-# Per-file summary (staleness off)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb","resultset":"coverage","stale":"off"}}}' | simplecov-mcp
+# Basic file summary
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}' | simplecov-mcp
 
-# All files with project-level staleness checks
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"resultset":"coverage","stale":"error","tracked_globs":["lib/**/*.rb"]}}}' | simplecov-mcp
+# All files with custom resultset location
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"resultset":"coverage","sort_order":"ascending"}}}' | simplecov-mcp
+
+# Discover available tools
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | simplecov-mcp
 ```
 
-Tip: In an MCP-capable editor/agent, configure `simplecov-mcp` as a stdio server and call the same tool names with the `arguments` shown above.
+
+#### Available MCP Tools
+
+All tools accept these common parameters:
+- `root` (optional): Project root directory (default: current directory)
+- `resultset` (optional): Path to `.resultset.json` file or directory containing it
+- `stale` (optional): Staleness checking mode - `"off"` (default) or `"error"`
+
+**File-specific tools** (require `path` parameter):
+- `coverage_summary_tool` - Get coverage summary for a file
+- `coverage_detailed_tool` - Get per-line coverage details
+- `coverage_raw_tool` - Get raw SimpleCov lines array
+- `uncovered_lines_tool` - Get list of uncovered line numbers
+
+**Project-wide tools**:
+- `all_files_coverage_tool` - Get coverage data for all files
+  - Additional parameters: `sort_order` (`"ascending"`|`"descending"`), `tracked_globs` (array)
+- `coverage_table_tool` - Get formatted coverage table
+- `help_tool` - Get information about available tools
+  - Optional parameter: `query` (string to filter help entries)
+- `version_tool` - Get version information
 
 Response content types (MCP):
 Library Usage (Ruby)
@@ -334,26 +362,66 @@ Global flags (OptionParser):
 - `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
 - `--help` — show usage
 
-Select a nonstandard resultset path:
+#### CLI Examples
 
+**Basic Usage:**
 ```sh
+# Show coverage table for all files (default)
+simplecov-mcp
+
+# Show coverage summary for a specific file
+simplecov-mcp summary lib/my_class.rb
+
+# Show uncovered lines with source context
+simplecov-mcp uncovered lib/my_class.rb --source=uncovered --source-context 3
+
+# Get detailed per-line coverage
+simplecov-mcp detailed lib/my_class.rb
+```
+
+**Custom Resultset Location:**
+```sh
+# Using --resultset flag with file path
 simplecov-mcp --resultset build/coverage/.resultset.json
-# or
-SIMPLECOV_RESULTSET=build/coverage/.resultset.json simplecov-mcp
-```
 
-You can also pass a directory that contains `.resultset.json` (common when the file lives in a `coverage/` folder):
-
-```sh
+# Using --resultset flag with directory (if directory, looks for .resultset.json inside)
 simplecov-mcp --resultset coverage
-# or via env
-SIMPLECOV_RESULTSET=coverage simplecov-mcp
+
+# Using environment variable
+SIMPLECOV_RESULTSET=coverage/.resultset.json simplecov-mcp
+
+# Environment variable with directory
+SIMPLECOV_RESULTSET=coverage simplecov-mcp summary lib/my_class.rb
 ```
 
-Force CLI mode:
-
+**JSON Output and Sorting:**
 ```sh
-SIMPLECOV_MCP_CLI=1 simplecov-mcp
+# JSON output for machine consumption
+simplecov-mcp --json
+
+# Sort by highest coverage first
+simplecov-mcp list --sort-order descending
+
+# Combined: JSON output with custom resultset and sorting
+simplecov-mcp list --json --resultset coverage --sort-order ascending
+```
+
+**Staleness Checking:**
+```sh
+# Enable strict staleness checking (exits with error if stale)
+simplecov-mcp --stale error
+
+# Check for new files that should be covered
+simplecov-mcp list --stale error --tracked-globs "lib/**/*.rb,app/**/*.rb"
+
+# Summary with staleness checking
+simplecov-mcp summary lib/my_class.rb --stale error
+```
+
+**Force CLI Mode:**
+```sh
+# When you need to ensure CLI output (e.g., in scripts)
+SIMPLECOV_MCP_CLI=1 simplecov-mcp list --json
 ```
 
 Example output:
@@ -423,22 +491,246 @@ CLI vs MCP summary:
 
 ## Troubleshooting
 
-- MCP client fails to start or times out
-  - Likely cause: launching `simplecov-mcp` with an older Ruby that cannot load the `mcp` gem. This gem requires Ruby >= 3.2.
-  - Check the Ruby your MCP client uses: run `ruby -v` in the same environment your client inherits; ensure it reports 3.2+.
-  - Fix PATH or select a newer Ruby via rbenv/rvm/asdf, then retry. You can configure your MCP client to point to the shim/binary for that Ruby version. For example:
-    - rbenv shim: `~/.rbenv/shims/simplecov-mcp`
-    - asdf shim: `~/.asdf/shims/simplecov-mcp`
-    - RVM wrapper: `/Users/you/.rvm/wrappers/ruby-3.3.0/simplecov-mcp` (adjust version)
-    - Codex CLI example (`~/.codex/config.toml`):
-      ```toml
-      # Use the Ruby 3.2+ shim for the MCP server
-      [tools.simplecov_mcp]
-      command = "/Users/you/.rbenv/shims/simplecov-mcp"
-      cwd = "/path/to/your/project"
-      ```
-  - Validate manually: `simplecov-mcp` (or from this repo: `ruby -Ilib exe/simplecov-mcp`). If you see the coverage table, the binary starts correctly.
-  - On failures, check `~/simplecov_mcp.log` for details.
+### Installation and Setup Issues
+
+#### Ruby Version Compatibility
+**Problem**: `simplecov-mcp` fails to start or reports missing dependencies
+**Symptoms**: 
+- "command not found: simplecov-mcp"
+- "cannot load such file -- mcp"
+- MCP client reports connection timeout
+
+**Solutions**:
+1. **Check Ruby version**: This gem requires Ruby >= 3.2
+   ```sh
+   ruby -v  # Should report 3.2.0 or higher
+   ```
+
+2. **Fix PATH for version managers**:
+   ```sh
+   # rbenv
+   rbenv rehash
+   which simplecov-mcp  # Should point to rbenv shim
+   
+   # asdf
+   asdf reshim ruby
+   which simplecov-mcp  # Should point to asdf shim
+   
+   # RVM
+   rvm use 3.2.0  # or your preferred 3.2+ version
+   which simplecov-mcp
+   ```
+
+3. **MCP client configuration with specific Ruby version**:
+   ```json
+   {
+     "mcpServers": {
+       "simplecov-mcp": {
+         "command": "/home/user/.rbenv/shims/simplecov-mcp",
+         "args": [],
+         "env": {"SIMPLECOV_RESULTSET": "coverage"}
+       }
+     }
+   }
+   ```
+
+#### PATH and Installation Issues
+**Problem**: Gem installed but command not found
+
+**Solutions**:
+1. **Add gem bin directory to PATH**:
+   ```sh
+   # Find gem bin directory
+   gem env | grep "EXECUTABLE DIRECTORY"
+   # or
+   ruby -e 'puts Gem.bindir'
+   
+   # Add to your shell profile (.bashrc, .zshrc, etc.)
+   export PATH="$(ruby -e 'puts Gem.bindir'):$PATH"
+   ```
+
+2. **Use bundle exec** (if in a project with Gemfile):
+   ```sh
+   bundle exec simplecov-mcp
+   ```
+
+### Coverage Data Issues
+
+#### Missing .resultset.json File
+**Problem**: "Could not find .resultset.json" error
+
+**Solutions**:
+1. **Generate coverage data first**:
+   ```sh
+   # Run your test suite to generate coverage
+   bundle exec rspec  # or your test command
+   ls coverage/.resultset.json  # verify file exists
+   ```
+
+2. **Specify custom location**:
+   ```sh
+   # If coverage file is elsewhere
+   simplecov-mcp --resultset path/to/.resultset.json
+   # or
+   SIMPLECOV_RESULTSET=path/to/coverage simplecov-mcp
+   ```
+
+#### Stale Coverage Data
+**Problem**: "Coverage data appears stale" warnings or errors
+
+**Solutions**:
+1. **Regenerate coverage** (recommended):
+   ```sh
+   bundle exec rspec  # or your test command
+   ```
+
+2. **Disable staleness checking**:
+   ```sh
+   simplecov-mcp --stale off  # Default behavior
+   ```
+
+3. **Use staleness checking to find issues**:
+   ```sh
+   # Let it show which files are stale
+   simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
+   ```
+
+#### File Not Found in Coverage
+**Problem**: "No coverage data found for file" error
+
+**Solutions**:
+1. **Check file path**: Use path relative to project root or absolute path
+   ```sh
+   # Good
+   simplecov-mcp summary lib/my_class.rb
+   # Also good
+   simplecov-mcp summary /full/path/to/lib/my_class.rb
+   ```
+
+2. **Verify file is covered**: Check if file is in coverage report
+   ```sh
+   simplecov-mcp | grep "my_class.rb"
+   ```
+
+3. **File might not be executed by tests**: Add tests that exercise the file
+
+### MCP Server Issues
+
+#### MCP Client Connection Problems
+**Problem**: MCP client can't connect or times out
+
+**Diagnostic steps**:
+1. **Test manually**:
+   ```sh
+   # This should show coverage table
+   simplecov-mcp
+   
+   # Test MCP server mode
+   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+   ```
+
+2. **Check logs**:
+   ```sh
+   tail -f ~/simplecov_mcp.log
+   ```
+
+3. **Enable debug mode**:
+   ```sh
+   SIMPLECOV_MCP_DEBUG=1 simplecov-mcp
+   ```
+
+#### JSON-RPC Parse Errors
+**Problem**: MCP server reports JSON parse errors
+
+**Solutions**:
+1. **Ensure single-line JSON**: JSON-RPC messages must be on one line
+   ```sh
+   # Wrong (multi-line)
+   echo '{
+  "jsonrpc": "2.0",
+  "id": 1
+}' | simplecov-mcp
+   
+   # Correct (single line)
+   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+   ```
+
+#### MCP Tool Errors
+**Problem**: MCP tools return error responses
+
+**Common solutions**:
+1. **Check required parameters**:
+   ```json
+   {"name": "coverage_summary_tool", "arguments": {"path": "lib/file.rb"}}
+   ```
+
+2. **Use help_tool to discover tools**:
+   ```json
+   {"name": "help_tool", "arguments": {}}
+   ```
+
+3. **Check parameter format**:
+   ```json
+   {"name": "all_files_coverage_tool", "arguments": {"tracked_globs": ["lib/**/*.rb"]}}
+   ```
+
+### Performance Issues
+
+#### Slow Coverage Analysis
+**Problem**: Commands take a long time to complete
+
+**Solutions**:
+1. **Large .resultset.json files**: Consider splitting tests or using filters
+2. **Many files**: Use specific file paths instead of `list` command
+3. **Network drives**: Ensure coverage files are on local storage
+
+### Environment-Specific Issues
+
+#### Docker/Container Issues
+**Problem**: Can't find files or coverage in containerized environments
+
+**Solutions**:
+1. **Mount project directory**:
+   ```sh
+   docker run -v $(pwd):/app -w /app ruby:3.2 simplecov-mcp
+   ```
+
+2. **Set correct working directory**:
+   ```sh
+   simplecov-mcp --root /app
+   ```
+
+#### CI/CD Issues
+**Problem**: Works locally but fails in CI
+
+**Solutions**:
+1. **Check Ruby version in CI**:
+   ```yaml
+   - name: Setup Ruby
+     uses: ruby/setup-ruby@v1
+     with:
+       ruby-version: 3.2
+   ```
+
+2. **Ensure coverage is generated**:
+   ```yaml
+   - run: bundle exec rspec  # Generate coverage first
+   - run: bundle exec simplecov-mcp --stale error
+   ```
+
+3. **Use absolute paths**:
+   ```yaml
+   - run: SIMPLECOV_RESULTSET=$PWD/coverage simplecov-mcp
+   ```
+
+### Getting Help
+
+If you're still having issues:
+
+1. **Check logs**: Look at `~/simplecov_mcp.log` for error details
+2. **Enable debug mode**: Set `SIMPLECOV_MCP_DEBUG=1` for verbose output
+3. **Test basic functionality**: Run `simplecov-mcp --help` and `simplecov-mcp` to verify basic operation
+4. **Check your setup**: Verify Ruby version, gem installation, and coverage file existence
 
 ### Notes
 
