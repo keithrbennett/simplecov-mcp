@@ -14,8 +14,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(err).to eq("")
     expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to match(/Uncovered lines:\s*2\b/)
-    # Accept either rendered source table or fallback message
-    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+    expect(out).to show_source_table_or_fallback
   end
 
   it 'renders full source for uncovered command without brittle spacing' do
@@ -27,8 +26,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(err).to eq("")
     # Summary line with flexible spacing
     expect(out).to match(/Summary:\s*\d+\.\d{2}%\s*\d+\/\d+/)
-    # Accept either rendered source table or fallback message
-    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+    expect(out).to show_source_table_or_fallback
   end
 
   it 'renders source for summary with uncovered mode without crashing' do
@@ -42,7 +40,6 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     # Presence of percentage and counts, spacing-agnostic
     expect(out).to match(/66\.67%/)
     expect(out).to match(/\b2\/3\b/)
-    # Accept either rendered source table or fallback message
-    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+    expect(out).to show_source_table_or_fallback
   end
 end

@@ -83,8 +83,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(err).to eq("")
     expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to include('Uncovered lines: 2')
-    # Should either show rendered source or graceful fallback
-    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+    expect(out).to show_source_table_or_fallback
   end
   
   it 'renders source with full mode without crashing' do
@@ -98,8 +97,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(err).to eq("")
     expect(out).to include('lib/foo.rb')
     expect(out).to include('66.67%')
-    # Should either show rendered source or graceful fallback
-    expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
+    expect(out).to show_source_table_or_fallback
   end
   
   it 'shows fallback message when source file is unreadable' do

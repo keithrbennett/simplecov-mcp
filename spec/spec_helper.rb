@@ -131,3 +131,16 @@ RSpec.configure do |config|
   config.include CLITestHelpers
   config.include MCPToolTestHelpers
 end
+
+# Custom matchers
+RSpec::Matchers.define :show_source_table_or_fallback do
+  match do |output|
+    has_table_header = output.match?(/(^|\n)\s*Line\s+\|\s+Source/)
+    has_fallback = output.include?('[source not available]')
+    has_table_header || has_fallback
+  end
+
+  failure_message do |output|
+    "expected output to include a source table header (e.g., 'Line | Source') or the fallback '[source not available]'"
+  end
+end
