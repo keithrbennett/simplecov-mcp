@@ -159,7 +159,7 @@ module SimpleCovMcp
           break if maybe_output_json(relativize_file(data))
           rel = rel_path(data['file'])
           s = data['summary']
-          printf '%8.2f%%  %6d/%-6d  %s\n', s['pct'], s['covered'], s['total'], rel
+          printf "%8.2f%%  %6d/%-6d  %s\n\n", s['pct'], s['covered'], s['total'], rel
           print_source_for(model, path) if @source_mode
         end
       end
@@ -185,10 +185,10 @@ module SimpleCovMcp
           end
           break if maybe_output_json(relativize_file(data))
           rel = rel_path(data['file'])
-          puts "File: #{rel}"
+          puts "File:            #{rel}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           s = data['summary']
-          printf 'Summary: %8.2f%%  %6d/%-6d\n', s['pct'], s['covered'], s['total']
+          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", s['pct'], s['covered'], s['total']
           print_source_for(model, path) if @source_mode
         end
       end
@@ -281,7 +281,8 @@ module SimpleCovMcp
           next unless include_line[i]
           hits = coverage_lines[i]
           covered = hits.nil? ? nil : hits.to_i > 0
-          out << { line: i + 1, code: code, hits: hits, covered: covered }
+          # Use string keys consistently across CLI formatting and JSON payloads
+          out << { 'line' => i + 1, 'code' => code, 'hits' => hits, 'covered' => covered }
         end
         out
       end

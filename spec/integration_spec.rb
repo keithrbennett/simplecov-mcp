@@ -156,7 +156,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         uncovered_output = out.string
       end
       
-      expect(uncovered_output).to include('Uncovered lines: 2')
+      expect(uncovered_output).to match(/Uncovered lines:\s*2\b/)
       
       # Test detailed command
       detailed_output = nil

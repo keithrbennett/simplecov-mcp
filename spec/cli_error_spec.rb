@@ -81,7 +81,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     
     expect(status).to eq(0)
     expect(err).to eq("")
-    expect(out).to include('File: lib/foo.rb')
+    expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to include('Uncovered lines: 2')
     # Should either show rendered source or graceful fallback
     expect(out).to satisfy { |s| s.include?('Line') || s.include?('[source not available]') }
