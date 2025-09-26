@@ -6,11 +6,6 @@ RSpec.describe SimpleCovMcp::CovUtil do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset_file) { File.join(root, 'coverage', '.resultset.json') }
 
-  it 'latest_timestamp returns integer from fixture' do
-    ts = described_class.latest_timestamp(root, resultset: 'coverage')
-    expect(ts).to be_a(Integer)
-    expect(ts).to eq(FIXTURE_COVERAGE_TIMESTAMP)
-  end
 
   it 'find_resultset honors SIMPLECOV_RESULTSET file path' do
     begin
@@ -65,7 +60,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
     ])
   end
 
-  it 'load_latest_coverage raises CoverageDataError on invalid JSON via model' do
+  it 'load_coverage raises CoverageDataError on invalid JSON via model' do
     Dir.mktmpdir do |dir|
       bad = File.join(dir, '.resultset.json')
       File.write(bad, '{not-json')
@@ -142,8 +137,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
         expect(File.exist?(log_path)).to be true
         content = File.read(log_path)
         expect(content).to include(test_message)
-        # TODO: Move that regex to a constant.
-        expect(content).to match(/\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\]/)
+        expect(content).to match(TIMESTAMP_REGEX)
       end
     end
   end

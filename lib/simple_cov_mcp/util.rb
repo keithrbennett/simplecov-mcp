@@ -7,6 +7,8 @@ module SimpleCovMcp
       'tmp/.resultset.json'
     ].freeze
 
+    DEFAULT_LOG_FILESPEC = '~/simplecov_mcp.log'
+
     module CovUtil
       module_function
 
@@ -19,8 +21,7 @@ module SimpleCovMcp
         if SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
           return log_file == '-' ? nil : File.expand_path(log_file)
         end
-        # TODO: Make this string literal a constant somewhere.
-        File.expand_path('~/simplecov_mcp.log')
+        File.expand_path(DEFAULT_LOG_FILESPEC)
       end
 
       def log(msg)
@@ -55,25 +56,6 @@ module SimpleCovMcp
           raise "Could not find .resultset.json under #{root.inspect}; run tests or set SIMPLECOV_RESULTSET"
       end
 
-      # returns { abs_path => {'lines' => [hits|nil,...]} }
-      # TODO: why "latest" coverage? Isn't there only 1 data set?
-      def load_latest_coverage(root, resultset: nil)
-        rs = find_resultset(root, resultset: resultset)
-        raw = JSON.parse(File.read(rs))
-        _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
-        cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
-        cov.transform_keys { |k| File.absolute_path(k, root) }
-      end
-
-      # Returns the timestamp (Integer seconds) for the latest coverage entry
-      # in the resultset. Used for staleness checks against source mtimes.
-      def latest_timestamp(root, resultset: nil)
-        rs = find_resultset(root, resultset: resultset)
-        raw = JSON.parse(File.read(rs))
-        # TODO - Explain line below; there seems to be only 1 timestamp in this hash
-        _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
-        (data['timestamp'] || data['created_at'] || 0).to_i
-      end
 
       def resolve_resultset_candidate(path, strict:)
         return path if File.file?(path)

@@ -116,7 +116,6 @@ module SimpleCovMcp
     class << self
       attr_writer :error_handler
 
-      # TODO - Examine error handler var initialization and reading. It is claled in both mcp_server.rb and simple_cov_mcp.rb. Is this ok?
       def error_handler
         @error_handler or raise "Error handler not configured. Use one of: SimpleCovMcp.run, .run_as_library, or set .error_handler= explicitly"
       end

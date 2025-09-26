@@ -35,6 +35,31 @@ VERY_OLD_TIMESTAMP = 0
 # 1000 = 1970-01-01 00:16:40 UTC (16 minutes and 40 seconds after epoch)
 TEST_FILE_TIMESTAMP = 1_000
 
+# Regex pattern for matching ISO 8601 timestamps with brackets in log output
+# Used to verify log timestamps in tests
+TIMESTAMP_REGEX = /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\]/
+
+# Helper method to mock resultset file reading with fake coverage data
+# @param root [String] The test root directory
+# @param timestamp [Integer] The timestamp to use in the fake resultset
+# @param coverage [Hash] Optional custom coverage data (default: basic foo.rb and bar.rb)
+def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
+  default_coverage = {
+    File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] },
+    File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1, 0] }
+  }
+
+  fake_resultset = {
+    'RSpec' => {
+      'coverage' => coverage || default_coverage,
+      'timestamp' => timestamp
+    }
+  }
+
+  allow(File).to receive(:read).and_call_original
+  allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(fake_resultset.to_json)
+end
+
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!

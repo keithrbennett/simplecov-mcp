@@ -7,12 +7,12 @@ module SimpleCovMcp
   class StalenessChecker
     MODES = %w[off error].freeze
 
-    def initialize(root:, resultset:, mode: 'off', tracked_globs: nil)
+    def initialize(root:, resultset:, mode: 'off', tracked_globs: nil, timestamp: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
       @mode = (mode || 'off').to_s
       @tracked_globs = tracked_globs
-      @cov_timestamp = nil
+      @cov_timestamp = timestamp
       @resultset_path = nil
     end
 
@@ -102,7 +102,7 @@ module SimpleCovMcp
     private
 
     def coverage_timestamp
-      @cov_timestamp ||= CovUtil.latest_timestamp(@root, resultset: @resultset)
+      @cov_timestamp || 0
     end
 
     def resultset_path

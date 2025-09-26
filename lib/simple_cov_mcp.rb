@@ -26,20 +26,9 @@ require_relative 'simple_cov_mcp/mcp_server'
 require_relative 'simple_cov_mcp/cli'
 
 module SimpleCovMcp
-  # TODO Can we do this instead of defining the methods explicitly?:
-  # class << self
-  #   attr_accessor :log_file
-  # end
-
-    @log_file = nil
-
-    def self.log_file
-      @log_file
-    end
-
-    def self.log_file=(path)
-      @log_file = path
-    end
+  class << self
+    attr_accessor :log_file
+  end
 
     def self.run(argv)
       # Determine whether to run CLI or MCP server based on arguments and environment
