@@ -69,4 +69,27 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     data = JSON.parse(output)
     expect(data).to have_key('source')
   end
+
+  describe 'log file configuration' do
+    around(:each) do |example|
+      # Reset SimpleCovMcp.log_file
+      old_log_file = SimpleCovMcp.log_file
+      SimpleCovMcp.log_file = nil
+      example.run
+      SimpleCovMcp.log_file = old_log_file
+    end
+
+    it 'sets global log file from --log-file option' do
+      Dir.mktmpdir do |dir|
+        log_path = File.join(dir, 'custom.log')
+        run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', log_path)
+        expect(SimpleCovMcp.log_file).to eq(log_path)
+      end
+    end
+
+    it 'handles --log-file - (disable logging)' do
+      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', '-')
+      expect(SimpleCovMcp.log_file).to eq('-')
+    end
+  end
 end

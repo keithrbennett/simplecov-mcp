@@ -10,15 +10,31 @@ module SimpleCovMcp
     module CovUtil
       module_function
 
-      
+      def log_path
+        if (env = ENV['SIMPLECOV_MCP_LOG']) && !env.empty?
+          return env == '-' ? nil : File.expand_path(env)
+        end
+
+        # Check if we have a global log file setting
+        if SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
+          return log_file == '-' ? nil : File.expand_path(log_file)
+        end
+        # TODO: Make this string literal a constant somewhere.
+        File.expand_path('~/simplecov_mcp.log')
+      end
+
       def log(msg)
-        path = File.expand_path('~/simplecov_mcp.log')
+        # TODO: Memoize log_path
+        path = log_path
+        return if path.nil? # Skip logging if path is nil (stderr mode or disabled)
+
         File.open(path, 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
       rescue StandardError
         # ignore logging failures
       end
 
       def find_resultset(root, resultset: nil)
+        # TODO: Remove this to_s. Maybe ensure somewhere else that resultset is either nil or a string
         if resultset && !resultset.to_s.empty?
           path = File.absolute_path(resultset, root)
           if (resolved = resolve_resultset_candidate(path, strict: true))
@@ -32,6 +48,7 @@ module SimpleCovMcp
             return resolved
           end
         end
+
         RESULTSET_CANDIDATES
           .map { |p| File.absolute_path(p, root) }
           .find { |p| File.file?(p) } or
@@ -39,6 +56,7 @@ module SimpleCovMcp
       end
 
       # returns { abs_path => {'lines' => [hits|nil,...]} }
+      # TODO: why "latest" coverage? Isn't there only 1 data set?
       def load_latest_coverage(root, resultset: nil)
         rs = find_resultset(root, resultset: resultset)
         raw = JSON.parse(File.read(rs))
@@ -52,6 +70,7 @@ module SimpleCovMcp
       def latest_timestamp(root, resultset: nil)
         rs = find_resultset(root, resultset: resultset)
         raw = JSON.parse(File.read(rs))
+        # TODO - Explain line below; there seems to be only 1 timestamp in this hash
         _suite, data = raw.max_by { |_k, v| (v['timestamp'] || v['created_at'] || 0).to_i }
         (data['timestamp'] || data['created_at'] || 0).to_i
       end
@@ -75,12 +94,14 @@ module SimpleCovMcp
 
         # try without current working directory prefix
         cwd = Dir.pwd
+        # TODO - can the line below be simplified?
         without = file_abs.sub(/\A#{Regexp.escape(cwd)}\//, '')
         if (h = cov[without]) && h['lines'].is_a?(Array)
           return h['lines']
         end
 
         # fallback: basename match
+        # TODO - Isn't this the same as what we did before, removing the pwd?
         base = File.basename(file_abs)
         kv = cov.find { |k, v| File.basename(k) == base && v['lines'].is_a?(Array) }
         kv and return kv[1]['lines']
@@ -91,8 +112,7 @@ module SimpleCovMcp
       def summary(arr)
         total = 0
         covered = 0
-        arr.each do |hits|
-          next if hits.nil?
+        arr.compact.each do |hits|
           total += 1
           covered += 1 if hits.to_i > 0
         end
@@ -103,6 +123,7 @@ module SimpleCovMcp
       def uncovered(arr)
         out = []
         arr.each_with_index do |hits, i|
+          # TODO - Can we simplify this with `if hits&.to_i.zero?`
           next if hits.nil?
           out << (i + 1) if hits.to_i.zero?
         end
@@ -112,6 +133,7 @@ module SimpleCovMcp
       def detailed(arr)
         rows = []
         arr.each_with_index do |hits, i|
+          # TODO - Can we simplify this with `if hits&.to_i.zero?`
           next if hits.nil?
           h = hits.to_i
           rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? }

@@ -16,16 +16,8 @@ module SimpleCovMcp
       # Handle an error with appropriate logging and re-raising behavior
       def handle_error(error, context: nil, reraise: true)
         log_error(error, context)
-
         if reraise
-          if error.is_a?(SimpleCovMcp::Error)
-            # Re-raise our custom errors as-is
-            raise error
-          else
-            # Convert standard errors to our custom errors for better UX
-            converted_error = convert_standard_error(error)
-            raise converted_error
-          end
+          raise error.is_a?(SimpleCovMcp::Error) ? error : convert_standard_error(error)
         end
       end
 
@@ -124,6 +116,7 @@ module SimpleCovMcp
     class << self
       attr_writer :error_handler
 
+      # TODO - Examine error handler var initialization and reading. It is claled in both mcp_server.rb and simple_cov_mcp.rb. Is this ok?
       def error_handler
         @error_handler or raise "Error handler not configured. Use one of: SimpleCovMcp.run, .run_as_library, or set .error_handler= explicitly"
       end

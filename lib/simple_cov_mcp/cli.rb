@@ -16,13 +16,20 @@ module SimpleCovMcp
         @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
+        # TODO - This seems backwards. how about if we make the error_handler the method that lazily initializes the ivar,
+        # and change all calls to the ivar to be calls to the method?
         @error_handler = error_handler || ErrorHandlerFactory.for_cli
         @stale_mode = 'off'
         @tracked_globs = nil
+        @log_file = nil
       end
 
       def run(argv)
         parse_options!(argv)
+
+        # Set global log file if specified
+        SimpleCovMcp.log_file = @log_file if @log_file
+
         if @cmd
           run_subcommand(@cmd, @cmd_args)
         else
@@ -92,6 +99,7 @@ module SimpleCovMcp
             @stale_mode = v.to_s
           end
           o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
+          o.on('--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
           o.separator ''
           o.separator 'Examples:'
           o.separator '  simplecov-mcp list --resultset coverage'
