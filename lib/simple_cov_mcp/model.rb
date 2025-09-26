@@ -88,84 +88,86 @@ module SimpleCovMcp
 
       # Returns formatted table string for all files coverage data
       def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-        if rows.nil?
-          rows = all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
-        else
-          # Apply sorting to provided rows
-          rows.sort! do |a, b|
-            pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
-            pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
-          end
-        end
-
+        rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
         return "No coverage data found" if rows.empty?
 
-        # Format as table with box-style borders
-        max_file_length = rows.map { |f| f['file'].length }.max.to_i
-        max_file_length = [max_file_length, 'File'.length].max
-
-        # Calculate maximum numeric values for proper column widths
-        max_covered = rows.map { |f| f['covered'].to_s.length }.max
-        max_total = rows.map { |f| f['total'].to_s.length }.max
-
-        # Define column widths
-        file_width = max_file_length + 2  # Extra padding
-        pct_width = 8
-        covered_width = [max_covered, 'Covered'.length].max + 2
-        total_width = [max_total, 'Total'.length].max + 2
-
-        stale_header = 'Stale'
-        stale_width = stale_header.length
-
-        # Horizontal line for each column span
-        h_line = ->(col_width) { '─' * (col_width + 2) }
-
-        # Border line lambda
-        border_line = ->(left, middle, right) {
-          left   + h_line.(file_width) +
-          middle + h_line.(pct_width) +
-          middle + h_line.(covered_width) +
-          middle + h_line.(total_width) +
-          middle + h_line.(stale_width) +
-          right
-        }
-
+        widths = compute_table_widths(rows)
         lines = []
-
-        # Top border
-        lines << border_line.call('┌', '┬', '┐')
-
-        # Header row
-        lines << sprintf("│ %-#{file_width}s │ %#{pct_width}s │ %#{covered_width}s │ %#{total_width}s │ %#{stale_width}s │",
-                         'File', ' %', 'Covered', 'Total', stale_header.center(stale_width))
-
-        # Header separator
-        lines << border_line.call('├', '┼', '┤')
-
-        # Data rows
-        rows.each do |file_data|
-          stale_text_str = file_data['stale'] ? '!' : ''
-          lines << sprintf("│ %-#{file_width}s │ %#{pct_width - 1}.2f%% │ %#{covered_width}d │ %#{total_width}d │ %#{stale_width}s │",
-                           file_data['file'],
-                           file_data['percentage'],
-                           file_data['covered'],
-                           file_data['total'],
-                           stale_text_str.center(stale_width))
-        end
-
-        # Bottom border
-        lines << border_line.call('└', '┴', '┘')
-
-        # Summary counts line
-        total = rows.length
-        stale_count = rows.count { |f| f['stale'] }
-        ok_count = total - stale_count
-        lines << "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
-
+        lines << border_line(widths, '┌', '┬', '┐')
+        lines << header_row(widths)
+        lines << border_line(widths, '├', '┼', '┤')
+        rows.each { |file_data| lines << data_row(file_data, widths) }
+        lines << border_line(widths, '└', '┴', '┘')
+        lines << summary_counts(rows)
         lines.join("\n")
       end
 
     private
+
+    def prepare_rows(rows, sort_order:, check_stale:, tracked_globs:)
+      rows = if rows.nil?
+               all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+             else
+               sort_rows(rows.dup, sort_order: sort_order)
+             end
+      rows
+    end
+
+    def sort_rows(rows, sort_order: :ascending)
+      rows.sort do |a, b|
+        pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+        pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+      end
+    end
+
+    def compute_table_widths(rows)
+      max_file_length = rows.map { |f| f['file'].length }.max.to_i
+      file_width = [max_file_length, 'File'.length].max + 2
+      pct_width = 8
+      max_covered = rows.map { |f| f['covered'].to_s.length }.max
+      max_total = rows.map { |f| f['total'].to_s.length }.max
+      covered_width = [max_covered, 'Covered'.length].max + 2
+      total_width = [max_total, 'Total'.length].max + 2
+      stale_width = 'Stale'.length
+      { file: file_width, pct: pct_width, covered: covered_width, total: total_width, stale: stale_width }
+    end
+
+    def border_line(widths, left, middle, right)
+      h_line = ->(col_width) { '─' * (col_width + 2) }
+      left +
+        h_line.call(widths[:file]) +
+        middle + h_line.call(widths[:pct]) +
+        middle + h_line.call(widths[:covered]) +
+        middle + h_line.call(widths[:total]) +
+        middle + h_line.call(widths[:stale]) +
+        right
+    end
+
+    def header_row(widths)
+      sprintf(
+        "│ %-#{widths[:file]}s │ %#{widths[:pct]}s │ %#{widths[:covered]}s │ %#{widths[:total]}s │ %#{widths[:stale]}s │",
+        'File', ' %', 'Covered', 'Total', 'Stale'.center(widths[:stale])
+      )
+    end
+
+    def data_row(file_data, widths)
+      stale_text_str = file_data['stale'] ? '!' : ''
+      sprintf(
+        "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
+        file_data['file'],
+        file_data['percentage'],
+        file_data['covered'],
+        file_data['total'],
+        stale_text_str.center(widths[:stale])
+      )
+    end
+
+    def summary_counts(rows)
+      total = rows.length
+      stale_count = rows.count { |f| f['stale'] }
+      ok_count = total - stale_count
+      "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
+    end
 
     def resolve(path)
       file_abs = File.absolute_path(path, @root)

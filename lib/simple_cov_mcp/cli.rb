@@ -64,52 +64,74 @@ module SimpleCovMcp
 
       def parse_options!(argv)
         require 'optparse'
+        extract_subcommand!(argv)
+        build_option_parser.parse!(argv)
+        @cmd_args = argv
+      end
 
+      def extract_subcommand!(argv)
         if !argv.empty? && SUBCOMMANDS.include?(argv[0])
           @cmd = argv.shift
         end
+      end
 
-        op = OptionParser.new do |o|
-          o.banner = 'Usage: simplecov-mcp [subcommand] [options] [args]'
-          o.separator ''
-          o.separator 'Subcommands:'
-          o.separator '  list                    Show table of all files'
-          o.separator '  summary <path>          Show covered/total/% for a file'
-          o.separator "  raw <path>              Show the SimpleCov 'lines' array"
-          o.separator '  uncovered <path>        Show uncovered lines and a summary'
-          o.separator '  detailed <path>         Show per-line rows with hits/covered'
-          o.separator '  version                 Show version information'
-          o.separator ''
-
-          o.separator ''
-          o.separator 'Options:'
-          o.on('--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
-          o.on('--root PATH', String, "Project root (default '.')") { |v| @root = v }
-          o.on('--json', 'Output JSON for machine consumption') { @json = true }
-          o.on('--sort-order ORDER', String, ['ascending', 'descending'], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
-          o.on('--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
-            @source_mode = (v || :full).to_s
-          end
-          o.on('--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
-          o.on('--color', 'Enable ANSI colors for source output') { @color = true }
-          o.on('--no-color', 'Disable ANSI colors') { @color = false }
-          o.on('--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") do |v|
-            @stale_mode = v.to_s
-          end
-          o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
-          o.on('--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
-          o.separator ''
-          o.separator 'Examples:'
-          o.separator '  simplecov-mcp list --resultset coverage'
-          o.separator '  simplecov-mcp summary lib/foo.rb --json --resultset coverage'
-          o.separator '  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2'
-          o.on('-h', '--help', 'Show help') do
-            puts o
-            exit 0
-          end
+      def build_option_parser
+        OptionParser.new do |o|
+          configure_banner(o)
+          define_subcommands_help(o)
+          define_options(o)
+          define_examples(o)
+          add_help_handler(o)
         end
-        op.parse!(argv)
-        @cmd_args = argv
+      end
+
+      def configure_banner(o)
+        o.banner = 'Usage: simplecov-mcp [subcommand] [options] [args]'
+        o.separator ''
+      end
+
+      def define_subcommands_help(o)
+        o.separator 'Subcommands:'
+        o.separator '  list                    Show table of all files'
+        o.separator '  summary <path>          Show covered/total/% for a file'
+        o.separator "  raw <path>              Show the SimpleCov 'lines' array"
+        o.separator '  uncovered <path>        Show uncovered lines and a summary'
+        o.separator '  detailed <path>         Show per-line rows with hits/covered'
+        o.separator '  version                 Show version information'
+        o.separator ''
+      end
+
+      def define_options(o)
+        o.separator ''
+        o.separator 'Options:'
+        o.on('--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
+        o.on('--root PATH', String, "Project root (default '.')") { |v| @root = v }
+        o.on('--json', 'Output JSON for machine consumption') { @json = true }
+        o.on('--sort-order ORDER', String, ['ascending', 'descending'], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
+        o.on('--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
+          @source_mode = (v || :full).to_s
+        end
+        o.on('--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
+        o.on('--color', 'Enable ANSI colors for source output') { @color = true }
+        o.on('--no-color', 'Disable ANSI colors') { @color = false }
+        o.on('--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") { |v| @stale_mode = v.to_s }
+        o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
+        o.on('--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
+      end
+
+      def define_examples(o)
+        o.separator ''
+        o.separator 'Examples:'
+        o.separator '  simplecov-mcp list --resultset coverage'
+        o.separator '  simplecov-mcp summary lib/foo.rb --json --resultset coverage'
+        o.separator '  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2'
+      end
+
+      def add_help_handler(o)
+        o.on('-h', '--help', 'Show help') do
+          puts o
+          exit 0
+        end
       end
 
       def run_subcommand(cmd, args)
@@ -156,13 +178,7 @@ module SimpleCovMcp
       def handle_summary(model, args)
         handle_with_path(args, 'summary') do |path|
           data = model.summary_for(path)
-          if @source_mode && @json
-            data = relativize_file(data)
-            src = build_source_payload(model, path)
-            data['source'] = src
-            break puts(JSON.pretty_generate(data))
-          end
-          break if maybe_output_json(relativize_file(data))
+          break if emit_json_with_optional_source(data, model, path)
           rel = rel_path(data['file'])
           s = data['summary']
           printf "%8.2f%%  %6d/%-6d  %s\n\n", s['pct'], s['covered'], s['total'], rel
@@ -183,13 +199,7 @@ module SimpleCovMcp
       def handle_uncovered(model, args)
         handle_with_path(args, 'uncovered') do |path|
           data = model.uncovered_for(path)
-          if @source_mode && @json
-            data = relativize_file(data)
-            src = build_source_payload(model, path)
-            data['source'] = src
-            break puts(JSON.pretty_generate(data))
-          end
-          break if maybe_output_json(relativize_file(data))
+          break if emit_json_with_optional_source(data, model, path)
           rel = rel_path(data['file'])
           puts "File:            #{rel}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
@@ -202,13 +212,7 @@ module SimpleCovMcp
       def handle_detailed(model, args)
         handle_with_path(args, 'detailed') do |path|
           data = model.detailed_for(path)
-          if @source_mode && @json
-            data = relativize_file(data)
-            src = build_source_payload(model, path)
-            data['source'] = src
-            break puts(JSON.pretty_generate(data))
-          end
-          break if maybe_output_json(relativize_file(data))
+          break if emit_json_with_optional_source(data, model, path)
           rel = rel_path(data['file'])
           puts "File: #{rel}"
           puts format_detailed_rows(data['lines'])
@@ -232,6 +236,31 @@ module SimpleCovMcp
       def maybe_output_json(obj)
         return false unless @json
         puts JSON.pretty_generate(obj)
+        true
+      end
+
+      # Emits JSON for a file-oriented command, optionally including source rows.
+      #
+      # Params:
+      # - data: Hash with a 'file' key (absolute path) and command-specific payload
+      # - model: CoverageModel used to fetch raw lines for source inclusion
+      # - path:  User-provided path string (used to resolve and load source)
+      #
+      # Behavior:
+      # - When @json is false, returns false and does not print anything.
+      # - When @json is true and @source_mode is set, prints JSON that includes a
+      #   'source' key with formatted source rows (or nil if source is unavailable).
+      # - When @json is true and @source_mode is not set, prints JSON without source.
+      #
+      # Returns true if JSON was emitted; false otherwise.
+      def emit_json_with_optional_source(data, model, path)
+        return false unless @json
+        if @source_mode
+          payload = relativize_file(data).merge('source' => build_source_payload(model, path))
+          puts JSON.pretty_generate(payload)
+        else
+          puts JSON.pretty_generate(relativize_file(data))
+        end
         true
       end
 
