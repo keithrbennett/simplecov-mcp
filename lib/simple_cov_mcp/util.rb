@@ -34,8 +34,7 @@ module SimpleCovMcp
       end
 
       def find_resultset(root, resultset: nil)
-        # TODO: Remove this to_s. Maybe ensure somewhere else that resultset is either nil or a string
-        if resultset && !resultset.to_s.empty?
+        if resultset && !resultset.empty?
           path = File.absolute_path(resultset, root)
           if (resolved = resolve_resultset_candidate(path, strict: true))
             return resolved
@@ -75,17 +74,12 @@ module SimpleCovMcp
 
         # try without current working directory prefix
         cwd = Dir.pwd
-        # TODO - can the line below be simplified?
-        without = file_abs.sub(/\A#{Regexp.escape(cwd)}\//, '')
-        if (h = cov[without]) && h['lines'].is_a?(Array)
-          return h['lines']
+        if file_abs.start_with?(cwd + '/')
+          without = file_abs[(cwd.length + 1)..-1]
+          if (h = cov[without]) && h['lines'].is_a?(Array)
+            return h['lines']
+          end
         end
-
-        # fallback: basename match
-        # TODO - Isn't this the same as what we did before, removing the pwd?
-        base = File.basename(file_abs)
-        kv = cov.find { |k, v| File.basename(k) == base && v['lines'].is_a?(Array) }
-        kv and return kv[1]['lines']
 
         raise "No coverage entry found for #{file_abs}"
       end
@@ -103,8 +97,8 @@ module SimpleCovMcp
 
       def uncovered(arr)
         out = []
+
         arr.each_with_index do |hits, i|
-          # TODO - Can we simplify this with `if hits&.to_i.zero?`
           next if hits.nil?
           out << (i + 1) if hits.to_i.zero?
         end
@@ -114,10 +108,8 @@ module SimpleCovMcp
       def detailed(arr)
         rows = []
         arr.each_with_index do |hits, i|
-          # TODO - Can we simplify this with `if hits&.to_i.zero?`
-          next if hits.nil?
-          h = hits.to_i
-          rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? }
+          h = hits&.to_i
+          rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? } if h
         end
         rows
       end

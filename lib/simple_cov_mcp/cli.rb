@@ -16,8 +16,6 @@ module SimpleCovMcp
         @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
-        # TODO - This seems backwards. how about if we make the error_handler the method that lazily initializes the ivar,
-        # and change all calls to the ivar to be calls to the method?
         @error_handler = error_handler || ErrorHandlerFactory.for_cli
         @stale_mode = 'off'
         @tracked_globs = nil

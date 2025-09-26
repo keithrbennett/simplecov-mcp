@@ -17,7 +17,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
     end
   end
 
-  it 'lookup_lines supports cwd-stripping and basename fallbacks' do
+  it 'lookup_lines supports cwd-stripping' do
     lines = [1, 0]
 
     # Exact key
@@ -33,9 +33,11 @@ RSpec.describe SimpleCovMcp::CovUtil do
       # no-op
     end
 
-    # Basename fallback
+    # Different paths with same basename should not match
     cov = { '/some/where/else/foo.rb' => { 'lines' => lines } }
-    expect(described_class.lookup_lines(cov, '/another/place/foo.rb')).to eq(lines)
+    expect {
+      described_class.lookup_lines(cov, '/another/place/foo.rb')
+    }.to raise_error(RuntimeError, /No coverage entry found/)
 
     # Missing raises a helpful string error
     cov = {}
