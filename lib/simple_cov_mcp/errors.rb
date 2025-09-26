@@ -72,12 +72,16 @@ module SimpleCovMcp
         file_utc, file_local = format_time_both(@file_mtime)
         cov_utc,  cov_local  = format_epoch_both(@cov_timestamp)
         delta_str = format_delta_seconds(@file_mtime, @cov_timestamp)
-        details = []
-        details << "\nFile     - time: #{file_utc || 'not found'} (local #{file_local || 'n/a'}), lines: #{@src_len}"
-        details << "\nCoverage - time: #{cov_utc  || 'not found'} (local #{cov_local  || 'n/a'}), lines: #{@cov_len}"
-        details << "\nDelta    - file is #{delta_str} newer than coverage" if delta_str
-        details << "\nResultset - #{@resultset_path}" if @resultset_path
-        details.join
+
+        details = <<~DETAILS
+
+          File     - time: #{file_utc || 'not found'} (local #{file_local || 'n/a'}), lines: #{@src_len}
+          Coverage - time: #{cov_utc  || 'not found'} (local #{cov_local  || 'n/a'}), lines: #{@cov_len}
+        DETAILS
+
+        details += "\nDelta    - file is #{delta_str} newer than coverage" if delta_str
+        details += "\nResultset - #{@resultset_path}" if @resultset_path
+        details.chomp
       end
 
       def format_epoch_both(epoch_seconds)
