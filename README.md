@@ -114,6 +114,15 @@ and staleness analysis. Run it with `ruby examples/filter_and_table_demo.rb`.
 - SimpleCov coverage data (run tests to generate `coverage/.resultset.json`)
 - MCP-compatible client (editor, agent, or tool) (needed only for MCP mode, not for CLI or library modes)
 
+#### Claude Code Compatibility Note
+**Current Status**: Claude Code has a bug in its MCP client implementation that prevents it from working with spec-compliant MCP servers like simplecov-mcp. Claude Code will automatically fall back to using the CLI interface instead.
+
+**Technical Details**: Claude Code incorrectly requires `uri` fields for all resource content and rejects the `text` field that is central to `TextResourceContents` per the official MCP specification. This affects all MCP servers that return text-based resource content.
+
+**Bug Report**: [Claude Code Issue #8239](https://github.com/anthropics/claude-code/issues/8239)
+
+**Workaround**: Claude Code users can still access all functionality through the CLI interface, which works perfectly. The CLI provides the same coverage analysis capabilities with human-readable tables and JSON output options.
+
 #### Quick Test (Manual)
 Test the MCP server manually by piping JSON-RPC messages:
 
