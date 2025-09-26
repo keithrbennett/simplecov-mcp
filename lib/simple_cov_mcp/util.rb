@@ -13,20 +13,19 @@ module SimpleCovMcp
       module_function
 
       def log_path
-        if (env = ENV['SIMPLECOV_MCP_LOG']) && !env.empty?
-          return env == '-' ? nil : File.expand_path(env)
+        @log_path ||= begin
+          if (env = ENV['SIMPLECOV_MCP_LOG']) && !env.empty?
+            env == '-' ? nil : File.expand_path(env)
+          elsif SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
+            log_file == '-' ? nil : File.expand_path(log_file)
+          else
+            File.expand_path(DEFAULT_LOG_FILESPEC)
+          end
         end
-
-        # Check if we have a global log file setting
-        if SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
-          return log_file == '-' ? nil : File.expand_path(log_file)
-        end
-        File.expand_path(DEFAULT_LOG_FILESPEC)
       end
 
-      def log(msg)
-        # TODO: Memoize log_path
-        path = log_path
+        def log(msg)
+          path = log_path
         return if path.nil? # Skip logging if path is nil (stderr mode or disabled)
 
         File.open(path, 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }

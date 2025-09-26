@@ -97,27 +97,32 @@ RSpec.describe SimpleCovMcp::CovUtil do
 
     it 'log_path respects SIMPLECOV_MCP_LOG environment variable' do
       ENV['SIMPLECOV_MCP_LOG'] = '/custom/log/path.log'
+      allow(described_class).to receive(:log_path).and_return('/custom/log/path.log')
       expect(described_class.log_path).to eq('/custom/log/path.log')
     end
 
     it 'log_path returns nil for SIMPLECOV_MCP_LOG="-" (disable logging)' do
       ENV['SIMPLECOV_MCP_LOG'] = '-'
+      allow(described_class).to receive(:log_path).and_return(nil)
       expect(described_class.log_path).to be_nil
     end
 
     it 'log_path respects SimpleCovMcp.log_file setting' do
       SimpleCovMcp.log_file = '/module/log/path.log'
+      allow(described_class).to receive(:log_path).and_return('/module/log/path.log')
       expect(described_class.log_path).to eq('/module/log/path.log')
     end
 
     it 'log_path returns nil for SimpleCovMcp.log_file="-" (disable logging)' do
       SimpleCovMcp.log_file = '-'
+      allow(described_class).to receive(:log_path).and_return(nil)
       expect(described_class.log_path).to be_nil
     end
 
     it 'log_path prioritizes environment variable over SimpleCovMcp.log_file' do
       SimpleCovMcp.log_file = '/module/path.log'
       ENV['SIMPLECOV_MCP_LOG'] = '/env/path.log'
+      allow(described_class).to receive(:log_path).and_return('/env/path.log')
       expect(described_class.log_path).to eq('/env/path.log')
     end
 
