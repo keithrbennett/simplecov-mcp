@@ -6,7 +6,7 @@ module SimpleCovMcp
 
       # Initialize CLI for pure CLI usage only.
       # Always runs as CLI, no mode detection needed.
-      def initialize(error_handler: nil)
+      def initialize(error_handler: ErrorHandlerFactory.for_cli)
         @root = '.'
         @resultset = nil
         @json = false

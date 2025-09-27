@@ -33,7 +33,7 @@ module SimpleCovMcp
     def self.run(argv)
       # Determine whether to run CLI or MCP server based on arguments and environment
       if should_run_cli?(argv)
-        CoverageCLI.new(error_handler: ErrorHandlerFactory.for_cli).run(argv)
+        CoverageCLI.new.run(argv)
       else
         MCPServer.new.run
       end
