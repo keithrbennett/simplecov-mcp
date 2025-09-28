@@ -59,16 +59,6 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(data['summary']['covered']).to eq(2)
     end
 
-    it 'uses SIMPLECOV_RESULTSET when it is a directory' do
-      begin
-        ENV['SIMPLECOV_RESULTSET'] = 'coverage'
-        model = described_class.new(root: root)
-        data = model.summary_for('lib/foo.rb')
-        expect(data['summary']['covered']).to eq(2)
-      ensure
-        ENV.delete('SIMPLECOV_RESULTSET')
-      end
-    end
   end
 
   describe 'format_table' do

@@ -42,11 +42,17 @@ module SimpleCovMcp
             type: 'array',
             description: 'Glob patterns for files that should exist in the coverage report (helps flag new files).',
             items: { type: 'string' }
+          },
+          error_mode: {
+            type: 'string',
+            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'on_with_trace' (verbose).",
+            enum: ['off', 'on', 'on_with_trace'],
+            default: 'on'
           }
         }
       )
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', tracked_globs: nil, server_context:)
+        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', tracked_globs: nil, error_mode: 'on', server_context:)
           model = CoverageModel.new(root: root, resultset: resultset, staleness: stale, tracked_globs: tracked_globs)
           files = model.all_files(sort_order: sort_order, check_stale: (stale.to_s == 'error'), tracked_globs: tracked_globs)
           total = files.length
@@ -55,7 +61,7 @@ module SimpleCovMcp
           payload = { files: files, counts: { total: total, ok: ok_count, stale: stale_count } }
           respond_json(payload, name: 'all_files_coverage.json')
         rescue => e
-          handle_mcp_error(e, 'AllFilesCoverageTool')
+          handle_mcp_error(e, 'AllFilesCoverageTool', error_mode: error_mode)
         end
       end
     end

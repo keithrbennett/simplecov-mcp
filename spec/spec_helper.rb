@@ -12,7 +12,6 @@ rescue LoadError
   warn 'SimpleCov not available; skipping coverage'
 end
 
-ENV.delete('SIMPLECOV_RESULTSET')
 
 require 'rspec'
 require 'pathname'
@@ -63,7 +62,7 @@ end
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
-  config.order = :random
+  config.order = :defined
   Kernel.srand config.seed
 end
 

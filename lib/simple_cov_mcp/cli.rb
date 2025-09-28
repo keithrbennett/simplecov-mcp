@@ -6,7 +6,7 @@ module SimpleCovMcp
 
       # Initialize CLI for pure CLI usage only.
       # Always runs as CLI, no mode detection needed.
-      def initialize(error_handler: ErrorHandlerFactory.for_cli)
+      def initialize(error_handler: nil)
         @root = '.'
         @resultset = nil
         @json = false
@@ -16,14 +16,21 @@ module SimpleCovMcp
         @source_mode = nil   # nil, 'full', or 'uncovered'
         @source_context = 2  # lines of context for uncovered mode
         @color = STDOUT.tty?
-        @error_handler = error_handler || ErrorHandlerFactory.for_cli
+        @error_mode = :on
+        @custom_error_handler = error_handler  # Store custom handler if provided
+        @error_handler = nil  # Will be created after parsing options
         @stale_mode = 'off'
         @tracked_globs = nil
         @log_file = nil
       end
 
       def run(argv)
-        parse_options!(argv)
+        # Prepend environment options to command line arguments
+        full_argv = parse_env_opts + argv
+        parse_options!(full_argv)
+
+        # Create error handler AFTER parsing options to respect user's --error-mode choice
+        ensure_error_handler
 
         # Set global log file if specified
         SimpleCovMcp.log_file = @log_file if @log_file
@@ -75,6 +82,22 @@ module SimpleCovMcp
         end
       end
 
+      def ensure_error_handler
+        @error_handler ||= @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: @error_mode)
+      end
+
+      def parse_env_opts
+        require 'shellwords'
+        opts_string = ENV['SIMPLECOV_MCP_OPTS']
+        return [] unless opts_string && !opts_string.empty?
+
+        begin
+          Shellwords.split(opts_string)
+        rescue ArgumentError => e
+          raise SimpleCovMcp::ConfigurationError, "Invalid SIMPLECOV_MCP_OPTS format: #{e.message}"
+        end
+      end
+
       def build_option_parser
         OptionParser.new do |o|
           configure_banner(o)
@@ -117,6 +140,13 @@ module SimpleCovMcp
         o.on('--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") { |v| @stale_mode = v.to_s }
         o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
         o.on('--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
+        o.on('--error-mode MODE', [:off, :on, :on_with_trace], "Error handling mode: off|on|on_with_trace (default on)") do |v|
+          @error_mode = v
+          # Don't create error handler here - it will be created after all options are parsed
+        end
+        o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
+          # This flag is mainly for mode detection - no action needed here
+        end
       end
 
       def define_examples(o)
@@ -241,18 +271,14 @@ module SimpleCovMcp
 
       # Emits JSON for a file-oriented command, optionally including source rows.
       #
-      # Params:
-      # - data: Hash with a 'file' key (absolute path) and command-specific payload
-      # - model: CoverageModel used to fetch raw lines for source inclusion
-      # - path:  User-provided path string (used to resolve and load source)
-      #
-      # Behavior:
-      # - When @json is false, returns false and does not print anything.
-      # - When @json is true and @source_mode is set, prints JSON that includes a
-      #   'source' key with formatted source rows (or nil if source is unavailable).
-      # - When @json is true and @source_mode is not set, prints JSON without source.
-      #
-      # Returns true if JSON was emitted; false otherwise.
+      # @param data [Hash] Command result including a 'file' key (absolute path).
+      # @param model [SimpleCovMcp::CoverageModel] Used to fetch raw lines when
+      #   embedding source rows.
+      # @param path [String] Original user-provided path for the file.
+      # @return [Boolean] True if JSON was emitted; false otherwise.
+      # @example With --json and --source
+      #   emit_json_with_optional_source({ 'file' => '/abs/foo.rb', 'summary' => {...} }, model, 'lib/foo.rb')
+      #   # => prints JSON including a 'source' field and returns true
       def emit_json_with_optional_source(data, model, path)
         return false unless @json
         if @source_mode

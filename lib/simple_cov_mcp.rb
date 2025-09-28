@@ -31,9 +31,13 @@ module SimpleCovMcp
   end
 
     def self.run(argv)
+      # Parse environment options for CLI mode detection
+      env_opts = parse_env_opts_for_mode_detection
+      full_argv = env_opts + argv
+
       # Determine whether to run CLI or MCP server based on arguments and environment
-      if should_run_cli?(argv)
-        CoverageCLI.new.run(argv)
+      if should_run_cli?(full_argv)
+        CoverageCLI.new.run(argv)  # CLI will re-parse env opts internally
       else
         MCPServer.new.run
       end
@@ -93,9 +97,21 @@ module SimpleCovMcp
       end
     end
 
+    def self.parse_env_opts_for_mode_detection
+      require 'shellwords'
+      opts_string = ENV['SIMPLECOV_MCP_OPTS']
+      return [] unless opts_string && !opts_string.empty?
+
+      begin
+        Shellwords.split(opts_string)
+      rescue ArgumentError
+        []  # Ignore parsing errors for mode detection
+      end
+    end
+
     def self.should_run_cli?(argv)
-      # Force CLI mode if environment variable is set
-      return true if ENV['SIMPLECOV_MCP_CLI'] == '1'
+      # Check if --force-cli flag is present (from SIMPLECOV_MCP_OPTS or command line)
+      return true if argv.include?('--force-cli')
 
       # If a subcommand is provided, run CLI
       return true if CoverageCLI::SUBCOMMANDS.include?(argv[0])

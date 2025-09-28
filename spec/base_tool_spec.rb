@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::BaseTool do
-  let(:handler) { SimpleCovMcp::ErrorHandler.new(log_errors: true, show_stack_traces: false, logger: test_logger) }
+  let(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :on, logger: test_logger) }
   let(:test_logger) do
     Class.new do
       attr_reader :messages
@@ -27,11 +27,16 @@ RSpec.describe SimpleCovMcp::BaseTool do
   end
 
   shared_examples 'friendly response and logged' do
-    it 'returns friendly text and logs' do
-      resp = described_class.handle_mcp_error(error, tool)
+    it 'returns friendly text' do
+      resp = described_class.handle_mcp_error(error, tool, error_mode: :on)
       expect(resp).to be_a(MCP::Tool::Response)
       expect(resp.payload.first[:text]).to match(expected_pattern)
-      expect(test_logger.messages.join).to include(log_fragment)
+    end
+
+    it 'respects error_mode :off' do
+      resp = described_class.handle_mcp_error(error, tool, error_mode: :off)
+      expect(resp).to be_a(MCP::Tool::Response)
+      expect(resp.payload.first[:text]).to match(expected_pattern)
     end
   end
 

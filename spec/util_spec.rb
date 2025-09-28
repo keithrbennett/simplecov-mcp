@@ -7,15 +7,6 @@ RSpec.describe SimpleCovMcp::CovUtil do
   let(:resultset_file) { File.join(root, 'coverage', '.resultset.json') }
 
 
-  it 'find_resultset honors SIMPLECOV_RESULTSET file path' do
-    begin
-      ENV['SIMPLECOV_RESULTSET'] = resultset_file
-      path = described_class.find_resultset(root)
-      expect(path).to eq(File.absolute_path(resultset_file, root))
-    ensure
-      ENV.delete('SIMPLECOV_RESULTSET')
-    end
-  end
 
   it 'lookup_lines supports cwd-stripping' do
     lines = [1, 0]
@@ -76,38 +67,20 @@ RSpec.describe SimpleCovMcp::CovUtil do
     let(:test_message) { 'test log message' }
 
     around(:each) do |example|
-      # Reset SimpleCovMcp.log_file and clean environment
+      # Reset SimpleCovMcp.log_file
       old_log_file = SimpleCovMcp.log_file
-      old_env = ENV['SIMPLECOV_MCP_LOG']
-      ENV.delete('SIMPLECOV_MCP_LOG')
       SimpleCovMcp.log_file = nil
 
       example.run
 
       # Restore state
       SimpleCovMcp.log_file = old_log_file
-      if old_env
-        ENV['SIMPLECOV_MCP_LOG'] = old_env
-      else
-        ENV.delete('SIMPLECOV_MCP_LOG')
-      end
     end
 
     it 'log_path uses default path when no configuration' do
       expect(described_class.log_path).to eq(File.expand_path('~/simplecov_mcp.log'))
     end
 
-    it 'log_path respects SIMPLECOV_MCP_LOG environment variable' do
-      ENV['SIMPLECOV_MCP_LOG'] = '/custom/log/path.log'
-      allow(described_class).to receive(:log_path).and_return('/custom/log/path.log')
-      expect(described_class.log_path).to eq('/custom/log/path.log')
-    end
-
-    it 'log_path returns nil for SIMPLECOV_MCP_LOG="-" (disable logging)' do
-      ENV['SIMPLECOV_MCP_LOG'] = '-'
-      allow(described_class).to receive(:log_path).and_return(nil)
-      expect(described_class.log_path).to be_nil
-    end
 
     it 'log_path respects SimpleCovMcp.log_file setting' do
       SimpleCovMcp.log_file = '/module/log/path.log'
@@ -121,12 +94,6 @@ RSpec.describe SimpleCovMcp::CovUtil do
       expect(described_class.log_path).to be_nil
     end
 
-    it 'log_path prioritizes environment variable over SimpleCovMcp.log_file' do
-      SimpleCovMcp.log_file = '/module/path.log'
-      ENV['SIMPLECOV_MCP_LOG'] = '/env/path.log'
-      allow(described_class).to receive(:log_path).and_return('/env/path.log')
-      expect(described_class.log_path).to eq('/env/path.log')
-    end
 
     it 'log does not write when path is nil' do
       allow(described_class).to receive(:log_path).and_return(nil)

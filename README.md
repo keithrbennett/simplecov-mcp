@@ -205,6 +205,47 @@ Using simplecov-mcp, find the uncovered code lines and report to me, in a markdo
 ----
 
 
+## Environment Variables
+
+This application supports one environment variable for configuration:
+
+### `SIMPLECOV_MCP_OPTS`
+**Purpose**: Specifies command-line options to be applied automatically
+**Format**: Shell-style string containing any valid CLI options
+**Default**: None (empty)
+**Examples**:
+```bash
+# Set default resultset location and enable JSON output
+SIMPLECOV_MCP_OPTS="--resultset coverage/.resultset.json --json"
+
+# Configure error handling and log file
+SIMPLECOV_MCP_OPTS="--error-mode on_with_trace --log-file /var/log/simplecov.log"
+
+# Force CLI mode for scripts (useful when auto-detection fails)
+SIMPLECOV_MCP_OPTS="--force-cli"
+
+# Use quoted strings for paths with spaces
+SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
+```
+
+**Precedence**: Command-line arguments override environment options
+```bash
+# This will use on_with_trace (from command line), not off (from environment)
+SIMPLECOV_MCP_OPTS="--error-mode off" simplecov-mcp --error-mode on_with_trace summary lib/file.rb
+```
+
+**Supported Options**: Any CLI option works in `SIMPLECOV_MCP_OPTS`:
+- `--resultset PATH` - Specify coverage data location
+- `--error-mode MODE` - Set error handling mode (off|on|on_with_trace)
+- `--log-file PATH` - Set log file location (use `-` to disable)
+- `--json` - Enable JSON output
+- `--force-cli` - Force CLI mode even when piped
+- `--color` / `--no-color` - Control colored output
+- `--stale MODE` - Set staleness checking mode
+- And all other CLI options
+
+**Error Handling**: Malformed options in `SIMPLECOV_MCP_OPTS` will cause the application to exit with a configuration error message.
+
 ## Error Handling
 
 This tool provides different error handling behavior depending on how it's used:

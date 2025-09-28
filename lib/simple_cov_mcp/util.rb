@@ -14,9 +14,7 @@ module SimpleCovMcp
 
       def log_path
         @log_path ||= begin
-          if (env = ENV['SIMPLECOV_MCP_LOG']) && !env.empty?
-            env == '-' ? nil : File.expand_path(env)
-          elsif SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
+          if SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
             log_file == '-' ? nil : File.expand_path(log_file)
           else
             File.expand_path(DEFAULT_LOG_FILESPEC)
@@ -41,17 +39,10 @@ module SimpleCovMcp
           end
         end
 
-        if (env = ENV['SIMPLECOV_RESULTSET']) && !env.empty?
-          path = File.absolute_path(env, root)
-          if (resolved = resolve_resultset_candidate(path, strict: false))
-            return resolved
-          end
-        end
-
         RESULTSET_CANDIDATES
           .map { |p| File.absolute_path(p, root) }
           .find { |p| File.file?(p) } or
-          raise "Could not find .resultset.json under #{root.inspect}; run tests or set SIMPLECOV_RESULTSET"
+          raise "Could not find .resultset.json under #{root.inspect}; run tests or set --resultset option"
       end
 
 

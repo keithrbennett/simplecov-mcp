@@ -5,12 +5,24 @@ require_relative 'errors'
 module SimpleCovMcp
     # Handles error reporting and logging with configurable behavior
     class ErrorHandler
-      attr_accessor :log_errors, :show_stack_traces, :logger
+      attr_accessor :error_mode, :logger
 
-      def initialize(log_errors: true, show_stack_traces: false, logger: nil)
-        @log_errors = log_errors
-        @show_stack_traces = show_stack_traces
+      VALID_ERROR_MODES = [:off, :on, :on_with_trace].freeze
+
+      def initialize(error_mode: :on, logger: nil)
+        unless VALID_ERROR_MODES.include?(error_mode)
+          raise ArgumentError, "Invalid error_mode: #{error_mode.inspect}. Valid modes: #{VALID_ERROR_MODES.inspect}"
+        end
+        @error_mode = error_mode
         @logger = logger
+      end
+
+      def log_errors?
+        @error_mode != :off
+      end
+
+      def show_stack_traces?
+        @error_mode == :on_with_trace
       end
 
       # Handle an error with appropriate logging and re-raising behavior
@@ -73,7 +85,7 @@ module SimpleCovMcp
       private
 
       def log_error(error, context)
-        return unless @log_errors
+        return unless log_errors?
 
         message = build_log_message(error, context)
         if @logger
@@ -84,10 +96,9 @@ module SimpleCovMcp
       end
 
       def build_log_message(error, context)
-        parts = []
-        parts << "Error#{context ? " in #{context}" : ''}: #{error.class}: #{error.message}"
+        parts = ["Error#{context ? " in #{context}" : ''}: #{error.class}: #{error.message}"]
 
-        if @show_stack_traces && error.backtrace
+        if show_stack_traces? && error.backtrace
           parts << error.backtrace.join("\n")
         end
 

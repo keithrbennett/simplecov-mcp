@@ -38,12 +38,18 @@ module SimpleCovMcp
             description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
             enum: ['off', 'error'],
             default: 'off'
+          },
+          error_mode: {
+            type: 'string',
+            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'on_with_trace' (verbose).",
+            enum: ['off', 'on', 'on_with_trace'],
+            default: 'on'
           }
         }
       )
 
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', server_context:)
+        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', error_mode: 'on', server_context:)
           # Capture the output of the CLI's table report while honoring CLI options
           output = StringIO.new
           cli = CoverageCLI.new
@@ -53,7 +59,7 @@ module SimpleCovMcp
           cli.show_default_report(sort_order: sort_order.to_sym, output: output)
           ::MCP::Tool::Response.new([{ type: 'text', text: output.string }])
         rescue => e
-          handle_mcp_error(e, 'CoverageTableTool')
+          handle_mcp_error(e, 'CoverageTableTool', error_mode: error_mode)
         end
       end
     end

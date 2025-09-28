@@ -15,13 +15,13 @@ module SimpleCovMcp
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: '.', resultset: nil, stale: 'off', server_context:)
+        def call(path:, root: '.', resultset: nil, stale: 'off', error_mode: 'on', server_context:)
           mode = stale
           model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
           data = model.raw_for(path)
           respond_json(data, name: 'coverage_raw.json', pretty: true)
         rescue => e
-          handle_mcp_error(e, 'CoverageRawTool')
+          handle_mcp_error(e, 'CoverageRawTool', error_mode: error_mode)
         end
       end
     end

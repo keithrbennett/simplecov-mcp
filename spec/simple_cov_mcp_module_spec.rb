@@ -4,11 +4,8 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp do
   describe '.should_run_cli?' do
-    after { ENV.delete('SIMPLECOV_MCP_CLI') }
-    
-    it 'returns true when SIMPLECOV_MCP_CLI=1' do
-      ENV['SIMPLECOV_MCP_CLI'] = '1'
-      expect(SimpleCovMcp.send(:should_run_cli?, [])).to be true
+    it 'returns true when --force-cli flag is present' do
+      expect(SimpleCovMcp.send(:should_run_cli?, ['--force-cli'])).to be true
     end
     
     it 'returns true for valid subcommands' do

@@ -20,6 +20,12 @@ module SimpleCovMcp
           query: {
             type: 'string',
             description: 'Optional keywords to filter the help entries (e.g., "uncovered", "summary").'
+          },
+          error_mode: {
+            type: 'string',
+            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'on_with_trace' (verbose).",
+            enum: ['off', 'on', 'on_with_trace'],
+            default: 'on'
           }
         }
       )
@@ -84,14 +90,14 @@ module SimpleCovMcp
       ].freeze
 
       class << self
-        def call(query: nil, server_context:, **_unused)
+        def call(query: nil, error_mode: 'on', server_context:, **_unused)
           entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
           entries = filter_entries(entries, query) if query && !query.strip.empty?
 
           data = { query: query, tools: entries }
           respond_json(data, name: 'tools_help.json')
         rescue => e
-          handle_mcp_error(e, 'HelpTool')
+          handle_mcp_error(e, 'HelpTool', error_mode: error_mode)
         end
 
         private
