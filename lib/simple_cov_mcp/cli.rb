@@ -408,12 +408,9 @@ module SimpleCovMcp
         else
           # Generic message from OptionParser
           warn "Error: #{message}"
-          # If the error stems from an invalid value for an enumerated option,
-          # add a consistent hint listing valid values.
-          if message.include?('invalid argument:') || message.include?('missing argument:')
-            if (hint = build_enum_value_hint(argv))
-              warn hint
-            end
+          # Attempt to derive a helpful hint for enumerated options
+          if (hint = build_enum_value_hint(argv))
+            warn hint
           end
         end
         warn "Run 'simplecov-mcp --help' for usage information."
