@@ -28,9 +28,15 @@ module SimpleCovMcp
         raise "No test suite with coverage data found in resultset file: #{rs}" unless data
         cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
         @cov = cov.transform_keys { |k| File.absolute_path(k, @root) }
-        timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
+        @cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
 
-        @checker = StalenessChecker.new(root: @root, resultset: @resultset, mode: staleness, tracked_globs: tracked_globs, timestamp: timestamp)
+        @checker = StalenessChecker.new(
+          root: @root,
+          resultset: @resultset,
+          mode: staleness,
+          tracked_globs: tracked_globs,
+          timestamp: @cov_timestamp
+        )
       rescue Errno::ENOENT => e
         raise FileError.new("Coverage data not found at #{resultset || @root}")
       rescue JSON::ParserError => e
@@ -66,7 +72,13 @@ module SimpleCovMcp
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
       def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-        stale_checker = StalenessChecker.new(root: @root, resultset: @resultset, mode: 'off', tracked_globs: tracked_globs)
+        stale_checker = StalenessChecker.new(
+          root: @root,
+          resultset: @resultset,
+          mode: 'off',
+          tracked_globs: tracked_globs,
+          timestamp: @cov_timestamp
+        )
         rows = @cov.map do |abs_path, data|
           next unless data['lines'].is_a?(Array)
           s = CovUtil.summary(data['lines'])
@@ -75,8 +87,13 @@ module SimpleCovMcp
         end.compact
 
         if check_stale
-          StalenessChecker.new(root: @root, resultset: @resultset, mode: 'error', tracked_globs: tracked_globs)
-                           .check_project!(@cov)
+          StalenessChecker.new(
+            root: @root,
+            resultset: @resultset,
+            mode: 'error',
+            tracked_globs: tracked_globs,
+            timestamp: @cov_timestamp
+          ).check_project!(@cov)
         end
 
         rows.sort! do |a, b|
