@@ -401,16 +401,16 @@ Subcommands:
 
 Global flags (OptionParser):
 
-- `--resultset PATH` — path or directory for `.resultset.json`
+- `-r`, `--resultset PATH` — path or directory for `.resultset.json`
 - `--root PATH` — project root (default `.`)
-- `--json` — print JSON output for machine use
+- `-j`, `--json` — print JSON output for machine use
 - `--sort-order ascending|descending` — for `list`
-- `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
-- `--source-context N` — for `--source=uncovered`, lines of context (default 2)
+- `-s`, `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
+- `-c`, `--source-context N` — for `--source=uncovered`, lines of context (default 2)
 - `--color` / `--no-color` — enable/disable ANSI colors in source output
 - `--stale off|error` — staleness checking mode (default `off`)
 - `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
-- `--help` — show usage
+- `-h`, `--help` — show usage
 
 #### CLI Examples
 
@@ -422,20 +422,20 @@ simplecov-mcp
 # Show coverage summary for a specific file
 simplecov-mcp summary lib/my_class.rb
 
-# Show uncovered lines with source context
-simplecov-mcp uncovered lib/my_class.rb --source=uncovered --source-context 3
+# Show uncovered lines with source context (using short options)
+simplecov-mcp uncovered lib/my_class.rb -s=uncovered -c 3
 
-# Get detailed per-line coverage
-simplecov-mcp detailed lib/my_class.rb
+# Get detailed per-line coverage with full source
+simplecov-mcp detailed lib/my_class.rb -s
 ```
 
 **Custom Resultset Location:**
 ```sh
-# Using --resultset flag with file path
-simplecov-mcp --resultset build/coverage/.resultset.json
+# Using short option with file path
+simplecov-mcp -r build/coverage/.resultset.json
 
-# Using --resultset flag with directory (if directory, looks for .resultset.json inside)
-simplecov-mcp --resultset coverage
+# Using short option with directory (looks for .resultset.json inside)
+simplecov-mcp -r coverage
 
 # Using environment variable
 SIMPLECOV_RESULTSET=coverage/.resultset.json simplecov-mcp
@@ -446,14 +446,17 @@ SIMPLECOV_RESULTSET=coverage simplecov-mcp summary lib/my_class.rb
 
 **JSON Output and Sorting:**
 ```sh
-# JSON output for machine consumption
-simplecov-mcp --json
+# JSON output for machine consumption (short option)
+simplecov-mcp -j
 
 # Sort by highest coverage first
 simplecov-mcp list --sort-order descending
 
-# Combined: JSON output with custom resultset and sorting
-simplecov-mcp list --json --resultset coverage --sort-order ascending
+# Combined: JSON output with custom resultset and sorting (mixed short/long options)
+simplecov-mcp list -j -r coverage --sort-order ascending
+
+# Compact: JSON summary with source included
+simplecov-mcp summary lib/my_class.rb -js
 ```
 
 **Staleness Checking:**
