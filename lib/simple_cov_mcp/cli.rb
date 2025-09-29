@@ -40,8 +40,10 @@ module SimpleCovMcp
         else
           show_default_report(sort_order: @sort_order)
         end
-      rescue OptionParser::InvalidOption => e
-        handle_invalid_option_error(e)
+      rescue OptionParser::ParseError => e
+        # Handle any option parsing errors (invalid option/argument) without relying on
+        # @error_handler, which is not guaranteed to be initialized yet.
+        handle_option_parser_error(e)
       rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
       rescue => e
@@ -391,18 +393,25 @@ module SimpleCovMcp
       end
 
 
-      def handle_invalid_option_error(error)
-        option = error.message.match(/invalid option: (.+)/)[1] rescue error.message
+      def handle_option_parser_error(error)
+        message = error.message
 
-        # Check if it looks like they meant to use a subcommand instead
-        if option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
-          subcommand = option[2..-1]
-          warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
-          warn "Try: simplecov-mcp #{subcommand} [args]"
+        # Special-case a common mistake: providing '-S' without a value
+        if message.include?('invalid argument:') && message.include?('-S')
+          warn "Error: '-S|--stale' requires a value: off|error"
+          warn "Try: simplecov-mcp -S error [other options]"
         else
-          warn "Error: #{error.message}"
-          warn "Run 'simplecov-mcp --help' for usage information."
+          # Preserve helpful default messages from OptionParser
+          option = message.match(/invalid option: (.+)/)[1] rescue nil
+          if option && option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
+            subcommand = option[2..-1]
+            warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
+            warn "Try: simplecov-mcp #{subcommand} [args]"
+          else
+            warn "Error: #{message}"
+          end
         end
+        warn "Run 'simplecov-mcp --help' for usage information."
         exit 1
       end
 
