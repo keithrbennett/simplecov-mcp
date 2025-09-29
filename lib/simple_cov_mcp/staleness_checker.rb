@@ -54,9 +54,6 @@ module SimpleCovMcp
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
       src_len = safe_count_lines(file_abs)
       (fm && fm.to_i > ts.to_i) || (cov_len.positive? && src_len != cov_len)
-    rescue StandardError
-      # Be conservative: if we cannot determine, mark as stale
-      true
     end
 
     # Raise CoverageDataProjectStaleError if any covered file is newer or if
