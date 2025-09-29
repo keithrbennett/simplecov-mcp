@@ -130,7 +130,7 @@ module SimpleCovMcp
         o.separator ''
         o.separator 'Options:'
         o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
-        o.on('--root PATH', String, "Project root (default '.')") { |v| @root = v }
+        o.on('-R', '--root PATH', String, "Project root (default '.')") { |v| @root = v }
         o.on('-j', '--json', 'Output JSON for machine consumption') { @json = true }
         o.on('--sort-order ORDER', String, ['ascending', 'descending'], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
         o.on('-s', '--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
@@ -139,9 +139,9 @@ module SimpleCovMcp
         o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
         o.on('--color', 'Enable ANSI colors for source output') { @color = true }
         o.on('--no-color', 'Disable ANSI colors') { @color = false }
-        o.on('--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") { |v| @stale_mode = v.to_s }
-        o.on('--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
-        o.on('--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
+        o.on('-S', '--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") { |v| @stale_mode = v.to_s }
+        o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
+        o.on('-l', '--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
         o.on('--error-mode MODE', [:off, :on, :on_with_trace], "Error handling mode: off|on|on_with_trace (default on)") do |v|
           @error_mode = v
           # Don't create error handler here - it will be created after all options are parsed

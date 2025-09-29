@@ -235,13 +235,16 @@ SIMPLECOV_MCP_OPTS="--error-mode off" simplecov-mcp --error-mode on_with_trace s
 ```
 
 **Supported Options**: Any CLI option works in `SIMPLECOV_MCP_OPTS`:
-- `--resultset PATH` - Specify coverage data location
+- `-r`, `--resultset PATH` - Specify coverage data location
 - `--error-mode MODE` - Set error handling mode (off|on|on_with_trace)
-- `--log-file PATH` - Set log file location (use `-` to disable)
+- `-l`, `--log-file PATH` - Set log file location (use `-` to disable)
 - `--json` - Enable JSON output
 - `--force-cli` - Force CLI mode even when piped
 - `--color` / `--no-color` - Control colored output
-- `--stale MODE` - Set staleness checking mode
+- `-s`, `--source[=MODE]` - Include source output (MODE: `full` or `uncovered`)
+- `-S`, `--stale MODE` - Set staleness checking mode
+- `-g`, `--tracked-globs x,y,z` - Globs for files that should be covered (list staleness only)
+- `-R`, `--root PATH` - Project root (default `.`)
 - And all other CLI options
 
 **Error Handling**: Malformed options in `SIMPLECOV_MCP_OPTS` will cause the application to exit with a configuration error message.
@@ -402,14 +405,15 @@ Subcommands:
 Global flags (OptionParser):
 
 - `-r`, `--resultset PATH` — path or directory for `.resultset.json`
-- `--root PATH` — project root (default `.`)
+- `-R`, `--root PATH` — project root (default `.`)
 - `-j`, `--json` — print JSON output for machine use
 - `--sort-order ascending|descending` — for `list`
 - `-s`, `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
 - `-c`, `--source-context N` — for `--source=uncovered`, lines of context (default 2)
 - `--color` / `--no-color` — enable/disable ANSI colors in source output
-- `--stale off|error` — staleness checking mode (default `off`)
-- `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
+- `-S`, `--stale off|error` — staleness checking mode (default `off`)
+- `-g`, `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
+- `-l`, `--log-file PATH` — set log file location (use `-` to disable)
 - `-h`, `--help` — show usage
 
 #### CLI Examples
@@ -456,19 +460,19 @@ simplecov-mcp list --sort-order descending
 simplecov-mcp list -j -r coverage --sort-order ascending
 
 # Compact: JSON summary with source included
-simplecov-mcp summary lib/my_class.rb -js
+simplecov-mcp summary lib/my_class.rb -j -s
 ```
 
 **Staleness Checking:**
 ```sh
 # Enable strict staleness checking (exits with error if stale)
-simplecov-mcp --stale error
+simplecov-mcp -S error
 
 # Check for new files that should be covered
-simplecov-mcp list --stale error --tracked-globs "lib/**/*.rb,app/**/*.rb"
+simplecov-mcp list -S error -g "lib/**/*.rb,app/**/*.rb"
 
 # Summary with staleness checking
-simplecov-mcp summary lib/my_class.rb --stale error
+simplecov-mcp summary lib/my_class.rb -S error
 ```
 
 **Force CLI Mode:**
@@ -645,7 +649,7 @@ CLI vs MCP summary:
 3. **Use staleness checking to find issues**:
    ```sh
    # Let it show which files are stale
-   simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
+   simplecov-mcp -S error -g "lib/**/*.rb"
    ```
 
 #### File Not Found in Coverage
@@ -750,7 +754,7 @@ CLI vs MCP summary:
 
 2. **Set correct working directory**:
    ```sh
-   simplecov-mcp --root /app
+   simplecov-mcp -R /app
    ```
 
 #### CI/CD Issues
