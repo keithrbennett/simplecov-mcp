@@ -43,7 +43,7 @@ module SimpleCovMcp
       rescue OptionParser::ParseError => e
         # Handle any option parsing errors (invalid option/argument) without relying on
         # @error_handler, which is not guaranteed to be initialized yet.
-        handle_option_parser_error(e)
+        handle_option_parser_error(e, argv: full_argv)
       rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
       rescue => e
@@ -131,25 +131,29 @@ module SimpleCovMcp
       def define_options(o)
         o.separator ''
         o.separator 'Options:'
-        o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
-        o.on('-R', '--root PATH', String, "Project root (default '.')") { |v| @root = v }
+        o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') { |v| @resultset = v }
+        o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| @root = v }
         o.on('-j', '--json', 'Output JSON for machine consumption') { @json = true }
-        o.on('-o', '--sort-order ORDER', String, [
-          'a', 'd'
-        ], "Sort order for 'list': use 'a' (ascending) or 'd' (descending)") do |v|
-          @sort_order = (v == 'd') ? 'descending' : 'ascending'
+        o.on('-o', '--sort-order ORDER', String,
+             'Sort order: a[scending]|d[escending] (default ascending)') do |v|
+          @sort_order = normalize_sort_order(v)
         end
-        o.on('-s', '--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
-          @source_mode = (v || :full).to_s
+        o.on('-s', '--source[=MODE]', String,
+             'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
+          @source_mode = normalize_source_mode(v)
         end
-        o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default 2)') { |v| @source_context = v }
+        o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default: 2)') { |v| @source_context = v }
         o.on('--color', 'Enable ANSI colors for source output') { @color = true }
         o.on('--no-color', 'Disable ANSI colors') { @color = false }
-        o.on('-S', '--stale MODE', [:off, :error], "Staleness mode: off|error (default off)") { |v| @stale_mode = v.to_s }
+        o.on('-S', '--stale MODE', String,
+             'Staleness mode: o[ff]|e[rror] (default off)') do |v|
+          @stale_mode = normalize_stale_mode(v)
+        end
         o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
         o.on('-l', '--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
-        o.on('--error-mode MODE', [:off, :on, :on_with_trace], "Error handling mode: off|on|on_with_trace (default on)") do |v|
-          @error_mode = v
+        o.on('--error-mode MODE', String,
+             'Error handling mode: off|on|t[race] (default on)') do |v|
+          @error_mode = normalize_error_mode(v)
           # Don't create error handler here - it will be created after all options are parsed
         end
         o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
@@ -393,19 +397,96 @@ module SimpleCovMcp
       end
 
 
-      def handle_option_parser_error(error)
-        message = error.message
-        # Preserve helpful default messages from OptionParser
+      def handle_option_parser_error(error, argv: [])
+        message = error.message.to_s
+        # Suggest a subcommand when an invalid option matches a known subcommand
         option = message.match(/invalid option: (.+)/)[1] rescue nil
         if option && option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
           subcommand = option[2..-1]
           warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
           warn "Try: simplecov-mcp #{subcommand} [args]"
         else
+          # Generic message from OptionParser
           warn "Error: #{message}"
+          # If the error stems from an invalid value for an enumerated option,
+          # add a consistent hint listing valid values.
+          if message.include?('invalid argument:') || message.include?('missing argument:')
+            if (hint = build_enum_value_hint(argv))
+              warn hint
+            end
+          end
         end
         warn "Run 'simplecov-mcp --help' for usage information."
         exit 1
+      end
+
+      def build_enum_value_hint(argv)
+        rules = enumerated_option_rules
+        tokens = Array(argv)
+        rules.each do |rule|
+          switches = rule[:switches]
+          allowed = rule[:values]
+          display = rule[:display] || allowed.join(', ')
+          preferred = switches.find { |s| s.start_with?('--') } || switches.first
+          tokens.each_with_index do |tok, i|
+            # --opt=value form
+            if tok.start_with?(preferred + '=') || switches.any? { |s| tok.start_with?(s + '=') }
+              sw = switches.find { |s| tok.start_with?(s + '=') } || preferred
+              val = tok.split('=', 2)[1]
+              return "Valid values for #{sw}: #{display}" if val && !allowed.include?(val)
+            end
+            # --opt value or -o value form
+            if switches.include?(tok)
+              val = tokens[i + 1]
+              # If missing value, provide hint; if present and invalid, also hint
+              if val.nil? || val.start_with?('-') || !allowed.include?(val)
+                return "Valid values for #{preferred}: #{display}"
+              end
+            end
+          end
+        end
+        nil
+      end
+
+      def normalize_sort_order(v)
+        map = {
+          'a' => 'ascending', 'ascending' => 'ascending',
+          'd' => 'descending', 'descending' => 'descending'
+        }
+        v = v.to_s.downcase
+        map[v] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      end
+
+      def normalize_source_mode(v)
+        return 'full' if v.nil? || v == ''
+        map = { 'full' => 'full', 'f' => 'full', 'uncovered' => 'uncovered', 'u' => 'uncovered' }
+        key = v.to_s.downcase
+        map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      end
+
+      def normalize_stale_mode(v)
+        map = { 'off' => 'off', 'o' => 'off', 'error' => 'error', 'e' => 'error' }
+        key = v.to_s.downcase
+        map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      end
+
+      def normalize_error_mode(v)
+        map = {
+          'off' => :off,
+          'on' => :on,
+          'on_with_trace' => :on_with_trace, 'with_trace' => :on_with_trace, 'trace' => :on_with_trace, 't' => :on_with_trace
+        }
+        key = v.to_s.downcase
+        map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      end
+
+      def enumerated_option_rules
+        [
+          { switches: ['-S', '--stale'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
+          { switches: ['-s', '--source'], values: %w[full f uncovered u], display: 'f[ull]|u[ncovered]' },
+          { switches: ['--error-mode'], values: %w[off on on_with_trace with_trace trace t], display: 'off|on|t[race]' },
+          { switches: ['-o', '--sort-order'], values: %w[a d ascending descending], display: 'a[scending]|d[escending]' }
+        ]
       end
 
       def handle_user_facing_error(error)
