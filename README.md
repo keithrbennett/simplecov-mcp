@@ -407,7 +407,7 @@ Global flags (OptionParser):
 - `-r`, `--resultset PATH` — path or directory for `.resultset.json`
 - `-R`, `--root PATH` — project root (default `.`)
 - `-j`, `--json` — print JSON output for machine use
-- `--sort-order ascending|descending` — for `list`
+- `-o`, `--sort-order a|d` — for `list` (`a` = ascending, `d` = descending)
 - `-s`, `--source[=MODE]` — include source text for `summary`, `uncovered`, `detailed` (MODE: `full` or `uncovered`; default `full`)
 - `-c`, `--source-context N` — for `--source=uncovered`, lines of context (default 2)
 - `--color` / `--no-color` — enable/disable ANSI colors in source output
@@ -454,10 +454,13 @@ SIMPLECOV_RESULTSET=coverage simplecov-mcp summary lib/my_class.rb
 simplecov-mcp -j
 
 # Sort by highest coverage first
-simplecov-mcp list --sort-order descending
+simplecov-mcp list -o d
+
+# The long flag also accepts shortcuts
+simplecov-mcp list --sort-order a
 
 # Combined: JSON output with custom resultset and sorting (mixed short/long options)
-simplecov-mcp list -j -r coverage --sort-order ascending
+simplecov-mcp list -j -r coverage -o a
 
 # Compact: JSON summary with source included
 simplecov-mcp summary lib/my_class.rb -j -s

@@ -132,7 +132,11 @@ module SimpleCovMcp
         o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json') { |v| @resultset = v }
         o.on('-R', '--root PATH', String, "Project root (default '.')") { |v| @root = v }
         o.on('-j', '--json', 'Output JSON for machine consumption') { @json = true }
-        o.on('--sort-order ORDER', String, ['ascending', 'descending'], "Sort order for 'list' (ascending|descending)") { |v| @sort_order = v }
+        o.on('-o', '--sort-order ORDER', String, [
+          'a', 'd'
+        ], "Sort order for 'list': use 'a' (ascending) or 'd' (descending)") do |v|
+          @sort_order = (v == 'd') ? 'descending' : 'ascending'
+        end
         o.on('-s', '--source[=MODE]', [:full, :uncovered], 'Include source in output for summary/uncovered/detailed (MODE: full|uncovered; default full)') do |v|
           @source_mode = (v || :full).to_s
         end
