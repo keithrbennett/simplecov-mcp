@@ -19,7 +19,7 @@ module SimpleCovMcp
           mode = stale
           model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
           data = model.summary_for(path)
-          respond_json(data, name: 'coverage_summary.json', pretty: true)
+          respond_json(model.relativize(data), name: 'coverage_summary.json', pretty: true)
         rescue => e
           handle_mcp_error(e, 'CoverageSummaryTool', error_mode: error_mode)
         end

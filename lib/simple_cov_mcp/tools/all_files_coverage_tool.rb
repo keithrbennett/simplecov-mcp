@@ -59,7 +59,7 @@ module SimpleCovMcp
           stale_count = files.count { |f| f['stale'] }
           ok_count = total - stale_count
           payload = { files: files, counts: { total: total, ok: ok_count, stale: stale_count } }
-          respond_json(payload, name: 'all_files_coverage.json')
+          respond_json(model.relativize(payload), name: 'all_files_coverage.json')
         rescue => e
           handle_mcp_error(e, 'AllFilesCoverageTool', error_mode: error_mode)
         end

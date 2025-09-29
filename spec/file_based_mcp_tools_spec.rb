@@ -31,6 +31,7 @@ RSpec.describe 'File-based MCP Tools' do
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
+        allow(model).to receive(:relativize) { |payload| payload }
         
         expect {
           config[:tool_class].call(
@@ -48,6 +49,7 @@ RSpec.describe 'File-based MCP Tools' do
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
+        allow(model).to receive(:relativize) { |payload| payload }
         
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
         
@@ -81,6 +83,7 @@ RSpec.describe 'File-based MCP Tools' do
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
+        allow(model).to receive(:relativize) { |payload| payload }
         
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
         data = JSON.parse(response.payload.first['resource']['text'])

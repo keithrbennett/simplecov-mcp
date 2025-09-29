@@ -15,6 +15,12 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
       { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
       { 'file' => "#{root}/lib/bar.rb", 'percentage' => 50.0,  'covered' => 5,  'total' => 10, 'stale' => true }
     ])
+    relativizer = SimpleCovMcp::PathRelativizer.new(
+      root: root,
+      scalar_keys: %w[file file_path],
+      array_keys: %w[newer_files missing_files deleted_files]
+    )
+    allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
   end
 
   subject { described_class.call(root: root, server_context: server_context) }
@@ -30,6 +36,7 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
     
     expect(files.length).to eq(2)
     expect(counts).to include('total' => 2).or include(total: 2)
+    expect(files.map { |f| f['file'] }).to eq(['lib/foo.rb', 'lib/bar.rb'])
     
     # ok + stale equals total
     ok = counts[:ok] || counts['ok']

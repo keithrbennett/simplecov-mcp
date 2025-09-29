@@ -23,6 +23,17 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     end
   end
 
+  describe '#relativize' do
+    it 'returns a copy with file paths relative to the root' do
+      data = model.summary_for('lib/foo.rb')
+      relative = model.relativize(data)
+
+      expect(relative['file']).to eq('lib/foo.rb')
+      expect(data['file']).not_to eq(relative['file'])
+      expect(relative).not_to equal(data)
+    end
+  end
+
   describe 'uncovered_for' do
     it 'lists uncovered executable line numbers' do
       data = model.uncovered_for('lib/foo.rb')

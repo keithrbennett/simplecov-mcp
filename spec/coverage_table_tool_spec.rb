@@ -33,6 +33,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     allow(model).to receive(:all_files).and_return([
       { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false }
     ])
+    allow(model).to receive(:relativize) { |payload| payload }
     expect(SimpleCovMcp::CoverageModel).to receive(:new).with(
       root: root,
       resultset: nil,

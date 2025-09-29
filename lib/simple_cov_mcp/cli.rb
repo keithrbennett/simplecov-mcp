@@ -54,7 +54,7 @@ module SimpleCovMcp
         model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)
         rows = model.all_files(sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
         if @json
-          files = rows.map { |row| row.merge('file' => rel_to_root(row['file'])) }
+          files = model.relativize(rows)
           total = files.length
           stale_count = files.count { |f| f['stale'] }
           ok_count = total - stale_count
@@ -62,12 +62,7 @@ module SimpleCovMcp
           return
         end
 
-        file_summaries = rows.map do |row|
-          row.dup.tap do |h|
-            h['file'] = rel_to_root(h['file'])
-          end
-        end
-
+        file_summaries = model.relativize(rows)
         output.puts model.format_table(file_summaries, sort_order: sort_order)
       end
 
@@ -221,7 +216,7 @@ module SimpleCovMcp
         handle_with_path(args, 'summary') do |path|
           data = model.summary_for(path)
           break if emit_json_with_optional_source(data, model, path)
-          rel = rel_path(data['file'])
+          rel = model.relativize(data)['file']
           s = data['summary']
           printf "%8.2f%%  %6d/%-6d  %s\n\n", s['pct'], s['covered'], s['total'], rel
           print_source_for(model, path) if @source_mode
@@ -231,8 +226,8 @@ module SimpleCovMcp
       def handle_raw(model, args)
         handle_with_path(args, 'raw') do |path|
           data = model.raw_for(path)
-          break if maybe_output_json(relativize_file(data))
-          rel = rel_path(data['file'])
+          break if maybe_output_json(data, model)
+          rel = model.relativize(data)['file']
           puts "File: #{rel}"
           puts data['lines'].inspect
         end
@@ -242,7 +237,7 @@ module SimpleCovMcp
         handle_with_path(args, 'uncovered') do |path|
           data = model.uncovered_for(path)
           break if emit_json_with_optional_source(data, model, path)
-          rel = rel_path(data['file'])
+          rel = model.relativize(data)['file']
           puts "File:            #{rel}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           s = data['summary']
@@ -255,7 +250,7 @@ module SimpleCovMcp
         handle_with_path(args, 'detailed') do |path|
           data = model.detailed_for(path)
           break if emit_json_with_optional_source(data, model, path)
-          rel = rel_path(data['file'])
+          rel = model.relativize(data)['file']
           puts "File: #{rel}"
           puts format_detailed_rows(data['lines'])
           print_source_for(model, path) if @source_mode
@@ -271,13 +266,9 @@ module SimpleCovMcp
         raise FilePermissionError.new("Permission denied: #{path}")
       end
 
-      def rel_path(abs)
-        rel_to_root(abs)
-      end
-
-      def maybe_output_json(obj)
+      def maybe_output_json(obj, model)
         return false unless @json
-        puts JSON.pretty_generate(obj)
+        puts JSON.pretty_generate(model.relativize(obj))
         true
       end
 
@@ -293,11 +284,12 @@ module SimpleCovMcp
       #   # => prints JSON including a 'source' field and returns true
       def emit_json_with_optional_source(data, model, path)
         return false unless @json
+        relativized = model.relativize(data)
         if @source_mode
-          payload = relativize_file(data).merge('source' => build_source_payload(model, path))
+          payload = relativized.merge('source' => build_source_payload(model, path))
           puts JSON.pretty_generate(payload)
         else
-          puts JSON.pretty_generate(relativize_file(data))
+          puts JSON.pretty_generate(relativized)
         end
         true
       end
@@ -384,18 +376,6 @@ module SimpleCovMcp
         code = codes[color] || 0
         "\e[#{code}m#{text}\e[0m"
       end
-
-      def rel_to_root(path)
-        Pathname.new(path).relative_path_from(Pathname.new(File.absolute_path(@root))).to_s
-      end
-
-      def relativize_file(h)
-        return h unless h.is_a?(Hash) && h['file']
-        dup = h.dup
-        dup['file'] = rel_to_root(dup['file'])
-        dup
-      end
-
 
       def handle_option_parser_error(error, argv: [])
         message = error.message.to_s

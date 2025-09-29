@@ -3,9 +3,15 @@
 require_relative 'util'
 require_relative 'errors'
 require_relative 'staleness_checker'
+require_relative 'path_relativizer'
 
 module SimpleCovMcp
   class CoverageModel
+    RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
+    RELATIVIZER_ARRAY_KEYS = %w[newer_files missing_files deleted_files].freeze
+
+    attr_reader :relativizer
+
     # Create a CoverageModel
     #
     # Params:
@@ -17,6 +23,11 @@ module SimpleCovMcp
       def initialize(root: '.', resultset: nil, staleness: 'off', tracked_globs: nil)
         @root = File.absolute_path(root || '.')
         @resultset = resultset
+        @relativizer = PathRelativizer.new(
+          root: @root,
+          scalar_keys: RELATIVIZER_SCALAR_KEYS,
+          array_keys: RELATIVIZER_ARRAY_KEYS
+        )
 
       begin
         # Parse resultset once to get both coverage data and timestamp
@@ -50,6 +61,10 @@ module SimpleCovMcp
     def raw_for(path)
       file_abs, coverage_lines = resolve(path)
       { 'file' => file_abs, 'lines' => coverage_lines }
+    end
+
+    def relativize(payload)
+      @relativizer.relativize(payload)
     end
 
     # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'pct'=>} }
@@ -202,10 +217,6 @@ module SimpleCovMcp
 
       def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
         # handled by StalenessChecker
-      end
-
-      def rel_to_root(path)
-        Pathname.new(path).relative_path_from(Pathname.new(File.absolute_path(@root))).to_s
       end
 
     # Detailed stale message construction moved to CoverageDataStaleError

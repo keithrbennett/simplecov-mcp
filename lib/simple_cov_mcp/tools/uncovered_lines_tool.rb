@@ -19,7 +19,7 @@ module SimpleCovMcp
           mode = stale
           model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
           data = model.uncovered_for(path)
-          respond_json(data, name: 'uncovered_lines.json', pretty: true)
+          respond_json(model.relativize(data), name: 'uncovered_lines.json', pretty: true)
         rescue => e
           handle_mcp_error(e, 'UncoveredLinesTool', error_mode: error_mode)
         end

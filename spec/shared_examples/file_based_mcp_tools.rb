@@ -20,6 +20,12 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
     model = instance_double(SimpleCovMcp::CoverageModel)
     allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
     allow(model).to receive(model_method).with('lib/foo.rb').and_return(mock_data)
+    relativizer = SimpleCovMcp::PathRelativizer.new(
+      root: '/abs/path',
+      scalar_keys: %w[file file_path],
+      array_keys: %w[newer_files missing_files deleted_files]
+    )
+    allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
   end
 
   subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
@@ -29,9 +35,13 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
   it "returns #{config[:description]} with expected structure" do
     response = subject
     data, item = expect_mcp_json_resource(response, expected_keys: expected_keys)
-    
+
     expect(item['resource']['name']).to eq(output_filename)
-    
+
+    if data.is_a?(Hash) && data.key?('file')
+      expect(data['file']).to eq('lib/foo.rb')
+    end
+
     # Run tool-specific validations if provided
     if additional_validations
       instance_exec(data, item, &additional_validations)
@@ -67,11 +77,17 @@ FILE_BASED_TOOL_CONFIGS = {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(:summary_for).and_return(config[:mock_data])
+        relativizer = SimpleCovMcp::PathRelativizer.new(
+          root: '/abs/path',
+          scalar_keys: %w[file file_path],
+          array_keys: %w[newer_files missing_files deleted_files]
+        )
+        allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
-        
+
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: instance_double('ServerContext').as_null_object)
         data, _ = expect_mcp_json_resource(response)
-        
+
         expect(data['summary']['pct']).to be_a(Float)
       }
     }
@@ -111,11 +127,17 @@ FILE_BASED_TOOL_CONFIGS = {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(:uncovered_for).and_return(config[:mock_data])
+        relativizer = SimpleCovMcp::PathRelativizer.new(
+          root: '/abs/path',
+          scalar_keys: %w[file file_path],
+          array_keys: %w[newer_files missing_files deleted_files]
+        )
+        allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
-        
+
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: instance_double('ServerContext').as_null_object)
         data, _ = expect_mcp_json_resource(response)
-        
+
         expect(data['uncovered']).to be_an(Array)
         expect(data['summary']).to include('covered', 'total', 'pct')
       }
