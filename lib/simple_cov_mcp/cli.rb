@@ -40,6 +40,8 @@ module SimpleCovMcp
         else
           show_default_report(sort_order: @sort_order)
         end
+      rescue OptionParser::InvalidOption => e
+        handle_invalid_option_error(e)
       rescue SimpleCovMcp::Error => e
         handle_user_facing_error(e)
       rescue => e
@@ -384,6 +386,21 @@ module SimpleCovMcp
         dup
       end
 
+
+      def handle_invalid_option_error(error)
+        option = error.message.match(/invalid option: (.+)/)[1] rescue error.message
+
+        # Check if it looks like they meant to use a subcommand instead
+        if option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
+          subcommand = option[2..-1]
+          warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
+          warn "Try: simplecov-mcp #{subcommand} [args]"
+        else
+          warn "Error: #{error.message}"
+          warn "Run 'simplecov-mcp --help' for usage information."
+        end
+        exit 1
+      end
 
       def handle_user_facing_error(error)
         warn error.user_friendly_message
