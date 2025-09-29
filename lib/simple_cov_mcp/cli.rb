@@ -395,21 +395,14 @@ module SimpleCovMcp
 
       def handle_option_parser_error(error)
         message = error.message
-
-        # Special-case a common mistake: providing '-S' without a value
-        if message.include?('invalid argument:') && message.include?('-S')
-          warn "Error: '-S|--stale' requires a value: off|error"
-          warn "Try: simplecov-mcp -S error [other options]"
+        # Preserve helpful default messages from OptionParser
+        option = message.match(/invalid option: (.+)/)[1] rescue nil
+        if option && option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
+          subcommand = option[2..-1]
+          warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
+          warn "Try: simplecov-mcp #{subcommand} [args]"
         else
-          # Preserve helpful default messages from OptionParser
-          option = message.match(/invalid option: (.+)/)[1] rescue nil
-          if option && option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
-            subcommand = option[2..-1]
-            warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
-            warn "Try: simplecov-mcp #{subcommand} [args]"
-          else
-            warn "Error: #{message}"
-          end
+          warn "Error: #{message}"
         end
         warn "Run 'simplecov-mcp --help' for usage information."
         exit 1

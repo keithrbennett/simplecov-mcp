@@ -23,19 +23,18 @@ module SimpleCovMcp
     # Raise CoverageDataStaleError if stale (only in error mode)
     def check_file!(file_abs, coverage_lines)
       return if off?
-      ts = coverage_timestamp
-      fm = File.mtime(file_abs) if File.file?(file_abs)
-      cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
-      src_len = safe_count_lines(file_abs)
-      if (fm && fm.to_i > ts.to_i) || (cov_len.positive? && src_len != cov_len)
+      d = compute_file_staleness_details(file_abs, coverage_lines)
+      # For single-file checks, missing files with recorded coverage count as stale
+      # via length mismatch; project-level checks also handle deleted files explicitly.
+      if d[:newer] || d[:len_mismatch]
         raise CoverageDataStaleError.new(
           nil,
           nil,
           file_path: rel(file_abs),
-          file_mtime: fm,
-          cov_timestamp: ts,
-          src_len: src_len,
-          cov_len: cov_len,
+          file_mtime: d[:fm],
+          cov_timestamp: d[:ts],
+          src_len: d[:src_len],
+          cov_len: d[:cov_len],
           resultset_path: resultset_path
         )
       end
@@ -47,13 +46,9 @@ module SimpleCovMcp
     # - the file mtime is newer than the coverage timestamp, or
     # - the source line count differs from the coverage lines array length (when present).
     def stale_for_file?(file_abs, coverage_lines)
-      ts = coverage_timestamp
-      return true unless File.file?(file_abs)
-
-      fm = File.mtime(file_abs)
-      cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
-      src_len = safe_count_lines(file_abs)
-      (fm && fm.to_i > ts.to_i) || (cov_len.positive? && src_len != cov_len)
+      d = compute_file_staleness_details(file_abs, coverage_lines)
+      # For indicator use, missing files are considered stale.
+      (!d[:exists]) || d[:newer] || d[:len_mismatch]
     end
 
     # Raise CoverageDataProjectStaleError if any covered file is newer or if
@@ -120,3 +115,22 @@ module SimpleCovMcp
     end
   end
 end
+    # Centralized computation of staleness-related details for a single file.
+    # Returns a Hash with keys:
+    #  :exists, :fm, :ts, :cov_len, :src_len, :newer, :len_mismatch
+    def compute_file_staleness_details(file_abs, coverage_lines)
+      ts = coverage_timestamp
+      exists = File.file?(file_abs)
+      fm = exists ? File.mtime(file_abs) : nil
+      cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
+      src_len = exists ? safe_count_lines(file_abs) : 0
+      {
+        exists: exists,
+        fm: fm,
+        ts: ts,
+        cov_len: cov_len,
+        src_len: src_len,
+        newer: (fm && fm.to_i > ts.to_i),
+        len_mismatch: (cov_len.positive? && src_len != cov_len)
+      }
+    end
