@@ -1,3 +1,2 @@
-Use the simplecov-mcp tool, do not compute this yourself:
-Get the coverage summary for lib/foo.rb from the current project.
+Analyze the coverage for lib/foo.rb. If coverage is below 80%, identify the riskiest uncovered areas and suggest specific test scenarios that would improve quality. Prioritize by impact.
 
