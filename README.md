@@ -202,6 +202,8 @@ Using simplecov-mcp, find the uncovered code lines and report to me, in a markdo
 * analyze the risk of the current state of coverage
 * propose a plan of action (if any) to improve coverage state
 
+See the [examples/prompts](examples/prompts) directory for more.
+
 ----
 
 
