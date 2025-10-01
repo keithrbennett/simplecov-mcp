@@ -834,9 +834,13 @@ bundle exec rspec
 # open coverage/index.html for HTML report, or run exe/simplecov-mcp for table summary
 ```
 
-## Claude Code 
+## Configuring Your AI Agent to Run simplecov-mcp
 
-In general we want to avoid specifying configuration instructions here for the AI agents, since that can change, and there are several products to cover. However, Claude Code is a dominant player, and the various help resources confuse the user with many different file names and locations. So, in our experience, the simplest way to configure MCP servers for Claude Code is to use their command line tool. Here is an example:
+### Claude Code 
+
+In general we hesitate to avoid specifying configuration instructions here for the AI agents, since that can change, and there are several products to cover. However, at this time (October 2025) there is a lot of conflicting and confusing information available about this subject, so we will provide some information here. Keep in mind that it may be outdated by the time you read it.
+
+and the various help resources confuse the user with many different file names and locations. So, in our experience, the simplest way to configure MCP servers for Claude Code is to use their command line tool. Here is an example:
 
 ```bash
 claude mcp add simplecov-mcp -- bash -l -c "rvm use 3.3.8 && /Users/kbennett/.rvm/gems/ruby-3.3.8/bin/simplecov-mcp"
@@ -846,6 +850,20 @@ claude mcp add simplecov-mcp -- bash -l -c "rvm use 3.3.8 && /Users/kbennett/.rv
 * If using a version manager such as rvm, note that the executable will be in a directory tied to the Ruby version. This means that if you change the Ruby version, you'll need to remove the configuration (using `claude mcp remove...`) and then readd it with the new filespec.
 * You can set the user server to your most commonly used version and override it when necessary with the '-s local' option.
 
+### Codex
+
+Edit your ~/.codex/config.toml file to contain something like the following:
+
+```[mcp_servers.simplecov-mcp]
+command = "/Users/kbennett/.rvm/wrappers/ruby-3.4.5/simplecov-mcp"
+
+trust_level = "trusted"
+```
+### Gemini
+
+The MCP server can be configured by running a command like this:
+
+`gemini mcp add simplecov-mcp  /Users/kbennett/.rvm/wrappers/ruby-3.4.5/simplecov-mcp`
 
 ## License
 
