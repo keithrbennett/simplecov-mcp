@@ -27,6 +27,9 @@ A **three-in-one** gem that makes SimpleCov coverage data accessible to:
 
 What is it *not*? It is not a replacement for SimpleCov's generated web presentation of the coverage data.
 
+
+This code base requires a Ruby version >= 3.2.0, because this is required by the mcp gem it uses.
+
 ---
 
 ## High Level Objectives
