@@ -395,7 +395,7 @@ simplecov-mcp            # same as 'list'
 
 Subcommands:
 
-- `list` — show the table of all files (sorted ascending by default)
+- `list` — show files coverage (table or --json, sorted ascending by default)
 - `summary <path>` — show covered/total/% for a file
 - `raw <path>` — show the original SimpleCov lines array
 - `uncovered <path>` — show uncovered lines and summary
@@ -412,7 +412,7 @@ Global flags (OptionParser):
 - `-c`, `--source-context N` — for `--source=uncovered`, lines of context (default 2)
 - `--color` / `--no-color` — enable/disable ANSI colors in source output
 - `-S`, `--stale off|error` — staleness checking mode (default `off`)
-- `-g`, `--tracked-globs x,y,z` — globs for files that should be covered (applies to `list` staleness only)
+- `-g`, `--tracked-globs x,y,z` — globs for filtering files (applies to `list`)
 - `-l`, `--log-file PATH` — set log file location (use `-` to disable)
 - `-h`, `--help` — show usage
 

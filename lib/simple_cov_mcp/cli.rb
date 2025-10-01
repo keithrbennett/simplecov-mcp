@@ -114,7 +114,7 @@ module SimpleCovMcp
 
       def define_subcommands_help(o)
         o.separator 'Subcommands:'
-        o.separator '  list                    Show table of all files'
+        o.separator '  list                    Show files coverage (table or --json)'
         o.separator '  summary <path>          Show covered/total/% for a file'
         o.separator "  raw <path>              Show the SimpleCov 'lines' array"
         o.separator '  uncovered <path>        Show uncovered lines and a summary'
@@ -130,7 +130,7 @@ module SimpleCovMcp
         o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| @root = v }
         o.on('-j', '--json', 'Output JSON for machine consumption') { @json = true }
         o.on('-o', '--sort-order ORDER', String,
-             'Sort order: a[scending]|d[escending] (default ascending)') do |v|
+             'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
           @sort_order = normalize_sort_order(v)
         end
         o.on('-s', '--source[=MODE]', String,
@@ -144,7 +144,7 @@ module SimpleCovMcp
              'Staleness mode: o[ff]|e[rror] (default off)') do |v|
           @stale_mode = normalize_stale_mode(v)
         end
-        o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for files that should be covered (list only)') { |v| @tracked_globs = v }
+        o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| @tracked_globs = v }
         o.on('-l', '--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
         o.on('--error-mode MODE', String,
              'Error handling mode: off|on|t[race] (default on)') do |v|

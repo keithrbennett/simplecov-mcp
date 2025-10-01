@@ -41,7 +41,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(data['lines'].first).to include('line', 'hits', 'covered')
   end
 
-  it 'lists all files as JSON with sort order' do
+  it 'list subcommand with --json outputs JSON with sort order' do
     output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'a')
     asc = JSON.parse(output)
     expect(asc['files']).to be_an(Array)
@@ -58,6 +58,14 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'd')
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')
+  end
+
+  it 'list subcommand outputs formatted table' do
+    output = run_cli('list', '--root', root, '--resultset', 'coverage')
+    expect(output).to include('File')
+    expect(output).to include('lib/foo.rb')
+    expect(output).to include('lib/bar.rb')
+    expect(output).to match(/Files: total \d+/)
   end
 
   it 'exposes expected subcommands via constant' do
