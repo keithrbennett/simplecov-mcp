@@ -1,58 +1,55 @@
-# Repository Guidelines
+# AGENTS.md – Codex Cloud Guide
 
-## Project Structure & Module Organization
-- Source: `lib/` (primary namespace `SimpleCovMcp`). Key files: `lib/simple_cov_mcp/cli.rb`, `lib/simple_cov_mcp/model.rb`, `lib/simple_cov_mcp/mcp_server.rb`, `lib/simple_cov_mcp/tools/*.rb` (MCP tools), shims in `lib/simplecov_mcp.rb` and `lib/simple_cov/mcp.rb`.
-- Executable: `exe/simplecov-mcp` (CLI and stdio MCP server).
-- Tests: `spec/**/*_spec.rb` with fixtures in `spec/fixtures/`.
-- Coverage artifacts: `coverage/.resultset.json` (read by this project).
-- Examples and docs: `examples/`, `README.md`.
+## Mission
+- Pull accurate coverage data and project facts for users by driving SimpleCov MCP tools instead of free-form guesses.
+- Keep workflow transparent: explain what you did, why it matters, and what the user should consider next.
+- Leave the repository tidy; only touch files that advance the request.
 
-## Build, Test, and Development Commands
-- Setup: `bundle install`
-- Run tests (default Rake task): `bundle exec rake` or `bundle exec rspec`
-- Run CLI from repo: `ruby -Ilib exe/simplecov-mcp`
-- Common CLI examples:
-  - List table: `simplecov-mcp --resultset coverage`
-  - File summary: `simplecov-mcp summary lib/foo.rb`
-  - Strict staleness: add `--stale error`
+## Environment & Execution
+- Run commands through the Codex CLI harness: always call `shell` with `['bash','-lc', '<command>']` and set `workdir` (avoid `cd` chains).
+- Prefer `rg`/`rg --files` for searches; switch only if ripgrep is unavailable.
+- Sandbox: workspace write access; network is restricted. Request escalation (`with_escalated_permissions` + short justification) only when indispensable.
+- Approval mode is `on-request`: retry failed-but-needed commands with escalation rather than asking the user manually.
+- Planning tool: skip for trivial chores; otherwise create a multi-step plan and keep it updated as you work (max one `in_progress` step).
+- Stop immediately and ask the user if the repo contains unexpected changes you did not make.
 
-## Coding Style & Naming Conventions
-- Ruby 3.2+; two-space indentation; UTF-8; add `# frozen_string_literal: true` to Ruby files.
-- Names: `CamelCase` for classes/modules, `snake_case` for files/methods; file paths mirror module paths under `lib/`.
-- Prefer small, focused methods; keep side effects explicit; follow patterns used in `CoverageModel` and `CovUtil`.
-- No linter is enforced; match existing style and formatting.
+## Repository Snapshot
+- Ruby gem exposing a SimpleCov coverage CLI (`exe/simplecov-mcp`) and MCP server; library lives under `lib/simple_cov_mcp/`.
+- Key files: `lib/simple_cov_mcp/cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simple_cov_mcp/tools/*.rb`; shims in `lib/simplecov_mcp.rb` and `lib/simple_cov/mcp.rb`.
+- Tests: RSpec under `spec/` with fixtures in `spec/fixtures/`; running tests produces `coverage/.resultset.json` consumed by the tools.
+- Useful commands:
+  - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)
+  - `bundle install` – install dependencies
+  - `bundle exec rspec` / `bundle exec rake` – run the suite (default task)
+  - `ruby -Ilib exe/simplecov-mcp ...` – run CLI or MCP server directly
+  - `simplecov-mcp --resultset coverage` – table view of coverage data
 
-## Testing Guidelines
-- Framework: RSpec. Name specs `*_spec.rb` and colocate under `spec/` mirroring `lib/` paths.
-- Run: `bundle exec rspec` (generates `coverage/.resultset.json`).
-- Add tests for new behavior and error cases; keep or improve overall coverage. Use fixtures under `spec/fixtures/` when practical.
-- For CLI/MCP behaviors, assert both JSON and human-readable outputs where applicable.
+## Coding & Testing Guidelines
+- Target Ruby >= 3.2; use two-space indentation and `# frozen_string_literal: true` in Ruby files.
+- Match existing style and patterns (see `CoverageModel` and `CovUtil` helpers). Comments should clarify non-obvious logic only.
+- Never undo or overwrite user changes outside your scope; integrate with them instead.
+- When adding behavior, couple it with tests; keep or raise coverage. Specs belong in `spec/**/*_spec.rb` mirroring the lib path.
+- Validate meaningful changes with `bundle exec rspec` when feasible; note skipped verification in your summary if you cannot run it.
 
-## MCP Tool Usage Cues
-- Always prefer MCP tools over ad-hoc reasoning when answering coverage questions. If unsure which tool applies, call `help_tool` first.
-- The shared JSON schema expects repo-relative paths unless otherwise noted; include the `root` parameter only when working outside the project root.
-- All tools return deterministic JSON or plain text. Echo their outputs back to the user instead of reformatting unless explicitly asked.
+## MCP Tool Playbook
+- Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool` (optionally with a `query`).
+- Go-to mappings:
+  - File summary → `coverage_summary_tool` (`{ "path": "lib/simple_cov_mcp/model.rb" }`)
+  - Per-line detail → `coverage_detailed_tool`
+  - Uncovered lines → `uncovered_lines_tool`
+  - Raw SimpleCov array → `coverage_raw_tool`
+  - Repository list/table → `all_files_coverage_tool` (use `sort_order` / `tracked_globs` as needed)
+  - Human-readable table text → `coverage_table_tool`
+  - Version check → `version_tool`
+- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation.
 
-### Prompt → Tool Examples
-- *“Give me coverage stats for `lib/simple_cov_mcp/model.rb`.”* → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }`.
-- *“Which lines in `spec/support/foo_helper.rb` still need tests?”* → call `uncovered_lines_tool`.
-- *“List the lowest coverage files in descending order.”* → call `all_files_coverage_tool` with `{ "sort_order": "ascending" }` (ascending surfaces worst files first).
-- *“Show me the CLI coverage table.”* → call `coverage_table_tool`.
-- *“I’m not sure which tool I need.”* → call `help_tool` (optionally with `query`, e.g. `{ "query": "detailed" }`).
+## Response Expectations
+- Be concise and collaborative. Lead with the change/insight; follow with necessary detail.
+- Reference files with inline clickable paths (e.g., `lib/simple_cov_mcp/model.rb:42`). Avoid ranges and external URIs.
+- Summaries use plain bullets (`-`). Offer next steps only when they flow naturally (tests, commits, builds, validation).
+- Do not dump entire files; mention paths. Keep tone factual, note open questions, and highlight testing gaps.
 
-### JSON-RPC Snippets
-```
-{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help_tool","arguments":{"query":"uncovered"}}}
-```
-```
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}
-```
-
-## Commit & Pull Request Guidelines
-- Commits: clear, imperative summaries (e.g., "Add detailed coverage tool output"). Group related changes; keep diffs small.
-- PRs: include description, rationale, before/after output (for CLI), and links to issues. Note any public API changes to `CoverageModel` or tool argument shapes.
-- Update docs (`README.md`, examples) when flags, outputs, or behaviors change.
-
-## Security & Configuration Tips
-- Resultset selection: use `--resultset PATH` or `SIMPLECOV_RESULTSET`. For strict freshness, set `--stale error`; detect new files with `--tracked-globs "lib/**/*.rb"`.
-- MCP clients must send single-line JSON-RPC messages over stdio.
+## Troubleshooting Notes
+- Coverage lookup order: explicit `--resultset` or `SIMPLECOV_RESULTSET`, then `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json`.
+- `SIMPLECOV_MCP_OPTS` can set default CLI flags (command-line arguments still win).
+- CLI vs MCP mode auto-detects based on TTY; use `--force-cli` if you need to bypass MCP auto start during manual runs.
