@@ -60,6 +60,24 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(files.first['percentage']).to be_within(0.01).of(33.33)
       expect(files.last['file']).to eq(File.expand_path('lib/foo.rb', root))
     end
+
+    it 'filters rows when tracked_globs are provided' do
+      files = model.all_files(tracked_globs: ['lib/foo.rb'])
+
+      expect(files.length).to eq(1)
+      expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
+    end
+
+    it 'combines results from multiple tracked_globs patterns' do
+      abs_bar = File.expand_path('lib/bar.rb', root)
+
+      files = model.all_files(tracked_globs: ['lib/foo.rb', abs_bar])
+
+      expect(files.map { |f| f['file'] }).to contain_exactly(
+        File.expand_path('lib/foo.rb', root),
+        abs_bar
+      )
+    end
   end
 
   describe 'resultset directory handling' do

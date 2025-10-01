@@ -101,6 +101,8 @@ module SimpleCovMcp
           { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'], 'stale' => stale }
         end.compact
 
+        rows = filter_rows_by_globs(rows, tracked_globs)
+
         if check_stale
           StalenessChecker.new(
             root: @root,
@@ -142,7 +144,7 @@ module SimpleCovMcp
              else
                sort_rows(rows.dup, sort_order: sort_order)
              end
-      rows
+      filter_rows_by_globs(rows, tracked_globs)
     end
 
     def sort_rows(rows, sort_order: :ascending)
@@ -199,6 +201,28 @@ module SimpleCovMcp
       stale_count = rows.count { |f| f['stale'] }
       ok_count = total - stale_count
       "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
+    end
+
+    def filter_rows_by_globs(rows, tracked_globs)
+      patterns = Array(tracked_globs).compact.map(&:to_s).reject(&:empty?)
+      return rows if patterns.empty?
+
+      root_pathname = Pathname.new(@root)
+      flags = File::FNM_PATHNAME | File::FNM_EXTGLOB
+
+      rows.select do |row|
+        abs_path = row['file']
+        rel_path = begin
+          Pathname.new(abs_path).relative_path_from(root_pathname).to_s
+        rescue ArgumentError
+          abs_path
+        end
+
+        patterns.any? do |pattern|
+          target = Pathname.new(pattern).absolute? ? abs_path : rel_path
+          File.fnmatch?(pattern, target, flags)
+        end
+      end
     end
 
     def resolve(path)
