@@ -8,7 +8,10 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   it 'shows help and exits 0' do
     out, err, status = run_cli_with_status('--help')
     expect(status).to eq(0)
-    expect(out).to include('Usage: simplecov-mcp')
+    expect(out).to match(/Usage:.*simplecov-mcp/)
+    expect(out).to include('Repository: https://github.com/keithrbennett/simplecov-mcp')
+    expect(out).to match(/Version:.*#{SimpleCovMcp::VERSION}/)
+    expect(out).to include('Subcommands:')
     expect(err).to eq("")
   end
 
