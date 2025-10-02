@@ -50,31 +50,27 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'emits detailed stale coverage info and exits 1' do
-    begin
-      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
-        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
-      })
-      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'error')
-      expect(status).to eq(1)
-      expect(err).to include('Coverage data stale:')
-      expect(err).to match(/File\s+- time:/)
-      expect(err).to match('Coverage\s+- time:')
-      expect(err).to match(/Delta\s+- file is [+-]?\d+s newer than coverage/)
-      expect(err).to match('Resultset\s+-')
-    ensure
-    end
+    mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
+      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
+    })
+
+    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'error')
+    expect(status).to eq(1)
+    expect(err).to include('Coverage data stale:')
+    expect(err).to match(/File\s+- time:/)
+    expect(err).to match('Coverage\s+- time:')
+    expect(err).to match(/Delta\s+- file is [+-]?\d+s newer than coverage/)
+    expect(err).to match('Resultset\s+-')
   end
 
   it 'honors --no-strict-staleness to disable checks' do
-    begin
-      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
-        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
-      })
-      _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'off')
-      expect(status).to eq(0)
-      expect(err).to eq("")
-    ensure
-    end
+    mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
+      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
+    })
+
+    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'off')
+    expect(status).to eq(0)
+    expect(err).to eq("")
   end
 
   it 'handles source rendering errors gracefully with fallback message' do

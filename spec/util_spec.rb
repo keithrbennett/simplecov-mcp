@@ -16,13 +16,9 @@ RSpec.describe SimpleCovMcp::CovUtil do
     expect(described_class.lookup_lines(cov, '/abs/path/foo.rb')).to eq(lines)
 
     # CWD strip fallback
-    begin
-      allow(Dir).to receive(:pwd).and_return('/cwd')
-      cov = { 'sub/foo.rb' => { 'lines' => lines } }
-      expect(described_class.lookup_lines(cov, '/cwd/sub/foo.rb')).to eq(lines)
-    ensure
-      # no-op
-    end
+    allow(Dir).to receive(:pwd).and_return('/cwd')
+    cov = { 'sub/foo.rb' => { 'lines' => lines } }
+    expect(described_class.lookup_lines(cov, '/cwd/sub/foo.rb')).to eq(lines)
 
     # Different paths with same basename should not match
     cov = { '/some/where/else/foo.rb' => { 'lines' => lines } }
@@ -116,4 +112,3 @@ RSpec.describe SimpleCovMcp::CovUtil do
     end
   end
 end
-
