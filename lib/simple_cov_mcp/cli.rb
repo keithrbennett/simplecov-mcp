@@ -54,6 +54,7 @@ module SimpleCovMcp
     def show_default_report(sort_order: :ascending, output: $stdout)
       model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)
       rows = model.all_files(sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
+
       if @json
         files = model.relativize(rows)
         total = files.length
@@ -64,7 +65,8 @@ module SimpleCovMcp
       end
 
       file_summaries = model.relativize(rows)
-      output.puts model.format_table(file_summaries, sort_order: sort_order)
+      # Delegate to model for consistent formatting and avoid duplicate logic
+      output.puts model.format_table(file_summaries, sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
     end
 
       private
@@ -307,7 +309,12 @@ module SimpleCovMcp
     end
 
     def print_source_for(model, path)
-      raw = model.raw_for(path)
+      raw = fetch_raw(model, path)
+      unless raw
+        puts '[source not available]'
+        return
+      end
+
       abs = raw['file']
       lines_cov = raw['lines']
       src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
@@ -326,12 +333,24 @@ module SimpleCovMcp
     end
 
     def build_source_payload(model, path)
-      raw = model.raw_for(path)
+      raw = fetch_raw(model, path)
+      return nil unless raw
+
       abs = raw['file']
       lines_cov = raw['lines']
       src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
       return nil unless src
       build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
+    end
+
+    def fetch_raw(model, path)
+      @raw_cache ||= {}
+      return @raw_cache[path] if @raw_cache.key?(path)
+
+      raw = model.raw_for(path)
+      @raw_cache[path] = raw
+    rescue StandardError
+      nil
     end
 
     def build_source_rows(src_lines, cov_lines, mode:, context: 2)
