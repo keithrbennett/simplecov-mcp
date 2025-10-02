@@ -3,6 +3,7 @@
 module SimpleCovMcp
   class CoverageCLI
       SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
+      HORIZONTAL_RULE = '-' * 79
 
       # Initialize CLI for pure CLI usage only.
       # Always runs as CLI, no mode detection needed.
@@ -108,23 +109,32 @@ module SimpleCovMcp
       end
 
       def configure_banner(o)
-        o.banner = 'Usage: simplecov-mcp [subcommand] [options] [args]'
-        o.separator ''
+        o.banner = <<~BANNER
+          #{HORIZONTAL_RULE}
+          Usage:      simplecov-mcp [subcommand] [options] [args]
+          Repository: https://github.com/keithrbennett/simplecov-mcp
+          Version:    #{VERSION}
+          #{HORIZONTAL_RULE}
+
+        BANNER
+        # o.banner = 'Usage: simplecov-mcp [subcommand] [options] [args]'
+        # o.separator ''
       end
 
       def define_subcommands_help(o)
-        o.separator 'Subcommands:'
-        o.separator '  list                    Show files coverage (table or --json)'
-        o.separator '  summary <path>          Show covered/total/% for a file'
-        o.separator "  raw <path>              Show the SimpleCov 'lines' array"
-        o.separator '  uncovered <path>        Show uncovered lines and a summary'
-        o.separator '  detailed <path>         Show per-line rows with hits/covered'
-        o.separator '  version                 Show version information'
-        o.separator ''
+        o.separator <<~SUBCOMMANDS
+          Subcommands:
+            list                    Show files coverage (table or --json)
+            summary <path>          Show covered/total/% for a file
+            raw <path>              Show the SimpleCov 'lines' array
+            uncovered <path>        Show uncovered lines and a summary
+            detailed <path>         Show per-line rows with hits/covered
+            version                 Show version information
+
+        SUBCOMMANDS
       end
 
       def define_options(o)
-        o.separator ''
         o.separator 'Options:'
         o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') { |v| @resultset = v }
         o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| @root = v }
@@ -157,11 +167,13 @@ module SimpleCovMcp
       end
 
       def define_examples(o)
-        o.separator ''
-        o.separator 'Examples:'
-        o.separator '  simplecov-mcp list --resultset coverage'
-        o.separator '  simplecov-mcp summary lib/foo.rb --json --resultset coverage'
-        o.separator '  simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2'
+        o.separator <<~EXAMPLES
+
+          Examples:
+            simplecov-mcp list --resultset coverage
+            simplecov-mcp summary lib/foo.rb --json --resultset coverage
+            simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2
+        EXAMPLES
       end
 
       def add_help_handler(o)
