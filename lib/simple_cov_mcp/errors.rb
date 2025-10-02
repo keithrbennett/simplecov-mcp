@@ -13,6 +13,33 @@ module SimpleCovMcp
       def user_friendly_message
         message
       end
+
+      protected
+
+      def format_epoch_both(epoch_seconds)
+        return [nil, nil] unless epoch_seconds
+        t = Time.at(epoch_seconds.to_i)
+        [t.utc.iso8601, t.getlocal.iso8601]
+      rescue StandardError
+        [epoch_seconds.to_s, epoch_seconds.to_s]
+      end
+
+      def format_time_both(time)
+        return [nil, nil] unless time
+        t = time.is_a?(Time) ? time : Time.parse(time.to_s)
+        [t.utc.iso8601, t.getlocal.iso8601]
+      rescue StandardError
+        [time.to_s, time.to_s]
+      end
+
+      def format_delta_seconds(file_mtime, cov_timestamp)
+        return nil unless file_mtime && cov_timestamp
+        seconds = file_mtime.to_i - cov_timestamp.to_i
+        sign = seconds >= 0 ? '+' : '-'
+        "#{sign}#{seconds.abs}s"
+      rescue StandardError
+        nil
+      end
     end
 
     # Configuration or setup related errors
@@ -83,31 +110,6 @@ module SimpleCovMcp
         details += "\nResultset - #{@resultset_path}" if @resultset_path
         details.chomp
       end
-
-      def format_epoch_both(epoch_seconds)
-        return [nil, nil] unless epoch_seconds
-        t = Time.at(epoch_seconds.to_i)
-        [t.utc.iso8601, t.getlocal.iso8601]
-      rescue StandardError
-        [epoch_seconds.to_s, epoch_seconds.to_s]
-      end
-
-      def format_time_both(time)
-        return [nil, nil] unless time
-        t = time.is_a?(Time) ? time : Time.parse(time.to_s)
-        [t.utc.iso8601, t.getlocal.iso8601]
-      rescue StandardError
-        [time.to_s, time.to_s]
-      end
-
-      def format_delta_seconds(file_mtime, cov_timestamp)
-        return nil unless file_mtime && cov_timestamp
-        seconds = file_mtime.to_i - cov_timestamp.to_i
-        sign = seconds >= 0 ? '+' : '-'
-        "#{sign}#{seconds.abs}s"
-      rescue StandardError
-        nil
-      end
     end
 
     # Project-level stale coverage (global) — coverage timestamp older than
@@ -156,14 +158,6 @@ module SimpleCovMcp
         end
         parts << "\nResultset - #{@resultset_path}" if @resultset_path
         parts.join
-      end
-
-      def format_epoch_both(epoch_seconds)
-        return [nil, nil] unless epoch_seconds
-        t = Time.at(epoch_seconds.to_i)
-        [t.utc.iso8601, t.getlocal.iso8601]
-      rescue StandardError
-        [epoch_seconds.to_s, epoch_seconds.to_s]
       end
     end
 
