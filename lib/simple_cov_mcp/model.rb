@@ -17,45 +17,45 @@ module SimpleCovMcp
     # Params:
     # - root: project root directory (default '.')
     # - resultset: path or directory to .resultset.json
-      # - staleness: 'off' or 'error' (default 'off'). When 'error', raises
-      #   stale errors if sources are newer than coverage or line counts mismatch.
-      # - tracked_globs: only used for all_files project-level staleness.
-      def initialize(root: '.', resultset: nil, staleness: 'off', tracked_globs: nil)
-        @root = File.absolute_path(root || '.')
-        @resultset = resultset
-        @relativizer = PathRelativizer.new(
-          root: @root,
-          scalar_keys: RELATIVIZER_SCALAR_KEYS,
-          array_keys: RELATIVIZER_ARRAY_KEYS
-        )
+    # - staleness: 'off' or 'error' (default 'off'). When 'error', raises
+    #   stale errors if sources are newer than coverage or line counts mismatch.
+    # - tracked_globs: only used for all_files project-level staleness.
+    def initialize(root: '.', resultset: nil, staleness: 'off', tracked_globs: nil)
+      @root = File.absolute_path(root || '.')
+      @resultset = resultset
+      @relativizer = PathRelativizer.new(
+        root: @root,
+        scalar_keys: RELATIVIZER_SCALAR_KEYS,
+        array_keys: RELATIVIZER_ARRAY_KEYS
+      )
 
-      begin
-        # Parse resultset once to get both coverage data and timestamp
-        rs = CovUtil.find_resultset(@root, resultset: resultset)
-        raw = JSON.parse(File.read(rs))
-        # SimpleCov typically writes a single test suite entry to .resultset.json
-        # Find the first entry that has coverage data (skip comment entries)
-        _suite, data = raw.find { |k, v| v.is_a?(Hash) && v.key?('coverage') }
-        raise "No test suite with coverage data found in resultset file: #{rs}" unless data
-        cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
-        @cov = cov.transform_keys { |k| File.absolute_path(k, @root) }
-        @cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
+    begin
+      # Parse resultset once to get both coverage data and timestamp
+      rs = CovUtil.find_resultset(@root, resultset: resultset)
+      raw = JSON.parse(File.read(rs))
+      # SimpleCov typically writes a single test suite entry to .resultset.json
+      # Find the first entry that has coverage data (skip comment entries)
+      _suite, data = raw.find { |k, v| v.is_a?(Hash) && v.key?('coverage') }
+      raise "No test suite with coverage data found in resultset file: #{rs}" unless data
+      cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
+      @cov = cov.transform_keys { |k| File.absolute_path(k, @root) }
+      @cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
 
-        @checker = StalenessChecker.new(
-          root: @root,
-          resultset: @resultset,
-          mode: staleness,
-          tracked_globs: tracked_globs,
-          timestamp: @cov_timestamp
-        )
-      rescue Errno::ENOENT => e
-        raise FileError.new("Coverage data not found at #{resultset || @root}")
-      rescue JSON::ParserError => e
-        raise CoverageDataError.new("Invalid coverage data format")
-      rescue => e
-        raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
-      end
+      @checker = StalenessChecker.new(
+        root: @root,
+        resultset: @resultset,
+        mode: staleness,
+        tracked_globs: tracked_globs,
+        timestamp: @cov_timestamp
+      )
+    rescue Errno::ENOENT => e
+      raise FileError.new("Coverage data not found at #{resultset || @root}")
+    rescue JSON::ParserError => e
+      raise CoverageDataError.new("Invalid coverage data format")
+    rescue => e
+      raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
     end
+  end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
     def raw_for(path)
@@ -227,8 +227,12 @@ module SimpleCovMcp
 
     def resolve(path)
       file_abs = File.absolute_path(path, @root)
-      coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
-        @checker.check_file!(file_abs, coverage_lines) unless @checker.off?
+      begin
+        coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
+      rescue RuntimeError => e
+        raise FileError.new("No coverage data found for file: #{path}")
+      end
+      @checker.check_file!(file_abs, coverage_lines) unless @checker.off?
       if coverage_lines.nil?
         raise FileError.new("No coverage data found for file: #{path}")
       end

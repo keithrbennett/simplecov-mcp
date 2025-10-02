@@ -251,7 +251,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       
       expect {
         model.summary_for('lib/nonexistent.rb')
-      }.to raise_error(RuntimeError, /No coverage entry found/)
+      }.to raise_error(SimpleCovMcp::FileError, /No coverage data found/)
     end
     
     it 'handles invalid resultset paths gracefully' do
