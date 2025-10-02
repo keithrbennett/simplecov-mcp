@@ -113,8 +113,7 @@ module SimpleCovMcp
     def rel(path)
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
     end
-  end
-end
+
     # Centralized computation of staleness-related details for a single file.
     # Returns a Hash with keys:
     #  :exists, :fm, :ts, :cov_len, :src_len, :newer, :len_mismatch
@@ -134,3 +133,5 @@ end
         len_mismatch: (cov_len.positive? && src_len != cov_len)
       }
     end
+  end
+end
