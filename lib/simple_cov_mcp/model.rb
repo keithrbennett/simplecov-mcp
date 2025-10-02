@@ -86,55 +86,55 @@ module SimpleCovMcp
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-      def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-        stale_checker = StalenessChecker.new(
+    def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
+      stale_checker = StalenessChecker.new(
+        root: @root,
+        resultset: @resultset,
+        mode: 'off',
+        tracked_globs: tracked_globs,
+        timestamp: @cov_timestamp
+      )
+      rows = @cov.map do |abs_path, data|
+        next unless data['lines'].is_a?(Array)
+        s = CovUtil.summary(data['lines'])
+        stale = stale_checker.stale_for_file?(abs_path, data['lines'])
+        { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'], 'stale' => stale }
+      end.compact
+
+      rows = filter_rows_by_globs(rows, tracked_globs)
+
+      if check_stale
+        StalenessChecker.new(
           root: @root,
           resultset: @resultset,
-          mode: 'off',
+          mode: 'error',
           tracked_globs: tracked_globs,
           timestamp: @cov_timestamp
-        )
-        rows = @cov.map do |abs_path, data|
-          next unless data['lines'].is_a?(Array)
-          s = CovUtil.summary(data['lines'])
-          stale = stale_checker.stale_for_file?(abs_path, data['lines'])
-          { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'], 'stale' => stale }
-        end.compact
-
-        rows = filter_rows_by_globs(rows, tracked_globs)
-
-        if check_stale
-          StalenessChecker.new(
-            root: @root,
-            resultset: @resultset,
-            mode: 'error',
-            tracked_globs: tracked_globs,
-            timestamp: @cov_timestamp
-          ).check_project!(@cov)
-        end
-
-        rows.sort! do |a, b|
-          pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
-          pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
-        end
-        rows
+        ).check_project!(@cov)
       end
+
+      rows.sort! do |a, b|
+        pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+        pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+      end
+      rows
+    end
 
       # Returns formatted table string for all files coverage data
-      def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-        rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
-        return "No coverage data found" if rows.empty?
+    def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
+      rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+      return "No coverage data found" if rows.empty?
 
-        widths = compute_table_widths(rows)
-        lines = []
-        lines << border_line(widths, '┌', '┬', '┐')
-        lines << header_row(widths)
-        lines << border_line(widths, '├', '┼', '┤')
-        rows.each { |file_data| lines << data_row(file_data, widths) }
-        lines << border_line(widths, '└', '┴', '┘')
-        lines << summary_counts(rows)
-        lines.join("\n")
-      end
+      widths = compute_table_widths(rows)
+      lines = []
+      lines << border_line(widths, '┌', '┬', '┐')
+      lines << header_row(widths)
+      lines << border_line(widths, '├', '┼', '┤')
+      rows.each { |file_data| lines << data_row(file_data, widths) }
+      lines << border_line(widths, '└', '┴', '┘')
+      lines << summary_counts(rows)
+      lines.join("\n")
+    end
 
     private
 
@@ -243,9 +243,9 @@ module SimpleCovMcp
 
       # staleness handled by StalenessChecker
 
-      def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
-        # handled by StalenessChecker
-      end
+    def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
+      # handled by StalenessChecker
+    end
 
     # Detailed stale message construction moved to CoverageDataStaleError
   end
