@@ -29,7 +29,7 @@ cat <<INTRO
 
 Note: Project root and resultset JSON file normally do not need to be specified.
 We set --root here to use the examples/fixtures/demo_project nondefault location,
-and later demonstrate a nondefault resultset via SIMPLECOV_RESULTSET.
+and later demonstrate a nondefault resultset via the --resultset option.
 
 Project root:     $PROJ
 Resultset (dir):  $RESULTSET_DIR
@@ -67,8 +67,8 @@ ALT_DIR="$PROJ/alt_resultset"
 mkdir -p "$ALT_DIR"
 cp -f "$PROJ/coverage/.resultset.json" "$ALT_DIR/.resultset.json"
 echo 
-echo "+ SIMPLECOV_RESULTSET=$PROJ/alt_resultset ${CLI[*]} list --root $PROJ"
-SIMPLECOV_RESULTSET="$PROJ/alt_resultset" "${CLI[@]}" list --root "$PROJ"
+echo "+ ${CLI[*]} list --root $PROJ --resultset $PROJ/alt_resultset"
+"${CLI[@]}" list --root "$PROJ" --resultset "$PROJ/alt_resultset"
 
 echo
 echo "== Done =="
