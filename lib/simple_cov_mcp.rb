@@ -5,7 +5,6 @@ require 'time'
 require 'pathname'
 require 'mcp'
 require 'mcp/server/transports/stdio_transport'
-require 'awesome_print'
 
 require_relative 'simple_cov_mcp/version'
 require_relative 'simple_cov_mcp/util'

@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.2'
 
   spec.files         = Dir.chdir(File.expand_path(__dir__)) do
-    Dir['lib/**/*', 'README.md', 'docs/**/*.md' 'LICENSE*', 'exe/*', 'spec/**/*']
+    Dir['lib/**/*', 'README.md', 'docs/**/*.md', 'LICENSE*', 'exe/*', 'spec/**/*']
   end
   spec.bindir        = 'exe'
   spec.executables   = ['simplecov-mcp']
@@ -24,7 +24,6 @@ Gem::Specification.new do |spec|
 
   # Runtime deps (stdlib: json, time, pathname)
   spec.add_runtime_dependency 'mcp', '~> 0.3'
-  spec.add_runtime_dependency 'awesome_print', '>= 1.9.2', '< 2'
   spec.add_development_dependency 'rspec', '~> 3.0'
   spec.add_development_dependency 'simplecov', '~> 0.21'
   
