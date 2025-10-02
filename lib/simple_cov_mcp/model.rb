@@ -87,13 +87,8 @@ module SimpleCovMcp
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
     def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-      stale_checker = StalenessChecker.new(
-        root: @root,
-        resultset: @resultset,
-        mode: 'off',
-        tracked_globs: tracked_globs,
-        timestamp: @cov_timestamp
-      )
+      stale_checker = build_staleness_checker(mode: 'off', tracked_globs: tracked_globs)
+
       rows = @cov.map do |abs_path, data|
         next unless data['lines'].is_a?(Array)
         s = CovUtil.summary(data['lines'])
@@ -104,13 +99,7 @@ module SimpleCovMcp
       rows = filter_rows_by_globs(rows, tracked_globs)
 
       if check_stale
-        StalenessChecker.new(
-          root: @root,
-          resultset: @resultset,
-          mode: 'error',
-          tracked_globs: tracked_globs,
-          timestamp: @cov_timestamp
-        ).check_project!(@cov)
+        build_staleness_checker(mode: 'error', tracked_globs: tracked_globs).check_project!(@cov)
       end
 
       rows.sort! do |a, b|
@@ -138,13 +127,23 @@ module SimpleCovMcp
 
     private
 
+    def build_staleness_checker(mode:, tracked_globs:)
+      StalenessChecker.new(
+        root: @root,
+        resultset: @resultset,
+        mode: mode,
+        tracked_globs: tracked_globs,
+        timestamp: @cov_timestamp
+      )
+    end
+
     def prepare_rows(rows, sort_order:, check_stale:, tracked_globs:)
-      rows = if rows.nil?
-               all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
-             else
-               sort_rows(rows.dup, sort_order: sort_order)
-             end
-      filter_rows_by_globs(rows, tracked_globs)
+      if rows.nil?
+        all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+      else
+        rows = sort_rows(rows.dup, sort_order: sort_order)
+        filter_rows_by_globs(rows, tracked_globs)
+      end
     end
 
     def sort_rows(rows, sort_order: :ascending)
