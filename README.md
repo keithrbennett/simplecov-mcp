@@ -168,7 +168,7 @@ simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb --source=uncovered --source-co
 simplecov-mcp detailed lib/simple_cov_mcp/util.rb
 ```
 
-## CLI Commands
+## CLI Subcommands
 
 - `list` - Show all files with coverage (default)
 - `summary <path>` - Coverage summary for a file

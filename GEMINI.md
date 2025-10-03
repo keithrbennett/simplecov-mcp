@@ -55,7 +55,7 @@ Or, if the gem is installed:
 simplecov-mcp --help
 ```
 
-**CLI Commands:**
+**CLI Subcommands:**
 
 *   `list`: Show a table of all files and their coverage.
 *   `summary <path>`: Show a summary for a specific file.
