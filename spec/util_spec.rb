@@ -74,7 +74,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
     end
 
     it 'log_path uses default path when no configuration' do
-      expect(described_class.log_path).to eq(File.expand_path('~/simplecov_mcp.log'))
+      expect(described_class.log_path).to eq(File.expand_path('./simplecov_mcp.log'))
     end
 
 

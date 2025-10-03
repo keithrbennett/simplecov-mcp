@@ -157,7 +157,7 @@ module SimpleCovMcp
         @stale_mode = normalize_stale_mode(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| @tracked_globs = v }
-      o.on('-l', '--log-file PATH', String, 'Log file path (default ~/simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
+      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use - to disable)') { |v| @log_file = v }
       o.on('--error-mode MODE', String,
            'Error handling mode: off|on|t[race] (default on)') do |v|
         @error_mode = normalize_error_mode(v)

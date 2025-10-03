@@ -7,7 +7,7 @@ module SimpleCovMcp
     'tmp/.resultset.json'
   ].freeze
 
-  DEFAULT_LOG_FILESPEC = '~/simplecov_mcp.log'
+  DEFAULT_LOG_FILESPEC = './simplecov_mcp.log'
 
   module CovUtil
     module_function
