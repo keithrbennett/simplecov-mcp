@@ -6,14 +6,10 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
   let(:cli) { SimpleCovMcp::CoverageCLI.new }
 
   around do |example|
-    old_env = ENV['SIMPLECOV_MCP_OPTS']
-    ENV.delete('SIMPLECOV_MCP_OPTS')
+    original_value = ENV['SIMPLECOV_MCP_OPTS']
     example.run
-    if old_env
-      ENV['SIMPLECOV_MCP_OPTS'] = old_env
-    else
-      ENV.delete('SIMPLECOV_MCP_OPTS')
-    end
+  ensure
+    ENV['SIMPLECOV_MCP_OPTS'] = original_value
   end
 
   describe 'CLI option parsing from environment' do
@@ -38,7 +34,11 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       # Stub exit method to prevent process termination
       allow_any_instance_of(Object).to receive(:exit)
 
-      cli.send(:run, ['--help'])
+      # silence_output captures the expected error message from the CLI trying to
+      # load the (non-existent) resultset, preventing it from leaking to the console.
+      silence_output do
+        cli.send(:run, ['--help'])
+      end
 
       expect(cli.instance_variable_get(:@resultset)).to eq(test_path)
     end
