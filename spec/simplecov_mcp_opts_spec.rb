@@ -104,9 +104,11 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       test_resultset = File.join(Dir.tmpdir, 'test_coverage', '.resultset.json')
       ENV['SIMPLECOV_MCP_OPTS'] = "--resultset #{test_resultset} --json"
 
+      allow_any_instance_of(Object).to receive(:exit)
+
       expect {
         silence_output { cli.send(:run, ['--help']) }
-      }.not_to raise_error(SimpleCovMcp::ConfigurationError)
+      }.not_to raise_error
 
       expect(cli.instance_variable_get(:@resultset)).to eq(test_resultset)
       expect(cli.instance_variable_get(:@json)).to be true
