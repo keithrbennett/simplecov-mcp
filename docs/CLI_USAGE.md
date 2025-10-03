@@ -57,13 +57,13 @@ simplecov-mcp list --json
 
 **Output (table format):**
 ```
-┌───────────────────────────┬──────────┬──────────┬────────┬───────┐
-│ File                      │        % │  Covered │  Total │ Stale │
-├───────────────────────────┼──────────┼──────────┼────────┼───────┤
+┌──────────────────────────────────────────────────────────┬──────────┬──────────┬────────┬───────┐
+│ File                                                     │        % │  Covered │  Total │ Stale │
+├──────────────────────────────────────────────────────────┼──────────┼──────────┼────────┼───────┤
 │ lib/simple_cov_mcp/tools/coverage_summary_tool.rb        │    85.71 │       12 │     14 │       │
-│ lib/services/auth.rb      │    92.31 │       12 │     13 │   !   │
-│ lib/controllers/api.rb    │   100.00 │        8 │      8 │       │
-└───────────────────────────┴──────────┴──────────┴────────┴───────┘
+│ lib/services/auth.rb                                     │    92.31 │       12 │     13 │   !   │
+│ lib/controllers/api.rb                                   │   100.00 │        8 │      8 │       │
+└──────────────────────────────────────────────────────────┴──────────┴──────────┴────────┴───────┘
 Files: total 3, ok 2, stale 1
 ```
 
@@ -387,14 +387,12 @@ simplecov-mcp --error-mode on_with_trace summary lib/simple_cov_mcp/cli.rb
 
 ### `--force-cli`
 
-Force CLI mode even when stdin is piped.
+Force CLI mode even when stdin is piped or when the process is running in a non-interactive shell (CI, Codex, etc.). Without it, the executable may fall back to MCP server mode.
 
 ```sh
 SIMPLECOV_MCP_CLI=1 simplecov-mcp list
 simplecov-mcp --force-cli list
 ```
-
-Useful in scripts where auto-detection might fail.
 
 ## Output Formats
 
@@ -403,11 +401,11 @@ Useful in scripts where auto-detection might fail.
 Default for `list` subcommand. Uses Unicode box-drawing characters.
 
 ```
-┌──────────────────┬────────┬──────────┬────────┬───────┐
-│ File             │      % │  Covered │  Total │ Stale │
-├──────────────────┼────────┼──────────┼────────┼───────┤
-│ lib/simple_cov_mcp/util.rb       │  85.71 │       12 │     14 │       │
-└──────────────────┴────────┴──────────┴────────┴───────┘
+┌──────────────────────────┬──────────┬──────────┬────────┬───────┐
+│ File                     │        % │  Covered │  Total │ Stale │
+├──────────────────────────┼──────────┼──────────┼────────┼───────┤
+│ lib/simple_cov_mcp.rb    │    85.71 │       12 │     14 │       │
+└──────────────────────────┴──────────┴──────────┴────────┴───────┘
 ```
 
 ### JSON Format
@@ -474,19 +472,7 @@ export SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
 export SIMPLECOV_MCP_OPTS="--resultset coverage --stale error --json"
 ```
 
-### `SIMPLECOV_RESULTSET`
 
-Path to `.resultset.json` file or directory containing it.
-
-```sh
-export SIMPLECOV_RESULTSET=coverage/.resultset.json
-simplecov-mcp  # Uses path from environment
-```
-
-**Precedence:**
-1. `--resultset` command-line flag (highest)
-2. `SIMPLECOV_RESULTSET` environment variable
-3. Default search order (lowest)
 
 ## Examples
 

@@ -20,7 +20,7 @@
 - Useful commands:
   - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)
   - `bundle install` – install dependencies
-  - `bundle exec rspec` / `bundle exec rake` – run the suite (default task)
+  - `bundle exec rspec` – run rspec (currently not working in Codex for macOS)
   - `ruby -Ilib exe/simplecov-mcp ...` – run CLI or MCP server directly
   - `simplecov-mcp --resultset coverage` – table view of coverage data
 
@@ -50,6 +50,6 @@
 - Do not dump entire files; mention paths. Keep tone factual, note open questions, and highlight testing gaps.
 
 ## Troubleshooting Notes
-- Coverage lookup order: explicit `--resultset` or `SIMPLECOV_RESULTSET`, then `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json`.
+- Coverage lookup order: explicit `--resultset`, then `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json`.
 - `SIMPLECOV_MCP_OPTS` can set default CLI flags (command-line arguments still win).
 - CLI vs MCP mode auto-detects based on TTY; use `--force-cli` if you need to bypass MCP auto start during manual runs.

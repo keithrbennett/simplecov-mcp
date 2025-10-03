@@ -75,7 +75,7 @@ Uses a multi-strategy approach for finding files in coverage data:
 
 ### Resultset Discovery
 Searches for `.resultset.json` in this order:
-1. Explicit `--resultset` path or `SIMPLECOV_RESULTSET` env var
+1. Explicit `--resultset` path
 2. `.resultset.json` in project root
 3. `coverage/.resultset.json`
 4. `tmp/.resultset.json`

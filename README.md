@@ -73,105 +73,38 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 
 📚 **Complete Guides:**
 
-- **[Installation Guide](docs/INSTALLATION.md)** - Setup for different environments and version managers
+- **[Installation](docs/INSTALLATION.md)** - Setup for different environments and version managers
 - **[CLI Usage](docs/CLI_USAGE.md)** - Complete command-line reference with examples
 - **[MCP Integration](docs/MCP_INTEGRATION.md)** - Configure with AI assistants (Claude, Cursor, Codex)
-- **[Library API](docs/LIBRARY_API.md)** - Ruby API documentation and recipes *(coming soon)*
-- **[Examples](docs/EXAMPLES.md)** - Cookbook of common use cases *(coming soon)*
+- **[Library API](docs/LIBRARY_API.md)** - Ruby API documentation and recipes
+- **[Examples](docs/EXAMPLES.md)** - Cookbook of common use cases
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Development](docs/DEVELOPMENT.md)** - Contributing and development guide *(coming soon)*
-- **[Error Handling](docs/ERROR_HANDLING.md)** - Error modes and exception handling *(coming soon)*
+- **[Development](docs/DEVELOPMENT.md)** - Contributing and development guide
+- **[Error Handling](docs/ERROR_HANDLING.md)** - Error modes and exception handling
 
-## CLI Examples
+## Quick Examples
 
-```sh
-# Show coverage table (sorted by lowest first)
-simplecov-mcp
+**CLI (lowest coverage first):** `simplecov-mcp`
 
-# Find files with < 90% coverage
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 90)'
-
-# Check specific file with uncovered lines highlighted
-simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb --source=uncovered
-
-# View detailed per-line coverage with hit counts
-simplecov-mcp detailed lib/simple_cov_mcp/util.rb
-
-# JSON output for scripting
-simplecov-mcp summary lib/simple_cov_mcp/model.rb --json
-
-# Sort by highest coverage first
-simplecov-mcp list --sort-order descending
-
-# Check if coverage is stale (for CI/CD)
-simplecov-mcp --stale error
-```
-
-## Library Examples
-
+**Ruby summary:**
 ```ruby
 require "simple_cov_mcp"
-
-# Initialize with defaults
 model = SimpleCovMcp::CoverageModel.new
-# Defaults: root: ".", resultset: auto-discovered, staleness: "off"
-
-# Or customize
-# model = SimpleCovMcp::CoverageModel.new(
-#   root: "/path/to/project",
-#   resultset: "build/coverage",
-#   staleness: "error",  # Raise if stale
-#   tracked_globs: ["lib/**/*.rb"]
-# )
-
-# Get all files with coverage
-all_files = model.all_files(sort_order: :ascending)
-
-# Filter by directory
-lib_files = all_files.select { |f| f['file'].include?('/lib/') }
-
-# Find files below threshold
-low_coverage = all_files.select { |f| f['percentage'] < 90 }
-
-# Get formatted table
-puts model.format_table(low_coverage, sort_order: :ascending)
-
-# Per-file queries
-summary = model.summary_for("lib/simple_cov_mcp/model.rb")
-uncovered = model.uncovered_for("lib/simple_cov_mcp/cli.rb")
-detailed = model.detailed_for("lib/simple_cov_mcp/util.rb")
-raw = model.raw_for("lib/simple_cov_mcp/errors.rb")
-
-# Relativize paths for output
-relative_data = model.relativize(summary)
+puts model.summary_for("lib/simple_cov_mcp/model.rb")
 ```
 
-## MCP Server Example Prompts
-
-Once configured with your AI assistant:
-
-```
-Using simplecov-mcp, show me a table of all files and their coverage percentages.
-```
-
-```
-Using simplecov-mcp, find files with less than 90% coverage and suggest which to prioritize.
-```
-
-```
-Using simplecov-mcp, show me the uncovered lines in lib/simple_cov_mcp/cli.rb and explain what they do.
-```
-
-```
-Using simplecov-mcp, analyze coverage gaps in lib/simple_cov_mcp/tools/ and suggest improvements.
-```
-
-More examples in the [MCP Integration Guide](docs/MCP_INTEGRATION.md#example-prompts-for-ai-assistants).
+More in [CLI Usage](docs/CLI_USAGE.md) and [Library API](docs/LIBRARY_API.md).
 
 ## Requirements
 
+
 - **Ruby >= 3.2** (required by `mcp` gem dependency)
 - SimpleCov-generated `.resultset.json` file
+- RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`).
+
+### Note for Codex on macOS
+
+Codex’s macOS sandbox disallows running `/bin/ps`. RVM depends on `ps` to bootstrap its environment, so `bundle exec rspec` fails in that sandbox because the shell falls back to the system Ruby 2.6. There isn’t a repo-side fix—use a Ruby version manager that doesn’t rely on `ps`, or run the suite outside that environment. (Codex on Ubuntu, Gemini, and Claude Code aren’t affected.)
 
 ## Environment Variables
 
@@ -192,16 +125,7 @@ export SIMPLECOV_MCP_OPTS="--resultset build/coverage --stale error"
 
 Command-line arguments override environment options.
 
-### `SIMPLECOV_RESULTSET`
 
-Specify resultset location:
-
-```sh
-export SIMPLECOV_RESULTSET=coverage/.resultset.json
-simplecov-mcp  # Uses path from environment
-```
-
-Precedence: `--resultset` flag > `SIMPLECOV_RESULTSET` > default search order
 
 ## Common Workflows
 
@@ -244,7 +168,7 @@ simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb --source=uncovered --source-co
 simplecov-mcp detailed lib/simple_cov_mcp/util.rb
 ```
 
-## CLI Subcommands
+## CLI Commands
 
 - `list` - Show all files with coverage (default)
 - `summary <path>` - Coverage summary for a file
@@ -272,7 +196,7 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md#available-mcp-tools) for det
 
 ## Troubleshooting
 
-**Common issues:**
+See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for full details.
 
 - **"command not found"** - See [Installation Guide](docs/INSTALLATION.md#path-configuration)
 - **"cannot load such file -- mcp"** - Upgrade to Ruby >= 3.2

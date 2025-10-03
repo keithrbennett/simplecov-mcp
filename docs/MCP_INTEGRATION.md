@@ -183,7 +183,7 @@ For any MCP client that uses JSON configuration:
       "command": "/path/to/simplecov-mcp",
       "args": [],
       "env": {
-        "SIMPLECOV_RESULTSET": "coverage"
+        "SIMPLECOV_MCP_OPTS": "--resultset coverage"
       }
     }
   }
@@ -191,7 +191,7 @@ For any MCP client that uses JSON configuration:
 ```
 
 **Environment variables you can set:**
-- `SIMPLECOV_RESULTSET` - Path to `.resultset.json` file or directory
+
 - `SIMPLECOV_MCP_OPTS` - Default CLI options (though less useful for MCP mode)
 
 ## Available MCP Tools
@@ -651,7 +651,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
        "simplecov-mcp": {
          "command": "/path/to/simplecov-mcp",
          "env": {
-           "SIMPLECOV_RESULTSET": "coverage/.resultset.json"
+           "SIMPLECOV_MCP_OPTS": "--resultset coverage/.resultset.json"
          }
        }
      }
@@ -722,7 +722,7 @@ If your coverage is in a non-standard location:
     "simplecov-mcp": {
       "command": "/path/to/simplecov-mcp",
       "env": {
-        "SIMPLECOV_RESULTSET": "build/coverage/.resultset.json"
+        "SIMPLECOV_MCP_OPTS": "--resultset build/coverage/.resultset.json"
       }
     }
   }
