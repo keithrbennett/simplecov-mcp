@@ -91,4 +91,22 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
       expect(SimpleCovMcp::VERSION).not_to eq('0.0.0')
     end
   end
+
+  describe 'standalone version file load' do
+    it 'defines the module and VERSION constant when only version.rb is loaded' do
+      original_module = SimpleCovMcp
+      original_version = SimpleCovMcp::VERSION
+
+      Object.send(:remove_const, :SimpleCovMcp)
+
+      version_path = File.expand_path('../lib/simple_cov_mcp/version.rb', __dir__)
+      load version_path
+
+      expect(Object.const_defined?(:SimpleCovMcp)).to be true
+      expect(SimpleCovMcp::VERSION).to eq(original_version)
+    ensure
+      Object.send(:remove_const, :SimpleCovMcp) if Object.const_defined?(:SimpleCovMcp)
+      Object.const_set(:SimpleCovMcp, original_module)
+    end
+  end
 end
