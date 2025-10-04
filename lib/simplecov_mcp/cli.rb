@@ -23,6 +23,7 @@ module SimpleCovMcp
       @stale_mode = 'off'
       @tracked_globs = nil
       @log_file = nil
+      @success_predicate = nil
     end
 
     def run(argv)
@@ -37,6 +38,12 @@ module SimpleCovMcp
 
       # Set global log file if specified
       SimpleCovMcp.log_file = @log_file if @log_file
+
+      # If success predicate specified, run it and exit
+      if @success_predicate
+        run_success_predicate
+        return
+      end
 
       if @cmd
         run_subcommand(@cmd, @cmd_args)
@@ -195,6 +202,7 @@ module SimpleCovMcp
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
       end
+      o.on('--success-predicate FILE', String, 'Ruby file returning callable; exits 0 if truthy, 1 if falsy') { |v| @success_predicate = v }
     end
 
     def define_examples(o)
@@ -524,6 +532,35 @@ module SimpleCovMcp
         { switches: ['--error-mode'], values: %w[off on on_with_trace with_trace trace t], display: 'off|on|t[race]' },
         { switches: ['-o', '--sort-order'], values: %w[a d ascending descending], display: 'a[scending]|d[escending]' }
       ]
+    end
+
+    def run_success_predicate
+      predicate = load_success_predicate(@success_predicate)
+      model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)
+
+      result = predicate.call(model)
+      exit(result ? 0 : 1)
+    rescue => e
+      warn "Success predicate error: #{e.message}"
+      warn e.backtrace.first(5).join("\n") if @error_mode == :on_with_trace
+      exit 2  # Exit code 2 for predicate errors
+    end
+
+    def load_success_predicate(path)
+      unless File.exist?(path)
+        raise "Success predicate file not found: #{path}"
+      end
+
+      content = File.read(path)
+      predicate = eval(content, binding, path)
+
+      unless predicate.respond_to?(:call)
+        raise "Success predicate must be callable (lambda, proc, or object with #call method)"
+      end
+
+      predicate
+    rescue SyntaxError => e
+      raise "Syntax error in success predicate file: #{e.message}"
     end
 
     def handle_user_facing_error(error)

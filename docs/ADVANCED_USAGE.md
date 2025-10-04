@@ -358,58 +358,59 @@ cli = SimpleCovMcp::CoverageCLI.new(
 
 ## Custom Ruby Integration
 
-### Building Custom Coverage Tools
+### Building Custom Coverage Policies
 
-A complete example coverage analyzer is available at [`examples/scripts/coverage_analyzer.rb`](../../examples/scripts/coverage_analyzer.rb).
+Use `--success-predicate` to enforce custom coverage policies in CI/CD. Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
 
 **Quick Usage:**
 ```sh
-# Run in current directory
-ruby examples/scripts/coverage_analyzer.rb
+# All files must be >= 80%
+simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold.rb
 
-# Specify project root and threshold
-ruby examples/scripts/coverage_analyzer.rb /path/to/project 90
+# Total project coverage >= 85%
+simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum.rb
 
-# Fail with exit code 1 if any files are below threshold (CI/CD)
-ruby examples/scripts/coverage_analyzer.rb --fail-below . 80
+# Custom predicate
+simplecov-mcp --success-predicate coverage_policy.rb
 ```
 
-**Features:**
-- Calculate total project coverage percentage
-- Find files below a threshold
-- Generate reports in text, JSON, or CSV formats
-- Exit with code 1 if files below threshold (perfect for CI/CD)
-- Class method entry point for quick analysis
-
-**Example output:**
-```
-Project coverage: 92.45%
-
-Files below 80%:
-  lib/simplecov_mcp/legacy.rb: 65.32%
-  lib/simplecov_mcp/experimental.rb: 72.15%
-```
-
-**Using as a library:**
+**Creating a predicate:**
 ```ruby
-require_relative 'examples/scripts/coverage_analyzer'
-
-# Quick analysis
-CoverageAnalyzer.run(root: '.', threshold: 80)
-
-# With CSV report
-CoverageAnalyzer.run(root: '.', threshold: 90, report_format: :csv)
-
-# Fail if coverage below threshold (for CI/CD scripts)
-CoverageAnalyzer.run(root: '.', threshold: 80, fail_on_low_coverage: true)
-
-# Instance method for more control
-analyzer = CoverageAnalyzer.new(root: '.')
-puts "Project coverage: #{analyzer.project_coverage}%"
-analyzer.files_below_threshold(80).each do |f|
-  puts "  #{f['file']}: #{f['percentage']}%"
+# coverage_policy.rb
+->(model) do
+  # All files must have >= 80% coverage
+  model.all_files.all? { |f| f['percentage'] >= 80 }
 end
 ```
+
+**Advanced predicate with reporting:**
+```ruby
+# coverage_policy.rb
+class CoveragePolicy
+  def call(model)
+    threshold = 80
+    low_files = model.all_files.select { |f| f['percentage'] < threshold }
+
+    if low_files.empty?
+      puts "✓ All files have >= #{threshold}% coverage"
+      true
+    else
+      warn "✗ Files below #{threshold}%:"
+      low_files.each { |f| warn "  #{f['file']}: #{f['percentage']}%" }
+      false
+    end
+  end
+end
+
+CoveragePolicy.new
+```
+
+**Exit codes:**
+- `0` - Predicate returned truthy (pass)
+- `1` - Predicate returned falsy (fail)
+- `2` - Predicate raised an error
+
+See [examples/success_predicates/README.md](../../examples/success_predicates/README.md) for more examples.
 
 ### Path Relativization
 
@@ -598,37 +599,37 @@ if [ -n "$LOW_COVERAGE" ]; then
 fi
 ```
 
-### Using Custom Coverage Analyzer Script
+### Using Success Predicates in CI/CD
 
-The example script supports a `--fail-below` flag perfect for CI/CD:
+Use `--success-predicate` to enforce coverage policies:
 
 **GitHub Actions:**
 ```yaml
-- name: Check Coverage Threshold
+- name: Enforce Coverage Policy
   run: |
     bundle exec rspec
-    ruby examples/scripts/coverage_analyzer.rb --fail-below . 80
+    bundle exec simplecov-mcp --success-predicate coverage_policy.rb
 ```
 
 **GitLab CI:**
 ```yaml
-coverage:check:
+coverage:enforce:
   script:
     - bundle exec rspec
-    - ruby examples/scripts/coverage_analyzer.rb --fail-below . 80
+    - bundle exec simplecov-mcp --success-predicate coverage_policy.rb
 ```
 
 **Jenkins:**
 ```groovy
-stage('Coverage Check') {
+stage('Coverage Policy') {
     steps {
         sh 'bundle exec rspec'
-        sh 'ruby examples/scripts/coverage_analyzer.rb --fail-below . 80'
+        sh 'bundle exec simplecov-mcp --success-predicate coverage_policy.rb'
     }
 }
 ```
 
-This will fail the build (exit code 1) if any files have coverage below the threshold.
+The build will fail (exit code 1) if the predicate returns falsy.
 
 ---
 

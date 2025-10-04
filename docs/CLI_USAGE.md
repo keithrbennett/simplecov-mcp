@@ -394,6 +394,36 @@ SIMPLECOV_MCP_CLI=1 simplecov-mcp list
 simplecov-mcp --force-cli list
 ```
 
+### `--success-predicate FILE`
+
+Run a custom success predicate for CI/CD coverage enforcement.
+
+The predicate file must return a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns truthy (success) or falsy (failure).
+
+**Exit codes:**
+- `0` - Predicate returned truthy (pass)
+- `1` - Predicate returned falsy (fail)
+- `2` - Predicate raised an error
+
+**Example usage:**
+```sh
+# Use example predicate
+simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold.rb
+
+# In CI/CD
+bundle exec simplecov-mcp --success-predicate coverage_policy.rb
+```
+
+**Example predicate file:**
+```ruby
+# coverage_policy.rb
+->(model) do
+  model.all_files.all? { |f| f['percentage'] >= 80 }
+end
+```
+
+See [examples/success_predicates/](../../examples/success_predicates/) for more examples.
+
 ## Output Formats
 
 ### Table Format
