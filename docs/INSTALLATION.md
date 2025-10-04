@@ -44,7 +44,7 @@ gem install simplecov-mcp-*.gem
 The gem supports multiple require paths for compatibility:
 
 ```ruby
-require "simple_cov_mcp"    # Primary path (recommended)
+require "simplecov_mcp"    # Primary path (recommended)
 require "simplecov_mcp"     # Alternative
 require "simple_cov/mcp"    # Legacy shim (supported)
 ```

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'simple_cov_mcp/tools/help_tool'
+require 'simplecov_mcp/tools/help_tool'
 
 RSpec.describe SimpleCovMcp::Tools::HelpTool do
   let(:server_context) { instance_double('ServerContext').as_null_object }

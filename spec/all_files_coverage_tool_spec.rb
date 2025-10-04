@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'simple_cov_mcp/tools/all_files_coverage_tool'
+require 'simplecov_mcp/tools/all_files_coverage_tool'
 
 RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }

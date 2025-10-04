@@ -4,10 +4,10 @@ require 'spec_helper'
 require_relative 'shared_examples/file_based_mcp_tools'
 
 # Load all the tool classes that will be tested
-require 'simple_cov_mcp/tools/coverage_summary_tool'
-require 'simple_cov_mcp/tools/coverage_raw_tool'
-require 'simple_cov_mcp/tools/uncovered_lines_tool'
-require 'simple_cov_mcp/tools/coverage_detailed_tool'
+require 'simplecov_mcp/tools/coverage_summary_tool'
+require 'simplecov_mcp/tools/coverage_raw_tool'
+require 'simplecov_mcp/tools/uncovered_lines_tool'
+require 'simplecov_mcp/tools/coverage_detailed_tool'
 
 RSpec.describe 'File-based MCP Tools' do
   # Test each file-based tool using the shared example with its specific configuration

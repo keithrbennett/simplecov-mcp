@@ -18,6 +18,6 @@ rescue StandardError
   # If anything goes wrong, let the app load and potentially fail with a more specific error.
 end
 
-require 'simple_cov_mcp'
+require 'simplecov_mcp'
 
 SimpleCovMcp.run(ARGV)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lib/simple_cov_mcp/version'
+require_relative 'lib/simplecov_mcp/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'simplecov-mcp'

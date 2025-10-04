@@ -4,7 +4,7 @@
 # Example: Using simplecov-mcp as a library to filter and format coverage tables
 # This demonstrates filtering files by directory and other criteria, then generating tables
 
-require_relative '../lib/simple_cov_mcp'
+require_relative '../lib/simplecov_mcp'
 
 def check_coverage_data
   unless File.exist?('spec/fixtures/project1/coverage/.resultset.json')

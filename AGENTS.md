@@ -14,8 +14,8 @@
 - Stop immediately and ask the user if the repo contains unexpected changes you did not make.
 
 ## Repository Snapshot
-- Ruby gem exposing a SimpleCov coverage CLI (`exe/simplecov-mcp`) and MCP server; library lives under `lib/simple_cov_mcp/`.
-- Key files: `lib/simple_cov_mcp/cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simple_cov_mcp/tools/*.rb`; shims in `lib/simplecov_mcp.rb` and `lib/simple_cov/mcp.rb`.
+- Ruby gem exposing a SimpleCov coverage CLI (`exe/simplecov-mcp`) and MCP server; library lives under `lib/simplecov_mcp/`.
+- Key files: `lib/simplecov_mcp/cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simplecov_mcp/tools/*.rb`; shims in `lib/simplecov_mcp.rb` and `lib/simple_cov/mcp.rb`.
 - Tests: RSpec under `spec/` with fixtures in `spec/fixtures/`; running tests produces `coverage/.resultset.json` consumed by the tools.
 - Useful commands:
   - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)
@@ -34,7 +34,7 @@
 ## MCP Tool Playbook
 - Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool` (optionally with a `query`).
 - Go-to mappings:
-  - File summary → `coverage_summary_tool` (`{ "path": "lib/simple_cov_mcp/model.rb" }`)
+  - File summary → `coverage_summary_tool` (`{ "path": "lib/simplecov_mcp/model.rb" }`)
   - Per-line detail → `coverage_detailed_tool`
   - Uncovered lines → `uncovered_lines_tool`
   - Raw SimpleCov array → `coverage_raw_tool`
@@ -45,7 +45,7 @@
 
 ## Response Expectations
 - Be concise and collaborative. Lead with the change/insight; follow with necessary detail.
-- Reference files with inline clickable paths (e.g., `lib/simple_cov_mcp/model.rb:42`). Avoid ranges and external URIs.
+- Reference files with inline clickable paths (e.g., `lib/simplecov_mcp/model.rb:42`). Avoid ranges and external URIs.
 - Summaries use plain bullets (`-`). Offer next steps only when they flow naturally (tests, commits, builds, validation).
 - Do not dump entire files; mention paths. Keep tone factual, note open questions, and highlight testing gaps.
 

@@ -71,12 +71,12 @@ You can query it manually using JSON-RPC over stdio, for example:
 
 ```
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}
 ```
 
 ## Prompt Examples for MCP Clients
 
-- **“What’s the coverage percentage for `lib/simple_cov_mcp/model.rb`?”** → call `coverage_summary_tool` with the file path.
+- **“What’s the coverage percentage for `lib/simplecov_mcp/model.rb`?”** → call `coverage_summary_tool` with the file path.
 - **“Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?”** → call `uncovered_lines_tool`.
 - **“Show the repo coverage table sorted worst-first.”** → call `all_files_coverage_tool` (default `sort_order` already surfaces lowest percentages first).
 - **“I’m not sure which tool applies.”** → call `help_tool` (optionally pass `{ "query": "table" }`, `{ "query": "summary" }`, etc.).

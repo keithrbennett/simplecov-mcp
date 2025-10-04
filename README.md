@@ -41,20 +41,20 @@ simplecov-mcp
 
 **CLI - Check Specific File:**
 ```sh
-simplecov-mcp summary lib/simple_cov_mcp/model.rb
-simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb
+simplecov-mcp summary lib/simplecov_mcp/model.rb
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 ```
 
 **Ruby Library:**
 ```ruby
-require "simple_cov_mcp"
+require "simplecov_mcp"
 
 model = SimpleCovMcp::CoverageModel.new
 files = model.all_files
-# => [{ "file" => "lib/simple_cov_mcp/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
+# => [{ "file" => "lib/simplecov_mcp/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
 
-summary = model.summary_for("lib/simple_cov_mcp/model.rb")
-# => { "file" => "lib/simple_cov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 } }
+summary = model.summary_for("lib/simplecov_mcp/model.rb")
+# => { "file" => "lib/simplecov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 } }
 ```
 
 **MCP Server:**
@@ -88,9 +88,9 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 
 **Ruby summary:**
 ```ruby
-require "simple_cov_mcp"
+require "simplecov_mcp"
 model = SimpleCovMcp::CoverageModel.new
-puts model.summary_for("lib/simple_cov_mcp/model.rb")
+puts model.summary_for("lib/simplecov_mcp/model.rb")
 ```
 
 More in [CLI Usage](docs/CLI_USAGE.md) and [Library API](docs/LIBRARY_API.md).
@@ -136,7 +136,7 @@ Command-line arguments override environment options.
 simplecov-mcp list | head -10
 
 # Specific directory
-simplecov-mcp list --tracked-globs "lib/simple_cov_mcp/tools/**/*.rb"
+simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
 
 # Export for analysis
 simplecov-mcp list --json > coverage-report.json
@@ -156,16 +156,16 @@ simplecov-mcp list --json > artifacts/coverage.json
 
 ```sh
 # Quick summary
-simplecov-mcp summary lib/simple_cov_mcp/model.rb
+simplecov-mcp summary lib/simplecov_mcp/model.rb
 
 # See uncovered lines
-simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 
 # View in context
-simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb --source=uncovered --source-context 3
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 3
 
 # Detailed hit counts
-simplecov-mcp detailed lib/simple_cov_mcp/util.rb
+simplecov-mcp detailed lib/simplecov_mcp/util.rb
 ```
 
 ## CLI Subcommands

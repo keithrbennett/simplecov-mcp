@@ -5,7 +5,7 @@ Use this gem programmatically to inspect coverage without running the CLI or MCP
 ## Basics
 
 ```ruby
-require "simple_cov_mcp"
+require "simplecov_mcp"
 
 # Defaults (omit args; shown here with comments):
 # - root: "."

@@ -89,7 +89,7 @@ You should see a JSON-RPC response with version information.
 ```sh
 # Instead of MCP tools, use CLI
 simplecov-mcp list
-simplecov-mcp summary lib/simple_cov_mcp/cli.rb
+simplecov-mcp summary lib/simplecov_mcp/cli.rb
 ```
 
 **Configuration (for when bug is fixed):**
@@ -230,7 +230,7 @@ Get covered/total/percentage for a specific file.
 **Input:**
 ```json
 {
-  "path": "lib/simple_cov_mcp/model.rb",
+  "path": "lib/simplecov_mcp/model.rb",
   "root": ".",
   "resultset": "coverage"
 }
@@ -239,7 +239,7 @@ Get covered/total/percentage for a specific file.
 **Output:**
 ```json
 {
-  "file": "lib/simple_cov_mcp/model.rb",
+  "file": "lib/simplecov_mcp/model.rb",
   "summary": {
     "covered": 12,
     "total": 14,
@@ -249,8 +249,8 @@ Get covered/total/percentage for a specific file.
 ```
 
 **Example prompts:**
-- "What's the coverage for lib/simple_cov_mcp/tools/coverage_summary_tool.rb?"
-- "Check coverage for lib/simple_cov_mcp/tools/coverage_summary_tool.rb"
+- "What's the coverage for lib/simplecov_mcp/tools/coverage_summary_tool.rb?"
+- "Check coverage for lib/simplecov_mcp/tools/coverage_summary_tool.rb"
 
 #### `uncovered_lines_tool`
 
@@ -259,14 +259,14 @@ List line numbers that lack coverage.
 **Input:**
 ```json
 {
-  "path": "lib/simple_cov_mcp/model.rb"
+  "path": "lib/simplecov_mcp/model.rb"
 }
 ```
 
 **Output:**
 ```json
 {
-  "file": "lib/simple_cov_mcp/model.rb",
+  "file": "lib/simplecov_mcp/model.rb",
   "uncovered": [5, 9, 12, 18],
   "summary": {
     "covered": 10,
@@ -277,8 +277,8 @@ List line numbers that lack coverage.
 ```
 
 **Example prompts:**
-- "Show uncovered lines in lib/simple_cov_mcp/tools/coverage_summary_tool.rb"
-- "Which lines need coverage in lib/simple_cov_mcp/tools/uncovered_lines_tool.rb?"
+- "Show uncovered lines in lib/simplecov_mcp/tools/coverage_summary_tool.rb"
+- "Which lines need coverage in lib/simplecov_mcp/tools/uncovered_lines_tool.rb?"
 
 #### `coverage_detailed_tool`
 
@@ -287,14 +287,14 @@ Get per-line coverage with hit counts.
 **Input:**
 ```json
 {
-  "path": "lib/simple_cov_mcp/model.rb"
+  "path": "lib/simplecov_mcp/model.rb"
 }
 ```
 
 **Output:**
 ```json
 {
-  "file": "lib/simple_cov_mcp/model.rb",
+  "file": "lib/simplecov_mcp/model.rb",
   "lines": [
     { "line": 1, "hits": 1, "covered": true },
     { "line": 2, "hits": 0, "covered": false },
@@ -309,8 +309,8 @@ Get per-line coverage with hit counts.
 ```
 
 **Example prompts:**
-- "Show detailed coverage for lib/simple_cov_mcp/model.rb"
-- "How many times was each line executed in lib/simple_cov_mcp/staleness_checker.rb?"
+- "Show detailed coverage for lib/simplecov_mcp/model.rb"
+- "How many times was each line executed in lib/simplecov_mcp/staleness_checker.rb?"
 
 #### `coverage_raw_tool`
 
@@ -319,20 +319,20 @@ Get the raw SimpleCov lines array.
 **Input:**
 ```json
 {
-  "path": "lib/simple_cov_mcp/model.rb"
+  "path": "lib/simplecov_mcp/model.rb"
 }
 ```
 
 **Output:**
 ```json
 {
-  "file": "lib/simple_cov_mcp/model.rb",
+  "file": "lib/simplecov_mcp/model.rb",
   "lines": [1, 0, null, 5, 2, null, 1]
 }
 ```
 
 **Example prompts:**
-- "Get raw coverage data for lib/simple_cov_mcp/model.rb"
+- "Get raw coverage data for lib/simplecov_mcp/model.rb"
 
 #### `all_files_coverage_tool`
 
@@ -343,7 +343,7 @@ Get coverage for all files in the project.
 {
   "root": ".",
   "sort_order": "ascending",
-  "tracked_globs": ["lib/simple_cov_mcp/**/*.rb"]
+  "tracked_globs": ["lib/simplecov_mcp/**/*.rb"]
 }
 ```
 
@@ -352,14 +352,14 @@ Get coverage for all files in the project.
 {
   "files": [
     {
-      "file": "lib/simple_cov_mcp/util.rb",
+      "file": "lib/simplecov_mcp/util.rb",
       "covered": 8,
       "total": 10,
       "percentage": 80.0,
       "stale": false
     },
     {
-      "file": "lib/simple_cov_mcp/errors.rb",
+      "file": "lib/simplecov_mcp/errors.rb",
       "covered": 12,
       "total": 12,
       "percentage": 100.0,
@@ -395,8 +395,8 @@ Get a formatted text table of coverage.
 ┌───────────────────┬────────┬──────────┬────────┬───────┐
 │ File              │      % │  Covered │  Total │ Stale │
 ├───────────────────┼────────┼──────────┼────────┼───────┤
-│ lib/simple_cov_mcp/util.rb        │  80.00 │        8 │     10 │       │
-│ lib/simple_cov_mcp/errors.rb        │ 100.00 │       12 │     12 │       │
+│ lib/simplecov_mcp/util.rb        │  80.00 │        8 │     10 │       │
+│ lib/simplecov_mcp/errors.rb        │ 100.00 │       12 │     12 │       │
 └───────────────────┴────────┴──────────┴────────┴───────┘
 ```
 
@@ -423,7 +423,7 @@ Discover available tools and get usage guidance.
       "name": "uncovered_lines_tool",
       "use_when": "When you need to know which lines...",
       "inputs": ["path", "root", "resultset"],
-      "examples": ["Show uncovered lines for lib/simple_cov_mcp/util.rb"]
+      "examples": ["Show uncovered lines for lib/simplecov_mcp/util.rb"]
     }
   ]
 }
@@ -460,27 +460,27 @@ Using simplecov-mcp, find files with less than 80% coverage and tell me which on
 ```
 
 ```
-Using simplecov-mcp, analyze the coverage for lib/simple_cov_mcp/tools/ and suggest improvements.
+Using simplecov-mcp, analyze the coverage for lib/simplecov_mcp/tools/ and suggest improvements.
 ```
 
 ### Finding Coverage Gaps
 
 ```
-Using simplecov-mcp, show me the uncovered lines in lib/simple_cov_mcp/base_tool.rb and explain what they do.
+Using simplecov-mcp, show me the uncovered lines in lib/simplecov_mcp/base_tool.rb and explain what they do.
 ```
 
 ```
-Using simplecov-mcp, find the most important uncovered code in lib/simple_cov_mcp/tools/coverage_detailed_tool.rb.
+Using simplecov-mcp, find the most important uncovered code in lib/simplecov_mcp/tools/coverage_detailed_tool.rb.
 ```
 
 ### Test Generation
 
 ```
-Using simplecov-mcp, find uncovered lines in lib/simple_cov_mcp/staleness_checker.rb and write RSpec tests for them.
+Using simplecov-mcp, find uncovered lines in lib/simplecov_mcp/staleness_checker.rb and write RSpec tests for them.
 ```
 
 ```
-Using simplecov-mcp, analyze coverage gaps in lib/simple_cov_mcp/tools/ and generate test cases.
+Using simplecov-mcp, analyze coverage gaps in lib/simplecov_mcp/tools/ and generate test cases.
 ```
 
 ### Coverage Reporting
@@ -503,7 +503,7 @@ Test the MCP server responds to JSON-RPC:
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
 
 # Test summary tool
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}' | simplecov-mcp
 
 # Test help tool
 echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | simplecov-mcp
@@ -690,7 +690,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 
 4. **Try explicit tool name:**
    ```
-   Using the coverage_summary_tool, check lib/simple_cov_mcp/cli.rb
+   Using the coverage_summary_tool, check lib/simplecov_mcp/cli.rb
    ```
 
 ### Ruby Version Mismatch

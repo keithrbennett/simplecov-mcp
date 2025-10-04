@@ -57,7 +57,7 @@ This code base requires a Ruby version >= 3.2.0, because this is required by the
 
 ```bash
 # Test the MCP server manually
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp/model.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}' | simplecov-mcp
 ```
 
 **What AI agents can do:**
@@ -81,12 +81,12 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 | Tool                    | Purpose                    | Example Command                                     |
 |-------------------------|----------------------------|-----------------------------------------------------|
 | all_files_coverage_tool | Project-wide coverage data | simplecov-mcp all-files                             |
-| coverage_detailed_tool  | Per-line hit counts        | simplecov-mcp detailed lib/simple_cov_mcp/model.rb  |
-| coverage_raw_tool       | Raw SimpleCov lines array  | simplecov-mcp raw lib/simple_cov_mcp/model.rb       |
-| coverage_summary_tool   | Get coverage % for a file  | simplecov-mcp summary lib/simple_cov_mcp/model.rb   |
+| coverage_detailed_tool  | Per-line hit counts        | simplecov-mcp detailed lib/simplecov_mcp/model.rb  |
+| coverage_raw_tool       | Raw SimpleCov lines array  | simplecov-mcp raw lib/simplecov_mcp/model.rb       |
+| coverage_summary_tool   | Get coverage % for a file  | simplecov-mcp summary lib/simplecov_mcp/model.rb   |
 | coverage_table_tool     | Formatted coverage table   | simplecov-mcp table                                 |
 | help_tool               | Tool usage guidance        | simplecov-mcp help                                  |
-| uncovered_lines_tool    | Find missing test coverage | simplecov-mcp uncovered lib/simple_cov_mcp/model.rb |
+| uncovered_lines_tool    | Find missing test coverage | simplecov-mcp uncovered lib/simplecov_mcp/model.rb |
 | version_tool            | Display version info       | simplecov-mcp version                               |
 
 ---
@@ -99,10 +99,10 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 simplecov-mcp
 
 # Focus on a specific file
-simplecov-mcp summary lib/simple_cov_mcp/cli.rb
+simplecov-mcp summary lib/simplecov_mcp/cli.rb
 
 # Find untested lines with source context
-simplecov-mcp uncovered lib/simple_cov_mcp/cli.rb --source=uncovered --source-context 3
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 3
 
 # JSON for scripts
 simplecov-mcp --json | jq '.files[] | select(.percentage < 80)'
@@ -132,7 +132,7 @@ simplecov-mcp --tracked-globs "lib/**/tools/*.rb"
 ### Programmatic Integration
 
 ```ruby
-require 'simple_cov_mcp'
+require 'simplecov_mcp'
 
 model = SimpleCovMcp::CoverageModel.new
 
@@ -214,8 +214,8 @@ class BaseTool < ::MCP::Tool
 end
 ```
 
-* [BaseTool source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simple_cov_mcp/base_tool.rb)
-* [BaseTool subclass source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simple_cov_mcp/tools/coverage_detailed_tool.rb)
+* [BaseTool source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simplecov_mcp/base_tool.rb)
+* [BaseTool subclass source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simplecov_mcp/tools/coverage_detailed_tool.rb)
 
 The MCP tools available to the model subclass BaseTool and implement their respective tasks.
 

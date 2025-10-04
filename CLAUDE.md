@@ -16,10 +16,10 @@ The main entry point (`SimpleCovMcp.run`) automatically detects whether to run a
 - **MCP server mode**: When piped input (JSON-RPC from MCP clients)
 
 ### Core Components
-- **`CoverageModel`** (`lib/simple_cov_mcp/model.rb`): Core API for querying coverage data
-- **`CoverageCLI`** (`lib/simple_cov_mcp/cli.rb`): CLI interface with subcommands
-- **`MCPServer`** (`lib/simple_cov_mcp/mcp_server.rb`): MCP protocol server
-- **Tools** (`lib/simple_cov_mcp/tools/`): Individual MCP tools for different coverage queries
+- **`CoverageModel`** (`lib/simplecov_mcp/model.rb`): Core API for querying coverage data
+- **`CoverageCLI`** (`lib/simplecov_mcp/cli.rb`): CLI interface with subcommands
+- **`MCPServer`** (`lib/simplecov_mcp/mcp_server.rb`): MCP protocol server
+- **Tools** (`lib/simplecov_mcp/tools/`): Individual MCP tools for different coverage queries
 - **Error Handling**: Context-aware error handling for CLI vs library vs MCP server usage
 
 ### Coverage Data Flow
@@ -93,7 +93,7 @@ Searches for `.resultset.json` in this order:
 
 ### Prompt & Response Examples
 - JSON responses are returned as `type: "resource"` with `resource.mimeType: "application/json"` and JSON in `resource.text`. Text-only outputs (table, version) remain `type: "text"`.
-- **Prompt:** “What’s the coverage for `lib/simple_cov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simple_cov_mcp/model.rb" }` and parse JSON from `content[0].resource.text`.
+- **Prompt:** “What’s the coverage for `lib/simplecov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simplecov_mcp/model.rb" }` and parse JSON from `content[0].resource.text`.
 - **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
 - **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
 - **Uncertain?** Call `help_tool` (optionally with `{ "query": "uncovered" }`) before proceeding.
@@ -107,7 +107,7 @@ Searches for `.resultset.json` in this order:
 
 ## Important Conventions
 
-- Use `simple_cov_mcp` as the require path (not `simplecov_mcp` or `simple_cov/mcp`)
+- Use `simplecov_mcp` as the require path (matches the gem name SimpleCov)
 - All paths in the API should work with both absolute and relative forms
 - The executable is `simplecov-mcp` (with hyphen)
 - Error messages should be user-friendly in CLI mode, structured in MCP mode

@@ -18,7 +18,7 @@ You can use `simplecov-mcp` in your CI/CD pipeline to enforce coverage standards
 
 ```ruby
 # scripts/ci_check_coverage.rb
-require "simple_cov_mcp"
+require "simplecov_mcp"
 
 model = SimpleCovMcp::CoverageModel.new(root: Dir.pwd)
 all_files_data = model.all_files
@@ -42,7 +42,7 @@ end
 
 ```ruby
 # scripts/ci_check_threshold.rb
-require "simple_cov_mcp"
+require "simplecov_mcp"
 
 THRESHOLD = 90.0
 
@@ -74,12 +74,12 @@ Using simplecov-mcp, show me a table of all files and their coverages.
 ```
 
 ```
-Using simplecov-mcp, what is the coverage summary for the file `lib/simple_cov_mcp/cli.rb`?
+Using simplecov-mcp, what is the coverage summary for the file `lib/simplecov_mcp/cli.rb`?
 ```
 
 **Finding Gaps:**
 ```
-Using simplecov-mcp, find the uncovered code lines in `lib/simple_cov_mcp/model.rb` and show them to me with 3 lines of context.
+Using simplecov-mcp, find the uncovered code lines in `lib/simplecov_mcp/model.rb` and show them to me with 3 lines of context.
 ```
 
 **Analysis and Reporting:**

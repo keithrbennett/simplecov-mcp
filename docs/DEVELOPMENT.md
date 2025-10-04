@@ -67,7 +67,7 @@ before { setup_mcp_response_stub }
 
 **CLI commands:** Add to `SUBCOMMANDS` in `cli.rb`, implement handler, add tests
 
-**MCP tools:** Create `*_tool.rb` in `lib/simple_cov_mcp/tools/`, register in `mcp_server.rb`
+**MCP tools:** Create `*_tool.rb` in `lib/simplecov_mcp/tools/`, register in `mcp_server.rb`
 
 **Coverage features:** Add to `CoverageModel` in `model.rb` or `CovUtil` in `util.rb`
 
