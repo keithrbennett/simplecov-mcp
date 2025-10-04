@@ -534,14 +534,14 @@ If these work, your setup is correct!
 
 ### Checking Logs
 
-The MCP server logs to `~/simplecov_mcp.log` by default.
+The MCP server logs to `simplecov_mcp.log` in the current directory by default.
 
 ```sh
 # Watch logs in real-time
-tail -f ~/simplecov_mcp.log
+tail -f simplecov_mcp.log
 
 # View recent errors
-grep ERROR ~/simplecov_mcp.log | tail -20
+grep ERROR simplecov_mcp.log | tail -20
 ```
 
 You can configure a different log location:
@@ -685,7 +685,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 
 3. **Check logs:**
    ```sh
-   tail -f ~/simplecov_mcp.log
+   tail -f simplecov_mcp.log
    ```
 
 4. **Try explicit tool name:**

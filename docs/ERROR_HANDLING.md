@@ -36,7 +36,7 @@ Available exception classes:
 
 When running as an MCP server, errors are handled internally and returned as structured responses to the MCP client. The MCP server uses:
 
-- **Logging enabled** - Errors are logged to `~/simplecov_mcp.log` for server debugging
+- **Logging enabled** - Errors are logged to `simplecov_mcp.log` in the current directory for server debugging
 - **Clean error messages** - User-friendly messages are returned to the client (no stack traces unless)
 - **Structured responses** - Errors are returned as proper MCP tool responses, not exceptions
 
