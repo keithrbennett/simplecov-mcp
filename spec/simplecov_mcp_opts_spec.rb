@@ -97,6 +97,59 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       opts = SimpleCovMcp.send(:parse_env_opts_for_mode_detection)
       expect(opts).to eq([])
     end
+
+    it 'actually runs CLI when --force-cli is in SIMPLECOV_MCP_OPTS' do
+      ENV['SIMPLECOV_MCP_OPTS'] = '--force-cli'
+
+      # Mock STDIN to not be a TTY (would normally trigger MCP server mode)
+      allow(STDIN).to receive(:tty?).and_return(false)
+
+      # Stub exit to prevent process termination
+      allow_any_instance_of(Object).to receive(:exit)
+
+      # Run with --help which should produce help output
+      output = nil
+      silence_output do |out, err|
+        SimpleCovMcp.run(['--help'])
+        output = out.string + err.string
+      end
+
+      # Verify CLI actually ran by checking for help text
+      expect(output).to include('Usage:')
+      expect(output).to include('simplecov-mcp')
+    end
+
+    it 'actually runs MCP server mode when no CLI indicators present' do
+      ENV['SIMPLECOV_MCP_OPTS'] = ''
+
+      # Mock STDIN to not be a TTY and to provide valid JSON-RPC
+      allow(STDIN).to receive(:tty?).and_return(false)
+
+      # Provide a minimal JSON-RPC request that the server can handle
+      json_request = JSON.generate({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+          protocolVersion: "2024-11-05",
+          capabilities: {},
+          clientInfo: { name: "test", version: "1.0" }
+        }
+      })
+
+      allow(STDIN).to receive(:gets).and_return(json_request, nil)
+
+      # Capture output to verify MCP server response
+      output = nil
+      silence_output do |out, err|
+        SimpleCovMcp.run([])
+        output = out.string + err.string
+      end
+
+      # Verify MCP server ran by checking for JSON-RPC response
+      expect(output).to include('"jsonrpc"')
+      expect(output).to include('"result"')
+    end
   end
 
   describe 'integration with actual CLI usage' do
