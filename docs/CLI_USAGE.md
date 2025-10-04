@@ -246,18 +246,9 @@ These options work with all subcommands.
 
 ### `-r, --resultset PATH`
 
-Path to `.resultset.json` file or directory containing it.
+Path to the `.resultset.json` file or a directory containing it.
 
-```sh
-simplecov-mcp --resultset coverage/.resultset.json
-simplecov-mcp --resultset coverage  # Looks for .resultset.json inside
-simplecov-mcp --resultset /absolute/path/to/.resultset.json
-```
-
-**Default search order:**
-1. `.resultset.json` (project root)
-2. `coverage/.resultset.json`
-3. `tmp/.resultset.json`
+For a detailed explanation of how to configure the resultset location, including the default search path, environment variables, and MCP configuration, see the [Configuring the Resultset](../README.md#configuring-the-resultset) section in the main README.
 
 ### `-R, --root PATH`
 
@@ -558,18 +549,7 @@ simplecov-mcp list --sort-order descending
 simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
 ```
 
-### Custom Resultset Location
 
-```sh
-# Different resultset path
-simplecov-mcp --resultset build/coverage
-
-# Directory containing .resultset.json
-simplecov-mcp --resultset build/coverage
-
-# Absolute path
-simplecov-mcp --resultset /tmp/coverage/.resultset.json
-```
 
 ### Staleness Checking
 

@@ -217,7 +217,7 @@ All file-specific tools accept these parameters:
 
 - `path` (required for file tools) - File path (relative or absolute)
 - `root` (optional) - Project root directory (default: `.`)
-- `resultset` (optional) - Path to `.resultset.json` or directory containing it
+- `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
 - `stale` (optional) - Staleness mode: `"off"` (default) or `"error"`
 - `error_mode` (optional) - Error handling: `"off"`, `"on"` (default), `"on_with_trace"`
 
@@ -632,43 +632,7 @@ echo '{
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
 ```
 
-### Coverage Data Not Found
 
-**Symptom:** "Could not find .resultset.json" error
-
-**Solutions:**
-
-1. **Generate coverage:**
-   ```sh
-   bundle exec rspec
-   ls coverage/.resultset.json
-   ```
-
-2. **Specify resultset location in MCP config:**
-   ```json
-   {
-     "mcpServers": {
-       "simplecov-mcp": {
-         "command": "/path/to/simplecov-mcp",
-         "env": {
-           "SIMPLECOV_MCP_OPTS": "--resultset coverage/.resultset.json"
-         }
-       }
-     }
-   }
-   ```
-
-3. **Or use command-line args:**
-   ```json
-   {
-     "mcpServers": {
-       "simplecov-mcp": {
-         "command": "/path/to/simplecov-mcp",
-         "args": ["--resultset", "coverage"]
-       }
-     }
-   }
-   ```
 
 ### Tools Not Appearing in AI Assistant
 
@@ -712,22 +676,7 @@ rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
 
 ## Advanced Configuration
 
-### Custom Resultset Location
 
-If your coverage is in a non-standard location:
-
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "/path/to/simplecov-mcp",
-      "env": {
-        "SIMPLECOV_MCP_OPTS": "--resultset build/coverage/.resultset.json"
-      }
-    }
-  }
-}
-```
 
 ### Enable Debug Logging
 

@@ -259,25 +259,8 @@ coverage_a = model_a.all_files
 coverage_b = model_b.all_files
 ```
 
-### Custom Resultset Discovery
 
-Override the default search paths:
 
-```sh
-# Environment variable
-export SIMPLECOV_MCP_OPTS="--resultset build/artifacts/coverage"
-
-# CLI flag (overrides environment)
-simplecov-mcp --resultset /custom/path/.resultset.json
-
-# Directory form (auto-appends .resultset.json)
-simplecov-mcp --resultset ./custom-coverage-dir
-```
-
-**Search Order (when not specified):**
-1. `.resultset.json` (project root)
-2. `coverage/.resultset.json`
-3. `tmp/.resultset.json`
 
 ---
 

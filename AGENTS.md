@@ -50,6 +50,6 @@
 - Do not dump entire files; mention paths. Keep tone factual, note open questions, and highlight testing gaps.
 
 ## Troubleshooting Notes
-- Coverage lookup order: explicit `--resultset`, then `.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json`.
+- Coverage lookup order: The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
 - `SIMPLECOV_MCP_OPTS` can set default CLI flags (command-line arguments still win).
 - CLI vs MCP mode auto-detects based on TTY; use `--force-cli` if you need to bypass MCP auto start during manual runs.

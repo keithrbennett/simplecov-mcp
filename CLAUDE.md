@@ -74,11 +74,8 @@ Uses a multi-strategy approach for finding files in coverage data:
 3. Basename (filename) matching as fallback
 
 ### Resultset Discovery
-Searches for `.resultset.json` in this order:
-1. Explicit `--resultset` path
-2. `.resultset.json` in project root
-3. `coverage/.resultset.json`
-4. `tmp/.resultset.json`
+
+The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
 
 ## MCP Tools Available
 

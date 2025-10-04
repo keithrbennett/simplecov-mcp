@@ -10,7 +10,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 ## Coverage Data Pipeline
 
-1. **Resultset discovery** – `CovUtil.find_resultset` searches candidates (`.resultset.json`, `coverage/.resultset.json`, `tmp/.resultset.json`) or a caller-specified path. It resolves directories to `.resultset.json` and raises descriptive errors when the file is missing.
+1. **Resultset discovery** – The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](../README.md#configuring-the-resultset) section in the main README.
 2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, selects the first suite that exposes `coverage`, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
 3. **Path relativizing** – `PathRelativizer` produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
 4. **Derived metrics** – `CovUtil.summary`, `CovUtil.uncovered`, and `CovUtil.detailed` compute coverage stats from the raw `lines` arrays. `CoverageModel` exposes `summary_for`, `uncovered_for`, `detailed_for`, and `raw_for` helpers that wrap these utilities.
@@ -52,7 +52,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ## Configuration Surface
 
 - **Environment defaults** – `SIMPLECOV_MCP_OPTS` applies baseline CLI flags before parsing the actual command line.
-- **Resultset overrides** – Both CLI and MCP accept custom `--resultset` paths or directories; tools also expose `root` to relocate relative paths.
+- **Resultset overrides** – The location of the `.resultset.json` file can be specified via CLI options or in the MCP configuration. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
 - **Tracked globs** – For project staleness checks, `tracked_globs` ensures new files raise alerts when absent from coverage.
 - **Colorized source** – CLI-only flags (`--source`, `--source-context`, `--color`) enhance human-readable reports when working locally.
 
