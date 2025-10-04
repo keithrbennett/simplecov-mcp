@@ -165,7 +165,10 @@ For more details on MCP configuration, see the [MCP Integration Guide](docs/MCP_
 
 ```sh
 # Files with worst coverage
-simplecov-mcp list | head -10
+simplecov-mcp list --sort-order d # display table in descending order, worst will be at end of output
+simplecov-mcp list -o d           # same as above, short form option
+simplecov-mcp list | less         # display table in pager, worst files first
+simplecov-mcp list | head -10     # truncate the table
 
 # Specific directory
 simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
