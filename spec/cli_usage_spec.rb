@@ -11,12 +11,11 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(err).to include('Usage: simplecov-mcp summary <path>')
   end
 
-  it 'treats unknown subcommand as no subcommand and prints default table' do
+  it 'errors with meaningful message for unknown subcommand' do
     out, err, status = run_cli_with_status('bogus', '--root', root, '--resultset', 'coverage')
-    expect(status).to eq(0)
-    expect(err).to eq("")
-    expect(out).to include('File')
-    expect(out).to include('lib/foo.rb')
+    expect(status).to eq(1)
+    expect(err).to include("Unknown subcommand: 'bogus'")
+    expect(err).to include('Valid subcommands:')
   end
 
   it 'list honors stale=error and tracked_globs by exiting 1 when project is stale' do

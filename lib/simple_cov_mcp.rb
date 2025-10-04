@@ -50,18 +50,18 @@ module SimpleCovMcp
     #
     # Usage:
     #   # Basic usage - raises custom exceptions on errors
-    #   SimpleCov::Mcp.run_as_library(['summary', 'lib/foo.rb'])
+    #   SimpleCovMcp.run_as_library(['summary', 'lib/foo.rb'])R
     #
     #   # With custom error handler (e.g., disable logging)
-    #   handler = SimpleCov::Mcp::ErrorHandler.new(log_errors: false)
-    #   SimpleCov::Mcp.run_as_library(['summary', 'lib/foo.rb'], error_handler: handler)
+    #   handler = SimpleCovMcp::ErrorHandler.new(log_errors: false)
+    #   SimpleCovMcp.run_as_library(['summary', 'lib/foo.rb'], error_handler: handler)
     #
     #   # Exception handling
     #   begin
-    #     SimpleCov::Mcp.run_as_library(['summary', 'missing.rb'])
-    #   rescue SimpleCov::Mcp::FileError => e
+    #     SimpleCovMcp.run_as_library(['summary', 'missing.rb'])
+    #   rescue SimpleCovMcp::FileError => e
     #     puts "File not found: #{e.user_friendly_message}"
-    #   rescue SimpleCov::Mcp::CoverageDataError => e
+    #   rescue SimpleCovMcp::CoverageDataError => e
     #     puts "Coverage issue: #{e.user_friendly_message}"
     #   end
     def self.run_as_library(argv, error_handler: nil)
@@ -115,6 +115,10 @@ module SimpleCovMcp
 
       # If a subcommand is provided, run CLI
       return true if CoverageCLI::SUBCOMMANDS.include?(argv[0])
+
+      # If first arg looks like a subcommand attempt (doesn't start with -), run CLI
+      # This allows CLI to show a proper error for invalid subcommands
+      return true if !argv.empty? && !argv[0].start_with?('-')
 
       # If interactive TTY, prefer CLI; else (e.g., pipes), run MCP server
       STDIN.tty?

@@ -28,6 +28,8 @@ module SimpleCovMcp
     def run(argv)
       # Prepend environment options to command line arguments
       full_argv = parse_env_opts + argv
+      # Pre-scan for error-mode to ensure early errors are logged with correct verbosity
+      pre_scan_error_mode(full_argv)
       parse_options!(full_argv)
 
       # Create error handler AFTER parsing options to respect user's --error-mode choice
@@ -79,8 +81,19 @@ module SimpleCovMcp
     end
 
     def extract_subcommand!(argv)
-      if !argv.empty? && SUBCOMMANDS.include?(argv[0])
+      return if argv.empty?
+
+      first_arg = argv[0]
+
+      # If it's a flag/option, no subcommand
+      return if first_arg.start_with?('-')
+
+      # If it's a valid subcommand, extract it
+      if SUBCOMMANDS.include?(first_arg)
         @cmd = argv.shift
+      else
+        # It's not a flag and not a valid subcommand - likely a typo
+        raise UsageError.new("Unknown subcommand: '#{first_arg}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
       end
     end
 
@@ -98,6 +111,22 @@ module SimpleCovMcp
       rescue ArgumentError => e
         raise SimpleCovMcp::ConfigurationError, "Invalid SIMPLECOV_MCP_OPTS format: #{e.message}"
       end
+    end
+
+    def pre_scan_error_mode(argv)
+      # Quick scan for --error-mode to ensure early errors are logged correctly
+      argv.each_with_index do |arg, i|
+        if arg == '--error-mode' && argv[i + 1]
+          @error_mode = normalize_error_mode(argv[i + 1])
+          break
+        elsif arg.start_with?('--error-mode=')
+          value = arg.split('=', 2)[1]
+          @error_mode = normalize_error_mode(value) if value
+          break
+        end
+      end
+    rescue StandardError
+      # Ignore errors during pre-scan; they'll be caught during actual parsing
     end
 
     def build_option_parser
@@ -498,6 +527,11 @@ module SimpleCovMcp
     end
 
     def handle_user_facing_error(error)
+      # Ensure error handler exists (may not be initialized if error occurs during option parsing)
+      ensure_error_handler
+      # Log the error if error_mode allows it
+      @error_handler.handle_error(error, context: 'CLI', reraise: false)
+      # Show user-friendly message
       warn error.user_friendly_message
       exit 1
     end
