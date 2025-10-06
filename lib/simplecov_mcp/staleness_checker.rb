@@ -144,7 +144,7 @@ module SimpleCovMcp
 
       src_len = exists ? safe_count_lines(file_abs) : 0
 
-      newer = (file_mtime && file_mtime.to_i > coverage_ts.to_i)
+      newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
 
       adjusted_src_len = src_len
       if exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)

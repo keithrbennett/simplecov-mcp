@@ -12,80 +12,77 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     File.open(path, 'w') { |f| lines.each { |l| f.puts(l) } }
   end
 
+  shared_examples 'a staleness check' do |description:, file_lines:, coverage_lines:, timestamp:, expected_details:, expected_stale_char:, expected_error:|
+    it description do
+      file = File.join(tmpdir, 'lib', 'test.rb')
+      write_file(file, file_lines) if file_lines
+
+      ts = if timestamp == :past
+             now = Time.now
+             past = Time.at(now.to_i - 3600)
+             File.utime(past, past, file)
+             now
+           else
+             timestamp
+           end
+
+      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
+
+      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
+
+      expected_details.each do |key, value|
+        if value == :any
+          expect(details).to have_key(key)
+        else
+          expect(details[key]).to eq(value)
+        end
+      end
+
+      expect(checker.stale_for_file?(file, coverage_lines)).to eq(expected_stale_char)
+
+      if expected_error
+        expect { checker.check_file!(file, coverage_lines) }.to raise_error(expected_error)
+      else
+        expect { checker.check_file!(file, coverage_lines) }.not_to raise_error
+      end
+    end
+  end
+
   context 'compute_file_staleness_details' do
-    it 'detects newer file vs coverage timestamp' do
-      file = File.join(tmpdir, 'lib', 'foo.rb')
-      write_file(file, ["a", "b"]) # 2 lines
-      ts = Time.at(Time.now.to_i - 3600) # 1 hour ago
-      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
+    include_examples 'a staleness check',
+                     description: 'detects newer file vs coverage timestamp',
+                     file_lines: ['a', 'b'],
+                     coverage_lines: [1, 1],
+                     timestamp: Time.at(Time.now.to_i - 3600),
+                     expected_details: { exists: true, cov_len: 2, src_len: 2, newer: true, len_mismatch: false, file_mtime: :any, coverage_timestamp: :any },
+                     expected_stale_char: 'T',
+                     expected_error: SimpleCovMcp::CoverageDataStaleError
 
-      details = checker.send(:compute_file_staleness_details, file, [1, 1])
-      expect(details[:exists]).to eq(true)
-      expect(details).to have_key(:file_mtime)
-      expect(details).to have_key(:coverage_timestamp)
-      expect(details[:cov_len]).to eq(2)
-      expect(details[:src_len]).to eq(2)
-      expect(details[:newer]).to eq(true)
-      expect(details[:len_mismatch]).to eq(false)
+    include_examples 'a staleness check',
+                     description: 'detects length mismatch between source and coverage',
+                     file_lines: ['a', 'b', 'c', 'd'],
+                     coverage_lines: [1, 1],
+                     timestamp: Time.now,
+                     expected_details: { exists: true, cov_len: 2, src_len: 4, newer: false, len_mismatch: true, file_mtime: :any, coverage_timestamp: :any },
+                     expected_stale_char: 'L',
+                     expected_error: SimpleCovMcp::CoverageDataStaleError
 
-      expect(checker.stale_for_file?(file, [1, 1])).to eq('T')
-      expect { checker.check_file!(file, [1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
-    end
+    include_examples 'a staleness check',
+                     description: 'treats missing file as stale',
+                     file_lines: nil,
+                     coverage_lines: [1, 1, 1],
+                     timestamp: Time.now,
+                     expected_details: { exists: false, newer: false, len_mismatch: true, file_mtime: nil, coverage_timestamp: :any },
+                     expected_stale_char: 'M',
+                     expected_error: SimpleCovMcp::CoverageDataStaleError
 
-    it 'detects length mismatch between source and coverage' do
-      file = File.join(tmpdir, 'lib', 'bar.rb')
-      write_file(file, ["a", "b", "c", "d"]) # 4 lines
-      ts = Time.now # now, not relevant for mismatch
-      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
-
-      details = checker.send(:compute_file_staleness_details, file, [1, 1])
-      expect(details[:exists]).to eq(true)
-      expect(details).to have_key(:file_mtime)
-      expect(details).to have_key(:coverage_timestamp)
-      expect(details[:cov_len]).to eq(2)
-      expect(details[:src_len]).to eq(4)
-      expect(details[:newer]).to eq(false)
-      expect(details[:len_mismatch]).to eq(true)
-
-      expect(checker.stale_for_file?(file, [1, 1])).to eq('L')
-      expect { checker.check_file!(file, [1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
-    end
-
-    it 'treats missing file as stale and raises in check_file! when coverage lines exist' do
-      file = File.join(tmpdir, 'lib', 'missing.rb')
-      ts = Time.now
-      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
-
-      details = checker.send(:compute_file_staleness_details, file, [1, 1, 1])
-      expect(details[:exists]).to eq(false)
-      expect(details).to have_key(:file_mtime)
-      expect(details).to have_key(:coverage_timestamp)
-      expect(details[:newer]).to be_falsey
-      # Missing file yields cov_len>0 with src_len=0, so len_mismatch is true
-      expect(details[:len_mismatch]).to be_truthy
-
-      expect(checker.stale_for_file?(file, [1, 1, 1])).to eq('M')
-      expect { checker.check_file!(file, [1, 1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
-    end
-
-    it 'is not stale when timestamps and lengths match' do
-      file = File.join(tmpdir, 'lib', 'ok.rb')
-      write_file(file, ["a", "b", "c"]) # 3 lines
-      # Make file older than ts
-      past = Time.at(Time.now.to_i - 3600)
-      File.utime(past, past, file)
-      ts = Time.now
-      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
-
-      details = checker.send(:compute_file_staleness_details, file, [1, 0, nil])
-      expect(details[:exists]).to eq(true)
-      expect(details).to have_key(:file_mtime)
-      expect(details).to have_key(:coverage_timestamp)
-      expect(details[:newer]).to eq(false)
-      expect(details[:len_mismatch]).to eq(false)
-
-      expect(checker.stale_for_file?(file, [1, 0, nil])).to eq(false)
-      expect { checker.check_file!(file, [1, 0, nil]) }.not_to raise_error
-    end
+    include_examples 'a staleness check',
+                     description: 'is not stale when timestamps and lengths match',
+                     file_lines: ['a', 'b', 'c'],
+                     coverage_lines: [1, 0, nil],
+                     timestamp: :past,
+                     expected_details: { exists: true, newer: false, len_mismatch: false, file_mtime: :any, coverage_timestamp: :any },
+                     expected_stale_char: false,
+                     expected_error: nil
   end
 end
