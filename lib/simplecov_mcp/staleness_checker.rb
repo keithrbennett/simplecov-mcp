@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'time'
+require 'json'
 
 module SimpleCovMcp
   # Lightweight service object to check staleness of coverage vs. sources
@@ -110,6 +111,20 @@ module SimpleCovMcp
       0
     end
 
+    def missing_trailing_newline?(path)
+      return false unless File.file?(path)
+
+      File.open(path, 'rb') do |f|
+        size = f.size
+        return false if size.zero?
+
+        f.seek(-1, IO::SEEK_END)
+        f.getbyte != 0x0A
+      end
+    rescue StandardError
+      false
+    end
+
     def rel(path)
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
     end
@@ -119,18 +134,53 @@ module SimpleCovMcp
     #  :exists, :fm, :ts, :cov_len, :src_len, :newer, :len_mismatch
     def compute_file_staleness_details(file_abs, coverage_lines)
       ts = coverage_timestamp
+
       exists = File.file?(file_abs)
       fm = exists ? File.mtime(file_abs) : nil
+
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
+
       src_len = exists ? safe_count_lines(file_abs) : 0
+
+      newer = (fm && fm.to_i > ts.to_i)
+
+      adjusted_src_len = src_len
+      if exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
+        adjusted_src_len -= 1
+      end
+
+      len_mismatch = (cov_len.positive? && adjusted_src_len != cov_len)
+
+      log_details = {
+        file: (rel(file_abs) rescue file_abs),
+        exists: exists,
+        file_mtime: fm&.iso8601,
+        coverage_timestamp: ts ? Time.at(ts).utc.iso8601 : nil,
+        cov_len: cov_len,
+        src_len: src_len,
+        adjusted_src_len: adjusted_src_len,
+        newer: newer,
+        len_mismatch: len_mismatch
+      }
+
+      CovUtil.log("Stale check: #{JSON.generate(log_details)}")
+
+      begin
+        File.open(File.join(@root, 'tmp', 'staleness_debug.log'), 'a') do |f|
+          f.puts(JSON.pretty_generate(log_details))
+        end
+      rescue StandardError
+        # If tmp is missing or unwritable, ignore; CovUtil.log still captures details when enabled.
+      end
+
       {
         exists: exists,
         fm: fm,
         ts: ts,
         cov_len: cov_len,
         src_len: src_len,
-        newer: (fm && fm.to_i > ts.to_i),
-        len_mismatch: (cov_len.positive? && src_len != cov_len)
+        newer: newer,
+        len_mismatch: len_mismatch
       }
     end
   end
