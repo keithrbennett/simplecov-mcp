@@ -572,6 +572,36 @@ Or disable logging:
 
 ## Troubleshooting
 
+### MCP Server Issues - CLI Fallback
+
+**Important:** If you encounter problems with the MCP server (e.g., connection issues, client bugs, or configuration problems), you can get the same information directly from the command line. Add a note to your agent/system prompt: "If the MCP server doesn't work, use the CLI with `simplecov-mcp --json` for structured output."
+
+**Quick CLI equivalents to MCP tools:**
+```sh
+# Version information (like version_tool)
+simplecov-mcp version --json
+
+# File coverage summary (like coverage_summary_tool)
+simplecov-mcp summary lib/file.rb --json
+
+# Uncovered lines (like uncovered_lines_tool)
+simplecov-mcp uncovered lib/file.rb --json
+
+# Detailed coverage (like coverage_detailed_tool)
+simplecov-mcp detailed lib/file.rb --json
+
+# All files coverage (like all_files_coverage_tool)
+simplecov-mcp list --sort-order ascending --json
+
+# Formatted table (like coverage_table_tool)
+simplecov-mcp table --sort-order ascending --json
+
+# Help (like help_tool)
+simplecov-mcp help --json
+```
+
+**Additional CLI documentation:** The CLI provides extensive help with `simplecov-mcp --help` and comprehensive documentation is available in the gem itself for complete usage guidance.
+
 ### MCP Server Won't Start
 
 **Symptom:** AI assistant reports "Could not connect to MCP server"
@@ -586,7 +616,7 @@ Or disable logging:
 
 2. **Test manually:**
    ```sh
-   simplecov-mcp version
+   simplecov-mcp version --json
    ```
 
 3. **Check Ruby version:**
@@ -597,6 +627,12 @@ Or disable logging:
 4. **Test MCP server mode:**
    ```sh
    echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+   ```
+
+5. **Test CLI fallback:**
+   ```sh
+   simplecov-mcp version --json
+   simplecov-mcp help --json
    ```
 
 ### Path Issues with Version Managers
@@ -657,6 +693,12 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
    Using the coverage_summary_tool, check lib/simplecov_mcp/cli.rb
    ```
 
+5. **Test CLI fallback directly:**
+   ```sh
+   simplecov-mcp summary lib/simplecov_mcp/cli.rb --json
+   simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --json
+   ```
+
 ### Ruby Version Mismatch
 
 **Symptom:** "cannot load such file -- mcp" or similar
@@ -668,6 +710,9 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | $(which simplecov-mcp)
 
 # If error, your shim might be pointing to wrong Ruby
+# Test CLI fallback:
+ruby -v && simplecov-mcp version --json
+
 # For RVM, specify version:
 rvm use 3.3.8
 gem install simplecov-mcp
