@@ -32,8 +32,8 @@ module SimpleCovMcp
           nil,
           nil,
           file_path: rel(file_abs),
-          file_mtime: d[:fm],
-          cov_timestamp: d[:ts],
+          file_mtime: d[:file_mtime],
+          cov_timestamp: d[:coverage_timestamp],
           src_len: d[:src_len],
           cov_len: d[:cov_len],
           resultset_path: resultset_path
@@ -133,18 +133,18 @@ module SimpleCovMcp
 
     # Centralized computation of staleness-related details for a single file.
     # Returns a Hash with keys:
-    #  :exists, :fm, :ts, :cov_len, :src_len, :newer, :len_mismatch
+    #  :exists, :file_mtime, :coverage_timestamp, :cov_len, :src_len, :newer, :len_mismatch
     def compute_file_staleness_details(file_abs, coverage_lines)
-      ts = coverage_timestamp
+      coverage_ts = coverage_timestamp
 
       exists = File.file?(file_abs)
-      fm = exists ? File.mtime(file_abs) : nil
+      file_mtime = exists ? File.mtime(file_abs) : nil
 
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
 
       src_len = exists ? safe_count_lines(file_abs) : 0
 
-      newer = (fm && fm.to_i > ts.to_i)
+      newer = (file_mtime && file_mtime.to_i > coverage_ts.to_i)
 
       adjusted_src_len = src_len
       if exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
@@ -155,8 +155,8 @@ module SimpleCovMcp
 
       {
         exists: exists,
-        fm: fm,
-        ts: ts,
+        file_mtime: file_mtime,
+        coverage_timestamp: coverage_ts,
         cov_len: cov_len,
         src_len: src_len,
         newer: newer,

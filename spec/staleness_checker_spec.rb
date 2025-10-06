@@ -21,6 +21,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, [1, 1])
       expect(details[:exists]).to eq(true)
+      expect(details).to have_key(:file_mtime)
+      expect(details).to have_key(:coverage_timestamp)
       expect(details[:cov_len]).to eq(2)
       expect(details[:src_len]).to eq(2)
       expect(details[:newer]).to eq(true)
@@ -38,6 +40,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, [1, 1])
       expect(details[:exists]).to eq(true)
+      expect(details).to have_key(:file_mtime)
+      expect(details).to have_key(:coverage_timestamp)
       expect(details[:cov_len]).to eq(2)
       expect(details[:src_len]).to eq(4)
       expect(details[:newer]).to eq(false)
@@ -54,6 +58,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, [1, 1, 1])
       expect(details[:exists]).to eq(false)
+      expect(details).to have_key(:file_mtime)
+      expect(details).to have_key(:coverage_timestamp)
       expect(details[:newer]).to be_falsey
       # Missing file yields cov_len>0 with src_len=0, so len_mismatch is true
       expect(details[:len_mismatch]).to be_truthy
@@ -73,6 +79,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, [1, 0, nil])
       expect(details[:exists]).to eq(true)
+      expect(details).to have_key(:file_mtime)
+      expect(details).to have_key(:coverage_timestamp)
       expect(details[:newer]).to eq(false)
       expect(details[:len_mismatch]).to eq(false)
 
