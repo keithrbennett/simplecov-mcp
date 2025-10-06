@@ -27,6 +27,12 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(data['lines']).to eq([1, 0, nil, 2])
   end
 
+  it 'prints raw lines as text' do
+    output = run_cli('raw', 'lib/foo.rb', '--root', root, '--resultset', 'coverage')
+    expect(output).to include('File: lib/foo.rb')
+    expect(output).to include('[1, 0, nil, 2]')
+  end
+
   it 'prints uncovered lines as JSON' do
     output = run_cli('uncovered', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage')
     data = JSON.parse(output)

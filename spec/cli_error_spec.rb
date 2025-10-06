@@ -127,4 +127,31 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.rename(temp_path, foo_path) if File.exist?(temp_path)
     end
   end
+
+  describe 'invalid option handling' do
+    it 'suggests subcommand for --subcommand-like option' do
+      _out, err, status = run_cli_with_status('--summary')
+      expect(status).to eq(1)
+      expect(err).to include("Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?")
+      expect(err).to include('Try: simplecov-mcp summary [args]')
+    end
+
+    it 'reports invalid enum value for --opt=value' do
+      _out, err, status = run_cli_with_status('list', '--stale=bogus')
+      expect(status).to eq(1)
+      expect(err).to include('invalid argument: --stale=bogus')
+    end
+
+    it 'reports invalid enum value for --opt value' do
+      _out, err, status = run_cli_with_status('list', '--stale', 'bogus')
+      expect(status).to eq(1)
+      expect(err).to include('invalid argument: bogus')
+    end
+
+    it 'handles generic invalid options' do
+      _out, err, status = run_cli_with_status('--no-such-option')
+      expect(status).to eq(1)
+      expect(err).to include('Error: invalid option: --no-such-option')
+    end
+  end
 end
