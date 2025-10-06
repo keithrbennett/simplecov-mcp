@@ -26,6 +26,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
       array_keys: %w[newer_files missing_files deleted_files]
     )
     allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
+    allow(model).to receive(:staleness_for).with('lib/foo.rb').and_return(false)
   end
 
   subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
@@ -41,6 +42,9 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
     if data.is_a?(Hash) && data.key?('file')
       expect(data['file']).to eq('lib/foo.rb')
     end
+
+    expect(data).to have_key('stale')
+    expect(data['stale']).to eq(false)
 
     # Run tool-specific validations if provided
     if additional_validations
@@ -62,7 +66,7 @@ FILE_BASED_TOOL_CONFIGS = {
   summary: {
     tool_class: SimpleCovMcp::Tools::CoverageSummaryTool,
     model_method: :summary_for,
-    expected_keys: ['file', 'summary'],
+    expected_keys: ['file', 'summary', 'stale'],
     output_filename: 'coverage_summary.json',
     description: 'coverage summary data',
     mock_data: {
@@ -77,6 +81,7 @@ FILE_BASED_TOOL_CONFIGS = {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(:summary_for).and_return(config[:mock_data])
+        allow(model).to receive(:staleness_for).and_return(false)
         relativizer = SimpleCovMcp::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],
@@ -96,7 +101,7 @@ FILE_BASED_TOOL_CONFIGS = {
   raw: {
     tool_class: SimpleCovMcp::Tools::CoverageRawTool,
     model_method: :raw_for,
-    expected_keys: ['file', 'lines'],
+    expected_keys: ['file', 'lines', 'stale'],
     output_filename: 'coverage_raw.json',
     description: 'raw coverage data',
     mock_data: {
@@ -111,7 +116,7 @@ FILE_BASED_TOOL_CONFIGS = {
   uncovered: {
     tool_class: SimpleCovMcp::Tools::UncoveredLinesTool,
     model_method: :uncovered_for,
-    expected_keys: ['file', 'uncovered', 'summary'],
+    expected_keys: ['file', 'uncovered', 'summary', 'stale'],
     output_filename: 'uncovered_lines.json',
     description: 'uncovered lines data',
     mock_data: {
@@ -127,6 +132,7 @@ FILE_BASED_TOOL_CONFIGS = {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(:uncovered_for).and_return(config[:mock_data])
+        allow(model).to receive(:staleness_for).and_return(false)
         relativizer = SimpleCovMcp::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],
@@ -147,7 +153,7 @@ FILE_BASED_TOOL_CONFIGS = {
   detailed: {
     tool_class: SimpleCovMcp::Tools::CoverageDetailedTool,
     model_method: :detailed_for,
-    expected_keys: ['file', 'lines', 'summary'],
+    expected_keys: ['file', 'lines', 'summary', 'stale'],
     output_filename: 'coverage_detailed.json',
     description: 'detailed coverage data',
     mock_data: {

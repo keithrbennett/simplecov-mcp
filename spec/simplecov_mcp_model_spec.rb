@@ -53,6 +53,21 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     end
   end
 
+  describe 'staleness_for' do
+    it 'returns the staleness character for a file' do
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?) do |_, file_abs, _|
+        if file_abs == File.expand_path('lib/foo.rb', root)
+          'T'
+        else
+          false
+        end
+      end
+
+      expect(model.staleness_for('lib/foo.rb')).to eq('T')
+      expect(model.staleness_for('lib/bar.rb')).to eq(false)
+    end
+  end
+
   describe 'all_files' do
     it 'sorts ascending by percentage then by file path' do
       files = model.all_files(sort_order: :ascending)
@@ -116,16 +131,22 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     it 'accepts custom rows parameter' do
       custom_rows = [
         { 'file' => '/path/to/file1.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
-        { 'file' => '/path/to/file2.rb', 'percentage' => 50.0, 'covered' => 5, 'total' => 10, 'stale' => true }
+        { 'file' => '/path/to/file2.rb', 'percentage' => 50.0, 'covered' => 5, 'total' => 10, 'stale' => 'M' },
+        { 'file' => '/path/to/file3.rb', 'percentage' => 75.0, 'covered' => 15, 'total' => 20, 'stale' => 'T' }
       ]
 
       output = model.format_table(custom_rows)
 
       expect(output).to include('file1.rb')
       expect(output).to include('file2.rb')
+      expect(output).to include('file3.rb')
       expect(output).to include('100.00')
       expect(output).to include('50.00')
-      expect(output).to include('!')
+      expect(output).to include('75.00')
+      expect(output).to include('M')
+      expect(output).to include('T')
+      expect(output).not_to include('!')
+      expect(output).to include('Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch')
     end
 
     it 'accepts sort_order parameter' do

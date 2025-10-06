@@ -3,7 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe 'SimpleCovMcp.run_as_library' do
-  let(:valid_file) { 'lib/simplecov_mcp.rb' }
+  let(:valid_file) { 'lib/foo.rb' }
+
+  before do
+    # Mock resultset file to ensure CoverageModel can initialize
+    mock_resultset_with_timestamp(Dir.pwd, FIXTURE_COVERAGE_TIMESTAMP)
+  end
 
   describe 'basic usage' do
     it 'returns all files when argv is empty' do

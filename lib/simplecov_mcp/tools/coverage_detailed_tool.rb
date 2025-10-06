@@ -10,7 +10,7 @@ module SimpleCovMcp
         Use this when the user needs per-line coverage data for a single file.
         Do not use this for high-level counts; coverage.summary is cheaper for aggregate numbers.
         Inputs: file path (required) plus optional root/resultset/stale mode inherited from BaseTool.
-        Output: JSON object with "file", "lines" => [{"line": 12, "hits": 0, "covered": false}], plus "summary" with totals.
+        Output: JSON object with "file", "lines" => [{"line": 12, "hits": 0, "covered": false}], plus "summary" with totals and "stale" status.
         Example: "Show detailed coverage for lib/simple_cov_mcp/model.rb".
       DESC
       input_schema(**input_schema_def)
@@ -19,6 +19,7 @@ module SimpleCovMcp
           mode = stale
           model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
           data = model.detailed_for(path)
+          data['stale'] = model.staleness_for(path)
           respond_json(model.relativize(data), name: 'coverage_detailed.json', pretty: true)
         rescue => e
           handle_mcp_error(e, 'CoverageDetailedTool', error_mode: error_mode)

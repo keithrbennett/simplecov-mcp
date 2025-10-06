@@ -26,7 +26,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expect(details[:newer]).to eq(true)
       expect(details[:len_mismatch]).to eq(false)
 
-      expect(checker.stale_for_file?(file, [1, 1])).to eq(true)
+      expect(checker.stale_for_file?(file, [1, 1])).to eq('T')
       expect { checker.check_file!(file, [1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
     end
 
@@ -43,7 +43,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expect(details[:newer]).to eq(false)
       expect(details[:len_mismatch]).to eq(true)
 
-      expect(checker.stale_for_file?(file, [1, 1])).to eq(true)
+      expect(checker.stale_for_file?(file, [1, 1])).to eq('L')
       expect { checker.check_file!(file, [1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
     end
 
@@ -58,7 +58,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       # Missing file yields cov_len>0 with src_len=0, so len_mismatch is true
       expect(details[:len_mismatch]).to be_truthy
 
-      expect(checker.stale_for_file?(file, [1, 1, 1])).to eq(true)
+      expect(checker.stale_for_file?(file, [1, 1, 1])).to eq('M')
       expect { checker.check_file!(file, [1, 1, 1]) }.to raise_error(SimpleCovMcp::CoverageDataStaleError)
     end
 

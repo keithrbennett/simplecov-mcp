@@ -48,8 +48,10 @@ module SimpleCovMcp
     # - the source line count differs from the coverage lines array length (when present).
     def stale_for_file?(file_abs, coverage_lines)
       d = compute_file_staleness_details(file_abs, coverage_lines)
-      # For indicator use, missing files are considered stale.
-      (!d[:exists]) || d[:newer] || d[:len_mismatch]
+      return 'M' unless d[:exists]
+      return 'T' if d[:newer]
+      return 'L' if d[:len_mismatch]
+      false
     end
 
     # Raise CoverageDataProjectStaleError if any covered file is newer or if
@@ -150,28 +152,6 @@ module SimpleCovMcp
       end
 
       len_mismatch = (cov_len.positive? && adjusted_src_len != cov_len)
-
-      log_details = {
-        file: (rel(file_abs) rescue file_abs),
-        exists: exists,
-        file_mtime: fm&.iso8601,
-        coverage_timestamp: ts ? Time.at(ts).utc.iso8601 : nil,
-        cov_len: cov_len,
-        src_len: src_len,
-        adjusted_src_len: adjusted_src_len,
-        newer: newer,
-        len_mismatch: len_mismatch
-      }
-
-      CovUtil.log("Stale check: #{JSON.generate(log_details)}")
-
-      begin
-        File.open(File.join(@root, 'tmp', 'staleness_debug.log'), 'a') do |f|
-          f.puts(JSON.pretty_generate(log_details))
-        end
-      rescue StandardError
-        # If tmp is missing or unwritable, ignore; CovUtil.log still captures details when enabled.
-      end
 
       {
         exists: exists,

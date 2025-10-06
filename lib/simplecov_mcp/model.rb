@@ -109,6 +109,14 @@ module SimpleCovMcp
       rows
     end
 
+    def staleness_for(path)
+      file_abs = File.absolute_path(path, @root)
+      coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
+      @checker.stale_for_file?(file_abs, coverage_lines)
+    rescue
+      false
+    end
+
       # Returns formatted table string for all files coverage data
     def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
       rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
@@ -122,6 +130,9 @@ module SimpleCovMcp
       rows.each { |file_data| lines << data_row(file_data, widths) }
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
+      if rows.any? { |f| f['stale'] }
+        lines << "Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch"
+      end
       lines.join("\n")
     end
 
@@ -184,7 +195,7 @@ module SimpleCovMcp
     end
 
     def data_row(file_data, widths)
-      stale_text_str = file_data['stale'] ? '!' : ''
+      stale_text_str = file_data['stale'] ? file_data['stale'].to_s : ''
       sprintf(
         "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
         file_data['file'],
