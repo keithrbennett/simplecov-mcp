@@ -15,12 +15,15 @@ module SimpleCovMcp
     module_function
 
     def log_path
-      @log_path ||= begin
-        if SimpleCovMcp.respond_to?(:log_file) && (log_file = SimpleCovMcp.log_file) && !log_file.empty?
-          log_file == '-' ? nil : File.expand_path(log_file)
-        else
-          File.expand_path(DEFAULT_LOG_FILESPEC)
-        end
+      unless SimpleCovMcp.respond_to?(:log_file)
+        return File.expand_path(DEFAULT_LOG_FILESPEC)
+      end
+
+      log_file = SimpleCovMcp.log_file
+      if log_file && !log_file.empty?
+        log_file == '-' ? nil : File.expand_path(log_file)
+      else
+        File.expand_path(DEFAULT_LOG_FILESPEC)
       end
     end
 

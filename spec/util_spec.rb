@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe SimpleCovMcp::CovUtil do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -74,41 +75,69 @@ RSpec.describe SimpleCovMcp::CovUtil do
     end
 
     it 'log_path uses default path when no configuration' do
+      default_path = File.expand_path('./simplecov_mcp.log')
+      2.times { expect(described_class.log_path).to eq(default_path) }
+    end
+
+    it 'log_path recomputes when SimpleCovMcp.log_file changes' do
+      expect(described_class.log_path).to eq(File.expand_path('./simplecov_mcp.log'))
+
+      SimpleCovMcp.log_file = '/module/log/path.log'
+      expect(described_class.log_path).to eq('/module/log/path.log')
+
+      SimpleCovMcp.log_file = 'tmp/local.log'
+      expect(described_class.log_path).to eq(File.expand_path('tmp/local.log'))
+
+      SimpleCovMcp.log_file = '-'
+      expect(described_class.log_path).to be_nil
+
+      SimpleCovMcp.log_file = nil
       expect(described_class.log_path).to eq(File.expand_path('./simplecov_mcp.log'))
     end
 
-
-    it 'log_path respects SimpleCovMcp.log_file setting' do
-      SimpleCovMcp.log_file = '/module/log/path.log'
-      allow(described_class).to receive(:log_path).and_return('/module/log/path.log')
-      expect(described_class.log_path).to eq('/module/log/path.log')
-    end
-
-    it 'log_path returns nil for SimpleCovMcp.log_file="-" (disable logging)' do
-      SimpleCovMcp.log_file = '-'
-      allow(described_class).to receive(:log_path).and_return(nil)
-      expect(described_class.log_path).to be_nil
-    end
-
-
     it 'log does not write when path is nil' do
-      allow(described_class).to receive(:log_path).and_return(nil)
+      SimpleCovMcp.log_file = '-'
       expect(File).not_to receive(:open)
       described_class.log(test_message)
     end
 
     it 'log writes to file when path is configured' do
-      Dir.mktmpdir do |dir|
-        log_path = File.join(dir, 'test.log')
-        allow(described_class).to receive(:log_path).and_return(log_path)
+      tmp = Tempfile.new('simplecov_mcp-log')
+      log_path = tmp.path
+      tmp.close
 
-        described_class.log(test_message)
+      SimpleCovMcp.log_file = log_path
 
-        expect(File.exist?(log_path)).to be true
-        content = File.read(log_path)
-        expect(content).to include(test_message)
-        expect(content).to match(TIMESTAMP_REGEX)
-      end
+      described_class.log(test_message)
+
+      expect(File.exist?(log_path)).to be true
+      content = File.read(log_path)
+      expect(content).to include(test_message)
+      expect(content).to match(TIMESTAMP_REGEX)
+    ensure
+      tmp&.unlink
+    end
+
+    it 'log respects runtime changes disabling logging mid-run' do
+      tmp = Tempfile.new('simplecov_mcp-log')
+      log_path = tmp.path
+      tmp.close
+
+      SimpleCovMcp.log_file = log_path
+
+      described_class.log('first entry')
+      expect(File.exist?(log_path)).to be true
+      first_content = File.read(log_path)
+      expect(first_content).to include('first entry')
+
+      SimpleCovMcp.log_file = '-'
+      expect(described_class.log_path).to be_nil
+
+      described_class.log('second entry')
+      expect(File.exist?(log_path)).to be true
+      expect(File.read(log_path)).to eq(first_content)
+    ensure
+      tmp&.unlink
     end
   end
 end
