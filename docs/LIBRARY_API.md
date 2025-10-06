@@ -28,16 +28,16 @@ files = model.all_files
 
 # Per-file summaries
 summary = model.summary_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'pct'=>85.71} }
+# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'pct'=>85.71}, 'stale' => false }
 
 raw = model.raw_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...] }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
 
 uncovered = model.uncovered_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... } }
+# => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... }, 'stale' => false }
 
 detailed = model.detailed_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... } }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... }, 'stale' => false }
 ```
 
 ## Formatting Tables
@@ -72,6 +72,17 @@ test_files_table = model.format_table(test_files, sort_order: :descending)
 ```
 
 For more advanced filtering examples including staleness analysis and CI/CD integration, see the complete example script at [examples/filter_and_table_demo.rb](/examples/filter_and_table_demo.rb).
+
+## Staleness Values
+
+All single-file methods (`summary_for`, `raw_for`, `uncovered_for`, `detailed_for`) and `all_files` include a `'stale'` field with one of these values:
+
+- `false` - Coverage data is current
+- `'M'` - **Missing**: File no longer exists on disk
+- `'T'` - **Timestamp**: File modified more recently than coverage data
+- `'L'` - **Length**: Source file line count differs from coverage data
+
+When `staleness: 'error'` mode is enabled in `CoverageModel.new`, stale files will raise `SimpleCovMcp::CoverageDataStaleError` exceptions.
 
 ## Public API Stability
 

@@ -54,7 +54,7 @@ files = model.all_files
 # => [{ "file" => "lib/simplecov_mcp/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
 
 summary = model.summary_for("lib/simplecov_mcp/model.rb")
-# => { "file" => "lib/simplecov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 } }
+# => { "file" => "lib/simplecov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 }, "stale" => false }
 ```
 
 **MCP Server:**
@@ -65,6 +65,9 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 - ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
 - ✅ **Rich output formats** - Tables, JSON, annotated source code
 - ✅ **Staleness detection** - Identify outdated coverage for CI/CD
+  - **M** (Missing): File no longer exists
+  - **T** (Timestamp): File modified after coverage was generated
+  - **L** (Length): Line count mismatch between source and coverage
 - ✅ **No runtime SimpleCov dependency** - Just reads `.resultset.json`
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
@@ -90,7 +93,8 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 ```ruby
 require "simplecov_mcp"
 model = SimpleCovMcp::CoverageModel.new
-puts model.summary_for("lib/simplecov_mcp/model.rb")
+summary = model.summary_for("lib/simplecov_mcp/model.rb")
+# => { "file" => "...", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 }, "stale" => false }
 ```
 
 More in [CLI Usage](docs/CLI_USAGE.md) and [Library API](docs/LIBRARY_API.md).

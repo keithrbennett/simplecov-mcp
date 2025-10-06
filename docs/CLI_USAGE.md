@@ -97,7 +97,8 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb --source
     "covered": 12,
     "total": 14,
     "pct": 85.71
-  }
+  },
+  "stale": false
 }
 ```
 
@@ -191,7 +192,8 @@ File: lib/simplecov_mcp/model.rb
     "covered": 2,
     "total": 3,
     "pct": 66.67
-  }
+  },
+  "stale": false
 }
 ```
 
@@ -217,7 +219,8 @@ File: lib/simplecov_mcp/model.rb
 ```json
 {
   "file": "lib/simplecov_mcp/model.rb",
-  "lines": [1, 0, null, 5, 2, null, 1]
+  "lines": [1, 0, null, 5, 2, null, 1],
+  "stale": false
 }
 ```
 
@@ -338,8 +341,9 @@ simplecov-mcp -S e  # Short form
 ```
 
 **Staleness conditions:**
-- Source file modified after coverage was generated
-- Source file line count differs from coverage data
+- **M** (Missing): Source file no longer exists on disk
+- **T** (Timestamp): Source file modified after coverage was generated
+- **L** (Length): Source file line count differs from coverage data
 - Tracked files missing from coverage (with --tracked-globs)
 
 ### `-g, --tracked-globs PATTERNS`
@@ -440,9 +444,16 @@ Machine-readable output. Paths are relative to project root.
     "covered": 12,
     "total": 14,
     "pct": 85.71
-  }
+  },
+  "stale": false
 }
 ```
+
+**Staleness values:**
+- `false` - Coverage data is current
+- `"M"` - File missing (no longer exists on disk)
+- `"T"` - Timestamp mismatch (file modified after coverage)
+- `"L"` - Length mismatch (line count differs)
 
 ### Source Display
 
