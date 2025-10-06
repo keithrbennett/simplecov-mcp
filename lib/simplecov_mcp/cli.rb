@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'option_parser_builder'
+require_relative 'commands/command_factory'
+require_relative 'option_parsers/error_helper'
+require_relative 'option_parsers/env_options_parser'
 
 module SimpleCovMcp
   class CoverageCLI
@@ -112,31 +115,14 @@ module SimpleCovMcp
     end
 
     def parse_env_opts
-      require 'shellwords'
-      opts_string = ENV['SIMPLECOV_MCP_OPTS']
-      return [] unless opts_string && !opts_string.empty?
-
-      begin
-        Shellwords.split(opts_string)
-      rescue ArgumentError => e
-        raise SimpleCovMcp::ConfigurationError, "Invalid SIMPLECOV_MCP_OPTS format: #{e.message}"
-      end
+      @env_parser ||= OptionParsers::EnvOptionsParser.new
+      @env_parser.parse_env_opts
     end
 
     def pre_scan_error_mode(argv)
-      # Quick scan for --error-mode to ensure early errors are logged correctly
-      argv.each_with_index do |arg, i|
-        if arg == '--error-mode' && argv[i + 1]
-          @error_mode = normalize_error_mode(argv[i + 1])
-          break
-        elsif arg.start_with?('--error-mode=')
-          value = arg.split('=', 2)[1]
-          @error_mode = normalize_error_mode(value) if value
-          break
-        end
-      end
-    rescue StandardError
-      # Ignore errors during pre-scan; they'll be caught during actual parsing
+      @env_parser ||= OptionParsers::EnvOptionsParser.new
+      @error_mode = @env_parser.pre_scan_error_mode(argv)
+      @error_mode ||= :on  # Default if not found
     end
 
     def build_option_parser
@@ -146,16 +132,8 @@ module SimpleCovMcp
 
     
     def run_subcommand(cmd, args)
-      model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode)
-      case cmd
-      when 'list'      then handle_list(model)
-      when 'summary'   then handle_summary(model, args)
-      when 'raw'       then handle_raw(model, args)
-      when 'uncovered' then handle_uncovered(model, args)
-      when 'detailed'  then handle_detailed(model, args)
-      when 'version'   then handle_version
-      else raise UsageError.for_subcommand('list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version')
-      end
+      command = Commands::CommandFactory.create(cmd, self)
+      command.execute(args)
     rescue SimpleCovMcp::Error => e
       handle_user_facing_error(e)
     rescue => e
@@ -163,269 +141,14 @@ module SimpleCovMcp
     end
 
 
-    def format_detailed_rows(rows)
-      # Simple aligned columns: line, hits, covered
-      out = []
-      out << sprintf('%6s  %6s  %7s', 'Line', 'Hits', 'Covered')
-      out << sprintf('%6s  %6s  %7s', '-----', '----', '-------')
-      rows.each do |r|
-        out << sprintf('%6d  %6d  %7s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
-      end
-      out.join("\n")
-    end
-
-    def handle_list(model)
-      show_default_report(sort_order: @sort_order)
-    end
-
-    def handle_version
-      if @json
-        puts JSON.pretty_generate({ version: SimpleCovMcp::VERSION })
-      else
-        puts "SimpleCovMcp version #{SimpleCovMcp::VERSION}"
-      end
-    end
-
-    def handle_summary(model, args)
-      handle_with_path(args, 'summary') do |path|
-        data = model.summary_for(path)
-        break if emit_json_with_optional_source(data, model, path)
-        rel = model.relativize(data)['file']
-        s = data['summary']
-        printf "%8.2f%%  %6d/%-6d  %s\n\n", s['pct'], s['covered'], s['total'], rel
-        print_source_for(model, path) if @source_mode
-      end
-    end
-
-    def handle_raw(model, args)
-      handle_with_path(args, 'raw') do |path|
-        data = model.raw_for(path)
-        break if maybe_output_json(data, model)
-        rel = model.relativize(data)['file']
-        puts "File: #{rel}"
-        puts data['lines'].inspect
-      end
-    end
-
-    def handle_uncovered(model, args)
-      handle_with_path(args, 'uncovered') do |path|
-        data = model.uncovered_for(path)
-        break if emit_json_with_optional_source(data, model, path)
-        rel = model.relativize(data)['file']
-        puts "File:            #{rel}"
-        puts "Uncovered lines: #{data['uncovered'].join(', ')}"
-        s = data['summary']
-        printf "Summary:      %8.2f%%  %6d/%-6d\n\n", s['pct'], s['covered'], s['total']
-        print_source_for(model, path) if @source_mode
-      end
-    end
-
-    def handle_detailed(model, args)
-      handle_with_path(args, 'detailed') do |path|
-        data = model.detailed_for(path)
-        break if emit_json_with_optional_source(data, model, path)
-        rel = model.relativize(data)['file']
-        puts "File: #{rel}"
-        puts format_detailed_rows(data['lines'])
-        print_source_for(model, path) if @source_mode
-      end
-    end
-
-    def handle_with_path(args, name)
-      path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
-      yield(path)
-    rescue Errno::ENOENT => e
-      raise FileNotFoundError.new("File not found: #{path}")
-    rescue Errno::EACCES => e
-      raise FilePermissionError.new("Permission denied: #{path}")
-    end
-
-    def maybe_output_json(obj, model)
-      return false unless @json
-      puts JSON.pretty_generate(model.relativize(obj))
-      true
-    end
-
-      # Emits JSON for a file-oriented command, optionally including source rows.
-      #
-      # @param data [Hash] Command result including a 'file' key (absolute path).
-      # @param model [SimpleCovMcp::CoverageModel] Used to fetch raw lines when
-      #   embedding source rows.
-      # @param path [String] Original user-provided path for the file.
-      # @return [Boolean] True if JSON was emitted; false otherwise.
-      # @example With --json and --source
-      #   emit_json_with_optional_source({ 'file' => '/abs/foo.rb', 'summary' => {...} }, model, 'lib/foo.rb')
-      #   # => prints JSON including a 'source' field and returns true
-    def emit_json_with_optional_source(data, model, path)
-      return false unless @json
-      relativized = model.relativize(data)
-      if @source_mode
-        payload = relativized.merge('source' => build_source_payload(model, path))
-        puts JSON.pretty_generate(payload)
-      else
-        puts JSON.pretty_generate(relativized)
-      end
-      true
-    end
-
-    def print_source_for(model, path)
-      raw = fetch_raw(model, path)
-      unless raw
-        puts '[source not available]'
-        return
-      end
-
-      abs = raw['file']
-      lines_cov = raw['lines']
-      src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
-      unless src
-        puts '[source not available]'
-        return
-      end
-      begin
-        rows = build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
-        puts format_source_rows(rows)
-      rescue StandardError
-        # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
-        # and fall back to a neutral message rather than raising.
-        puts '[source not available]'
-      end
-    end
-
-    def build_source_payload(model, path)
-      raw = fetch_raw(model, path)
-      return nil unless raw
-
-      abs = raw['file']
-      lines_cov = raw['lines']
-      src = File.file?(abs) ? File.readlines(abs, chomp: true) : nil
-      return nil unless src
-      build_source_rows(src, lines_cov, mode: @source_mode, context: @source_context)
-    end
-
-    def fetch_raw(model, path)
-      @raw_cache ||= {}
-      return @raw_cache[path] if @raw_cache.key?(path)
-
-      raw = model.raw_for(path)
-      @raw_cache[path] = raw
-    rescue StandardError
-      nil
-    end
-
-    def build_source_rows(src_lines, cov_lines, mode:, context: 2)
-      # Normalize inputs defensively to avoid type errors in formatting
-      coverage_lines = cov_lines || []
-      context_line_count = context.to_i rescue 2
-      context_line_count = 0 if context_line_count.negative?
-
-      n = src_lines.length
-      include_line = Array.new(n, mode == 'full')
-      if mode == 'uncovered'
-        misses = []
-        coverage_lines.each_with_index do |hits, i|
-          misses << i if !hits.nil? && hits.to_i == 0
-        end
-        misses.each do |i|
-          a = [0, i - context_line_count].max
-          b = [n - 1, i + context_line_count].min
-          (a..b).each { |j| include_line[j] = true }
-        end
-      end
-      out = []
-      src_lines.each_with_index do |code, i|
-        next unless include_line[i]
-        hits = coverage_lines[i]
-        covered = hits.nil? ? nil : hits.to_i > 0
-        # Use string keys consistently across CLI formatting and JSON payloads
-        out << { 'line' => i + 1, 'code' => code, 'hits' => hits, 'covered' => covered }
-      end
-      out
-    end
-
-    def format_source_rows(rows)
-      marker = ->(covered, hits) do
-        case covered
-        when true then colorize('✓', :green)
-        when false then colorize('·', :red)
-        else colorize(' ', :dim)
-        end
-      end
-      lines = []
-      lines << sprintf('%6s  %2s | %s', 'Line', ' ', 'Source')
-      lines << sprintf('%6s  %2s-+-%s', '------', '--', '-' * 60)
-      rows.each do |r|
-        m = marker.call(r['covered'], r['hits'])
-        lines << sprintf('%6d  %2s | %s', r['line'], m, r['code'])
-      end
-      lines.join("\n")
-    end
-
-    def colorize(text, color)
-      return text unless @color
-      codes = { green: 32, red: 31, dim: 2 }
-      code = codes[color] || 0
-      "\e[#{code}m#{text}\e[0m"
-    end
-
+    
+    
     def handle_option_parser_error(error, argv: [])
-      message = error.message.to_s
-      # Suggest a subcommand when an invalid option matches a known subcommand
-      option = message.match(/invalid option: (.+)/)[1] rescue nil
-      if option && option.start_with?('--') && SUBCOMMANDS.include?(option[2..-1])
-        subcommand = option[2..-1]
-        warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
-        warn "Try: simplecov-mcp #{subcommand} [args]"
-      else
-        # Generic message from OptionParser
-        warn "Error: #{message}"
-        # Attempt to derive a helpful hint for enumerated options
-        if (hint = build_enum_value_hint(argv))
-          warn hint
-        end
-      end
-      warn "Run 'simplecov-mcp --help' for usage information."
-      exit 1
-    end
-
-    def build_enum_value_hint(argv)
-      rules = enumerated_option_rules
-      tokens = Array(argv)
-      rules.each do |rule|
-        switches = rule[:switches]
-        allowed = rule[:values]
-        display = rule[:display] || allowed.join(', ')
-        preferred = switches.find { |s| s.start_with?('--') } || switches.first
-        tokens.each_with_index do |tok, i|
-          # --opt=value form
-          if tok.start_with?(preferred + '=') || switches.any? { |s| tok.start_with?(s + '=') }
-            sw = switches.find { |s| tok.start_with?(s + '=') } || preferred
-            val = tok.split('=', 2)[1]
-            return "Valid values for #{sw}: #{display}" if val && !allowed.include?(val)
-          end
-          # --opt value or -o value form
-          if switches.include?(tok)
-            val = tokens[i + 1]
-            # If missing value, provide hint; if present and invalid, also hint
-            if val.nil? || val.start_with?('-') || !allowed.include?(val)
-              return "Valid values for #{preferred}: #{display}"
-            end
-          end
-        end
-      end
-      nil
+      @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
+      @error_helper.handle_option_parser_error(error, argv: argv)
     end
 
     
-    def enumerated_option_rules
-      [
-        { switches: ['-S', '--stale'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
-        { switches: ['-s', '--source'], values: %w[full f uncovered u], display: 'f[ull]|u[ncovered]' },
-        { switches: ['--error-mode'], values: %w[off on on_with_trace with_trace trace t], display: 'off|on|t[race]' },
-        { switches: ['-o', '--sort-order'], values: %w[a d ascending descending], display: 'a[scending]|d[escending]' }
-      ]
-    end
-
     def run_success_predicate
       predicate = load_success_predicate(@success_predicate)
       model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)

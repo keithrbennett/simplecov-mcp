@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'resolvers/resolver_factory'
+
 module SimpleCovMcp
   RESULTSET_CANDIDATES = [
     '.resultset.json',
@@ -32,46 +34,15 @@ module SimpleCovMcp
     end
 
     def find_resultset(root, resultset: nil)
-      if resultset && !resultset.empty?
-        path = File.absolute_path(resultset, root)
-        if (resolved = resolve_resultset_candidate(path, strict: true))
-          return resolved
-        end
-      end
-
-      RESULTSET_CANDIDATES
-        .map { |p| File.absolute_path(p, root) }
-        .find { |p| File.file?(p) } or
-        raise "Could not find .resultset.json under #{root.inspect}; run tests or set --resultset option"
+      Resolvers::ResolverFactory.find_resultset(root, resultset: resultset)
     end
 
     def resolve_resultset_candidate(path, strict:)
-      return path if File.file?(path)
-      if File.directory?(path)
-        candidate = File.join(path, '.resultset.json')
-        return candidate if File.file?(candidate)
-        raise "No .resultset.json found in directory: #{path}" if strict
-        return nil
-      end
-      raise "Specified resultset not found: #{path}" if strict
-      nil
+      Resolvers::ResolverFactory.resolve_resultset_candidate(path, strict: strict)
     end
 
     def lookup_lines(cov, file_abs)
-      if (h = cov[file_abs]) && h['lines'].is_a?(Array)
-        return h['lines']
-      end
-
-      # try without current working directory prefix
-      cwd = Dir.pwd
-      if file_abs.start_with?(cwd + '/')
-        without = file_abs[(cwd.length + 1)..-1]
-        if (h = cov[without]) && h['lines'].is_a?(Array)
-          return h['lines']
-        end
-      end
-
-      raise "No coverage entry found for #{file_abs}"
+      Resolvers::ResolverFactory.lookup_lines(cov, file_abs)
     end
 
     def summary(arr)

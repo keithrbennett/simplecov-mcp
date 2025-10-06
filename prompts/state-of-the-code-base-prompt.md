@@ -1,11 +1,17 @@
 # State of the Code Base Prompt
 
-You are a senior software architect and code reviewer.  
-Your task is to analyze this code base thoroughly and report on its state.  
-Focus on identifying weaknesses, risks, and areas for improvement.  
-For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
+* You are a senior software architect and code reviewer.  
+* Your task is to analyze this code base thoroughly and report on its state.  
+* Focus on identifying weaknesses, risks, and areas for improvement.  
+* For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
+* If you are unable to use the simplecov-mcp MCP server, use `simplecov-mcp` in CLI mode (run `simplecov-mcp -h` for help).
 
-Write your analysis in a **Markdown file** with the following structure:
+Write your analysis in a Markdown file whose name is:
+* today's date in YYYY-MM-DD format +
+* '-state-of-the-code-base-' + 
+* your name (e.g. 'codex, claude, gemini, zai)
+
+The file should have the following structure:
 
 ---
 
@@ -144,3 +150,5 @@ Suggest prompts to a coding AI tool that would be helpful in addressing the majo
 
 - **Weighted Score Calculation:** Multiply each section’s score by its chosen weight, then sum to compute the **Overall Weighted Score (1–10)**.
 - Report the final **Overall Weighted Score** with justification.  
+
+### Summarize suggested changes
