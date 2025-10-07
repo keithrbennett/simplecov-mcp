@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe SimpleCovMcp::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -104,6 +105,40 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'handles --log-file - (disable logging)' do
       run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', '-')
       expect(SimpleCovMcp.log_file).to eq('-')
+    end
+  end
+
+  describe '#load_success_predicate' do
+    let(:cli) { described_class.new }
+
+    def with_temp_predicate(content)
+      Tempfile.create(['predicate', '.rb']) do |file|
+        file.write(content)
+        file.flush
+        yield file.path
+      end
+    end
+
+    it 'loads a callable predicate from file' do
+      with_temp_predicate("->(model) { model }\n") do |path|
+        predicate = cli.send(:load_success_predicate, path)
+        expect(predicate).to respond_to(:call)
+        expect(predicate.call(:ok)).to eq(:ok)
+      end
+    end
+
+    it 'raises when file does not return callable' do
+      with_temp_predicate(":not_callable\n") do |path|
+        expect { cli.send(:load_success_predicate, path) }
+          .to raise_error(RuntimeError, include('Success predicate must be callable'))
+      end
+    end
+
+    it 'wraps syntax errors with friendly message' do
+      with_temp_predicate("->(model) {\n") do |path|
+        expect { cli.send(:load_success_predicate, path) }
+          .to raise_error(RuntimeError, include('Syntax error in success predicate file'))
+      end
     end
   end
 end

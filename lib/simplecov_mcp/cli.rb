@@ -13,8 +13,8 @@ module SimpleCovMcp
 
     attr_reader :config
 
-      # Initialize CLI for pure CLI usage only.
-      # Always runs as CLI, no mode detection needed.
+    # Initialize CLI for pure CLI usage only.
+    # Always runs as CLI, no mode detection needed.
     def initialize(error_handler: nil)
       @config = CLIConfig.new
       @cmd = nil
@@ -75,7 +75,7 @@ module SimpleCovMcp
       output.puts model.format_table(file_summaries, sort_order: sort_order, check_stale: (config.stale_mode == :error), tracked_globs: config.tracked_globs)
     end
 
-      private
+    private
 
     def parse_options!(argv)
       require 'optparse'
@@ -158,7 +158,11 @@ module SimpleCovMcp
       end
 
       content = File.read(path)
-      predicate = eval(content, binding, path)
+
+      # Evaluate the predicate inside an isolated object so user scripts
+      # cannot reach the CLI instance or its locals.
+      sandbox = Object.new
+      predicate = sandbox.instance_eval(content, path, 1)
 
       unless predicate.respond_to?(:call)
         raise "Success predicate must be callable (lambda, proc, or object with #call method)"
