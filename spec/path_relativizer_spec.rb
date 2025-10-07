@@ -62,5 +62,22 @@ RSpec.describe SimpleCovMcp::PathRelativizer do
       expect(result['files'].map { |h| h['file'] }).to eq(%w[lib/foo.rb lib/bar.rb])
       expect(result['counts']).to eq('total' => 2)
     end
+
+    it "handles paths with '..' components" do
+      payload = { 'file' => File.join(root, 'lib/../lib/foo.rb') }
+      result = relativizer.relativize(payload)
+      expect(result['file']).to eq('lib/foo.rb')
+    end
+
+    it 'handles paths with spaces' do
+      file_with_space = File.join(root, 'lib/file with space.rb')
+      FileUtils.touch(file_with_space)
+
+      payload = { 'file' => file_with_space }
+      result = relativizer.relativize(payload)
+      expect(result['file']).to eq('lib/file with space.rb')
+    ensure
+      FileUtils.rm_f(file_with_space)
+    end
   end
 end
