@@ -72,7 +72,7 @@ ls coverage/.resultset.json
 
 ```sh
 # Test manually
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
 ```
 
 You should see a JSON-RPC response with version information.
@@ -210,6 +210,28 @@ simplecov-mcp exposes 8 MCP tools:
 | `coverage_table_tool` | Formatted coverage table | `sort_order` |
 | `help_tool` | Tool discovery | `query` (optional) |
 | `version_tool` | Version information | (none) |
+
+### JSON Response Format
+
+For tools that return structured data, `simplecov-mcp` serializes the data as a JSON string and returns it inside a `text` part of the MCP response.
+
+**Example:**
+```json
+{
+  "type": "text",
+  "text": "{"coverage_summary":{"covered":10,"total":20,"pct":50.0}}"
+}
+```
+
+**Reasoning:**
+While returning JSON in a `resource` part with `mimeType: "application/json"` is more semantically correct, major MCP clients (including Google's Gemini and Anthropic's Claude) were found to not support this format, causing validation errors. They expect a `resource` part to contain a `uri`.
+
+To ensure maximum compatibility, the decision was made to use a simple `text` part. This is a pragmatic compromise that has proven to be reliable across different clients.
+
+**Further Reading:**
+This decision was informed by discussions with multiple AI models. For more details, see these conversations:
+- [Perplexity AI Discussion](https://www.perplexity.ai/search/title-resolving-a-model-contex-IfpFWU1FR5WQXQ8HcQctyg#0)
+- [ChatGPT Discussion](https://chatgpt.com/share/68e4d7e1-cad4-800f-80c2-58b33bfc31cb)
 
 ### Common Parameters
 
@@ -500,13 +522,13 @@ Test the MCP server responds to JSON-RPC:
 
 ```sh
 # Test version tool (simplest)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
 
 # Test summary tool
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}''' | simplecov-mcp
 
 # Test help tool
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}''' | simplecov-mcp
 ```
 
 **Important:** JSON-RPC messages must be on a single line. Multi-line JSON will cause parse errors.
@@ -626,13 +648,12 @@ simplecov-mcp help --json
 
 4. **Test MCP server mode:**
    ```sh
-   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+   echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
    ```
 
 5. **Test CLI fallback:**
    ```sh
-   simplecov-mcp version --json
-   simplecov-mcp help --json
+   ruby -v && simplecov-mcp version --json
    ```
 
 ### Path Issues with Version Managers
@@ -660,12 +681,12 @@ rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
 
 ```sh
 # Wrong (multi-line)
-echo '{
+echo '''{
   "jsonrpc": "2.0"
-}' | simplecov-mcp
+}''' | simplecov-mcp
 
 # Correct (single line)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
 ```
 
 
@@ -707,7 +728,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 
 ```sh
 # Check Ruby version in MCP context
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | $(which simplecov-mcp)
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | $(which simplecov-mcp)
 
 # If error, your shim might be pointing to wrong Ruby
 # Test CLI fallback:

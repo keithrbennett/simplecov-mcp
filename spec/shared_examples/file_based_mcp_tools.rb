@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'spec_helper'
+
 # Shared examples for file-based MCP tools that follow the same pattern:
 # - Take a path parameter
 # - Call a specific method on CoverageModel  
@@ -31,13 +33,11 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
 
   subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
 
-  it_behaves_like 'an MCP tool that returns JSON resource'
+  it_behaves_like 'an MCP tool that returns text JSON'
 
   it "returns #{config[:description]} with expected structure" do
     response = subject
-    data, item = expect_mcp_json_resource(response, expected_keys: expected_keys)
-
-    expect(item['resource']['name']).to eq(output_filename)
+    data, item = expect_mcp_text_json(response, expected_keys: expected_keys)
 
     if data.is_a?(Hash) && data.key?('file')
       expect(data['file']).to eq('lib/foo.rb')
@@ -91,7 +91,7 @@ FILE_BASED_TOOL_CONFIGS = {
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: instance_double('ServerContext').as_null_object)
-        data, _ = expect_mcp_json_resource(response)
+        data, _ = expect_mcp_text_json(response)
 
         expect(data['summary']['pct']).to be_a(Float)
       }
@@ -142,7 +142,7 @@ FILE_BASED_TOOL_CONFIGS = {
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: instance_double('ServerContext').as_null_object)
-        data, _ = expect_mcp_json_resource(response)
+        data, _ = expect_mcp_text_json(response)
 
         expect(data['uncovered']).to be_an(Array)
         expect(data['summary']).to include('covered', 'total', 'pct')

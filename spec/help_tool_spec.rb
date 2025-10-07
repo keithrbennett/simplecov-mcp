@@ -15,9 +15,8 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
     expect(response.meta).to be_nil
 
     payload = response.payload.first
-    expect(payload['type']).to eq('resource')
-    expect(payload['resource']).to include('mimeType' => 'application/json')
-    data = JSON.parse(payload['resource']['text'])
+    expect(payload['type']).to eq('text')
+    data = JSON.parse(payload['text'])
     tool_names = data['tools'].map { |entry| entry['tool'] }
 
     expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool', 'all_files_coverage_tool', 'coverage_table_tool', 'version_tool')
@@ -27,8 +26,8 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
   it 'filters entries when a query is provided' do
     response = described_class.call(query: 'uncovered', server_context: server_context)
     payload = response.payload.first
-    expect(payload['type']).to eq('resource')
-    data = JSON.parse(payload['resource']['text'])
+    expect(payload['type']).to eq('text')
+    data = JSON.parse(payload['text'])
 
     expect(data['tools']).not_to be_empty
     expect(data['tools']).to all(satisfy do |entry|

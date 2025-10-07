@@ -57,16 +57,7 @@ module SimpleCovMcp
       # The resource embeds the JSON string with a clear MIME type.
       def self.respond_json(payload, name: 'data.json', pretty: false)
         json = pretty ? JSON.pretty_generate(payload) : JSON.generate(payload)
-        ::MCP::Tool::Response.new([
-          {
-            'type' => 'resource',
-            'resource' => {
-              'mimeType' => 'application/json',
-              'text' => json,
-              'name' => name
-            }
-          }
-        ])
+        ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => json }])
       end
 
       private

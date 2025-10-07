@@ -25,11 +25,11 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
   subject { described_class.call(root: root, server_context: server_context) }
 
-  it_behaves_like 'an MCP tool that returns JSON resource'
+  it_behaves_like 'an MCP tool that returns text JSON'
 
   it 'returns all files coverage data with counts' do
     response = subject
-    data, item = expect_mcp_json_resource(response, expected_keys: ['files', 'counts'])
+    data, item = expect_mcp_text_json(response, expected_keys: ['files', 'counts'])
     
     files = data['files']
     counts = data['counts']

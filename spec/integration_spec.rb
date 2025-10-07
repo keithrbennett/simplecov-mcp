@@ -186,9 +186,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
       
-      data, item = expect_mcp_json_resource(summary_response, expected_keys: ['file', 'summary'])
+      data, item = expect_mcp_text_json(summary_response, expected_keys: ['file', 'summary'])
       expect(data['summary']).to include('covered' => 2, 'total' => 3)
-      expect(item['resource']['name']).to eq('coverage_summary.json')
       
       # Test raw coverage tool
       raw_response = SimpleCovMcp::Tools::CoverageRawTool.call(
@@ -198,9 +197,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
       
-      raw_data, raw_item = expect_mcp_json_resource(raw_response, expected_keys: ['file', 'lines'])
+      raw_data, raw_item = expect_mcp_text_json(raw_response, expected_keys: ['file', 'lines'])
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
-      expect(raw_item['resource']['name']).to eq('coverage_raw.json')
       
       # Test all files tool
       all_files_response = SimpleCovMcp::Tools::AllFilesCoverageTool.call(
@@ -209,7 +207,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
       
-      all_data, _ = expect_mcp_json_resource(all_files_response, expected_keys: ['files', 'counts'])
+      all_data, _ = expect_mcp_text_json(all_files_response, expected_keys: ['files', 'counts'])
       expect(all_data['files'].length).to eq(2)
       expect(all_data['counts']['total']).to eq(2)
     end
@@ -222,7 +220,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      summary_data, _ = expect_mcp_json_resource(summary_response)
+      summary_data, _ = expect_mcp_text_json(summary_response)
       
       # Get data from detailed tool
       detailed_response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
@@ -231,7 +229,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      detailed_data, _ = expect_mcp_json_resource(detailed_response)
+      detailed_data, _ = expect_mcp_text_json(detailed_response)
       
       # Verify consistency between tools
       expect(summary_data['summary']['covered']).to eq(2)

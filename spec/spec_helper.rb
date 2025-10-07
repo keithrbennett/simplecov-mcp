@@ -59,6 +59,9 @@ def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
   allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(fake_resultset.to_json)
 end
 
+# Automatically require all files in spec/shared_examples
+Dir[File.join(__dir__, 'shared_examples', '**', '*.rb')].sort.each { |f| require f }
+
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
@@ -116,17 +119,15 @@ module MCPToolTestHelpers
     stub_const('MCP::Tool::Response', response_class)
   end
   
-  def expect_mcp_json_resource(response, expected_keys: [])
+  def expect_mcp_text_json(response, expected_keys: [])
     item = response.payload.first
     
-    # Standard MCP resource structure
-    expect(item['type']).to eq('resource')
-    expect(item['resource']).to include('mimeType' => 'application/json')
-    expect(item['resource']).to have_key('name')
-    expect(item['resource']).to have_key('text')
+    # Check for a 'text' part
+    expect(item['type']).to eq('text')
+    expect(item).to have_key('text')
     
     # Parse and validate JSON content
-    data = JSON.parse(item['resource']['text'])
+    data = JSON.parse(item['text'])
     
     # Check for expected keys
     expected_keys.each do |key|
@@ -137,18 +138,7 @@ module MCPToolTestHelpers
   end
 end
 
-RSpec.shared_examples 'an MCP tool that returns JSON resource' do
-  let(:server_context) { instance_double('ServerContext').as_null_object }
-  
-  before do
-    setup_mcp_response_stub
-  end
-  
-  it 'returns a properly structured MCP JSON resource' do
-    response = subject
-    expect_mcp_json_resource(response)
-  end
-end
+
 
 RSpec.configure do |config|
   config.include TestIOHelpers
