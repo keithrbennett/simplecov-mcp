@@ -67,6 +67,9 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.order = :defined
   Kernel.srand config.seed
+
+  # Suppress logging during tests by redirecting to a null device
+  SimpleCovMcp.log_file = File::NULL
 end
 
 # Shared test helpers
