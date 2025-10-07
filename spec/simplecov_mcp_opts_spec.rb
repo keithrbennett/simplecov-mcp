@@ -82,12 +82,12 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--force-cli'
 
       # This would normally be MCP mode (no TTY, no subcommand)
-      allow(STDIN).to receive(:tty?).and_return(false)
+      stdin = double('stdin', tty?: false)
 
       env_opts = SimpleCovMcp.send(:parse_env_opts_for_mode_detection)
       full_argv = env_opts + []
 
-      expect(SimpleCovMcp.send(:should_run_cli?, full_argv)).to be true
+      expect(SimpleCovMcp::ModeDetector.cli_mode?(full_argv, stdin: stdin)).to be true
     end
 
     it 'handles parse errors gracefully in mode detection' do

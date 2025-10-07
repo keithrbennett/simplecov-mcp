@@ -3,23 +3,13 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp do
-  describe '.should_run_cli?' do
-    it 'returns true when --force-cli flag is present' do
-      expect(SimpleCovMcp.send(:should_run_cli?, ['--force-cli'])).to be true
-    end
-    
-    it 'returns true for valid subcommands' do
-      expect(SimpleCovMcp.send(:should_run_cli?, ['list'])).to be true
-    end
-    
-    it 'returns true when STDIN is a TTY' do
-      allow(STDIN).to receive(:tty?).and_return(true)
-      expect(SimpleCovMcp.send(:should_run_cli?, [])).to be true
-    end
-    
-    it 'returns false when STDIN is not a TTY and no subcommand' do
-      allow(STDIN).to receive(:tty?).and_return(false)
-      expect(SimpleCovMcp.send(:should_run_cli?, [])).to be false
+  # Mode detection tests moved to mode_detector_spec.rb
+  # These tests verify the integration with ModeDetector
+  describe 'mode detection integration' do
+    it 'uses ModeDetector for CLI mode detection' do
+      expect(SimpleCovMcp::ModeDetector).to receive(:cli_mode?).with(['--force-cli']).and_return(true)
+      expect(SimpleCovMcp::CoverageCLI).to receive_message_chain(:new, :run)
+      SimpleCovMcp.run(['--force-cli'])
     end
   end
   

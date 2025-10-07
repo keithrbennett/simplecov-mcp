@@ -12,6 +12,7 @@ require_relative 'simplecov_mcp/errors'
 require_relative 'simplecov_mcp/error_handler'
 require_relative 'simplecov_mcp/error_handler_factory'
 require_relative 'simplecov_mcp/path_relativizer'
+require_relative 'simplecov_mcp/mode_detector'
 require_relative 'simplecov_mcp/model'
 require_relative 'simplecov_mcp/base_tool'
 require_relative 'simplecov_mcp/tools/coverage_raw_tool'
@@ -31,12 +32,12 @@ module SimpleCovMcp
   end
 
     def self.run(argv)
-      # Parse environment options for CLI mode detection
+      # Parse environment options for mode detection
       env_opts = parse_env_opts_for_mode_detection
       full_argv = env_opts + argv
 
       # Determine whether to run CLI or MCP server based on arguments and environment
-      if should_run_cli?(full_argv)
+      if ModeDetector.cli_mode?(full_argv)
         CoverageCLI.new.run(argv)  # CLI will re-parse env opts internally
       else
         MCPServer.new.run
@@ -107,20 +108,5 @@ module SimpleCovMcp
       rescue ArgumentError
         []  # Ignore parsing errors for mode detection
       end
-    end
-
-    def self.should_run_cli?(argv)
-      # Check if --force-cli flag is present (from SIMPLECOV_MCP_OPTS or command line)
-      return true if argv.include?('--force-cli')
-
-      # If a subcommand is provided, run CLI
-      return true if CoverageCLI::SUBCOMMANDS.include?(argv[0])
-
-      # If first arg looks like a subcommand attempt (doesn't start with -), run CLI
-      # This allows CLI to show a proper error for invalid subcommands
-      return true if !argv.empty? && !argv[0].start_with?('-')
-
-      # If interactive TTY, prefer CLI; else (e.g., pipes), run MCP server
-      STDIN.tty?
     end
 end
