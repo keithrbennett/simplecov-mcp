@@ -39,6 +39,7 @@
 
 # Logs
 /log/
+*.log
 
 # Lockfile (for libraries)
 Gemfile.lock
