@@ -12,21 +12,21 @@ RSpec.describe SimpleCovMcp do
       SimpleCovMcp.run(['--force-cli'])
     end
   end
-  
+
   describe '.execute_library_command' do
     let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
-    
+
     it 'returns all_files when argv is empty' do
       expect(model).to receive(:all_files).and_return([])
       expect(SimpleCovMcp.send(:execute_library_command, model, [])).to eq([])
     end
-    
+
     it 'raises UsageError for insufficient arguments' do
       expect {
         SimpleCovMcp.send(:execute_library_command, model, ['summary'])
       }.to raise_error(SimpleCovMcp::UsageError)
     end
-    
+
     %w[summary raw uncovered detailed].each do |command|
       it "routes #{command} command correctly" do
         expect(model).to receive("#{command}_for").with('file.rb').and_return({})
@@ -34,7 +34,7 @@ RSpec.describe SimpleCovMcp do
         expect(result).to eq({})
       end
     end
-    
+
     it 'raises UsageError for unknown commands' do
       expect {
         SimpleCovMcp.send(:execute_library_command, model, ['unknown', 'file.rb'])

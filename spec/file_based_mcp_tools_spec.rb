@@ -16,15 +16,15 @@ RSpec.describe 'File-based MCP Tools' do
       it_behaves_like 'a file-based MCP tool', config
     end
   end
-  
+
   # Test that all file-based tools handle the same parameters consistently
   describe 'parameter consistency' do
     let(:server_context) { instance_double('ServerContext').as_null_object }
-    
+
     before do
       setup_mcp_response_stub
     end
-    
+
     it 'all file-based tools accept the same basic parameters' do
       # Test that all tools can be called with the same parameter signature
       FILE_BASED_TOOL_CONFIGS.each do |tool_name, config|
@@ -33,7 +33,7 @@ RSpec.describe 'File-based MCP Tools' do
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
-        
+
         expect {
           config[:tool_class].call(
             path: 'lib/example.rb',
@@ -44,7 +44,7 @@ RSpec.describe 'File-based MCP Tools' do
         }.not_to raise_error
       end
     end
-    
+
     it 'all file-based tools return JSON resources with consistent structure' do
       FILE_BASED_TOOL_CONFIGS.each do |tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)
@@ -52,14 +52,14 @@ RSpec.describe 'File-based MCP Tools' do
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
-        
+
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
-        
+
         # All should have the same basic MCP text structure
         expect(response.payload).to be_an(Array)
         expect(response.payload.first['type']).to eq('text')
         expect(response.payload.first).to have_key('text')
-        
+
         # All should return valid JSON
         expect { JSON.parse(response.payload.first['text']) }.not_to raise_error
       end

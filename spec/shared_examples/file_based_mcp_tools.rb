@@ -16,7 +16,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
   let(:output_filename) { config[:output_filename] }
   let(:mock_data) { config[:mock_data] }
   let(:additional_validations) { config[:additional_validations] }
-  
+
   before do
     setup_mcp_response_stub
     model = instance_double(SimpleCovMcp::CoverageModel)
@@ -51,7 +51,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
       instance_exec(data, item, &additional_validations)
     end
   end
-  
+
   # Generate tool-specific examples dynamically
   tool_specific_examples = config[:tool_specific_examples] || {}
   tool_specific_examples.each do |example_name, example_block|
