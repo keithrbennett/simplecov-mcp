@@ -12,7 +12,7 @@ module SimpleCovMcp
           rel = model.relativize(data)['file']
           s = data['summary']
           printf "%8.2f%%  %6d/%-6d  %s\n\n", s['pct'], s['covered'], s['total'], rel
-          print_source_for(model, path) if cli.instance_variable_get(:@source_mode)
+          print_source_for(model, path) if config.source_mode
         end
       end
     end

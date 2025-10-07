@@ -51,12 +51,16 @@ module SimpleCovMcp
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', error_mode: 'on', server_context:)
           # Capture the output of the CLI's table report while honoring CLI options
+          # Convert string inputs from MCP to symbols for internal use
+          sort_order_sym = sort_order.to_sym
+          stale_sym = stale.to_sym
+
           output = StringIO.new
           cli = CoverageCLI.new
-          cli.instance_variable_set(:@root, root || '.')
-          cli.instance_variable_set(:@resultset, resultset)
-          cli.instance_variable_set(:@stale_mode, (stale || 'off').to_s)
-          cli.show_default_report(sort_order: sort_order.to_sym, output: output)
+          cli.config.root = root || '.'
+          cli.config.resultset = resultset
+          cli.config.stale_mode = stale_sym
+          cli.show_default_report(sort_order: sort_order_sym, output: output)
           ::MCP::Tool::Response.new([{ type: 'text', text: output.string }])
         rescue => e
           handle_mcp_error(e, 'CoverageTableTool', error_mode: error_mode)

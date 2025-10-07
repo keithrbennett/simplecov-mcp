@@ -64,7 +64,7 @@ module SimpleCovMcp
     end
 
     def relativize(payload)
-      @relativizer.relativize(payload)
+      relativizer.relativize(payload)
     end
 
     # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'pct'=>} }
@@ -103,7 +103,7 @@ module SimpleCovMcp
       end
 
       rows.sort! do |a, b|
-        pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+        pct_cmp = (sort_order == :descending) ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
         pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
       end
       rows
@@ -159,7 +159,7 @@ module SimpleCovMcp
 
     def sort_rows(rows, sort_order: :ascending)
       rows.sort do |a, b|
-        pct_cmp = (sort_order.to_s == 'descending') ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+        pct_cmp = (sort_order == :descending) ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
         pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
       end
     end

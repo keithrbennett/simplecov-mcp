@@ -37,7 +37,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     expect(SimpleCovMcp::CoverageModel).to receive(:new).with(
       root: root,
       resultset: nil,
-      staleness: 'error',
+      staleness: :error,
       tracked_globs: nil
     ).and_return(model)
     allow(model).to receive(:format_table).and_return("Mock table output")

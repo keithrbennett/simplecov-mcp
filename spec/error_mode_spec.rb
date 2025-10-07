@@ -102,7 +102,7 @@ RSpec.describe 'Error Mode System' do
         cli.send(:parse_options!, ['--error-mode', 'on_with_trace', 'summary', 'lib/foo.rb'])
       }.not_to raise_error
 
-      expect(cli.instance_variable_get(:@error_mode)).to eq(:on_with_trace)
+      expect(cli.config.error_mode).to eq(:on_with_trace)
     end
 
     it 'creates error handler with specified mode' do

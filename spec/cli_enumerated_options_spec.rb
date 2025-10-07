@@ -11,29 +11,29 @@ RSpec.describe 'CLI enumerated option parsing' do
 
   describe 'accepts short and long forms' do
     cases = [
-      { argv: ['--sort-order', 'a', 'list'],          var: :@sort_order, expected: 'ascending' },
-      { argv: ['--sort-order', 'd', 'list'],          var: :@sort_order, expected: 'descending' },
-      { argv: ['--sort-order', 'ascending', 'list'],  var: :@sort_order, expected: 'ascending' },
-      { argv: ['--sort-order', 'descending', 'list'], var: :@sort_order, expected: 'descending' },
+      { argv: ['--sort-order', 'a', 'list'],          accessor: :sort_order, expected: :ascending },
+      { argv: ['--sort-order', 'd', 'list'],          accessor: :sort_order, expected: :descending },
+      { argv: ['--sort-order', 'ascending', 'list'],  accessor: :sort_order, expected: :ascending },
+      { argv: ['--sort-order', 'descending', 'list'], accessor: :sort_order, expected: :descending },
 
-      { argv: ['--source', 'f', 'summary', 'lib/foo.rb'],      var: :@source_mode, expected: 'full' },
+      { argv: ['--source', 'f', 'summary', 'lib/foo.rb'],      accessor: :source_mode, expected: :full },
       # For optional arg, use =-form to pass a value
-      { argv: ['--source=u', 'summary', 'lib/foo.rb'],         var: :@source_mode, expected: 'uncovered' },
-      { argv: ['--source=full', 'summary', 'lib/foo.rb'],      var: :@source_mode, expected: 'full' },
-      { argv: ['--source=uncovered', 'summary', 'lib/foo.rb'], var: :@source_mode, expected: 'uncovered' },
+      { argv: ['--source=u', 'summary', 'lib/foo.rb'],         accessor: :source_mode, expected: :uncovered },
+      { argv: ['--source=full', 'summary', 'lib/foo.rb'],      accessor: :source_mode, expected: :full },
+      { argv: ['--source=uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :uncovered },
 
-      { argv: ['-S', 'e', 'list'], var: :@stale_mode, expected: 'error' },
-      { argv: ['-S', 'o', 'list'], var: :@stale_mode, expected: 'off' },
+      { argv: ['-S', 'e', 'list'], accessor: :stale_mode, expected: :error },
+      { argv: ['-S', 'o', 'list'], accessor: :stale_mode, expected: :off },
 
-      { argv: ['--error-mode', 'off', 'list'], var: :@error_mode, expected: :off },
-      { argv: ['--error-mode', 'on', 'list'],  var: :@error_mode, expected: :on },
-      { argv: ['--error-mode', 't', 'list'],   var: :@error_mode, expected: :on_with_trace }
+      { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
+      { argv: ['--error-mode', 'on', 'list'],  accessor: :error_mode, expected: :on },
+      { argv: ['--error-mode', 't', 'list'],   accessor: :error_mode, expected: :on_with_trace }
     ]
 
     cases.each do |c|
       it "parses #{c[:argv].join(' ')}" do
         cli = parse!(c[:argv])
-        expect(cli.instance_variable_get(c[:var])).to eq(c[:expected])
+        expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])
       end
     end
   end

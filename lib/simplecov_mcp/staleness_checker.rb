@@ -6,19 +6,19 @@ require 'json'
 module SimpleCovMcp
   # Lightweight service object to check staleness of coverage vs. sources
   class StalenessChecker
-    MODES = %w[off error].freeze
+    MODES = [:off, :error].freeze
 
-    def initialize(root:, resultset:, mode: 'off', tracked_globs: nil, timestamp: nil)
+    def initialize(root:, resultset:, mode: :off, tracked_globs: nil, timestamp: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
-      @mode = (mode || 'off').to_s
+      @mode = (mode || :off).to_sym
       @tracked_globs = tracked_globs
       @cov_timestamp = timestamp
       @resultset_path = nil
     end
 
     def off?
-      @mode == 'off'
+      @mode == :off
     end
 
     # Raise CoverageDataStaleError if stale (only in error mode)

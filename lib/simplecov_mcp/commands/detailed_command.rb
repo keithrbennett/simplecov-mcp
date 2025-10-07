@@ -13,7 +13,7 @@ module SimpleCovMcp
           rel = model.relativize(data)['file']
           puts "File: #{rel}"
           puts source_formatter.format_detailed_rows(data['lines'])
-          print_source_for(model, path) if cli.instance_variable_get(:@source_mode)
+          print_source_for(model, path) if config.source_mode
         end
       end
 
@@ -21,7 +21,7 @@ module SimpleCovMcp
 
       def source_formatter
         @source_formatter ||= Formatters::SourceFormatter.new(
-          color_enabled: cli.instance_variable_get(:@color)
+          color_enabled: config.color
         )
       end
     end

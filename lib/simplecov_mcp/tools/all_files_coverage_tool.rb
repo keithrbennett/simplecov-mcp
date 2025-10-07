@@ -53,8 +53,12 @@ module SimpleCovMcp
       )
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', tracked_globs: nil, error_mode: 'on', server_context:)
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale, tracked_globs: tracked_globs)
-          files = model.all_files(sort_order: sort_order, check_stale: (stale.to_s == 'error'), tracked_globs: tracked_globs)
+          # Convert string inputs from MCP to symbols for internal use
+          sort_order_sym = sort_order.to_sym
+          stale_sym = stale.to_sym
+
+          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, tracked_globs: tracked_globs)
+          files = model.all_files(sort_order: sort_order_sym, check_stale: (stale_sym == :error), tracked_globs: tracked_globs)
           total = files.length
           stale_count = files.count { |f| f['stale'] }
           ok_count = total - stale_count

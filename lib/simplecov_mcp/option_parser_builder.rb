@@ -5,8 +5,11 @@ module SimpleCovMcp
     HORIZONTAL_RULE = '-' * 79
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
 
+    attr_reader :config
+
     def initialize(cli_instance)
       @cli = cli_instance
+      @config = cli_instance.config
     end
 
     def build_option_parser
@@ -48,34 +51,34 @@ module SimpleCovMcp
 
     def define_options(o)
       o.separator 'Options:'
-      o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') { |v| @cli.instance_variable_set(:@resultset, v) }
-      o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| @cli.instance_variable_set(:@root, v) }
-      o.on('-j', '--json', 'Output JSON for machine consumption') { @cli.instance_variable_set(:@json, true) }
+      o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') { |v| config.resultset = v }
+      o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }
+      o.on('-j', '--json', 'Output JSON for machine consumption') { config.json = true }
       o.on('-o', '--sort-order ORDER', String,
            'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
-        @cli.instance_variable_set(:@sort_order, normalize_sort_order(v))
+        config.sort_order = normalize_sort_order(v)
       end
       o.on('-s', '--source[=MODE]', String,
            'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
-        @cli.instance_variable_set(:@source_mode, normalize_source_mode(v))
+        config.source_mode = normalize_source_mode(v)
       end
-      o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default: 2)') { |v| @cli.instance_variable_set(:@source_context, v) }
-      o.on('--color', 'Enable ANSI colors for source output') { @cli.instance_variable_set(:@color, true) }
-      o.on('--no-color', 'Disable ANSI colors') { @cli.instance_variable_set(:@color, false) }
+      o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default: 2)') { |v| config.source_context = v }
+      o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
+      o.on('--no-color', 'Disable ANSI colors') { config.color = false }
       o.on('-S', '--stale MODE', String,
            'Staleness mode: o[ff]|e[rror] (default off)') do |v|
-        @cli.instance_variable_set(:@stale_mode, normalize_stale_mode(v))
+        config.stale_mode = normalize_stale_mode(v)
       end
-      o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| @cli.instance_variable_set(:@tracked_globs, v) }
-      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use - to disable)') { |v| @cli.instance_variable_set(:@log_file, v) }
+      o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| config.tracked_globs = v }
+      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use - to disable)') { |v| config.log_file = v }
       o.on('--error-mode MODE', String,
-           'Error handling mode: off|on|t[race] (default on)') do |v|
-        @cli.instance_variable_set(:@error_mode, normalize_error_mode(v))
+           'Error handling mode: off|on|t[trace] (default on)') do |v|
+        config.error_mode = normalize_error_mode(v)
       end
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
       end
-      o.on('--success-predicate FILE', String, 'Ruby file returning callable; exits 0 if truthy, 1 if falsy') { |v| @cli.instance_variable_set(:@success_predicate, v) }
+      o.on('--success-predicate FILE', String, 'Ruby file returning callable; exits 0 if truthy, 1 if falsy') { |v| config.success_predicate = v }
     end
 
     def define_examples(o)
@@ -97,22 +100,22 @@ module SimpleCovMcp
 
     def normalize_sort_order(v)
       map = {
-        'a' => 'ascending', 'ascending' => 'ascending',
-        'd' => 'descending', 'descending' => 'descending'
+        'a' => :ascending, 'ascending' => :ascending,
+        'd' => :descending, 'descending' => :descending
       }
       v = v.to_s.downcase
       map[v] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
     end
 
     def normalize_source_mode(v)
-      return 'full' if v.nil? || v == ''
-      map = { 'full' => 'full', 'f' => 'full', 'uncovered' => 'uncovered', 'u' => 'uncovered' }
+      return :full if v.nil? || v == ''
+      map = { 'full' => :full, 'f' => :full, 'uncovered' => :uncovered, 'u' => :uncovered }
       key = v.to_s.downcase
       map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
     end
 
     def normalize_stale_mode(v)
-      map = { 'off' => 'off', 'o' => 'off', 'error' => 'error', 'e' => 'error' }
+      map = { 'off' => :off, 'o' => :off, 'error' => :error, 'e' => :error }
       key = v.to_s.downcase
       map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
     end

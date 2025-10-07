@@ -44,8 +44,8 @@ module SimpleCovMcp
         context_line_count = 0 if context_line_count.negative?
 
         n = src_lines.length
-        include_line = Array.new(n, mode == 'full')
-        if mode == 'uncovered'
+        include_line = Array.new(n, mode == :full)
+        if mode == :uncovered
           include_line = mark_uncovered_lines_with_context(coverage_lines, context_line_count, n)
         end
 

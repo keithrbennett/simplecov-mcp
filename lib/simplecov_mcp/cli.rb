@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'cli_config'
 require_relative 'option_parser_builder'
 require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
@@ -10,25 +11,16 @@ module SimpleCovMcp
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
     HORIZONTAL_RULE = '-' * 79
 
+    attr_reader :config
+
       # Initialize CLI for pure CLI usage only.
       # Always runs as CLI, no mode detection needed.
     def initialize(error_handler: nil)
-      @root = '.'
-      @resultset = nil
-      @json = false
-      @sort_order = 'ascending'
+      @config = CLIConfig.new
       @cmd = nil
       @cmd_args = []
-      @source_mode = nil   # nil, 'full', or 'uncovered'
-      @source_context = 2  # lines of context for uncovered mode
-      @color = STDOUT.tty?
-      @error_mode = :on
       @custom_error_handler = error_handler  # Store custom handler if provided
       @error_handler = nil  # Will be created after parsing options
-      @stale_mode = 'off'
-      @tracked_globs = nil
-      @log_file = nil
-      @success_predicate = nil
     end
 
     def run(argv)
@@ -42,10 +34,10 @@ module SimpleCovMcp
       ensure_error_handler
 
       # Set global log file if specified
-      SimpleCovMcp.log_file = @log_file if @log_file
+      SimpleCovMcp.log_file = config.log_file if config.log_file
 
       # If success predicate specified, run it and exit
-      if @success_predicate
+      if config.success_predicate
         run_success_predicate
         return
       end
@@ -53,7 +45,7 @@ module SimpleCovMcp
       if @cmd
         run_subcommand(@cmd, @cmd_args)
       else
-        show_default_report(sort_order: @sort_order)
+        show_default_report(sort_order: config.sort_order)
       end
     rescue OptionParser::ParseError => e
       # Handle any option parsing errors (invalid option/argument) without relying on
@@ -66,10 +58,10 @@ module SimpleCovMcp
     end
 
     def show_default_report(sort_order: :ascending, output: $stdout)
-      model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)
-      rows = model.all_files(sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
+      model = CoverageModel.new(**config.model_options)
+      rows = model.all_files(sort_order: sort_order, check_stale: (config.stale_mode == :error), tracked_globs: config.tracked_globs)
 
-      if @json
+      if config.json
         files = model.relativize(rows)
         total = files.length
         stale_count = files.count { |f| f['stale'] }
@@ -80,7 +72,7 @@ module SimpleCovMcp
 
       file_summaries = model.relativize(rows)
       # Delegate to model for consistent formatting and avoid duplicate logic
-      output.puts model.format_table(file_summaries, sort_order: sort_order, check_stale: (@stale_mode == 'error'), tracked_globs: @tracked_globs)
+      output.puts model.format_table(file_summaries, sort_order: sort_order, check_stale: (config.stale_mode == :error), tracked_globs: config.tracked_globs)
     end
 
       private
@@ -111,7 +103,7 @@ module SimpleCovMcp
     end
 
     def ensure_error_handler
-      @error_handler ||= @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: @error_mode)
+      @error_handler ||= @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
     def parse_env_opts
@@ -121,8 +113,7 @@ module SimpleCovMcp
 
     def pre_scan_error_mode(argv)
       @env_parser ||= OptionParsers::EnvOptionsParser.new
-      @error_mode = @env_parser.pre_scan_error_mode(argv)
-      @error_mode ||= :on  # Default if not found
+      config.error_mode = @env_parser.pre_scan_error_mode(argv) || :on
     end
 
     def build_option_parser
@@ -150,14 +141,14 @@ module SimpleCovMcp
 
     
     def run_success_predicate
-      predicate = load_success_predicate(@success_predicate)
-      model = CoverageModel.new(root: @root, resultset: @resultset, staleness: @stale_mode, tracked_globs: @tracked_globs)
+      predicate = load_success_predicate(config.success_predicate)
+      model = CoverageModel.new(**config.model_options)
 
       result = predicate.call(model)
       exit(result ? 0 : 1)
     rescue => e
       warn "Success predicate error: #{e.message}"
-      warn e.backtrace.first(5).join("\n") if @error_mode == :on_with_trace
+      warn e.backtrace.first(5).join("\n") if config.error_mode == :on_with_trace
       exit 2  # Exit code 2 for predicate errors
     end
 

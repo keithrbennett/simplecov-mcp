@@ -14,7 +14,7 @@ module SimpleCovMcp
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           s = data['summary']
           printf "Summary:      %8.2f%%  %6d/%-6d\n\n", s['pct'], s['covered'], s['total']
-          print_source_for(model, path) if cli.instance_variable_get(:@source_mode)
+          print_source_for(model, path) if config.source_mode
         end
       end
     end

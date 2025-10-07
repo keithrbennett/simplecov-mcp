@@ -18,11 +18,11 @@ module SimpleCovMcp
       end
 
       def log_errors?
-        @error_mode != :off
+        error_mode != :off
       end
 
       def show_stack_traces?
-        @error_mode == :on_with_trace
+        error_mode == :on_with_trace
       end
 
       # Handle an error with appropriate logging and re-raising behavior
@@ -88,8 +88,8 @@ module SimpleCovMcp
         return unless log_errors?
 
         message = build_log_message(error, context)
-        if @logger
-          @logger.error(message)
+        if logger
+          logger.error(message)
         else
           CovUtil.log(message)
         end

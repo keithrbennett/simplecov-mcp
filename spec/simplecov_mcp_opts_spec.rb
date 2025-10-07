@@ -23,8 +23,8 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
         puts "DEBUG: Caught exception: #{e.class}: #{e.message}" if ENV['DEBUG']
       end
 
-      expect(cli.instance_variable_get(:@error_mode)).to eq(:off)
-      expect(cli.instance_variable_get(:@json)).to be true
+      expect(cli.config.error_mode).to eq(:off)
+      expect(cli.config.json).to be true
     end
 
     it 'handles quoted options with spaces' do
@@ -40,7 +40,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
         cli.send(:run, ['--help'])
       end
 
-      expect(cli.instance_variable_get(:@resultset)).to eq(test_path)
+      expect(cli.config.resultset).to eq(test_path)
     end
 
     it 'command line arguments override environment options' do
@@ -53,7 +53,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       end
 
       # Command line should override environment
-      expect(cli.instance_variable_get(:@error_mode)).to eq(:on_with_trace)
+      expect(cli.config.error_mode).to eq(:on_with_trace)
     end
 
     it 'handles malformed SIMPLECOV_MCP_OPTS gracefully' do
@@ -163,8 +163,8 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
         silence_output { cli.send(:run, ['--help']) }
       }.not_to raise_error
 
-      expect(cli.instance_variable_get(:@resultset)).to eq(test_resultset)
-      expect(cli.instance_variable_get(:@json)).to be true
+      expect(cli.config.resultset).to eq(test_resultset)
+      expect(cli.config.json).to be true
     end
   end
 end
