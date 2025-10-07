@@ -1,3 +1,10 @@
+# AI Tools
+.claude/
+.gemini/
+
+# Directory for untracked AI reports, of which there may be many
+untracked-ai-reports/
+
 # Bundler
 /.bundle/
 /vendor/bundle/
