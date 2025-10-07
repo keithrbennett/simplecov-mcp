@@ -14,13 +14,8 @@ module SimpleCovMcp
         CoverageLineResolver.new(cov_data)
       end
 
-      # Legacy compatibility methods for CovUtil
       def self.find_resultset(root, resultset: nil)
         ResultsetPathResolver.new(root: root).find_resultset(resultset: resultset)
-      end
-
-      def self.resolve_resultset_candidate(path, strict:)
-        ResultsetPathResolver.new.resolve_candidate(path, strict: strict)
       end
 
       def self.lookup_lines(cov, file_abs)

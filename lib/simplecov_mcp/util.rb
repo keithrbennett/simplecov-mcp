@@ -40,10 +40,6 @@ module SimpleCovMcp
       Resolvers::ResolverFactory.find_resultset(root, resultset: resultset)
     end
 
-    def resolve_resultset_candidate(path, strict:)
-      Resolvers::ResolverFactory.resolve_resultset_candidate(path, strict: strict)
-    end
-
     def lookup_lines(cov, file_abs)
       Resolvers::ResolverFactory.lookup_lines(cov, file_abs)
     end
