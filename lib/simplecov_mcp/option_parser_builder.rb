@@ -70,7 +70,7 @@ module SimpleCovMcp
         config.stale_mode = normalize_stale_mode(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| config.tracked_globs = v }
-      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use - to disable)') { |v| config.log_file = v }
+      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') { |v| config.log_file = v }
       o.on('--error-mode MODE', String,
            'Error handling mode: off|on|t[trace] (default on)') do |v|
         config.error_mode = normalize_error_mode(v)

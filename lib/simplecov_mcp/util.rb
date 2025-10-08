@@ -14,24 +14,19 @@ module SimpleCovMcp
   module CovUtil
     module_function
 
-    def log_path
-      unless SimpleCovMcp.respond_to?(:log_file)
-        return File.expand_path(DEFAULT_LOG_FILESPEC)
-      end
-
-      log_file = SimpleCovMcp.log_file
-      if log_file && !log_file.empty?
-        log_file == '-' ? nil : File.expand_path(log_file)
-      else
-        File.expand_path(DEFAULT_LOG_FILESPEC)
-      end
-    end
-
     def log(msg)
-      path = log_path
-      return if path.nil? # Skip logging if path is nil (stderr mode or disabled)
+      log_file = SimpleCovMcp.log_file
 
-      File.open(path, 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
+      case log_file
+      when 'stdout'
+        $stdout.puts "[#{Time.now.iso8601}] #{msg}"
+      when 'stderr'
+        $stderr.puts "[#{Time.now.iso8601}] #{msg}"
+      else
+        # Handles both nil (default) and custom file paths
+        path_to_log = log_file || DEFAULT_LOG_FILESPEC
+        File.open(File.expand_path(path_to_log), 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
+      end
     rescue StandardError
       # ignore logging failures
     end

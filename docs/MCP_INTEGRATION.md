@@ -579,18 +579,20 @@ You can configure a different log location:
 }
 ```
 
-Or disable logging:
+Or log to standard error:
 
 ```json
 {
   "mcpServers": {
     "simplecov-mcp": {
       "command": "/path/to/simplecov-mcp",
-      "args": ["--log-file", "-"]
+      "args": ["--log-file", "stderr"]
     }
   }
 }
 ```
+
+**Note:** Logging to `stdout` is not permitted in MCP mode.
 
 ## Troubleshooting
 

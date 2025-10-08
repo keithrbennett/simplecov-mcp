@@ -102,9 +102,9 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       end
     end
 
-    it 'handles --log-file - (disable logging)' do
-      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', '-')
-      expect(SimpleCovMcp.log_file).to eq('-')
+    it 'handles --log-file stdout (log to stdout)' do
+      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', 'stdout')
+      expect(SimpleCovMcp.log_file).to eq('stdout')
     end
   end
 
@@ -139,6 +139,26 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         expect { cli.send(:load_success_predicate, path) }
           .to raise_error(RuntimeError, include('Syntax error in success predicate file'))
       end
+    end
+  end
+
+  describe '#extract_subcommand!' do
+    let(:cli) { described_class.new }
+
+    around do |example|
+      original = ENV['SIMPLECOV_MCP_OPTS']
+      example.run
+    ensure
+      ENV['SIMPLECOV_MCP_OPTS'] = original
+    end
+
+    it 'picks up subcommands that appear after env-provided options' do
+      ENV['SIMPLECOV_MCP_OPTS'] = '--resultset coverage'
+      argv = cli.send(:parse_env_opts) + ['summary', 'lib/foo.rb']
+
+      expect {
+        cli.send(:extract_subcommand!, argv)
+      }.to change { cli.instance_variable_get(:@cmd) }.from(nil).to('summary')
     end
   end
 end

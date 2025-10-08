@@ -74,31 +74,20 @@ RSpec.describe SimpleCovMcp::CovUtil do
       SimpleCovMcp.log_file = old_log_file
     end
 
-    it 'log_path uses default path when no configuration' do
-      default_path = File.expand_path('./simplecov_mcp.log')
-      2.times { expect(described_class.log_path).to eq(default_path) }
-    end
 
-    it 'log_path recomputes when SimpleCovMcp.log_file changes' do
-      expect(described_class.log_path).to eq(File.expand_path('./simplecov_mcp.log'))
 
-      SimpleCovMcp.log_file = '/module/log/path.log'
-      expect(described_class.log_path).to eq('/module/log/path.log')
-
-      SimpleCovMcp.log_file = 'tmp/local.log'
-      expect(described_class.log_path).to eq(File.expand_path('tmp/local.log'))
-
-      SimpleCovMcp.log_file = '-'
-      expect(described_class.log_path).to be_nil
-
-      SimpleCovMcp.log_file = nil
-      expect(described_class.log_path).to eq(File.expand_path('./simplecov_mcp.log'))
-    end
-
-    it 'log does not write when path is nil' do
-      SimpleCovMcp.log_file = '-'
+    it "logs to stdout when log_file is 'stdout'" do
+      SimpleCovMcp.log_file = 'stdout'
       expect(File).not_to receive(:open)
-      described_class.log(test_message)
+      expect { described_class.log(test_message) }
+        .to output(/#{Regexp.escape(test_message)}/).to_stdout
+    end
+
+    it "logs to stderr when log_file is 'stderr'" do
+      SimpleCovMcp.log_file = 'stderr'
+      expect(File).not_to receive(:open)
+      expect { described_class.log(test_message) }
+        .to output(/#{Regexp.escape(test_message)}/).to_stderr
     end
 
     it 'log writes to file when path is configured' do
@@ -130,10 +119,10 @@ RSpec.describe SimpleCovMcp::CovUtil do
       first_content = File.read(log_path)
       expect(first_content).to include('first entry')
 
-      SimpleCovMcp.log_file = '-'
-      expect(described_class.log_path).to be_nil
+      SimpleCovMcp.log_file = 'stderr'
 
-      described_class.log('second entry')
+      expect { described_class.log('second entry') }
+        .to output(/second entry/).to_stderr
       expect(File.exist?(log_path)).to be true
       expect(File.read(log_path)).to eq(first_content)
     ensure

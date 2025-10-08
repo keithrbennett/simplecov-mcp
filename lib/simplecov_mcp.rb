@@ -36,10 +36,17 @@ module SimpleCovMcp
     env_opts = parse_env_opts_for_mode_detection
     full_argv = env_opts + argv
 
-    # Determine whether to run CLI or MCP server based on arguments and environment
     if ModeDetector.cli_mode?(full_argv)
       CoverageCLI.new.run(argv)  # CLI will re-parse env opts internally
     else
+      log_file = parse_log_file(full_argv)
+
+      if log_file == 'stdout'
+        raise ConfigurationError, "Logging to stdout is not permitted in MCP server mode as it interferes with the JSON-RPC protocol. Please use 'stderr' or a file path."
+      end
+
+      # Set log file for MCP server, since it doesn't parse options itself
+      SimpleCovMcp.log_file = log_file
       MCPServer.new.run
     end
   end
@@ -97,6 +104,19 @@ module SimpleCovMcp
       raise UsageError.new("Unknown command: #{command}. Use: summary, raw, uncovered, or detailed")
     end
   end
+
+  def self.parse_log_file(argv)
+    log_file = nil
+    parser = OptionParser.new do |o|
+      # Define the option we're looking for
+      o.on('-l', '--log-file PATH') { |v| log_file = v }
+    end
+    # Parse arguments, but ignore errors and stop at the first non-option
+    parser.order!(argv.dup) {} rescue nil
+    log_file
+  end
+
+  private_class_method :execute_library_command, :parse_log_file
 
   def self.parse_env_opts_for_mode_detection
     require 'shellwords'

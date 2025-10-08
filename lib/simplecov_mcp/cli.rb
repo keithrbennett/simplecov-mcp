@@ -11,6 +11,18 @@ module SimpleCovMcp
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
     HORIZONTAL_RULE = '-' * 79
 
+    OPTIONS_EXPECTING_ARGUMENT = %w[
+      -r --resultset
+      -R --root
+      -o --sort-order
+      -c --source-context
+      -S --stale
+      -g --tracked-globs
+      -l --log-file
+      --error-mode
+      --success-predicate
+    ].freeze
+
     attr_reader :config
 
     # Initialize CLI for pure CLI usage only.
@@ -86,20 +98,46 @@ module SimpleCovMcp
     end
 
     def extract_subcommand!(argv)
+      # Environment options (e.g., from SIMPLECOV_MCP_OPTS) may precede the subcommand.
+      # Walk the array so we can skip over any option/argument pairs before
+      # we decide what the first meaningful token is.
       return if argv.empty?
 
-      first_arg = argv[0]
+      first_unknown = nil
+      pending_option = nil
 
-      # If it's a flag/option, no subcommand
-      return if first_arg.start_with?('-')
+      argv.each_with_index do |token, index|
 
-      # If it's a valid subcommand, extract it
-      if SUBCOMMANDS.include?(first_arg)
-        @cmd = argv.shift
-      else
-        # It's not a flag and not a valid subcommand - likely a typo
-        raise UsageError.new("Unknown subcommand: '#{first_arg}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
+        # skip the argument that belongs to the previous option
+        if pending_option
+          pending_option = nil
+          next
+        end
+
+        if token.start_with?('-')
+          # CLI options (and --foo=value forms) start with '-'; values beginning with '-' are skipped via pending_option
+          # Remember options that expect a following argument so we can skip
+          # that value on the next iteration.
+          pending_option = expects_argument?(token) && !token.include?('=') ? token : nil
+          next
+        elsif SUBCOMMANDS.include?(token)
+          # Found the real subcommand; pluck it out so option parsing sees the
+          # remaining args in their original order.
+          @cmd = token
+          argv.delete_at(index)
+          return
+        else
+          first_unknown ||= token
+        end
       end
+
+      if first_unknown
+        raise UsageError.new("Unknown subcommand: '#{first_unknown}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
+      end
+    end
+
+    def expects_argument?(option)
+      OPTIONS_EXPECTING_ARGUMENT.include?(option)
     end
 
     def ensure_error_handler

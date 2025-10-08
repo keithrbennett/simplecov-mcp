@@ -358,14 +358,15 @@ Used with `--stale error` to detect new files not yet in coverage.
 
 ### `-l, --log-file PATH`
 
-Log file location.
+Log file location. Use 'stdout' or 'stderr' to log to standard streams.
 
 ```sh
 simplecov-mcp --log-file /var/log/simplecov.log
-simplecov-mcp --log-file -  # Disable logging
+simplecov-mcp --log-file stdout # Log to standard output
+simplecov-mcp --log-file stderr # Log to standard error
 ```
 
-**Default:** `~/simplecov_mcp.log`
+**Default:** `./simplecov_mcp.log`
 
 ### `--error-mode MODE`
 

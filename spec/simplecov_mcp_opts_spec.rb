@@ -43,6 +43,18 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       expect(cli.config.resultset).to eq(test_path)
     end
 
+    it 'supports setting log-file to stdout from environment' do
+      ENV['SIMPLECOV_MCP_OPTS'] = '--log-file stdout'
+
+      allow_any_instance_of(Object).to receive(:exit)
+
+      silence_output do
+        cli.send(:run, ['--help'])
+      end
+
+      expect(cli.config.log_file).to eq('stdout')
+    end
+
     it 'command line arguments override environment options' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off'
 

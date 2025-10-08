@@ -74,17 +74,19 @@ The MCP server logs to `simplecov_mcp.log` in the current directory by default. 
 }
 ```
 
-**To disable logging entirely:**
+**To log to standard error:**
 ```json
 {
   "mcpServers": {
     "simplecov-mcp": {
       "command": "simplecov-mcp",
-      "args": ["--log-file", "-"]
+      "args": ["--log-file", "stderr"]
     }
   }
 }
 ```
+
+**Note:** Logging to `stdout` is not permitted in MCP mode.
 
 ### Testing MCP Server Manually
 
