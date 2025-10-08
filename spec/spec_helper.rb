@@ -43,6 +43,7 @@ TIMESTAMP_REGEX = /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\]/
 # @param timestamp [Integer] The timestamp to use in the fake resultset
 # @param coverage [Hash] Optional custom coverage data (default: basic foo.rb and bar.rb)
 def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
+  abs_root = File.absolute_path(root)
   default_coverage = {
     File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] },
     File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1, 0] }
@@ -57,6 +58,13 @@ def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
 
   allow(File).to receive(:read).and_call_original
   allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(fake_resultset.to_json)
+  allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do |method, search_root, resultset: nil|
+    if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
+      File.join(abs_root, 'coverage', '.resultset.json')
+    else
+      method.call(search_root, resultset: resultset)
+    end
+  end
 end
 
 # Automatically require all files in spec/shared_examples
