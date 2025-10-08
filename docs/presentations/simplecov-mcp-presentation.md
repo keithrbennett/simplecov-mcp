@@ -76,7 +76,6 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 | `coverage_summary_tool`   | Get coverage % for a file |
 | `coverage_table_tool`     | Formatted coverage table |
 | `uncovered_lines_tool`    | Find missing test coverage |
-| `                         
 
 | Tool                    | Purpose                    | Example Command                                     |
 |-------------------------|----------------------------|-----------------------------------------------------|
