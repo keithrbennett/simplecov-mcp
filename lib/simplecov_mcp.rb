@@ -3,6 +3,7 @@
 require 'json'
 require 'time'
 require 'pathname'
+require 'optparse'
 require 'mcp'
 require 'mcp/server/transports/stdio_transport'
 
