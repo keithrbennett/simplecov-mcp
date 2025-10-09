@@ -152,6 +152,7 @@ module SimpleCovMcp
       end
 
       len_mismatch = (cov_len.positive? && adjusted_src_len != cov_len)
+      newer &&= !len_mismatch
 
       {
         exists: exists,

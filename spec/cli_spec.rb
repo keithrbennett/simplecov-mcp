@@ -161,4 +161,27 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       }.to change { cli.instance_variable_get(:@cmd) }.from(nil).to('summary')
     end
   end
+
+  describe 'version command' do
+    it 'prints version as plain text by default' do
+      output = run_cli('version')
+      expect(output).to include('SimpleCovMcp version')
+      expect(output).to include(SimpleCovMcp::VERSION)
+      expect(output).not_to include('{')
+      expect(output).not_to include('}')
+    end
+
+    it 'prints version as JSON when --json flag is used' do
+      output = run_cli('version', '--json')
+      data = JSON.parse(output)
+      expect(data).to have_key('version')
+      expect(data['version']).to eq(SimpleCovMcp::VERSION)
+    end
+
+    it 'works with version command and other flags' do
+      output = run_cli('version', '--root', root)
+      expect(output).to include('SimpleCovMcp version')
+      expect(output).to include(SimpleCovMcp::VERSION)
+    end
+  end
 end

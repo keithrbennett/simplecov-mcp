@@ -3,39 +3,61 @@
 module SimpleCovMcp
   # Centralizes the logic for detecting whether to run in CLI or MCP server mode.
   # This makes the mode detection strategy explicit and testable.
-  #
-  # Mode Detection Rules (in priority order):
-  # 1. --force-cli flag present → CLI mode
-  # 2. Valid subcommand present → CLI mode
-  # 3. Invalid subcommand attempt (non-flag arg) → CLI mode (to show error)
-  # 4. Interactive TTY → CLI mode
-  # 5. Otherwise (piped input) → MCP server mode
   class ModeDetector
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
 
-    # Determine if CLI mode should be used based on arguments
-    #
-    # @param argv [Array<String>] Command line arguments (may include env options)
-    # @param stdin [IO] Standard input stream (default: STDIN)
-    # @return [Boolean] true if CLI mode should be used, false for MCP server mode
+    # This list must be kept in sync with the one in CoverageCLI
+    OPTIONS_EXPECTING_ARGUMENT = %w[
+      -r --resultset
+      -R --root
+      -o --sort-order
+      -c --source-context
+      -S --stale
+      -g --tracked-globs
+      -l --log-file
+      --error-mode
+      --success-predicate
+    ].freeze
+
     def self.cli_mode?(argv, stdin: STDIN)
-      # Check for explicit --force-cli flag
-      return true if argv.include?('--force-cli')
+      # 1. Explicit flags that force CLI mode always win
+      cli_options = %w[--force-cli -h --help --version]
+      return true if (argv & cli_options).any?
 
-      # Check if first argument is a valid subcommand
-      return true if !argv.empty? && SUBCOMMANDS.include?(argv[0])
+      # 2. Find the first non-option argument
+      first_non_option = find_first_non_option(argv)
 
-      # Check if first arg looks like an invalid subcommand (to show helpful error)
-      # If it doesn't start with '-', treat it as a subcommand attempt
-      return true if !argv.empty? && !argv[0].start_with?('-')
+      # 3. If a non-option argument exists, it must be a CLI command (or an error)
+      return true if first_non_option
 
-      # If interactive terminal, default to CLI mode
+      # 4. Fallback: If no non-option args, use TTY status to decide
       stdin.tty?
     end
 
-    # Inverse of cli_mode? for clarity when checking MCP mode
     def self.mcp_server_mode?(argv, stdin: STDIN)
       !cli_mode?(argv, stdin: stdin)
     end
+
+    # Scans argv and returns the first token that is not an option or a value for an option.
+    def self.find_first_non_option(argv)
+      pending_option = false
+      argv.each do |token|
+        if pending_option
+          pending_option = false
+          next
+        end
+
+        if token.start_with?('-')
+          # Check if the option is one that takes a value and isn't using '=' syntax.
+          pending_option = OPTIONS_EXPECTING_ARGUMENT.include?(token) && !token.include?('=')
+          next
+        end
+
+        # Found the first token that is not an option
+        return token
+      end
+      nil
+    end
+    private_class_method :find_first_non_option
   end
 end

@@ -28,9 +28,9 @@ RSpec.describe SimpleCovMcp::ModeDetector do
       [['--json'], false, false, 'flags only with piped input'],
       [['-r', 'foo', '--json'], false, false, 'multiple flags with piped input'],
 
-      # Edge cases: flags before subcommands (first arg wins)
-      [['--json', 'list'], false, false, 'flag first = MCP mode (first arg is flag)'],
-      [['-r', 'foo', 'summary'], false, false, 'option first = MCP mode (first arg is flag)'],
+      # Edge cases: flags before subcommands should now be detected as CLI mode
+      [['--json', 'list'], false, true, 'flag first = CLI mode'],
+      [['-r', 'foo', 'summary'], false, true, 'option first = CLI mode'],
     ].freeze
 
     CLI_MODE_SCENARIOS.each do |argv, is_tty, expected, description|
@@ -119,6 +119,30 @@ RSpec.describe SimpleCovMcp::ModeDetector do
         expect(cmd).to eq(cmd.downcase)
         expect(cmd).not_to start_with('-')
       end
+    end
+  end
+
+  describe 'regression tests for non-TTY environment' do
+    let(:stdin) { double('stdin', tty?: false) }
+
+    it 'chooses CLI mode for --help' do
+      expect(described_class.cli_mode?(['--help'], stdin: stdin)).to be true
+    end
+
+    it 'chooses CLI mode for -h' do
+      expect(described_class.cli_mode?(['-h'], stdin: stdin)).to be true
+    end
+
+    it 'chooses CLI mode for --version' do
+      expect(described_class.cli_mode?(['--version'], stdin: stdin)).to be true
+    end
+
+    it 'chooses CLI mode for --json list' do
+      expect(described_class.cli_mode?(['--json', 'list'], stdin: stdin)).to be true
+    end
+
+    it 'chooses MCP mode for flags without a subcommand' do
+      expect(described_class.cli_mode?(['--json'], stdin: stdin)).to be false
     end
   end
 end

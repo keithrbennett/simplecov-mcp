@@ -280,28 +280,421 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   describe 'Multi-File Scenarios' do
     it 'handles projects with mixed coverage levels' do
       model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
-      
+
       # Get all files and verify range of coverage
       files = model.all_files
       coverages = files.map { |f| f['percentage'] }
-      
+
       expect(coverages.min).to be < 50  # bar.rb at ~33%
       expect(coverages.max).to be > 50  # foo.rb at ~67%
       expect(coverages).to include(a_value_within(0.1).of(33.33))
       expect(coverages).to include(a_value_within(0.1).of(66.67))
     end
-    
+
     it 'generates comprehensive project reports' do
       model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
-      
+
       table = model.format_table
-      
+
       # Should show both files with different coverage levels
       expect(table).to match(/lib\/bar\.rb.*33\.33/)
       expect(table).to match(/lib\/foo\.rb.*66\.67/)
-      
+
       # Should show project totals
       expect(table).to include('Files: total 2')
+    end
+  end
+
+  describe 'MCP Server Protocol Integration', :slow do
+    require 'open3'
+    require 'json'
+    require 'timeout'
+
+    # spec/ is one level deep, so ../.. goes up to repo root
+    let(:repo_root) { File.expand_path('..', __dir__) }
+    let(:exe_path) { File.join(repo_root, 'exe', 'simplecov-mcp') }
+    let(:lib_path) { File.join(repo_root, 'lib') }
+
+    def run_mcp_request(request_hash, timeout: 5)
+      request_json = JSON.generate(request_hash)
+
+      # Set environment to use fixture data
+      env = {
+        'RUBY_LIB' => lib_path,
+        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir}"
+      }
+
+      stdout_str = stderr_str = status = nil
+
+      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        # Write request and close stdin to signal EOF
+        stdin.puts(request_json)
+        stdin.close
+
+        # Read response with timeout
+        Timeout.timeout(timeout) do
+          stdout_str = stdout.read
+          stderr_str = stderr.read
+          status = wait_thr.value
+        end
+      end
+
+      [stdout_str, stderr_str, status]
+    rescue Timeout::Error
+      raise "MCP server timed out after #{timeout} seconds"
+    end
+
+    def parse_jsonrpc_response(output)
+      # MCP server should only write JSON-RPC responses to stdout.
+      output.lines.each do |line|
+        stripped = line.strip
+        next if stripped.empty?
+
+        begin
+          parsed = JSON.parse(stripped)
+        rescue JSON::ParserError => e
+          raise "Unexpected non-JSON output from MCP server stdout: #{stripped.inspect} (#{e.message})"
+        end
+
+        return parsed if parsed['jsonrpc'] == '2.0'
+
+        raise "Unexpected JSON-RPC payload on stdout: #{stripped.inspect}"
+      end
+
+      raise "No JSON-RPC response found on stdout. Raw output: #{output.inspect}"
+    end
+
+    it 'starts MCP server without errors' do
+      request = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/list'
+      }
+
+      stdout, stderr, _status = run_mcp_request(request)
+
+      # Should not crash with NameError about OptionParser
+      expect(stderr).not_to include('NameError')
+      expect(stderr).not_to include('uninitialized constant')
+      expect(stderr).not_to include('OptionParser')
+
+      # Should produce valid JSON-RPC output
+      response = parse_jsonrpc_response(stdout)
+      expect(response).not_to be_nil
+      expect(response['jsonrpc']).to eq('2.0')
+      expect(response['id']).to eq(1)
+    end
+
+    it 'handles tools/list request' do
+      request = {
+        jsonrpc: '2.0',
+        id: 2,
+        method: 'tools/list'
+      }
+
+      stdout, _stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response).to include('result')
+      tools = response['result']['tools']
+      expect(tools).to be_an(Array)
+
+      # Verify expected tools are registered
+      tool_names = tools.map { |t| t['name'] }
+      expect(tool_names).to include(
+        'all_files_coverage_tool',
+        'coverage_summary_tool',
+        'coverage_raw_tool',
+        'uncovered_lines_tool',
+        'coverage_detailed_tool',
+        'coverage_table_tool',
+        'help_tool',
+        'version_tool'
+      )
+    end
+
+    it 'executes coverage_summary_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 3,
+        method: 'tools/call',
+        params: {
+          name: 'coverage_summary_tool',
+          arguments: {
+            path: 'lib/foo.rb',
+            root: project_root,
+            resultset: coverage_dir
+          }
+        }
+      }
+
+      stdout, _stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(3)
+      expect(response).to have_key('result')
+
+      content = response['result']['content']
+      expect(content).to be_an(Array)
+      expect(content.first['type']).to eq('text')
+
+      # Parse the JSON coverage data from the text response
+      coverage_data = JSON.parse(content.first['text'])
+      expect(coverage_data).to include('file', 'summary')
+      expect(coverage_data['summary']).to include('covered' => 2, 'total' => 3)
+    end
+
+    it 'executes all_files_coverage_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 4,
+        method: 'tools/call',
+        params: {
+          name: 'all_files_coverage_tool',
+          arguments: {
+            root: project_root,
+            resultset: coverage_dir
+          }
+        }
+      }
+
+      stdout, _stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(4)
+      content = response['result']['content']
+      coverage_data = JSON.parse(content.first['text'])
+
+      expect(coverage_data).to include('files', 'counts')
+      expect(coverage_data['files']).to be_an(Array)
+      expect(coverage_data['files'].length).to eq(2)
+      expect(coverage_data['counts']['total']).to eq(2)
+    end
+
+    it 'executes uncovered_lines_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 5,
+        method: 'tools/call',
+        params: {
+          name: 'uncovered_lines_tool',
+          arguments: {
+            path: 'lib/foo.rb',
+            root: project_root,
+            resultset: coverage_dir
+          }
+        }
+      }
+
+      stdout, stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(5)
+      content = response['result']['content']
+      coverage_data = JSON.parse(content.first['text'])
+
+      expect(coverage_data).to include('file', 'uncovered', 'summary')
+      expect(coverage_data['uncovered']).to eq([2])  # Line 2 is uncovered
+    end
+
+    it 'executes help_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 6,
+        method: 'tools/call',
+        params: {
+          name: 'help_tool',
+          arguments: {}
+        }
+      }
+
+      stdout, stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(6)
+      content = response['result']['content']
+      expect(content.first['type']).to eq('text')
+
+      # Help tool returns JSON with tool list
+      help_data = JSON.parse(content.first['text'])
+      expect(help_data).to have_key('tools')
+      expect(help_data['tools']).to be_an(Array)
+      tool_names = help_data['tools'].map { |t| t['tool'] }
+      expect(tool_names).to include('coverage_summary_tool')
+    end
+
+    it 'executes version_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 7,
+        method: 'tools/call',
+        params: {
+          name: 'version_tool',
+          arguments: {}
+        }
+      }
+
+      stdout, _stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(7)
+      content = response['result']['content']
+      expect(content.first['type']).to eq('text')
+
+      version_text = content.first['text']
+      # Version format is "SimpleCovMcp version: X.Y.Z"
+      expect(version_text).to match(/SimpleCovMcp version: \d+\.\d+/)
+    end
+
+    it 'handles error responses for invalid tool calls' do
+      request = {
+        jsonrpc: '2.0',
+        id: 8,
+        method: 'tools/call',
+        params: {
+          name: 'coverage_summary_tool',
+          arguments: {
+            path: 'nonexistent_file.rb',
+            root: project_root,
+            resultset: coverage_dir
+          }
+        }
+      }
+
+      stdout, _stderr, _status = run_mcp_request(request)
+      response = parse_jsonrpc_response(stdout)
+
+      # MCP should return a response (not crash)
+      expect(response['id']).to eq(8)
+
+      # Should include error information in content or error field
+      if response['error']
+        expect(response['error']).to have_key('message')
+      elsif response['result']
+        content = response['result']['content']
+        text = content.first['text']
+        expect(text.downcase).to include('error').or include('not found')
+      end
+    end
+
+    it 'handles malformed JSON-RPC requests' do
+      malformed_request = "{'jsonrpc': '2.0', 'id': 999, 'method': 'invalid'}"
+
+      env = { 'RUBY_LIB' => lib_path }
+      _stdout_str, stderr_str, _status = nil, nil, nil
+
+      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        stdin.puts(malformed_request)
+        stdin.close
+
+        Timeout.timeout(3) do
+          stderr_str = stderr.read
+        end
+      end
+
+      # Should handle gracefully without crashing
+      # May return error response or empty output
+      expect(stderr_str).not_to include('NameError')
+      expect(stderr_str).not_to include('uninitialized constant')
+    end
+
+    it 'respects --log-file configuration in MCP mode' do
+      request = {
+        jsonrpc: '2.0',
+        id: 10,
+        method: 'tools/call',
+        params: {
+          name: 'version_tool',
+          arguments: {}
+        }
+      }
+
+      # Test with stderr logging (should work)
+      env = {
+        'RUBY_LIB' => lib_path,
+        'SIMPLECOV_MCP_OPTS' => "--log-file stderr"
+      }
+
+      stdout_str = nil
+
+      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        stdin.puts(JSON.generate(request))
+        stdin.close
+
+        Timeout.timeout(3) do
+          stdout_str = stdout.read
+        end
+      end
+
+      response = parse_jsonrpc_response(stdout_str)
+      expect(response).not_to be_nil
+      expect(response['id']).to eq(10)
+    end
+
+    it 'prohibits stdout logging in MCP mode' do
+      # Attempt to start MCP server with --log-file stdout should fail
+      env = {
+        'RUBY_LIB' => lib_path,
+        'SIMPLECOV_MCP_OPTS' => "--log-file stdout"
+      }
+
+      stdout_str, stderr_str, status = nil, nil, nil
+
+      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        stdin.close  # Don't send any request
+
+        Timeout.timeout(3) do
+          stdout_str = stdout.read
+          stderr_str = stderr.read
+          status = wait_thr.value
+        end
+      end
+
+      # Should error with message about stdout logging not permitted
+      combined_output = stdout_str + stderr_str
+      expect(combined_output).to include('stdout').and include('not permitted')
+      expect(status.exitstatus).not_to eq(0)
+    end
+
+    it 'handles multiple sequential requests' do
+      requests = [
+        { jsonrpc: '2.0', id: 100, method: 'tools/list' },
+        { jsonrpc: '2.0', id: 101, method: 'tools/call', params: { name: 'version_tool', arguments: {} } }
+      ]
+
+      env = {
+        'RUBY_LIB' => lib_path,
+        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir}"
+      }
+
+      stdout_str, stderr_str, status = nil, nil, nil
+
+      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        # Send multiple requests
+        requests.each { |req| stdin.puts(JSON.generate(req)) }
+        stdin.close
+
+        Timeout.timeout(5) do
+          stdout_str = stdout.read
+          stderr_str = stderr.read
+          status = wait_thr.value
+        end
+      end
+
+      # Parse all responses
+      responses = stdout_str.lines.map do |line|
+        next if line.strip.empty?
+        begin
+          parsed = JSON.parse(line)
+          parsed if parsed['jsonrpc'] == '2.0'
+        rescue JSON::ParserError
+          nil
+        end
+      end.compact
+
+      expect(responses.length).to be >= 1
+      response_ids = responses.map { |r| r['id'] }
+      expect(response_ids).to include(100).or include(101)
     end
   end
 end
