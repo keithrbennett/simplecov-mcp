@@ -53,3 +53,5 @@ Gemfile.lock
 
 # RSpec
 .rspec_status
+
+retired/
