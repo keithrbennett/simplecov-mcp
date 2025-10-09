@@ -15,3 +15,6 @@ At the end, produce a markdown table that summarizes the issues, in descending o
 - importance rating (10 to 1)
 - effort rating (1 to 10)
 - link to detail for that item
+
+**DO NOT MAKE ANY CODE CHANGES. REVIEW ONLY.**
+
