@@ -15,7 +15,7 @@ module SimpleCovMcp
 
       protected
 
-      attr_reader :cli, :config
+      attr_reader :cli, :config, :source_formatter
 
       def model
         @model ||= CoverageModel.new(**config.model_options)
@@ -49,7 +49,7 @@ module SimpleCovMcp
       end
 
       def build_source_payload(model, path)
-        @source_formatter.build_source_payload(model, path, mode: config.source_mode, context: config.source_context)
+        source_formatter.build_source_payload(model, path, mode: config.source_mode, context: config.source_context)
       end
 
       def fetch_raw(model, path)
@@ -63,7 +63,7 @@ module SimpleCovMcp
       end
 
       def print_source_for(model, path)
-        formatted = @source_formatter.format_source_for(model, path, mode: config.source_mode, context: config.source_context)
+        formatted = source_formatter.format_source_for(model, path, mode: config.source_mode, context: config.source_context)
         puts formatted
       end
     end

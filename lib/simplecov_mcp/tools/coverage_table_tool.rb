@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'stringio'
-require_relative '../cli'
+
 require_relative '../base_tool'
 
 module SimpleCovMcp
@@ -39,6 +38,11 @@ module SimpleCovMcp
             enum: ['off', 'error'],
             default: 'off'
           },
+          tracked_globs: {
+            type: 'array',
+            description: 'Glob patterns for files that should exist in the coverage report (helps flag new files).',
+            items: { type: 'string' }
+          },
           error_mode: {
             type: 'string',
             description: "Error handling mode: 'off' (silent), 'on' (log errors), 'on_with_trace' (verbose).",
@@ -49,19 +53,18 @@ module SimpleCovMcp
       )
 
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', error_mode: 'on', server_context:)
+        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', tracked_globs: nil, error_mode: 'on', server_context:)
           # Capture the output of the CLI's table report while honoring CLI options
           # Convert string inputs from MCP to symbols for internal use
           sort_order_sym = sort_order.to_sym
           stale_sym = stale.to_sym
+          check_stale = (stale_sym == :error)
 
-          output = StringIO.new
-          cli = CoverageCLI.new
-          cli.config.root = root || '.'
-          cli.config.resultset = resultset
-          cli.config.stale_mode = stale_sym
-          cli.show_default_report(sort_order: sort_order_sym, output: output)
-          ::MCP::Tool::Response.new([{ type: 'text', text: output.string }])
+          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, tracked_globs: tracked_globs)
+          rows = model.all_files(sort_order: sort_order_sym, check_stale: check_stale, tracked_globs: tracked_globs)
+          relativized = model.relativize(rows)
+          table = model.format_table(relativized, sort_order: sort_order_sym, check_stale: check_stale, tracked_globs: tracked_globs)
+          ::MCP::Tool::Response.new([{ type: 'text', text: table }])
         rescue => e
           handle_mcp_error(e, 'CoverageTableTool', error_mode: error_mode)
         end
