@@ -306,42 +306,50 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   end
 
   describe 'MCP Server Protocol Integration', :slow do
-    require 'open3'
-    require 'json'
-    require 'timeout'
 
     # spec/ is one level deep, so ../.. goes up to repo root
     let(:repo_root) { File.expand_path('..', __dir__) }
     let(:exe_path) { File.join(repo_root, 'exe', 'simplecov-mcp') }
     let(:lib_path) { File.join(repo_root, 'lib') }
 
-    def run_mcp_request(request_hash, timeout: 5)
-      request_json = JSON.generate(request_hash)
-
-      # Set environment to use fixture data
-      env = {
+    let(:default_env) do
+      {
         'RUBY_LIB' => lib_path,
         'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir}"
       }
+    end
 
-      stdout_str = stderr_str = status = nil
+    def runner_args(env: default_env, timeout: 5)
+      {
+        env: env,
+        lib_path: lib_path,
+        exe_path: exe_path,
+        timeout: timeout
+      }
+    end
 
-      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
-        # Write request and close stdin to signal EOF
-        stdin.puts(request_json)
-        stdin.close
+    # Run the MCP executable with a single JSON-RPC request hash and return the captured streams.
+    def run_mcp_json(request_hash, env: default_env, timeout: 5)
+      Spec::Support::McpRunner.call_json(
+        request_hash,
+        **runner_args(env: env, timeout: timeout)
+      )
+    end
 
-        # Read response with timeout
-        Timeout.timeout(timeout) do
-          stdout_str = stdout.read
-          stderr_str = stderr.read
-          status = wait_thr.value
-        end
-      end
+    # Run the MCP executable with a sequence of JSON-RPC requests (one per line).
+    def run_mcp_json_stream(request_hashes, env: default_env, timeout: 5)
+      Spec::Support::McpRunner.call_json_stream(
+        request_hashes,
+        **runner_args(env: env, timeout: timeout)
+      )
+    end
 
-      [stdout_str, stderr_str, status]
-    rescue Timeout::Error
-      raise "MCP server timed out after #{timeout} seconds"
+    # Run the MCP executable with a raw string payload (already encoded as needed).
+    def run_mcp_input(input, env: default_env, timeout: 5)
+      Spec::Support::McpRunner.call(
+        input: input,
+        **runner_args(env: env, timeout: timeout)
+      )
     end
 
     def parse_jsonrpc_response(output)
@@ -371,7 +379,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         method: 'tools/list'
       }
 
-      stdout, stderr, _status = run_mcp_request(request)
+      result = run_mcp_json(request)
+      stdout = result[:stdout]
+      stderr = result[:stderr]
 
       # Should not crash with NameError about OptionParser
       expect(stderr).not_to include('NameError')
@@ -392,7 +402,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         method: 'tools/list'
       }
 
-      stdout, _stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response).to include('result')
@@ -428,7 +438,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, _stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response['id']).to eq(3)
@@ -458,7 +468,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, _stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response['id']).to eq(4)
@@ -486,7 +496,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response['id']).to eq(5)
@@ -508,7 +518,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response['id']).to eq(6)
@@ -534,7 +544,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, _stderr, _status = run_mcp_request(request)
+      stdout = run_mcp_json(request)[:stdout]
       response = parse_jsonrpc_response(stdout)
 
       expect(response['id']).to eq(7)
@@ -561,8 +571,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      stdout, _stderr, _status = run_mcp_request(request)
-      response = parse_jsonrpc_response(stdout)
+      result = run_mcp_json(request)
+      response = parse_jsonrpc_response(result[:stdout])
 
       # MCP should return a response (not crash)
       expect(response['id']).to eq(8)
@@ -581,21 +591,12 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       malformed_request = "{'jsonrpc': '2.0', 'id': 999, 'method': 'invalid'}"
 
       env = { 'RUBY_LIB' => lib_path }
-      _stdout_str, stderr_str, _status = nil, nil, nil
-
-      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
-        stdin.puts(malformed_request)
-        stdin.close
-
-        Timeout.timeout(3) do
-          stderr_str = stderr.read
-        end
-      end
+      result = run_mcp_input(malformed_request, env: env, timeout: 3)
 
       # Should handle gracefully without crashing
       # May return error response or empty output
-      expect(stderr_str).not_to include('NameError')
-      expect(stderr_str).not_to include('uninitialized constant')
+      expect(result[:stderr]).not_to include('NameError')
+      expect(result[:stderr]).not_to include('uninitialized constant')
     end
 
     it 'respects --log-file configuration in MCP mode' do
@@ -609,24 +610,13 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         }
       }
 
-      # Test with stderr logging (should work)
-      env = {
-        'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => "--log-file stderr"
-      }
+      result = run_mcp_json(
+        request,
+        env: default_env.merge('SIMPLECOV_MCP_OPTS' => '--log-file stderr'),
+        timeout: 3
+      )
 
-      stdout_str = nil
-
-      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
-        stdin.puts(JSON.generate(request))
-        stdin.close
-
-        Timeout.timeout(3) do
-          stdout_str = stdout.read
-        end
-      end
-
-      response = parse_jsonrpc_response(stdout_str)
+      response = parse_jsonrpc_response(result[:stdout])
       expect(response).not_to be_nil
       expect(response['id']).to eq(10)
     end
@@ -638,22 +628,11 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         'SIMPLECOV_MCP_OPTS' => "--log-file stdout"
       }
 
-      stdout_str, stderr_str, status = nil, nil, nil
+      result = run_mcp_input(nil, env: env, timeout: 3)
 
-      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
-        stdin.close  # Don't send any request
-
-        Timeout.timeout(3) do
-          stdout_str = stdout.read
-          stderr_str = stderr.read
-          status = wait_thr.value
-        end
-      end
-
-      # Should error with message about stdout logging not permitted
-      combined_output = stdout_str + stderr_str
+      combined_output = result[:stdout] + result[:stderr]
       expect(combined_output).to include('stdout').and include('not permitted')
-      expect(status.exitstatus).not_to eq(0)
+      expect(result[:status].exitstatus).not_to eq(0)
     end
 
     it 'handles multiple sequential requests' do
@@ -662,27 +641,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         { jsonrpc: '2.0', id: 101, method: 'tools/call', params: { name: 'version_tool', arguments: {} } }
       ]
 
-      env = {
-        'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir}"
-      }
+      result = run_mcp_json_stream(requests, timeout: 5)
 
-      stdout_str, stderr_str, status = nil, nil, nil
-
-      Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
-        # Send multiple requests
-        requests.each { |req| stdin.puts(JSON.generate(req)) }
-        stdin.close
-
-        Timeout.timeout(5) do
-          stdout_str = stdout.read
-          stderr_str = stderr.read
-          status = wait_thr.value
-        end
-      end
-
-      # Parse all responses
-      responses = stdout_str.lines.map do |line|
+      responses = result[:stdout].lines.map do |line|
         next if line.strip.empty?
         begin
           parsed = JSON.parse(line)

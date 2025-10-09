@@ -67,7 +67,8 @@ def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
   end
 end
 
-# Automatically require all files in spec/shared_examples
+# Automatically require all files in spec/support and spec/shared_examples
+Dir[File.join(__dir__, 'support', '**', '*.rb')].sort.each { |f| require f }
 Dir[File.join(__dir__, 'shared_examples', '**', '*.rb')].sort.each { |f| require f }
 
 RSpec.configure do |config|
