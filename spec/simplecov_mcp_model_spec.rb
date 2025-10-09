@@ -6,6 +6,24 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   let(:root)  { (FIXTURES_DIR / 'project1').to_s }
   subject(:model) { described_class.new(root: root) }
 
+  describe 'initialization error handling' do
+    it 'raises FileError when File.read raises Errno::ENOENT directly' do
+      # Stub find_resultset to return a path, but File.read to raise ENOENT
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_return('/some/path/.resultset.json')
+      allow(File).to receive(:read).with('/some/path/.resultset.json').and_raise(Errno::ENOENT, 'No such file')
+
+      expect {
+        described_class.new(root: root, resultset: '/some/path/.resultset.json')
+      }.to raise_error(SimpleCovMcp::FileError, /Coverage data not found/)
+    end
+
+    it 'raises CoverageDataError when resultset file does not exist' do
+      expect {
+        described_class.new(root: root, resultset: '/nonexistent/path/.resultset.json')
+      }.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
+    end
+  end
+
   describe 'raw_for' do
     it 'returns absolute file and lines array' do
       data = model.raw_for('lib/foo.rb')
@@ -66,6 +84,19 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(model.staleness_for('lib/foo.rb')).to eq('T')
       expect(model.staleness_for('lib/bar.rb')).to eq(false)
     end
+
+    it 'returns false when an exception occurs during staleness check' do
+      # Stub the checker to raise an error
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?).and_raise(StandardError, 'Something went wrong')
+
+      # The rescue clause should catch the error and return false
+      expect(model.staleness_for('lib/foo.rb')).to eq(false)
+    end
+
+    it 'returns false when coverage data is not found for the file' do
+      # Try to get staleness for a file that doesn't exist in coverage
+      expect(model.staleness_for('lib/nonexistent.rb')).to eq(false)
+    end
   end
 
   describe 'all_files' do
@@ -92,6 +123,45 @@ RSpec.describe SimpleCovMcp::CoverageModel do
         File.expand_path('lib/foo.rb', root),
         abs_bar
       )
+    end
+
+    it 'handles files with paths that cannot be relativized' do
+      # Create a custom row with a path from a Windows-style drive (C:/) that will cause ArgumentError
+      # when trying to make it relative to a Unix-style root
+      custom_rows = [
+        { 'file' => 'C:/Windows/system32/file.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false }
+      ]
+
+      # This should trigger the ArgumentError rescue in filter_rows_by_globs
+      # When the path cannot be made relative (different path types), it falls back to using the absolute path
+      output = model.format_table(custom_rows, tracked_globs: ['C:/Windows/**/*.rb'])
+
+      # The file should be included because the absolute path fallback matches the glob
+      expect(output).to include('C:/Windows/system32/file.rb')
+    end
+  end
+
+  describe 'resolve method error handling' do
+    it 'raises FileError when coverage_lines is nil after lookup' do
+      # Stub lookup_lines to return nil without raising
+      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines).and_return(nil)
+
+      expect {
+        model.summary_for('lib/nonexistent.rb')
+      }.to raise_error(SimpleCovMcp::FileError, /No coverage data found for file/)
+    end
+
+    it 'converts Errno::ENOENT to FileNotFoundError during resolve' do
+      # We need to trigger Errno::ENOENT inside the resolve method
+      # Stub the checker's check_file! method to raise Errno::ENOENT
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:check_file!).and_raise(Errno::ENOENT, 'No such file or directory')
+
+      # Create a model with staleness checking enabled to trigger the check_file! call
+      stale_model = described_class.new(root: root, staleness: 'error')
+
+      expect {
+        stale_model.summary_for('lib/foo.rb')
+      }.to raise_error(SimpleCovMcp::FileNotFoundError, /File not found/)
     end
   end
 
