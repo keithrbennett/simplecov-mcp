@@ -17,13 +17,7 @@ module SimpleCovMcp
         end
       end
 
-      private
 
-      def source_formatter
-        @source_formatter ||= Formatters::SourceFormatter.new(
-          color_enabled: config.color
-        )
-      end
     end
   end
 end

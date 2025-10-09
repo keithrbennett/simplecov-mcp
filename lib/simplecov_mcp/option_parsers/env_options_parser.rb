@@ -29,6 +29,7 @@ module SimpleCovMcp
             return error_mode_normalizer.call(argv[i + 1])
           elsif arg.start_with?('--error-mode=')
             value = arg.split('=', 2)[1]
+            return nil if value.to_s.empty?
             return error_mode_normalizer.call(value) if value
           end
         end

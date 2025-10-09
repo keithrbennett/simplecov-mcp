@@ -65,8 +65,6 @@ module SimpleCovMcp
       handle_option_parser_error(e, argv: full_argv)
     rescue SimpleCovMcp::Error => e
       handle_user_facing_error(e)
-    rescue => e
-      @error_handler.handle_error(e, context: 'CLI execution')
     end
 
     def show_default_report(sort_order: :ascending, output: $stdout)
@@ -155,7 +153,7 @@ module SimpleCovMcp
     end
 
     def build_option_parser
-      builder = OptionParserBuilder.new(self)
+      builder = OptionParserBuilder.new(config)
       builder.build_option_parser
     end
 

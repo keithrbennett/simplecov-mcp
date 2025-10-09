@@ -7,9 +7,8 @@ module SimpleCovMcp
 
     attr_reader :config
 
-    def initialize(cli_instance)
-      @cli = cli_instance
-      @config = cli_instance.config
+    def initialize(config)
+      @config = config
     end
 
     def build_option_parser

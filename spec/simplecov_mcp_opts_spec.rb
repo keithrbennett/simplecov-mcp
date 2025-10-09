@@ -96,7 +96,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       # This would normally be MCP mode (no TTY, no subcommand)
       stdin = double('stdin', tty?: false)
 
-      env_opts = SimpleCovMcp.send(:_parse_env_opts_for_mode_detection)
+      env_opts = SimpleCovMcp.send(:parse_env_opts_for_mode_detection)
       full_argv = env_opts + []
 
       expect(SimpleCovMcp::ModeDetector.cli_mode?(full_argv, stdin: stdin)).to be true
@@ -106,7 +106,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--option "unclosed quote'
 
       # Should return empty array and not crash
-      opts = SimpleCovMcp.send(:_parse_env_opts_for_mode_detection)
+      opts = SimpleCovMcp.send(:parse_env_opts_for_mode_detection)
       expect(opts).to eq([])
     end
 
