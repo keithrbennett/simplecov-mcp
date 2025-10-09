@@ -197,10 +197,14 @@ module SimpleCovMcp
 
       content = File.read(path)
 
-      # Evaluate the predicate inside an isolated object so user scripts
-      # cannot reach the CLI instance or its locals.
-      sandbox = Object.new
-      predicate = sandbox.instance_eval(content, path, 1)
+      # WARNING: The predicate code executes with full Ruby privileges.
+      # It has unrestricted access to the file system, network, and system commands.
+      # Only use predicate files from trusted sources.
+      #
+      # We evaluate in a fresh Object context to prevent accidental access to
+      # CLI internals, but this provides NO security isolation.
+      evaluation_context = Object.new
+      predicate = evaluation_context.instance_eval(content, path, 1)
 
       unless predicate.respond_to?(:call)
         raise "Success predicate must be callable (lambda, proc, or object with #call method)"

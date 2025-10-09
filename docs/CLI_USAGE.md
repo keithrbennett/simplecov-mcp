@@ -394,6 +394,14 @@ simplecov-mcp --force-cli list
 
 Run a custom success predicate for CI/CD coverage enforcement.
 
+> **⚠️ SECURITY WARNING**
+>
+> Success predicates execute as **arbitrary Ruby code with full system privileges**. They have unrestricted access
+> to file system, network, system commands, and environment variables.
+>
+> **Only use predicate files from trusted sources.** 
+> Review predicates before use, especially in CI/CD environments.
+
 The predicate file must return a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns truthy (success) or falsy (failure).
 
 **Exit codes:**

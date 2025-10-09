@@ -2,6 +2,20 @@
 
 This directory contains example success predicates for use with the `--success-predicate` option.
 
+> **⚠️ SECURITY WARNING**
+>
+> Success predicates execute as **arbitrary Ruby code with full system privileges**. They have unrestricted access to:
+> - File system operations (read, write, delete)
+> - Network operations (HTTP requests, sockets)
+> - System commands (via backticks, `system()`, `exec()`, etc.)
+> - Environment variables and sensitive data
+>
+> **Only use predicate files from trusted sources.** Treat them like any other executable code in your project.
+> - Never use predicates from untrusted or unknown sources
+> - Review predicates before use, especially in CI/CD environments
+> - Store predicates in version control with code review
+> - Be cautious when copying examples from the internet
+
 ## Usage
 
 ```sh
