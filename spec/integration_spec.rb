@@ -657,5 +657,184 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       response_ids = responses.map { |r| r['id'] }
       expect(response_ids).to include(100).or include(101)
     end
+
+    context 'MCP protocol error handling' do
+      it 'returns error for unknown tool name' do
+        request = {
+          jsonrpc: '2.0',
+          id: 200,
+          method: 'tools/call',
+          params: {
+            name: 'nonexistent_tool_that_does_not_exist',
+            arguments: {}
+          }
+        }
+
+        result = run_mcp_json(request)
+        response = parse_jsonrpc_response(result[:stdout])
+
+        expect(response['id']).to eq(200)
+        expect(response['jsonrpc']).to eq('2.0')
+
+        # MCP server should return error in result content or error field
+        if response['error']
+          # Standard JSON-RPC error format
+          expect(response['error']).to have_key('message')
+          # MCP returns "Internal error" for unknown tools
+          expect(response['error']['message']).to be_a(String)
+          expect(response['error']['message'].length).to be > 0
+        elsif response['result']
+          # MCP may wrap errors in content
+          content = response['result']['content']
+          expect(content).to be_an(Array)
+          text = content.first['text']
+          expect(text.downcase).to include('error').or include('not found')
+        else
+          fail 'Expected either error or result field in response'
+        end
+      end
+
+      it 'returns error for missing required arguments' do
+        request = {
+          jsonrpc: '2.0',
+          id: 201,
+          method: 'tools/call',
+          params: {
+            name: 'coverage_summary_tool',
+            arguments: {}  # Missing required 'path' argument
+          }
+        }
+
+        result = run_mcp_json(request)
+        response = parse_jsonrpc_response(result[:stdout])
+
+        expect(response['id']).to eq(201)
+        expect(response['jsonrpc']).to eq('2.0')
+
+        # Should return an error about missing path
+        if response['error']
+          expect(response['error']).to have_key('message')
+        elsif response['result']
+          content = response['result']['content']
+          text = content.first['text']
+          expect(text.downcase).to include('error').or include('required').or include('path')
+        else
+          fail 'Expected either error or result field in response'
+        end
+      end
+
+      it 'handles invalid argument types gracefully' do
+        request = {
+          jsonrpc: '2.0',
+          id: 202,
+          method: 'tools/call',
+          params: {
+            name: 'coverage_summary_tool',
+            arguments: {
+              path: 12345,  # Should be string, not number
+              root: project_root,
+              resultset: coverage_dir
+            }
+          }
+        }
+
+        result = run_mcp_json(request)
+        response = parse_jsonrpc_response(result[:stdout])
+
+        expect(response['id']).to eq(202)
+        expect(response['jsonrpc']).to eq('2.0')
+
+        # Should handle gracefully (may coerce to string or return error)
+        expect(response).to have_key('result').or have_key('error')
+      end
+
+      it 'returns properly formatted JSON-RPC error responses' do
+        request = {
+          jsonrpc: '2.0',
+          id: 203,
+          method: 'tools/call',
+          params: {
+            name: 'coverage_summary_tool',
+            arguments: {
+              path: 'definitely_does_not_exist.rb',
+              root: project_root,
+              resultset: coverage_dir
+            }
+          }
+        }
+
+        result = run_mcp_json(request)
+        response = parse_jsonrpc_response(result[:stdout])
+
+        # Verify JSON-RPC 2.0 compliance
+        expect(response).to include('jsonrpc' => '2.0', 'id' => 203)
+
+        # Must have either 'result' or 'error', but not both
+        has_result = response.key?('result')
+        has_error = response.key?('error')
+        expect(has_result ^ has_error).to be true
+
+        # If error field exists, verify structure
+        if has_error
+          expect(response['error']).to have_key('message')
+          expect(response['error']['message']).to be_a(String)
+        end
+      end
+
+      it 'handles requests with missing params field' do
+        request = {
+          jsonrpc: '2.0',
+          id: 204,
+          method: 'tools/call'
+          # Missing params field entirely
+        }
+
+        result = run_mcp_json(request)
+
+        # Should not crash - either returns error or handles gracefully
+        expect(result[:stderr]).not_to include('NameError')
+        expect(result[:stderr]).not_to include('NoMethodError')
+
+        # Parse response if available
+        if result[:stdout] && !result[:stdout].strip.empty?
+          response = parse_jsonrpc_response(result[:stdout])
+          expect(response['jsonrpc']).to eq('2.0')
+          expect(response['id']).to eq(204)
+        end
+      end
+
+      it 'handles completely invalid JSON input' do
+        invalid_json = "this is not JSON at all"
+
+        result = run_mcp_input(invalid_json, env: default_env, timeout: 3)
+
+        # Should not crash with unhandled exception
+        combined = result[:stdout] + result[:stderr]
+        expect(combined).not_to include('uninitialized constant')
+
+        # May log error to stderr, but shouldn't crash
+        if result[:status]
+          # Exit code may be non-zero but shouldn't be a crash (e.g., signal)
+          expect(result[:status].exitstatus).to be_a(Integer)
+        end
+      end
+
+      it 'handles empty input gracefully' do
+        result = run_mcp_input('', env: default_env, timeout: 2)
+
+        # Empty input should be handled without crash
+        expect(result[:stderr]).not_to include('NameError')
+        expect(result[:stderr]).not_to include('NoMethodError')
+      end
+
+      it 'handles partial JSON input' do
+        partial_json = '{"jsonrpc": "2.0", "id": 300, "method":'
+
+        result = run_mcp_input(partial_json, env: default_env, timeout: 2)
+
+        # Should handle gracefully without crashing
+        expect(result[:stderr]).not_to include('uninitialized constant')
+      end
+    end
   end
 end
