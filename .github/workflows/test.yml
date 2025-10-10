@@ -31,7 +31,7 @@ jobs:
         RSPEC_DISRUPTIVE_TESTS: exclude
     
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       if: matrix.ruby-version == '3.3'
       with:
         files: ./coverage/coverage.xml
