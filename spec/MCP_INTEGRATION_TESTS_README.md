@@ -109,4 +109,3 @@ Potential additions:
 
 - [MCP Protocol Specification](https://modelcontextprotocol.io/)
 - [JSON-RPC 2.0 Specification](https://www.jsonrpc.org/specification)
-- [Issue #10 from Analysis Document](../2025-10-09-action-items-claude.md#10-low-missing-integration-tests-for-mcp-protocol)

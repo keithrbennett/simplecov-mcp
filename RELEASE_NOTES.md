@@ -1,8 +1,8 @@
 # Release Notes
 
 ### v0.3.0
-* MCP JSON responses now return as `type: "resource"` with `resource.mimeType: "application/json"` and JSON in `resource.text` for all JSON-producing tools. This clarifies media type, and was originally intended to circumvent a Claude Code content-type coercion bug, but the fix is also incorrectly processed.
-* Affected tools: `all_files_coverage_tool`, `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `help_tool`.
+* **Documentation update (2025-10-10):** We experimented with returning JSON via `type: "resource"` plus `mimeType: "application/json"`, but popular MCP clients (Anthropic Claude, Google Gemini, Codex) expect resources to carry a URI and rejected inline JSON. To preserve compatibility the release continues to emit JSON inside `type: "text"` parts. Earlier notes referencing a resource envelope have been superseded.
+* Affected tools: `all_files_coverage_tool`, `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `help_tool` (all return JSON as text payloads).
 * Unchanged (text responses): `coverage_table_tool` and `version_tool` remain `type: "text"`.
 
 ### v0.2.1
