@@ -6,7 +6,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 - **Executable** – `exe/simplecov-mcp` bootstraps the gem, enforces Ruby >= 3.2, and delegates to `SimpleCovMcp.run(ARGV)`.
 - **Mode Negotiation** – `SimpleCovMcp.run` inspects environment defaults from `SIMPLECOV_MCP_OPTS`, checks for CLI subcommands, and prefers CLI mode when STDIN is a TTY. Otherwise it instantiates `SimpleCovMcp::MCPServer`.
-- **Embedded Usage** – `SimpleCovMcp.run_as_library(argv, error_handler:)` lets callers execute the same commands without the CLI’s process control. It configures a library-oriented error handler and reuses `CoverageModel` directly.
+- **Embedded Usage** – Applications embed the gem by instantiating `SimpleCovMcp::CoverageModel` directly, optionally wrapping work in `SimpleCovMcp.with_context` to install a library-oriented error handler.
 
 ## Coverage Data Pipeline
 
@@ -33,8 +33,8 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 ### Library API
 
-- Consuming code can instantiate `CoverageModel` directly for fine-grained control, or call `SimpleCovMcp.run_as_library` for a higher-level wrapper over the CLI verbs.
-- Library mode defaults to silent error logging (`error_mode: :off`) so host applications can decide how to surface failures.
+- Consuming code instantiates `CoverageModel` directly for fine-grained control over coverage queries.
+- Use `SimpleCovMcp::ErrorHandlerFactory.for_library` together with `SimpleCovMcp.with_context` when an embedded caller wants to suppress CLI-friendly error logging.
 
 ## MCP Tool Stack
 

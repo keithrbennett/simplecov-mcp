@@ -13,32 +13,4 @@ RSpec.describe SimpleCovMcp do
     end
   end
 
-  describe '.execute_library_command' do
-    let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
-
-    it 'returns all_files when argv is empty' do
-      expect(model).to receive(:all_files).and_return([])
-      expect(SimpleCovMcp.send(:execute_library_command, model, [])).to eq([])
-    end
-
-    it 'raises UsageError for insufficient arguments' do
-      expect {
-        SimpleCovMcp.send(:execute_library_command, model, ['summary'])
-      }.to raise_error(SimpleCovMcp::UsageError)
-    end
-
-    %w[summary raw uncovered detailed].each do |command|
-      it "routes #{command} command correctly" do
-        expect(model).to receive("#{command}_for").with('file.rb').and_return({})
-        result = SimpleCovMcp.send(:execute_library_command, model, [command, 'file.rb'])
-        expect(result).to eq({})
-      end
-    end
-
-    it 'raises UsageError for unknown commands' do
-      expect {
-        SimpleCovMcp.send(:execute_library_command, model, ['unknown', 'file.rb'])
-      }.to raise_error(SimpleCovMcp::UsageError, /Unknown command/)
-    end
-  end
 end

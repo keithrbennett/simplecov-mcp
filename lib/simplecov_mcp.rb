@@ -52,41 +52,6 @@ module SimpleCovMcp
       end
     end
 
-    # For library usage, allow configuration of error handling.
-    # This method is intended for applications that want to embed simplecov-mcp
-    # functionality without the CLI behavior of showing friendly error messages
-    # and exiting. Instead, it raises custom exceptions that can be caught.
-    #
-    # Usage:
-    #   # Basic usage - raises custom exceptions on errors
-    #   SimpleCovMcp.run_as_library(['summary', 'lib/foo.rb'])
-    #
-    #   # With custom error handler (e.g., disable logging)
-    #   handler = SimpleCovMcp::ErrorHandler.new(log_errors: false)
-    #   SimpleCovMcp.run_as_library(['summary', 'lib/foo.rb'], error_handler: handler)
-    #
-    #   # Exception handling
-    #   begin
-    #     SimpleCovMcp.run_as_library(['summary', 'missing.rb'])
-    #   rescue SimpleCovMcp::FileError => e
-    #     puts "File not found: #{e.user_friendly_message}"
-    #   rescue SimpleCovMcp::CoverageDataError => e
-    #     puts "Coverage issue: #{e.user_friendly_message}"
-    #   end
-    def run_as_library(argv, error_handler: nil)
-      handler = error_handler || ErrorHandlerFactory.for_library
-      context = create_context(error_handler: handler)
-      with_context(context) do
-        model = CoverageModel.new
-        execute_library_command(model, argv)
-      end
-    rescue SimpleCovMcp::Error => e
-      raise e  # Re-raise custom errors for library users to catch
-    rescue => e
-      handler.handle_error(e, context: 'library execution')
-      raise e  # Re-raise for library users to handle
-    end
-
     def with_context(context)
       previous = Thread.current[THREAD_CONTEXT_KEY]
       Thread.current[THREAD_CONTEXT_KEY] = context
@@ -149,24 +114,6 @@ module SimpleCovMcp
         error_handler: ErrorHandlerFactory.for_cli,
         log_target: nil
       )
-    end
-
-    def execute_library_command(model, argv)
-      return model.all_files if argv.empty?
-
-      unless argv.length >= 2
-        raise UsageError.new("Invalid arguments. Use: [] for all files, or [command, path] for specific file")
-      end
-
-      command, path = argv[0], argv[1]
-      case command
-      when 'summary'   then model.summary_for(path)
-      when 'raw'       then model.raw_for(path)
-      when 'uncovered' then model.uncovered_for(path)
-      when 'detailed'  then model.detailed_for(path)
-      else
-        raise UsageError.new("Unknown command: #{command}. Use: summary, raw, uncovered, or detailed")
-      end
     end
 
     def parse_log_file(argv)

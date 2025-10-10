@@ -15,13 +15,19 @@ For debugging, set the environment variable to see full stack traces.
 
 ## Library Mode
 
-When used as a Ruby library, errors are raised as custom exception classes that can be caught and handled:
+When used as a Ruby library, callers work with `SimpleCovMcp::CoverageModel` directly. Errors raise custom exception classes that can be caught and handled:
 
 ```ruby
-begin
-  SimpleCovMcp.run_as_library(['summary', 'missing.rb'])
-rescue SimpleCovMcp::FileError => e
-  puts "Handled gracefully: #{e.user_friendly_message}"
+handler = SimpleCovMcp::ErrorHandlerFactory.for_library  # disables CLI-style logging
+context = SimpleCovMcp.create_context(error_handler: handler)
+
+SimpleCovMcp.with_context(context) do
+  model = SimpleCovMcp::CoverageModel.new
+  begin
+    model.summary_for('missing.rb')
+  rescue SimpleCovMcp::FileError => e
+    puts "Handled gracefully: #{e.user_friendly_message}"
+  end
 end
 ```
 
@@ -44,23 +50,19 @@ The MCP server automatically configures error handling appropriately for server 
 
 ## Custom Error Handlers
 
-Library usage defaults to no logging to avoid side effects, but you can customize this:
+Library usage can opt into different logging behavior by installing a custom handler on the active context:
 
 ```ruby
-# Default library behavior - no logging
-SimpleCovMcp.run_as_library(['summary', 'file.rb'])
-
-# Custom error handler with logging enabled
 handler = SimpleCovMcp::ErrorHandler.new(
-  log_errors: true,         # Enable logging for library usage
-  show_stack_traces: false  # Clean error messages
+  log_errors: true,         # Enable logging when embedding
+  show_stack_traces: false  # Keep error messages clean
 )
-SimpleCovMcp.run_as_library(argv, error_handler: handler)
 
-# Or configure globally for MCP tools
-SimpleCovMcp.configure_error_handling do |handler|
-  handler.log_errors = true
-  handler.show_stack_traces = true  # For debugging
+context = SimpleCovMcp.create_context(error_handler: handler)
+
+SimpleCovMcp.with_context(context) do
+  model = SimpleCovMcp::CoverageModel.new
+  model.summary_for('lib/simplecov_mcp/model.rb')
 end
 ```
 
