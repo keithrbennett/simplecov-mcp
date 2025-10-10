@@ -44,7 +44,8 @@ module SimpleCovMcp
       def normalize_error_mode(value)
         case value&.downcase
         when 'off' then :off
-        when 'on', 'with_trace', 'on_with_trace' then value.downcase.to_sym
+        when 'on' then :on
+        when 'on_with_trace', 'with_trace' then :on_with_trace
         when 'trace', 't' then :on_with_trace
         else :on
         end

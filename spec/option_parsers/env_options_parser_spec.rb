@@ -169,6 +169,14 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
     end
   end
 
+  describe 'integration with ErrorHandlerFactory' do
+    it 'maps with_trace alias to an accepted error_mode' do
+      mode = parser.pre_scan_error_mode(['--error-mode', 'with_trace'])
+      expect { SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: mode) }.not_to raise_error
+      expect(mode).to eq(:on_with_trace)
+    end
+  end
+
   describe '#normalize_error_mode (private)' do
     it 'normalizes "off" to :off' do
       expect(parser.send(:normalize_error_mode, 'off')).to eq(:off)
@@ -181,9 +189,9 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       expect(parser.send(:normalize_error_mode, 'ON')).to eq(:on)
     end
 
-    it 'normalizes "with_trace" to :with_trace' do
-      expect(parser.send(:normalize_error_mode, 'with_trace')).to eq(:with_trace)
-      expect(parser.send(:normalize_error_mode, 'WITH_TRACE')).to eq(:with_trace)
+    it 'normalizes "with_trace" to :on_with_trace' do
+      expect(parser.send(:normalize_error_mode, 'with_trace')).to eq(:on_with_trace)
+      expect(parser.send(:normalize_error_mode, 'WITH_TRACE')).to eq(:on_with_trace)
     end
 
     it 'normalizes "on_with_trace" to :on_with_trace' do
