@@ -64,27 +64,30 @@ RSpec.describe SimpleCovMcp::CovUtil do
     let(:test_message) { 'test log message' }
 
     around(:each) do |example|
-      # Reset SimpleCovMcp.log_file
-      old_log_file = SimpleCovMcp.log_file
-      SimpleCovMcp.log_file = nil
+      # Reset logging settings so each example starts clean.
+      old_default = SimpleCovMcp.default_log_file
+      old_active = SimpleCovMcp.active_log_file
+      SimpleCovMcp.default_log_file = nil
+      SimpleCovMcp.active_log_file = nil
 
       example.run
 
       # Restore state
-      SimpleCovMcp.log_file = old_log_file
+      SimpleCovMcp.default_log_file = old_default
+      SimpleCovMcp.active_log_file = old_active
     end
 
 
 
-    it "logs to stdout when log_file is 'stdout'" do
-      SimpleCovMcp.log_file = 'stdout'
+    it "logs to stdout when active_log_file is 'stdout'" do
+      SimpleCovMcp.active_log_file = 'stdout'
       expect(File).not_to receive(:open)
       expect { described_class.log(test_message) }
         .to output(/#{Regexp.escape(test_message)}/).to_stdout
     end
 
-    it "logs to stderr when log_file is 'stderr'" do
-      SimpleCovMcp.log_file = 'stderr'
+    it "logs to stderr when active_log_file is 'stderr'" do
+      SimpleCovMcp.active_log_file = 'stderr'
       expect(File).not_to receive(:open)
       expect { described_class.log(test_message) }
         .to output(/#{Regexp.escape(test_message)}/).to_stderr
@@ -95,7 +98,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
       log_path = tmp.path
       tmp.close
 
-      SimpleCovMcp.log_file = log_path
+      SimpleCovMcp.active_log_file = log_path
 
       described_class.log(test_message)
 
@@ -112,14 +115,14 @@ RSpec.describe SimpleCovMcp::CovUtil do
       log_path = tmp.path
       tmp.close
 
-      SimpleCovMcp.log_file = log_path
+      SimpleCovMcp.active_log_file = log_path
 
       described_class.log('first entry')
       expect(File.exist?(log_path)).to be true
       first_content = File.read(log_path)
       expect(first_content).to include('first entry')
 
-      SimpleCovMcp.log_file = 'stderr'
+      SimpleCovMcp.active_log_file = 'stderr'
 
       expect { described_class.log('second entry') }
         .to output(/second entry/).to_stderr
@@ -127,6 +130,22 @@ RSpec.describe SimpleCovMcp::CovUtil do
       expect(File.read(log_path)).to eq(first_content)
     ensure
       tmp&.unlink
+    end
+
+    it 'exposes default log file configuration separately' do
+      original_default = SimpleCovMcp.default_log_file
+      SimpleCovMcp.default_log_file = 'stderr'
+      expect(SimpleCovMcp.default_log_file).to eq('stderr')
+      expect(SimpleCovMcp.active_log_file).to eq('stderr')
+    ensure
+      SimpleCovMcp.default_log_file = original_default
+    end
+
+    it 'allows adjusting the active log target without touching the default' do
+      original_default = SimpleCovMcp.default_log_file
+      SimpleCovMcp.active_log_file = 'stdout'
+      expect(SimpleCovMcp.active_log_file).to eq('stdout')
+      expect(SimpleCovMcp.default_log_file).to eq(original_default)
     end
   end
 end

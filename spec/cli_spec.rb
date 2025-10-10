@@ -86,25 +86,29 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   describe 'log file configuration' do
-    around(:each) do |example|
-      # Reset SimpleCovMcp.log_file
-      old_log_file = SimpleCovMcp.log_file
-      SimpleCovMcp.log_file = nil
-      example.run
-      SimpleCovMcp.log_file = old_log_file
-    end
-
-    it 'sets global log file from --log-file option' do
+    it 'passes --log-file path into the CLI execution context' do
       Dir.mktmpdir do |dir|
         log_path = File.join(dir, 'custom.log')
+        expect(SimpleCovMcp).to receive(:create_context).and_wrap_original do |m, error_handler:, log_target:|
+          # Ensure CLI forwards the requested log path into the context without changing other fields.
+          expect(log_target).to eq(log_path)
+          m.call(error_handler: error_handler, log_target: log_target)
+        end
+        original_target = SimpleCovMcp.active_log_file
         run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', log_path)
-        expect(SimpleCovMcp.log_file).to eq(log_path)
+        expect(SimpleCovMcp.active_log_file).to eq(original_target)
       end
     end
 
-    it 'handles --log-file stdout (log to stdout)' do
+    it 'supports stdout logging within the CLI context' do
+      expect(SimpleCovMcp).to receive(:create_context).and_wrap_original do |m, error_handler:, log_target:|
+        # For stdout logging, verify the context is still constructed with the expected value.
+        expect(log_target).to eq('stdout')
+        m.call(error_handler: error_handler, log_target: log_target)
+      end
+      original_target = SimpleCovMcp.active_log_file
       run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', '--log-file', 'stdout')
-      expect(SimpleCovMcp.log_file).to eq('stdout')
+      expect(SimpleCovMcp.active_log_file).to eq(original_target)
     end
   end
 

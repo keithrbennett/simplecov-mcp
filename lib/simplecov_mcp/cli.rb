@@ -36,6 +36,7 @@ module SimpleCovMcp
     end
 
     def run(argv)
+      context = nil
       # Prepend environment options to command line arguments
       full_argv = parse_env_opts + argv
       # Pre-scan for error-mode to ensure early errors are logged with correct verbosity
@@ -45,26 +46,31 @@ module SimpleCovMcp
       # Create error handler AFTER parsing options to respect user's --error-mode choice
       ensure_error_handler
 
-      # Set global log file if specified
-      SimpleCovMcp.log_file = config.log_file if config.log_file
+      context = SimpleCovMcp.create_context(
+        error_handler: @error_handler,
+        log_target: config.log_file.nil? ? SimpleCovMcp.context.log_target : config.log_file
+      )
 
-      # If success predicate specified, run it and exit
-      if config.success_predicate
-        run_success_predicate
-        return
-      end
+      SimpleCovMcp.with_context(context) do
+        # If success predicate specified, run it and exit
+        if config.success_predicate
+          run_success_p
+          redicate
+          next
+        end
 
-      if @cmd
-        run_subcommand(@cmd, @cmd_args)
-      else
-        show_default_report(sort_order: config.sort_order)
+        if @cmd
+          run_subcommand(@cmd, @cmd_args)
+        else
+          show_default_report(sort_order: config.sort_order)
+        end
       end
     rescue OptionParser::ParseError => e
       # Handle any option parsing errors (invalid option/argument) without relying on
       # @error_handler, which is not guaranteed to be initialized yet.
-      handle_option_parser_error(e, argv: full_argv)
+      with_context_if_available(context) { handle_option_parser_error(e, argv: full_argv) }
     rescue SimpleCovMcp::Error => e
-      handle_user_facing_error(e)
+      with_context_if_available(context) { handle_user_facing_error(e) }
     end
 
     def show_default_report(sort_order: :ascending, output: $stdout)
@@ -155,6 +161,14 @@ module SimpleCovMcp
     def build_option_parser
       builder = OptionParserBuilder.new(config)
       builder.build_option_parser
+    end
+
+    def with_context_if_available(ctx)
+      if ctx
+        SimpleCovMcp.with_context(ctx) { yield }
+      else
+        yield
+      end
     end
 
     

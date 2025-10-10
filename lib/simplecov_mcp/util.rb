@@ -15,7 +15,7 @@ module SimpleCovMcp
     module_function
 
     def log(msg)
-      log_file = SimpleCovMcp.log_file
+      log_file = SimpleCovMcp.active_log_file
 
       case log_file
       when 'stdout'

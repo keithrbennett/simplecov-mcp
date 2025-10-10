@@ -123,12 +123,4 @@ module SimpleCovMcp
       end
     end
 
-    # Global error handler configuration
-    class << self
-      attr_writer :error_handler
-
-      def error_handler
-        @error_handler or raise "Error handler not configured. Use one of: SimpleCovMcp.run, .run_as_library, or set .error_handler= explicitly"
-      end
-    end
 end

@@ -46,8 +46,12 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 - Custom exceptions under `lib/simplecov_mcp/errors.rb` capture context for configuration issues, missing files, stale coverage, and general runtime errors. Each implements `#user_friendly_message` for consistent UX.
 - `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:on`, `:on_with_trace`) control whether errors are recorded and whether stack traces are included.
-- `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library.
-- Diagnostics are written via `CovUtil.log` to `simplecov_mcp.log` by default (override with `--log-file` or `SimpleCovMcp.log_file = '-'` to disable).
+- Runtime configuration (error handlers, log destinations) flows through `SimpleCovMcp::AppContext`. Entry points push a context with `SimpleCovMcp.with_context`, which stores the active configuration in a thread-local slot (`SimpleCovMcp.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
+- Two helper accessors clarify intent:
+  - `SimpleCovMcp.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
+  - `SimpleCovMcp.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
+- `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library, each of which installs its handler inside a fresh `AppContext` before executing user work.
+- Diagnostics are written via `CovUtil.log` to `simplecov_mcp.log` by default; override with CLI `--log-file`, set `SimpleCovMcp.default_log_file`, or temporarily tweak `SimpleCovMcp.active_log_file` when a caller needs a different destination mid-run.
 
 ## Configuration Surface
 

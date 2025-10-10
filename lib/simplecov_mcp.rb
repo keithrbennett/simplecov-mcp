@@ -8,6 +8,7 @@ require 'mcp'
 require 'mcp/server/transports/stdio_transport'
 
 require_relative 'simplecov_mcp/version'
+require_relative 'simplecov_mcp/app_context'
 require_relative 'simplecov_mcp/util'
 require_relative 'simplecov_mcp/errors'
 require_relative 'simplecov_mcp/error_handler'
@@ -29,7 +30,7 @@ require_relative 'simplecov_mcp/cli'
 
 module SimpleCovMcp
   class << self
-    attr_accessor :log_file
+    THREAD_CONTEXT_KEY = :simplecov_mcp_context
 
     def run(argv)
       # Parse environment options for mode detection
@@ -45,9 +46,9 @@ module SimpleCovMcp
           raise ConfigurationError, "Logging to stdout is not permitted in MCP server mode as it interferes with the JSON-RPC protocol. Please use 'stderr' or a file path."
         end
 
-        # Set log file for MCP server, since it doesn't parse options itself
-        SimpleCovMcp.log_file = log_file
-        MCPServer.new.run
+        handler = ErrorHandlerFactory.for_mcp_server
+        context = create_context(error_handler: handler, log_target: log_file)
+        with_context(context) { MCPServer.new(context: context).run }
       end
     end
 
@@ -73,19 +74,82 @@ module SimpleCovMcp
     #     puts "Coverage issue: #{e.user_friendly_message}"
     #   end
     def run_as_library(argv, error_handler: nil)
-      # Set global error handler for library usage (affects shared components like MCP tools)
-      SimpleCovMcp.error_handler = error_handler || ErrorHandlerFactory.for_library
-
-      model = CoverageModel.new
-      execute_library_command(model, argv)
+      handler = error_handler || ErrorHandlerFactory.for_library
+      context = create_context(error_handler: handler)
+      with_context(context) do
+        model = CoverageModel.new
+        execute_library_command(model, argv)
+      end
     rescue SimpleCovMcp::Error => e
       raise e  # Re-raise custom errors for library users to catch
     rescue => e
-      SimpleCovMcp.error_handler.handle_error(e, context: 'library execution')
+      handler.handle_error(e, context: 'library execution')
       raise e  # Re-raise for library users to handle
     end
 
+    def with_context(context)
+      previous = Thread.current[THREAD_CONTEXT_KEY]
+      Thread.current[THREAD_CONTEXT_KEY] = context
+      yield
+    ensure
+      Thread.current[THREAD_CONTEXT_KEY] = previous
+    end
+
+    def context
+      Thread.current[THREAD_CONTEXT_KEY] || default_context
+    end
+
+    def create_context(error_handler:, log_target: nil)
+      AppContext.new(
+        error_handler: error_handler,
+        log_target: log_target.nil? ? default_context.log_target : log_target
+      )
+    end
+
+    def default_log_file
+      default_context.log_target
+    end
+
+    def default_log_file=(value)
+      previous_default = default_context
+      @default_context = previous_default.with_log_target(value)
+      active = Thread.current[THREAD_CONTEXT_KEY]
+      if active.nil? || active.log_target == previous_default.log_target
+        Thread.current[THREAD_CONTEXT_KEY] = @default_context
+      end
+      value
+    end
+
+    def active_log_file
+      context.log_target
+    end
+
+    def active_log_file=(value)
+      current = Thread.current[THREAD_CONTEXT_KEY]
+      if current
+        Thread.current[THREAD_CONTEXT_KEY] = current.with_log_target(value)
+      else
+        Thread.current[THREAD_CONTEXT_KEY] = default_context.with_log_target(value)
+      end
+      value
+    end
+
+    def error_handler
+      context.error_handler
+    end
+
+    def error_handler=(handler)
+      @default_context = default_context.with_error_handler(handler)
+    end
+
     private
+
+    def default_context
+      @default_context ||= AppContext.new(
+        error_handler: ErrorHandlerFactory.for_cli,
+        log_target: nil
+      )
+    end
 
     def execute_library_command(model, argv)
       return model.all_files if argv.empty?

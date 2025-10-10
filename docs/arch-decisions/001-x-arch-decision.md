@@ -46,7 +46,7 @@ def run(argv)
   if ModeDetector.cli_mode?(full_argv)
     CoverageCLI.new.run(argv)
   else
-    SimpleCovMcp.log_file = parse_log_file(full_argv)
+    SimpleCovMcp.default_log_file = parse_log_file(full_argv)
     MCPServer.new.run
   end
 end

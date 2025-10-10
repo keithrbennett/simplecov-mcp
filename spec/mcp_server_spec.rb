@@ -56,12 +56,18 @@ RSpec.describe SimpleCovMcp::MCPServer do
     stub_const('MCP::Server', fake_server_class)
     stub_const('MCP::Server::Transports::StdioTransport', fake_transport_class)
 
-    server = described_class.new
-    # Error handler should be set for MCP server usage (factory selection).
-    expect(SimpleCovMcp.error_handler).to be_a(SimpleCovMcp::ErrorHandler)
+    server_context = SimpleCovMcp.create_context(
+      error_handler: SimpleCovMcp::ErrorHandlerFactory.for_mcp_server,
+      log_target: 'stderr'
+    )
+    server = described_class.new(context: server_context)
+    baseline_context = SimpleCovMcp.context
 
     # Run should construct server and open transport
     server.run
+    # Server should restore the caller's context after execution.
+    expect(SimpleCovMcp.context).to eq(baseline_context)
+
     # Fetch the instances created during `run` via the class-level hooks.
     fake_server = fake_server_class.last_instance
     fake_transport = fake_transport_class.last_instance

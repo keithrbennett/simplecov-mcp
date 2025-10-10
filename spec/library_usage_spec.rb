@@ -111,17 +111,19 @@ RSpec.describe 'SimpleCovMcp.run_as_library' do
     it 'uses custom error handler when provided' do
       custom_handler = SimpleCovMcp::ErrorHandler.new(error_mode: :off)
 
+      original_handler = SimpleCovMcp.error_handler
       result = SimpleCovMcp.run_as_library([], error_handler: custom_handler)
 
       expect(result).to be_a(Array)
-      expect(SimpleCovMcp.error_handler).to eq(custom_handler)
+      expect(SimpleCovMcp.error_handler).to eq(original_handler)
     end
 
     it 'uses default library error handler when not provided' do
+      original_handler = SimpleCovMcp.error_handler
       SimpleCovMcp.run_as_library([])
 
-      # Verify error handler was set (factory method should have been called)
-      expect(SimpleCovMcp.error_handler).to be_a(SimpleCovMcp::ErrorHandler)
+      # Default context should remain unchanged
+      expect(SimpleCovMcp.error_handler).to eq(original_handler)
     end
   end
 
