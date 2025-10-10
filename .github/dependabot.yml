@@ -1,0 +1,25 @@
+# .github/dependabot.yml
+# Basic Dependabot configuration for a Ruby gem project.
+
+version: 2
+updates:
+  # Maintain dependencies for Ruby (Bundler)
+  - package-ecosystem: "bundler"
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    commit-message:
+      # Prefix all commit messages with "chore(deps)"
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/" # Look for workflows in the .github/workflows directory
+    schedule:
+      interval: "daily"
+    commit-message:
+      # Prefix all commit messages with "chore(ci)"
+      prefix: "chore(ci)"
+      include: "scope"
