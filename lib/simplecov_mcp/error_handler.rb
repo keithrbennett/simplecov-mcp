@@ -58,11 +58,7 @@ module SimpleCovMcp
           CoverageDataError.new("Invalid coverage data structure - #{method_info}", error)
         when RuntimeError, StandardError
           # Handle string errors from CovUtil and other runtime errors
-          if error.message.include?('No coverage entry found for')
-            # Extract the file path from the error message
-            filepath = error.message.match(/No coverage entry found for (.+)$/)&.[](1) || "specified file"
-            FileError.new("No coverage data found for file: #{filepath}", error)
-          elsif error.message.include?('Could not find .resultset.json')
+          if error.message.include?('Could not find .resultset.json')
             # Extract directory info if available
             dir_info = error.message.match(/under (.+?)(?:;|$)/)&.[](1) || "project directory"
             CoverageDataError.new("Coverage data not found in #{dir_info} - please run your tests first", error)

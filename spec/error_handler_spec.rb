@@ -45,10 +45,6 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
   end
 
   it 'maps runtime strings from util to friendly errors' do
-    e = handler.convert_standard_error(RuntimeError.new('No coverage entry found for /tmp/foo.rb'))
-    expect(e).to be_a(SimpleCovMcp::FileError)
-    expect(e.user_friendly_message).to include('No coverage data found for file')
-
     e = handler.convert_standard_error(RuntimeError.new('Could not find .resultset.json under /path; run tests'))
     expect(e).to be_a(SimpleCovMcp::CoverageDataError)
     expect(e.user_friendly_message).to include('run your tests first')

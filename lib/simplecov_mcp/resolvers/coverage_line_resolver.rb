@@ -47,7 +47,7 @@ module SimpleCovMcp
       end
 
       def raise_not_found_error(file_abs)
-        raise "No coverage entry found for #{file_abs}"
+        raise FileError.new("No coverage entry found for #{file_abs}")
       end
     end
   end

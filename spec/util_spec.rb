@@ -25,13 +25,13 @@ RSpec.describe SimpleCovMcp::CovUtil do
     cov = { '/some/where/else/foo.rb' => { 'lines' => lines } }
     expect {
       described_class.lookup_lines(cov, '/another/place/foo.rb')
-    }.to raise_error(RuntimeError, /No coverage entry found/)
+    }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
 
-    # Missing raises a helpful string error
+    # Missing raises a FileError
     cov = {}
     expect {
       described_class.lookup_lines(cov, '/nowhere/foo.rb')
-    }.to raise_error(RuntimeError, /No coverage entry found/)
+    }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
   end
 
   it 'summary handles edge cases and coercion' do

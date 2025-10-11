@@ -246,10 +246,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   describe 'Error Handling Integration' do
     it 'handles missing files gracefully' do
       model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
-      
+
       expect {
         model.summary_for('lib/nonexistent.rb')
-      }.to raise_error(SimpleCovMcp::FileError, /No coverage data found/)
+      }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
     end
     
     it 'handles invalid resultset paths gracefully' do
@@ -273,7 +273,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       end
       
       expect(status).to eq(1)
-      expect(error).to include('File error:', 'No coverage data found for file')
+      expect(error).to include('File error:', 'No coverage entry found')
     end
   end
   
