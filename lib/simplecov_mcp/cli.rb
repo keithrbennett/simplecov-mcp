@@ -5,23 +5,15 @@ require_relative 'option_parser_builder'
 require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
+require_relative 'constants'
 
 module SimpleCovMcp
   class CoverageCLI
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
     HORIZONTAL_RULE = '-' * 79
 
-    OPTIONS_EXPECTING_ARGUMENT = %w[
-      -r --resultset
-      -R --root
-      -o --sort-order
-      -c --source-context
-      -S --stale
-      -g --tracked-globs
-      -l --log-file
-      --error-mode
-      --success-predicate
-    ].freeze
+    # Reference shared constant to avoid duplication with ModeDetector
+    OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
 
     attr_reader :config
 

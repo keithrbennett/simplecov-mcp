@@ -1,23 +1,15 @@
 # frozen_string_literal: true
 
+require_relative 'constants'
+
 module SimpleCovMcp
   # Centralizes the logic for detecting whether to run in CLI or MCP server mode.
   # This makes the mode detection strategy explicit and testable.
   class ModeDetector
     SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
 
-    # This list must be kept in sync with the one in CoverageCLI
-    OPTIONS_EXPECTING_ARGUMENT = %w[
-      -r --resultset
-      -R --root
-      -o --sort-order
-      -c --source-context
-      -S --stale
-      -g --tracked-globs
-      -l --log-file
-      --error-mode
-      --success-predicate
-    ].freeze
+    # Reference shared constant to avoid duplication with CoverageCLI
+    OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
 
     def self.cli_mode?(argv, stdin: STDIN)
       # 1. Explicit flags that force CLI mode always win
