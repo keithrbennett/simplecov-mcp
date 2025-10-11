@@ -51,8 +51,17 @@ module SimpleCovMcp
     rescue Errno::ENOENT => e
       raise FileError.new("Coverage data not found at #{resultset || @root}")
     rescue JSON::ParserError => e
-      raise CoverageDataError.new("Invalid coverage data format")
-    rescue => e
+      raise CoverageDataError.new("Invalid coverage data format: #{e.message}")
+    rescue Errno::EACCES => e
+      raise FilePermissionError.new("Permission denied reading coverage data: #{e.message}")
+    rescue TypeError, NoMethodError => e
+      # These typically indicate the resultset has an unexpected structure
+      raise CoverageDataError.new("Invalid coverage data structure: #{e.message}")
+    rescue ArgumentError => e
+      # ArgumentError can occur from File.absolute_path or other path operations
+      raise CoverageDataError.new("Invalid path in coverage data: #{e.message}")
+    rescue RuntimeError => e
+      # RuntimeError from find_resultset or other operations
       raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
     end
   end
