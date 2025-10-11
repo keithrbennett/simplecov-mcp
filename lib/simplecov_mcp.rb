@@ -47,7 +47,7 @@ module SimpleCovMcp
         end
 
         handler = ErrorHandlerFactory.for_mcp_server
-        context = create_context(error_handler: handler, log_target: log_file)
+        context = create_context(error_handler: handler, log_target: log_file, mode: :mcp_server)
         with_context(context) { MCPServer.new(context: context).run }
       end
     end
@@ -64,10 +64,11 @@ module SimpleCovMcp
       Thread.current[THREAD_CONTEXT_KEY] || default_context
     end
 
-    def create_context(error_handler:, log_target: nil)
+    def create_context(error_handler:, log_target: nil, mode: :library)
       AppContext.new(
         error_handler: error_handler,
-        log_target: log_target.nil? ? default_context.log_target : log_target
+        log_target: log_target.nil? ? default_context.log_target : log_target,
+        mode: mode
       )
     end
 

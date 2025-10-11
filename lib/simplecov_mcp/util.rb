@@ -27,8 +27,17 @@ module SimpleCovMcp
         path_to_log = log_file || DEFAULT_LOG_FILESPEC
         File.open(File.expand_path(path_to_log), 'a') { |f| f.puts "[#{Time.now.iso8601}] #{msg}" }
       end
-    rescue StandardError
-      # ignore logging failures
+    rescue StandardError => e
+      # Fallback to stderr if file logging fails, but suppress in MCP mode
+      # to avoid interfering with JSON-RPC protocol
+      unless SimpleCovMcp.context.mcp_mode?
+        begin
+          $stderr.puts "[#{Time.now.iso8601}] LOGGING ERROR: #{e.message}"
+          $stderr.puts "[#{Time.now.iso8601}] #{msg}"
+        rescue StandardError
+          # Silently ignore only stderr fallback failures
+        end
+      end
     end
 
     def find_resultset(root, resultset: nil)

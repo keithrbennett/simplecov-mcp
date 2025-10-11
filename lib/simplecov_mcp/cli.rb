@@ -48,7 +48,8 @@ module SimpleCovMcp
 
       context = SimpleCovMcp.create_context(
         error_handler: @error_handler,
-        log_target: config.log_file.nil? ? SimpleCovMcp.context.log_target : config.log_file
+        log_target: config.log_file.nil? ? SimpleCovMcp.context.log_target : config.log_file,
+        mode: :cli
       )
 
       SimpleCovMcp.with_context(context) do
