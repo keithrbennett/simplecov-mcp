@@ -298,7 +298,7 @@ simplecov-mcp --error-mode off summary lib/model.rb
 simplecov-mcp --error-mode on summary lib/model.rb
 
 # Verbose mode - full stack traces
-simplecov-mcp --error-mode on_with_trace summary lib/model.rb
+simplecov-mcp --error-mode trace summary lib/model.rb
 ```
 
 **Ruby API Error Handling:**

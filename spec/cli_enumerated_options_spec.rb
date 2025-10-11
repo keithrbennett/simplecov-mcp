@@ -27,7 +27,7 @@ RSpec.describe 'CLI enumerated option parsing' do
 
       { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
       { argv: ['--error-mode', 'on', 'list'],  accessor: :error_mode, expected: :on },
-      { argv: ['--error-mode', 't', 'list'],   accessor: :error_mode, expected: :on_with_trace }
+      { argv: ['--error-mode', 't', 'list'],   accessor: :error_mode, expected: :trace }
     ]
 
     cases.each do |c|

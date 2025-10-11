@@ -94,7 +94,7 @@ module SimpleCovMcp
         [
           { switches: ['-S', '--stale'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
           { switches: ['-s', '--source'], values: %w[full f uncovered u], display: 'f[ull]|u[ncovered]' },
-          { switches: ['--error-mode'], values: %w[off on on_with_trace with_trace trace t], display: 'off|on|t[race]' },
+          { switches: ['--error-mode'], values: %w[off on trace t], display: 'off|on|t[race]' },
           { switches: ['-o', '--sort-order'], values: %w[a d ascending descending], display: 'a[scending]|d[escending]' }
         ]
       end

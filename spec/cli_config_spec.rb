@@ -123,8 +123,8 @@ RSpec.describe SimpleCovMcp::CLIConfig do
     end
 
     it 'uses symbols for error_mode' do
-      config = described_class.new(error_mode: :on_with_trace)
-      expect(config.error_mode).to eq(:on_with_trace)
+      config = described_class.new(error_mode: :trace)
+      expect(config.error_mode).to eq(:trace)
       expect(config.error_mode).to be_a(Symbol)
     end
 

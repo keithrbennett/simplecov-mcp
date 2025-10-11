@@ -40,8 +40,8 @@ RSpec.describe 'Error Mode System' do
       end
     end
 
-    context 'with error_mode: :on_with_trace' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :on_with_trace, logger: test_logger) }
+    context 'with error_mode: :trace' do
+      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :trace, logger: test_logger) }
 
       it 'logs errors with stack traces' do
         expect(handler.log_errors?).to be true
@@ -63,8 +63,8 @@ RSpec.describe 'Error Mode System' do
 
   describe 'ErrorHandlerFactory' do
     it 'creates handlers with correct modes' do
-      cli_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: :on_with_trace)
-      expect(cli_handler.error_mode).to eq(:on_with_trace)
+      cli_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: :trace)
+      expect(cli_handler.error_mode).to eq(:trace)
 
       lib_handler = SimpleCovMcp::ErrorHandlerFactory.for_library(error_mode: :off)
       expect(lib_handler.error_mode).to eq(:off)
@@ -81,7 +81,7 @@ RSpec.describe 'Error Mode System' do
       test_error = StandardError.new('Test MCP error')
 
       # Test different error modes
-      [:off, :on, :on_with_trace].each do |mode|
+      [:off, :on, :trace].each do |mode|
         expect(SimpleCovMcp::ErrorHandlerFactory).to receive(:for_mcp_server).with(error_mode: mode).and_call_original
 
         response = SimpleCovMcp::BaseTool.handle_mcp_error(test_error, 'TestTool', error_mode: mode)
@@ -99,10 +99,10 @@ RSpec.describe 'Error Mode System' do
 
       # Test that the option parser accepts the flag
       expect {
-        cli.send(:parse_options!, ['--error-mode', 'on_with_trace', 'summary', 'lib/foo.rb'])
+        cli.send(:parse_options!, ['--error-mode', 'trace', 'summary', 'lib/foo.rb'])
       }.not_to raise_error
 
-      expect(cli.config.error_mode).to eq(:on_with_trace)
+      expect(cli.config.error_mode).to eq(:trace)
     end
 
     it 'creates error handler with specified mode' do
@@ -135,7 +135,7 @@ RSpec.describe 'Error Mode System' do
     it 'accepts all valid error modes' do
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :off) }.not_to raise_error
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :on) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :on_with_trace) }.not_to raise_error
+      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :trace) }.not_to raise_error
     end
   end
 end

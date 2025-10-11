@@ -90,7 +90,7 @@ def run_success_predicate
   exit(result ? 0 : 1)  # 0 = success, 1 = failure
 rescue => e
   warn "Success predicate error: #{e.message}"
-  warn e.backtrace.first(5).join("\n") if config.error_mode == :on_with_trace
+  warn e.backtrace.first(5).join("\n") if config.error_mode == :trace
   exit 2  # Exit code 2 for predicate errors
 end
 ```

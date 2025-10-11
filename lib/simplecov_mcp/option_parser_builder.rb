@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'option_normalizers'
+
 module SimpleCovMcp
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
@@ -98,35 +100,19 @@ module SimpleCovMcp
     end
 
     def normalize_sort_order(v)
-      map = {
-        'a' => :ascending, 'ascending' => :ascending,
-        'd' => :descending, 'descending' => :descending
-      }
-      v = v.to_s.downcase
-      map[v] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      OptionNormalizers.normalize_sort_order(v, strict: true)
     end
 
     def normalize_source_mode(v)
-      return :full if v.nil? || v == ''
-      map = { 'full' => :full, 'f' => :full, 'uncovered' => :uncovered, 'u' => :uncovered }
-      key = v.to_s.downcase
-      map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      OptionNormalizers.normalize_source_mode(v, strict: true)
     end
 
     def normalize_stale_mode(v)
-      map = { 'off' => :off, 'o' => :off, 'error' => :error, 'e' => :error }
-      key = v.to_s.downcase
-      map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      OptionNormalizers.normalize_stale_mode(v, strict: true)
     end
 
     def normalize_error_mode(v)
-      map = {
-        'off' => :off,
-        'on' => :on,
-        'on_with_trace' => :on_with_trace, 'with_trace' => :on_with_trace, 'trace' => :on_with_trace, 't' => :on_with_trace
-      }
-      key = v.to_s.downcase
-      map[key] or raise OptionParser::InvalidArgument, "invalid argument: #{v}"
+      OptionNormalizers.normalize_error_mode(v, strict: true)
     end
   end
 end

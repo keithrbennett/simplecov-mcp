@@ -59,13 +59,13 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off'
 
       begin
-        silence_output { cli.send(:run, ['--error-mode', 'on_with_trace', 'summary', 'lib/foo.rb']) }
+        silence_output { cli.send(:run, ['--error-mode', 'trace', 'summary', 'lib/foo.rb']) }
       rescue SystemExit, SimpleCovMcp::Error
         # Expected to fail, but options should be parsed
       end
 
       # Command line should override environment
-      expect(cli.config.error_mode).to eq(:on_with_trace)
+      expect(cli.config.error_mode).to eq(:trace)
     end
 
     it 'handles malformed SIMPLECOV_MCP_OPTS gracefully' do

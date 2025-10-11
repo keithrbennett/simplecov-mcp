@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'shellwords'
+require_relative '../option_normalizers'
 
 module SimpleCovMcp
   module OptionParsers
@@ -42,13 +43,7 @@ module SimpleCovMcp
       private
 
       def normalize_error_mode(value)
-        case value&.downcase
-        when 'off' then :off
-        when 'on' then :on
-        when 'on_with_trace', 'with_trace' then :on_with_trace
-        when 'trace', 't' then :on_with_trace
-        else :on
-        end
+        OptionNormalizers.normalize_error_mode(value, strict: false, default: :on)
       end
     end
   end

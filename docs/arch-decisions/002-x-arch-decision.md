@@ -56,7 +56,7 @@ The `ErrorHandler` class (lib/simplecov_mcp/error_handler.rb:7) provides configu
 class ErrorHandler
   attr_accessor :error_mode, :logger
 
-  VALID_ERROR_MODES = [:off, :on, :on_with_trace].freeze
+  VALID_ERROR_MODES = [:off, :on, :trace].freeze
 
   def initialize(error_mode: :on, logger: nil)
     @error_mode = error_mode

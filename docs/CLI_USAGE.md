@@ -375,10 +375,10 @@ Error handling verbosity.
 **Modes:**
 - `off` - Silent (no error logging)
 - `on` - Log errors without stack traces (default)
-- `on_with_trace`, `trace`, `t` - Log errors with full stack traces
+- `trace`, `t` - Log errors with full stack traces
 
 ```sh
-simplecov-mcp --error-mode on_with_trace summary lib/simplecov_mcp/cli.rb
+simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
 ```
 
 ### `--force-cli`

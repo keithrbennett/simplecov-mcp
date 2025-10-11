@@ -23,8 +23,8 @@ module SimpleCovMcp
           },
           error_mode: {
             type: 'string',
-            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'on_with_trace' (verbose).",
-            enum: ['off', 'on', 'on_with_trace'],
+            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
+            enum: ['off', 'on', 'trace'],
             default: 'on'
           }
         }

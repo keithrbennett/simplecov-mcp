@@ -59,8 +59,8 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         expect(item[:type] || item['type']).to eq('text')
       end
 
-      it 'accepts error_mode "on_with_trace"' do
-        response = described_class.call(error_mode: 'on_with_trace', server_context: server_context)
+      it 'accepts error_mode "trace"' do
+        response = described_class.call(error_mode: 'trace', server_context: server_context)
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
       end

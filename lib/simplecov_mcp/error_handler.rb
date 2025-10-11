@@ -7,7 +7,7 @@ module SimpleCovMcp
     class ErrorHandler
       attr_accessor :error_mode, :logger
 
-      VALID_ERROR_MODES = [:off, :on, :on_with_trace].freeze
+      VALID_ERROR_MODES = [:off, :on, :trace].freeze
 
       def initialize(error_mode: :on, logger: nil)
         unless VALID_ERROR_MODES.include?(error_mode)
@@ -22,7 +22,7 @@ module SimpleCovMcp
       end
 
       def show_stack_traces?
-        error_mode == :on_with_trace
+        error_mode == :trace
       end
 
       # Handle an error with appropriate logging and re-raising behavior
