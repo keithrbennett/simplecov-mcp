@@ -54,8 +54,7 @@ module SimpleCovMcp
       SimpleCovMcp.with_context(context) do
         # If success predicate specified, run it and exit
         if config.success_predicate
-          run_success_p
-          redicate
+          run_success_predicate
           next
         end
 
