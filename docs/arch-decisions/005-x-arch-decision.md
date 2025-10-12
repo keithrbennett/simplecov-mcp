@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Replaced – simplecov-mcp now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov’s combine helpers.
 
 ## Context
 

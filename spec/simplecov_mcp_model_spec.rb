@@ -175,6 +175,70 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   end
 
+    describe 'multiple suites in resultset' do
+    let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
+
+    before do
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do |original, search_root, resultset: nil|
+        if File.absolute_path(search_root) == File.absolute_path(root) && (resultset.nil? || resultset.to_s.empty?)
+          resultset_path
+        else
+          original.call(search_root, resultset: resultset)
+        end
+      end
+      allow(File).to receive(:read).and_call_original
+    end
+
+    it 'merges coverage data from multiple suites while keeping latest timestamp' do
+      suite_a_cov = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
+      }
+      suite_b_cov = {
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 1, 1] }
+      }
+
+      resultset = {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
+      }
+
+      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+
+      model = described_class.new(root: root)
+      files = model.all_files(sort_order: :ascending)
+
+      expect(files.map { |f| File.basename(f['file']) }).to include('foo.rb', 'bar.rb')
+
+      timestamp = model.instance_variable_get(:@cov_timestamp)
+      expect(timestamp).to eq(200)
+    end
+
+    it 'combines coverage arrays when the same file appears in multiple suites' do
+      shared_file = File.join(root, 'lib', 'foo.rb')
+      suite_a_cov = {
+        shared_file => { 'lines' => [1, 0, nil, 0] }
+      }
+      suite_b_cov = {
+        shared_file => { 'lines' => [0, 3, nil, 1] }
+      }
+
+      resultset = {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 150, 'coverage' => suite_b_cov }
+      }
+
+      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+
+      model = described_class.new(root: root)
+      detailed = model.detailed_for('lib/foo.rb')
+      hits_by_line = detailed['lines'].each_with_object({}) { |row, acc| acc[row['line']] = row['hits'] }
+
+      expect(hits_by_line[1]).to eq(1)
+      expect(hits_by_line[2]).to eq(3)
+      expect(hits_by_line[4]).to eq(1)
+    end
+  end
+
   describe 'format_table' do
     it 'returns a formatted table string with all files coverage data' do
       output = model.format_table

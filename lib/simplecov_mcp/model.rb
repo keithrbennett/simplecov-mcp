@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require 'time'
+require 'json'
 
 require_relative 'util'
 require_relative 'errors'
 require_relative 'staleness_checker'
 require_relative 'path_relativizer'
+require_relative 'resultset_loader'
 
 module SimpleCovMcp
   class CoverageModel
@@ -32,16 +34,12 @@ module SimpleCovMcp
       )
 
     begin
-      # Parse resultset once to get both coverage data and timestamp
       rs = CovUtil.find_resultset(@root, resultset: resultset)
-      raw = JSON.parse(File.read(rs))
-      # SimpleCov typically writes a single test suite entry to .resultset.json
-      # Find the first entry that has coverage data (skip comment entries)
-      _suite, data = raw.find { |k, v| v.is_a?(Hash) && v.key?('coverage') }
-      raise "No test suite with coverage data found in resultset file: #{rs}" unless data
-      cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
-      @cov = cov.transform_keys { |k| File.absolute_path(k, @root) }
-      @cov_timestamp = normalize_coverage_timestamp(data['timestamp'], data['created_at'])
+      loaded = ResultsetLoader.load(resultset_path: rs)
+      coverage_map = loaded.coverage_map or raise CoverageDataError.new("No 'coverage' key found in resultset file: #{rs}")
+
+      @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
+      @cov_timestamp = loaded.timestamp
 
       @checker = StalenessChecker.new(
         root: @root,
@@ -150,45 +148,6 @@ module SimpleCovMcp
     end
 
     private
-
-    # Normalize timestamps of all types into an integer
-    def normalize_coverage_timestamp(timestamp_value, created_at_value)
-      raw = timestamp_value.nil? ? created_at_value : timestamp_value
-      return 0 if raw.nil?
-
-      case raw
-      when Integer
-        raw
-      when Float, Time
-        raw.to_i
-      when String
-        normalize_string_timestamp(raw)
-      else
-        log_timestamp_warning(raw)
-        0
-      end
-    rescue StandardError => e
-      log_timestamp_warning(raw, e)
-      0
-    end
-
-    def normalize_string_timestamp(value)
-      str = value.strip
-      return 0 if str.empty?
-
-      # Treat plain numeric strings (optional leading '-', optional fractional part) as epoch seconds
-      if str.match?(/\A-?\d+(\.\d+)?\z/)
-        str.to_f.to_i
-      else
-        Time.parse(str).to_i
-      end
-    end
-
-    def log_timestamp_warning(raw_value, error = nil)
-      message = "Coverage resultset timestamp could not be parsed: #{raw_value.inspect}"
-      message = "#{message} (#{error.message})" if error
-      CovUtil.log(message) rescue nil
-    end
 
     def build_staleness_checker(mode:, tracked_globs:)
       StalenessChecker.new(

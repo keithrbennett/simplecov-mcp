@@ -23,7 +23,7 @@ A **three-in-one** gem that makes SimpleCov coverage data accessible to:
 - 💻 **Command line** via its command line interface
 - 📚 **Ruby scripts and applications** as a library
 
-**Zero dependencies** on SimpleCov at runtime - just reads the `.resultset.json` file!
+**Lazy dependency** on SimpleCov - single-suite resultsets avoid loading it; multi-suite files trigger a merge via SimpleCov’s combine helpers.
 
 What is it *not*? It is not a replacement for SimpleCov's generated web presentation of the coverage data.
 
@@ -43,7 +43,7 @@ This code base requires a Ruby version >= 3.2.0, because this is required by the
 
 ## Key Features
 
-- **No SimpleCov dependency** - just reads `.resultset.json`
+- **Lazy SimpleCov dependency** - only loaded when multi-suite resultsets need merging
 - **Flexible resultset location** - via CLI flags, passed parameter, or env var
 - **Staleness detection** - warns or optionally errors when files newer than coverage
 - **JSON output** - perfect for jq, scripts, CI/CD

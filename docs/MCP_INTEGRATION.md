@@ -33,6 +33,7 @@ AI assistants can help you:
 
 - **Ruby >= 3.2** (required by MCP gem dependency)
 - **simplecov-mcp installed** - See [Installation Guide](INSTALLATION.md)
+- **simplecov gem >= 0.21** - Needed when a resultset contains multiple suites (loaded lazily)
 - **Coverage data** - Run tests to generate `coverage/.resultset.json`
 - **MCP-compatible client** - Claude Code, Cursor, Codex, etc.
 
@@ -67,6 +68,12 @@ bundle exec rspec  # or your test command
 # Verify coverage file exists
 ls coverage/.resultset.json
 ```
+
+> **Multi-suite note:** If the resultset contains several suites (e.g., `RSpec` and `Cucumber`), simplecov-mcp lazily loads the `simplecov` gem and merges them before answering coverage queries. Staleness checks currently use the newest suite’s timestamp, so treat multi-suite freshness warnings as advisory until per-file timestamps are introduced.
+>
+> Only suites stored in a *single* `.resultset.json` are merged automatically. If your test runs produce multiple resultset files, merge them (e.g., via `SimpleCov::ResultMerger.merge_and_store`) and point simplecov-mcp at the combined file.
+
+> Multifile support may be added in a future version (post an issue if you want this).
 
 ### 5. Test the MCP Server
 

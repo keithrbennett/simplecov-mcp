@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
 
   # Runtime deps (stdlib: json, time, pathname)
   spec.add_runtime_dependency 'mcp', '~> 0.3'
+  spec.add_runtime_dependency 'simplecov', '>= 0.21', '< 1.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'simplecov', '~> 0.21'
   
   # Ruby 3.5+ will remove irb and rdoc from default gems
   spec.add_development_dependency 'irb', '>= 1.0' if RUBY_VERSION >= '3.4'

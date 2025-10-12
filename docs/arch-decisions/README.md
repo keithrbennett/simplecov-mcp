@@ -41,7 +41,7 @@ Links to related code, issues, documentation, or other ADRs.
 - [002: Context-Aware Error Handling](002-x-arch-decision.md) - Mode-specific error handling strategy
 - [003: Coverage Staleness Detection](003-x-arch-decision.md) - Three-type staleness system
 - [004: Ruby Instance Eval for Success Predicates](004-x-arch-decision.md) - Dynamic Ruby evaluation approach
-- [005: No SimpleCov Runtime Dependency](005-x-arch-decision.md) - Reading `.resultset.json` directly
+- [005: No SimpleCov Runtime Dependency](005-x-arch-decision.md) - Superseded by the multi-suite merge work (runtime SimpleCov dependency)
 
 ## When to Create an ADR
 

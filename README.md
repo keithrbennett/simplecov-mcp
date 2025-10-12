@@ -12,7 +12,7 @@ A flexible tool for analyzing SimpleCov coverage data with three interfaces:
 - **💻 CLI** - Command-line coverage reports, queries, and analysis
 - **💎 Ruby Library** - Programmatic API for custom coverage analysis
 
-All without requiring SimpleCov at runtime—just reads the `.resultset.json` file.
+Single-suite projects avoid loading SimpleCov at runtime, while multi-suite resultsets trigger a lazy SimpleCov load so coverage can be merged correctly.
 
 ## Quick Start
 
@@ -68,9 +68,16 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
   - **M** (Missing): File no longer exists
   - **T** (Timestamp): File modified after coverage was generated
   - **L** (Length): Line count mismatch between source and coverage
-- ✅ **No runtime SimpleCov dependency** - Just reads `.resultset.json`
+- ✅ **Lazy SimpleCov dependency** - Only loads SimpleCov when multiple suites need merging
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
+
+## Multiple Coverage Suites
+
+- `.resultset.json` files that contain several suites (e.g., RSpec + Cucumber) are merged automatically using SimpleCov’s combine logic. All covered files from every suite are now available to the CLI, library, and MCP tools.
+- When suites are merged we currently keep a single “latest suite” timestamp for staleness checks. That matches prior behaviour but can under-report stale files if only some suites were re-run after a change. A per-file timestamp refinement is planned; until then, consider multi-suite staleness advisory rather than definitive.
+- The gem now depends on `simplecov` at runtime so the merge logic is always available. Single-suite resultsets still load instantly because SimpleCov is only required when needed.
+- Only suites stored inside a *single* `.resultset.json` are merged. If your project produces separate resultset files (for example, different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`, …) you must merge them yourself before pointing `simplecov-mcp` at the combined file.
 
 ## Documentation
 
@@ -104,6 +111,7 @@ More in [CLI Usage](docs/CLI_USAGE.md) and [Library API](docs/LIBRARY_API.md).
 
 - **Ruby >= 3.2** (required by `mcp` gem dependency)
 - SimpleCov-generated `.resultset.json` file
+- `simplecov` gem >= 0.21 (only loaded when multiple suites require merging)
 - RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`).
 
 ### Note for Codex on macOS
@@ -263,9 +271,9 @@ gem install simplecov-mcp-*.gem
 
 See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for more *(coming soon)*.
 
-## SimpleCov Independence
+## SimpleCov Dependency
 
-This gem does **not** depend on SimpleCov at runtime. It only reads the `.resultset.json` file that SimpleCov generates. As long as that file exists, simplecov-mcp can analyze it without requiring SimpleCov in your runtime environment.
+`simplecov-mcp` now declares a runtime dependency on `simplecov` so it can merge multi-suite resultsets using SimpleCov’s own combine helpers. Single-suite projects still avoid loading SimpleCov at runtime, but when multiple suites are present the gem lazily requires SimpleCov to merge the coverage hashes.
 
 ## Contributing
 
