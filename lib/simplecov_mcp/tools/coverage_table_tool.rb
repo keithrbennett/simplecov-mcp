@@ -2,6 +2,7 @@
 
 
 require_relative '../base_tool'
+require_relative '../presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   module Tools
@@ -61,8 +62,13 @@ module SimpleCovMcp
           check_stale = (stale_sym == :error)
 
           model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, tracked_globs: tracked_globs)
-          rows = model.all_files(sort_order: sort_order_sym, check_stale: check_stale, tracked_globs: tracked_globs)
-          relativized = model.relativize(rows)
+          presenter = Presenters::ProjectCoveragePresenter.new(
+            model: model,
+            sort_order: sort_order_sym,
+            check_stale: check_stale,
+            tracked_globs: tracked_globs
+          )
+          relativized = presenter.relative_files
           table = model.format_table(
             relativized,
             sort_order: sort_order_sym,
