@@ -10,8 +10,8 @@ module SimpleCovMcp
         handle_with_path(args, 'detailed') do |path|
           data = model.detailed_for(path)
           break if emit_json_with_optional_source(data, model, path)
-          rel = model.relativize(data)['file']
-          puts "File: #{rel}"
+          relative_path = model.relativize(data)['file']
+          puts "File: #{relative_path}"
           puts source_formatter.format_detailed_rows(data['lines'])
           print_source_for(model, path) if config.source_mode
         end

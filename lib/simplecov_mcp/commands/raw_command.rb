@@ -9,8 +9,8 @@ module SimpleCovMcp
         handle_with_path(args, 'raw') do |path|
           data = model.raw_for(path)
           break if maybe_output_json(data, model)
-          rel = model.relativize(data)['file']
-          puts "File: #{rel}"
+          relative_path = model.relativize(data)['file']
+          puts "File: #{relative_path}"
           puts data['lines'].inspect
         end
       end

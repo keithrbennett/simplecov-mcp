@@ -9,11 +9,11 @@ module SimpleCovMcp
         handle_with_path(args, 'uncovered') do |path|
           data = model.uncovered_for(path)
           break if emit_json_with_optional_source(data, model, path)
-          rel = model.relativize(data)['file']
-          puts "File:            #{rel}"
+          relative_path = model.relativize(data)['file']
+          puts "File:            #{relative_path}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
-          s = data['summary']
-          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", s['pct'], s['covered'], s['total']
+          summary = data['summary']
+          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", summary['pct'], summary['covered'], summary['total']
           print_source_for(model, path) if config.source_mode
         end
       end
