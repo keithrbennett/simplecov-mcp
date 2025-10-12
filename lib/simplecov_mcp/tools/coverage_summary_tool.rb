@@ -2,6 +2,7 @@
 
 require_relative '../base_tool'
 require_relative '../model'
+require_relative '../presenters/coverage_summary_presenter'
 
 module SimpleCovMcp
   module Tools
@@ -16,11 +17,9 @@ module SimpleCovMcp
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: '.', resultset: nil, stale: 'off', error_mode: 'on', server_context:)
-          mode = stale
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: mode)
-          data = model.summary_for(path)
-          data['stale'] = model.staleness_for(path)
-          respond_json(model.relativize(data), name: 'coverage_summary.json', pretty: true)
+          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
+          presenter = Presenters::CoverageSummaryPresenter.new(model: model, path: path)
+          respond_json(presenter.relativized_payload, name: 'coverage_summary.json', pretty: true)
         rescue => e
           handle_mcp_error(e, 'CoverageSummaryTool', error_mode: error_mode)
         end
