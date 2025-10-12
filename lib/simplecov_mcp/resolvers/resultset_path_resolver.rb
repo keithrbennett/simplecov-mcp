@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pathname'
+
 module SimpleCovMcp
   module Resolvers
     class ResultsetPathResolver
@@ -16,7 +18,7 @@ module SimpleCovMcp
 
       def find_resultset(resultset: nil)
         if resultset && !resultset.empty?
-          path = File.absolute_path(resultset, @root)
+          path = normalize_resultset_path(resultset)
           if (resolved = resolve_candidate(path, strict: true))
             return resolved
           end
@@ -48,6 +50,22 @@ module SimpleCovMcp
         @candidates
           .map { |p| File.absolute_path(p, @root) }
           .find { |p| File.file?(p) }
+      end
+
+      def normalize_resultset_path(resultset)
+        candidate = Pathname.new(resultset)
+        return candidate.cleanpath.to_s if candidate.absolute?
+
+        expanded = File.expand_path(resultset, Dir.pwd)
+        return expanded if within_root?(expanded)
+
+        File.absolute_path(resultset, @root)
+      end
+
+      def within_root?(path)
+        normalized_root = Pathname.new(@root).cleanpath.to_s
+        root_with_sep = normalized_root.end_with?(File::SEPARATOR) ? normalized_root : "#{normalized_root}#{File::SEPARATOR}"
+        path == normalized_root || path.start_with?(root_with_sep)
       end
 
       def raise_not_found_error

@@ -42,5 +42,14 @@ RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
         resolver.find_resultset
       }.to raise_error(RuntimeError, /Could not find .resultset.json/)
     end
+
+    it 'accepts a resultset path already nested under the provided root without double-prefixing' do
+      project_root = (FIXTURES_DIR / 'project1').to_s
+      resolver = described_class.new(root: project_root)
+
+      resolved = resolver.find_resultset(resultset: 'spec/fixtures/project1/coverage')
+
+      expect(resolved).to eq(File.join(project_root, 'coverage', '.resultset.json'))
+    end
   end
 end
