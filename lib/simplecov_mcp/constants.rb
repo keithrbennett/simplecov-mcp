@@ -10,6 +10,7 @@ module SimpleCovMcp
       -r --resultset
       -R --root
       -o --sort-order
+      -s --source
       -c --source-context
       -S --stale
       -g --tracked-globs
