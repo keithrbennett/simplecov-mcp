@@ -43,17 +43,24 @@ TIMESTAMP_REGEX = /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\]/
 # @param timestamp [Integer] The timestamp to use in the fake resultset
 # @param coverage [Hash] Optional custom coverage data (default: basic foo.rb and bar.rb)
 def mock_resultset_with_timestamp(root, timestamp, coverage: nil)
+  mock_resultset_with_metadata(root, { 'timestamp' => timestamp }, coverage: coverage)
+end
+
+def mock_resultset_with_created_at(root, created_at, coverage: nil)
+  mock_resultset_with_metadata(root, { 'created_at' => created_at }, coverage: coverage)
+end
+
+def mock_resultset_with_metadata(root, metadata, coverage: nil)
   abs_root = File.absolute_path(root)
   default_coverage = {
-    File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] },
-    File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1, 0] }
+    File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] },
+    File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0, 1] }
   }
 
   fake_resultset = {
     'RSpec' => {
-      'coverage' => coverage || default_coverage,
-      'timestamp' => timestamp
-    }
+      'coverage' => coverage || default_coverage
+    }.merge(metadata)
   }
 
   allow(File).to receive(:read).and_call_original
