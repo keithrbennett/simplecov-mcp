@@ -71,6 +71,11 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 - ✅ **Lazy SimpleCov dependency** - Only loads SimpleCov when multiple suites need merging
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
+- ⚠️ **Branch metrics summarized** - SimpleCov MCP does not report individual
+  branch legs. When a resultset contains branch-only coverage data we collapse
+  the hits into a single per-line total so coverage tables, CLI commands, and
+  MCP tools remain compatible. Use native SimpleCov reports if you require
+  branch-by-branch visibility.
 
 ## Multiple Coverage Suites
 

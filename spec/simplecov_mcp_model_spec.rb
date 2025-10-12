@@ -175,6 +175,53 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   end
 
+  describe 'branch-only coverage resultsets' do
+    let(:branch_root) { (FIXTURES_DIR / 'branch_only_project').to_s }
+    let(:branch_model) { described_class.new(root: branch_root) }
+
+    it 'computes summaries by synthesizing branch data' do
+      data = branch_model.summary_for('lib/branch_only.rb')
+
+      expect(data['summary']['total']).to eq(5)
+      expect(data['summary']['covered']).to eq(3)
+      expect(data['summary']['pct']).to be_within(0.01).of(60.0)
+    end
+
+    it 'returns detailed data using branch-derived hits' do
+      data = branch_model.detailed_for('lib/branch_only.rb')
+
+      expect(data['lines']).to eq([
+        { 'line' => 6,  'hits' => 3, 'covered' => true },
+        { 'line' => 7,  'hits' => 0, 'covered' => false },
+        { 'line' => 13, 'hits' => 0, 'covered' => false },
+        { 'line' => 14, 'hits' => 2, 'covered' => true },
+        { 'line' => 16, 'hits' => 2, 'covered' => true }
+      ])
+    end
+
+    it 'identifies uncovered lines based on branch hits' do
+      data = branch_model.uncovered_for('lib/branch_only.rb')
+
+      expect(data['uncovered']).to eq([7, 13])
+    end
+
+    it 'includes branch-only files in all_files results' do
+      files = branch_model.all_files(sort_order: :ascending)
+      branch_path = File.expand_path('lib/branch_only.rb', branch_root)
+      another_path = File.expand_path('lib/another.rb', branch_root)
+
+      expect(files.map { |f| f['file'] }).to contain_exactly(branch_path, another_path)
+
+      branch_entry = files.find { |f| f['file'] == branch_path }
+      another_entry = files.find { |f| f['file'] == another_path }
+
+      expect(branch_entry['total']).to eq(5)
+      expect(branch_entry['covered']).to eq(3)
+      expect(another_entry['total']).to eq(1)
+      expect(another_entry['covered']).to eq(0)
+    end
+  end
+
     describe 'multiple suites in resultset' do
     let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
 
