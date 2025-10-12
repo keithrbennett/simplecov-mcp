@@ -88,4 +88,78 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
       end
     end
   end
+
+  describe 'SimpleCov loading and logging' do
+    it 'raises CoverageDataError when SimpleCov cannot be required' do
+      singleton = class << described_class; self; end
+      singleton.send(:define_method, :require) do |name|
+        raise LoadError if name == 'simplecov'
+        Kernel.require(name)
+      end
+
+      expect {
+        described_class.send(:require_simplecov_for_merge!, '/tmp/resultset.json')
+      }.to raise_error(SimpleCovMcp::CoverageDataError, /Install simplecov/)
+    ensure
+      if singleton.method_defined?(:require)
+        singleton.send(:remove_method, :require)
+      end
+    end
+
+    it 'logs duplicate suite names when merging coverage' do
+      suites = [
+        described_class::SuiteEntry.new(name: 'RSpec', coverage: {}, timestamp: 0),
+        described_class::SuiteEntry.new(name: 'RSpec', coverage: {}, timestamp: 0),
+        described_class::SuiteEntry.new(name: 'Cucumber', coverage: {}, timestamp: 0)
+      ]
+
+      expect(SimpleCovMcp::CovUtil).to receive(:log).with(include('Merging duplicate coverage suites for RSpec'))
+      described_class.send(:log_duplicate_suite_names, suites)
+    end
+  end
+
+  describe 'timestamp normalization' do
+    it 'handles float timestamps' do
+      value = described_class.send(:normalize_coverage_timestamp, 123.9, nil)
+      expect(value).to eq(123)
+    end
+
+    it 'handles Time objects' do
+      time = Time.at(456)
+      value = described_class.send(:normalize_coverage_timestamp, time, nil)
+      expect(value).to eq(456)
+    end
+
+    it 'parses numeric string timestamps' do
+      value = described_class.send(:normalize_coverage_timestamp, '789.42', nil)
+      expect(value).to eq(789)
+    end
+
+    it 'falls back to created_at when timestamp missing' do
+      value = described_class.send(:normalize_coverage_timestamp, nil, 321)
+      expect(value).to eq(321)
+    end
+
+    it 'logs warning and returns zero for invalid timestamp strings' do
+      messages = []
+      allow(SimpleCovMcp::CovUtil).to receive(:log) { |msg| messages << msg }
+
+      value = described_class.send(:normalize_coverage_timestamp, 'not-a-timestamp', nil)
+
+      expect(value).to eq(0)
+      expect(messages.join).to include('Coverage resultset timestamp could not be parsed')
+      expect(messages.join).to include('not-a-timestamp')
+    end
+
+    it 'logs warning and returns zero for unsupported types' do
+      messages = []
+      allow(SimpleCovMcp::CovUtil).to receive(:log) { |msg| messages << msg }
+
+      value = described_class.send(:normalize_coverage_timestamp, [:invalid], nil)
+
+      expect(value).to eq(0)
+      expect(messages.join).to include('Coverage resultset timestamp could not be parsed')
+      expect(messages.join).to include('[:invalid]')
+    end
+  end
 end
