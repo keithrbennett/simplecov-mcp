@@ -80,7 +80,12 @@ module SimpleCovMcp
 
       file_summaries = model.relativize(rows)
       # Delegate to model for consistent formatting and avoid duplicate logic
-      output.puts model.format_table(file_summaries, sort_order: sort_order, check_stale: (config.stale_mode == :error), tracked_globs: config.tracked_globs)
+      output.puts model.format_table(
+        file_summaries,
+        sort_order: sort_order,
+        check_stale: (config.stale_mode == :error),
+        tracked_globs: nil # rows already filtered; avoid re-filtering relativized paths
+      )
     end
 
     private

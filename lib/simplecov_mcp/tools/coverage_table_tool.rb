@@ -63,7 +63,12 @@ module SimpleCovMcp
           model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, tracked_globs: tracked_globs)
           rows = model.all_files(sort_order: sort_order_sym, check_stale: check_stale, tracked_globs: tracked_globs)
           relativized = model.relativize(rows)
-          table = model.format_table(relativized, sort_order: sort_order_sym, check_stale: check_stale, tracked_globs: tracked_globs)
+          table = model.format_table(
+            relativized,
+            sort_order: sort_order_sym,
+            check_stale: check_stale,
+            tracked_globs: nil # rows already filtered via all_files
+          )
           ::MCP::Tool::Response.new([{ type: 'text', text: table }])
         rescue => e
           handle_mcp_error(e, 'CoverageTableTool', error_mode: error_mode)

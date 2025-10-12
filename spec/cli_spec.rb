@@ -75,6 +75,14 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(output).to match(/Files: total \d+/)
   end
 
+  it 'list subcommand retains rows when using an absolute tracked glob' do
+    absolute_glob = File.join(root, 'lib', '**', '*.rb')
+    output = run_cli('list', '--root', root, '--resultset', 'coverage', '--tracked-globs', absolute_glob)
+    expect(output).not_to include('No coverage data found')
+    expect(output).to include('lib/foo.rb')
+    expect(output).to include('lib/bar.rb')
+  end
+
   it 'exposes expected subcommands via constant' do
     expect(described_class::SUBCOMMANDS).to eq(%w[list summary raw uncovered detailed version])
   end
