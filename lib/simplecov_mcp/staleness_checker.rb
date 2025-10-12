@@ -129,7 +129,11 @@ module SimpleCovMcp
     end
 
     def rel(path)
+      # Handle relative vs absolute path mismatches that cause ArgumentError
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
+    rescue ArgumentError
+      # Path is outside the project root or has a different prefix type, fall back to absolute path
+      path.to_s
     end
 
     # Centralized computation of staleness-related details for a single file.

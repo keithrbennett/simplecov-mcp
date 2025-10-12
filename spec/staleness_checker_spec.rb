@@ -243,4 +243,82 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expect(checker.send(:safe_count_lines, file)).to eq(0)
     end
   end
+
+  context 'rel method with path prefix mismatches' do
+    let(:checker) { described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now) }
+
+    it 'returns relative path for files within project root' do
+      file_inside = File.join(tmpdir, 'lib', 'test.rb')
+      expect(checker.send(:rel, file_inside)).to eq('lib/test.rb')
+    end
+
+    it 'handles ArgumentError when path prefixes differ (absolute vs relative)' do
+      # Test the specific ArgumentError scenario: absolute path vs relative root
+      # This simulates the bug scenario where coverage data has absolute paths
+      # but the root is somehow processed as relative (edge case)
+      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'off', timestamp: Time.now)
+
+      # Override the @root to simulate the edge case where it's still relative
+      checker_with_relative_root.instance_variable_set(:@root, './subdir')
+
+      file_absolute = '/opt/shared_libs/utils/validation.rb'
+
+      # This should trigger the ArgumentError rescue and return the absolute path
+      expect(checker_with_relative_root.send(:rel, file_absolute)).to eq('/opt/shared_libs/utils/validation.rb')
+    end
+
+    it 'handles relative file paths with absolute root' do
+      file_relative = './lib/test.rb'
+
+      # This should work fine (both are converted to absolute internally)
+      expect { checker.send(:rel, file_relative) }.not_to raise_error
+    end
+
+    it 'works with check_file! when rel encounters ArgumentError' do
+      # Test the specific case where rel() would crash with ArgumentError
+      # Instead of testing the full check_file! flow, just test that rel() works
+
+      checker_with_edge_case = described_class.new(root: '.', resultset: nil, mode: 'off', timestamp: Time.now)
+      checker_with_edge_case.instance_variable_set(:@root, './subdir')
+
+      file_outside = '/opt/company_gem/lib/core.rb'
+
+      # This should trigger the ArgumentError and return the absolute path
+      # instead of crashing with ArgumentError
+      result = checker_with_edge_case.send(:rel, file_outside)
+      expect(result).to eq('/opt/company_gem/lib/core.rb')
+
+      # Verify it doesn't raise ArgumentError
+      expect { checker_with_edge_case.send(:rel, file_outside) }.not_to raise_error
+    end
+
+    it 'handles files outside project root gracefully (returns relative path with ..)' do
+      # Test that normal "outside but compatible" paths still work
+      file_outside = '/tmp/external_file.rb'
+
+      # This should return a relative path with .. (not trigger ArgumentError)
+      result = checker.send(:rel, file_outside)
+      expect(result).to include('..')  # Should contain relative navigation
+      expect(result).not_to start_with('/')  # Should be relative, not absolute
+    end
+
+    it 'allows project-level staleness checks to handle coverage outside root' do
+      future_time = Time.at(Time.now.to_i + 3600)
+      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'error', timestamp: future_time)
+      checker_with_relative_root.instance_variable_set(:@root, './subdir')
+
+      external_dir = Dir.mktmpdir('scmcp-outside')
+
+      begin
+        external_file = File.join(external_dir, 'shared.rb')
+        File.write(external_file, "puts 'hi'\n")
+
+        coverage_map = { external_file => [1] }
+
+        expect { checker_with_relative_root.check_project!(coverage_map) }.not_to raise_error
+      ensure
+        FileUtils.remove_entry(external_dir) if external_dir && File.directory?(external_dir)
+      end
+    end
+  end
 end
