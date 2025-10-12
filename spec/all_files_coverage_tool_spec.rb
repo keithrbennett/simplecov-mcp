@@ -11,16 +11,18 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
     setup_mcp_response_stub
     model = instance_double(SimpleCovMcp::CoverageModel)
     allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
-    allow(model).to receive(:all_files).and_return([
-      { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
-      { 'file' => "#{root}/lib/bar.rb", 'percentage' => 50.0,  'covered' => 5,  'total' => 10, 'stale' => true }
-    ])
-    relativizer = SimpleCovMcp::PathRelativizer.new(
-      root: root,
-      scalar_keys: %w[file file_path],
-      array_keys: %w[newer_files missing_files deleted_files]
-    )
-    allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
+
+    payload = {
+      'files' => [
+        { 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
+        { 'file' => 'lib/bar.rb', 'percentage' => 50.0,  'covered' => 5,  'total' => 10, 'stale' => true }
+      ],
+      'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 }
+    }
+
+    presenter = instance_double(SimpleCovMcp::Presenters::ProjectCoveragePresenter)
+    allow(SimpleCovMcp::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+    allow(presenter).to receive(:relativized_payload).and_return(payload)
   end
 
   subject { described_class.call(root: root, server_context: server_context) }

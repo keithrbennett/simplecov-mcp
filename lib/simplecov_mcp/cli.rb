@@ -6,6 +6,7 @@ require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
 require_relative 'constants'
+require_relative 'presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   class CoverageCLI
@@ -67,24 +68,24 @@ module SimpleCovMcp
 
     def show_default_report(sort_order: :ascending, output: $stdout)
       model = CoverageModel.new(**config.model_options)
-      rows = model.all_files(sort_order: sort_order, check_stale: (config.stale_mode == :error), tracked_globs: config.tracked_globs)
+      presenter = Presenters::ProjectCoveragePresenter.new(
+        model: model,
+        sort_order: sort_order,
+        check_stale: (config.stale_mode == :error),
+        tracked_globs: config.tracked_globs
+      )
 
       if config.json
-        files = model.relativize(rows)
-        total = files.length
-        stale_count = files.count { |f| f['stale'] }
-        ok_count = total - stale_count
-        output.puts JSON.pretty_generate({ files: files, counts: { total: total, ok: ok_count, stale: stale_count } })
+        output.puts JSON.pretty_generate(presenter.relativized_payload)
         return
       end
 
-      file_summaries = model.relativize(rows)
-      # Delegate to model for consistent formatting and avoid duplicate logic
+      file_summaries = presenter.relative_files
       output.puts model.format_table(
         file_summaries,
         sort_order: sort_order,
         check_stale: (config.stale_mode == :error),
-        tracked_globs: nil # rows already filtered; avoid re-filtering relativized paths
+        tracked_globs: nil
       )
     end
 

@@ -2,6 +2,7 @@
 
 require_relative '../model'
 require_relative '../base_tool'
+require_relative '../presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   module Tools
@@ -58,12 +59,13 @@ module SimpleCovMcp
           stale_sym = stale.to_sym
 
           model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, tracked_globs: tracked_globs)
-          files = model.all_files(sort_order: sort_order_sym, check_stale: (stale_sym == :error), tracked_globs: tracked_globs)
-          total = files.length
-          stale_count = files.count { |f| f['stale'] }
-          ok_count = total - stale_count
-          payload = { files: files, counts: { total: total, ok: ok_count, stale: stale_count } }
-          respond_json(model.relativize(payload), name: 'all_files_coverage.json')
+          presenter = Presenters::ProjectCoveragePresenter.new(
+            model: model,
+            sort_order: sort_order_sym,
+            check_stale: (stale_sym == :error),
+            tracked_globs: tracked_globs
+          )
+          respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')
         rescue => e
           handle_mcp_error(e, 'AllFilesCoverageTool', error_mode: error_mode)
         end
