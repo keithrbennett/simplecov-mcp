@@ -1,0 +1,31 @@
+{
+  "_comment": "Branch-only coverage fixture with lines omitted and branches populated",
+  "RSpec": {
+    "timestamp": 1720000000,
+    "coverage": {
+      "lib/branch_only.rb": {
+        "lines": null,
+        "branches": {
+          "[:if, 0, 5, 2, 8, 5]": {
+            "[:then, 1, 6, 4, 6, 15]": 3,
+            "[:else, 2, 7, 4, 7, 15]": 0
+          },
+          "[:case, 3, 12, 2, 17, 5]": {
+            "[:when, 4, 13, 4, 13, 14]": 0,
+            "[:when, 5, 14, 4, 14, 14]": 2,
+            "[:else, 6, 16, 4, 16, 12]": 2
+          }
+        }
+      },
+      "lib/another.rb": {
+        "lines": null,
+        "branches": {
+          "[:if, 0, 3, 2, 3, 12]": {
+            "[:then, 1, 3, 2, 3, 12]": 0,
+            "[:else, 2, 3, 2, 3, 12]": 0
+          }
+        }
+      }
+    }
+  }
+}
