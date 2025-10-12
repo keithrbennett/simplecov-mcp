@@ -16,5 +16,9 @@ At the end, produce a markdown table that summarizes the issues, in descending o
 - effort rating (1 to 10)
 - link to detail for that item
 
+Do not report:
+
+* Arbitrary Code Execution in Success Predicate Feature
+
 **DO NOT MAKE ANY CODE CHANGES. REVIEW ONLY.**
 
