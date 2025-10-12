@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'mcp'
+require 'json'
 require_relative 'errors'
 require_relative 'error_handler'
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require_relative 'cli_config'
 require_relative 'option_parser_builder'
 require_relative 'commands/command_factory'
