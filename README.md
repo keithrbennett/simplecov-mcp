@@ -79,18 +79,11 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 
 - ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
 - ✅ **Rich output formats** - Tables, JSON, annotated source code
-- ✅ **Staleness detection** - Identify outdated coverage for CI/CD
-  - **M** (Missing): File no longer exists
-  - **T** (Timestamp): File modified after coverage was generated
-  - **L** (Length): Line count mismatch between source and coverage
+- ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
 - ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
-- ⚠️ **Branch metrics summarized** - SimpleCov MCP does not report individual
-  branch legs. When a resultset contains branch-only coverage data we collapse
-  the hits into a single per-line total so coverage tables, CLI commands, and
-  MCP tools remain compatible. Use native SimpleCov reports if you require
-  branch-by-branch visibility.
+- ⚠️ **Branch coverage limitation** - Branch-level metrics are collapsed to per-line totals. Use native SimpleCov reports for branch-by-branch analysis.
 
 ## Multi-Suite Coverage Merging
 
@@ -125,11 +118,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 - **Ruby >= 3.2** (required by `mcp` gem dependency)
 - SimpleCov-generated `.resultset.json` file
 - `simplecov` gem >= 0.21 (only loaded when multiple suites require merging)
-- RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`).
-
-### Note for Codex on macOS
-
-Codex’s macOS sandbox disallows running `/bin/ps`. RVM depends on `ps` to bootstrap its environment, so `bundle exec rspec` fails in that sandbox because the shell falls back to the system Ruby 2.6. There isn’t a repo-side fix—use a Ruby version manager that doesn’t rely on `ps`, or run the suite outside that environment. (Codex on Ubuntu, Gemini, and Claude Code aren’t affected.)
+- RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`)
 
 ## Configuring the Resultset
 
@@ -260,6 +249,7 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md#available-mcp-tools) for det
 - **"cannot load such file -- mcp"** - Upgrade to Ruby >= 3.2
 - **"Could not find .resultset.json"** - Run tests to generate coverage. See the [Configuring the Resultset](#configuring-the-resultset) section for more details.
 - **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](docs/MCP_INTEGRATION.md#troubleshooting)
+- **Codex on macOS with RVM** - Codex's macOS sandbox disallows `/bin/ps`, which RVM needs. Use a different version manager (rbenv, chruby) or run outside the Codex environment.
 
 For more detailed help, see the full [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
 
