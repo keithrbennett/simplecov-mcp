@@ -105,19 +105,20 @@ Using the Claude CLI tool:
 
 ```sh
 # Basic setup (if simplecov-mcp is in default PATH)
-claude mcp add simplecov-mcp -- simplecov-mcp
+claude mcp add simplecov-mcp simplecov-mcp
 
-# With RVM (including Ruby version switching)
-claude mcp add simplecov-mcp -- bash -l -c "rvm use 3.3.8 && /Users/yourname/.rvm/gems/ruby-3.3.8/bin/simplecov-mcp"
+# With rbenv/asdf (use absolute path)
+claude mcp add simplecov-mcp /Users/yourname/.rbenv/shims/simplecov-mcp
 
-# With rbenv
-claude mcp add simplecov-mcp -- /Users/yourname/.rbenv/shims/simplecov-mcp
+# With RVM wrapper (recommended for stability)
+rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
+claude mcp add simplecov-mcp /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
 
-# With asdf
-claude mcp add simplecov-mcp -- /Users/yourname/.asdf/shims/simplecov-mcp
+# For user-wide configuration (default is local)
+claude mcp add --scope user simplecov-mcp simplecov-mcp
 
-# For project-specific configuration (local scope)
-claude mcp add --scope local simplecov-mcp -- simplecov-mcp
+# For project-specific configuration
+claude mcp add --scope project simplecov-mcp simplecov-mcp
 ```
 
 **Verify configuration:**
@@ -125,41 +126,48 @@ claude mcp add --scope local simplecov-mcp -- simplecov-mcp
 # List configured MCP servers
 claude mcp list
 
+# Get server details
+claude mcp get simplecov-mcp
+
 # Remove if needed
 claude mcp remove simplecov-mcp
 ```
 
 **Important Notes:**
-- Use `bash -l -c` wrapper if you need to set up RVM or other shell initialization
+- Default scope is `local` (current project)
+- Use `--scope user` for global config, `--scope project` for project-specific
 - The executable path is tied to Ruby version with version managers
 - If you change Ruby versions, remove and re-add the configuration
-- Use `--scope user` for global config, `--scope local` for project-specific
 
 ### Cursor / Codex
 
-Edit your `~/.codex/config.toml` file:
-
-```toml
-[mcp_servers.simplecov-mcp]
-command = "/Users/yourname/.rbenv/shims/simplecov-mcp"
-# Or with RVM:
-# command = "/Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp"
-
-trust_level = "trusted"
-```
-
-**Finding the correct path:**
+Using the Codex CLI:
 
 ```sh
-# For rbenv/asdf
-which simplecov-mcp
+# Basic setup (if simplecov-mcp is in default PATH)
+codex mcp add simplecov-mcp --command simplecov-mcp
 
-# For RVM wrappers (recommended for stability)
+# With rbenv/asdf (use absolute path)
+codex mcp add simplecov-mcp --command /Users/yourname/.rbenv/shims/simplecov-mcp
+
+# With RVM wrapper (recommended for stability)
 rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-# Creates stable wrapper at: ~/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+codex mcp add simplecov-mcp --command /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+
+# List configured servers
+codex mcp list
+
+# Show server details
+codex mcp get simplecov-mcp
+
+# Remove if needed
+codex mcp remove simplecov-mcp
 ```
 
-**Restart Codex** after editing the config file.
+**Find your executable path:**
+```sh
+which simplecov-mcp
+```
 
 ### Gemini
 
@@ -250,231 +258,46 @@ All file-specific tools accept these parameters:
 - `stale` (optional) - Staleness mode: `"off"` (default) or `"error"`
 - `error_mode` (optional) - Error handling: `"off"`, `"on"` (default), `"trace"`
 
-### Tool Descriptions
+### Tool Details
 
-#### `coverage_summary_tool`
+#### Per-File Tools
 
-Get covered/total/percentage for a specific file.
+These tools analyze individual files. All require `path` parameter.
 
-**Input:**
+**`coverage_summary_tool`** - Covered/total/percentage summary
 ```json
-{
-  "path": "lib/simplecov_mcp/model.rb",
-  "root": ".",
-  "resultset": "coverage"
-}
+{"file": "...", "summary": {"covered": 12, "total": 14, "pct": 85.71}, "stale": false}
 ```
 
-**Output:**
+**`uncovered_lines_tool`** - List uncovered line numbers
 ```json
-{
-  "file": "lib/simplecov_mcp/model.rb",
-  "summary": {
-    "covered": 12,
-    "total": 14,
-    "pct": 85.71
-  }
-}
+{"file": "...", "uncovered": [5, 9, 12], "summary": {...}, "stale": false}
 ```
 
-**Example prompts:**
-- "What's the coverage for lib/simplecov_mcp/tools/coverage_summary_tool.rb?"
-- "Check coverage for lib/simplecov_mcp/tools/coverage_summary_tool.rb"
-
-#### `uncovered_lines_tool`
-
-List line numbers that lack coverage.
-
-**Input:**
+**`coverage_detailed_tool`** - Per-line hit counts
 ```json
-{
-  "path": "lib/simplecov_mcp/model.rb"
-}
+{"file": "...", "lines": [{"line": 1, "hits": 1, "covered": true}, ...], "summary": {...}, "stale": false}
 ```
 
-**Output:**
+**`coverage_raw_tool`** - Raw SimpleCov lines array
 ```json
-{
-  "file": "lib/simplecov_mcp/model.rb",
-  "uncovered": [5, 9, 12, 18],
-  "summary": {
-    "covered": 10,
-    "total": 14,
-    "pct": 71.43
-  }
-}
+{"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": false}
 ```
 
-**Example prompts:**
-- "Show uncovered lines in lib/simplecov_mcp/tools/coverage_summary_tool.rb"
-- "Which lines need coverage in lib/simplecov_mcp/tools/uncovered_lines_tool.rb?"
+#### Project-Wide Tools
 
-#### `coverage_detailed_tool`
+**`all_files_coverage_tool`** - Coverage for all files
+- Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
+- Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
 
-Get per-line coverage with hit counts.
+**`coverage_table_tool`** - Formatted ASCII table
+- Parameters: `sort_order` (`ascending`|`descending`)
+- Returns: Plain text table
 
-**Input:**
-```json
-{
-  "path": "lib/simplecov_mcp/model.rb"
-}
-```
+#### Utility Tools
 
-**Output:**
-```json
-{
-  "file": "lib/simplecov_mcp/model.rb",
-  "lines": [
-    { "line": 1, "hits": 1, "covered": true },
-    { "line": 2, "hits": 0, "covered": false },
-    { "line": 4, "hits": 5, "covered": true }
-  ],
-  "summary": {
-    "covered": 2,
-    "total": 3,
-    "pct": 66.67
-  }
-}
-```
-
-**Example prompts:**
-- "Show detailed coverage for lib/simplecov_mcp/model.rb"
-- "How many times was each line executed in lib/simplecov_mcp/staleness_checker.rb?"
-
-#### `coverage_raw_tool`
-
-Get the raw SimpleCov lines array.
-
-**Input:**
-```json
-{
-  "path": "lib/simplecov_mcp/model.rb"
-}
-```
-
-**Output:**
-```json
-{
-  "file": "lib/simplecov_mcp/model.rb",
-  "lines": [1, 0, null, 5, 2, null, 1]
-}
-```
-
-**Example prompts:**
-- "Get raw coverage data for lib/simplecov_mcp/model.rb"
-
-#### `all_files_coverage_tool`
-
-Get coverage for all files in the project.
-
-**Input:**
-```json
-{
-  "root": ".",
-  "sort_order": "ascending",
-  "tracked_globs": ["lib/simplecov_mcp/**/*.rb"]
-}
-```
-
-**Output:**
-```json
-{
-  "files": [
-    {
-      "file": "lib/simplecov_mcp/util.rb",
-      "covered": 8,
-      "total": 10,
-      "percentage": 80.0,
-      "stale": false
-    },
-    {
-      "file": "lib/simplecov_mcp/errors.rb",
-      "covered": 12,
-      "total": 12,
-      "percentage": 100.0,
-      "stale": false
-    }
-  ],
-  "counts": {
-    "total": 2,
-    "ok": 2,
-    "stale": 0
-  }
-}
-```
-
-**Example prompts:**
-- "List all files with their coverage"
-- "Show files with the worst coverage"
-- "Which files have less than 80% coverage?"
-
-#### `coverage_table_tool`
-
-Get a formatted text table of coverage.
-
-**Input:**
-```json
-{
-  "sort_order": "ascending"
-}
-```
-
-**Output:** (text format)
-```
-┌───────────────────┬────────┬──────────┬────────┬───────┐
-│ File              │      % │  Covered │  Total │ Stale │
-├───────────────────┼────────┼──────────┼────────┼───────┤
-│ lib/simplecov_mcp/util.rb        │  80.00 │        8 │     10 │       │
-│ lib/simplecov_mcp/errors.rb        │ 100.00 │       12 │     12 │       │
-└───────────────────┴────────┴──────────┴────────┴───────┘
-```
-
-**Example prompts:**
-- "Show me a coverage table"
-- "Display all files coverage in a table"
-
-#### `help_tool`
-
-Discover available tools and get usage guidance.
-
-**Input:**
-```json
-{
-  "query": "uncovered"
-}
-```
-
-**Output:**
-```json
-{
-  "tools": [
-    {
-      "name": "uncovered_lines_tool",
-      "use_when": "When you need to know which lines...",
-      "inputs": ["path", "root", "resultset"],
-      "examples": ["Show uncovered lines for lib/simplecov_mcp/util.rb"]
-    }
-  ]
-}
-```
-
-**Example prompts:**
-- "What coverage tools are available?"
-- "How do I check uncovered lines?"
-
-#### `version_tool`
-
-Get version information.
-
-**Input:** (none required)
-```json
-{}
-```
-
-**Output:** (text format)
-```
-SimpleCovMcp version 1.0.0
-```
+**`help_tool`** - Tool discovery (optional `query` parameter)
+**`version_tool`** - Version information
 
 ## Example Prompts for AI Assistants
 
@@ -573,210 +396,90 @@ tail -f simplecov_mcp.log
 grep ERROR simplecov_mcp.log | tail -20
 ```
 
-You can configure a different log location:
+**Configure custom log location** when adding the server:
 
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "/path/to/simplecov-mcp",
-      "args": ["--log-file", "/var/log/simplecov.log"]
-    }
-  }
-}
-```
+```sh
+# Claude Code
+claude mcp add simplecov-mcp simplecov-mcp --log-file /var/log/simplecov.log
 
-Or log to standard error:
+# Codex
+codex mcp add simplecov-mcp --command simplecov-mcp --args "--log-file" --args "/var/log/simplecov.log"
 
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "/path/to/simplecov-mcp",
-      "args": ["--log-file", "stderr"]
-    }
-  }
-}
+# Log to stderr (Claude)
+claude mcp add simplecov-mcp simplecov-mcp --log-file stderr
 ```
 
 **Note:** Logging to `stdout` is not permitted in MCP mode.
 
 ## Troubleshooting
 
-### MCP Server Issues - CLI Fallback
+### CLI Fallback
 
-**Important:** If you encounter problems with the MCP server (e.g., connection issues, client bugs, or configuration problems), you can get the same information directly from the command line. Add a note to your agent/system prompt: "If the MCP server doesn't work, use the CLI with `simplecov-mcp --json` for structured output."
+**Important:** If the MCP server doesn't work, use CLI commands with `--json` for structured output:
 
-**Quick CLI equivalents to MCP tools:**
 ```sh
-# Version information (like version_tool)
-simplecov-mcp version --json
-
-# File coverage summary (like coverage_summary_tool)
-simplecov-mcp summary lib/file.rb --json
-
-# Uncovered lines (like uncovered_lines_tool)
-simplecov-mcp uncovered lib/file.rb --json
-
-# Detailed coverage (like coverage_detailed_tool)
-simplecov-mcp detailed lib/file.rb --json
-
-# All files coverage (like all_files_coverage_tool)
-simplecov-mcp list --sort-order ascending --json
-
-# Formatted table (like coverage_table_tool)
-simplecov-mcp table --sort-order ascending --json
-
-# Help (like help_tool)
-simplecov-mcp help --json
+simplecov-mcp summary lib/file.rb --json      # coverage_summary_tool
+simplecov-mcp uncovered lib/file.rb --json    # uncovered_lines_tool
+simplecov-mcp detailed lib/file.rb --json     # coverage_detailed_tool
+simplecov-mcp list --json                      # all_files_coverage_tool
+simplecov-mcp version --json                   # version_tool
 ```
 
-**Additional CLI documentation:** The CLI provides extensive help with `simplecov-mcp --help` and comprehensive documentation is available in the gem itself for complete usage guidance.
+See [CLI Usage](CLI_USAGE.md) for complete documentation.
 
-### MCP Server Won't Start
+### Common Issues
 
-**Symptom:** AI assistant reports "Could not connect to MCP server"
-
-**Checks:**
-
-1. **Verify executable exists:**
-   ```sh
-   which simplecov-mcp
-   ls -l $(which simplecov-mcp)
-   ```
-
-2. **Test manually:**
-   ```sh
-   simplecov-mcp version --json
-   ```
-
-3. **Check Ruby version:**
-   ```sh
-   ruby -v  # Must be >= 3.2
-   ```
-
-4. **Test MCP server mode:**
-   ```sh
-   echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
-   ```
-
-5. **Test CLI fallback:**
-   ```sh
-   ruby -v && simplecov-mcp version --json
-   ```
-
-### Path Issues with Version Managers
-
-**Symptom:** Works in terminal but not in MCP client
-
-**Solution:** Use absolute path to shim/wrapper
-
+**Server Won't Start**
 ```sh
-# Find the correct path
-which simplecov-mcp
-
-# For RVM, create a wrapper
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-# Use: ~/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
-
-# Update MCP config with absolute path
+which simplecov-mcp                            # Verify executable exists
+ruby -v                                         # Check Ruby >= 3.2
+simplecov-mcp version                          # Test basic functionality
 ```
 
-### JSON-RPC Parse Errors
-
-**Symptom:** "Invalid JSON-RPC format" or similar errors
-
-**Solution:** Ensure JSON is on a single line
-
+**Path Issues with Version Managers**
 ```sh
-# Wrong (multi-line)
-echo '''{
-  "jsonrpc": "2.0"
-}''' | simplecov-mcp
-
-# Correct (single line)
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
-```
-
-
-
-### Tools Not Appearing in AI Assistant
-
-**Symptom:** AI says "I don't have access to coverage tools"
-
-**Checks:**
-
-1. **Verify MCP server is running:**
-   - Check AI assistant's MCP server status
-   - Look for connection errors
-
-2. **Restart AI assistant:**
-   - Many clients need restart after config changes
-
-3. **Check logs:**
-   ```sh
-   tail -f simplecov_mcp.log
-   ```
-
-4. **Try explicit tool name:**
-   ```
-   Using the coverage_summary_tool, check lib/simplecov_mcp/cli.rb
-   ```
-
-5. **Test CLI fallback directly:**
-   ```sh
-   simplecov-mcp summary lib/simplecov_mcp/cli.rb --json
-   simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --json
-   ```
-
-### Ruby Version Mismatch
-
-**Symptom:** "cannot load such file -- mcp" or similar
-
-**Solution:** Ensure Ruby >= 3.2
-
-```sh
-# Check Ruby version in MCP context
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | $(which simplecov-mcp)
-
-# If error, your shim might be pointing to wrong Ruby
-# Test CLI fallback:
-ruby -v && simplecov-mcp version --json
-
-# For RVM, specify version:
-rvm use 3.3.8
-gem install simplecov-mcp
+which simplecov-mcp                            # Use this absolute path in MCP config
+# RVM: Create wrapper for stability
 rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
 ```
+
+**Tools Not Appearing**
+1. Restart AI assistant after config changes
+2. Check logs: `tail -f simplecov_mcp.log`
+3. Try explicit tool names in prompts
+4. Verify MCP server status in assistant
+
+**JSON-RPC Parse Errors**
+- Ensure JSON is on a single line (no newlines)
+- Test manually: `echo '{"jsonrpc":"2.0",...}' | simplecov-mcp`
 
 ## Advanced Configuration
 
-
-
 ### Enable Debug Logging
 
-For troubleshooting:
+For troubleshooting, add error mode when configuring the server:
 
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "/path/to/simplecov-mcp",
-      "args": ["--error-mode", "trace"]
-    }
-  }
-}
+```sh
+# Claude Code
+claude mcp add simplecov-mcp simplecov-mcp --error-mode trace
+
+# Codex
+codex mcp add simplecov-mcp --command simplecov-mcp --args "--error-mode" --args "trace"
+
+# Gemini
+gemini mcp add simplecov-mcp "$(which simplecov-mcp) --error-mode trace"
 ```
 
 ### Project-Specific vs. Global Configuration
 
 **Global configuration** (all projects):
-- Claude: Use `--scope user` (or omit, it's default)
-- Codex: Edit `~/.codex/config.toml`
+- Claude: `claude mcp add --scope user simplecov-mcp ...`
+- Codex: `codex mcp add` (uses global config by default)
+- Gemini: `gemini mcp add` (uses global config)
 
 **Project-specific** (one project):
-- Claude: Use `--scope local`
-- Codex: Create `.codex/config.toml` in project root
+- Claude: `claude mcp add --scope project simplecov-mcp ...` (default is `local`)
+- Codex/Gemini: Create `.codex/config.toml` or `.gemini/config.toml` in project root (manual)
 
 ## Next Steps
 
