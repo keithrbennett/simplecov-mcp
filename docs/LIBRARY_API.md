@@ -1,8 +1,17 @@
-# Library API Guide (Ruby)
+# Library API Guide
 
 Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCovMcp::CoverageModel`.
 
-## Basics
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Method Reference](#method-reference)
+- [Return Types](#return-types)
+- [Error Handling](#error-handling)
+- [Advanced Recipes](#advanced-recipes)
+- [API Stability](#api-stability)
+
+## Quick Start
 
 ```ruby
 require "simplecov_mcp"
@@ -22,76 +31,605 @@ model = SimpleCovMcp::CoverageModel.new(
   tracked_globs: ["lib/**/*.rb"]    # for 'all_files' staleness: flag new/missing files
 )
 
-# List all files with coverage summary, sorted ascending by % (default)
+# List all files with coverage summary
+files = model.all_files
+# Per-file queries
+summary = model.summary_for("lib/foo.rb")
+uncovered = model.uncovered_for("lib/foo.rb")
+detailed = model.detailed_for("lib/foo.rb")
+raw = model.raw_for("lib/foo.rb")
+```
+
+## Method Reference
+
+### `all_files(sort_order: :ascending)`
+
+Returns coverage summary for all files in the resultset.
+
+**Parameters:**
+- `sort_order` (Symbol, optional): `:ascending` (default) or `:descending` by coverage percentage
+
+**Returns:** `Array<Hash>` - See [all_files return type](#all_files)
+
+**Example:**
+```ruby
 files = model.all_files
 # => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false }, ... ]
 
-# Per-file summaries
+# Get worst coverage first
+worst_files = model.all_files(sort_order: :ascending).first(10)
+```
+
+### `summary_for(path)`
+
+Returns coverage summary for a specific file.
+
+**Parameters:**
+- `path` (String): File path (absolute, relative to root, or basename)
+
+**Returns:** `Hash` - See [summary_for return type](#summary_for)
+
+**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+
+**Example:**
+```ruby
 summary = model.summary_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'pct'=>85.71}, 'stale' => false }
+```
 
-raw = model.raw_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
+### `uncovered_for(path)`
 
+Returns list of uncovered line numbers for a specific file.
+
+**Parameters:**
+- `path` (String): File path (absolute, relative to root, or basename)
+
+**Returns:** `Hash` - See [uncovered_for return type](#uncovered_for)
+
+**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+
+**Example:**
+```ruby
 uncovered = model.uncovered_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... }, 'stale' => false }
+```
 
+### `detailed_for(path)`
+
+Returns per-line coverage details with hit counts.
+
+**Parameters:**
+- `path` (String): File path (absolute, relative to root, or basename)
+
+**Returns:** `Hash` - See [detailed_for return type](#detailed_for)
+
+**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+
+**Example:**
+```ruby
 detailed = model.detailed_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... }, 'stale' => false }
 ```
 
-## Formatting Tables
+### `raw_for(path)`
 
+Returns raw SimpleCov lines array for a specific file.
+
+**Parameters:**
+- `path` (String): File path (absolute, relative to root, or basename)
+
+**Returns:** `Hash` - See [raw_for return type](#raw_for)
+
+**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+
+**Example:**
 ```ruby
-# Generate formatted table string (same as CLI output)
+raw = model.raw_for("lib/foo.rb")
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
+```
+
+### `format_table(rows = nil, sort_order: :ascending)`
+
+Generates formatted ASCII table string.
+
+**Parameters:**
+- `rows` (Array<Hash>, optional): Custom row data; defaults to `all_files`
+- `sort_order` (Symbol, optional): `:ascending` (default) or `:descending`
+
+**Returns:** `String` - Formatted table with Unicode borders
+
+**Example:**
+```ruby
+# Default: all files
 table = model.format_table
-# => returns formatted table string with borders, headers, and summary counts
+puts table
 
-# Custom table with specific rows and sort order
-custom_rows = [
-  { 'file' => '/abs/.../lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false },
-  { 'file' => '/abs/.../lib/bar.rb', 'covered' => 8, 'total' => 10, 'percentage' => 80.0, 'stale' => true }
-]
-custom_table = model.format_table(custom_rows, sort_order: :descending)
-# => formatted table with the provided rows in descending order
+# Custom rows
+lib_files = model.all_files.select { |f| f['file'].include?('/lib/') }
+lib_table = model.format_table(lib_files, sort_order: :descending)
+puts lib_table
 ```
 
-## Filtering and Analysis Examples
+## Return Types
+
+### `all_files`
+
+Returns `Array<Hash>` where each hash contains:
 
 ```ruby
-# Filter files by directory (e.g., only show files in lib/)
-all_files_data = model.all_files
-lib_files = all_files_data.select { |file| file['file'].include?('/lib/') }
-lib_files_table = model.format_table(lib_files, sort_order: :ascending)
-# => formatted table showing only files from lib/ directory
-
-# Filter by pattern (e.g., only show test files)
-test_files = all_files_data.select { |file| file['file'].include?('_spec.rb') || file['file'].include?('_test.rb') }
-test_files_table = model.format_table(test_files, sort_order: :descending)
-# => formatted table showing only test/spec files, sorted by coverage
+{
+  'file' => String,       # Absolute file path
+  'covered' => Integer,   # Number of covered lines
+  'total' => Integer,     # Total relevant lines
+  'percentage' => Float,  # Coverage percentage (0.00-100.00)
+  'stale' => false | String  # Staleness indicator: false, 'M', 'T', or 'L'
+}
 ```
 
-For more advanced filtering examples including staleness analysis and CI/CD integration, see the complete example script at [examples/filter_and_table_demo.rb](/examples/filter_and_table_demo.rb).
+### `summary_for`
 
-## Staleness Values
+Returns `Hash`:
 
-All single-file methods (`summary_for`, `raw_for`, `uncovered_for`, `detailed_for`) and `all_files` include a `'stale'` field with one of these values:
+```ruby
+{
+  'file' => String,       # Absolute file path
+  'summary' => {
+    'covered' => Integer, # Number of covered lines
+    'total' => Integer,   # Total relevant lines
+    'pct' => Float        # Coverage percentage (0.00-100.00)
+  }
+}
+```
+
+### `uncovered_for`
+
+Returns `Hash`:
+
+```ruby
+{
+  'file' => String,       # Absolute file path
+  'uncovered' => Array<Integer>,  # Line numbers that are not covered
+  'summary' => {
+    'covered' => Integer,
+    'total' => Integer,
+    'pct' => Float
+  }
+}
+```
+
+### `detailed_for`
+
+Returns `Hash`:
+
+```ruby
+{
+  'file' => String,       # Absolute file path
+  'lines' => Array<Hash>, # Per-line coverage details
+  'summary' => {
+    'covered' => Integer,
+    'total' => Integer,
+    'pct' => Float
+  }
+}
+```
+
+Each element in `lines` array:
+```ruby
+{
+  'line' => Integer,    # Line number (1-indexed)
+  'hits' => Integer,    # Execution count (0 means not covered)
+  'covered' => Boolean  # true if hits > 0
+}
+```
+
+### `raw_for`
+
+Returns `Hash`:
+
+```ruby
+{
+  'file' => String,              # Absolute file path
+  'lines' => Array<Integer | nil>   # SimpleCov lines array (nil = irrelevant, 0 = uncovered, >0 = hit count)
+}
+```
+
+## Error Handling
+
+### Exception Types
+
+The library raises these custom exceptions:
+
+- **`SimpleCovMcp::ResultsetNotFoundError`** - Coverage data file not found
+- **`SimpleCovMcp::FileError`** - Requested file not in coverage data
+- **`SimpleCovMcp::CoverageDataStaleError`** - Coverage data is stale (only when `staleness: 'error'`)
+- **`SimpleCovMcp::CoverageDataError`** - Invalid coverage data format or structure
+
+All exceptions inherit from `SimpleCovMcp::Error`.
+
+### Basic Error Handling
+
+```ruby
+require "simplecov_mcp"
+
+begin
+  model = SimpleCovMcp::CoverageModel.new
+  summary = model.summary_for("lib/foo.rb")
+  puts "Coverage: #{summary['summary']['pct']}%"
+rescue SimpleCovMcp::FileError => e
+  puts "File not in coverage data: #{e.message}"
+rescue SimpleCovMcp::ResultsetNotFoundError => e
+  puts "Coverage data not found: #{e.message}"
+  puts "Run your tests first: bundle exec rspec"
+rescue SimpleCovMcp::Error => e
+  puts "Coverage error: #{e.message}"
+end
+```
+
+### Handling Stale Coverage
+
+```ruby
+# Option 1: Check staleness without raising
+model = SimpleCovMcp::CoverageModel.new(staleness: "off")
+files = model.all_files
+
+stale_files = files.select { |f| f['stale'] }
+if stale_files.any?
+  puts "Warning: #{stale_files.length} files have stale coverage"
+  stale_files.each do |f|
+    puts "  #{f['file']}: #{f['stale']}"
+  end
+end
+
+# Option 2: Raise on staleness
+begin
+  model = SimpleCovMcp::CoverageModel.new(staleness: "error")
+  files = model.all_files
+rescue SimpleCovMcp::CoverageDataStaleError => e
+  puts "Stale coverage detected: #{e.message}"
+  puts "Re-run tests: bundle exec rspec"
+  exit 1
+end
+```
+
+### Graceful Degradation
+
+```ruby
+# Try multiple file paths
+def find_coverage(model, possible_paths)
+  possible_paths.each do |path|
+    begin
+      return model.summary_for(path)
+    rescue SimpleCovMcp::FileError
+      next
+    end
+  end
+  nil
+end
+
+summary = find_coverage(model, [
+  "lib/services/auth_service.rb",
+  "app/services/auth_service.rb",
+  "services/auth_service.rb"
+])
+
+if summary
+  puts "Coverage: #{summary['summary']['pct']}%"
+else
+  puts "File not found in coverage data"
+end
+```
+
+## Advanced Recipes
+
+### Batch File Analysis
+
+```ruby
+require "simplecov_mcp"
+
+model = SimpleCovMcp::CoverageModel.new
+
+# Analyze multiple files efficiently
+files_to_check = [
+  "lib/auth_service.rb",
+  "lib/payment_processor.rb",
+  "lib/user_manager.rb"
+]
+
+results = files_to_check.map do |path|
+  begin
+    summary = model.summary_for(path)
+    {
+      file: path,
+      coverage: summary['summary']['pct'],
+      status: summary['summary']['pct'] >= 80 ? :ok : :low
+    }
+  rescue SimpleCovMcp::FileError
+    {
+      file: path,
+      coverage: nil,
+      status: :missing
+    }
+  end
+end
+
+# Report
+results.each do |r|
+  status_icon = { ok: '✓', low: '⚠', missing: '✗' }[r[:status]]
+  puts "#{status_icon} #{r[:file]}: #{r[:coverage] || 'N/A'}%"
+end
+```
+
+### Coverage Threshold Validation
+
+```ruby
+require "simplecov_mcp"
+
+class CoverageValidator
+  THRESHOLDS = {
+    'lib/' => 90.0,      # Core library needs 90%+
+    'app/' => 80.0,      # Application code needs 80%+
+    'spec/' => 70.0,     # Test helpers need 70%+
+  }
+
+  def initialize(model)
+    @model = model
+  end
+
+  def validate!
+    files = @model.all_files
+    failures = []
+
+    files.each do |file|
+      threshold = threshold_for(file['file'])
+      next unless threshold
+
+      if file['percentage'] < threshold
+        failures << {
+          file: file['file'],
+          actual: file['percentage'],
+          required: threshold,
+          gap: threshold - file['percentage']
+        }
+      end
+    end
+
+    if failures.any?
+      puts "❌ #{failures.length} files below coverage threshold:"
+      failures.sort_by { |f| -f[:gap] }.each do |f|
+        puts "  #{f[:file]}: #{f[:actual]}% (need #{f[:required]}%)"
+      end
+      exit 1
+    else
+      puts "✓ All files meet coverage thresholds"
+    end
+  end
+
+  private
+
+  def threshold_for(path)
+    THRESHOLDS.each do |prefix, threshold|
+      return threshold if path.include?(prefix)
+    end
+    nil
+  end
+end
+
+model = SimpleCovMcp::CoverageModel.new
+validator = CoverageValidator.new(model)
+validator.validate!
+```
+
+### Directory-Level Aggregation
+
+```ruby
+require "simplecov_mcp"
+
+model = SimpleCovMcp::CoverageModel.new
+files = model.all_files
+
+# Calculate coverage by directory
+by_directory = files.group_by do |file|
+  # Get first two path components (e.g., "lib/services")
+  file['file'].split('/')[0..1].join('/')
+end
+
+directory_stats = by_directory.map do |dir, dir_files|
+  total_lines = dir_files.sum { |f| f['total'] }
+  covered_lines = dir_files.sum { |f| f['covered'] }
+  percentage = (covered_lines.to_f / total_lines * 100).round(2)
+
+  {
+    directory: dir,
+    files: dir_files.length,
+    coverage: percentage,
+    covered: covered_lines,
+    total: total_lines
+  }
+end
+
+# Display sorted by coverage
+directory_stats.sort_by { |s| s[:coverage] }.each do |stat|
+  puts "#{stat[:directory]}: #{stat[:coverage]}% (#{stat[:files]} files)"
+end
+```
+
+### Coverage Delta Tracking
+
+```ruby
+require "simplecov_mcp"
+require "json"
+
+class CoverageDeltaTracker
+  def initialize(baseline_path: "coverage_baseline.json")
+    @baseline_path = baseline_path
+    @model = SimpleCovMcp::CoverageModel.new
+  end
+
+  def save_baseline
+    current = @model.all_files
+    File.write(@baseline_path, JSON.pretty_generate(current))
+    puts "Saved coverage baseline (#{current.length} files)"
+  end
+
+  def compare
+    unless File.exist?(@baseline_path)
+      puts "No baseline found. Run save_baseline first."
+      return
+    end
+
+    baseline = JSON.parse(File.read(@baseline_path))
+    current = @model.all_files
+
+    improved = []
+    regressed = []
+
+    current.each do |file|
+      baseline_file = baseline.find { |f| f['file'] == file['file'] }
+      next unless baseline_file
+
+      delta = file['percentage'] - baseline_file['percentage']
+
+      if delta > 0.1
+        improved << {
+          file: file['file'],
+          before: baseline_file['percentage'],
+          after: file['percentage'],
+          delta: delta
+        }
+      elsif delta < -0.1
+        regressed << {
+          file: file['file'],
+          before: baseline_file['percentage'],
+          after: file['percentage'],
+          delta: delta
+        }
+      end
+    end
+
+    if improved.any?
+      puts "\n✓ Coverage Improvements:"
+      improved.sort_by { |f| -f[:delta] }.each do |f|
+        puts "  #{f[:file]}: #{f[:before]}% → #{f[:after]}% (+#{f[:delta].round(2)}%)"
+      end
+    end
+
+    if regressed.any?
+      puts "\n⚠ Coverage Regressions:"
+      regressed.sort_by { |f| f[:delta] }.each do |f|
+        puts "  #{f[:file]}: #{f[:before]}% → #{f[:after]}% (#{f[:delta].round(2)}%)"
+      end
+    end
+
+    if improved.empty? && regressed.empty?
+      puts "No significant coverage changes"
+    end
+  end
+end
+
+# Usage
+tracker = CoverageDeltaTracker.new
+tracker.save_baseline  # Run before making changes
+# ... make code changes and re-run tests ...
+tracker.compare        # See what changed
+```
+
+### Custom Reporting
+
+```ruby
+require "simplecov_mcp"
+
+class CoverageReporter
+  def initialize(model)
+    @model = model
+  end
+
+  def generate_markdown_report(output_path)
+    files = @model.all_files
+
+    File.open(output_path, 'w') do |f|
+      f.puts "# Coverage Report"
+      f.puts
+      f.puts "Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
+      f.puts
+
+      # Overall stats
+      total_lines = files.sum { |file| file['total'] }
+      covered_lines = files.sum { |file| file['covered'] }
+      overall_pct = (covered_lines.to_f / total_lines * 100).round(2)
+
+      f.puts "## Overall Coverage: #{overall_pct}%"
+      f.puts
+      f.puts "- Total Files: #{files.length}"
+      f.puts "- Total Lines: #{total_lines}"
+      f.puts "- Covered Lines: #{covered_lines}"
+      f.puts
+
+      # Files below threshold
+      threshold = 80.0
+      low_coverage = files.select { |file| file['percentage'] < threshold }
+
+      if low_coverage.any?
+        f.puts "## Files Below #{threshold}% Coverage"
+        f.puts
+        f.puts "| File | Coverage | Missing Lines |"
+        f.puts "|------|----------|---------------|"
+
+        low_coverage.sort_by { |file| file['percentage'] }.each do |file|
+          uncovered = @model.uncovered_for(file['file'])
+          missing_count = uncovered['uncovered'].length
+          f.puts "| #{file['file']} | #{file['percentage']}% | #{missing_count} |"
+        end
+        f.puts
+      end
+
+      # Top performers
+      f.puts "## Top 10 Best Covered Files"
+      f.puts
+      f.puts "| File | Coverage |"
+      f.puts "|------|----------|"
+
+      files.sort_by { |file| -file['percentage'] }.take(10).each do |file|
+        f.puts "| #{file['file']} | #{file['percentage']}% |"
+      end
+    end
+
+    puts "Report saved to #{output_path}"
+  end
+end
+
+model = SimpleCovMcp::CoverageModel.new
+reporter = CoverageReporter.new(model)
+reporter.generate_markdown_report("coverage_report.md")
+```
+
+## Staleness Detection
+
+The `all_files` method returns a `'stale'` field for each file with one of these values:
 
 - `false` - Coverage data is current
 - `'M'` - **Missing**: File no longer exists on disk
 - `'T'` - **Timestamp**: File modified more recently than coverage data
 - `'L'` - **Length**: Source file line count differs from coverage data
 
-When `staleness: 'error'` mode is enabled in `CoverageModel.new`, stale files will raise `SimpleCovMcp::CoverageDataStaleError` exceptions.
+**Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `all_files` and filter the results.
 
-## Public API Stability
+When `staleness: 'error'` mode is enabled in `CoverageModel.new`, the model will raise `SimpleCovMcp::CoverageDataStaleError` exceptions when stale files are detected during method calls.
+
+## API Stability
 
 Consider the following public and stable under SemVer:
 - `SimpleCovMcp::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
 - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`, `#format_table(rows: nil, sort_order:, check_stale:, tracked_globs:)`
-- Return shapes shown in the examples (keys and value types). For `all_files`, each row also includes `'stale' => true|false`.
-- `#format_table` returns a formatted table string with Unicode borders and summary counts.
+- Return shapes shown in the [Return Types](#return-types) section
+- Exception types documented in [Error Handling](#error-handling)
 
 **Note:**
-- CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces.
-- Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access.
+- CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces
+- Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access
+
+## Related Documentation
+
+- [Examples](EXAMPLES.md) - Practical cookbook-style examples
+- [CLI Usage](CLI_USAGE.md) - Command-line interface reference
+- [Error Handling](ERROR_HANDLING.md) - Detailed error handling documentation
+- [MCP Integration](MCP_INTEGRATION.md) - AI assistant integration
