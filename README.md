@@ -83,7 +83,7 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
   - **M** (Missing): File no longer exists
   - **T** (Timestamp): File modified after coverage was generated
   - **L** (Length): Line count mismatch between source and coverage
-- ✅ **Lazy SimpleCov dependency** - Only loads SimpleCov when multiple suites need merging
+- ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
 - ⚠️ **Branch metrics summarized** - SimpleCov MCP does not report individual
@@ -92,12 +92,19 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
   MCP tools remain compatible. Use native SimpleCov reports if you require
   branch-by-branch visibility.
 
-## Multiple Coverage Suites
+## Multi-Suite Coverage Merging
 
-- `.resultset.json` files that contain several suites (e.g., RSpec + Cucumber) are merged automatically using SimpleCov’s combine logic. All covered files from every suite are now available to the CLI, library, and MCP tools.
-- When suites are merged we currently keep a single “latest suite” timestamp for staleness checks. That matches prior behaviour but can under-report stale files if only some suites were re-run after a change. A per-file timestamp refinement is planned; until then, consider multi-suite staleness advisory rather than definitive.
-- The gem now depends on `simplecov` at runtime so the merge logic is always available. Single-suite resultsets still load instantly because SimpleCov is only required when needed.
-- Only suites stored inside a *single* `.resultset.json` are merged. If your project produces separate resultset files (for example, different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`, …) you must merge them yourself before pointing `simplecov-mcp` at the combined file.
+### How It Works
+
+When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucumber), `simplecov-mcp` automatically merges them using SimpleCov's combine logic. All covered files from every suite become available to the CLI, library, and MCP tools.
+
+**Performance:** Single-suite projects avoid loading SimpleCov at runtime. Multi-suite resultsets trigger a lazy SimpleCov load only when needed, keeping the tool fast for the simpler coverage configurations.
+
+### Current Limitations
+
+**Staleness checks:** When suites are merged, we keep a single "latest suite" timestamp. This matches prior behavior but may under-report stale files if only some suites were re-run after a change. A per-file timestamp refinement is planned. Until then, consider multi-suite staleness checks advisory rather than definitive.
+
+**Multiple resultset files:** Only suites stored inside a *single* `.resultset.json` are merged automatically. If your project produces separate resultset files (e.g., different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`), you must merge them yourself before pointing `simplecov-mcp` at the combined file.
 
 ## Documentation
 
@@ -279,9 +286,7 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for more *(coming soon)*.
 
 ## SimpleCov Dependency
 
-`simplecov-mcp` now declares a runtime dependency on `simplecov` so it can merge multi-suite resultsets using SimpleCov's own combine helpers.
-
-Single-suite projects avoid loading SimpleCov at runtime, while multi-suite resultsets trigger a lazy SimpleCov load so coverage can be merged correctly. This keeps the tool fast for typical use cases while supporting advanced multi-suite workflows.
+`simplecov-mcp` declares a runtime dependency on `simplecov` (>= 0.21) to support multi-suite merging using SimpleCov's combine helpers. The dependency is lazy-loaded only when needed, ensuring fast startup for single-suite projects.
 
 ## Contributing
 
