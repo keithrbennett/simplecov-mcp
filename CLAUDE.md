@@ -12,7 +12,7 @@ This is a Ruby gem that provides an MCP (Model Context Protocol) server and CLI 
 
 ### Dual Mode Operation
 The main entry point (`SimpleCovMcp.run`) automatically detects whether to run as:
-- **CLI mode**: When TTY input, explicit subcommands, or `SIMPLECOV_MCP_CLI=1` env var
+- **CLI mode**: When TTY input or explicit subcommands are provided
 - **MCP server mode**: When piped input (JSON-RPC from MCP clients)
 
 ### Core Components

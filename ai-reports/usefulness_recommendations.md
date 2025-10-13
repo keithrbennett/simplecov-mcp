@@ -105,7 +105,7 @@ This report reviews the current capabilities and suggests focused enhancements t
 
 ## Testing Enhancements
 
-- Expand CLI/mode-selection tests in `lib/simple_cov_mcp.rb` (TTY vs piped vs `SIMPLECOV_MCP_CLI`).
+- Expand CLI/mode-selection tests in `lib/simple_cov_mcp.rb` (TTY vs piped modes).
 - Add tests for newly proposed tools/flags (top, filter/exclude, group summaries).
 - Add snapshot-style tests for table rendering with `--plain` borders.
 

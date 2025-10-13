@@ -386,7 +386,6 @@ simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
 Force CLI mode even when stdin is piped or when the process is running in a non-interactive shell (CI, Codex, etc.). Without it, the executable may fall back to MCP server mode.
 
 ```sh
-SIMPLECOV_MCP_CLI=1 simplecov-mcp list
 simplecov-mcp --force-cli list
 ```
 

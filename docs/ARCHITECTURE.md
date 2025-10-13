@@ -5,7 +5,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ## Runtime Entry Points
 
 - **Executable** – `exe/simplecov-mcp` bootstraps the gem, enforces Ruby >= 3.2, and delegates to `SimpleCovMcp.run(ARGV)`.
-- **Mode Negotiation** – `SimpleCovMcp.run` inspects environment defaults from `SIMPLECOV_MCP_OPTS`, checks for CLI subcommands, and prefers CLI mode when STDIN is a TTY. Otherwise it instantiates `SimpleCovMcp::MCPServer`.
+- **Mode Negotiation** – `SimpleCovMcp.run` inspects environment defaults from `SIMPLECOV_MCP_OPTS`, checks for CLI subcommands, and defaults to CLI mode when STDIN is a TTY. Otherwise it instantiates `SimpleCovMcp::MCPServer` for MCP protocol communication over STDIO.
 - **Embedded Usage** – Applications embed the gem by instantiating `SimpleCovMcp::CoverageModel` directly, optionally wrapping work in `SimpleCovMcp.with_context` to install a library-oriented error handler.
 
 ## Coverage Data Pipeline
@@ -51,7 +51,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
   - `SimpleCovMcp.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
   - `SimpleCovMcp.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
 - `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library, each of which installs its handler inside a fresh `AppContext` before executing user work.
-- Diagnostics are written via `CovUtil.log` to `simplecov_mcp.log` by default; override with CLI `--log-file`, set `SimpleCovMcp.default_log_file`, or temporarily tweak `SimpleCovMcp.active_log_file` when a caller needs a different destination mid-run.
+- Diagnostics are written via `CovUtil.log` to `simplecov_mcp.log` in the current directory by default; override with CLI `--log-file`, set `SimpleCovMcp.default_log_file` for future contexts, or temporarily tweak `SimpleCovMcp.active_log_file` when a caller needs a different destination mid-run.
 
 ## Configuration Surface
 
