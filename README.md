@@ -6,13 +6,28 @@
 
 ## What is simplecov-mcp?
 
-A flexible tool for analyzing SimpleCov coverage data with three interfaces:
+### simplecov-mcp is a Ruby gem for analyzing SimpleCov coverage data with three interfaces:
 
-- **🤖 MCP Server** - Integrate coverage queries with AI coding assistants (Claude, Cursor, etc.)
-- **💻 CLI** - Command-line coverage reports, queries, and analysis
-- **💎 Ruby Library** - Programmatic API for custom coverage analysis
+- MCP server - Integration with AI coding assistants
+- CLI - Command-line coverage reports and queries
+- Ruby library - Programmatic API for custom analysis
 
-Single-suite projects avoid loading SimpleCov at runtime, while multi-suite resultsets trigger a lazy SimpleCov load so coverage can be merged correctly.
+### Key capabilities
+
+- Works with any SimpleCov-generated .resultset.json file
+- Flexible path resolution (absolute or relative paths)
+- Staleness detection (identifies outdated coverage files)
+- Multi-suite resultset merging when needed
+- Multiple useful output formats (tables, JSON, annotated source)
+
+### Practical use cases
+
+- Query coverage data from AI assistants, e.g.:
+  - "Using simplecov-mcp, analyze test coverage data and write a report to a markdown file containing a free text analysis of each issue and then two tables, one sorted in descending order of urgency, the other in ascending order of level of effort."
+  - "Using simplecov-mcp, generate a table of directories and their average coverage rates, in ascending order of coverage."
+- Find files with the lowest coverage
+- Investigate specific files or directories
+- Generate CI/CD coverage reports
 
 ## Quick Start
 
@@ -278,7 +293,9 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for more *(coming soon)*.
 
 ## SimpleCov Dependency
 
-`simplecov-mcp` now declares a runtime dependency on `simplecov` so it can merge multi-suite resultsets using SimpleCov’s own combine helpers. Single-suite projects still avoid loading SimpleCov at runtime, but when multiple suites are present the gem lazily requires SimpleCov to merge the coverage hashes.
+`simplecov-mcp` now declares a runtime dependency on `simplecov` so it can merge multi-suite resultsets using SimpleCov's own combine helpers.
+
+Single-suite projects avoid loading SimpleCov at runtime, while multi-suite resultsets trigger a lazy SimpleCov load so coverage can be merged correctly. This keeps the tool fast for typical use cases while supporting advanced multi-suite workflows.
 
 ## Contributing
 
