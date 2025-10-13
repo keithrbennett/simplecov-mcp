@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'error_handler'
+
 module SimpleCovMcp
   module ErrorHandlerFactory
       # Error handler for CLI usage

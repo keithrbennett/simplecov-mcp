@@ -3,6 +3,9 @@
 require 'time'
 require 'json'
 require 'pathname'
+require 'set'
+require_relative 'errors'
+require_relative 'util'
 
 module SimpleCovMcp
   # Lightweight service object to check staleness of coverage vs. sources

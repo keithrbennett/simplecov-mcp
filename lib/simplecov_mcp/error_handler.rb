@@ -2,6 +2,7 @@
 
 require 'json'
 require_relative 'errors'
+require_relative 'util'
 
 module SimpleCovMcp
     # Handles error reporting and logging with configurable behavior

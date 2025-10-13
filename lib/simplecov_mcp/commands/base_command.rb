@@ -2,6 +2,8 @@
 
 require 'json'
 require_relative '../formatters/source_formatter'
+require_relative '../model'
+require_relative '../errors'
 
 module SimpleCovMcp
   module Commands
