@@ -6,15 +6,16 @@
 
 ## What is simplecov-mcp?
 
-### simplecov-mcp is a Ruby gem for analyzing SimpleCov coverage data with three interfaces:
+**simplecov-mcp** makes SimpleCov coverage data queryable and actionable through three interfaces:
 
-- MCP server - Integration with AI coding assistants
-- CLI - Command-line coverage reports and queries
-- Ruby library - Programmatic API for custom analysis
+- **MCP server** - Let AI assistants analyze your coverage
+- **CLI** - Fast command-line coverage reports and queries
+- **Ruby library** - Programmatic API for custom tooling
+
+Works with any SimpleCov-generated `.resultset.json` file—no runtime dependency on your test suite.
 
 ### Key capabilities
 
-- Works with any SimpleCov-generated .resultset.json file
 - Flexible path resolution (absolute or relative paths)
 - Staleness detection (identifies outdated coverage files)
 - Multi-suite resultset merging when needed
@@ -101,23 +102,25 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 
 ## Documentation
 
-📚 **Complete Guides:**
+**Getting Started:**
+- [Installation](docs/INSTALLATION.md) - Setup for different environments
+- [CLI Usage](docs/CLI_USAGE.md) - Command-line reference
+- [Examples](docs/EXAMPLES.md) - Common use cases
 
-- **[Installation](docs/INSTALLATION.md)** - Setup for different environments and version managers
-- **[CLI Usage](docs/CLI_USAGE.md)** - Complete command-line reference with examples
-- **[MCP Integration](docs/MCP_INTEGRATION.md)** - Configure with AI assistants (Claude, Cursor, Codex)
-- **[Library API](docs/LIBRARY_API.md)** - Ruby API documentation and recipes
-- **[Examples](docs/EXAMPLES.md)** - Cookbook of common use cases
-- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
-- **[Development](docs/DEVELOPMENT.md)** - Contributing and development guide
-- **[Error Handling](docs/ERROR_HANDLING.md)** - Error modes and exception handling
+**Advanced Usage:**
+- [MCP Integration](docs/MCP_INTEGRATION.md) - AI assistant configuration
+- [Library API](docs/LIBRARY_API.md) - Ruby API documentation
+- [Error Handling](docs/ERROR_HANDLING.md) - Error modes and exceptions
+
+**Reference:**
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues
+- [Development](docs/DEVELOPMENT.md) - Contributing guide
 
 ## Requirements
 
-
 - **Ruby >= 3.2** (required by `mcp` gem dependency)
 - SimpleCov-generated `.resultset.json` file
-- `simplecov` gem >= 0.21 (only loaded when multiple suites require merging)
+- `simplecov` gem >= 0.21
 - RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`)
 
 ## Configuring the Resultset
@@ -258,4 +261,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Made with ❤️ for better Ruby test coverage analysis**
+## Next Steps
+
+📦 **Install:** `gem install simplecov-mcp`
+
+📖 **Read:** [CLI Usage Guide](docs/CLI_USAGE.md) | [MCP Integration](docs/MCP_INTEGRATION.md)
+
+🐛 **Report issues:** [GitHub Issues](https://github.com/keithrbennett/simplecov-mcp/issues)
+
+⭐ **Star the repo** if you find it useful!
