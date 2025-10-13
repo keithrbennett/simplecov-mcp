@@ -112,20 +112,6 @@ See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 - **[Development](docs/DEVELOPMENT.md)** - Contributing and development guide
 - **[Error Handling](docs/ERROR_HANDLING.md)** - Error modes and exception handling
 
-## Quick Examples
-
-**CLI (lowest coverage first):** `simplecov-mcp`
-
-**Ruby summary:**
-```ruby
-require "simplecov_mcp"
-model = SimpleCovMcp::CoverageModel.new
-summary = model.summary_for("lib/simplecov_mcp/model.rb")
-# => { "file" => "...", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 }, "stale" => false }
-```
-
-More in [CLI Usage](docs/CLI_USAGE.md) and [Library API](docs/LIBRARY_API.md).
-
 ## Requirements
 
 
