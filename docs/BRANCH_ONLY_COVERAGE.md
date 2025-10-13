@@ -28,15 +28,14 @@ only entry looks like:
 Key observations:
 
 - The outer hash key is either a stringified Ruby array or the raw array itself:
-  `[:if, branch_id, line, column, end_line, end_column]`. Meaning:
+  `[:if, branch_id, line, column, end_line, end_column]`. Array structure:
   - index 0: branch type (`:if`, `:case`, `:unless`, etc.)
   - index 1: internal branch identifier
-  - index 2: line where the branch starts (the field we care about)
+  - **index 2: line where the branch starts** (the field we care about for coverage)
   - index 3: column where the branch starts
   - index 4: line where the branch expression ends
   - index 5: column where the branch expression ends
-- The third element is the **source line number**. SimpleCov reuses a single
-  branch tuple for all recorded runs.
+- SimpleCov reuses a single branch tuple for all recorded runs.
 - The nested hash contains targets (`[:then, …]`, `[:else, …]`, `[:when, …]`, etc.)
   Each target tuple mirrors the same shape—branch type at index 0, an internal
   identifier at 1, then the start/end positions for that branch leg.

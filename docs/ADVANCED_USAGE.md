@@ -956,11 +956,11 @@ Net::HTTP.post(uri, coveralls_data.to_json, {
 
 ## Additional Resources
 
-- [CLI Usage Guide](docs/CLI_USAGE.md)
-- [Library API Reference](docs/LIBRARY_API.md)
-- [MCP Integration Guide](docs/MCP_INTEGRATION.md)
-- [Error Handling Details](docs/ERROR_HANDLING.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [CLI Usage Guide](CLI_USAGE.md)
+- [Library API Reference](LIBRARY_API.md)
+- [MCP Integration Guide](MCP_INTEGRATION.md)
+- [Error Handling Details](ERROR_HANDLING.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
 
 ---
 

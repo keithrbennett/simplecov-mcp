@@ -11,7 +11,11 @@ $ simplecov-mcp summary nonexistent.rb
 File error: No coverage data found for the specified file
 ```
 
-For debugging, set the environment variable to see full stack traces.
+For debugging, use the `--error-mode trace` flag to see full stack traces:
+
+```bash
+$ simplecov-mcp --error-mode trace summary nonexistent.rb
+```
 
 ## Library Mode
 
@@ -43,7 +47,7 @@ Available exception classes:
 When running as an MCP server, errors are handled internally and returned as structured responses to the MCP client. The MCP server uses:
 
 - **Logging enabled** - Errors are logged to `simplecov_mcp.log` in the current directory for server debugging
-- **Clean error messages** - User-friendly messages are returned to the client (no stack traces unless)
+- **Clean error messages** - User-friendly messages are returned to the client without stack traces by default
 - **Structured responses** - Errors are returned as proper MCP tool responses, not exceptions
 
 The MCP server automatically configures error handling appropriately for server usage.

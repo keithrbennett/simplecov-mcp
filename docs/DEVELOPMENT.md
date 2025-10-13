@@ -8,7 +8,7 @@
 git clone https://github.com/keithrbennett/simplecov-mcp.git
 cd simplecov-mcp
 bundle install
-gem build *gemspec && gem install *gem  # optional
+gem build simplecov-mcp.gemspec && gem install simplecov-mcp-*.gem  # optional
 simplecov-mcp version  # verify it works
 ```
 
