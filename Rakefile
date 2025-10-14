@@ -2,7 +2,10 @@
 
 begin
   require 'rspec/core/rake_task'
-  RSpec::Core::RakeTask.new(:spec)
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.rspec_opts = []
+    t.ruby_opts  = ['-S', 'bundle', 'exec']
+  end
   task default: :spec
 rescue LoadError
   task :spec do
