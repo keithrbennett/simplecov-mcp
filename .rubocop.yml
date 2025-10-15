@@ -74,6 +74,12 @@ Layout/ArgumentAlignment:
 Layout/ClosingHeredocIndentation:
   Enabled: false  # Don't enforce heredoc closing delimiter indentation
 
+Layout/EmptyLines:
+  Enabled: false  # Allow multiple consecutive blank lines
+
+Layout/EmptyLinesAroundAccessModifier:
+  EnforcedStyle: around  # Require empty line before AND after private/protected/public
+
 # ===== Style =====
 
 Style/StringLiterals:
