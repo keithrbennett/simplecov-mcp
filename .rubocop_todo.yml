@@ -353,32 +353,6 @@ Layout/SpaceAroundOperators:
   Exclude:
     - 'simplecov-mcp.gemspec'
 
-# Offense count: 20
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: final_newline, final_blank_line
-Layout/TrailingEmptyLines:
-  Exclude:
-    - 'Gemfile'
-    - 'Rakefile'
-    - 'examples/filter_and_table_demo.rb'
-    - 'examples/fixtures/demo_project/lib/bar.rb'
-    - 'examples/fixtures/demo_project/lib/foo.rb'
-    - 'lib/simplecov_mcp/commands/base_command.rb'
-    - 'lib/simplecov_mcp/commands/command_factory.rb'
-    - 'lib/simplecov_mcp/commands/list_command.rb'
-    - 'lib/simplecov_mcp/commands/version_command.rb'
-    - 'lib/simplecov_mcp/formatters/source_formatter.rb'
-    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
-    - 'lib/simplecov_mcp/resolvers/resolver_factory.rb'
-    - 'spec/error_handler_spec.rb'
-    - 'spec/error_mode_spec.rb'
-    - 'spec/fixtures/project1/lib/bar.rb'
-    - 'spec/fixtures/project1/lib/foo.rb'
-    - 'spec/version_tool_spec.rb'
-    - 'test_lib_loading.rb'
-    - 'test_lib_loading_thorough.rb'
-    - 'test_lib_loading_with_functionality.rb'
 
 # Offense count: 3
 # This cop supports safe autocorrection (--autocorrect).
