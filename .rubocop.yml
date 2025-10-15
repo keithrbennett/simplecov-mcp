@@ -63,6 +63,9 @@ Layout/EndAlignment:
 Layout/ExtraSpacing:
   AllowForAlignment: true
 
+Layout/TrailingWhitespace:
+  Enabled: true
+
 # ===== Style =====
 
 Style/StringLiterals:
