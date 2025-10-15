@@ -23,15 +23,15 @@ RSpec.describe SimpleCovMcp::CovUtil do
 
     # Different paths with same basename should not match
     cov = { '/some/where/else/foo.rb' => { 'lines' => lines } }
-    expect {
+    expect do
       described_class.lookup_lines(cov, '/another/place/foo.rb')
-    }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+    end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
 
     # Missing raises a FileError
     cov = {}
-    expect {
+    expect do
       described_class.lookup_lines(cov, '/nowhere/foo.rb')
-    }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+    end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
   end
 
   it 'summary handles edge cases and coercion' do
@@ -54,9 +54,9 @@ RSpec.describe SimpleCovMcp::CovUtil do
     Dir.mktmpdir do |dir|
       bad = File.join(dir, '.resultset.json')
       File.write(bad, '{not-json')
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: dir)
-      }.to raise_error(SimpleCovMcp::CoverageDataError, /Invalid coverage data format/)
+      end.to raise_error(SimpleCovMcp::CoverageDataError, /Invalid coverage data format/)
     end
   end
 

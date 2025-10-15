@@ -13,9 +13,9 @@ RSpec.describe 'Additional staleness cases' do
       })
       model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage', staleness: 'error')
       # bar.rb has 3 coverage entries but 4 source lines in fixtures
-      expect {
+      expect do
         model.summary_for('lib/bar.rb')
-      }.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
+      end.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
     end
   end
 
@@ -25,16 +25,16 @@ RSpec.describe 'Additional staleness cases' do
       coverage_map = {
         File.join(root, 'lib', 'does_not_exist_anymore.rb') => { 'lines' => [1] }
       }
-      expect {
+      expect do
         checker.check_project!(coverage_map)
-      }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+      end.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
     end
 
     it 'does not raise for empty tracked_globs when nothing else is stale' do
       checker = described_class.new(root: root, resultset: 'coverage', mode: 'error', tracked_globs: [], timestamp: Time.now.to_i)
-      expect {
+      expect do
         checker.check_project!({})
-      }.not_to raise_error
+      end.not_to raise_error
     end
   end
 end

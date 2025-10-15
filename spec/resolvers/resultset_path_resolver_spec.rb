@@ -16,18 +16,18 @@ RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
     let(:resolver) { described_class.new(root: root) }
 
     it 'raises when a specified resultset file cannot be found' do
-      expect {
+      expect do
         resolver.find_resultset(resultset: 'missing.json')
-      }.to raise_error(RuntimeError, /Specified resultset not found/)
+      end.to raise_error(RuntimeError, /Specified resultset not found/)
     end
 
     it 'raises when a specified directory does not contain .resultset.json' do
       nested_dir = File.join(root, 'coverage')
       Dir.mkdir(nested_dir)
 
-      expect {
+      expect do
         resolver.find_resultset(resultset: nested_dir)
-      }.to raise_error(RuntimeError, /No .resultset.json found in directory/)
+      end.to raise_error(RuntimeError, /No .resultset.json found in directory/)
     end
 
     it 'returns the resolved path when a valid resultset file is provided' do
@@ -38,9 +38,9 @@ RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
     end
 
     it 'raises a helpful error when no fallback candidates are found' do
-      expect {
+      expect do
         resolver.find_resultset
-      }.to raise_error(RuntimeError, /Could not find .resultset.json/)
+      end.to raise_error(RuntimeError, /Could not find .resultset.json/)
     end
 
     it 'accepts a resultset path already nested under the provided root without double-prefixing' do

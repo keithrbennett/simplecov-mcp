@@ -12,15 +12,15 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_return('/some/path/.resultset.json')
       allow(File).to receive(:read).with('/some/path/.resultset.json').and_raise(Errno::ENOENT, 'No such file')
 
-      expect {
+      expect do
         described_class.new(root: root, resultset: '/some/path/.resultset.json')
-      }.to raise_error(SimpleCovMcp::FileError, /Coverage data not found/)
+      end.to raise_error(SimpleCovMcp::FileError, /Coverage data not found/)
     end
 
     it 'raises CoverageDataError when resultset file does not exist' do
-      expect {
+      expect do
         described_class.new(root: root, resultset: '/nonexistent/path/.resultset.json')
-      }.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
+      end.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
     end
   end
 
@@ -146,9 +146,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       # Stub lookup_lines to return nil without raising
       allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines).and_return(nil)
 
-      expect {
+      expect do
         model.summary_for('lib/nonexistent.rb')
-      }.to raise_error(SimpleCovMcp::FileError, /No coverage data found for file/)
+      end.to raise_error(SimpleCovMcp::FileError, /No coverage data found for file/)
     end
 
     it 'converts Errno::ENOENT to FileNotFoundError during resolve' do
@@ -159,9 +159,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       # Create a model with staleness checking enabled to trigger the check_file! call
       stale_model = described_class.new(root: root, staleness: 'error')
 
-      expect {
+      expect do
         stale_model.summary_for('lib/foo.rb')
-      }.to raise_error(SimpleCovMcp::FileNotFoundError, /File not found/)
+      end.to raise_error(SimpleCovMcp::FileNotFoundError, /File not found/)
     end
   end
 

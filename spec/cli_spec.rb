@@ -168,9 +168,9 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       ENV['SIMPLECOV_MCP_OPTS'] = '--resultset coverage'
       argv = cli.send(:parse_env_opts) + ['summary', 'lib/foo.rb']
 
-      expect {
+      expect do
         cli.send(:extract_subcommand!, argv)
-      }.to change { cli.instance_variable_get(:@cmd) }.from(nil).to('summary')
+      end.to change { cli.instance_variable_get(:@cmd) }.from(nil).to('summary')
     end
   end
 

@@ -30,9 +30,9 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
         ['sumary',      'misspelled command',     nil]
       ].each do |command_name, description, pattern|
         it "raises UsageError for #{description}" do
-          expect {
+          expect do
             described_class.create(command_name, cli_context)
-          }.to raise_error(SimpleCovMcp::UsageError, pattern)
+          end.to raise_error(SimpleCovMcp::UsageError, pattern)
         end
       end
     end

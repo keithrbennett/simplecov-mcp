@@ -34,14 +34,14 @@ RSpec.describe 'File-based MCP Tools' do
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
 
-        expect {
+        expect do
           config[:tool_class].call(
             path: 'lib/example.rb',
             root: '.',
             resultset: 'coverage',
             server_context: server_context
           )
-        }.not_to raise_error
+        end.not_to raise_error
       end
     end
 
@@ -75,9 +75,9 @@ RSpec.describe 'File-based MCP Tools' do
     end
 
     it 'tools that include summary data return consistent summary format' do
-      summary_tools = FILE_BASED_TOOL_CONFIGS.select { |_, config|
+      summary_tools = FILE_BASED_TOOL_CONFIGS.select do |_, config|
         config[:expected_keys].include?('summary')
-      }
+      end
 
       summary_tools.each do |tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)

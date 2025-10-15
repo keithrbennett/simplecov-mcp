@@ -32,21 +32,21 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
         args = ['lib/missing.rb']
 
         # Stub the block to raise Errno::ENOENT
-        expect {
+        expect do
           test_command.public_handle_with_path(args, 'test') do |path|
             raise Errno::ENOENT.new('No such file or directory')
           end
-        }.to raise_error(SimpleCovMcp::FileNotFoundError, 'File not found: lib/missing.rb')
+        end.to raise_error(SimpleCovMcp::FileNotFoundError, 'File not found: lib/missing.rb')
       end
 
       it 'includes the path from the args in the error message' do
         args = ['some/other/path.rb']
 
-        expect {
+        expect do
           test_command.public_handle_with_path(args, 'test') do |path|
             raise Errno::ENOENT.new('No such file or directory')
           end
-        }.to raise_error(SimpleCovMcp::FileNotFoundError, /some\/other\/path\.rb/)
+        end.to raise_error(SimpleCovMcp::FileNotFoundError, /some\/other\/path\.rb/)
       end
     end
 
@@ -55,21 +55,21 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
         args = ['lib/secret.rb']
 
         # Stub the block to raise Errno::EACCES
-        expect {
+        expect do
           test_command.public_handle_with_path(args, 'test') do |path|
             raise Errno::EACCES.new('Permission denied')
           end
-        }.to raise_error(SimpleCovMcp::FilePermissionError, 'Permission denied: lib/secret.rb')
+        end.to raise_error(SimpleCovMcp::FilePermissionError, 'Permission denied: lib/secret.rb')
       end
 
       it 'includes the path from the args in the error message' do
         args = ['/root/protected.rb']
 
-        expect {
+        expect do
           test_command.public_handle_with_path(args, 'test') do |path|
             raise Errno::EACCES.new('Permission denied')
           end
-        }.to raise_error(SimpleCovMcp::FilePermissionError, /\/root\/protected\.rb/)
+        end.to raise_error(SimpleCovMcp::FilePermissionError, /\/root\/protected\.rb/)
       end
     end
 
@@ -77,11 +77,11 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
       it 'raises UsageError' do
         args = []
 
-        expect {
+        expect do
           test_command.public_handle_with_path(args, 'summary') do |path|
             # Should not reach here
           end
-        }.to raise_error(SimpleCovMcp::UsageError, /summary <path>/)
+        end.to raise_error(SimpleCovMcp::UsageError, /summary <path>/)
       end
     end
 

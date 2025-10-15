@@ -171,9 +171,9 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
 
       allow_any_instance_of(Object).to receive(:exit)
 
-      expect {
+      expect do
         silence_output { cli.send(:run, ['--help']) }
-      }.not_to raise_error
+      end.not_to raise_error
 
       expect(cli.config.resultset).to eq(test_resultset)
       expect(cli.config.json).to be true

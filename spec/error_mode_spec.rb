@@ -98,9 +98,9 @@ RSpec.describe 'Error Mode System' do
       cli = SimpleCovMcp::CoverageCLI.new
 
       # Test that the option parser accepts the flag
-      expect {
+      expect do
         cli.send(:parse_options!, ['--error-mode', 'trace', 'summary', 'lib/foo.rb'])
-      }.not_to raise_error
+      end.not_to raise_error
 
       expect(cli.config.error_mode).to eq(:trace)
     end
@@ -119,17 +119,17 @@ RSpec.describe 'Error Mode System' do
     it 'validates error mode values' do
       cli = SimpleCovMcp::CoverageCLI.new
 
-      expect {
+      expect do
         cli.send(:parse_options!, ['--error-mode', 'invalid', 'summary', 'lib/foo.rb'])
-      }.to raise_error(OptionParser::InvalidArgument)
+      end.to raise_error(OptionParser::InvalidArgument)
     end
   end
 
   describe 'Error mode validation' do
     it 'raises ArgumentError for invalid error modes' do
-      expect {
+      expect do
         SimpleCovMcp::ErrorHandler.new(error_mode: :invalid)
-      }.to raise_error(ArgumentError, /Invalid error_mode: :invalid/)
+      end.to raise_error(ArgumentError, /Invalid error_mode: :invalid/)
     end
 
     it 'accepts all valid error modes' do

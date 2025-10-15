@@ -82,9 +82,9 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
         resultset_path = File.join(dir, '.resultset.json')
         File.write(resultset_path, '{}')
 
-        expect {
+        expect do
           described_class.load(resultset_path: resultset_path)
-        }.to raise_error(SimpleCovMcp::CoverageDataError, /No test suite/)
+        end.to raise_error(SimpleCovMcp::CoverageDataError, /No test suite/)
       end
     end
   end
@@ -97,9 +97,9 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
         Kernel.require(name)
       end
 
-      expect {
+      expect do
         described_class.send(:require_simplecov_for_merge!, '/tmp/resultset.json')
-      }.to raise_error(SimpleCovMcp::CoverageDataError, /Install simplecov/)
+      end.to raise_error(SimpleCovMcp::CoverageDataError, /Install simplecov/)
     ensure
       if singleton.method_defined?(:require)
         singleton.send(:remove_method, :require)

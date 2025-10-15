@@ -64,25 +64,25 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       it 'raises ConfigurationError for unmatched double quotes' do
         ENV['SIMPLECOV_MCP_OPTS'] = '--resultset "unterminated string'
 
-        expect {
+        expect do
           parser.parse_env_opts
-        }.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
       end
 
       it 'raises ConfigurationError for unmatched single quotes' do
         ENV['SIMPLECOV_MCP_OPTS'] = "--resultset 'unterminated string"
 
-        expect {
+        expect do
           parser.parse_env_opts
-        }.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
       end
 
       it 'raises ConfigurationError with descriptive message' do
         ENV['SIMPLECOV_MCP_OPTS'] = '--option "bad quote'
 
-        expect {
+        expect do
           parser.parse_env_opts
-        }.to raise_error(SimpleCovMcp::ConfigurationError) do |error|
+        end.to raise_error(SimpleCovMcp::ConfigurationError) do |error|
           expect(error.message).to include('Invalid SIMPLECOV_MCP_OPTS format')
           expect(error.message).to include('Unmatched') # from Shellwords error
         end
@@ -91,9 +91,9 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       it 'handles multiple quoting errors' do
         ENV['SIMPLECOV_MCP_OPTS'] = '"first "second "third'
 
-        expect {
+        expect do
           parser.parse_env_opts
-        }.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
       end
     end
   end
@@ -222,9 +222,9 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       custom_parser = described_class.new(env_var: 'MY_CUSTOM_VAR')
       ENV['MY_CUSTOM_VAR'] = '"bad quote'
 
-      expect {
+      expect do
         custom_parser.parse_env_opts
-      }.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid MY_CUSTOM_VAR format/)
+      end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid MY_CUSTOM_VAR format/)
     end
   end
 end

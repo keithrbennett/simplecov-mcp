@@ -10,9 +10,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       # Mock JSON.parse to raise JSON::ParserError
       allow(JSON).to receive(:parse).and_raise(JSON::ParserError.new('unexpected token'))
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data format')
         expect(error.message).to include('unexpected token')
       end
@@ -25,9 +25,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         Errno::EACCES.new('Permission denied')
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied reading coverage data')
         expect(error.message).to include('Permission denied')
       end
@@ -44,9 +44,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       allow(File).to receive(:read).and_call_original
       allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(malformed_resultset.to_json)
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
     end
@@ -68,9 +68,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       # Let's make it fail by mocking transform_keys to raise NoMethodError
       allow_any_instance_of(Hash).to receive(:transform_keys).and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
     end
@@ -96,9 +96,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         ArgumentError.new('string contains null byte')
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid path in coverage data')
         expect(error.message).to include('null byte')
       end
@@ -110,9 +110,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         JSON::ParserError.new('765: unexpected token at line 3, column 5')
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         # Verify the original error message details are preserved
         expect(error.message).to include('765')
         expect(error.message).to include('line 3')
@@ -127,9 +127,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         Errno::EACCES.new(resultset_path)
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied')
         expect(error.message).to match(/\.resultset\.json/)
       end
@@ -165,9 +165,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
           test_case[:error_class].new(test_case[:message])
         )
 
-        expect {
+        expect do
           SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-        }.to raise_error(test_case[:expected_type]) do |error|
+        end.to raise_error(test_case[:expected_type]) do |error|
           expect(error.message).to include(test_case[:expected_content])
         end
       end
@@ -181,9 +181,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         RuntimeError.new('Specified resultset not found: /nonexistent/path/.resultset.json')
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: '/nonexistent/path')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Failed to load coverage data')
         expect(error.message).to include('Specified resultset not found')
       end
@@ -195,9 +195,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         RuntimeError.new('Something went wrong during resultset lookup')
       )
 
-      expect {
+      expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      }.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Failed to load coverage data')
         expect(error.message).to include('Something went wrong')
       end

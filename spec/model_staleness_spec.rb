@@ -13,9 +13,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   it "raises stale error when staleness mode is 'error' and file is newer" do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: 'error')
-      expect {
+      expect do
         model.summary_for('lib/foo.rb')
-      }.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
+      end.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
     end
   end
 
@@ -38,9 +38,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       begin
         File.write(tmp, "# new file\n")
         model = described_class.new(root: root, staleness: 'error')
-        expect {
+        expect do
           model.all_files(tracked_globs: ['lib/**/*.rb'])
-        }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+        end.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
       ensure
         File.delete(tmp) if File.exist?(tmp)
       end
@@ -65,9 +65,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       model = described_class.new(root: root, staleness: 'error')
 
       expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at_time.to_i)
-      expect {
+      expect do
         model.summary_for('lib/foo.rb')
-      }.to raise_error(SimpleCovMcp::CoverageDataStaleError) { |error|
+      end.to raise_error(SimpleCovMcp::CoverageDataStaleError) { |error|
         expect(error.cov_timestamp).to eq(created_at_time.to_i)
       }
     end
