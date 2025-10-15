@@ -32,11 +32,11 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
     it 'has valid major.minor.patch core version' do
       match = version.match(semver_regex)
       expect(match).not_to be_nil, "VERSION '#{version}' does not match semantic versioning format"
-      
+
       major = match[:major].to_i
       minor = match[:minor].to_i
       patch = match[:patch].to_i
-      
+
       expect(major).to be >= 0
       expect(minor).to be >= 0
       expect(patch).to be >= 0
@@ -78,7 +78,7 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
     it 'matches the version referenced in gemspec' do
       gemspec_path = File.expand_path('../simplecov-mcp.gemspec', __dir__)
       gemspec_content = File.read(gemspec_path)
-      
+
       version_line = gemspec_content.lines.find { |line| line.include?('spec.version') }
       expect(version_line).not_to be_nil, 'Could not find version line in gemspec'
       expect(version_line).to include('SimpleCovMcp::VERSION')

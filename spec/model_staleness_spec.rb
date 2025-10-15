@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  
+
   def with_stubbed_coverage_timestamp(ts) = begin
     mock_resultset_with_timestamp(root, ts)
     yield

@@ -170,7 +170,7 @@ module SimpleCovMcp
       end
     end
 
-    
+
     def run_subcommand(cmd, args)
       command = Commands::CommandFactory.create(cmd, self)
       command.execute(args)
@@ -181,14 +181,14 @@ module SimpleCovMcp
     end
 
 
-    
-    
+
+
     def handle_option_parser_error(error, argv: [])
       @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
       @error_helper.handle_option_parser_error(error, argv: argv)
     end
 
-    
+
     def run_success_predicate
       predicate = load_success_predicate(config.success_predicate)
       model = CoverageModel.new(**config.model_options)

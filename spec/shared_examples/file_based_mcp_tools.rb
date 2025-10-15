@@ -4,7 +4,7 @@ require 'spec_helper'
 
 # Shared examples for file-based MCP tools that follow the same pattern:
 # - Take a path parameter
-# - Call a specific method on CoverageModel  
+# - Call a specific method on CoverageModel
 # - Return JSON resource with consistent structure
 # - Have predictable output filename
 
@@ -97,7 +97,7 @@ FILE_BASED_TOOL_CONFIGS = {
       }
     }
   },
-  
+
   raw: {
     tool_class: SimpleCovMcp::Tools::CoverageRawTool,
     model_method: :raw_for,
@@ -112,7 +112,7 @@ FILE_BASED_TOOL_CONFIGS = {
       expect(data['lines']).to be_an(Array)
     }
   },
-  
+
   uncovered: {
     tool_class: SimpleCovMcp::Tools::UncoveredLinesTool,
     model_method: :uncovered_for,
@@ -149,7 +149,7 @@ FILE_BASED_TOOL_CONFIGS = {
       }
     }
   },
-  
+
   detailed: {
     tool_class: SimpleCovMcp::Tools::CoverageDetailedTool,
     model_method: :detailed_for,

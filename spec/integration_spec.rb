@@ -120,10 +120,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         cli.run(['list', '--root', project_root, '--resultset', coverage_dir])
         list_output = out.string
       end
-      
+
       expect(list_output).to include('lib/foo.rb', 'lib/bar.rb')
       expect(list_output).to include('66.67', '33.33')
-      
+
       # Test summary command
       summary_output = nil
       silence_output do |out, _err|
@@ -131,9 +131,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         cli.run(['summary', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
         summary_output = out.string
       end
-      
+
       expect(summary_output).to include('66.67%', '2/3')
-      
+
       # Test JSON output
       json_output = nil
       silence_output do |out, _err|
@@ -141,12 +141,12 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         cli.run(['summary', 'lib/foo.rb', '--json', '--root', project_root, '--resultset', coverage_dir])
         json_output = out.string
       end
-      
+
       json_data = JSON.parse(json_output)
       expect(json_data).to include('file', 'summary')
       expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
     end
-    
+
     it 'handles different output formats correctly' do
       # Test uncovered command with different outputs
       uncovered_output = nil
@@ -155,9 +155,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         cli.run(['uncovered', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
         uncovered_output = out.string
       end
-      
+
       expect(uncovered_output).to match(/Uncovered lines:\s*2\b/)
-      
+
       # Test detailed command
       detailed_output = nil
       silence_output do |out, _err|
@@ -165,18 +165,18 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         cli.run(['detailed', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
         detailed_output = out.string
       end
-      
+
       expect(detailed_output).to include('Line', 'Hits', 'Covered')
     end
   end
 
   describe 'MCP Tool Integration with Real Data' do
     let(:server_context) { instance_double('ServerContext').as_null_object }
-    
+
     before do
       setup_mcp_response_stub
     end
-    
+
     it 'executes all MCP tools with real coverage data' do
       # Test coverage summary tool
       summary_response = SimpleCovMcp::Tools::CoverageSummaryTool.call(
@@ -185,10 +185,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      
+
       data, item = expect_mcp_text_json(summary_response, expected_keys: ['file', 'summary'])
       expect(data['summary']).to include('covered' => 2, 'total' => 3)
-      
+
       # Test raw coverage tool
       raw_response = SimpleCovMcp::Tools::CoverageRawTool.call(
         path: 'lib/foo.rb',
@@ -196,22 +196,22 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      
+
       raw_data, raw_item = expect_mcp_text_json(raw_response, expected_keys: ['file', 'lines'])
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
-      
+
       # Test all files tool
       all_files_response = SimpleCovMcp::Tools::AllFilesCoverageTool.call(
         root: project_root,
         resultset: coverage_dir,
         server_context: server_context
       )
-      
+
       all_data, _ = expect_mcp_text_json(all_files_response, expected_keys: ['files', 'counts'])
       expect(all_data['files'].length).to eq(2)
       expect(all_data['counts']['total']).to eq(2)
     end
-    
+
     it 'provides consistent data across different tools' do
       # Get data from summary tool
       summary_response = SimpleCovMcp::Tools::CoverageSummaryTool.call(
@@ -221,7 +221,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
       summary_data, _ = expect_mcp_text_json(summary_response)
-      
+
       # Get data from detailed tool
       detailed_response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
         path: 'lib/foo.rb',
@@ -230,19 +230,19 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
       detailed_data, _ = expect_mcp_text_json(detailed_response)
-      
+
       # Verify consistency between tools
       expect(summary_data['summary']['covered']).to eq(2)
       expect(summary_data['summary']['total']).to eq(3)
       expect(detailed_data['summary']['covered']).to eq(2)
       expect(detailed_data['summary']['total']).to eq(3)
-      
+
       # Count covered lines in detailed data
       covered_lines = detailed_data['lines'].count { |line| line['covered'] }
       expect(covered_lines).to eq(2)
     end
   end
-  
+
   describe 'Error Handling Integration' do
     it 'handles missing files gracefully' do
       model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
@@ -251,13 +251,13 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         model.summary_for('lib/nonexistent.rb')
       }.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
     end
-    
+
     it 'handles invalid resultset paths gracefully' do
       expect {
         SimpleCovMcp::CoverageModel.new(root: project_root, resultset: '/nonexistent/path')
       }.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
     end
-    
+
     it 'provides helpful CLI error messages' do
       output, error, status = nil, nil, nil
       silence_output do |out, err|
@@ -271,12 +271,12 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         output = out.string
         error = err.string
       end
-      
+
       expect(status).to eq(1)
       expect(error).to include('File error:', 'No coverage entry found')
     end
   end
-  
+
   describe 'Multi-File Scenarios' do
     it 'handles projects with mixed coverage levels' do
       model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)

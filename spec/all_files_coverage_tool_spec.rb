@@ -32,14 +32,14 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
   it 'returns all files coverage data with counts' do
     response = subject
     data, item = expect_mcp_text_json(response, expected_keys: ['files', 'counts'])
-    
+
     files = data['files']
     counts = data['counts']
-    
+
     expect(files.length).to eq(2)
     expect(counts).to include('total' => 2).or include(total: 2)
     expect(files.map { |f| f['file'] }).to eq(['lib/foo.rb', 'lib/bar.rb'])
-    
+
     # ok + stale equals total
     ok = counts[:ok] || counts['ok']
     stale = counts[:stale] || counts['stale']

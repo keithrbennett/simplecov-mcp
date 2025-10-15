@@ -138,22 +138,22 @@ module MCPToolTestHelpers
     end
     stub_const('MCP::Tool::Response', response_class)
   end
-  
+
   def expect_mcp_text_json(response, expected_keys: [])
     item = response.payload.first
-    
+
     # Check for a 'text' part
     expect(item['type']).to eq('text')
     expect(item).to have_key('text')
-    
+
     # Parse and validate JSON content
     data = JSON.parse(item['text'])
-    
+
     # Check for expected keys
     expected_keys.each do |key|
       expect(data).to have_key(key)
     end
-    
+
     [data, item] # Return for additional custom assertions
   end
 end

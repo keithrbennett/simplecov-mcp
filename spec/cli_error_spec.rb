@@ -81,42 +81,42 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       'uncovered', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
       '--source=uncovered', '--source-context', '2', '--no-color'
     )
-    
+
     expect(status).to eq(0)
     expect(err).to eq("")
     expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to include('Uncovered lines: 2')
     expect(out).to show_source_table_or_fallback
   end
-  
+
   it 'renders source with full mode without crashing' do
     # Additional regression test for source rendering with full mode
     out, err, status = run_cli_with_status(
       'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
       '--source=full', '--no-color'
     )
-    
+
     expect(status).to eq(0)
     expect(err).to eq("")
     expect(out).to include('lib/foo.rb')
     expect(out).to include('66.67%')
     expect(out).to show_source_table_or_fallback
   end
-  
+
   it 'shows fallback message when source file is unreadable' do
     # Test the fallback path when source files can't be read
     # Temporarily rename the source file to make it unreadable
     foo_path = File.join(root, 'lib', 'foo.rb')
     temp_path = "#{foo_path}.hidden"
-    
+
     begin
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
-      
+
       out, err, status = run_cli_with_status(
         'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
         '--source=full', '--no-color'
       )
-      
+
       expect(status).to eq(0)
       expect(err).to eq("")
       expect(out).to include('lib/foo.rb')

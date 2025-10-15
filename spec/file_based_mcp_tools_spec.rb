@@ -65,30 +65,30 @@ RSpec.describe 'File-based MCP Tools' do
       end
     end
   end
-  
+
   # Performance/behavior comparison tests
   describe 'cross-tool consistency' do
     let(:server_context) { instance_double('ServerContext').as_null_object }
-    
+
     before do
       setup_mcp_response_stub
     end
-    
+
     it 'tools that include summary data return consistent summary format' do
-      summary_tools = FILE_BASED_TOOL_CONFIGS.select { |_, config| 
-        config[:expected_keys].include?('summary') 
+      summary_tools = FILE_BASED_TOOL_CONFIGS.select { |_, config|
+        config[:expected_keys].include?('summary')
       }
-      
+
       summary_tools.each do |tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
-        
+
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
         data = JSON.parse(response.payload.first['text'])
-        
+
         if data.key?('summary')
           expect(data['summary']).to include('covered', 'total', 'pct')
           expect(data['summary']['pct']).to be_a(Numeric)
