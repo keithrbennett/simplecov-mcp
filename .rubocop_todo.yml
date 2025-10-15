@@ -28,27 +28,6 @@ Layout/ClosingHeredocIndentation:
   Exclude:
     - 'lib/simplecov_mcp/option_parser_builder.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: AllowForAlignment.
-Layout/CommentIndentation:
-  Exclude:
-    - 'lib/simplecov_mcp/model.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyleAlignWith, Severity.
-# SupportedStylesAlignWith: start_of_line, def
-Layout/DefEndAlignment:
-  Exclude:
-    - 'lib/simplecov_mcp/model.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Layout/ElseAlignment:
-  Exclude:
-    - 'spec/staleness_checker_spec.rb'
-
 # Offense count: 26
 # This cop supports safe autocorrection (--autocorrect).
 Layout/EmptyLineAfterGuardClause:
