@@ -1113,32 +1113,6 @@ Style/StringConcatenation:
     - 'test_lib_loading_thorough.rb'
     - 'test_lib_loading_with_functionality.rb'
 
-# Offense count: 84
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'examples/filter_and_table_demo.rb'
-    - 'exe/simplecov-mcp'
-    - 'lib/simplecov_mcp/cli.rb'
-    - 'lib/simplecov_mcp/error_handler.rb'
-    - 'lib/simplecov_mcp/errors.rb'
-    - 'lib/simplecov_mcp/model.rb'
-    - 'lib/simplecov_mcp/tools/coverage_table_tool.rb'
-    - 'spec/cli_error_spec.rb'
-    - 'spec/cli_source_spec.rb'
-    - 'spec/cli_usage_spec.rb'
-    - 'spec/coverage_table_tool_spec.rb'
-    - 'spec/errors_edge_cases_spec.rb'
-    - 'spec/integration_spec.rb'
-    - 'spec/model_error_handling_spec.rb'
-    - 'spec/option_parsers/env_options_parser_spec.rb'
-    - 'spec/simplecov_mcp_opts_spec.rb'
-    - 'test_lib_loading.rb'
-    - 'test_lib_loading_thorough.rb'
-    - 'test_lib_loading_with_functionality.rb'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle, AllowSafeAssignment.
