@@ -66,6 +66,14 @@ Layout/ExtraSpacing:
 Layout/TrailingWhitespace:
   Enabled: true
 
+# Layout cops we explicitly don't want enforced:
+
+Layout/ArgumentAlignment:
+  Enabled: false  # Don't enforce argument alignment
+
+Layout/ClosingHeredocIndentation:
+  Enabled: false  # Don't enforce heredoc closing delimiter indentation
+
 # ===== Style =====
 
 Style/StringLiterals:
