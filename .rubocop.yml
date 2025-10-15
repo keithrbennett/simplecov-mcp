@@ -80,6 +80,9 @@ Layout/EmptyLines:
 Layout/EmptyLinesAroundAccessModifier:
   EnforcedStyle: around  # Require empty line before AND after private/protected/public
 
+Layout/IndentationConsistency:
+  EnforcedStyle: normal  # Use standard Ruby indentation (not Rails indented_internal_methods)
+
 # ===== Style =====
 
 Style/StringLiterals:
