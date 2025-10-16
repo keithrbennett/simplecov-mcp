@@ -77,9 +77,8 @@ def output_examples
     foo_table = model.format_table(foo_files)
     # => formatted table showing only files with 'foo' in filename
     ```
-  check_coverage_data
 
-    EOS
+  EOS
 
   # Execute the code
   foo_files = all_files_data.select { |file| file['file'].include?('foo') }
