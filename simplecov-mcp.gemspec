@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/keithrbennett/simplecov-mcp'
   spec.required_ruby_version = '>= 3.2'
 
-  spec.files         = Dir.chdir(File.expand_path(__dir__)) do
+  spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir['lib/**/*', 'README.md', 'docs/**/*.md', 'LICENSE*', 'exe/*', 'spec/**/*']
   end
   spec.bindir        = 'exe'

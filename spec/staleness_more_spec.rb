@@ -9,7 +9,7 @@ RSpec.describe 'Additional staleness cases' do
     it 'raises file-level stale when source and coverage lengths differ' do
       # Ensure time is not the triggering factor - use current timestamp
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
-        File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] }  # 2 entries vs 3 lines in source
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] } # 2 entries vs 3 lines in source
       })
       model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage', staleness: 'error')
       # bar.rb has 2 coverage entries but 3 source lines in fixtures

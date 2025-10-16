@@ -298,8 +298,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       # This should return a relative path with .. (not trigger ArgumentError)
       result = checker.send(:rel, file_outside)
-      expect(result).to include('..')  # Should contain relative navigation
-      expect(result).not_to start_with('/')  # Should be relative, not absolute
+      expect(result).to include('..') # Should contain relative navigation
+      expect(result).not_to start_with('/') # Should be relative, not absolute
     end
 
     it 'allows project-level staleness checks to handle coverage outside root' do

@@ -37,7 +37,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       # Create a malformed resultset that will cause TypeError
       malformed_resultset = {
         'RSpec' => {
-          'coverage' => 'not_a_hash'  # Should be a hash, not a string
+          'coverage' => 'not_a_hash' # Should be a hash, not a string
         }
       }
 
@@ -56,7 +56,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       malformed_resultset = {
         'RSpec' => {
           'coverage' => {
-            'file.rb' => nil  # Should have 'lines' key, this will cause NoMethodError
+            'file.rb' => nil # Should have 'lines' key, this will cause NoMethodError
           }
         }
       }
@@ -80,7 +80,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       valid_resultset = {
         'RSpec' => {
           'coverage' => {
-            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] }  # Path with NULL byte
+            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] } # Path with NULL byte
           },
           'timestamp' => 1000
         }

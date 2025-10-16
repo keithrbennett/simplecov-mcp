@@ -504,7 +504,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       coverage_data = JSON.parse(content.first['text'])
 
       expect(coverage_data).to include('file', 'uncovered', 'summary')
-      expect(coverage_data['uncovered']).to eq([2])  # Line 2 is uncovered
+      expect(coverage_data['uncovered']).to eq([2]) # Line 2 is uncovered
     end
 
     it 'executes help_tool via JSON-RPC' do
@@ -701,7 +701,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           method: 'tools/call',
           params: {
             name: 'coverage_summary_tool',
-            arguments: {}  # Missing required 'path' argument
+            arguments: {} # Missing required 'path' argument
           }
         }
 
@@ -731,7 +731,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           params: {
             name: 'coverage_summary_tool',
             arguments: {
-              path: 12345,  # Should be string, not number
+              path: 12345, # Should be string, not number
               root: project_root,
               resultset: coverage_dir
             }

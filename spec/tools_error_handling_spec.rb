@@ -47,10 +47,10 @@ RSpec.describe 'MCP Tool error handling' do
       # This exercises the 'else false' branch
       allow(described_class).to receive(:format_entry).and_return({
         'tool' => 'test_tool',
-        'label' => nil,  # Neither string nor array
-        'use_when' => 123,  # Neither string nor array
-        'avoid_when' => true,  # Neither string nor array
-        'inputs' => {},  # Neither string nor array
+        'label' => nil, # Neither string nor array
+        'use_when' => 123, # Neither string nor array
+        'avoid_when' => true, # Neither string nor array
+        'inputs' => {}, # Neither string nor array
         'example' => 'example'
       })
 

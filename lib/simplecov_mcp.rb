@@ -39,7 +39,7 @@ module SimpleCovMcp
       full_argv = env_opts + argv
 
       if ModeDetector.cli_mode?(full_argv)
-        CoverageCLI.new.run(argv)  # CLI will re-parse env opts internally
+        CoverageCLI.new.run(argv) # CLI will re-parse env opts internally
       else
         log_file = parse_log_file(full_argv)
 
@@ -137,7 +137,7 @@ module SimpleCovMcp
       begin
         Shellwords.split(opts_string)
       rescue ArgumentError
-        []  # Ignore parsing errors for mode detection
+        [] # Ignore parsing errors for mode detection
       end
     end
   end

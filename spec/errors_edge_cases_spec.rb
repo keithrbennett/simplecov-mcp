@@ -83,7 +83,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
     describe 'default message generation' do
       it 'uses default message when message is nil' do
         error = SimpleCovMcp::CoverageDataStaleError.new(
-          nil,  # No message provided
+          nil, # No message provided
           nil,
           file_path: 'test.rb',
           file_mtime: Time.at(2000),
@@ -101,9 +101,9 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'uses generic default message when file_path is nil' do
         error = SimpleCovMcp::CoverageDataStaleError.new(
-          nil,  # No message
+          nil, # No message
           nil,
-          file_path: nil,  # No file path
+          file_path: nil, # No file path
           file_mtime: Time.at(2000),
           cov_timestamp: 1000
         )
@@ -120,7 +120,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
     describe 'default message generation' do
       it 'uses default message when message is nil' do
         error = SimpleCovMcp::CoverageDataProjectStaleError.new(
-          nil,  # No message provided
+          nil, # No message provided
           nil,
           cov_timestamp: 1000,
           newer_files: ['file1.rb', 'file2.rb']
