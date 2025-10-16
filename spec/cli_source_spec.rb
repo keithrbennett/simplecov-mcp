@@ -11,7 +11,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       '--source=uncovered', '--source-context', '1', '--no-color'
     )
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to match(/Uncovered lines:\s*2\b/)
     expect(out).to show_source_table_or_fallback
@@ -23,7 +23,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       '--source=full', '--no-color'
     )
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     # Summary line with flexible spacing
     expect(out).to match(/Summary:\s*\d+\.\d{2}%\s*\d+\/\d+/)
     expect(out).to show_source_table_or_fallback
@@ -35,7 +35,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       '--source=uncovered', '--source-context', '1', '--no-color'
     )
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     expect(out).to include('lib/foo.rb')
     # Presence of percentage and counts, spacing-agnostic
     expect(out).to match(/66\.67%/)
@@ -50,7 +50,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         '--source', 'uncovered', '--source-context', '1', '--no-color'
       )
       expect(status).to eq(0)
-      expect(err).to eq("")
+      expect(err).to eq('')
       expect(out).to include('lib/foo.rb')
       expect(out).to match(/66\.67%/)
       expect(out).to match(/\b2\/3\b/)
@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         '-s', 'full', '--no-color'
       )
       expect(status).to eq(0)
-      expect(err).to eq("")
+      expect(err).to eq('')
       expect(out).to match(/Summary:\s*\d+\.\d{2}%\s*\d+\/\d+/)
       expect(out).to show_source_table_or_fallback
     end
@@ -74,10 +74,10 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         '--source', 'uncovered', '--no-color'
       )
       expect(status).to eq(0)
-      expect(err).to eq("")
+      expect(err).to eq('')
       expect(out).to match(/66\.67%/)
       # Default report doesn't show source tables, that's OK - just check it parses correctly
-      expect(out).not_to include("Unknown subcommand")
+      expect(out).not_to include('Unknown subcommand')
     end
 
     it 'does not misinterpret following token as subcommand when using --source' do
@@ -88,8 +88,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         '--source', 'uncovered'
       )
       expect(status).to eq(0)
-      expect(err).to eq("")
-      expect(out).not_to include("Unknown subcommand")
+      expect(err).to eq('')
+      expect(out).not_to include('Unknown subcommand')
       expect(out).to match(/66\.67%/)
     end
   end

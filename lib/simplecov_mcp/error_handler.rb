@@ -62,15 +62,15 @@ module SimpleCovMcp
           # Handle string errors from CovUtil and other runtime errors
           if error.message.include?('Could not find .resultset.json')
             # Extract directory info if available
-            dir_info = error.message.match(/under (.+?)(?:;|$)/)&.[](1) || "project directory"
+            dir_info = error.message.match(/under (.+?)(?:;|$)/)&.[](1) || 'project directory'
             CoverageDataError.new("Coverage data not found in #{dir_info} - please run your tests first", error)
           elsif error.message.include?('No .resultset.json found in directory')
             # Extract directory from error message
-            dir_info = error.message.match(/directory: (.+)$/)&.[](1) || "specified directory"
+            dir_info = error.message.match(/directory: (.+)$/)&.[](1) || 'specified directory'
             CoverageDataError.new("Coverage data not found in directory: #{dir_info}", error)
           elsif error.message.include?('Specified resultset not found')
             # Extract path from error message
-            path_info = error.message.match(/not found: (.+)$/)&.[](1) || "specified path"
+            path_info = error.message.match(/not found: (.+)$/)&.[](1) || 'specified path'
             ResultsetNotFoundError.new("Resultset file not found: #{path_info}", error)
           else
             Error.new("An unexpected error occurred: #{error.message}", error)
@@ -106,7 +106,7 @@ module SimpleCovMcp
       def extract_filename(message)
         # Extract filename from "No such file or directory @ rb_sysopen - filename"
         match = message.match(/@ \w+ - (.+)$/)
-        match ? match[1] : "unknown file"
+        match ? match[1] : 'unknown file'
       end
 
       def extract_method_info(message)

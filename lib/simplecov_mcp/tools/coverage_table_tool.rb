@@ -29,7 +29,7 @@ module SimpleCovMcp
           },
           sort_order: {
             type: 'string',
-            description: "Sort order for the printed coverage table (ascending or descending).",
+            description: 'Sort order for the printed coverage table (ascending or descending).',
             default: 'ascending',
             enum: ['ascending', 'descending']
           },

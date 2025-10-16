@@ -2,8 +2,8 @@
 # frozen_string_literal: true
 
 # Make it safe to run via symlink by resolving the real path
-root = File.expand_path("..", File.realpath(__FILE__))
-lib  = File.join(root, "lib")
+root = File.expand_path('..', File.realpath(__FILE__))
+lib  = File.join(root, 'lib')
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 # Fail fast with a helpful message if Ruby is too old for this gem
@@ -11,7 +11,7 @@ begin
   require 'rubygems'
   if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
     $stderr.puts "simplecov-mcp requires Ruby >= 3.2 (current: #{RUBY_VERSION})."
-    $stderr.puts "Please run with a supported Ruby version (e.g., via rbenv, rvm, asdf)."
+    $stderr.puts 'Please run with a supported Ruby version (e.g., via rbenv, rvm, asdf).'
     exit 1
   end
 rescue StandardError

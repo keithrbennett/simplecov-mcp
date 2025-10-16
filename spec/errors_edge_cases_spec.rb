@@ -31,7 +31,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
         # Create an object that can't be parsed but has valid to_s
         bad_time = Object.new
         def bad_time.to_s
-          "unparseable_time_string"
+          'unparseable_time_string'
         end
 
         error = SimpleCovMcp::CoverageDataStaleError.new(

@@ -144,17 +144,17 @@ module SimpleCovMcp
         unless @newer_files.empty?
           parts << "\nNewer files (#{@newer_files.size}):"
           parts.concat(@newer_files.first(10).map { |f| "  - #{f}" })
-          parts << "  ..." if @newer_files.size > 10
+          parts << '  ...' if @newer_files.size > 10
         end
         unless @missing_files.empty?
           parts << "\nMissing files (new in project, not in coverage, #{@missing_files.size}):"
           parts.concat(@missing_files.first(10).map { |f| "  - #{f}" })
-          parts << "  ..." if @missing_files.size > 10
+          parts << '  ...' if @missing_files.size > 10
         end
         unless @deleted_files.empty?
           parts << "\nCoverage-only files (deleted or moved in project, #{@deleted_files.size}):"
           parts.concat(@deleted_files.first(10).map { |f| "  - #{f}" })
-          parts << "  ..." if @deleted_files.size > 10
+          parts << '  ...' if @deleted_files.size > 10
         end
         parts << "\nResultset - #{@resultset_path}" if @resultset_path
         parts.join

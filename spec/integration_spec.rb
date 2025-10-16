@@ -625,7 +625,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       # Attempt to start MCP server with --log-file stdout should fail
       env = {
         'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => "--log-file stdout"
+        'SIMPLECOV_MCP_OPTS' => '--log-file stdout'
       }
 
       result = run_mcp_input(nil, env: env, timeout: 3)
@@ -804,7 +804,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       end
 
       it 'handles completely invalid JSON input' do
-        invalid_json = "this is not JSON at all"
+        invalid_json = 'this is not JSON at all'
 
         result = run_mcp_input(invalid_json, env: default_env, timeout: 3)
 

@@ -12,7 +12,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(out).to include('Repository: https://github.com/keithrbennett/simplecov-mcp')
     expect(out).to match(/Version:.*#{SimpleCovMcp::VERSION}/)
     expect(out).to include('Subcommands:')
-    expect(err).to eq("")
+    expect(err).to eq('')
   end
 
   shared_examples 'maps error to exit 1 with message' do
@@ -70,7 +70,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
     _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage', '--stale', 'off')
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
   end
 
   it 'handles source rendering errors gracefully with fallback message' do
@@ -83,7 +83,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     )
 
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     expect(out).to match(/File:\s+lib\/foo\.rb/)
     expect(out).to include('Uncovered lines: 2')
     expect(out).to show_source_table_or_fallback
@@ -97,7 +97,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     )
 
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     expect(out).to include('lib/foo.rb')
     expect(out).to include('66.67%')
     expect(out).to show_source_table_or_fallback
@@ -118,7 +118,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       )
 
       expect(status).to eq(0)
-      expect(err).to eq("")
+      expect(err).to eq('')
       expect(out).to include('lib/foo.rb')
       expect(out).to include('66.67%')
       expect(out).to include('[source not available]')

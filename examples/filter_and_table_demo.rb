@@ -59,7 +59,7 @@ def output_examples
 
   # Execute the code
   all_files_data = model.all_files
-  lib_files = all_files_data.select { |file| file["file"].include?("/lib/") }
+  lib_files = all_files_data.select { |file| file['file'].include?('/lib/') }
   lib_files_table = model.format_table(lib_files)
   puts <<~EOS
     Result:
@@ -82,7 +82,7 @@ def output_examples
   EOS
 
   # Execute the code
-  foo_files = all_files_data.select { |file| file["file"].include?("foo") }
+  foo_files = all_files_data.select { |file| file['file'].include?('foo') }
   foo_table = model.format_table(foo_files)
   puts <<~EOS
     Result:
@@ -104,7 +104,7 @@ def output_examples
   EOS
 
   # Execute the code
-  high_coverage_files = all_files_data.select { |file| file["percentage"] >= 50.0 }
+  high_coverage_files = all_files_data.select { |file| file['percentage'] >= 50.0 }
   high_coverage_table = model.format_table(high_coverage_files)
   puts <<~EOS
     Result:
@@ -130,24 +130,24 @@ def output_examples
   EOS
 
   # Execute the stale analysis
-  stale_files, healthy_files = all_files_data.partition { |file| file["stale"] }
+  stale_files, healthy_files = all_files_data.partition { |file| file['stale'] }
 
-  puts "Result:"
-  puts "```"
-  puts "## Potentially Stale Coverage Files"
+  puts 'Result:'
+  puts '```'
+  puts '## Potentially Stale Coverage Files'
   puts model.format_table(stale_files, sort_order: :descending) if stale_files.any?
-  puts "(No stale files found)" if stale_files.empty?
+  puts '(No stale files found)' if stale_files.empty?
   puts
-  puts "## Healthy Coverage Files"
+  puts '## Healthy Coverage Files'
   puts model.format_table(healthy_files, sort_order: :descending) if healthy_files.any?
-  puts "(No healthy files found)" if healthy_files.empty?
-  puts "```"
+  puts '(No healthy files found)' if healthy_files.empty?
+  puts '```'
   puts
-  puts "NOTE: To see staleness analysis in action with both stale and healthy files,"
-  puts "try modifying file timestamps:"
-  puts "  - Make one file appear older: `touch -t 202401010000 spec/fixtures/project1/lib/foo.rb`"
-  puts "  - Or make one file appear newer: `touch spec/fixtures/project1/lib/bar.rb`"
-  puts "Then run this script again to see partition results change."
+  puts 'NOTE: To see staleness analysis in action with both stale and healthy files,'
+  puts 'try modifying file timestamps:'
+  puts '  - Make one file appear older: `touch -t 202401010000 spec/fixtures/project1/lib/foo.rb`'
+  puts '  - Or make one file appear newer: `touch spec/fixtures/project1/lib/bar.rb`'
+  puts 'Then run this script again to see partition results change.'
   puts
 
   puts <<~EOS

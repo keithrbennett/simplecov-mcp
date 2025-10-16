@@ -153,7 +153,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         },
         {
           error_class: TypeError,
-          message: "no implicit conversion of String into Integer",
+          message: 'no implicit conversion of String into Integer',
           expected_type: SimpleCovMcp::CoverageDataError,
           expected_content: 'no implicit conversion'
         }

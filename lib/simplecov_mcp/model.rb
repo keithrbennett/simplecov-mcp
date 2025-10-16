@@ -136,7 +136,7 @@ module SimpleCovMcp
       # Returns formatted table string for all files coverage data
     def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
       rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
-      return "No coverage data found" if rows.empty?
+      return 'No coverage data found' if rows.empty?
 
       widths = compute_table_widths(rows)
       lines = []
@@ -147,7 +147,7 @@ module SimpleCovMcp
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
       if rows.any? { |f| f['stale'] }
-        lines << "Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch"
+        lines << 'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
       end
       lines.join("\n")
     end

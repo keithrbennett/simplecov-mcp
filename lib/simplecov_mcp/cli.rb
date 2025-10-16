@@ -218,7 +218,7 @@ module SimpleCovMcp
       predicate = evaluation_context.instance_eval(content, path, 1)
 
       unless predicate.respond_to?(:call)
-        raise "Success predicate must be callable (lambda, proc, or object with #call method)"
+        raise 'Success predicate must be callable (lambda, proc, or object with #call method)'
       end
 
       predicate

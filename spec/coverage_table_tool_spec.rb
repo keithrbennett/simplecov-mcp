@@ -40,7 +40,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
       staleness: :error,
       tracked_globs: nil
     ).and_return(model)
-    allow(model).to receive(:format_table).and_return("Mock table output")
+    allow(model).to receive(:format_table).and_return('Mock table output')
 
     described_class.call(root: root, stale: 'error', server_context: server_context)
   end

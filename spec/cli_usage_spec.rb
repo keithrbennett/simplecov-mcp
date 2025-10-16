@@ -33,7 +33,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   it 'list with stale=off prints table and exits 0' do
     out, err, status = run_cli_with_status('list', '--root', root, '--resultset', 'coverage', '--stale', 'off')
     expect(status).to eq(0)
-    expect(err).to eq("")
+    expect(err).to eq('')
     expect(out).to include('File')
     expect(out).to include('lib/foo.rb')
   end

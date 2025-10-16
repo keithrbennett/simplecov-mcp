@@ -139,13 +139,13 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
 
       # Provide a minimal JSON-RPC request that the server can handle
       json_request = JSON.generate({
-        jsonrpc: "2.0",
+        jsonrpc: '2.0',
         id: 1,
-        method: "initialize",
+        method: 'initialize',
         params: {
-          protocolVersion: "2024-11-05",
+          protocolVersion: '2024-11-05',
           capabilities: {},
-          clientInfo: { name: "test", version: "1.0" }
+          clientInfo: { name: 'test', version: '1.0' }
         }
       })
 
