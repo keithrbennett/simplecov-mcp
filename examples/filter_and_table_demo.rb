@@ -79,7 +79,7 @@ def output_examples
     ```
   check_coverage_data
 
-  EOS
+    EOS
 
   # Execute the code
   foo_files = all_files_data.select { |file| file['file'].include?('foo') }
@@ -90,7 +90,7 @@ def output_examples
     #{foo_table}
     ```
 
-  EOS
+    EOS
 
   puts <<~EOS
     ## 4. Filter by Coverage Threshold (only high-coverage files)
@@ -101,7 +101,7 @@ def output_examples
     # => formatted table showing only well-covered files
     ```
 
-  EOS
+    EOS
 
   # Execute the code
   high_coverage_files = all_files_data.select { |file| file['percentage'] >= 50.0 }
@@ -112,7 +112,7 @@ def output_examples
     #{high_coverage_table}
     ```
 
-  EOS
+    EOS
 
   puts <<~EOS
     ## 5. Staleness Analysis
@@ -127,7 +127,7 @@ def output_examples
     puts model.format_table(healthy_files, sort_order: :descending)
     ```
 
-  EOS
+    EOS
 
   # Execute the stale analysis
   stale_files, healthy_files = all_files_data.partition { |file| file['stale'] }

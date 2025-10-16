@@ -28,24 +28,24 @@ module SimpleCovMcp
 
     def configure_banner(o)
       o.banner = <<~BANNER
-          #{HORIZONTAL_RULE}
-          Usage:      simplecov-mcp [subcommand] [options] [args]
-          Repository: https://github.com/keithrbennett/simplecov-mcp
-          Version:    #{SimpleCovMcp::VERSION}
-          #{HORIZONTAL_RULE}
+        #{HORIZONTAL_RULE}
+        Usage:      simplecov-mcp [subcommand] [options] [args]
+        Repository: https://github.com/keithrbennett/simplecov-mcp
+        Version:    #{SimpleCovMcp::VERSION}
+        #{HORIZONTAL_RULE}
 
         BANNER
     end
 
     def define_subcommands_help(o)
       o.separator <<~SUBCOMMANDS
-          Subcommands:
-            list                    Show files coverage (table or --json)
-            summary <path>          Show covered/total/% for a file
-            raw <path>              Show the SimpleCov 'lines' array
-            uncovered <path>        Show uncovered lines and a summary
-            detailed <path>         Show per-line rows with hits/covered
-            version                 Show version information
+        Subcommands:
+          list                    Show files coverage (table or --json)
+          summary <path>          Show covered/total/% for a file
+          raw <path>              Show the SimpleCov 'lines' array
+          uncovered <path>        Show uncovered lines and a summary
+          detailed <path>         Show per-line rows with hits/covered
+          version                 Show version information
 
         SUBCOMMANDS
     end
@@ -85,10 +85,10 @@ module SimpleCovMcp
     def define_examples(o)
       o.separator <<~EXAMPLES
 
-          Examples:
-            simplecov-mcp list --resultset coverage
-            simplecov-mcp summary lib/foo.rb --json --resultset coverage
-            simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2
+        Examples:
+          simplecov-mcp list --resultset coverage
+          simplecov-mcp summary lib/foo.rb --json --resultset coverage
+          simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2
         EXAMPLES
     end
 

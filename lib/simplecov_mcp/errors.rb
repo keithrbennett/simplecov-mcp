@@ -102,8 +102,8 @@ module SimpleCovMcp
 
       details = <<~DETAILS
 
-          File     - time: #{file_utc || 'not found'} (local #{file_local || 'n/a'}), lines: #{@src_len}
-          Coverage - time: #{cov_utc  || 'not found'} (local #{cov_local  || 'n/a'}), lines: #{@cov_len}
+        File     - time: #{file_utc || 'not found'} (local #{file_local || 'n/a'}), lines: #{@src_len}
+        Coverage - time: #{cov_utc  || 'not found'} (local #{cov_local  || 'n/a'}), lines: #{@cov_len}
         DETAILS
 
       details += "\nDelta    - file is #{delta_str} newer than coverage" if delta_str
