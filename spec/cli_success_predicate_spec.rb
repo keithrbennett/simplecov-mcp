@@ -122,6 +122,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI, 'success predicate' do
       # Force a generic error in the command execution
       fake_command_class = Class.new do
         def initialize(_cli); end
+
         def execute(_args)
           raise StandardError, 'Generic error in command'
         end

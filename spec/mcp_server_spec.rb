@@ -45,9 +45,11 @@ RSpec.describe SimpleCovMcp::MCPServer do
         @opened = false
         self.class.last_instance = self
       end
+
       def open
         @opened = true
       end
+
       def opened?
         @opened
       end

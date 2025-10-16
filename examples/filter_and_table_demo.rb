@@ -163,7 +163,6 @@ def output_examples
   EOS
 end
 
-
 def main
   check_coverage_data
   output_examples
