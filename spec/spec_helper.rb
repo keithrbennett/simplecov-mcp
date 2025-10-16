@@ -102,6 +102,14 @@ module TestIOHelpers
     $stdout = original_stdout
     $stderr = original_stderr
   end
+
+  # Stub staleness checking to return a specific value
+  # @param value [String, false] The staleness value to return ('L', 'T', 'M', or false)
+  def stub_staleness_check(value)
+    allow_any_instance_of(SimpleCovMcp::StalenessChecker)
+      .to receive(:stale_for_file?)
+      .and_return(value)
+  end
 end
 
 # CLI test helpers

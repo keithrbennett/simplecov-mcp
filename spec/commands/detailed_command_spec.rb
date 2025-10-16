@@ -30,6 +30,7 @@ RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
 
     it 'emits JSON when requested, including stale metadata' do
       cli_context.config.json = true
+      stub_staleness_check('L')
 
       json_output = nil
       silence_output do |stdout, _stderr|

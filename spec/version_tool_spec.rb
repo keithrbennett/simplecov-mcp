@@ -140,4 +140,3 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
     end
   end
 end
-

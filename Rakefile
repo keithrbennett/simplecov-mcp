@@ -20,4 +20,3 @@ rescue LoadError
     abort 'RuboCop is not installed. Add it to your bundle and run `bundle install`.'
   end
 end
-

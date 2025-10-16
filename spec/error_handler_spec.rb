@@ -65,4 +65,3 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     expect(logger.messages.join).to include('Error in test')
   end
 end
-

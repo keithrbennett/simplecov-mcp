@@ -60,7 +60,11 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     it 'propagates parsed created_at timestamps into stale errors' do
       file_mtime = File.mtime(File.join(root, 'lib', 'foo.rb'))
       created_at_time = (file_mtime + 3600).utc
-      mock_resultset_with_created_at(root, created_at_time.iso8601)
+      # Use mismatched coverage (3 lines instead of 4) to trigger staleness
+      mismatched_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil] }
+      }
+      mock_resultset_with_created_at(root, created_at_time.iso8601, coverage: mismatched_coverage)
 
       model = described_class.new(root: root, staleness: 'error')
 
