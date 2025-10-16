@@ -11,6 +11,7 @@ module SimpleCovMcp
           presenter = Presenters::CoverageSummaryPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
           break if emit_json_with_optional_source(data, model, path)
+
           relative_path = presenter.relative_path
           summary = data['summary']
           printf "%8.2f%%  %6d/%-6d  %s\n\n", summary['pct'], summary['covered'], summary['total'], relative_path

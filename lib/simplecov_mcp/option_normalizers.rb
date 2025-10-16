@@ -43,6 +43,7 @@ module SimpleCovMcp
       normalized = SORT_ORDER_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
       nil
     end
 
@@ -53,9 +54,11 @@ module SimpleCovMcp
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     def normalize_source_mode(value, strict: true)
       return :full if value.nil? || value == ''
+
       normalized = SOURCE_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
       nil
     end
 
@@ -68,6 +71,7 @@ module SimpleCovMcp
       normalized = STALE_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
       nil
     end
 
@@ -81,6 +85,7 @@ module SimpleCovMcp
       normalized = ERROR_MODE_MAP[value&.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
       default
     end
   end

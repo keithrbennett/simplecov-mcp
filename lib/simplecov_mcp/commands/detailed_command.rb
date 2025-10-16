@@ -12,6 +12,7 @@ module SimpleCovMcp
           presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
           break if emit_json_with_optional_source(data, model, path)
+
           relative_path = presenter.relative_path
           puts "File: #{relative_path}"
           puts source_formatter.format_detailed_rows(data['lines'])

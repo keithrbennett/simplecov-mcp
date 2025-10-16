@@ -94,6 +94,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
       singleton = class << described_class; self; end
       singleton.send(:define_method, :require) do |name|
         raise LoadError if name == 'simplecov'
+
         Kernel.require(name)
       end
 

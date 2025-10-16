@@ -645,6 +645,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
       responses = result[:stdout].lines.map do |line|
         next if line.strip.empty?
+
         begin
           parsed = JSON.parse(line)
           parsed if parsed['jsonrpc'] == '2.0'

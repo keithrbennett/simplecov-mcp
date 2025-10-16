@@ -28,6 +28,7 @@ module SimpleCovMcp
     # Raise CoverageDataStaleError if stale (only in error mode)
     def check_file!(file_abs, coverage_lines)
       return if off?
+
       d = compute_file_staleness_details(file_abs, coverage_lines)
       # For single-file checks, missing files with recorded coverage count as stale
       # via length mismatch; project-level checks also handle deleted files explicitly.
@@ -55,6 +56,7 @@ module SimpleCovMcp
       return 'M' unless d[:exists]
       return 'T' if d[:newer]
       return 'L' if d[:len_mismatch]
+
       false
     end
 
@@ -62,6 +64,7 @@ module SimpleCovMcp
     # tracked files are missing from coverage, or coverage includes deleted files.
     def check_project!(coverage_map)
       return if off?
+
       ts = coverage_timestamp
       newer = []
       deleted = []
@@ -112,6 +115,7 @@ module SimpleCovMcp
 
     def safe_count_lines(path)
       return 0 unless File.file?(path)
+
       File.foreach(path).count
     rescue StandardError
       0

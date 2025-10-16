@@ -262,6 +262,7 @@ module SimpleCovMcp
       if coverage_lines.nil?
         raise FileError.new("No coverage data found for file: #{path}")
       end
+
       [file_abs, coverage_lines]
       rescue Errno::ENOENT => e
         raise FileNotFoundError.new("File not found: #{path}")

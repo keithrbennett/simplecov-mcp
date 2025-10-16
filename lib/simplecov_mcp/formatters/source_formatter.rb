@@ -138,6 +138,7 @@ module SimpleCovMcp
 
       def colorize(text, color)
         return text unless color_enabled
+
         codes = { green: 32, red: 31, dim: 2 }
         code = codes[color] || 0
         "\e[#{code}m#{text}\e[0m"

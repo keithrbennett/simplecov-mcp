@@ -32,6 +32,7 @@ module SimpleCovMcp
       def resolve_candidate(path, strict:)
         return path if File.file?(path)
         return resolve_directory(path) if File.directory?(path)
+
         raise_not_found_error_for_file(path) if strict
         nil
       end
@@ -39,6 +40,7 @@ module SimpleCovMcp
       def resolve_directory(path)
         candidate = File.join(path, '.resultset.json')
         return candidate if File.file?(candidate)
+
         raise "No .resultset.json found in directory: #{path}"
       end
 

@@ -35,12 +35,14 @@ module SimpleCovMcp
 
       def maybe_output_json(obj, model)
         return false unless config.json
+
         puts JSON.pretty_generate(model.relativize(obj))
         true
       end
 
       def emit_json_with_optional_source(data, model, path)
         return false unless config.json
+
         relativized = model.relativize(data)
         if config.source_mode
           payload = relativized.merge('source' => build_source_payload(model, path))

@@ -11,6 +11,7 @@ module SimpleCovMcp
           presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
           break if maybe_output_json(data, model)
+
           relative_path = presenter.relative_path
           puts "File: #{relative_path}"
           puts data['lines'].inspect

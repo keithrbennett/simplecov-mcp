@@ -11,6 +11,7 @@ module SimpleCovMcp
           presenter = Presenters::CoverageUncoveredPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
           break if emit_json_with_optional_source(data, model, path)
+
           relative_path = presenter.relative_path
           puts "File:            #{relative_path}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"

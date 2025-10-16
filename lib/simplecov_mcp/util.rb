@@ -64,6 +64,7 @@ module SimpleCovMcp
 
       arr.each_with_index do |hits, i|
         next if hits.nil?
+
         out << (i + 1) if hits.to_i.zero?
       end
       out
