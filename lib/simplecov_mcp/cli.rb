@@ -110,7 +110,6 @@ module SimpleCovMcp
       pending_option = nil
 
       argv.each_with_index do |token, index|
-
         # skip the argument that belongs to the previous option
         if pending_option
           pending_option = nil

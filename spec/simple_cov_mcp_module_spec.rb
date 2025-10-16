@@ -12,5 +12,4 @@ RSpec.describe SimpleCovMcp do
       SimpleCovMcp.run(['--force-cli'])
     end
   end
-
 end

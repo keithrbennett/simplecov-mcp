@@ -172,7 +172,6 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(data['summary']['total']).to eq(3)
       expect(data['summary']['covered']).to eq(2)
     end
-
   end
 
   describe 'branch-only coverage resultsets' do
