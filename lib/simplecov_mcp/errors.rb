@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleCovMcp
-    # Base error class for all SimpleCov MCP errors
+  # Base error class for all SimpleCov MCP errors
   class Error < StandardError
     attr_reader :original_error
 
@@ -45,34 +45,34 @@ module SimpleCovMcp
     end
   end
 
-    # Configuration or setup related errors
+  # Configuration or setup related errors
   class ConfigurationError < Error
     def user_friendly_message
       "Configuration error: #{message}"
     end
   end
 
-    # File or path related errors
+  # File or path related errors
   class FileError < Error
     def user_friendly_message
       "File error: #{message}"
     end
   end
 
-    # More specific file errors
+  # More specific file errors
   class FileNotFoundError < FileError; end
   class FilePermissionError < FileError; end
   class NotAFileError < FileError; end
   class ResultsetNotFoundError < FileError; end
 
-    # Coverage data related errors
+  # Coverage data related errors
   class CoverageDataError < Error
     def user_friendly_message
       "Coverage data error: #{message}"
     end
   end
 
-    # Coverage data is present but appears stale compared to source files
+  # Coverage data is present but appears stale compared to source files
   class CoverageDataStaleError < CoverageDataError
     attr_reader :file_path, :file_mtime, :cov_timestamp, :src_len, :cov_len, :resultset_path
 
@@ -115,8 +115,8 @@ module SimpleCovMcp
     end
   end
 
-    # Project-level stale coverage (global) — coverage timestamp older than
-    # one or more source files, or new tracked files missing from coverage.
+  # Project-level stale coverage (global) — coverage timestamp older than
+  # one or more source files, or new tracked files missing from coverage.
   class CoverageDataProjectStaleError < CoverageDataError
     attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files, :resultset_path
 
@@ -164,7 +164,7 @@ module SimpleCovMcp
     end
   end
 
-    # Command line usage errors
+  # Command line usage errors
   class UsageError < Error
     def self.for_subcommand(usage_fragment)
       new("Usage: simplecov-mcp #{usage_fragment}")

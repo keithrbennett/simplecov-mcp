@@ -133,7 +133,7 @@ module SimpleCovMcp
       false
     end
 
-      # Returns formatted table string for all files coverage data
+    # Returns formatted table string for all files coverage data
     def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
       rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
       return 'No coverage data found' if rows.empty?
@@ -268,7 +268,7 @@ module SimpleCovMcp
         raise FileNotFoundError.new("File not found: #{path}")
     end
 
-      # staleness handled by StalenessChecker
+    # staleness handled by StalenessChecker
 
     def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
       # handled by StalenessChecker

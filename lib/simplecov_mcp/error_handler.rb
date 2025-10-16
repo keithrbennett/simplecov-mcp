@@ -5,7 +5,7 @@ require_relative 'errors'
 require_relative 'util'
 
 module SimpleCovMcp
-    # Handles error reporting and logging with configurable behavior
+  # Handles error reporting and logging with configurable behavior
   class ErrorHandler
     attr_accessor :error_mode, :logger
 
