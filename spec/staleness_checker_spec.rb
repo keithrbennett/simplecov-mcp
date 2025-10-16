@@ -18,7 +18,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       write_file(file, file_lines) if file_lines
 
       ts = if timestamp == :past
-             now = Time.now
+        now = Time.now
              past = Time.at(now.to_i - 3600)
              File.utime(past, past, file)
              now
