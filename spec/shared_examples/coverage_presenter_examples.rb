@@ -9,8 +9,10 @@ RSpec.shared_examples 'a coverage presenter' do |config|
   let(:relative_path) { config.fetch(:relative_path, 'lib/foo.rb') }
 
   before do
-    allow(model).to receive(config.fetch(:model_method)).with(config.fetch(:path, 'lib/foo.rb')).and_return(raw_payload)
-    allow(model).to receive(:staleness_for).with(config.fetch(:path, 'lib/foo.rb')).and_return(stale_value)
+    allow(model).to receive(config.fetch(:model_method)).with(config.fetch(:path, 
+      'lib/foo.rb')).and_return(raw_payload)
+    allow(model).to receive(:staleness_for).with(config.fetch(:path, 
+      'lib/foo.rb')).and_return(stale_value)
     allow(model).to receive(:relativize) do |payload|
       payload.merge('file' => relative_path)
     end

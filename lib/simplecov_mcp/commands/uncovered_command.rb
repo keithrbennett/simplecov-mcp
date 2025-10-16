@@ -16,7 +16,8 @@ module SimpleCovMcp
           puts "File:            #{relative_path}"
           puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           summary = data['summary']
-          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", summary['pct'], summary['covered'], summary['total']
+          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", summary['pct'], summary['covered'], 
+            summary['total']
           print_source_for(model, path) if config.source_mode
         end
       end

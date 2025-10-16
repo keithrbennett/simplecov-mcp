@@ -52,34 +52,49 @@ module SimpleCovMcp
 
     def define_options(o)
       o.separator 'Options:'
-      o.on('-r', '--resultset PATH', String, 'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') { |v| config.resultset = v }
+      o.on('-r', '--resultset PATH', String, 
+        'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') do |v|
+        config.resultset = v
+      end
       o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }
       o.on('-j', '--json', 'Output JSON for machine consumption') { config.json = true }
       o.on('-o', '--sort-order ORDER', String,
-           'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
+        'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
         config.sort_order = normalize_sort_order(v)
       end
       o.on('-s', '--source[=MODE]', String,
-           'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
+        'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
         config.source_mode = normalize_source_mode(v)
       end
-      o.on('-c', '--source-context N', Integer, 'For --source=uncovered, show N context lines (default: 2)') { |v| config.source_context = v }
+      o.on('-c', '--source-context N', Integer, 
+        'For --source=uncovered, show N context lines (default: 2)') do |v|
+         config.source_context = v
+      end
       o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
       o.on('--no-color', 'Disable ANSI colors') { config.color = false }
       o.on('-S', '--stale MODE', String,
-           'Staleness mode: o[ff]|e[rror] (default off)') do |v|
+        'Staleness mode: o[ff]|e[rror] (default off)') do |v|
         config.stale_mode = normalize_stale_mode(v)
       end
-      o.on('-g', '--tracked-globs x,y,z', Array, 'Globs for filtering files (list subcommand)') { |v| config.tracked_globs = v }
-      o.on('-l', '--log-file PATH', String, 'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') { |v| config.log_file = v }
+      o.on('-g', '--tracked-globs x,y,z', Array, 
+        'Globs for filtering files (list subcommand)') do |v|
+        config.tracked_globs = v
+      end
+      o.on('-l', '--log-file PATH', String,
+        'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') do |v|
+        config.log_file = v
+      end
       o.on('--error-mode MODE', String,
-           'Error handling mode: off|on|t[trace] (default on)') do |v|
+        'Error handling mode: off|on|t[trace] (default on)') do |v|
         config.error_mode = normalize_error_mode(v)
       end
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
       end
-      o.on('--success-predicate FILE', String, 'Ruby file returning callable; exits 0 if truthy, 1 if falsy') { |v| config.success_predicate = v }
+      o.on('--success-predicate FILE', String, 
+        'Ruby file returning callable; exits 0 if truthy, 1 if falsy') do |v|
+        config.success_predicate = v
+      end
     end
 
     def define_examples(o)

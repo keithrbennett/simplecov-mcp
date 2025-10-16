@@ -66,10 +66,13 @@ Layout/ExtraSpacing:
 Layout/TrailingWhitespace:
   Enabled: true
 
-# Layout cops we explicitly don't want enforced:
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
 
 Layout/ArgumentAlignment:
-  Enabled: false  # Don't enforce argument alignment
+  EnforcedStyle: with_fixed_indentation
+
+# Layout cops we explicitly don't want enforced:
 
 Layout/ClosingHeredocIndentation:
   Enabled: false  # Don't enforce heredoc closing delimiter indentation

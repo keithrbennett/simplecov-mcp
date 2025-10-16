@@ -34,7 +34,8 @@ module SimpleCovMcp
           .map do |name, data|
             SuiteEntry.new(
               name: name.to_s,
-              coverage: normalize_suite_coverage(data['coverage'], suite_name: name, resultset_path: resultset_path),
+              coverage: normalize_suite_coverage(data['coverage'], suite_name: name, 
+                resultset_path: resultset_path),
               timestamp: normalize_coverage_timestamp(data['timestamp'], data['created_at'])
             )
           end
@@ -65,7 +66,9 @@ module SimpleCovMcp
 
         suites.reduce(nil) do |memo, suite|
           coverage = suite.coverage
-          memo ? SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) : coverage
+          memo ? \
+            SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) : \
+            coverage
         end
       end
 

@@ -11,7 +11,8 @@ RSpec.describe 'MCP Mode Logging' do
 
     expect do
       SimpleCovMcp.run(argv)
-    end.to raise_error(SimpleCovMcp::ConfigurationError, /Logging to stdout is not permitted in MCP server mode/)
+    end.to raise_error(SimpleCovMcp::ConfigurationError, 
+      /Logging to stdout is not permitted in MCP server mode/)
   end
 
   it 'allows stderr logging in MCP mode' do

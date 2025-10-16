@@ -163,7 +163,8 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
     context 'with strict: false and default: :on' do
       it 'returns default for invalid values' do
-        expect(described_class.normalize_error_mode('invalid', strict: false, default: :on)).to eq(:on)
+        expect(described_class.normalize_error_mode('invalid', strict: false, 
+          default: :on)).to eq(:on)
       end
 
       it 'returns default for nil' do
@@ -177,7 +178,8 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
     context 'with custom default' do
       it 'returns custom default for invalid values when not strict' do
-        expect(described_class.normalize_error_mode('invalid', strict: false, default: :off)).to eq(:off)
+        expect(described_class.normalize_error_mode('invalid', strict: false, 
+          default: :off)).to eq(:off)
       end
     end
   end

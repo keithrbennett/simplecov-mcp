@@ -9,8 +9,10 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   describe 'initialization error handling' do
     it 'raises FileError when File.read raises Errno::ENOENT directly' do
       # Stub find_resultset to return a path, but File.read to raise ENOENT
-      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_return('/some/path/.resultset.json')
-      allow(File).to receive(:read).with('/some/path/.resultset.json').and_raise(Errno::ENOENT, 'No such file')
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset)
+        .and_return('/some/path/.resultset.json')
+      allow(File).to receive(:read).with('/some/path/.resultset.json')
+        .and_raise(Errno::ENOENT, 'No such file')
 
       expect do
         described_class.new(root: root, resultset: '/some/path/.resultset.json')
@@ -73,13 +75,14 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   describe 'staleness_for' do
     it 'returns the staleness character for a file' do
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?) do |_, file_abs, _|
-        if file_abs == File.expand_path('lib/foo.rb', root)
-          'T'
-        else
-          false
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker)
+        .to receive(:stale_for_file?) do |_, file_abs, _|
+          if file_abs == File.expand_path('lib/foo.rb', root)
+            'T'
+          else
+            false
+          end
         end
-      end
 
       expect(model.staleness_for('lib/foo.rb')).to eq('T')
       expect(model.staleness_for('lib/bar.rb')).to eq(false)
@@ -87,7 +90,8 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
     it 'returns false when an exception occurs during staleness check' do
       # Stub the checker to raise an error
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?).and_raise(StandardError, 'Something went wrong')
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?)
+        .and_raise(StandardError, 'Something went wrong')
 
       # The rescue clause should catch the error and return false
       expect(model.staleness_for('lib/foo.rb')).to eq(false)
@@ -129,7 +133,13 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       # Create a custom row with a path from a Windows-style drive (C:/) that will cause ArgumentError
       # when trying to make it relative to a Unix-style root
       custom_rows = [
-        { 'file' => 'C:/Windows/system32/file.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false }
+        {
+          'file' => 'C:/Windows/system32/file.rb',
+          'percentage' => 100.0,
+          'covered' => 10,
+          'total' => 10,
+          'stale' => false
+        }
       ]
 
       # This should trigger the ArgumentError rescue in filter_rows_by_globs
@@ -154,7 +164,8 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     it 'converts Errno::ENOENT to FileNotFoundError during resolve' do
       # We need to trigger Errno::ENOENT inside the resolve method
       # Stub the checker's check_file! method to raise Errno::ENOENT
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:check_file!).and_raise(Errno::ENOENT, 'No such file or directory')
+      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:check_file!)
+        .and_raise(Errno::ENOENT, 'No such file or directory')
 
       # Create a model with staleness checking enabled to trigger the check_file! call
       stale_model = described_class.new(root: root, staleness: 'error')
@@ -222,68 +233,73 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   end
 
   describe 'multiple suites in resultset' do
-  let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
+    let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
 
-  before do
-    allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do |original, search_root, resultset: nil|
-      if File.absolute_path(search_root) == File.absolute_path(root) && (resultset.nil? || resultset.to_s.empty?)
-        resultset_path
-      else
-        original.call(search_root, resultset: resultset)
+    before do
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do \
+        |original, search_root, resultset: nil|
+        root_match = File.absolute_path(search_root) == File.absolute_path(root)
+        resultset_empty = resultset.nil? || resultset.to_s.empty?
+        if root_match && resultset_empty
+          resultset_path
+        else
+          original.call(search_root, resultset: resultset)
+        end
       end
+      allow(File).to receive(:read).and_call_original
     end
-    allow(File).to receive(:read).and_call_original
+
+    it 'merges coverage data from multiple suites while keeping latest timestamp' do
+      suite_a_cov = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
+      }
+      suite_b_cov = {
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 1, 1] }
+      }
+
+      resultset = {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
+      }
+
+      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+
+      model = described_class.new(root: root)
+      files = model.all_files(sort_order: :ascending)
+
+      expect(files.map { |f| File.basename(f['file']) }).to include('foo.rb', 'bar.rb')
+
+      timestamp = model.instance_variable_get(:@cov_timestamp)
+      expect(timestamp).to eq(200)
+    end
+
+    it 'combines coverage arrays when the same file appears in multiple suites' do
+      shared_file = File.join(root, 'lib', 'foo.rb')
+      suite_a_cov = {
+        shared_file => { 'lines' => [1, 0, nil, 0] }
+      }
+      suite_b_cov = {
+        shared_file => { 'lines' => [0, 3, nil, 1] }
+      }
+
+      resultset = {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 150, 'coverage' => suite_b_cov }
+      }
+
+      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+
+      model = described_class.new(root: root)
+      detailed = model.detailed_for('lib/foo.rb')
+      hits_by_line = detailed['lines'].each_with_object({}) do |row, acc|
+        acc[row['line']] = row['hits']
+      end
+
+      expect(hits_by_line[1]).to eq(1)
+      expect(hits_by_line[2]).to eq(3)
+      expect(hits_by_line[4]).to eq(1)
+    end
   end
-
-  it 'merges coverage data from multiple suites while keeping latest timestamp' do
-    suite_a_cov = {
-      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
-    }
-    suite_b_cov = {
-      File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 1, 1] }
-    }
-
-    resultset = {
-      'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
-      'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
-    }
-
-    allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
-
-    model = described_class.new(root: root)
-    files = model.all_files(sort_order: :ascending)
-
-    expect(files.map { |f| File.basename(f['file']) }).to include('foo.rb', 'bar.rb')
-
-    timestamp = model.instance_variable_get(:@cov_timestamp)
-    expect(timestamp).to eq(200)
-  end
-
-  it 'combines coverage arrays when the same file appears in multiple suites' do
-    shared_file = File.join(root, 'lib', 'foo.rb')
-    suite_a_cov = {
-      shared_file => { 'lines' => [1, 0, nil, 0] }
-    }
-    suite_b_cov = {
-      shared_file => { 'lines' => [0, 3, nil, 1] }
-    }
-
-    resultset = {
-      'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
-      'Cucumber' => { 'timestamp' => 150, 'coverage' => suite_b_cov }
-    }
-
-    allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
-
-    model = described_class.new(root: root)
-    detailed = model.detailed_for('lib/foo.rb')
-    hits_by_line = detailed['lines'].each_with_object({}) { |row, acc| acc[row['line']] = row['hits'] }
-
-    expect(hits_by_line[1]).to eq(1)
-    expect(hits_by_line[2]).to eq(3)
-    expect(hits_by_line[4]).to eq(1)
-  end
-end
 
   describe 'format_table' do
     it 'returns a formatted table string with all files coverage data' do
@@ -310,9 +326,27 @@ end
 
     it 'accepts custom rows parameter' do
       custom_rows = [
-        { 'file' => '/path/to/file1.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 'stale' => false },
-        { 'file' => '/path/to/file2.rb', 'percentage' => 50.0, 'covered' => 5, 'total' => 10, 'stale' => 'M' },
-        { 'file' => '/path/to/file3.rb', 'percentage' => 75.0, 'covered' => 15, 'total' => 20, 'stale' => 'T' }
+        {
+          'file' => '/path/to/file1.rb',
+          'percentage' => 100.0,
+          'covered' => 10,
+          'total' => 10,
+          'stale' => false
+        },
+        {
+          'file' => '/path/to/file2.rb',
+          'percentage' => 50.0,
+          'covered' => 5,
+          'total' => 10,
+          'stale' => 'M'
+        },
+        {
+          'file' => '/path/to/file3.rb',
+          'percentage' => 75.0,
+          'covered' => 15,
+          'total' => 20,
+          'stale' => 'T'
+        }
       ]
 
       output = model.format_table(custom_rows)
@@ -326,7 +360,9 @@ end
       expect(output).to include('M')
       expect(output).to include('T')
       expect(output).not_to include('!')
-      expect(output).to include('Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch')
+      staleness_msg = 'Staleness: M = Missing file, T = Timestamp (source newer), ' \
+                      'L = Line count mismatch'
+      expect(output).to include(staleness_msg)
     end
 
     it 'accepts sort_order parameter' do

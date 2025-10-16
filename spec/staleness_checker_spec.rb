@@ -12,7 +12,15 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     File.open(path, 'w') { |f| lines.each { |l| f.puts(l) } }
   end
 
-  shared_examples 'a staleness check' do |description:, file_lines:, coverage_lines:, timestamp:, expected_details:, expected_stale_char:, expected_error:|
+  shared_examples 'a staleness check' do |
+    description:,
+    file_lines:,
+    coverage_lines:,
+    timestamp:,
+    expected_details:,
+    expected_stale_char:,
+    expected_error:
+  |
     it description do
       file = File.join(tmpdir, 'lib', 'test.rb')
       write_file(file, file_lines) if file_lines
@@ -22,11 +30,12 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
         past = Time.at(now.to_i - 3600)
         File.utime(past, past, file)
         now
-           else
-             timestamp
+      else
+        timestamp
       end
 
-      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
+      checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error',
+        tracked_globs: nil, timestamp: ts)
 
       details = checker.send(:compute_file_staleness_details, file, coverage_lines)
 
@@ -50,44 +59,74 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
   context 'compute_file_staleness_details' do
     include_examples 'a staleness check',
-                     description: 'detects newer file vs coverage timestamp',
-                     file_lines: ['a', 'b'],
-                     coverage_lines: [1, 1],
-                     timestamp: Time.at(Time.now.to_i - 3600),
-                     expected_details: { exists: true, cov_len: 2, src_len: 2, newer: true, len_mismatch: false, file_mtime: :any, coverage_timestamp: :any },
-                     expected_stale_char: 'T',
-                     expected_error: SimpleCovMcp::CoverageDataStaleError
+      description: 'detects newer file vs coverage timestamp',
+      file_lines: ['a', 'b'],
+      coverage_lines: [1, 1],
+      timestamp: Time.at(Time.now.to_i - 3600),
+      expected_details: {
+        exists: true,
+        cov_len: 2,
+        src_len: 2,
+        newer: true,
+        len_mismatch: false,
+        file_mtime: :any,
+        coverage_timestamp: :any
+      },
+      expected_stale_char: 'T',
+      expected_error: SimpleCovMcp::CoverageDataStaleError
 
     include_examples 'a staleness check',
-                     description: 'detects length mismatch between source and coverage',
-                     file_lines: ['a', 'b', 'c', 'd'],
-                     coverage_lines: [1, 1],
-                     timestamp: Time.now,
-                     expected_details: { exists: true, cov_len: 2, src_len: 4, newer: false, len_mismatch: true, file_mtime: :any, coverage_timestamp: :any },
-                     expected_stale_char: 'L',
-                     expected_error: SimpleCovMcp::CoverageDataStaleError
+      description: 'detects length mismatch between source and coverage',
+      file_lines: ['a', 'b', 'c', 'd'],
+      coverage_lines: [1, 1],
+      timestamp: Time.now,
+      expected_details: {
+        exists: true,
+        cov_len: 2,
+        src_len: 4,
+        newer: false,
+        len_mismatch: true,
+        file_mtime: :any,
+        coverage_timestamp: :any
+      },
+      expected_stale_char: 'L',
+      expected_error: SimpleCovMcp::CoverageDataStaleError
 
     include_examples 'a staleness check',
-                     description: 'treats missing file as stale',
-                     file_lines: nil,
-                     coverage_lines: [1, 1, 1],
-                     timestamp: Time.now,
-                     expected_details: { exists: false, newer: false, len_mismatch: true, file_mtime: nil, coverage_timestamp: :any },
-                     expected_stale_char: 'M',
-                     expected_error: SimpleCovMcp::CoverageDataStaleError
+      description: 'treats missing file as stale',
+      file_lines: nil,
+      coverage_lines: [1, 1, 1],
+      timestamp: Time.now,
+      expected_details: {
+        exists: false,
+        newer: false,
+        len_mismatch: true,
+        file_mtime: nil,
+        coverage_timestamp: :any
+      },
+      expected_stale_char: 'M',
+      expected_error: SimpleCovMcp::CoverageDataStaleError
 
     include_examples 'a staleness check',
-                     description: 'is not stale when timestamps and lengths match',
-                     file_lines: ['a', 'b', 'c'],
-                     coverage_lines: [1, 0, nil],
-                     timestamp: :past,
-                     expected_details: { exists: true, newer: false, len_mismatch: false, file_mtime: :any, coverage_timestamp: :any },
-                     expected_stale_char: false,
-                     expected_error: nil
+      description: 'is not stale when timestamps and lengths match',
+      file_lines: ['a', 'b', 'c'],
+      coverage_lines: [1, 0, nil],
+      timestamp: :past,
+      expected_details: {
+        exists: true,
+        newer: false,
+        len_mismatch: false,
+        file_mtime: :any,
+        coverage_timestamp: :any
+      },
+      expected_stale_char: false,
+      expected_error: nil
   end
 
   context 'missing_trailing_newline? edge cases' do
-    let(:checker) { described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now) }
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
+    end
 
     it 'detects file without trailing newline' do
       file = File.join(tmpdir, 'no_newline.rb')
@@ -154,7 +193,9 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
   end
 
   context 'line count adjustment with missing trailing newline' do
-    let(:checker) { described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now) }
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
+    end
 
     it 'adjusts line count when file has no trailing newline and counts differ by 1' do
       file = File.join(tmpdir, 'adjust.rb')
@@ -206,7 +247,9 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
   end
 
   context 'safe_count_lines edge cases' do
-    let(:checker) { described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now) }
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
+    end
 
     it 'returns 0 for non-existent file' do
       file = File.join(tmpdir, 'nonexistent.rb')
@@ -245,7 +288,9 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
   end
 
   context 'rel method with path prefix mismatches' do
-    let(:checker) { described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now) }
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
+    end
 
     it 'returns relative path for files within project root' do
       file_inside = File.join(tmpdir, 'lib', 'test.rb')
@@ -256,7 +301,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       # Test the specific ArgumentError scenario: absolute path vs relative root
       # This simulates the bug scenario where coverage data has absolute paths
       # but the root is somehow processed as relative (edge case)
-      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'off', timestamp: Time.now)
+      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'off',
+        timestamp: Time.now)
 
       # Override the @root to simulate the edge case where it's still relative
       checker_with_relative_root.instance_variable_set(:@root, './subdir')
@@ -264,7 +310,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       file_absolute = '/opt/shared_libs/utils/validation.rb'
 
       # This should trigger the ArgumentError rescue and return the absolute path
-      expect(checker_with_relative_root.send(:rel, file_absolute)).to eq('/opt/shared_libs/utils/validation.rb')
+      expect(checker_with_relative_root.send(:rel, file_absolute)) \
+        .to eq('/opt/shared_libs/utils/validation.rb')
     end
 
     it 'handles relative file paths with absolute root' do
@@ -278,7 +325,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       # Test the specific case where rel() would crash with ArgumentError
       # Instead of testing the full check_file! flow, just test that rel() works
 
-      checker_with_edge_case = described_class.new(root: '.', resultset: nil, mode: 'off', timestamp: Time.now)
+      checker_with_edge_case = described_class.new(root: '.', resultset: nil, mode: 'off',
+        timestamp: Time.now)
       checker_with_edge_case.instance_variable_set(:@root, './subdir')
 
       file_outside = '/opt/company_gem/lib/core.rb'
@@ -304,7 +352,8 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
     it 'allows project-level staleness checks to handle coverage outside root' do
       future_time = Time.at(Time.now.to_i + 3600)
-      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'error', timestamp: future_time)
+      checker_with_relative_root = described_class.new(root: '.', resultset: nil, mode: 'error',
+        timestamp: future_time)
       checker_with_relative_root.instance_variable_set(:@root, './subdir')
 
       external_dir = Dir.mktmpdir('scmcp-outside')

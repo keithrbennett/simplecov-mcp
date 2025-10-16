@@ -9,8 +9,20 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
   let(:tracked_globs) { ['lib/**/*.rb'] }
   let(:files) do
     [
-      { 'file' => '/abs/path/lib/foo.rb', 'covered' => 5, 'total' => 6, 'percentage' => 83.33, 'stale' => false },
-      { 'file' => '/abs/path/lib/bar.rb', 'covered' => 1, 'total' => 6, 'percentage' => 16.67, 'stale' => 'L' }
+      {
+        'file' => '/abs/path/lib/foo.rb',
+        'covered' => 5,
+        'total' => 6,
+        'percentage' => 83.33,
+        'stale' => false
+      },
+      {
+        'file' => '/abs/path/lib/bar.rb',
+        'covered' => 1,
+        'total' => 6,
+        'percentage' => 16.67,
+        'stale' => 'L'
+      }
     ]
   end
 
@@ -24,7 +36,8 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
   end
 
   before do
-    allow(model).to receive(:all_files).with(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs).and_return(files)
+    allow(model).to receive(:all_files).with(sort_order: sort_order, check_stale: check_stale,
+      tracked_globs: tracked_globs).and_return(files)
     allow(model).to receive(:relativize) do |payload|
       relativizer = SimpleCovMcp::PathRelativizer.new(
         root: '/abs/path',

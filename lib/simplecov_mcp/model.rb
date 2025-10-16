@@ -64,7 +64,7 @@ module SimpleCovMcp
         # RuntimeError from find_resultset or other operations
         raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
       end
-  end
+    end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
     def raw_for(path)
@@ -85,13 +85,21 @@ module SimpleCovMcp
     # Returns { 'file' => <absolute_path>, 'uncovered' => [line,...], 'summary' => {...} }
     def uncovered_for(path)
       file_abs, coverage_lines = resolve(path)
-      { 'file' => file_abs, 'uncovered' => CovUtil.uncovered(coverage_lines), 'summary' => CovUtil.summary(coverage_lines) }
+      {
+        'file' => file_abs,
+        'uncovered' => CovUtil.uncovered(coverage_lines),
+        'summary' => CovUtil.summary(coverage_lines)
+      }
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [{'line'=>,'hits'=>,'covered'=>},...], 'summary' => {...} }
     def detailed_for(path)
       file_abs, coverage_lines = resolve(path)
-      { 'file' => file_abs, 'lines' => CovUtil.detailed(coverage_lines), 'summary' => CovUtil.summary(coverage_lines) }
+      {
+        'file' => file_abs,
+        'lines' => CovUtil.detailed(coverage_lines),
+        'summary' => CovUtil.summary(coverage_lines)
+      }
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
@@ -107,7 +115,13 @@ module SimpleCovMcp
 
         s = CovUtil.summary(coverage_lines)
         stale = stale_checker.stale_for_file?(abs_path, coverage_lines)
-        { 'file' => abs_path, 'covered' => s['covered'], 'total' => s['total'], 'percentage' => s['pct'], 'stale' => stale }
+        {
+          'file' => abs_path,
+          'covered' => s['covered'],
+          'total' => s['total'],
+          'percentage' => s['pct'],
+          'stale' => stale
+        }
       end.compact
 
       rows = filter_rows_by_globs(rows, tracked_globs)
@@ -134,8 +148,10 @@ module SimpleCovMcp
     end
 
     # Returns formatted table string for all files coverage data
-    def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-      rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+    def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?,
+      tracked_globs: nil)
+      rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale,
+        tracked_globs: tracked_globs)
       return 'No coverage data found' if rows.empty?
 
       widths = compute_table_widths(rows)
@@ -189,7 +205,13 @@ module SimpleCovMcp
       covered_width = [max_covered, 'Covered'.length].max + 2
       total_width = [max_total, 'Total'.length].max + 2
       stale_width = 'Stale'.length
-      { file: file_width, pct: pct_width, covered: covered_width, total: total_width, stale: stale_width }
+      {
+        file: file_width,
+        pct: pct_width,
+        covered: covered_width,
+        total: total_width,
+        stale: stale_width
+      }
     end
 
     def border_line(widths, left, middle, right)
@@ -264,8 +286,8 @@ module SimpleCovMcp
       end
 
       [file_abs, coverage_lines]
-      rescue Errno::ENOENT => e
-        raise FileNotFoundError.new("File not found: #{path}")
+    rescue Errno::ENOENT => e
+      raise FileNotFoundError.new("File not found: #{path}")
     end
 
     # staleness handled by StalenessChecker

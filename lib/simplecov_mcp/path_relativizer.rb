@@ -36,7 +36,9 @@ module SimpleCovMcp
       if @scalar_keys.include?(key_str) && value.is_a?(String)
         relativize_path(value)
       elsif @array_keys.include?(key_str) && value.is_a?(Array)
-        value.map { |item| item.is_a?(String) ? relativize_path(item) : deep_copy_and_relativize(item) }
+        value.map do |item|
+          item.is_a?(String) ? relativize_path(item) : deep_copy_and_relativize(item)
+        end
       else
         deep_copy_and_relativize(value)
       end

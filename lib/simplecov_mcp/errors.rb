@@ -76,7 +76,8 @@ module SimpleCovMcp
   class CoverageDataStaleError < CoverageDataError
     attr_reader :file_path, :file_mtime, :cov_timestamp, :src_len, :cov_len, :resultset_path
 
-    def initialize(message = nil, original_error = nil, file_path: nil, file_mtime: nil, cov_timestamp: nil, src_len: nil, cov_len: nil, resultset_path: nil)
+    def initialize(message = nil, original_error = nil, file_path: nil, file_mtime: nil, 
+      cov_timestamp: nil, src_len: nil, cov_len: nil, resultset_path: nil)
       super(message, original_error)
       @file_path = file_path
       @file_mtime = file_mtime
@@ -120,7 +121,8 @@ module SimpleCovMcp
   class CoverageDataProjectStaleError < CoverageDataError
     attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files, :resultset_path
 
-    def initialize(message = nil, original_error = nil, cov_timestamp: nil, newer_files: [], missing_files: [], deleted_files: [], resultset_path: nil)
+    def initialize(message = nil, original_error = nil, cov_timestamp: nil, newer_files: [], 
+      missing_files: [], deleted_files: [], resultset_path: nil)
       super(message, original_error)
       @cov_timestamp = cov_timestamp
       @newer_files = Array(newer_files)

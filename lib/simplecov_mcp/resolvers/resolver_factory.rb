@@ -7,7 +7,9 @@ module SimpleCovMcp
   module Resolvers
     class ResolverFactory
       def self.create_resultset_resolver(root: Dir.pwd, resultset: nil, candidates: nil)
-        resolver_class = candidates ? ResultsetPathResolver.new(root: root, candidates: candidates) : ResultsetPathResolver.new(root: root)
+        candidates ? \
+          ResultsetPathResolver.new(root: root, candidates: candidates) : \
+          ResultsetPathResolver.new(root: root)
       end
 
       def self.create_coverage_resolver(cov_data)

@@ -11,7 +11,7 @@ your name (e.g. 'codex, claude, gemini, zai)
 
 At the end, produce a markdown table that summarizes the issues, in descending order of importance, including as columns:
 
-- brief description (prefereably <= 50 chars)
+- brief description (preferably <= 50 chars)
 - importance rating (10 to 1)
 - effort rating (1 to 10)
 - link to detail for that item

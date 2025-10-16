@@ -19,7 +19,8 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
     data = JSON.parse(payload['text'])
     tool_names = data['tools'].map { |entry| entry['tool'] }
 
-    expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool', 'all_files_coverage_tool', 'coverage_table_tool', 'version_tool')
+    expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool', 
+      'all_files_coverage_tool', 'coverage_table_tool', 'version_tool')
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs', 'example'))
   end
 
@@ -31,7 +32,8 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
 
     expect(data['tools']).not_to be_empty
     expect(data['tools']).to all(satisfy do |entry|
-      combined = [entry['tool'], entry['label'], entry['use_when'], entry['avoid_when']].compact.join(' ').downcase
+      combined = [entry['tool'], entry['label'], entry['use_when'], 
+        entry['avoid_when']].compact.join(' ').downcase
       combined.include?('uncovered')
     end)
     expect(data['tools'].map { |entry| entry['tool'] }).to include('uncovered_lines_tool')

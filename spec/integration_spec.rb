@@ -263,7 +263,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       silence_output do |out, err|
         begin
           cli = SimpleCovMcp::CoverageCLI.new
-          cli.run(['summary', 'lib/nonexistent.rb', '--root', project_root, '--resultset', coverage_dir])
+          cli.run(['summary', 'lib/nonexistent.rb', '--root', project_root, '--resultset', 
+            coverage_dir])
           status = 0
         rescue SystemExit => e
           status = e.status
@@ -637,7 +638,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'handles multiple sequential requests' do
       requests = [
         { jsonrpc: '2.0', id: 100, method: 'tools/list' },
-        { jsonrpc: '2.0', id: 101, method: 'tools/call', params: { name: 'version_tool', arguments: {} } }
+        { jsonrpc: '2.0', id: 101, method: 'tools/call',
+          params: { name: 'version_tool', arguments: {} } }
       ]
 
       result = run_mcp_json_stream(requests, timeout: 5)

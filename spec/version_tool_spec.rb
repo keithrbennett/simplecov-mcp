@@ -82,7 +82,8 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
     context 'when an error occurs' do
       it 'handles VERSION constant access errors and returns structured error response' do
         # Force an error by overriding const_get to raise an error when VERSION is accessed
-        allow(SimpleCovMcp).to receive(:const_missing).with(:VERSION).and_raise(StandardError, 'Version access error')
+        allow(SimpleCovMcp).to receive(:const_missing).with(:VERSION).and_raise(StandardError, 
+          'Version access error')
 
         # Clear the cached VERSION constant to trigger const_missing
         SimpleCovMcp.send(:remove_const, :VERSION) if SimpleCovMcp.const_defined?(:VERSION)
