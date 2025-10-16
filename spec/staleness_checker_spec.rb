@@ -24,7 +24,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
         now
            else
              timestamp
-           end
+      end
 
       checker = described_class.new(root: tmpdir, resultset: nil, mode: 'error', tracked_globs: nil, timestamp: ts)
 

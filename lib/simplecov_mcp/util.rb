@@ -78,5 +78,5 @@ module SimpleCovMcp
       end
       rows
     end
-end
+  end
 end
