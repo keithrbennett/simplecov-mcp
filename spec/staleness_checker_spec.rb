@@ -19,9 +19,9 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
 
       ts = if timestamp == :past
         now = Time.now
-             past = Time.at(now.to_i - 3600)
-             File.utime(past, past, file)
-             now
+        past = Time.at(now.to_i - 3600)
+        File.utime(past, past, file)
+        now
            else
              timestamp
            end
