@@ -5,30 +5,30 @@ module SimpleCovMcp
   # Provides both strict (raise on invalid) and lenient (default on invalid) modes.
   module OptionNormalizers
     SORT_ORDER_MAP = {
-      'a'          => :ascending,
-      'ascending'  => :ascending,
-      'd'          => :descending,
+      'a' => :ascending,
+      'ascending' => :ascending,
+      'd' => :descending,
       'descending' => :descending
     }.freeze
 
     SOURCE_MODE_MAP = {
-      'f'         => :full,
-      'full'      => :full,
-      'u'         => :uncovered,
+      'f' => :full,
+      'full' => :full,
+      'u' => :uncovered,
       'uncovered' => :uncovered
     }.freeze
 
     STALE_MODE_MAP = {
-      'o'     => :off,
-      'off'   => :off,
-      'e'     => :error,
+      'o' => :off,
+      'off' => :off,
+      'e' => :error,
       'error' => :error
     }.freeze
 
     ERROR_MODE_MAP = {
-      'off'   => :off,
-      'on'    => :on,
-      't'     => :trace,
+      'off' => :off,
+      'on' => :on,
+      't' => :trace,
       'trace' => :trace
     }.freeze
 

@@ -9,9 +9,9 @@ module SimpleCovMcp
     def run
       SimpleCovMcp.with_context(context) do
         server = ::MCP::Server.new(
-          name:    'simplecov-mcp',
+          name: 'simplecov-mcp',
           version: SimpleCovMcp::VERSION,
-          tools:   toolset
+          tools: toolset
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
       end

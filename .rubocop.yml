@@ -45,8 +45,8 @@ Layout/SpaceInsideBlockBraces:
   EnforcedStyle: space
 
 Layout/HashAlignment:
-  EnforcedHashRocketStyle: separator
-  EnforcedColonStyle: separator
+  EnforcedHashRocketStyle: key
+  EnforcedColonStyle: key
 
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
