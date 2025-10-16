@@ -14,6 +14,7 @@ module Spec
       # collects stdout, stderr, and the exit status with a timeout. The helper
       # always returns a hash containing those streams plus the `Process::Status`
       # so callers can make assertions without duplicating the boilerplate.
+
       module_function
 
       def call(requests: nil, input: nil, env: {}, lib_path:, exe_path:, timeout: 5, close_stdin: true)
