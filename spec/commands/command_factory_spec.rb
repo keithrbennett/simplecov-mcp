@@ -24,8 +24,11 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
 
     context 'with unknown command name' do
       [
-        ['invalid_cmd', 'invalid command',
-           /list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version/],
+        [
+          'invalid_cmd',
+          'invalid command',
+          /list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version/
+        ],
         [nil,           'nil command',            nil],
         ['',            'empty string command',   nil],
         ['sumary',      'misspelled command',     nil]

@@ -141,6 +141,7 @@ module MCPToolTestHelpers
     # Standardized MCP::Tool::Response stub that works for all tools
     response_class = Class.new do
       attr_reader :payload, :meta
+
       def initialize(payload, meta: nil)
         @payload = payload
         @meta = meta

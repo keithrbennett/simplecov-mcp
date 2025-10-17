@@ -23,6 +23,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
         attr_accessor :last_instance
       end
       attr_reader :params
+
       def initialize(name:, version:, tools:)
         @params = { name: name, version: version, tools: tools }
         self.class.last_instance = self
@@ -40,6 +41,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
         attr_accessor :last_instance
       end
       attr_reader :server, :opened
+
       def initialize(server)
         @server = server
         @opened = false

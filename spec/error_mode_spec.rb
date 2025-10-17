@@ -6,6 +6,7 @@ RSpec.describe 'Error Mode System' do
   let(:test_logger) do
     Class.new do
       attr_reader :messages
+
       def initialize; @messages = []; end
       def error(msg); @messages << msg; end
     end.new
