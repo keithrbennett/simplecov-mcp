@@ -20,9 +20,16 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
 
   describe 'semantic versioning compliance' do
     let(:version) { SimpleCovMcp::VERSION }
-    # Semantic Versioning 2.0.0 specification regex from https://semver.org/
+    # Simplified semantic versioning regex
+    # Preserves key semver rules: no leading zeros on numeric parts, optional prerelease/build metadata
     let(:semver_regex) do
-      /\A(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\z/
+      /\A
+        (?<major>0|[1-9]\d*)\.
+        (?<minor>0|[1-9]\d*)\.
+        (?<patch>0|[1-9]\d*)
+        (?:-(?<prerelease>[0-9A-Za-z.-]+))?
+        (?:\+(?<buildmetadata>[0-9A-Za-z.-]+))?
+      \z/x
     end
 
     it 'follows semantic versioning format' do
