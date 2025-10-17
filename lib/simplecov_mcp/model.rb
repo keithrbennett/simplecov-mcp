@@ -159,7 +159,7 @@ module SimpleCovMcp
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
       if rows.any? { |f| f['stale'] }
-        lines << 
+        lines <<
           'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
       end
       lines.join("\n")
@@ -189,7 +189,7 @@ module SimpleCovMcp
     def sort_rows(rows, sort_order: :ascending)
       rows.sort do |a, b|
         pct_cmp = (sort_order == :descending) \
-                    ? (b['percentage'] <=> a['percentage']) 
+                    ? (b['percentage'] <=> a['percentage'])
                     : (a['percentage'] <=> b['percentage'])
         pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
       end

@@ -310,7 +310,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       file_absolute = '/opt/shared_libs/utils/validation.rb'
 
       # This should trigger the ArgumentError rescue and return the absolute path
-      expect(checker_with_relative_root.send(:rel, file_absolute)) 
+      expect(checker_with_relative_root.send(:rel, file_absolute))
         .to eq('/opt/shared_libs/utils/validation.rb')
     end
 

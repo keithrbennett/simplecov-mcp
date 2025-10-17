@@ -82,7 +82,7 @@ RSpec.describe 'Error Mode System' do
 
       # Test different error modes
       [:off, :on, :trace].each do |mode|
-        expect(SimpleCovMcp::ErrorHandlerFactory) 
+        expect(SimpleCovMcp::ErrorHandlerFactory)
           .to receive(:for_mcp_server).with(error_mode: mode).and_call_original
 
         response = SimpleCovMcp::BaseTool.handle_mcp_error(test_error, 'TestTool', error_mode: mode)

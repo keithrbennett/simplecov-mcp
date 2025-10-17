@@ -7,8 +7,8 @@ module SimpleCovMcp
   module Resolvers
     class ResolverFactory
       def self.create_resultset_resolver(root: Dir.pwd, resultset: nil, candidates: nil)
-        candidates ? 
-          ResultsetPathResolver.new(root: root, candidates: candidates) : 
+        candidates ?
+          ResultsetPathResolver.new(root: root, candidates: candidates) :
           ResultsetPathResolver.new(root: root)
       end
 

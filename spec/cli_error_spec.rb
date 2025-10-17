@@ -134,7 +134,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'suggests subcommand for --subcommand-like option' do
       _out, err, status = run_cli_with_status('--summary')
       expect(status).to eq(1)
-      expect(err).to include( 
+      expect(err).to include(
         "Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?"
       )
       expect(err).to include('Try: simplecov-mcp summary [args]')

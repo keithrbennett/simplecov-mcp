@@ -17,7 +17,7 @@ module SimpleCovMcp
         properties: {
           error_mode: {
             type: 'string',
-            description: 
+            description:
               "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
             enum: ['off', 'on', 'trace'],
             default: 'on'

@@ -236,7 +236,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
 
     before do
-      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do 
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do
         |original, search_root, resultset: nil|
         root_match = File.absolute_path(search_root) == File.absolute_path(root)
         resultset_empty = resultset.nil? || resultset.to_s.empty?

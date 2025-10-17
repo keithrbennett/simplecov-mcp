@@ -41,7 +41,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
       it 'handles complex shell escaping scenarios' do
         ENV['SIMPLECOV_MCP_OPTS'] = '--resultset "/path/with spaces/file.json" --error-mode on'
-        expect(parser.parse_env_opts) 
+        expect(parser.parse_env_opts)
           .to eq(['--resultset', '/path/with spaces/file.json', '--error-mode', 'on'])
       end
 
