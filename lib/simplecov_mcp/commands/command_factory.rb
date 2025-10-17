@@ -24,7 +24,8 @@ module SimpleCovMcp
         command_class = COMMAND_MAP[command_name]
         unless command_class
           raise UsageError.for_subcommand(\
-            'list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version')
+            'list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version'
+          )
         end
 
         command_class.new(cli_context)
