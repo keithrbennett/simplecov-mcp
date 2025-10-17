@@ -101,7 +101,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'passes --log-file path into the CLI execution context' do
       Dir.mktmpdir do |dir|
         log_path = File.join(dir, 'custom.log')
-        expect(SimpleCovMcp).to receive(:create_context) \
+        expect(SimpleCovMcp).to receive(:create_context) 
           .and_wrap_original do |m, error_handler:, log_target:, mode:|
           # Ensure CLI forwards the requested log path into the context without changing other fields.
           expect(log_target).to eq(log_path)
@@ -115,7 +115,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
 
     it 'supports stdout logging within the CLI context' do
-      expect(SimpleCovMcp).to receive(:create_context) \
+      expect(SimpleCovMcp).to receive(:create_context) 
         .and_wrap_original do |m, error_handler:, log_target:, mode:|
         # For stdout logging, verify the context is still constructed with the expected value.
         expect(log_target).to eq('stdout')

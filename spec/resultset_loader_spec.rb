@@ -114,7 +114,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
         described_class::SuiteEntry.new(name: 'Cucumber', coverage: {}, timestamp: 0)
       ]
 
-      expect(SimpleCovMcp::CovUtil).to receive(:log) \
+      expect(SimpleCovMcp::CovUtil).to receive(:log) 
         .with(include('Merging duplicate coverage suites for RSpec'))
       described_class.send(:log_duplicate_suite_names, suites)
     end

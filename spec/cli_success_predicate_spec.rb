@@ -128,7 +128,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI, 'success predicate' do
         end
       end
 
-      allow(SimpleCovMcp::Commands::CommandFactory).to receive(:create) \
+      allow(SimpleCovMcp::Commands::CommandFactory).to receive(:create) 
         .and_return(fake_command_class.new(nil))
 
       _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root,

@@ -42,7 +42,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       }
 
       allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json')) \
+      allow(File).to receive(:read).with(end_with('.resultset.json')) 
         .and_return(malformed_resultset.to_json)
 
       expect do
@@ -63,12 +63,12 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       }
 
       allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json')) \
+      allow(File).to receive(:read).with(end_with('.resultset.json')) 
         .and_return(malformed_resultset.to_json)
 
       # This might succeed or fail depending on how the code handles it
       # Let's make it fail by mocking transform_keys to raise NoMethodError
-      allow_any_instance_of(Hash).to receive(:transform_keys) \
+      allow_any_instance_of(Hash).to receive(:transform_keys) 
         .and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
 
       expect do
@@ -90,7 +90,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       }
 
       allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json')) \
+      allow(File).to receive(:read).with(end_with('.resultset.json')) 
         .and_return(valid_resultset.to_json)
 
       # Mock File.absolute_path to raise ArgumentError when called with the problematic path

@@ -20,12 +20,12 @@ module SimpleCovMcp
         properties: {
           query: {
             type: 'string',
-            description: \
+            description: 
               'Optional keywords to filter the help entries (e.g., "uncovered", "summary").'
           },
           error_mode: {
             type: 'string',
-            description: \
+            description: 
               "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
             enum: ['off', 'on', 'trace'],
             default: 'on'

@@ -7,7 +7,7 @@ RSpec.describe SimpleCovMcp do
   # These tests verify the integration with ModeDetector
   describe 'mode detection integration' do
     it 'uses ModeDetector for CLI mode detection' do
-      expect(SimpleCovMcp::ModeDetector).to receive(:cli_mode?).with(['--force-cli']) \
+      expect(SimpleCovMcp::ModeDetector).to receive(:cli_mode?).with(['--force-cli']) 
         .and_return(true)
       expect(SimpleCovMcp::CoverageCLI).to receive_message_chain(:new, :run)
       SimpleCovMcp.run(['--force-cli'])

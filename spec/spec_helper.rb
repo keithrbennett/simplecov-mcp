@@ -65,7 +65,7 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
 
   allow(File).to receive(:read).and_call_original
   allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(fake_resultset.to_json)
-  allow(SimpleCovMcp::CovUtil).to receive(:find_resultset) \
+  allow(SimpleCovMcp::CovUtil).to receive(:find_resultset) 
     .and_wrap_original do |method, search_root, resultset: nil|
     if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
       File.join(abs_root, 'coverage', '.resultset.json')

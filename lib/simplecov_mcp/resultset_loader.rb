@@ -66,8 +66,8 @@ module SimpleCovMcp
 
         suites.reduce(nil) do |memo, suite|
           coverage = suite.coverage
-          memo ? \
-            SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) : \
+          memo ? 
+            SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) : 
             coverage
         end
       end
