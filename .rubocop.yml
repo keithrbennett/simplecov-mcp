@@ -165,6 +165,9 @@ Style/PercentLiteralDelimiters:
     '%i': '[]'
     '%I': '[]'
 
+Style/MultilineTernaryOperator:
+  Enabled: false  # Allow multiline ternary operators
+
 # ===== Metrics (All Disabled per request) =====
 
 Metrics/AbcSize:
