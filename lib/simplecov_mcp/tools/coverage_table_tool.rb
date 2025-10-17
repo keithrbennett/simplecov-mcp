@@ -36,7 +36,7 @@ module SimpleCovMcp
           stale: {
             type: 'string',
             description: 'How to handle missing/outdated coverage data. '\
-                          "'off' skips checks; 'error' raises.",
+                         "'off' skips checks; 'error' raises.",
             enum: ['off', 'error'],
             default: 'off'
           },

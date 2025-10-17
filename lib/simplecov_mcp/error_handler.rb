@@ -121,5 +121,4 @@ module SimpleCovMcp
       end
     end
   end
-
 end

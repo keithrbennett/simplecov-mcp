@@ -45,8 +45,8 @@ module SimpleCovMcp
 
         if log_file == 'stdout'
           raise ConfigurationError,
-            "Logging to stdout is not permitted in MCP server mode as it interferes with " +
-              "the JSON-RPC protocol. Please use 'stderr' or a file path."
+            'Logging to stdout is not permitted in MCP server mode as it interferes with ' \
+            "the JSON-RPC protocol. Please use 'stderr' or a file path."
         end
 
         handler = ErrorHandlerFactory.for_mcp_server

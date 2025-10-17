@@ -53,7 +53,7 @@ module SimpleCovMcp
     def define_options(o)
       o.separator 'Options:'
       o.on('-r', '--resultset PATH', String,
-           'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') \
+        'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') \
       do |v|
         config.resultset = v
       end
@@ -69,7 +69,7 @@ module SimpleCovMcp
       end
       o.on('-c', '--source-context N', Integer,
         'For --source=uncovered, show N context lines (default: 2)') do |v|
-         config.source_context = v
+        config.source_context = v
       end
       o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
       o.on('--no-color', 'Disable ANSI colors') { config.color = false }

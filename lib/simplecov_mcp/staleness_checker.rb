@@ -81,7 +81,7 @@ module SimpleCovMcp
       if @tracked_globs && !Array(@tracked_globs).empty?
         patterns = Array(@tracked_globs).map { |g| File.absolute_path(g, @root) }
         tracked = patterns.flat_map { |p| Dir.glob(p, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
-                          .select { |p| File.file?(p) }
+          .select { |p| File.file?(p) }
         covered_set = coverage_files.to_set rescue coverage_files
         tracked.each do |abs|
           missing << rel(abs) unless covered_set.include?(abs)
