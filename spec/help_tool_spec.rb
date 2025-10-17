@@ -33,7 +33,7 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
     expect(data['tools']).not_to be_empty
     expect(data['tools']).to all(satisfy do |entry|
       combined =
-        [entry['tool'], entry['label'], entry['use_when'], entry['avoid_when']] \
+        [entry['tool'], entry['label'], entry['use_when'], entry['avoid_when']]
         .compact.join(' ').downcase
       combined.include?('uncovered')
     end)
