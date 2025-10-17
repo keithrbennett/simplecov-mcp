@@ -137,6 +137,9 @@ Style/TrailingCommaInArguments:
 Style/Lambda:
   EnforcedStyle: literal
 
+Style/LambdaCall:
+  Enabled: false
+
 Style/RescueStandardError:
   EnforcedStyle: implicit
 
