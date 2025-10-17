@@ -72,6 +72,9 @@ Layout/ParameterAlignment:
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
+Layout/MultilineMethodCallBraceLayout:
+  Enabled: false  # Disabled due to bug: miscalculates indentation, places closing paren at column 1 instead of aligning with method call
+
 # Layout cops we explicitly don't want enforced:
 
 Layout/ClosingHeredocIndentation:
