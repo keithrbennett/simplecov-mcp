@@ -26,5 +26,5 @@ Gem::Specification.new do |spec|
   # Runtime deps (stdlib: json, time, pathname)
   spec.add_dependency 'mcp', '~> 0.3'
   spec.add_dependency 'simplecov', '>= 0.21', '< 1.0'
-spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.metadata['rubygems_mfa_required'] = 'true'
 end
