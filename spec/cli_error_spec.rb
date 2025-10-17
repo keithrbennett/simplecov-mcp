@@ -54,7 +54,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
-    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 
+    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset',
       'coverage', '--stale', 'error')
     expect(status).to eq(1)
     expect(err).to include('Coverage data stale:')
@@ -69,7 +69,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
-    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset', 
+    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset',
       'coverage', '--stale', 'off')
     expect(status).to eq(0)
     expect(err).to eq('')

@@ -57,7 +57,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
       it 'handles mixed quoting styles' do
         ENV['SIMPLECOV_MCP_OPTS'] = '--option1 "value with spaces" --option2 \'another value\''
-        expect(parser.parse_env_opts).to eq(['--option1', 'value with spaces', '--option2', 
+        expect(parser.parse_env_opts).to eq(['--option1', 'value with spaces', '--option2',
           'another value'])
       end
     end

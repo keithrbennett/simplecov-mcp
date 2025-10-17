@@ -67,7 +67,7 @@ module SimpleCovMcp
         'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
         config.source_mode = normalize_source_mode(v)
       end
-      o.on('-c', '--source-context N', Integer, 
+      o.on('-c', '--source-context N', Integer,
         'For --source=uncovered, show N context lines (default: 2)') do |v|
          config.source_context = v
       end
@@ -77,7 +77,7 @@ module SimpleCovMcp
         'Staleness mode: o[ff]|e[rror] (default off)') do |v|
         config.stale_mode = normalize_stale_mode(v)
       end
-      o.on('-g', '--tracked-globs x,y,z', Array, 
+      o.on('-g', '--tracked-globs x,y,z', Array,
         'Globs for filtering files (list subcommand)') do |v|
         config.tracked_globs = v
       end
@@ -92,7 +92,7 @@ module SimpleCovMcp
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
       end
-      o.on('--success-predicate FILE', String, 
+      o.on('--success-predicate FILE', String,
         'Ruby file returning callable; exits 0 if truthy, 1 if falsy') do |v|
         config.success_predicate = v
       end

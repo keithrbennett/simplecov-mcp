@@ -64,7 +64,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
 
   it 'logs via provided logger' do
     begin
-      handler.handle_error(Errno::ENOENT.new('No such file or directory @ rb_sysopen - x'), 
+      handler.handle_error(Errno::ENOENT.new('No such file or directory @ rb_sysopen - x'),
         context: 'test', reraise: false)
     rescue StandardError
       # reraise disabled

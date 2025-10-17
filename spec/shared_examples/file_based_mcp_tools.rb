@@ -90,7 +90,7 @@ FILE_BASED_TOOL_CONFIGS = {
         allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
 
-        response = config[:tool_class].call(path: 'lib/foo.rb', 
+        response = config[:tool_class].call(path: 'lib/foo.rb',
           server_context: instance_double('ServerContext').as_null_object)
         data, _ = expect_mcp_text_json(response)
 
@@ -142,7 +142,7 @@ FILE_BASED_TOOL_CONFIGS = {
         allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
 
-        response = config[:tool_class].call(path: 'lib/foo.rb', 
+        response = config[:tool_class].call(path: 'lib/foo.rb',
           server_context: instance_double('ServerContext').as_null_object)
         data, _ = expect_mcp_text_json(response)
 

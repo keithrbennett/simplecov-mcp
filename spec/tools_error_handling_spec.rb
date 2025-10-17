@@ -24,7 +24,7 @@ RSpec.describe 'MCP Tool error handling' do
       # Simulate an error during filter_entries
       allow(described_class).to receive(:filter_entries).and_raise(StandardError, 'Filter error')
 
-      response = described_class.call(query: 'test', error_mode: 'on', 
+      response = described_class.call(query: 'test', error_mode: 'on',
         server_context: server_context)
 
       # Should return error response

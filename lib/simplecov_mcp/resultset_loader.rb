@@ -34,7 +34,7 @@ module SimpleCovMcp
           .map do |name, data|
             SuiteEntry.new(
               name: name.to_s,
-              coverage: normalize_suite_coverage(data['coverage'], suite_name: name, 
+              coverage: normalize_suite_coverage(data['coverage'], suite_name: name,
                 resultset_path: resultset_path),
               timestamp: normalize_coverage_timestamp(data['timestamp'], data['created_at'])
             )

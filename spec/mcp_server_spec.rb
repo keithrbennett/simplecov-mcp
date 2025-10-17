@@ -81,7 +81,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
     expect(fake_server.params[:name]).to eq('simplecov-mcp')
     # Ensure expected tools are registered
     tool_names = fake_server.params[:tools].map { |t| t.name.split('::').last }
-    expect(tool_names).to include('AllFilesCoverageTool', 'CoverageDetailedTool', 
+    expect(tool_names).to include('AllFilesCoverageTool', 'CoverageDetailedTool',
       'CoverageRawTool', 'CoverageSummaryTool', 'UncoveredLinesTool', 'HelpTool')
   end
 end

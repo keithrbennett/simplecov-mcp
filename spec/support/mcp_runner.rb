@@ -17,7 +17,7 @@ module Spec
 
       module_function
 
-      def call(requests: nil, input: nil, env: {}, lib_path:, exe_path:, timeout: 5, 
+      def call(requests: nil, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
         close_stdin: true)
         payload = build_payload(requests, input)
 

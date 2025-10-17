@@ -9,7 +9,7 @@ module SimpleCovMcp
         Use this when you are unsure which simplecov-mcp tool fits the user’s coverage request.
         Do not use this once you know the correct tool; call that tool directly.
         Inputs: optional query string to filter the list of tools.
-        Output: JSON {"tools": [...]} with per-tool "use_when", "avoid_when", "inputs", 
+        Output: JSON {"tools": [...]} with per-tool "use_when", "avoid_when", "inputs",#{' '}
           and "example" guidance.
         Example: "Which tool shows uncovered lines?".
       DESC

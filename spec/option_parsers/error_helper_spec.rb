@@ -177,7 +177,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
 
         expect do
           begin
-            helper.handle_option_parser_error(error, argv: ['--stale', 'xyz'], 
+            helper.handle_option_parser_error(error, argv: ['--stale', 'xyz'],
               usage_hint: 'Custom hint message')
           rescue SystemExit
             # Ignore exit call

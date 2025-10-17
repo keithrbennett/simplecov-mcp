@@ -57,7 +57,7 @@ module SimpleCovMcp
       )
 
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off', 
+        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
           tracked_globs: nil, error_mode: 'on', server_context:)
           # Capture the output of the CLI's table report while honoring CLI options
           # Convert string inputs from MCP to symbols for internal use
@@ -65,7 +65,7 @@ module SimpleCovMcp
           stale_sym = stale.to_sym
           check_stale = (stale_sym == :error)
 
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym, 
+          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
             tracked_globs: tracked_globs)
           presenter = Presenters::ProjectCoveragePresenter.new(
             model: model,

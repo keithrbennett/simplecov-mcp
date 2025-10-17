@@ -24,7 +24,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
 
     context 'with unknown command name' do
       [
-        ['invalid_cmd', 'invalid command',        
+        ['invalid_cmd', 'invalid command',
            /list | summary <path> | raw <path> | uncovered <path> | detailed <path> | version/],
         [nil,           'nil command',            nil],
         ['',            'empty string command',   nil],
@@ -43,7 +43,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
     it 'returns an array of available command names' do
       commands = described_class.available_commands
       expect(commands).to be_an(Array)
-      expect(commands).to contain_exactly('list', 'version', 'summary', 'raw', 'uncovered', 
+      expect(commands).to contain_exactly('list', 'version', 'summary', 'raw', 'uncovered',
         'detailed')
     end
 

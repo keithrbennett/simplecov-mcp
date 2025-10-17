@@ -49,7 +49,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
-    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order', 
+    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order',
       'a')
     asc = JSON.parse(output)
     expect(asc['files']).to be_an(Array)
@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(total).to eq(asc['files'].length)
     expect(ok + stale).to eq(total)
 
-    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order', 
+    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order',
       'd')
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')
@@ -79,7 +79,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'list subcommand retains rows when using an absolute tracked glob' do
     absolute_glob = File.join(root, 'lib', '**', '*.rb')
-    output = run_cli('list', '--root', root, '--resultset', 'coverage', '--tracked-globs', 
+    output = run_cli('list', '--root', root, '--resultset', 'coverage', '--tracked-globs',
       absolute_glob)
     expect(output).not_to include('No coverage data found')
     expect(output).to include('lib/foo.rb')
@@ -91,7 +91,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'can include source in JSON payload (nil if file missing)' do
-    output = run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', 
+    output = run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
       '--source')
     data = JSON.parse(output)
     expect(data).to have_key('source')
@@ -108,7 +108,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
           m.call(error_handler: error_handler, log_target: log_target, mode: mode)
         end
         original_target = SimpleCovMcp.active_log_file
-        run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', 
+        run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
           '--log-file', log_path)
         expect(SimpleCovMcp.active_log_file).to eq(original_target)
       end
@@ -122,7 +122,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         m.call(error_handler: error_handler, log_target: log_target, mode: mode)
       end
       original_target = SimpleCovMcp.active_log_file
-      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage', 
+      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
         '--log-file', 'stdout')
       expect(SimpleCovMcp.active_log_file).to eq(original_target)
     end

@@ -14,9 +14,9 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
     payload = {
       'files' => [
-        { 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10, 
+        { 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
           'stale' => false },
-        { 'file' => 'lib/bar.rb', 'percentage' => 50.0,  'covered' => 5,  'total' => 10, 
+        { 'file' => 'lib/bar.rb', 'percentage' => 50.0,  'covered' => 5,  'total' => 10,
           'stale' => true }
       ],
       'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 }
