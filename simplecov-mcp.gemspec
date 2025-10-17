@@ -9,7 +9,8 @@ Gem::Specification.new do |spec|
   spec.email         = ['keithrbennett@gmail.com']
 
   spec.summary       = 'MCP server + CLI for SimpleCov coverage data'
-  spec.description   = 'Provides an MCP (Model Context Protocol) server and a CLI to inspect SimpleCov coverage, including per-file summaries and uncovered lines.'
+  spec.description   = 'Provides an MCP (Model Context Protocol) server and a CLI to inspect ' \
+                       'SimpleCov coverage, including per-file summaries and uncovered lines.'
   spec.license       = 'MIT'
 
   spec.homepage      = 'https://github.com/keithrbennett/simplecov-mcp'

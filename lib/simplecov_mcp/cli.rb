@@ -143,7 +143,8 @@ module SimpleCovMcp
     end
 
     def ensure_error_handler
-      @error_handler ||= @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
+      @error_handler ||= \
+        @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
     def parse_env_opts

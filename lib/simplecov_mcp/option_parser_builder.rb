@@ -52,8 +52,9 @@ module SimpleCovMcp
 
     def define_options(o)
       o.separator 'Options:'
-      o.on('-r', '--resultset PATH', String, 
-        'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') do |v|
+      o.on('-r', '--resultset PATH', String,
+           'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') \
+      do |v|
         config.resultset = v
       end
       o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }

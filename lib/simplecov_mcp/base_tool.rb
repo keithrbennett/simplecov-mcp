@@ -18,7 +18,8 @@ module SimpleCovMcp
         },
         root: {
           type: 'string',
-          description: 'Project root used to resolve relative paths (defaults to current workspace).',
+          description: 'Project root used to resolve relative paths ' \
+                       '(defaults to current workspace).',
           default: '.'
         },
         resultset: {
@@ -27,7 +28,8 @@ module SimpleCovMcp
         },
         stale: {
           type: 'string',
-          description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+          description: 'How to handle missing/outdated coverage data.' \
+                       "'off' skips checks; 'error' raises.",
           enum: %w[off error],
           default: 'off'
         },
@@ -49,7 +51,8 @@ module SimpleCovMcp
       error_handler = ErrorHandlerFactory.for_mcp_server(error_mode: error_mode.to_sym)
 
       # Normalize to a SimpleCovMcp::Error so we can handle/log uniformly
-      normalized = error.is_a?(SimpleCovMcp::Error) ? error : error_handler.convert_standard_error(error)
+      normalized = error.is_a?(SimpleCovMcp::Error) \
+        ? error : error_handler.convert_standard_error(error)
       log_mcp_error(normalized, tool_name, error_handler)
       ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{normalized.user_friendly_message}" }])
     end

@@ -205,11 +205,9 @@ module SimpleCovMcp
       # 2. Coverage data is present (cov_len > 0)
       # 3. Source has exactly one more line than coverage
       # 4. File is missing a trailing newline
-      if exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
-        src_len - 1
-      else
-        src_len
-      end
+      needs_adjusting =
+        exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
+      needs_adjusting ? src_len - 1 : src_len
     end
 
     # Checks if the source line count differs from the coverage line count.

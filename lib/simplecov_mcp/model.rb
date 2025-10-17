@@ -130,11 +130,7 @@ module SimpleCovMcp
         build_staleness_checker(mode: 'error', tracked_globs: tracked_globs).check_project!(@cov)
       end
 
-      rows.sort! do |a, b|
-        pct_cmp = (sort_order == :descending) ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
-        pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
-      end
-      rows
+      sort_rows(rows, sort_order: sort_order)
     end
 
     def staleness_for(path)
@@ -163,7 +159,8 @@ module SimpleCovMcp
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
       if rows.any? { |f| f['stale'] }
-        lines << 'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
+        lines << \
+          'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
       end
       lines.join("\n")
     end
@@ -191,7 +188,9 @@ module SimpleCovMcp
 
     def sort_rows(rows, sort_order: :ascending)
       rows.sort do |a, b|
-        pct_cmp = (sort_order == :descending) ? (b['percentage'] <=> a['percentage']) : (a['percentage'] <=> b['percentage'])
+        pct_cmp = (sort_order == :descending) \
+                    ? (b['percentage'] <=> a['percentage']) \
+                    : (a['percentage'] <=> b['percentage'])
         pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
       end
     end

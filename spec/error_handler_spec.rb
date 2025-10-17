@@ -17,7 +17,8 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     e = handler.convert_standard_error(Errno::EISDIR.new('Is a directory @ rb_sysopen - a_dir'))
     expect(e).to be_a(SimpleCovMcp::NotAFileError)
 
-    e = handler.convert_standard_error(Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.txt'))
+    e = handler.convert_standard_error( \
+      Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.txt'))
     expect(e).to be_a(SimpleCovMcp::FileNotFoundError)
 
     e = handler.convert_standard_error(Errno::EACCES.new('Permission denied @ rb_sysopen - secret'))
@@ -31,7 +32,8 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
   end
 
   it 'maps ArgumentError by message' do
-    e = handler.convert_standard_error(ArgumentError.new('wrong number of arguments (given 1, expected 2)'))
+    e = handler.convert_standard_error( \
+      ArgumentError.new('wrong number of arguments (given 1, expected 2)'))
     expect(e).to be_a(SimpleCovMcp::UsageError)
 
     e = handler.convert_standard_error(ArgumentError.new('invalid option'))
@@ -39,20 +41,24 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
   end
 
   it 'maps NoMethodError to CoverageDataError with helpful info' do
-    e = handler.convert_standard_error(NoMethodError.new("undefined method `fetch' for #<Hash:0x123>"))
+    e = handler.convert_standard_error( \
+      NoMethodError.new("undefined method `fetch' for #<Hash:0x123>"))
     expect(e).to be_a(SimpleCovMcp::CoverageDataError)
     expect(e.user_friendly_message).to include('Invalid coverage data structure')
   end
 
   it 'maps runtime strings from util to friendly errors' do
-    e = handler.convert_standard_error(RuntimeError.new('Could not find .resultset.json under /path; run tests'))
+    e = handler.convert_standard_error( \
+      RuntimeError.new('Could not find .resultset.json under /path; run tests'))
     expect(e).to be_a(SimpleCovMcp::CoverageDataError)
     expect(e.user_friendly_message).to include('run your tests first')
 
-    e = handler.convert_standard_error(RuntimeError.new('No .resultset.json found in directory: /path'))
+    e = handler.convert_standard_error( \
+      RuntimeError.new('No .resultset.json found in directory: /path'))
     expect(e).to be_a(SimpleCovMcp::CoverageDataError)
 
-    e = handler.convert_standard_error(RuntimeError.new('Specified resultset not found: /nowhere/file.json'))
+    e = handler.convert_standard_error( \
+      RuntimeError.new('Specified resultset not found: /nowhere/file.json'))
     expect(e).to be_a(SimpleCovMcp::ResultsetNotFoundError)
   end
 

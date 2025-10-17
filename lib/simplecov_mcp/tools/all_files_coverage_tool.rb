@@ -29,24 +29,28 @@ module SimpleCovMcp
           },
           sort_order: {
             type: 'string',
-            description: "Sort order for coverage percentages. 'ascending' highlights the riskiest files first.",
+            description: 'Sort order for coverage percentages.' \
+                         "'ascending' highlights the riskiest files first.",
             default: 'ascending',
             enum: ['ascending', 'descending']
           },
           stale: {
             type: 'string',
-            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            description:
+              "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
             enum: ['off', 'error'],
             default: 'off'
           },
           tracked_globs: {
             type: 'array',
-            description: 'Glob patterns for files that should exist in the coverage report (helps flag new files).',
+            description: 'Glob patterns for files that should exist in the coverage report' \
+                         '(helps flag new files).',
             items: { type: 'string' }
           },
           error_mode: {
             type: 'string',
-            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
+            description:
+              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
             enum: ['off', 'on', 'trace'],
             default: 'on'
           }

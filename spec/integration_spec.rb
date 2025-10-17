@@ -138,7 +138,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       json_output = nil
       silence_output do |out, _err|
         cli = SimpleCovMcp::CoverageCLI.new
-        cli.run(['summary', 'lib/foo.rb', '--json', '--root', project_root, '--resultset', coverage_dir])
+        cli.run(['summary', 'lib/foo.rb', '--json', '--root', project_root, '--resultset', 
+          coverage_dir])
         json_output = out.string
       end
 
