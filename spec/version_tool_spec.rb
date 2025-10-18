@@ -16,7 +16,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
       text = item[:text] || item['text']
-      expect(text).to eq('SimpleCovMcp version: 1.0.0-rc.1')
+      expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
     end
 
     it 'includes the exact version constant value' do
@@ -50,7 +50,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         response = described_class.call(error_mode: 'off', server_context: server_context)
         item = response.payload.first
         text = item[:text] || item['text']
-        expect(text).to eq('SimpleCovMcp version: 1.0.0-rc.1')
+        expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
       end
 
       it 'accepts error_mode "on" (default)' do
@@ -75,7 +75,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         )
         item = response.payload.first
         text = item[:text] || item['text']
-        expect(text).to eq('SimpleCovMcp version: 1.0.0-rc.1')
+        expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
       end
     end
 
