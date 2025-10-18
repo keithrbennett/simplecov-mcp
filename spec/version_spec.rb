@@ -50,8 +50,10 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
     end
 
     context 'when version has prerelease identifier' do
+      let(:prerelease_version) { '9.9.9-rc.1' }
+
       before do
-        skip unless version.include?('-')
+        stub_const('SimpleCovMcp::VERSION', prerelease_version)
       end
 
       it 'has valid prerelease format' do
@@ -64,8 +66,10 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
     end
 
     context 'when version has build metadata' do
+      let(:build_metadata_version) { '9.9.9+build.42' }
+
       before do
-        skip unless version.include?('+')
+        stub_const('SimpleCovMcp::VERSION', build_metadata_version)
       end
 
       it 'has valid build metadata format' do
