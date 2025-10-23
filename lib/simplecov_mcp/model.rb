@@ -49,7 +49,7 @@ module SimpleCovMcp
           timestamp: @cov_timestamp
         )
       rescue Errno::ENOENT => e
-        raise FileError.new("Coverage data not found at #{resultset || @root}")
+        raise ResultsetNotFoundError.new("Coverage data not found at #{resultset || @root}")
       rescue JSON::ParserError => e
         raise CoverageDataError.new("Invalid coverage data format: #{e.message}")
       rescue Errno::EACCES => e
@@ -62,7 +62,12 @@ module SimpleCovMcp
         raise CoverageDataError.new("Invalid path in coverage data: #{e.message}")
       rescue RuntimeError => e
         # RuntimeError from find_resultset or other operations
-        raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
+        # Check if it's a resultset not found error
+        if e.message.downcase.include?('resultset')
+          raise ResultsetNotFoundError.new(e.message)
+        else
+          raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
+        end
       end
     end
 

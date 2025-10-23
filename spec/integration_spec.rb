@@ -3,6 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe 'SimpleCov MCP Integration Tests' do
+  # Timeout for MCP server operations (increased for JRuby compatibility)
+  MCP_TIMEOUT = 5
+
   let(:project_root) { (FIXTURES_DIR / 'project1').to_s }
   let(:coverage_dir) { File.join(project_root, 'coverage') }
   let(:resultset_path) { File.join(coverage_dir, '.resultset.json') }
@@ -257,7 +260,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'handles invalid resultset paths gracefully' do
       expect do
         SimpleCovMcp::CoverageModel.new(root: project_root, resultset: '/nonexistent/path')
-      end.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
+      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError, /Specified resultset not found/)
     end
 
     it 'provides helpful CLI error messages' do
@@ -332,7 +335,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     # Run the MCP executable with a single JSON-RPC request hash and return the captured streams.
-    def run_mcp_json(request_hash, env: default_env, timeout: 5)
+    def run_mcp_json(request_hash, env: default_env, timeout: MCP_TIMEOUT)
       Spec::Support::McpRunner.call_json(
         request_hash,
         **runner_args(env: env, timeout: timeout)
@@ -340,7 +343,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     # Run the MCP executable with a sequence of JSON-RPC requests (one per line).
-    def run_mcp_json_stream(request_hashes, env: default_env, timeout: 5)
+    def run_mcp_json_stream(request_hashes, env: default_env, timeout: MCP_TIMEOUT)
       Spec::Support::McpRunner.call_json_stream(
         request_hashes,
         **runner_args(env: env, timeout: timeout)
@@ -348,7 +351,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     # Run the MCP executable with a raw string payload (already encoded as needed).
-    def run_mcp_input(input, env: default_env, timeout: 5)
+    def run_mcp_input(input, env: default_env, timeout: MCP_TIMEOUT)
       Spec::Support::McpRunner.call(
         input: input,
         **runner_args(env: env, timeout: timeout)
@@ -594,7 +597,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       malformed_request = "{'jsonrpc': '2.0', 'id': 999, 'method': 'invalid'}"
 
       env = { 'RUBY_LIB' => lib_path }
-      result = run_mcp_input(malformed_request, env: env, timeout: 3)
+      result = run_mcp_input(malformed_request, env: env)
 
       # Should handle gracefully without crashing
       # May return error response or empty output
@@ -615,8 +618,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
       result = run_mcp_json(
         request,
-        env: default_env.merge('SIMPLECOV_MCP_OPTS' => '--log-file stderr'),
-        timeout: 3
+        env: default_env.merge('SIMPLECOV_MCP_OPTS' => '--log-file stderr')
       )
 
       response = parse_jsonrpc_response(result[:stdout])
@@ -631,7 +633,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         'SIMPLECOV_MCP_OPTS' => '--log-file stdout'
       }
 
-      result = run_mcp_input(nil, env: env, timeout: 3)
+      result = run_mcp_input(nil, env: env)
 
       combined_output = result[:stdout] + result[:stderr]
       expect(combined_output).to include('stdout').and include('not permitted')
@@ -645,7 +647,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           params: { name: 'version_tool', arguments: {} } }
       ]
 
-      result = run_mcp_json_stream(requests, timeout: 5)
+      result = run_mcp_json_stream(requests)
 
       responses = result[:stdout].lines.map do |line|
         next if line.strip.empty?
@@ -811,7 +813,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       it 'handles completely invalid JSON input' do
         invalid_json = 'this is not JSON at all'
 
-        result = run_mcp_input(invalid_json, env: default_env, timeout: 3)
+        result = run_mcp_input(invalid_json, env: default_env)
 
         # Should not crash with unhandled exception
         combined = result[:stdout] + result[:stderr]
@@ -825,7 +827,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       end
 
       it 'handles empty input gracefully' do
-        result = run_mcp_input('', env: default_env, timeout: 2)
+        result = run_mcp_input('', env: default_env)
 
         # Empty input should be handled without crash
         expect(result[:stderr]).not_to include('NameError')
@@ -835,7 +837,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       it 'handles partial JSON input' do
         partial_json = '{"jsonrpc": "2.0", "id": 300, "method":'
 
-        result = run_mcp_input(partial_json, env: default_env, timeout: 2)
+        result = run_mcp_input(partial_json, env: default_env)
 
         # Should handle gracefully without crashing
         expect(result[:stderr]).not_to include('uninitialized constant')

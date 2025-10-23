@@ -187,23 +187,21 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: '/nonexistent/path')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
-        expect(error.message).to include('Failed to load coverage data')
+      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Specified resultset not found')
       end
     end
 
     it 'handles RuntimeError with generic messages' do
-      # Test RuntimeError with any generic message
+      # Test RuntimeError with any generic message that includes 'resultset'
       allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_raise(
         RuntimeError.new('Something went wrong during resultset lookup')
       )
 
       expect do
         SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
-        expect(error.message).to include('Failed to load coverage data')
-        expect(error.message).to include('Something went wrong')
+      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
+        expect(error.message).to include('Something went wrong during resultset lookup')
       end
     end
   end

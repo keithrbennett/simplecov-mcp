@@ -63,7 +63,26 @@ module SimpleCovMcp
   class FileNotFoundError < FileError; end
   class FilePermissionError < FileError; end
   class NotAFileError < FileError; end
-  class ResultsetNotFoundError < FileError; end
+
+  class ResultsetNotFoundError < FileError
+    def user_friendly_message
+      base = "File error: #{message}"
+
+      # Only add helpful tips in CLI and library modes, not MCP mode
+      unless SimpleCovMcp.context.mcp_mode?
+        base += <<~HELP
+
+
+          Try one of the following:
+            - cd to a directory containing coverage/.resultset.json
+            - Specify a resultset: simplecov-mcp -r PATH
+            - Use -h for help: simplecov-mcp -h
+        HELP
+      end
+
+      base
+    end
+  end
 
   # Coverage data related errors
   class CoverageDataError < Error

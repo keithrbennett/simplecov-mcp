@@ -19,10 +19,10 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       end.to raise_error(SimpleCovMcp::FileError, /Coverage data not found/)
     end
 
-    it 'raises CoverageDataError when resultset file does not exist' do
+    it 'raises ResultsetNotFoundError when resultset file does not exist' do
       expect do
         described_class.new(root: root, resultset: '/nonexistent/path/.resultset.json')
-      end.to raise_error(SimpleCovMcp::CoverageDataError, /Failed to load coverage data/)
+      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError, /Specified resultset not found/)
     end
   end
 
