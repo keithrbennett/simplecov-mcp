@@ -1,6 +1,10 @@
 # Release Notes
 
-## v1.0.0 (2025-10-13)
+## v1.0.1 (2025-10-23)
+
+- Make error output more helpful when a result set file is not found, esp. when the command name is run without args in a non-project directory.
+
+## v1.0.0 (2025-10-18)
 
 🎉 **Major Release: Production-Ready Coverage Analysis Tool**
 
