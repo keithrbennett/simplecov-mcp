@@ -29,6 +29,7 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 - Find files with the lowest coverage
 - Investigate specific files or directories
 - Generate CI/CD coverage reports
+- Create custom pass/fail predicates for scripts and CI - use the library API or CLI JSON output to implement arbitrarily complex coverage rules beyond simple thresholds (e.g., require higher coverage for critical paths, exempt test utilities, track coverage trends)
 
 ## Quick Start
 
