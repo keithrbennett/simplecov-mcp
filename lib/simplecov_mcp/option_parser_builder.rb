@@ -29,7 +29,7 @@ module SimpleCovMcp
     def configure_banner(o)
       o.banner = <<~BANNER
         #{HORIZONTAL_RULE}
-        Usage:      simplecov-mcp [subcommand] [options] [args]
+        Usage:      simplecov-mcp [options] [subcommand] [args]
         Repository: https://github.com/keithrbennett/simplecov-mcp
         Version:    #{SimpleCovMcp::VERSION}
         #{HORIZONTAL_RULE}
@@ -102,9 +102,9 @@ module SimpleCovMcp
       o.separator <<~EXAMPLES
 
         Examples:
-          simplecov-mcp list --resultset coverage
-          simplecov-mcp summary lib/foo.rb --json --resultset coverage
-          simplecov-mcp uncovered lib/foo.rb --source=uncovered --source-context 2
+          simplecov-mcp --resultset coverage list
+          simplecov-mcp --json --resultset coverage summary lib/foo.rb
+          simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
         EXAMPLES
     end
 
