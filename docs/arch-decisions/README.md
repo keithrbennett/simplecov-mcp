@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+[Back to main README](../../README.md)
+
 This directory contains Architecture Decision Records (ADRs) for the SimpleCov MCP project.
 
 ## What is an ADR?

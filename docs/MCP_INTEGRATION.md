@@ -1,5 +1,7 @@
 # MCP Integration Guide
 
+[Back to main README](../README.md)
+
 This guide covers setting up simplecov-mcp as an MCP (Model Context Protocol) server for AI coding assistants.
 
 ## Table of Contents

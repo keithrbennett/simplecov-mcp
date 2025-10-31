@@ -1,5 +1,7 @@
 # ADR 003: Coverage Staleness Detection
 
+[Back to main README](../../README.md)
+
 ## Status
 
 Accepted

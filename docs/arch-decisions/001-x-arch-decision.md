@@ -1,5 +1,7 @@
 # ADR 001: Dual-Mode Operation (CLI and MCP Server)
 
+[Back to main README](../../README.md)
+
 ## Status
 
 Accepted

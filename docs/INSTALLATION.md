@@ -1,5 +1,7 @@
 # Installation Guide
 
+[Back to main README](../README.md)
+
 This guide covers installing simplecov-mcp in various environments and configurations.
 
 ## Prerequisites

@@ -1,5 +1,7 @@
 # Branch-Only Coverage Handling
 
+[Back to main README](../README.md)
+
 SimpleCov can collect *line* coverage, *branch* coverage, or both. Projects that
 enable the `:branch` mode without `:line` produce a `.resultset.json` where the
 per-file entries contain a `branches` hash while the legacy `lines` array is

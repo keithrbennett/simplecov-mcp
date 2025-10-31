@@ -1,5 +1,7 @@
 # Library API Guide
 
+[Back to main README](../README.md)
+
 Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCovMcp::CoverageModel`.
 
 ## Table of Contents

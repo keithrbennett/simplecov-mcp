@@ -1,5 +1,7 @@
 # CLI Usage Guide
 
+[Back to main README](../README.md)
+
 Complete reference for using simplecov-mcp from the command line.
 
 ## Table of Contents

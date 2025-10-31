@@ -1,5 +1,7 @@
 # ADR 005: No SimpleCov Runtime Dependency
 
+[Back to main README](../../README.md)
+
 ## Status
 
 Replaced – simplecov-mcp now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov’s combine helpers.

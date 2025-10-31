@@ -1,5 +1,7 @@
 # Error Handling Guide
 
+[Back to main README](../README.md)
+
 This tool provides different error handling behavior depending on how it's used:
 
 ## CLI Mode

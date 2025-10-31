@@ -1,5 +1,7 @@
 # Troubleshooting Guide
 
+[Back to main README](../README.md)
+
 This guide helps you diagnose and fix common issues with simplecov-mcp. Issues are organized by symptom for quick lookup.
 
 ## Table of Contents

@@ -1,5 +1,7 @@
 # Examples and Recipes
 
+[Back to main README](../README.md)
+
 Practical examples for common tasks with simplecov-mcp. Examples are organized by skill level and use case.
 
 ## Table of Contents
@@ -419,7 +421,7 @@ end
 
 The [`/examples`](/examples) directory contains runnable scripts:
 
-- **[filter_and_table_demo.rb](/examples/filter_and_table_demo.rb)** - Filter and format coverage data
+- **[filter_and_table_demo.rb](../examples/filter_and_table_demo.rb)** - Filter and format coverage data
 - **[success_predicates/](/examples/success_predicates/)** - Custom coverage policy examples
 
 ## Related Documentation

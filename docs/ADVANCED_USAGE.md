@@ -1,5 +1,7 @@
 # Advanced Usage Guide
 
+[Back to main README](../README.md)
+
 This guide covers advanced usage patterns, integration strategies, and optimization techniques for simplecov-mcp.
 
 ## Table of Contents
