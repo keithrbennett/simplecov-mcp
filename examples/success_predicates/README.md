@@ -124,6 +124,53 @@ uncovered = model.uncovered_for('lib/model.rb')
 
 See [docs/LIBRARY_API.md](../../docs/LIBRARY_API.md) for the complete API.
 
+### When to Use Standalone Scripts Instead
+
+For more complex scenarios, you may prefer writing a standalone Ruby script that uses the `simplecov-mcp` library directly instead of using the `--success-predicate` option.
+
+**Use a standalone script when:**
+- **External dependencies needed** - Your policy requires other gems or libraries
+- **Complex setup required** - You need custom logging, database connections, or API calls
+- **Easier testing desired** - Standalone scripts can be tested like any Ruby code
+- **More explicit control** - You want full control over model initialization and error handling
+- **Sophisticated logic** - Multi-step analysis, data aggregation, or integration with other tools
+
+**Predicate approach is better when:**
+- Policy is simple and self-contained (most common use case)
+- You want the tool to handle option parsing (--resultset, --stale, etc.)
+- Consistent error handling and exit codes are desired
+- Less boilerplate is preferred
+
+**Example standalone script:**
+```ruby
+#!/usr/bin/env ruby
+require 'simplecov_mcp'
+require 'httparty'  # External gem
+
+# Custom initialization
+model = SimpleCovMcp::CoverageModel.new(
+  resultset: ENV['COVERAGE_PATH'],
+  staleness: 'error'
+)
+
+# Complex logic with external API
+files = model.all_files
+low_coverage_files = files.select { |f| f['percentage'] < 80 }
+
+# Post to Slack
+if low_coverage_files.any?
+  HTTParty.post(
+    ENV['SLACK_WEBHOOK_URL'],
+    body: { text: "#{low_coverage_files.size} files below 80%" }.to_json
+  )
+  exit 1
+else
+  exit 0
+end
+```
+
+Both approaches execute arbitrary code with full system privileges, so the security considerations are identical. Choose the approach that best fits your use case.
+
 ## CI/CD Integration
 
 **GitHub Actions:**
