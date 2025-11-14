@@ -39,4 +39,15 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
     end)
     expect(data['tools'].map { |entry| entry['tool'] }).to include('uncovered_lines_tool')
   end
+
+  it 'ignores non-string metadata when filtering entries' do
+    entries = [
+      { 'tool' => 'match', 'label' => nil, 'use_when' => 'match feature' },
+      { 'tool' => 'other', 'label' => 'something else', 'use_when' => 123 }
+    ]
+
+    filtered = described_class.send(:filter_entries, entries, 'match')
+
+    expect(filtered.map { |entry| entry['tool'] }).to eq(['match'])
+  end
 end

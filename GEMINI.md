@@ -46,7 +46,7 @@ rake
 The main executable is `simplecov-mcp`. You can run it directly from the repository:
 
 ```sh
-ruby -Ilib exe/simplecov-mcp --help
+bundle exec exe/simplecov-mcp --help
 ```
 
 Or, if the gem is installed:

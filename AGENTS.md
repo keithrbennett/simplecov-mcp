@@ -21,7 +21,7 @@
   - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)
   - `bundle install` – install dependencies
   - `bundle exec rspec` – run rspec (currently not working in Codex for macOS)
-  - `ruby -Ilib exe/simplecov-mcp ...` – run CLI or MCP server directly
+  - `bundle exec exe/simplecov-mcp ...` – run CLI or MCP server directly
   - `simplecov-mcp --resultset coverage` – table view of coverage data
 
 ## Coding & Testing Guidelines

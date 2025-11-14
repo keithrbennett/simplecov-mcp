@@ -220,7 +220,7 @@ bundle install
 bundle exec rspec
 
 # Test locally
-ruby -Ilib exe/simplecov-mcp
+bundle exec exe/simplecov-mcp
 
 # Build and install
 gem build simplecov-mcp.gemspec
