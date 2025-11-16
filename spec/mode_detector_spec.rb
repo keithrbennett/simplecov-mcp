@@ -15,6 +15,7 @@ RSpec.describe SimpleCovMcp::ModeDetector do
       [['list'], false, true, 'list subcommand'],
       [['summary', 'lib/foo.rb'], false, true, 'summary with path'],
       [['version'], false, true, 'version subcommand'],
+      [['total'], false, true, 'total subcommand'],
       [['list', '--json'], false, true, 'subcommand with trailing flags'],
 
       # Priority 3: Invalid subcommand attempts (must be first non-flag arg)

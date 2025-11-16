@@ -151,6 +151,24 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     end
   end
 
+  describe '#project_totals' do
+    it 'aggregates coverage totals across all files' do
+      totals = model.project_totals
+
+      expect(totals['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
+      expect(totals['pct']).to be_within(0.01).of(50.0)
+      expect(totals['files']).to include('total' => 2)
+      expect(totals['files']['ok'] + totals['files']['stale']).to eq(totals['files']['total'])
+    end
+
+    it 'respects tracked_globs filtering' do
+      totals = model.project_totals(tracked_globs: ['lib/foo.rb'])
+
+      expect(totals['lines']).to include('total' => 3, 'covered' => 2, 'uncovered' => 1)
+      expect(totals['files']).to include('total' => 1)
+    end
+  end
+
   describe 'resolve method error handling' do
     it 'raises FileError when coverage_lines is nil after lookup' do
       # Stub lookup_lines to return nil without raising

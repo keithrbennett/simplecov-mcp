@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative 'cli_config'
+require_relative 'app_config'
 require_relative 'option_parser_builder'
 require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
@@ -11,7 +11,7 @@ require_relative 'presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   class CoverageCLI
-    SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
     HORIZONTAL_RULE = '-' * 79
 
     # Reference shared constant to avoid duplication with ModeDetector
@@ -22,7 +22,7 @@ module SimpleCovMcp
     # Initialize CLI for pure CLI usage only.
     # Always runs as CLI, no mode detection needed.
     def initialize(error_handler: nil)
-      @config = CLIConfig.new
+      @config = AppConfig.new
       @cmd = nil
       @cmd_args = []
       @custom_error_handler = error_handler # Store custom handler if provided
@@ -31,11 +31,10 @@ module SimpleCovMcp
 
     def run(argv)
       context = nil
-      # Prepend environment options to command line arguments
-      full_argv = parse_env_opts + argv
+      # argv should already include environment options (merged by caller)
       # Pre-scan for error-mode to ensure early errors are logged with correct verbosity
-      pre_scan_error_mode(full_argv)
-      parse_options!(full_argv)
+      pre_scan_error_mode(argv)
+      parse_options!(argv)
 
       # Create error handler AFTER parsing options to respect user's --error-mode choice
       ensure_error_handler
@@ -62,7 +61,7 @@ module SimpleCovMcp
     rescue OptionParser::ParseError => e
       # Handle any option parsing errors (invalid option/argument) without relying on
       # @error_handler, which is not guaranteed to be initialized yet.
-      with_context_if_available(context) { handle_option_parser_error(e, argv: full_argv) }
+      with_context_if_available(context) { handle_option_parser_error(e, argv: argv) }
     rescue SimpleCovMcp::Error => e
       with_context_if_available(context) { handle_user_facing_error(e) }
     end
@@ -147,14 +146,9 @@ module SimpleCovMcp
         @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
-    def parse_env_opts
-      @env_parser ||= OptionParsers::EnvOptionsParser.new
-      @env_parser.parse_env_opts
-    end
-
     def pre_scan_error_mode(argv)
-      @env_parser ||= OptionParsers::EnvOptionsParser.new
-      config.error_mode = @env_parser.pre_scan_error_mode(argv) || :on
+      env_parser = OptionParsers::EnvOptionsParser.new
+      config.error_mode = env_parser.pre_scan_error_mode(argv) || :on
     end
 
     def build_option_parser

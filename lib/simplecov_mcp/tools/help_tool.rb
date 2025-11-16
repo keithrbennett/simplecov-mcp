@@ -75,6 +75,14 @@ module SimpleCovMcp
           example: 'List files with the lowest coverage.'
         },
         {
+          tool: CoverageTotalsTool,
+          label: 'Project coverage totals',
+          use_when: 'User wants total/covered/uncovered line counts or the average percent.',
+          avoid_when: 'User needs per-file breakdowns.',
+          inputs: ['root/resultset (optional)', 'stale', 'tracked_globs'],
+          example: 'Report total lines, uncovered lines, and overall coverage.'
+        },
+        {
           tool: CoverageTableTool,
           label: 'Formatted coverage table',
           use_when: 'User wants the plain-text table produced by the CLI.',

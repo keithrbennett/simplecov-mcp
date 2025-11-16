@@ -186,13 +186,17 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-con
 
 # Detailed hit counts
 simplecov-mcp detailed lib/simplecov_mcp/util.rb
+
+# Project totals
+simplecov-mcp total
+simplecov-mcp total --json
 ```
 
 ## Commands and Tools
 
-**CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `version`
+**CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `total`, `version`
 
-**MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `all_files_coverage_tool`, `coverage_table_tool`, `help_tool`, `version_tool`
+**MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `all_files_coverage_tool`, `coverage_totals_tool`, `coverage_table_tool`, `help_tool`, `version_tool`
 
 📖 **See also:**
 - [CLI Usage Guide](docs/CLI_USAGE.md) - Complete command-line reference

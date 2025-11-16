@@ -7,6 +7,7 @@ require 'simplecov_mcp/tools/coverage_summary_tool'
 require 'simplecov_mcp/tools/coverage_raw_tool'
 require 'simplecov_mcp/tools/uncovered_lines_tool'
 require 'simplecov_mcp/tools/coverage_detailed_tool'
+require 'simplecov_mcp/tools/coverage_totals_tool'
 
 RSpec.describe 'MCP Tool error handling' do
   let(:server_context) { instance_double('ServerContext').as_null_object }
@@ -135,6 +136,22 @@ RSpec.describe 'MCP Tool error handling' do
       )
 
       # Should return error response
+      expect(response).to be_a(MCP::Tool::Response)
+      item = response.payload.first
+      expect(item[:type] || item['type']).to eq('text')
+      expect(item[:text] || item['text']).to include('Error')
+    end
+  end
+
+  describe SimpleCovMcp::Tools::CoverageTotalsTool do
+    it 'handles errors during totals calculation' do
+      allow(SimpleCovMcp::CoverageModel).to receive(:new).and_raise(StandardError, 'Model error')
+
+      response = SimpleCovMcp::Tools::CoverageTotalsTool.call(
+        error_mode: 'on',
+        server_context: server_context
+      )
+
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')

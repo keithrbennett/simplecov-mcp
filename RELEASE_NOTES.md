@@ -1,5 +1,10 @@
 # Release Notes
 
+## v1.1.0
+
+- Add a `total` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
+- Refactor command line and environment argument handling
+
 ## v1.0.1 (2025-10-23)
 
 - Make error output more helpful when a result set file is not found, esp. when the command name is run without args in a non-project directory.

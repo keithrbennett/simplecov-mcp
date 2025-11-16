@@ -3,7 +3,7 @@
 module SimpleCovMcp
   module OptionParsers
     class ErrorHelper
-      SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
+      SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
 
       def initialize(subcommands = SUBCOMMANDS)
         @subcommands = subcommands

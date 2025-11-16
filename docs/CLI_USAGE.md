@@ -32,6 +32,10 @@ simplecov-mcp detailed lib/simplecov_mcp/model.rb
 # Get raw SimpleCov data
 simplecov-mcp raw lib/simplecov_mcp/model.rb
 
+# Get project totals
+simplecov-mcp total
+simplecov-mcp total --json
+
 # Show version
 simplecov-mcp version
 
@@ -231,6 +235,35 @@ File: lib/simplecov_mcp/model.rb
 - `0` - Line is executable but was not executed
 - `null` - Line is not executable (comment, blank line)
 
+### `total`
+
+Show aggregated totals for all tracked files.
+
+```sh
+simplecov-mcp total
+simplecov-mcp total --json
+simplecov-mcp total --tracked-globs "lib/simplecov_mcp/commands/*.rb"
+```
+
+**Output (default format):**
+```
+Lines: total 123       covered 120       uncovered 3
+Average coverage:  97.56% across 4 files (ok: 4, stale: 0)
+```
+
+**Output (JSON format):**
+```json
+{
+  "lines": { "total": 123, "covered": 120, "uncovered": 3 },
+  "pct": 97.56,
+  "files": { "total": 4, "ok": 4, "stale": 0 }
+}
+```
+
+**Notes:**
+- Respects `--tracked-globs` when you only want to aggregate a subset of files.
+- Honors `--stale error` to raise if coverage data is out of date.
+
 ### `version`
 
 Show version information.
@@ -356,7 +389,7 @@ Comma-separated glob patterns for files that should be tracked.
 simplecov-mcp list --tracked-globs "lib/**/*.rb,app/**/*.rb"
 ```
 
-Used with `--stale error` to detect new files not yet in coverage.
+Used with `--stale error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
 
 ### `-l, --log-file PATH`
 

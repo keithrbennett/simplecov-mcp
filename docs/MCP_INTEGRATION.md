@@ -215,7 +215,7 @@ For any MCP client that uses JSON configuration:
 
 ### Tool Catalog
 
-simplecov-mcp exposes 8 MCP tools:
+simplecov-mcp exposes 9 MCP tools:
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
@@ -224,6 +224,7 @@ simplecov-mcp exposes 8 MCP tools:
 | `coverage_raw_tool` | Raw SimpleCov array | `path` |
 | `uncovered_lines_tool` | List uncovered lines | `path` |
 | `all_files_coverage_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
+| `coverage_totals_tool` | Aggregated line totals | `tracked_globs` |
 | `coverage_table_tool` | Formatted coverage table | `sort_order` |
 | `help_tool` | Tool discovery | `query` (optional) |
 | `version_tool` | Version information | (none) |
@@ -291,6 +292,10 @@ These tools analyze individual files. All require `path` parameter.
 **`all_files_coverage_tool`** - Coverage for all files
 - Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
 - Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
+
+**`coverage_totals_tool`** - Aggregated line totals
+- Parameters: `tracked_globs` (array), `stale`
+- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"pct":Float,"files":{"total":N,"ok":N,"stale":N}}`
 
 **`coverage_table_tool`** - Formatted ASCII table
 - Parameters: `sort_order` (`ascending`|`descending`)

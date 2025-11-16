@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module SimpleCovMcp
-  # Configuration container for CLI options
+  # Configuration container for application options (used by both CLI and MCP modes)
   # Uses Struct for simplicity and built-in functionality
-  CLIConfig = Struct.new(
+  AppConfig = Struct.new(
     :root,
     :resultset,
     :json,

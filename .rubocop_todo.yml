@@ -335,7 +335,7 @@ RSpec/SpecFilePathFormat:
     - 'spec/all_files_coverage_tool_spec.rb'
     - 'spec/base_tool_spec.rb'
     - 'spec/cli/show_default_report_spec.rb'
-    - 'spec/cli_config_spec.rb'
+    - 'spec/app_config_spec.rb'
     - 'spec/cli_error_spec.rb'
     - 'spec/cli_source_spec.rb'
     - 'spec/cli_spec.rb'
@@ -520,7 +520,7 @@ Style/FrozenStringLiteralComment:
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/GlobalStdStream:
   Exclude:
-    - 'lib/simplecov_mcp/cli_config.rb'
+    - 'lib/simplecov_mcp/app_config.rb'
     - 'lib/simplecov_mcp/mode_detector.rb'
     - 'spec/mcp_server_integration_spec.rb'
     - 'spec/mode_detector_spec.rb'

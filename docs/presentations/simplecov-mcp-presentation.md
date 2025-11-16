@@ -71,24 +71,17 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 ## MCP Tools (Functions) Available
 
-| Tool                      | Purpose |
-|---------------------------|---------|
-| `all_files_coverage_tool` | Project-wide coverage data |
-| `coverage_detailed_tool`  | Per-line hit counts |
-| `coverage_summary_tool`   | Get coverage % for a file |
-| `coverage_table_tool`     | Formatted coverage table |
-| `uncovered_lines_tool`    | Find missing test coverage |
-
-| Tool                    | Purpose                    | Example Command                                     |
-|-------------------------|----------------------------|-----------------------------------------------------|
-| all_files_coverage_tool | Project-wide coverage data | simplecov-mcp all-files                             |
-| coverage_detailed_tool  | Per-line hit counts        | simplecov-mcp detailed lib/simplecov_mcp/model.rb  |
-| coverage_raw_tool       | Raw SimpleCov lines array  | simplecov-mcp raw lib/simplecov_mcp/model.rb       |
-| coverage_summary_tool   | Get coverage % for a file  | simplecov-mcp summary lib/simplecov_mcp/model.rb   |
-| coverage_table_tool     | Formatted coverage table   | simplecov-mcp table                                 |
-| help_tool               | Tool usage guidance        | simplecov-mcp help                                  |
-| uncovered_lines_tool    | Find missing test coverage | simplecov-mcp uncovered lib/simplecov_mcp/model.rb |
-| version_tool            | Display version info       | simplecov-mcp version                               |
+| Tool                      | Purpose                    | Example Command                                      |
+|---------------------------|----------------------------|------------------------------------------------------|
+| `all_files_coverage_tool` | Project-wide coverage data | `simplecov-mcp all-files`                            |
+| `coverage_detailed_tool`  | Per-line hit counts        | `simplecov-mcp detailed lib/simplecov_mcp/model.rb`  |
+| `coverage_raw_tool`       | Raw SimpleCov lines array  | `simplecov-mcp raw lib/simplecov_mcp/model.rb`       |
+| `coverage_summary_tool`   | Get coverage % for a file  | `simplecov-mcp summary lib/simplecov_mcp/model.rb`   |
+| `coverage_table_tool`     | Formatted coverage table   | `simplecov-mcp table`                                |
+| `coverage_totals_tool`    | Aggregated line totals     | `simplecov-mcp total`                                |
+| `help_tool`               | Tool usage guidance        | `simplecov-mcp help`                                 |
+| `uncovered_lines_tool`    | Find missing test coverage | `simplecov-mcp uncovered lib/simplecov_mcp/cli.rb`   |
+| `version_tool`            | Display version info       | `simplecov-mcp version`                              |
 
 ---
 

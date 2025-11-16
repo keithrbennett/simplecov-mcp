@@ -23,6 +23,7 @@ require_relative 'simplecov_mcp/tools/coverage_summary_tool'
 require_relative 'simplecov_mcp/tools/uncovered_lines_tool'
 require_relative 'simplecov_mcp/tools/coverage_detailed_tool'
 require_relative 'simplecov_mcp/tools/all_files_coverage_tool'
+require_relative 'simplecov_mcp/tools/coverage_totals_tool'
 require_relative 'simplecov_mcp/tools/coverage_table_tool'
 require_relative 'simplecov_mcp/tools/version_tool'
 require_relative 'simplecov_mcp/tools/help_tool'
@@ -34,23 +35,25 @@ module SimpleCovMcp
     THREAD_CONTEXT_KEY = :simplecov_mcp_context
 
     def run(argv)
-      # Parse environment options for mode detection
-      env_opts = parse_env_opts_for_mode_detection
-      full_argv = env_opts + argv
+      # Prepend environment options once at entry point
+      full_argv = extract_env_opts + argv
 
       if ModeDetector.cli_mode?(full_argv)
-        CoverageCLI.new.run(argv) # CLI will re-parse env opts internally
+        # CLI mode: pass merged argv to CoverageCLI
+        CoverageCLI.new.run(full_argv)
       else
-        log_file = extract_log_file_option(full_argv)
+        # MCP server mode: parse config once from full_argv
+        require_relative 'simplecov_mcp/config_parser'
+        config = ConfigParser.parse(full_argv)
 
-        if log_file == 'stdout'
+        if config.log_file == 'stdout'
           raise ConfigurationError,
             'Logging to stdout is not permitted in MCP server mode as it interferes with ' \
             "the JSON-RPC protocol. Please use 'stderr' or a file path."
         end
 
-        handler = ErrorHandlerFactory.for_mcp_server
-        context = create_context(error_handler: handler, log_target: log_file, mode: :mcp_server)
+        handler = ErrorHandlerFactory.for_mcp_server(error_mode: config.error_mode)
+        context = create_context(error_handler: handler, log_target: config.log_file, mode: :mcp_server)
         with_context(context) { MCPServer.new(context: context).run }
       end
     end
@@ -120,37 +123,7 @@ module SimpleCovMcp
       )
     end
 
-    def extract_log_file_option(argv)
-      log_file = nil
-
-      # Options that may appear in argv but we don't care about for log file extraction
-      options_to_ignore = [
-        ['--color'],
-        ['--error-mode MODE'],
-        ['--force-cli'],
-        ['--no-color'],
-        ['--success-predicate FILE'],
-        ['-c', '--source-context N'],
-        ['-g', '--tracked-globs x,y,z'],
-        ['-h', '--help'],
-        ['-j', '--json'],
-        ['-o', '--sort-order ORDER'],
-        ['-r', '--resultset PATH'],
-        ['-R', '--root PATH'],
-        ['-s', '--source[=MODE]'],
-        ['-S', '--stale MODE']
-      ]
-
-      parser = OptionParser.new do |o|
-        o.on('-l', '--log-file PATH') { |v| log_file = v }
-        options_to_ignore.each { |args| o.on(*args) {} }
-      end
-
-      parser.parse!(argv.dup) rescue nil
-      log_file
-    end
-
-    def parse_env_opts_for_mode_detection
+    def extract_env_opts
       require 'shellwords'
       opts_string = ENV['SIMPLECOV_MCP_OPTS']
       return [] unless opts_string && !opts_string.empty?
@@ -158,7 +131,7 @@ module SimpleCovMcp
       begin
         Shellwords.split(opts_string)
       rescue ArgumentError
-        [] # Ignore parsing errors for mode detection
+        [] # Ignore parsing errors
       end
     end
   end

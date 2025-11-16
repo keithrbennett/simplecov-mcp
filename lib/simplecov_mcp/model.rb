@@ -138,6 +138,11 @@ module SimpleCovMcp
       sort_rows(rows, sort_order: sort_order)
     end
 
+    def project_totals(tracked_globs: nil, check_stale: !@checker.off?)
+      rows = all_files(sort_order: :ascending, check_stale: check_stale, tracked_globs: tracked_globs)
+      totals_from_rows(rows)
+    end
+
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
       coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
@@ -301,5 +306,28 @@ module SimpleCovMcp
     end
 
     # Detailed stale message construction moved to CoverageDataStaleError
+
+    def totals_from_rows(rows)
+      covered = rows.sum { |row| row['covered'].to_i }
+      total = rows.sum { |row| row['total'].to_i }
+      uncovered = total - covered
+      pct = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
+      stale_count = rows.count { |row| row['stale'] }
+      files_total = rows.length
+
+      {
+        'lines' => {
+          'covered' => covered,
+          'uncovered' => uncovered,
+          'total' => total
+        },
+        'pct' => pct,
+        'files' => {
+          'total' => files_total,
+          'ok' => files_total - stale_count,
+          'stale' => stale_count
+        }
+      }
+    end
   end
 end

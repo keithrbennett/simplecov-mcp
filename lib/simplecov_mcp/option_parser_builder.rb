@@ -5,7 +5,7 @@ require_relative 'option_normalizers'
 module SimpleCovMcp
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
-    SUBCOMMANDS = %w[list summary raw uncovered detailed version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
 
     attr_reader :config
 
@@ -45,6 +45,7 @@ module SimpleCovMcp
           raw <path>              Show the SimpleCov 'lines' array
           uncovered <path>        Show uncovered lines and a summary
           detailed <path>         Show per-line rows with hits/covered
+          total                   Show aggregated line totals and average %
           version                 Show version information
 
         SUBCOMMANDS
@@ -78,7 +79,7 @@ module SimpleCovMcp
         config.stale_mode = normalize_stale_mode(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list subcommand)') do |v|
+        'Globs for filtering files (list/total subcommands)') do |v|
         config.tracked_globs = v
       end
       o.on('-l', '--log-file PATH', String,
@@ -105,6 +106,7 @@ module SimpleCovMcp
           simplecov-mcp --resultset coverage list
           simplecov-mcp --json --resultset coverage summary lib/foo.rb
           simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
+          simplecov-mcp total --json
         EXAMPLES
     end
 
