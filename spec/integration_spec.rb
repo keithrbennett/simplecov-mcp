@@ -321,7 +321,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     let(:default_env) do
       {
         'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir}"
+        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
       }
     end
 

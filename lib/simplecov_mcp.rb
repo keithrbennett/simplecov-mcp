@@ -41,7 +41,7 @@ module SimpleCovMcp
       if ModeDetector.cli_mode?(full_argv)
         CoverageCLI.new.run(argv) # CLI will re-parse env opts internally
       else
-        log_file = parse_log_file(full_argv)
+        log_file = extract_log_file_option(full_argv)
 
         if log_file == 'stdout'
           raise ConfigurationError,
@@ -120,14 +120,33 @@ module SimpleCovMcp
       )
     end
 
-    def parse_log_file(argv)
+    def extract_log_file_option(argv)
       log_file = nil
+
+      # Options that may appear in argv but we don't care about for log file extraction
+      options_to_ignore = [
+        ['--color'],
+        ['--error-mode MODE'],
+        ['--force-cli'],
+        ['--no-color'],
+        ['--success-predicate FILE'],
+        ['-c', '--source-context N'],
+        ['-g', '--tracked-globs x,y,z'],
+        ['-h', '--help'],
+        ['-j', '--json'],
+        ['-o', '--sort-order ORDER'],
+        ['-r', '--resultset PATH'],
+        ['-R', '--root PATH'],
+        ['-s', '--source[=MODE]'],
+        ['-S', '--stale MODE']
+      ]
+
       parser = OptionParser.new do |o|
-        # Define the option we're looking for
         o.on('-l', '--log-file PATH') { |v| log_file = v }
+        options_to_ignore.each { |args| o.on(*args) {} }
       end
-      # Parse arguments, but ignore errors and stop at the first non-option
-      parser.order!(argv.dup) {} rescue nil
+
+      parser.parse!(argv.dup) rescue nil
       log_file
     end
 

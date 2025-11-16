@@ -85,9 +85,15 @@ RSpec.configure do |config|
   config.order = :defined
   Kernel.srand config.seed
 
-  # Suppress logging during tests by redirecting to a null device
+  # Suppress logging during tests by redirecting to /dev/null
+  # This is cheap and doesn't break tests that verify logging behavior
   SimpleCovMcp.default_log_file = File::NULL
   SimpleCovMcp.active_log_file = File::NULL
+
+  # Reset log file after each test to ensure tests that change it don't pollute others
+  config.after do
+    SimpleCovMcp.active_log_file = File::NULL
+  end
 end
 
 # Shared test helpers
