@@ -89,8 +89,8 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - `version_tool` - Version information
 
 ### Prompt & Response Examples
-- JSON responses are returned as `type: "resource"` with `resource.mimeType: "application/json"` and JSON in `resource.text`. Text-only outputs (table, version) remain `type: "text"`.
-- **Prompt:** “What’s the coverage for `lib/simplecov_mcp/model.rb`?” → call `coverage_summary_tool` with `{ "path": "lib/simplecov_mcp/model.rb" }` and parse JSON from `content[0].resource.text`.
+- All responses are returned as `type: "text"` with content in `text`. JSON responses contain a JSON string that should be parsed. This format ensures maximum compatibility with MCP clients.
+- **Prompt:** "What's the coverage for `lib/simplecov_mcp/model.rb`?" → call `coverage_summary_tool` with `{ "path": "lib/simplecov_mcp/model.rb" }` and parse JSON from `content[0].text`.
 - **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
 - **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
 - **Uncertain?** Call `help_tool` (optionally with `{ "query": "uncovered" }`) before proceeding.
