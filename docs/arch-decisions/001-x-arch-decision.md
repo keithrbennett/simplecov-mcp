@@ -42,7 +42,7 @@ The implementation is in `lib/simplecov_mcp.rb:34-52`:
 
 ```ruby
 def run(argv)
-  env_opts = parse_env_opts_for_mode_detection
+  env_opts = extract_env_opts
   full_argv = env_opts + argv
 
   if ModeDetector.cli_mode?(full_argv)
