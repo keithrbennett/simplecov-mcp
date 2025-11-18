@@ -11,7 +11,7 @@ module SimpleCovMcp
         Use this when the user asks for the covered/total line counts and percentage for a specific file.
         Do not use this for multi-file reports; coverage.all_files or coverage.table handle those.
         Inputs: file path (required) plus optional root/resultset/stale mode inherited from BaseTool.
-        Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "pct": Float}, "stale": String|False}.
+        Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "percentage": Float}, "stale": String|False}.
         Examples: "What is the coverage for lib/simple_cov_mcp/tools/all_files_coverage_tool.rb?".
       DESC
       input_schema(**input_schema_def)

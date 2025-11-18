@@ -14,7 +14,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
 
     payload = {
       'lines' => { 'total' => 42, 'covered' => 40, 'uncovered' => 2 },
-      'pct' => 95.24,
+      'percentage' => 95.24,
       'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 }
     }
 
@@ -29,10 +29,10 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
 
   it 'returns aggregated totals' do
     response = subject
-    data, = expect_mcp_text_json(response, expected_keys: ['lines', 'pct', 'files'])
+    data, = expect_mcp_text_json(response, expected_keys: ['lines', 'percentage', 'files'])
 
     expect(data['lines']).to include('total' => 42, 'covered' => 40, 'uncovered' => 2)
     expect(data['files']).to include('total' => 4, 'stale' => 0)
-    expect(data['pct']).to eq(95.24)
+    expect(data['percentage']).to eq(95.24)
   end
 end

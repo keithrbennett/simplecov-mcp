@@ -71,7 +71,7 @@ files = model.all_files
 # => [{ "file" => "lib/simplecov_mcp/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
 
 summary = model.summary_for("lib/simplecov_mcp/model.rb")
-# => { "file" => "lib/simplecov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "pct" => 96.61 }, "stale" => false }
+# => { "file" => "lib/simplecov_mcp/model.rb", "summary" => { "covered" => 114, "total" => 118, "percentage" => 96.61 }, "stale" => false }
 ```
 
 **MCP Server:**

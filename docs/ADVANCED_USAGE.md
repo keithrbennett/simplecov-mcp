@@ -366,10 +366,10 @@ Use `--success-predicate` to enforce custom coverage policies in CI/CD. Example 
 **Quick Usage:**
 ```sh
 # All files must be >= 80%
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold.rb
+simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # Total project coverage >= 85%
-simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum.rb
+simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
 
 # Custom predicate
 simplecov-mcp --success-predicate coverage_policy.rb
@@ -385,6 +385,7 @@ end
 ```
 
 **Advanced predicate with reporting:**
+
 ```ruby
 # coverage_policy.rb
 class CoveragePolicy
@@ -403,7 +404,7 @@ class CoveragePolicy
   end
 end
 
-CoveragePolicy.new
+AllFilesAboveThreshold.new
 ```
 
 **Exit codes:**
@@ -431,27 +432,6 @@ relative_data = model.relativize(data)
 # Works with arrays too
 files = model.all_files
 relative_files = model.relativize(files)
-```
-
-### Batch Operations
-
-```ruby
-# Process multiple files efficiently
-files_to_check = ['lib/model.rb', 'lib/controller.rb', 'lib/view.rb']
-
-model = SimpleCovMcp::CoverageModel.new
-
-results = files_to_check.map do |file|
-  begin
-    {
-      file: file,
-      summary: model.summary_for(file),
-      uncovered: model.uncovered_for(file)
-    }
-  rescue SimpleCovMcp::FileError => e
-    { file: file, error: e.message }
-  end
-end
 ```
 
 ---
@@ -964,6 +944,3 @@ Net::HTTP.post(uri, coveralls_data.to_json, {
 - [Error Handling Details](ERROR_HANDLING.md)
 - [Troubleshooting](TROUBLESHOOTING.md)
 
----
-
-**Made with ❤️ for sophisticated Ruby test coverage analysis**

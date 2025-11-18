@@ -71,10 +71,10 @@ FILE_BASED_TOOL_CONFIGS = {
     description: 'coverage summary data',
     mock_data: {
       'file' => '/abs/path/lib/foo.rb',
-      'summary' => { 'covered' => 10, 'total' => 12, 'pct' => 83.33 }
+      'summary' => { 'covered' => 10, 'total' => 12, 'percentage' => 83.33 }
     },
     additional_validations: ->(data, item) {
-      expect(data['summary']).to include('covered', 'total', 'pct')
+      expect(data['summary']).to include('covered', 'total', 'percentage')
     },
     tool_specific_examples: {
       'includes percentage in summary data' => ->(config) {
@@ -94,7 +94,7 @@ FILE_BASED_TOOL_CONFIGS = {
           server_context: instance_double('ServerContext').as_null_object)
         data, _ = expect_mcp_text_json(response)
 
-        expect(data['summary']['pct']).to be_a(Float)
+        expect(data['summary']['percentage']).to be_a(Float)
       }
     }
   },
@@ -123,7 +123,7 @@ FILE_BASED_TOOL_CONFIGS = {
     mock_data: {
       'file' => '/abs/path/lib/foo.rb',
       'uncovered' => [5, 9, 12],
-      'summary' => { 'covered' => 10, 'total' => 12, 'pct' => 83.33 }
+      'summary' => { 'covered' => 10, 'total' => 12, 'percentage' => 83.33 }
     },
     additional_validations: ->(data, item) {
       expect(data['uncovered']).to eq([5, 9, 12])
@@ -147,7 +147,7 @@ FILE_BASED_TOOL_CONFIGS = {
         data, _ = expect_mcp_text_json(response)
 
         expect(data['uncovered']).to be_an(Array)
-        expect(data['summary']).to include('covered', 'total', 'pct')
+        expect(data['summary']).to include('covered', 'total', 'percentage')
       }
     }
   },
@@ -164,7 +164,7 @@ FILE_BASED_TOOL_CONFIGS = {
         { 'line' => 1, 'hits' => 1, 'covered' => true },
         { 'line' => 2, 'hits' => 0, 'covered' => false }
       ],
-      'summary' => { 'covered' => 1, 'total' => 2, 'pct' => 50.0 }
+      'summary' => { 'covered' => 1, 'total' => 2, 'percentage' => 50.0 }
     },
     additional_validations: ->(data, item) {
       expect(data['lines']).to be_an(Array)

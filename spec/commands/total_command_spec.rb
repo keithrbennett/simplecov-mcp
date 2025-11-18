@@ -41,7 +41,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalCommand do
       expect(payload['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
       expect(payload['files']).to include('total' => 2)
       expect(payload['files']['ok'] + payload['files']['stale']).to eq(payload['files']['total'])
-      expect(payload).to include('pct')
+      expect(payload).to include('percentage')
     end
 
     it 'raises when unexpected arguments are provided' do

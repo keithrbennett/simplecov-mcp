@@ -35,11 +35,11 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   end
 
   describe 'summary_for' do
-    it 'computes covered/total/pct' do
+    it 'computes covered/total/percentage' do
       data = model.summary_for('lib/foo.rb')
       expect(data['summary']['total']).to eq(3)
       expect(data['summary']['covered']).to eq(2)
-      expect(data['summary']['pct']).to be_within(0.01).of(66.67)
+      expect(data['summary']['percentage']).to be_within(0.01).of(66.67)
     end
   end
 
@@ -156,7 +156,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       totals = model.project_totals
 
       expect(totals['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
-      expect(totals['pct']).to be_within(0.01).of(50.0)
+      expect(totals['percentage']).to be_within(0.01).of(50.0)
       expect(totals['files']).to include('total' => 2)
       expect(totals['files']['ok'] + totals['files']['stale']).to eq(totals['files']['total'])
     end
@@ -212,7 +212,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
       expect(data['summary']['total']).to eq(5)
       expect(data['summary']['covered']).to eq(3)
-      expect(data['summary']['pct']).to be_within(0.01).of(60.0)
+      expect(data['summary']['percentage']).to be_within(0.01).of(60.0)
     end
 
     it 'returns detailed data using branch-derived hits' do

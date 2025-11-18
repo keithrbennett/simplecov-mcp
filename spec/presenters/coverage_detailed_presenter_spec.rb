@@ -12,7 +12,7 @@ RSpec.describe SimpleCovMcp::Presenters::CoverageDetailedPresenter do
         { 'line' => 1, 'hits' => 1, 'covered' => true },
         { 'line' => 2, 'hits' => 0, 'covered' => false }
       ],
-      'summary' => { 'covered' => 1, 'total' => 2, 'pct' => 50.0 }
+      'summary' => { 'covered' => 1, 'total' => 2, 'percentage' => 50.0 }
     },
     stale: 'L',
     expected_keys: ['lines', 'summary']

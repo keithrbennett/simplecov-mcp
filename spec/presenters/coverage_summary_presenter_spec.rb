@@ -8,7 +8,7 @@ RSpec.describe SimpleCovMcp::Presenters::CoverageSummaryPresenter do
     model_method: :summary_for,
     payload: {
       'file' => '/abs/path/lib/foo.rb',
-      'summary' => { 'covered' => 8, 'total' => 10, 'pct' => 80.0 }
+      'summary' => { 'covered' => 8, 'total' => 10, 'percentage' => 80.0 }
     },
     stale: false,
     expected_keys: ['summary']

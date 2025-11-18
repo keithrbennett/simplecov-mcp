@@ -55,8 +55,8 @@ module SimpleCovMcp
         total += 1
         covered += 1 if hits.to_i > 0
       end
-      pct = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
-      { 'covered' => covered, 'total' => total, 'pct' => pct }
+      percentage = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
+      { 'covered' => covered, 'total' => total, 'percentage' => percentage }
     end
 
     def uncovered(arr)

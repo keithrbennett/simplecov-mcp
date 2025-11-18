@@ -237,7 +237,7 @@ For tools that return structured data, `simplecov-mcp` serializes the data as a 
 ```json
 {
   "type": "text",
-  "text": "{"coverage_summary":{"covered":10,"total":20,"pct":50.0}}"
+  "text": "{"coverage_summary":{"covered":10,"total":20,"percentage":50.0}}"
 }
 ```
 
@@ -269,7 +269,7 @@ These tools analyze individual files. All require `path` parameter.
 
 **`coverage_summary_tool`** - Covered/total/percentage summary
 ```json
-{"file": "...", "summary": {"covered": 12, "total": 14, "pct": 85.71}, "stale": false}
+{"file": "...", "summary": {"covered": 12, "total": 14, "percentage": 85.71}, "stale": false}
 ```
 
 **`uncovered_lines_tool`** - List uncovered line numbers
@@ -295,7 +295,7 @@ These tools analyze individual files. All require `path` parameter.
 
 **`coverage_totals_tool`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `stale`
-- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"pct":Float,"files":{"total":N,"ok":N,"stale":N}}`
+- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N}}`
 
 **`coverage_table_tool`** - Formatted ASCII table
 - Parameters: `sort_order` (`ascending`|`descending`)

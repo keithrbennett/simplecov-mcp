@@ -52,7 +52,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         summary = model.summary_for('lib/foo.rb')
         expect(summary['file']).to end_with('lib/foo.rb')
         expect(summary['summary']).to include('covered' => 2, 'total' => 3)
-        expect(summary['summary']['pct']).to be_within(0.01).of(66.67)
+        expect(summary['summary']['percentage']).to be_within(0.01).of(66.67)
 
         # Test uncovered lines detection
         uncovered = model.uncovered_for('lib/foo.rb')

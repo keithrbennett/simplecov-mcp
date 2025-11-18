@@ -29,42 +29,28 @@ The predicate receives a `CoverageModel` instance and returns:
 
 ## Available Examples
 
-### `all_files_above_threshold.rb`
+### `all_files_above_threshold_predicate.rb`
 All files must have >= 80% coverage.
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold.rb
+simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 ```
 
-### `project_coverage_minimum.rb`
+### `project_coverage_minimum_predicate.rb`
 Total project coverage must be >= 85%.
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum.rb
+simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
 ```
 
-### `directory_specific_thresholds.rb`
+### `directory_specific_thresholds_predicate.rb`
 Different thresholds for different directories:
 - `lib/api/` - 90% required
 - `lib/core/` - 85% required
 - `lib/legacy/` - 60% required
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/directory_specific_thresholds.rb
-```
-
-### `max_low_coverage_files.rb`
-Allow up to 5 files below 80% threshold.
-
-```sh
-simplecov-mcp --success-predicate examples/success_predicates/max_low_coverage_files.rb
-```
-
-### `class_based_policy.rb`
-Using a class with `#call` method for more complex logic and custom reporting.
-
-```sh
-simplecov-mcp --success-predicate examples/success_predicates/class_based_policy.rb
+simplecov-mcp --success-predicate examples/success_predicates/directory_specific_thresholds_predicate.rb
 ```
 
 ## Creating Custom Predicates

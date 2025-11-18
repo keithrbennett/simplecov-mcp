@@ -35,11 +35,11 @@ RSpec.describe SimpleCovMcp::CovUtil do
   end
 
   it 'summary handles edge cases and coercion' do
-    expect(described_class.summary([])).to include('pct' => 100.0, 'total' => 0, 'covered' => 0)
+    expect(described_class.summary([])).to include('percentage' => 100.0, 'total' => 0, 'covered' => 0)
     expect(described_class.summary([nil, nil]))
-      .to include('pct' => 100.0, 'total' => 0, 'covered' => 0)
+      .to include('percentage' => 100.0, 'total' => 0, 'covered' => 0)
     expect(described_class.summary(['1', '0', nil]))
-      .to include('pct' => 50.0, 'total' => 2, 'covered' => 1)
+      .to include('percentage' => 50.0, 'total' => 2, 'covered' => 1)
   end
 
   it 'uncovered and detailed ignore nils' do

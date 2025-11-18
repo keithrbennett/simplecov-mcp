@@ -104,7 +104,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI, 'success predicate' do
         ->(model) do
           # Access coverage data via the model
           summary = model.summary_for('lib/foo.rb')
-          summary['summary']['pct'] > 50  # Should be true for foo.rb
+          summary['summary']['percentage'] > 50  # Should be true for foo.rb
         end
       RUBY
         _out, _err, status = run_cli_with_status(

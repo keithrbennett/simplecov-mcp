@@ -11,7 +11,7 @@ module SimpleCovMcp
         Use this when you want aggregated coverage counts for the entire project.
         It reports covered/total lines, uncovered line counts, and the overall average percentage.
         Inputs: optional project root, alternate .resultset path, staleness mode, tracked_globs, and error mode.
-        Output: JSON {"lines":{"total","covered","uncovered"},"pct":Float,"files":{"total","ok","stale"}}.
+        Output: JSON {"lines":{"total","covered","uncovered"},"percentage":Float,"files":{"total","ok","stale"}}.
         Example: "Give me total/covered/uncovered line counts and the overall coverage percent."
       DESC
 

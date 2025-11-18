@@ -25,7 +25,7 @@ module SimpleCovMcp
         printf "Lines: total %-8d covered %-8d uncovered %-8d\n",
           lines['total'], lines['covered'], lines['uncovered']
         printf "Average coverage: %6.2f%% across %d files (ok: %d, stale: %d)\n",
-          payload['pct'], files['total'], files['ok'], files['stale']
+          payload['percentage'], files['total'], files['ok'], files['stale']
       end
     end
   end

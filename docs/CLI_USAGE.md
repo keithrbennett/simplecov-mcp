@@ -102,7 +102,7 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb --source
   "summary": {
     "covered": 12,
     "total": 14,
-    "pct": 85.71
+    "percentage": 85.71
   },
   "stale": false
 }
@@ -197,7 +197,7 @@ File: lib/simplecov_mcp/model.rb
   "summary": {
     "covered": 2,
     "total": 3,
-    "pct": 66.67
+    "percentage": 66.67
   },
   "stale": false
 }
@@ -255,7 +255,7 @@ Average coverage:  97.56% across 4 files (ok: 4, stale: 0)
 ```json
 {
   "lines": { "total": 123, "covered": 120, "uncovered": 3 },
-  "pct": 97.56,
+  "percentage": 97.56,
   "files": { "total": 4, "ok": 4, "stale": 0 }
 }
 ```
@@ -446,7 +446,7 @@ The predicate file must return a callable (lambda, proc, or object with `#call` 
 **Example usage:**
 ```sh
 # Use example predicate
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold.rb
+simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
 bundle exec simplecov-mcp --success-predicate coverage_policy.rb
@@ -486,7 +486,7 @@ Machine-readable output. Paths are relative to project root.
   "summary": {
     "covered": 12,
     "total": 14,
-    "pct": 85.71
+    "percentage": 85.71
   },
   "stale": false
 }

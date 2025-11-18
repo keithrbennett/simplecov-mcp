@@ -9,7 +9,7 @@ RSpec.describe SimpleCovMcp::Presenters::CoverageUncoveredPresenter do
     payload: {
       'file' => '/abs/path/lib/foo.rb',
       'uncovered' => [2, 4],
-      'summary' => { 'covered' => 2, 'total' => 4, 'pct' => 50.0 }
+      'summary' => { 'covered' => 2, 'total' => 4, 'percentage' => 50.0 }
     },
     stale: 'M',
     expected_keys: ['uncovered', 'summary']

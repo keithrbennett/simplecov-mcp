@@ -42,7 +42,7 @@ RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
       payload = JSON.parse(json_output)
       expect(payload['file']).to eq('lib/foo.rb')
       expect(payload['uncovered']).to eq([2])
-      expect(payload['summary']).to include('covered' => 2, 'total' => 3, 'pct' => 66.67)
+      expect(payload['summary']).to include('covered' => 2, 'total' => 3, 'percentage' => 66.67)
       expect(payload['stale']).to eq('L')
     end
   end

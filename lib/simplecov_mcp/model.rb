@@ -81,7 +81,7 @@ module SimpleCovMcp
       relativizer.relativize(payload)
     end
 
-    # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'pct'=>} }
+    # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'percentage'=>} }
     def summary_for(path)
       file_abs, coverage_lines = resolve(path)
       { 'file' => file_abs, 'summary' => CovUtil.summary(coverage_lines) }
@@ -124,7 +124,7 @@ module SimpleCovMcp
           'file' => abs_path,
           'covered' => s['covered'],
           'total' => s['total'],
-          'percentage' => s['pct'],
+          'percentage' => s['percentage'],
           'stale' => stale
         }
       end.compact
@@ -311,7 +311,7 @@ module SimpleCovMcp
       covered = rows.sum { |row| row['covered'].to_i }
       total = rows.sum { |row| row['total'].to_i }
       uncovered = total - covered
-      pct = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
+      percentage = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
       stale_count = rows.count { |row| row['stale'] }
       files_total = rows.length
 
@@ -321,7 +321,7 @@ module SimpleCovMcp
           'uncovered' => uncovered,
           'total' => total
         },
-        'pct' => pct,
+        'percentage' => percentage,
         'files' => {
           'total' => files_total,
           'ok' => files_total - stale_count,

@@ -63,7 +63,7 @@ This report reviews the current capabilities and suggests focused enhancements t
 - Quality-of-life flags
   - `--filter INCLUDE_GLOB[,..]` and `--exclude EXCLUDE_GLOB[,..]` to narrow `list` and related views.
   - `--no-color` already exists; add `--plain` to force ASCII table borders.
-  - `--columns file,pct,covered,total,stale` to customize table columns; add `--sort by=pct|file|covered`.
+  - `--columns file,percentage,covered,total,stale` to customize table columns; add `--sort by=percentage|file|covered`.
 
 - Source rendering polish
   - `--source=uncovered` already supports context; add `--source-max-lines N` to bound output in CI logs.
@@ -138,4 +138,3 @@ This report reviews the current capabilities and suggests focused enhancements t
 ---
 
 This plan adds value for local workflows, CI enforcement, and MCP-based automation while staying incremental and low-risk.
-

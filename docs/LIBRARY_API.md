@@ -76,7 +76,7 @@ Returns coverage summary for a specific file.
 **Example:**
 ```ruby
 summary = model.summary_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'pct'=>85.71}, 'stale' => false }
+# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'percentage'=>85.71}, 'stale' => false }
 ```
 
 ### `uncovered_for(path)`
@@ -178,7 +178,7 @@ Returns `Hash`:
   'summary' => {
     'covered' => Integer, # Number of covered lines
     'total' => Integer,   # Total relevant lines
-    'pct' => Float        # Coverage percentage (0.00-100.00)
+    'percentage' => Float        # Coverage percentage (0.00-100.00)
   }
 }
 ```
@@ -194,7 +194,7 @@ Returns `Hash`:
   'summary' => {
     'covered' => Integer,
     'total' => Integer,
-    'pct' => Float
+    'percentage' => Float
   }
 }
 ```
@@ -210,7 +210,7 @@ Returns `Hash`:
   'summary' => {
     'covered' => Integer,
     'total' => Integer,
-    'pct' => Float
+    'percentage' => Float
   }
 }
 ```
@@ -256,7 +256,7 @@ require "simplecov_mcp"
 begin
   model = SimpleCovMcp::CoverageModel.new
   summary = model.summary_for("lib/foo.rb")
-  puts "Coverage: #{summary['summary']['pct']}%"
+  puts "Coverage: #{summary['summary']['percentage']}%"
 rescue SimpleCovMcp::FileError => e
   puts "File not in coverage data: #{e.message}"
 rescue SimpleCovMcp::ResultsetNotFoundError => e
@@ -315,7 +315,7 @@ summary = find_coverage(model, [
 ])
 
 if summary
-  puts "Coverage: #{summary['summary']['pct']}%"
+  puts "Coverage: #{summary['summary']['percentage']}%"
 else
   puts "File not found in coverage data"
 end
@@ -342,8 +342,8 @@ results = files_to_check.map do |path|
     summary = model.summary_for(path)
     {
       file: path,
-      coverage: summary['summary']['pct'],
-      status: summary['summary']['pct'] >= 80 ? :ok : :low
+      coverage: summary['summary']['percentage'],
+      status: summary['summary']['percentage'] >= 80 ? :ok : :low
     }
   rescue SimpleCovMcp::FileError
     {
@@ -427,25 +427,19 @@ validator.validate!
 require "simplecov_mcp"
 
 model = SimpleCovMcp::CoverageModel.new
-files = model.all_files
 
-# Calculate coverage by directory
-by_directory = files.group_by do |file|
-  # Get first two path components (e.g., "lib/services")
-  file['file'].split('/')[0..1].join('/')
-end
+# Calculate coverage by directory using the totals API
+patterns = %w[lib/**/*.rb app/**/*.rb services/**/*.rb]
 
-directory_stats = by_directory.map do |dir, dir_files|
-  total_lines = dir_files.sum { |f| f['total'] }
-  covered_lines = dir_files.sum { |f| f['covered'] }
-  percentage = (covered_lines.to_f / total_lines * 100).round(2)
+directory_stats = patterns.map do |pattern|
+  totals = model.project_totals(tracked_globs: pattern)
 
   {
-    directory: dir,
-    files: dir_files.length,
-    coverage: percentage,
-    covered: covered_lines,
-    total: total_lines
+    directory: pattern,
+    files: totals['files']['total'],
+    coverage: totals['percentage'].round(2),
+    covered: totals['lines']['covered'],
+    total: totals['lines']['total']
   }
 end
 
@@ -547,6 +541,7 @@ class CoverageReporter
 
   def generate_markdown_report(output_path)
     files = @model.all_files
+    totals = @model.project_totals
 
     File.open(output_path, 'w') do |f|
       f.puts "# Coverage Report"
@@ -555,13 +550,14 @@ class CoverageReporter
       f.puts
 
       # Overall stats
-      total_lines = files.sum { |file| file['total'] }
-      covered_lines = files.sum { |file| file['covered'] }
-      overall_pct = (covered_lines.to_f / total_lines * 100).round(2)
+      overall_percentage = totals['percentage']
+      total_lines = totals['lines']['total']
+      covered_lines = totals['lines']['covered']
+      total_files = totals['files']['total']
 
-      f.puts "## Overall Coverage: #{overall_pct}%"
+      f.puts "## Overall Coverage: #{overall_percentage}%"
       f.puts
-      f.puts "- Total Files: #{files.length}"
+      f.puts "- Total Files: #{total_files}"
       f.puts "- Total Lines: #{total_lines}"
       f.puts "- Covered Lines: #{covered_lines}"
       f.puts

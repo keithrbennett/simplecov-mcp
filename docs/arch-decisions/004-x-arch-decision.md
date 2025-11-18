@@ -128,7 +128,9 @@ end
 ```
 
 **Class example:**
+
 ```ruby
+
 class CoveragePolicy
   def call(model)
     api_files = model.all_files.select { |f| f['file'].start_with?('lib/api/') }
@@ -136,7 +138,7 @@ class CoveragePolicy
   end
 end
 
-CoveragePolicy.new
+AllFilesAboveThreshold.new
 ```
 
 The predicate receives a full `CoverageModel` instance with access to:

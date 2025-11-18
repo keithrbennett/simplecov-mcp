@@ -32,13 +32,13 @@ simplecov-mcp list --json > coverage-report.json
 
 ```bash
 # Quick summary
-simplecov-mcp summary lib/my_class.rb
+simplecov-mcp summary lib/simplecov_mcp/model.rb
 
 # See which lines aren't covered
-simplecov-mcp uncovered lib/my_class.rb
+simplecov-mcp uncovered lib/simplecov_mcp/model.rb
 
 # View uncovered code with context
-simplecov-mcp uncovered lib/my_class.rb --source=uncovered --source-context 3
+simplecov-mcp uncovered lib/simplecov_mcp/model.rb --source=uncovered --source-context 3
 ```
 
 ### Find Coverage Gaps
@@ -48,57 +48,51 @@ simplecov-mcp uncovered lib/my_class.rb --source=uncovered --source-context 3
 simplecov-mcp list | head -10
 
 # Only show files below 80%
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 80)'
+simplecov-mcp list --json | jq '.files[] | select(.percentage < 95)'
 
 # Check specific directory
-simplecov-mcp list --tracked-globs "lib/services/**/*.rb"
+simplecov-mcp list --tracked-globs "lib/simplecov_mcp/presenters/**/*.rb"
 ```
 
 ## CLI Examples
 
 ### Coverage Analysis
 
-**Find files needing attention:**
-```bash
-# Show only lib/ files
-simplecov-mcp list --tracked-globs "lib/**/*.rb"
-
-# Get uncovered line counts
-simplecov-mcp list --json | jq '.files[] | {file: .file, uncovered: (.total - .covered)}'
-```
-
 **Detailed investigation:**
 ```bash
 # See detailed hit counts
-simplecov-mcp detailed lib/auth_service.rb
+simplecov-mcp detailed lib/simplecov_mcp/cli.rb
 
 # Show full source with coverage markers
-simplecov-mcp summary lib/auth_service.rb --source=full
+simplecov-mcp summary lib/simplecov_mcp/cli.rb --source=full
 
 # Focus on uncovered areas only
-simplecov-mcp uncovered lib/auth_service.rb --source=uncovered --source-context 5
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=full --source=uncovered --source-context 5
 ```
 
 ### Working with JSON Output
 
+In addition to the benefit of JSON encoding being human readable, it can be used in single line commands to fetch and compute values using `jq`.
+Here are some examples:
+
 **Parse and filter:**
 ```bash
 # Files below threshold
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 90) | {file, coverage: .percentage}'
+simplecov-mcp list --json | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
 
 # Count total uncovered lines
-simplecov-mcp list --json | jq '[.files[] | (.total - .covered)] | add'
+simplecov-mcp total --json | jq '.lines.uncovered'
 
 # Group by directory
-simplecov-mcp list --json | jq 'group_by(.file | split("/")[0]) | map({dir: .[0].file | split("/")[0], avg: (map(.percentage) | add / length)})'
+simplecov-mcp list --json | jq '.files | group_by(.file | split("/")[0]) | map({dir: .[0].file | split("/")[0], avg: (map(.percentage) | add / length)})'
 ```
 
 **Generate reports:**
 ```bash
 # Create markdown table
-echo "| File | Coverage |" > report.md
-echo "|------|----------|" >> report.md
-simplecov-mcp list --json | jq -r '.files[] | "| \(.file) | \(.percentage)% |"' >> report.md
+echo "| Coverage | File |" > report.md
+echo "|----------|------|" >> report.md
+simplecov-mcp list --json | jq -r '.files[] | "| \(.percentage)% | \(.file) |"' >> report.md
 
 # Export for spreadsheet
 simplecov-mcp list --json | jq -r '.files[] | [.file, .percentage] | @csv' > coverage.csv
@@ -113,14 +107,14 @@ require "simplecov_mcp"
 
 model = SimpleCovMcp::CoverageModel.new
 
-# Get all files with coverage
-files = model.all_files
-puts "Total files: #{files.length}"
-puts "Average coverage: #{files.sum { |f| f['percentage'] } / files.length}%"
+# Project totals
+totals = model.project_totals
+puts "Total files: #{totals['files']['total']}"
+puts "Average coverage: #{totals['percentage']}%"
 
 # Check specific file
 summary = model.summary_for("lib/auth_service.rb")
-puts "Coverage: #{summary['summary']['pct']}%"
+puts "Coverage: #{summary['summary']['percentage']}%"
 
 # Find uncovered lines
 uncovered = model.uncovered_for("lib/auth_service.rb")
@@ -146,11 +140,14 @@ if low_coverage.any?
   end
 end
 
-# Group by directory
-by_dir = all_files.group_by { |f| File.dirname(f['file']) }
-by_dir.each do |dir, files|
-  avg = files.sum { |f| f['percentage'] } / files.length
-  puts "#{dir}: #{avg.round(2)}% (#{files.length} files)"
+# Group by directory using totals command logic
+dirs = ['.'] + `find lib/simplecov_mcp -type d`.split("\n")
+
+dirs.each do |dir|
+  pattern = File.join(dir, '*.rb')
+  totals = model.project_totals(tracked_globs: pattern)
+
+  puts "#{dir}: #{totals['percentage'].round(2)}% (#{totals['files']['total']} files)"
 end
 ```
 
@@ -158,12 +155,14 @@ end
 
 ```ruby
 require "simplecov_mcp"
+require "pathname"
 
 model = SimpleCovMcp::CoverageModel.new
 all_files = model.all_files
 
-# Filter to specific directory
-lib_files = all_files.select { |f| f['file'].start_with?('lib/') }
+# Filter to lib/simplecov_mcp (coverage data stores absolute paths)
+lib_root = File.expand_path("lib/simplecov_mcp", Dir.pwd)
+lib_files = all_files.select { |f| f['file'].start_with?(lib_root) }
 
 # Generate custom table
 table = model.format_table(lib_files, sort_order: :ascending)
@@ -172,7 +171,8 @@ puts table
 # Or create your own format
 lib_files.each do |file|
   status = file['percentage'] >= 90 ? '✓' : '⚠'
-  puts "#{status} #{file['file']}: #{file['percentage']}%"
+  relative_path = Pathname.new(file['file']).relative_path_from(Pathname.pwd)
+  puts "#{status} #{relative_path}: #{file['percentage']}%"
 end
 ```
 
@@ -180,7 +180,7 @@ end
 
 ### Coverage Analysis
 
-```
+    ```
 Using simplecov-mcp, show me a table of all files sorted by coverage percentage.
 ```
 
@@ -308,16 +308,15 @@ test:
   all_files = model.all_files
 
   # Must have at least 80% average coverage
-  avg_coverage = all_files.sum { |f| f['percentage'] } / all_files.length
-  return false if avg_coverage < 80.0
+  totals = model.project_totals
+  return false if totals['percentage'] < 80.0
 
   # No files below 60%
   return false if all_files.any? { |f| f['percentage'] < 60.0 }
 
   # lib/ files must average 90%
-  lib_files = all_files.select { |f| f['file'].start_with?('lib/') }
-  lib_avg = lib_files.sum { |f| f['percentage'] } / lib_files.length
-  return false if lib_avg < 90.0
+  lib_totals = model.project_totals(tracked_globs: ['lib/**/*.rb'])
+  return false if lib_totals['percentage'] < 90.0
 
   true
 end
@@ -338,20 +337,22 @@ require "simplecov_mcp"
 model = SimpleCovMcp::CoverageModel.new
 all_files = model.all_files
 
-# Calculate coverage by directory
-by_directory = all_files.group_by { |f| f['file'].split('/')[0..1].join('/') }
+# Calculate coverage by directory (uses the same data as `simplecov-mcp total`)
+patterns = %w[
+  lib/**/*.rb
+  app/**/*.rb
+  services/**/*.rb
+]
 
-results = by_directory.map do |dir, files|
-  total_lines = files.sum { |f| f['total'] }
-  covered_lines = files.sum { |f| f['covered'] }
-  percentage = (covered_lines.to_f / total_lines * 100).round(2)
+results = patterns.map do |pattern|
+  totals = model.project_totals(tracked_globs: pattern)
 
   {
-    directory: dir,
-    files: files.length,
-    coverage: percentage,
-    covered: covered_lines,
-    total: total_lines
+    directory: pattern,
+    files: totals['files']['total'],
+    coverage: totals['percentage'].round(2),
+    covered: totals['lines']['covered'],
+    total: totals['lines']['total']
   }
 end
 
@@ -408,9 +409,9 @@ puts "|------|----------|--------|"
 changed_files.each do |file|
   begin
     summary = model.summary_for(file)
-    pct = summary['summary']['pct']
-    status = pct >= 80 ? '✅' : '⚠️'
-    puts "| #{file} | #{pct}% | #{status} |"
+    percentage = summary['summary']['percentage']
+    status = percentage >= 80 ? '✅' : '⚠️'
+    puts "| #{file} | #{percentage}% | #{status} |"
   rescue
     puts "| #{file} | N/A | ❌ No coverage |"
   end
