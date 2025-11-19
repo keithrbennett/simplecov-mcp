@@ -78,7 +78,7 @@ module SimpleCovMcp
         out << sprintf('%6s  %6s  %7s', 'Line', 'Hits', 'Covered')
         out << sprintf('%6s  %6s  %7s', '-----', '----', '-------')
         rows.each do |r|
-          out << sprintf('%6d  %6d  %7s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
+          out << sprintf('%6d  %6d  %5s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
         end
         out.join("\n")
       end
