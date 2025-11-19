@@ -185,15 +185,12 @@ Path resolution order:
 
 1. **Exact absolute path match**
 2. **Relative path resolution from root**
-3. **Basename (filename) fallback**
 
 ```ruby
 model = SimpleCovMcp::CoverageModel.new(root: '/project')
 
-# All these work:
-model.summary_for('/project/lib/simplecov_mcp/model.rb')    # Absolute
-model.summary_for('lib/simplecov_mcp/model.rb')             # Relative
-model.summary_for('model.rb')                        # Basename only
+model.summary_for('/project/lib/simplecov_mcp/model.rb')  # Absolute
+model.summary_for('lib/simplecov_mcp/model.rb')           # Relative
 ```
 
 ### Working with Multiple Projects
