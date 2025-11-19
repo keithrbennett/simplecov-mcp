@@ -5,8 +5,8 @@
 SimpleCov can collect *line* coverage, *branch* coverage, or both. Projects that
 enable the `:branch` mode without `:line` produce a `.resultset.json` where the
 per-file entries contain a `branches` hash while the legacy `lines` array is
-`null`. This document explains that format and why SimpleCov MCP synthesizes a
-line array on the fly so downstream consumers continue to work.
+`null`. SimpleCov MCP synthesizes a line array on the fly so downstream
+consumers continue to work.
 
 ## SimpleCov branch payloads
 

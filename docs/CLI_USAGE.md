@@ -386,7 +386,7 @@ simplecov-mcp -S e  # Short form
 Comma-separated glob patterns for files that should be tracked.
 
 ```sh
-simplecov-mcp list --tracked-globs "lib/**/*.rb,app/**/*.rb"
+simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb,lib/simplecov_mcp/commands/**/*.rb"
 ```
 
 Used with `--stale error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
@@ -612,7 +612,7 @@ simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
 simplecov-mcp --stale error
 
 # Check with specific file patterns
-simplecov-mcp list --stale error --tracked-globs "lib/**/*.rb,app/**/*.rb"
+simplecov-mcp list --stale error --tracked-globs "lib/simplecov_mcp/tools/**/*.rb,lib/simplecov_mcp/commands/**/*.rb"
 
 # See which files are stale (don't error)
 simplecov-mcp list  # Stale files marked with !

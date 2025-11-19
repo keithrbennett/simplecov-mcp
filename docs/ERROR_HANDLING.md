@@ -2,11 +2,11 @@
 
 [Back to main README](../README.md)
 
-This tool provides different error handling behavior depending on how it's used:
+Error handling differs by usage mode:
 
 ## CLI Mode
 
-When used as a command-line tool, errors are displayed as user-friendly messages without stack traces:
+Errors are displayed as user-friendly messages without stack traces:
 
 ```bash
 $ simplecov-mcp summary nonexistent.rb
@@ -15,13 +15,14 @@ File error: No coverage data found for the specified file
 
 For debugging, use the `--error-mode trace` flag to see full stack traces:
 
+# TODO This does not do what it says it does
 ```bash
 $ simplecov-mcp --error-mode trace summary nonexistent.rb
 ```
 
 ## Library Mode
 
-When used as a Ruby library, callers work with `SimpleCovMcp::CoverageModel` directly. Errors raise custom exception classes that can be caught and handled:
+Calls to `SimpleCovMcp::CoverageModel` raise custom exceptions you can handle programmatically:
 
 ```ruby
 handler = SimpleCovMcp::ErrorHandlerFactory.for_library  # disables CLI-style logging
@@ -46,13 +47,11 @@ Available exception classes:
 
 ## MCP Server Mode
 
-When running as an MCP server, errors are handled internally and returned as structured responses to the MCP client. The MCP server uses:
+Errors are returned as structured responses to the MCP client:
 
-- **Logging enabled** - Errors are logged to `simplecov_mcp.log` in the current directory for server debugging
-- **Clean error messages** - User-friendly messages are returned to the client without stack traces by default
-- **Structured responses** - Errors are returned as proper MCP tool responses, not exceptions
-
-The MCP server automatically configures error handling appropriately for server usage.
+- **Logging enabled** - Errors go to `simplecov_mcp.log` in the current directory by default
+- **Clean error messages** - User-friendly messages, no stack traces by default
+- **Structured responses** - Tool responses instead of exceptions
 
 ## Custom Error Handlers
 

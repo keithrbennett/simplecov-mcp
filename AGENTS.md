@@ -15,7 +15,7 @@
 
 ## Repository Snapshot
 - Ruby gem exposing a SimpleCov coverage CLI (`exe/simplecov-mcp`) and MCP server; library lives under `lib/simplecov_mcp/`.
-- Key files: `lib/simplecov_mcp/cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simplecov_mcp/tools/*.rb`; shims in `lib/simplecov_mcp.rb` and `lib/simple_cov/mcp.rb`.
+- Key files: main entry point at `lib/simplecov_mcp.rb`, core modules in `lib/simplecov_mcp/` including `cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simplecov_mcp/tools/*.rb`.
 - Tests: RSpec under `spec/` with fixtures in `spec/fixtures/`; running tests produces `coverage/.resultset.json` consumed by the tools.
 - Useful commands:
   - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)

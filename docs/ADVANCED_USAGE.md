@@ -2,8 +2,6 @@
 
 [Back to main README](../README.md)
 
-This guide covers advanced usage patterns, integration strategies, and optimization techniques for simplecov-mcp.
-
 ## Table of Contents
 
 - [Advanced MCP Integration](#advanced-mcp-integration)
@@ -22,7 +20,7 @@ This guide covers advanced usage patterns, integration strategies, and optimizat
 
 ### MCP Error Handling
 
-The MCP server uses structured error responses. Understanding the error types helps with debugging:
+The MCP server uses structured error responses:
 
 ```json
 {
@@ -39,54 +37,11 @@ The MCP server uses structured error responses. Understanding the error types he
 }
 ```
 
-**Error Types:**
-- `FileError` - File not found in coverage or filesystem
-- `FileNotFoundError` - Source file missing from filesystem
-- `CoverageDataError` - Invalid or corrupt `.resultset.json`
-- `CoverageDataStaleError` - Coverage older than source (single file)
-- `CoverageDataProjectStaleError` - Project-wide staleness issues
-
 ### MCP Server Logging
 
-The MCP server logs to `simplecov_mcp.log` in the current directory by default. For custom log locations, configure via your MCP client:
+The MCP server logs to `simplecov_mcp.log` in the current directory by default.
 
-**Claude Code (`claude_desktop_config.json`):**
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "simplecov-mcp",
-      "args": ["--log-file", "/var/log/coverage/mcp.log"]
-    }
-  }
-}
-```
-
-**Or use environment variables:**
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "simplecov-mcp",
-      "env": {
-        "SIMPLECOV_MCP_OPTS": "--log-file /var/log/coverage/mcp.log"
-      }
-    }
-  }
-}
-```
-
-**To log to standard error:**
-```json
-{
-  "mcpServers": {
-    "simplecov-mcp": {
-      "command": "simplecov-mcp",
-      "args": ["--log-file", "stderr"]
-    }
-  }
-}
-```
+To override the default log file location, specify the `--log-file` argument wherever and however you configure your MCP server. For example, to log to a different file path, include `--log-file /path/to/logfile.log` in your server configuration. To log to standard error, use `--log-file stderr`.
 
 **Note:** Logging to `stdout` is not permitted in MCP mode.
 
@@ -136,10 +91,10 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if any file is stale
-simplecov-mcp --stale error summary lib/model.rb
+simplecov-mcp --stale error summary lib/simplecov_mcp/model.rb
 
 # Check specific file staleness
-simplecov-mcp summary lib/model.rb --stale error
+simplecov-mcp summary lib/simplecov_mcp/model.rb --stale error
 ```
 
 **Ruby API:**
@@ -149,7 +104,7 @@ model = SimpleCovMcp::CoverageModel.new(
 )
 
 begin
-  summary = model.summary_for('lib/model.rb')
+  summary = model.summary_for('lib/simplecov_mcp/model.rb')
 rescue SimpleCovMcp::CoverageDataStaleError => e
   puts "File modified after coverage: #{e.file_path}"
   puts "Coverage timestamp: #{e.cov_timestamp}"
@@ -171,8 +126,8 @@ Detects system-wide staleness issues:
 ```sh
 # Track specific patterns
 simplecov-mcp --stale error \
-  --tracked-globs "lib/**/*.rb" \
-  --tracked-globs "app/**/*.rb"
+  --tracked-globs "lib/simplecov_mcp/tools/**/*.rb" \
+  --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
 
 # Combine with JSON output for parsing
 simplecov-mcp list --stale error --json > stale-check.json
@@ -182,7 +137,7 @@ simplecov-mcp list --stale error --json > stale-check.json
 ```ruby
 model = SimpleCovMcp::CoverageModel.new(
   staleness: 'error',
-  tracked_globs: ['lib/**/*.rb', 'app/**/*.rb']
+  tracked_globs: ['lib/simplecov_mcp/tools/**/*.rb', 'lib/simplecov_mcp/commands/**/*.rb']
 )
 
 begin
@@ -226,20 +181,18 @@ coverage:validate:
 
 ### Multi-Strategy Path Matching
 
-SimpleCov-mcp uses a sophisticated path resolution strategy:
+Path resolution order:
 
 1. **Exact absolute path match**
 2. **Relative path resolution from root**
 3. **Basename (filename) fallback**
 
-This allows flexible path specifications:
-
 ```ruby
 model = SimpleCovMcp::CoverageModel.new(root: '/project')
 
 # All these work:
-model.summary_for('/project/lib/model.rb')           # Absolute
-model.summary_for('lib/model.rb')                    # Relative
+model.summary_for('/project/lib/simplecov_mcp/model.rb')    # Absolute
+model.summary_for('lib/simplecov_mcp/model.rb')             # Relative
 model.summary_for('model.rb')                        # Basename only
 ```
 
@@ -272,35 +225,24 @@ coverage_b = model_b.all_files
 
 ### Context-Aware Error Handling
 
-SimpleCov-mcp uses different error handling strategies based on context:
+**CLI Mode:** user-facing messages, exit codes, optional debug mode
 
-**CLI Mode:**
-- User-friendly messages
-- Exit codes (0 = success, 1 = error)
-- Optional debug mode
+**Library Mode:** typed exceptions with full details
 
-**Library Mode:**
-- Raises typed exceptions
-- Programmatic error handling
-- Full exception details
-
-**MCP Server Mode:**
-- JSON-RPC error responses
-- Logging to file
-- Structured error data
+**MCP Server Mode:** JSON-RPC errors logged to file with structured data
 
 ### Error Modes
 
 **CLI Error Modes:**
 ```sh
 # Silent mode - minimal output
-simplecov-mcp --error-mode off summary lib/model.rb
+simplecov-mcp --error-mode off summary lib/simplecov_mcp/model.rb
 
 # Standard mode - user-friendly errors (default)
-simplecov-mcp --error-mode on summary lib/model.rb
+simplecov-mcp --error-mode on summary lib/simplecov_mcp/model.rb
 
 # Verbose mode - full stack traces
-simplecov-mcp --error-mode trace summary lib/model.rb
+simplecov-mcp --error-mode trace summary lib/simplecov_mcp/model.rb
 ```
 
 **Ruby API Error Handling:**
@@ -323,7 +265,7 @@ end
 
 ### Custom Error Handlers
 
-For library integration, provide custom error handlers:
+Provide custom error handlers when embedding the CLI:
 
 ```ruby
 class CustomErrorHandler
@@ -336,9 +278,7 @@ class CustomErrorHandler
   end
 end
 
-cli = SimpleCovMcp::CoverageCLI.new(
-  error_handler: CustomErrorHandler.new
-)
+cli = SimpleCovMcp::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 ```
 
 ---
@@ -422,12 +362,12 @@ Convert absolute paths to relative for cleaner output:
 model = SimpleCovMcp::CoverageModel.new(root: '/project')
 
 # Get data with absolute paths
-data = model.summary_for('lib/model.rb')
-# => { 'file' => '/project/lib/model.rb', ... }
+data = model.summary_for('lib/simplecov_mcp/model.rb')
+# => { 'file' => '/project/lib/simplecov_mcp/model.rb', ... }
 
 # Relativize paths
 relative_data = model.relativize(data)
-# => { 'file' => 'lib/model.rb', ... }
+# => { 'file' => 'lib/simplecov_mcp/model.rb', ... }
 
 # Works with arrays too
 files = model.all_files
@@ -467,8 +407,8 @@ jobs:
       - name: Validate coverage freshness
         run: |
           simplecov-mcp --stale error \
-            --tracked-globs "lib/**/*.rb" \
-            --tracked-globs "app/**/*.rb"
+            --tracked-globs "lib/simplecov_mcp/tools/**/*.rb" \
+            --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
 
       - name: Check minimum coverage
         run: |
@@ -631,7 +571,7 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 --tracked-globs "lib/**/*.rb"
 
 # Multiple patterns
---tracked-globs "lib/**/*.rb" --tracked-globs "app/**/*.rb"
+--tracked-globs "lib/simplecov_mcp/tools/**/*.rb" --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
 simplecov-mcp list --json | jq '.files[] | select(.file | test("spec") | not)'
@@ -850,12 +790,12 @@ The CLI supports annotated source viewing:
 
 ```sh
 # Show uncovered lines with context
-simplecov-mcp uncovered lib/model.rb \
+simplecov-mcp uncovered lib/simplecov_mcp/model.rb \
   --source uncovered \
   --source-context 3
 
 # Show full file with coverage annotations
-simplecov-mcp uncovered lib/model.rb \
+simplecov-mcp uncovered lib/simplecov_mcp/model.rb \
   --source full \
   --source-context 0
 ```
@@ -885,7 +825,7 @@ def annotate_source(file_path)
   output.join
 end
 
-puts annotate_source('lib/model.rb')
+puts annotate_source('lib/simplecov_mcp/model.rb')
 ```
 
 ### Integration with Coverage Trackers
@@ -943,4 +883,3 @@ Net::HTTP.post(uri, coveralls_data.to_json, {
 - [MCP Integration Guide](MCP_INTEGRATION.md)
 - [Error Handling Details](ERROR_HANDLING.md)
 - [Troubleshooting](TROUBLESHOOTING.md)
-

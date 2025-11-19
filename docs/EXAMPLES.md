@@ -113,11 +113,11 @@ puts "Total files: #{totals['files']['total']}"
 puts "Average coverage: #{totals['percentage']}%"
 
 # Check specific file
-summary = model.summary_for("lib/auth_service.rb")
+summary = model.summary_for("lib/simplecov_mcp/cli.rb")
 puts "Coverage: #{summary['summary']['percentage']}%"
 
 # Find uncovered lines
-uncovered = model.uncovered_for("lib/auth_service.rb")
+uncovered = model.uncovered_for("lib/simplecov_mcp/cli.rb")
 puts "Uncovered lines: #{uncovered['uncovered'].join(', ')}"
 ```
 
@@ -192,27 +192,27 @@ Using simplecov-mcp, find the 10 files with the lowest coverage and create a mar
 ```
 
 ```
-Using simplecov-mcp, analyze the lib/services/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
+Using simplecov-mcp, analyze the lib/simplecov_mcp/tools/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
 ```
 
 ### Finding Specific Issues
 
 ```
-Using simplecov-mcp, show me the uncovered lines in lib/auth_service.rb with 5 lines of context around each uncovered block.
+Using simplecov-mcp, show me the uncovered lines in lib/simplecov_mcp/cli.rb with 5 lines of context around each uncovered block.
 ```
 
 ```
-Using simplecov-mcp, find all files in lib/models/ with less than 80% coverage and list the specific uncovered line numbers for each.
+Using simplecov-mcp, find all files in lib/simplecov_mcp/presenters/ with less than 80% coverage and list the specific uncovered line numbers for each.
 ```
 
 ### Test Generation
 
 ```
-Using simplecov-mcp, identify the uncovered lines in lib/payment_processor.rb and write RSpec tests to cover them.
+Using simplecov-mcp, identify the uncovered lines in lib/simplecov_mcp/mcp_server.rb and write RSpec tests to cover them.
 ```
 
 ```
-Using simplecov-mcp, analyze coverage gaps in the lib/api/ directory and generate a test plan prioritizing:
+Using simplecov-mcp, analyze coverage gaps in the lib/simplecov_mcp/commands/ directory and generate a test plan prioritizing:
 1. Public API methods
 2. Error handling paths
 3. Edge cases
@@ -339,9 +339,9 @@ all_files = model.all_files
 
 # Calculate coverage by directory (uses the same data as `simplecov-mcp total`)
 patterns = %w[
-  lib/**/*.rb
-  app/**/*.rb
-  services/**/*.rb
+  lib/simplecov_mcp/tools/**/*.rb
+  lib/simplecov_mcp/commands/**/*.rb
+  lib/simplecov_mcp/presenters/**/*.rb
 ]
 
 results = patterns.map do |pattern|

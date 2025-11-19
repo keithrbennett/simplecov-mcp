@@ -2,8 +2,6 @@
 
 [Back to main README](../README.md)
 
-This guide helps you diagnose and fix common issues with simplecov-mcp. Issues are organized by symptom for quick lookup.
-
 ## Table of Contents
 
 - [Installation Issues](#installation-issues)
@@ -186,7 +184,7 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    ```bash
    # If MCP isn't working, use CLI with --json
    simplecov-mcp list --json
-   simplecov-mcp summary lib/file.rb --json
+   simplecov-mcp summary lib/simplecov_mcp/cli.rb --json
    ```
 
 ### Path Issues with Version Managers
@@ -252,7 +250,7 @@ If the above doesn't solve your problem:
 
 1. **Check error mode** - Run with `--error-mode trace` for full stack traces:
    ```bash
-   simplecov-mcp --error-mode trace summary lib/file.rb
+   simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
    ```
 
 2. **Check logs:**
@@ -261,7 +259,7 @@ If the above doesn't solve your problem:
    tail -50 simplecov_mcp.log
 
    # Or specify custom log location
-   simplecov-mcp --log-file /tmp/debug.log summary lib/file.rb
+   simplecov-mcp --log-file /tmp/debug.log summary lib/simplecov_mcp/cli.rb
    ```
 
 3. **Search existing issues:**

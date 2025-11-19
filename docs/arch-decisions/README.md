@@ -2,8 +2,6 @@
 
 [Back to main README](../../README.md)
 
-This directory contains Architecture Decision Records (ADRs) for the SimpleCov MCP project.
-
 ## What is an ADR?
 
 An Architecture Decision Record (ADR) captures a significant architectural decision made during the development of this project, along with its context and consequences.
@@ -22,10 +20,10 @@ A short phrase describing the decision (e.g., "Dual-Mode Operation: CLI and MCP 
 - **Superseded**: Replaced by a newer decision
 
 ### Context
-The background, problem statement, and constraints that led to this decision. This section answers "Why did we need to make a decision here?"
+The background, problem statement, and constraints that led to the decision.
 
 ### Decision
-The architectural decision that was made. This section answers "What did we decide to do?"
+The architectural choice that was made.
 
 ### Consequences
 The implications of this decision, both positive and negative. This includes:

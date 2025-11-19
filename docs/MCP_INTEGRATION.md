@@ -2,8 +2,6 @@
 
 [Back to main README](../README.md)
 
-This guide covers setting up simplecov-mcp as an MCP (Model Context Protocol) server for AI coding assistants.
-
 ## Table of Contents
 
 - [What is MCP?](#what-is-mcp)
@@ -403,18 +401,7 @@ tail -f simplecov_mcp.log
 grep ERROR simplecov_mcp.log | tail -20
 ```
 
-**Configure custom log location** when adding the server:
-
-```sh
-# Claude Code
-claude mcp add simplecov-mcp simplecov-mcp --log-file /var/log/simplecov.log
-
-# Codex
-codex mcp add simplecov-mcp --command simplecov-mcp --args "--log-file" --args "/var/log/simplecov.log"
-
-# Log to stderr (Claude)
-claude mcp add simplecov-mcp simplecov-mcp --log-file stderr
-```
+To override the default log file location, specify the `--log-file` argument wherever and however you configure your MCP server. For example, to log to a different file path, include `--log-file /path/to/logfile.log` in your server configuration. To log to standard error, use `--log-file stderr`.
 
 **Note:** Logging to `stdout` is not permitted in MCP mode.
 
@@ -425,9 +412,9 @@ claude mcp add simplecov-mcp simplecov-mcp --log-file stderr
 **Important:** If the MCP server doesn't work, use CLI commands with `--json` for structured output:
 
 ```sh
-simplecov-mcp summary lib/file.rb --json      # coverage_summary_tool
-simplecov-mcp uncovered lib/file.rb --json    # uncovered_lines_tool
-simplecov-mcp detailed lib/file.rb --json     # coverage_detailed_tool
+simplecov-mcp summary lib/simplecov_mcp/cli.rb --json      # coverage_summary_tool
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --json    # uncovered_lines_tool
+simplecov-mcp detailed lib/simplecov_mcp/cli.rb --json     # coverage_detailed_tool
 simplecov-mcp list --json                      # all_files_coverage_tool
 simplecov-mcp version --json                   # version_tool
 ```

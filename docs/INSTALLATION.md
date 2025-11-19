@@ -2,8 +2,6 @@
 
 [Back to main README](../README.md)
 
-This guide covers installing simplecov-mcp in various environments and configurations.
-
 ## Prerequisites
 
 - **Ruby >= 3.2** (required by the `mcp` dependency)
@@ -41,87 +39,32 @@ gem build simplecov-mcp.gemspec
 gem install simplecov-mcp-*.gem
 ```
 
-## Require Paths
+## Require Path
 
-The gem supports multiple require paths for compatibility:
+The gem uses a single require path:
 
 ```ruby
-require "simplecov_mcp"     # Primary path (recommended)
-require "simple_cov/mcp"    # Legacy shim (supported)
+require "simplecov_mcp"
 ```
 
-The executable is always `simplecov-mcp` (with hyphen).
-
-## Version Manager Setup
-
-### rbenv
-
-After installation:
-
-```sh
-rbenv rehash
-which simplecov-mcp  # Should point to rbenv shim
-```
-
-For MCP server configuration, use the shim path:
-
-```sh
-which simplecov-mcp
-# Example: /Users/yourname/.rbenv/shims/simplecov-mcp
-```
-
-### RVM
-
-After installation:
-
-```sh
-rvm use 3.3.8  # or your preferred Ruby 3.2+ version
-gem install simplecov-mcp
-```
-
-For MCP server configuration with RVM:
-
-```sh
-# Get the full gem path for your Ruby version
-rvm use 3.3.8
-which simplecov-mcp
-# Example: /Users/yourname/.rvm/gems/ruby-3.3.8/bin/simplecov-mcp
-
-# Or use RVM wrappers for stability across shell sessions:
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-# Creates: /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
-```
-
-**Important:** If you change Ruby versions, you'll need to reinstall the gem or update your MCP configuration.
-
-### asdf
-
-After installation:
-
-```sh
-asdf reshim ruby
-which simplecov-mcp  # Should point to asdf shim
-```
-
-### chruby
-
-chruby automatically adds gem bins to PATH. After installation:
-
-```sh
-which simplecov-mcp  # Should be in current Ruby's gem bin
-```
+The executable is `simplecov-mcp` (with hyphen).
 
 ## PATH Configuration
 
-### Automatic (with Version Managers)
+### With Version Managers
 
-Most version managers (rbenv, asdf, RVM, chruby) automatically configure PATH. Verify:
+Most version managers (rbenv, asdf, RVM, chruby) automatically configure PATH. After installation:
 
 ```sh
+# Refresh shims if needed
+rbenv rehash      # rbenv
+asdf reshim ruby  # asdf
+
+# Verify executable is accessible
 which simplecov-mcp
 ```
 
-If this returns a path, you're all set.
+**Important:** When changing Ruby versions, reinstall the gem and update any MCP configurations that use absolute paths.
 
 ### Manual PATH Setup
 
@@ -205,146 +148,6 @@ sudo yum install ruby-devel
 ### Windows
 
 Should work with Ruby installed via RubyInstaller. PATH configuration may differ.
-
-## Docker/Container Environments
-
-When using in containers:
-
-```dockerfile
-FROM ruby:3.3
-
-# Install gem
-RUN gem install simplecov-mcp
-
-# Or with Bundler
-COPY Gemfile Gemfile.lock ./
-RUN bundle install
-
-# Usage
-CMD ["simplecov-mcp"]
-```
-
-Mount your project directory to access coverage data:
-
-```sh
-docker run -v $(pwd):/app -w /app ruby:3.3 simplecov-mcp
-```
-
-## CI/CD Environments
-
-### GitHub Actions
-
-```yaml
-- name: Setup Ruby
-  uses: ruby/setup-ruby@v1
-  with:
-    ruby-version: 3.3
-    bundler-cache: true
-
-- name: Install simplecov-mcp
-  run: gem install simplecov-mcp
-
-- name: Check coverage
-  run: simplecov-mcp --stale error
-```
-
-### GitLab CI
-
-```yaml
-test:
-  image: ruby:3.3
-  before_script:
-    - gem install simplecov-mcp
-  script:
-    - bundle exec rspec
-    - simplecov-mcp --stale error
-```
-
-## Upgrading
-
-### From Previous Versions
-
-```sh
-gem update simplecov-mcp
-```
-
-With Bundler:
-
-```sh
-bundle update simplecov-mcp
-```
-
-### Version Manager Considerations
-
-After upgrading Ruby versions, reinstall:
-
-```sh
-# rbenv/asdf
-gem install simplecov-mcp
-rbenv rehash  # or: asdf reshim ruby
-
-# RVM
-rvm use 3.3.8
-gem install simplecov-mcp
-```
-
-## Troubleshooting
-
-### "command not found: simplecov-mcp"
-
-1. Verify gem is installed:
-   ```sh
-   gem list simplecov-mcp
-   ```
-
-2. Check gem bin is in PATH:
-   ```sh
-   echo $PATH | grep -o "$(gem env gemdir)/bin"
-   ```
-
-3. Use full path temporarily:
-   ```sh
-   $(gem env gemdir)/bin/simplecov-mcp
-   ```
-
-4. Or use bundler:
-   ```sh
-   bundle exec simplecov-mcp
-   ```
-
-### "cannot load such file -- mcp"
-
-Your Ruby version is too old. Verify:
-
-```sh
-ruby -v  # Should be 3.2.0 or higher
-```
-
-Upgrade Ruby and reinstall.
-
-### "wrong number of arguments"
-
-You may have multiple versions installed. Clean up:
-
-```sh
-gem uninstall simplecov-mcp
-# Select "All versions" if prompted
-gem install simplecov-mcp
-```
-
-### Version Manager Shims Not Updating
-
-```sh
-# rbenv
-rbenv rehash
-
-# asdf
-asdf reshim ruby
-
-# RVM
-# Usually automatic, but try:
-rvm reload
-```
 
 ## Next Steps
 

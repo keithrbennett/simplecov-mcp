@@ -429,7 +429,7 @@ require "simplecov_mcp"
 model = SimpleCovMcp::CoverageModel.new
 
 # Calculate coverage by directory using the totals API
-patterns = %w[lib/**/*.rb app/**/*.rb services/**/*.rb]
+patterns = %w[lib/simplecov_mcp/tools/**/*.rb lib/simplecov_mcp/commands/**/*.rb lib/simplecov_mcp/presenters/**/*.rb]
 
 directory_stats = patterns.map do |pattern|
   totals = model.project_totals(tracked_globs: pattern)
