@@ -108,7 +108,7 @@ summary = model.summary_for('lib/model.rb')
 uncovered = model.uncovered_for('lib/model.rb')
 ```
 
-See [docs/LIBRARY_API.md](../../docs/LIBRARY_API.md) for the complete API.
+See [docs/user/LIBRARY_API.md](../../docs/user/LIBRARY_API.md) for the complete API.
 
 ### When to Use Standalone Scripts Instead
 

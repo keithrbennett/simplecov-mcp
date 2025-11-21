@@ -21,13 +21,13 @@ This release represents a complete maturation of simplecov-mcp from experimental
 - **Automatic merging** of multiple test suites from a single `.resultset.json` file (e.g., RSpec + Cucumber)
 - **Lazy loading** of SimpleCov dependency - only loaded when multi-suite merging is needed
 - **Performance optimized** - single-suite projects remain fast with no SimpleCov runtime overhead
-- See `docs/ADVANCED_USAGE.md` for configuration details
+- See `docs/user/ADVANCED_USAGE.md` for configuration details
 
 #### Branch Coverage Support (with Limitations)
 - **Branch-level data handling** - reads and processes SimpleCov branch coverage data
 - **Line-level aggregation** - branch hits are summed per line since individual branch tracking isn't supported yet
 - **Graceful degradation** - use native SimpleCov HTML reports for detailed branch-by-branch analysis
-- See `docs/BRANCH_ONLY_COVERAGE.md` for details and limitations
+- See `docs/dev/BRANCH_ONLY_COVERAGE.md` for details and limitations
 
 #### Enhanced Staleness Detection
 - **Three staleness indicators**:
@@ -47,7 +47,7 @@ This release represents a complete maturation of simplecov-mcp from experimental
   - Per-directory thresholds
   - Class-based policies
   - Maximum low-coverage file count
-- See `docs/ADVANCED_USAGE.md#success-predicates` for usage and security considerations
+- See `docs/user/ADVANCED_USAGE.md#success-predicates` for usage and security considerations
 
 #### Comprehensive CLI Enhancements
 - **Default command improved** - `simplecov-mcp` shows sorted coverage table (no subcommand needed)
@@ -73,7 +73,7 @@ This release represents a complete maturation of simplecov-mcp from experimental
 - **Custom exception hierarchy** - `SimpleCovMcp::Error` base class with specific subtypes
 - **Logging fallback** - Graceful degradation to stderr when log file is unavailable (CLI/library modes only)
 - **Structured MCP errors** - JSON-RPC compliant error responses with proper error codes
-- See `docs/ERROR_HANDLING.md` for complete reference
+- See `docs/user/ERROR_HANDLING.md` for complete reference
 
 #### Improved Path Resolution
 - **Multi-strategy matching**:
@@ -94,31 +94,31 @@ This release represents a complete maturation of simplecov-mcp from experimental
 ### 📚 Documentation Overhaul
 
 #### Comprehensive Documentation Suite
-All documentation moved to `docs/` directory with clear organization:
+All documentation moved under audience-specific directories (`docs/user` for usage guides, `docs/dev` for contributor content):
 
 **Getting Started:**
-- `docs/INSTALLATION.md` - Installation for all environments (gem, Bundler, source, RVM, rbenv, etc.)
-- `docs/CLI_USAGE.md` - Complete command-line reference with examples
-- `docs/EXAMPLES.md` - Common use cases and workflows
+- `docs/user/INSTALLATION.md` - Installation for all environments (gem, Bundler, source, RVM, rbenv, etc.)
+- `docs/user/CLI_USAGE.md` - Complete command-line reference with examples
+- `docs/user/EXAMPLES.md` - Common use cases and workflows
 
 **Advanced Usage:**
-- `docs/ADVANCED_USAGE.md` - Success predicates, multi-suite merging, resultset configuration
-- `docs/MCP_INTEGRATION.md` - AI assistant setup (Claude Code, Cursor, Zed, etc.)
-- `docs/LIBRARY_API.md` - Complete Ruby API documentation with recipes
+- `docs/user/ADVANCED_USAGE.md` - Success predicates, multi-suite merging, resultset configuration
+- `docs/user/MCP_INTEGRATION.md` - AI assistant setup (Claude Code, Cursor, Zed, etc.)
+- `docs/user/LIBRARY_API.md` - Complete Ruby API documentation with recipes
 
 **Reference:**
-- `docs/ERROR_HANDLING.md` - Error modes, exception types, logging
-- `docs/TROUBLESHOOTING.md` - Common issues and solutions
-- `docs/ARCHITECTURE.md` - System design and component overview
-- `docs/DEVELOPMENT.md` - Contributing guide
-- `docs/BRANCH_ONLY_COVERAGE.md` - Branch coverage support and limitations
+- `docs/user/ERROR_HANDLING.md` - Error modes, exception types, logging
+- `docs/user/TROUBLESHOOTING.md` - Common issues and solutions
+- `docs/dev/ARCHITECTURE.md` - System design and component overview
+- `docs/dev/DEVELOPMENT.md` - Contributing guide
+- `docs/dev/BRANCH_ONLY_COVERAGE.md` - Branch coverage support and limitations
 
 **Architectural Decisions:**
-- `docs/arch-decisions/*.md` - 5 detailed ADRs documenting major design decisions
-- `docs/arch-decisions/README.md` - Index and overview
+- `docs/dev/arch-decisions/*.md` - 5 detailed ADRs documenting major design decisions
+- `docs/dev/arch-decisions/README.md` - Index and overview
 
 **Additional Resources:**
-- `docs/presentations/simplecov-mcp-presentation.md` - Slide deck for talks/demos
+- `docs/dev/presentations/simplecov-mcp-presentation.md` - Slide deck for talks/demos
 - `examples/success_predicates/README.md` - Success predicate examples and patterns
 - `prompts/*.md` - AI prompt templates for coverage analysis
 
@@ -242,7 +242,7 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
    ```
 
 4. **Update MCP configurations:**
-   - Review `docs/MCP_INTEGRATION.md` for updated setup instructions
+   - Review `docs/user/MCP_INTEGRATION.md` for updated setup instructions
    - Log file now defaults to `./simplecov_mcp.log` (was `~/simplecov_mcp.log`)
 
 5. **Handle new error types in library code:**

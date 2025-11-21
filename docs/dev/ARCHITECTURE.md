@@ -66,7 +66,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 - `lib/simplecov_mcp/` – Core runtime (model, utilities, error handling, CLI, MCP server, tools).
 - `lib/simplecov_mcp.rb` – Primary public entry point required by gem consumers.
-- `docs/` – User-facing guides (usage, installation, troubleshooting, architecture).
+- `docs/` – Audience-specific guides (`docs/user` for usage, `docs/dev` for contributors).
 - `spec/` – RSpec suite with fixtures under `spec/fixtures/` for deterministic coverage data.
 
 ## Extending the System With a New Tool or Metric

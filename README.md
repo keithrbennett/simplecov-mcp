@@ -78,7 +78,7 @@ summary = model.summary_for("lib/simplecov_mcp/model.rb")
 ```
 
 **MCP Server:**
-See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
+See [MCP Integration Guide](docs/user/MCP_INTEGRATION.md) for AI assistant setup.
 
 ## Multi-Suite Coverage Merging
 
@@ -97,21 +97,21 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 ## Documentation
 
 **Getting Started:**
-- [Installation](docs/INSTALLATION.md) - Setup for different environments
-- [CLI Usage](docs/CLI_USAGE.md) - Command-line reference
-- [Examples](docs/EXAMPLES.md) - Common use cases
+- [Installation](docs/user/INSTALLATION.md) - Setup for different environments
+- [CLI Usage](docs/user/CLI_USAGE.md) - Command-line reference
+- [Examples](docs/user/EXAMPLES.md) - Common use cases
 
 **Advanced Usage:**
-- [MCP Integration](docs/MCP_INTEGRATION.md) - AI assistant configuration
-- [Library API](docs/LIBRARY_API.md) - Ruby API documentation
-- [Advanced Usage](docs/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
-- [Error Handling](docs/ERROR_HANDLING.md) - Error modes and exceptions
+- [MCP Integration](docs/user/MCP_INTEGRATION.md) - AI assistant configuration
+- [Library API](docs/user/LIBRARY_API.md) - Ruby API documentation
+- [Advanced Usage](docs/user/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
+- [Error Handling](docs/user/ERROR_HANDLING.md) - Error modes and exceptions
 
 **Reference:**
-- [Architecture](docs/ARCHITECTURE.md) - Design and internals
-- [Branch Coverage](docs/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
-- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues
-- [Development](docs/DEVELOPMENT.md) - Contributing guide
+- [Architecture](docs/dev/ARCHITECTURE.md) - Design and internals
+- [Branch Coverage](docs/dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
+- [Troubleshooting](docs/user/TROUBLESHOOTING.md) - Common issues
+- [Development](docs/dev/DEVELOPMENT.md) - Contributing guide
 
 ## Requirements
 
@@ -135,7 +135,7 @@ export SIMPLECOV_MCP_OPTS="--resultset /path/to/your/coverage"
 # "args": ["--resultset", "/path/to/your/coverage"]
 ```
 
-See [CLI Usage Guide](docs/CLI_USAGE.md#-r---resultset-path) for complete details.
+See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
 
 
 
@@ -194,18 +194,18 @@ simplecov-mcp total --json
 **MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `all_files_coverage_tool`, `coverage_totals_tool`, `coverage_table_tool`, `help_tool`, `version_tool`
 
 📖 **See also:**
-- [CLI Usage Guide](docs/CLI_USAGE.md) - Complete command-line reference
-- [MCP Integration Guide](docs/MCP_INTEGRATION.md#available-mcp-tools) - MCP tools documentation
+- [CLI Usage Guide](docs/user/CLI_USAGE.md) - Complete command-line reference
+- [MCP Integration Guide](docs/user/MCP_INTEGRATION.md#available-mcp-tools) - MCP tools documentation
 
 ## Troubleshooting
 
-- **"command not found"** - See [Installation Guide](docs/INSTALLATION.md#path-configuration)
+- **"command not found"** - See [Installation Guide](docs/user/INSTALLATION.md#path-configuration)
 - **"cannot load such file -- mcp"** - Requires Ruby >= 3.2. Verify: `ruby -v`
 - **"Could not find .resultset.json"** - Ensure SimpleCov is configured in your test suite, then run tests to generate coverage. See the [Configuring the Resultset](#configuring-the-resultset) section for more details.
-- **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](docs/MCP_INTEGRATION.md#troubleshooting)
+- **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](docs/user/MCP_INTEGRATION.md#troubleshooting)
 - **RVM in sandboxed environments (macOS)** - RVM requires `/bin/ps` which may be blocked by sandbox restrictions. Use rbenv or chruby instead.
 
-For more detailed help, see the full [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
+For more detailed help, see the full [Troubleshooting Guide](docs/user/TROUBLESHOOTING.md).
 
 ## Development
 
@@ -226,7 +226,7 @@ gem build simplecov-mcp.gemspec
 gem install simplecov-mcp-*.gem
 ```
 
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) for more *(coming soon)*.
+See [docs/dev/DEVELOPMENT.md](docs/dev/DEVELOPMENT.md) for more *(coming soon)*.
 
 ## SimpleCov Dependency
 
@@ -265,7 +265,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 📦 **Install:** `gem install simplecov-mcp`
 
-📖 **Read:** [CLI Usage Guide](docs/CLI_USAGE.md) | [MCP Integration](docs/MCP_INTEGRATION.md)
+📖 **Read:** [CLI Usage Guide](docs/user/CLI_USAGE.md) | [MCP Integration](docs/user/MCP_INTEGRATION.md)
 
 🐛 **Report issues:** [GitHub Issues](https://github.com/keithrbennett/simplecov-mcp/issues)
 

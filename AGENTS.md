@@ -12,6 +12,7 @@
 - Approval mode is `on-request`: retry failed-but-needed commands with escalation rather than asking the user manually.
 - Planning tool: skip for trivial chores; otherwise create a multi-step plan and keep it updated as you work (max one `in_progress` step).
 - Stop immediately and ask the user if the repo contains unexpected changes you did not make.
+- When moving or renaming tracked files, use `git mv` (or `git mv -k`) instead of plain `mv` so history stays intact.
 
 ## Repository Snapshot
 - Ruby gem exposing a SimpleCov coverage CLI (`exe/simplecov-mcp`) and MCP server; library lives under `lib/simplecov_mcp/`.
