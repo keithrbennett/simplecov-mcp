@@ -13,7 +13,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ## Coverage Data Pipeline
 
 1. **Resultset discovery** – The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](../README.md#configuring-the-resultset) section in the main README.
-2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, selects the first suite that exposes `coverage`, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
+2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, extracts all test suites that expose `coverage` data (e.g., "RSpec", "Minitest"), merges them if multiple suites exist, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
 3. **Path relativizing** – `PathRelativizer` produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
 4. **Derived metrics** – `CovUtil.summary`, `CovUtil.uncovered`, and `CovUtil.detailed` compute coverage stats from the raw `lines` arrays. `CoverageModel` exposes `summary_for`, `uncovered_for`, `detailed_for`, and `raw_for` helpers that wrap these utilities.
 5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--stale error`) or simply mark rows as stale for display.
@@ -59,7 +59,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 - **Environment defaults** – `SIMPLECOV_MCP_OPTS` applies baseline CLI flags before parsing the actual command line.
 - **Resultset overrides** – The location of the `.resultset.json` file can be specified via CLI options or in the MCP configuration. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
-- **Tracked globs** – For project staleness checks, `tracked_globs` ensures new files raise alerts when absent from coverage.
+- **Tracked globs** – Glob patterns (e.g., `lib/**/*.rb`) that specify which files should have coverage. When provided, SimpleCov MCP alerts you if any matching files are missing from the coverage data, helping catch untested files that were added to the project but never executed during test runs.
 - **Colorized source** – CLI-only flags (`--source`, `--source-context`, `--color`) enhance human-readable reports when working locally.
 
 ## Repository Layout Highlights
@@ -68,13 +68,12 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 - `lib/simplecov_mcp.rb` – Primary public entry point required by gem consumers.
 - `docs/` – User-facing guides (usage, installation, troubleshooting, architecture).
 - `spec/` – RSpec suite with fixtures under `spec/fixtures/` for deterministic coverage data.
-- `scripts/` – Helper scripts (e.g., `scripts/setup_codex_cloud.sh`).
 
-## Extending the System
+## Extending the System With a New Tool or Metric
 
 1. Add or update data processing inside `CoverageModel` or `CovUtil` when a new metric is needed.
-2. Surface that metric through the desired interface: CLI option/subcommand, new MCP tool, or library helper.
-3. Register the new tool in `MCPServer`, or update CLI option parsing in `CoverageCLI`.
+2. Surface that metric through all interfaces: add a CLI option/subcommand, create an MCP tool, and expose a library helper method.
+3. Register the new tool in `MCPServer` and update CLI option parsing in `CoverageCLI`.
 4. Provide tests under `spec/` mirroring the lib path (`spec/lib/simplecov_mcp/..._spec.rb`).
 5. Update documentation to reflect the new capability.
 

@@ -18,7 +18,6 @@
 - Key files: main entry point at `lib/simplecov_mcp.rb`, core modules in `lib/simplecov_mcp/` including `cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/simplecov_mcp/tools/*.rb`.
 - Tests: RSpec under `spec/` with fixtures in `spec/fixtures/`; running tests produces `coverage/.resultset.json` consumed by the tools.
 - Useful commands:
-  - `scripts/setup_codex_cloud.sh [--skip-tests]` – bootstrap dependencies (installs gems, runs tests by default)
   - `bundle install` – install dependencies
   - `bundle exec rspec` – run rspec (currently not working in Codex for macOS)
   - `bundle exec exe/simplecov-mcp ...` – run CLI or MCP server directly
