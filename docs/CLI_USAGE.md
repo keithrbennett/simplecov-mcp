@@ -58,7 +58,7 @@ simplecov-mcp list --json
 **Options:**
 - `--sort-order` - Sort by coverage percentage (ascending or descending)
 - `--tracked-globs` - Filter to specific file patterns
-- `--stale` - Check for stale coverage
+- `--stale` - Staleness checking mode (off or error)
 - `--json` - Output as JSON
 
 **Output (table format):**
@@ -66,12 +66,14 @@ simplecov-mcp list --json
 ┌──────────────────────────────────────────────────────────┬──────────┬──────────┬────────┬───────┐
 │ File                                                     │        % │  Covered │  Total │ Stale │
 ├──────────────────────────────────────────────────────────┼──────────┼──────────┼────────┼───────┤
-│ lib/simplecov_mcp/tools/coverage_summary_tool.rb        │    85.71 │       12 │     14 │       │
-│ lib/services/auth.rb                                     │    92.31 │       12 │     13 │   !   │
-│ lib/controllers/api.rb                                   │   100.00 │        8 │      8 │       │
+│ lib/simplecov_mcp/tools/coverage_summary_tool.rb         │    85.71 │       12 │     14 │       │
+│ lib/simplecov_mcp/cli.rb                                 │    92.31 │       12 │     13 │   T   │
+│ lib/simplecov_mcp/model.rb                               │   100.00 │        8 │      8 │       │
 └──────────────────────────────────────────────────────────┴──────────┴──────────┴────────┴───────┘
 Files: total 3, ok 2, stale 1
 ```
+
+**Stale indicators:** M (missing file), T (timestamp mismatch), L (line count mismatch)
 
 ### `summary <path>`
 
@@ -177,12 +179,12 @@ simplecov-mcp detailed lib/simplecov_mcp/model.rb --source
 **Output (default format):**
 ```
 File: lib/simplecov_mcp/model.rb
-  Line  Hits  Covered
-  -----  ----  -------
-     1     1  yes
-     2     0  no
-     3     1  yes
-     4     5  yes
+  Line    Hits  Covered
+ -----    ----  -------
+     1       1    yes
+     2       0     no
+     3       1    yes
+     4       5    yes
 ```
 
 **Output (JSON format):**
@@ -366,8 +368,8 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source --no-color
 Staleness checking mode.
 
 **Modes:**
-- `off`, `o` - No staleness checking (default)
-- `error`, `e` - Raise error if coverage is stale
+- `off`, `o` - Detect and mark stale files, but don't raise error (default)
+- `error`, `e` - Detect stale files and raise error
 
 ```sh
 # Exit with error if coverage is stale
@@ -436,12 +438,12 @@ Run a custom success predicate for CI/CD coverage enforcement.
 > **Only use predicate files from trusted sources.** 
 > Review predicates before use, especially in CI/CD environments.
 
-The predicate file must return a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns truthy (success) or falsy (failure).
+The predicate file must return a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns `true` or `false`.
 
-**Exit codes:**
-- `0` - Predicate returned truthy (pass)
-- `1` - Predicate returned falsy (fail)
-- `2` - Predicate raised an error
+**Predicate return values:**
+- `true` - Coverage meets your criteria (CLI exits with code 0)
+- `false` - Coverage fails your criteria (CLI exits with code 1)
+- Exception raised - Predicate error (CLI exits with code 2)
 
 **Example usage:**
 ```sh
@@ -469,11 +471,11 @@ See [examples/success_predicates/](../../examples/success_predicates/) for more 
 Default for `list` subcommand. Uses Unicode box-drawing characters.
 
 ```
-┌──────────────────────────┬──────────┬──────────┬────────┬───────┐
-│ File                     │        % │  Covered │  Total │ Stale │
-├──────────────────────────┼──────────┼──────────┼────────┼───────┤
-│ lib/simple_cov_mcp.rb    │    85.71 │       12 │     14 │       │
-└──────────────────────────┴──────────┴──────────┴────────┴───────┘
+┌──────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
+│ File                             │        % │   Covered │   Total │ Stale │
+├──────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
+│ lib/simplecov_mcp/model.rb       │   91.67% │        11 │      12 │       │
+└──────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 ```
 
 ### JSON Format

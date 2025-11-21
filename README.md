@@ -14,14 +14,17 @@
 
 Works with any SimpleCov-generated `.resultset.json` file—no runtime dependency on your test suite.
 
-### Key capabilities
+### Key Features
 
-- Flexible path resolution (absolute or relative paths)
-- Staleness detection (identifies outdated coverage files)
-- Multi-suite resultset merging when needed
-- Multiple useful output formats (tables, JSON, annotated source)
+- ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
+- ✅ **Rich output formats** - Tables, JSON, annotated source code
+- ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
+- ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
+- ✅ **Flexible path resolution** - Works with absolute or relative paths
+- ✅ **Comprehensive error handling** - Context-aware messages for each mode
+- ⚠️ **Branch coverage limitation** - Branch-level metrics are collapsed to per-line totals. Use native SimpleCov reports for branch-by-branch analysis.
 
-### Practical use cases
+### Practical Use Cases
 
 - Query coverage data from AI assistants, e.g.:
   - "Using simplecov-mcp, analyze test coverage data and write a report to a markdown file containing a free text analysis of each issue and then two tables, one sorted in descending order of urgency, the other in ascending order of level of effort."
@@ -46,7 +49,7 @@ gem install simplecov-mcp
 bundle exec rspec  # or your test command
 
 # Verify coverage was generated
-ls coverage/.resultset.json
+ls -l coverage/.resultset.json
 ```
 
 ### Basic Usage
@@ -77,16 +80,6 @@ summary = model.summary_for("lib/simplecov_mcp/model.rb")
 **MCP Server:**
 See [MCP Integration Guide](docs/MCP_INTEGRATION.md) for AI assistant setup.
 
-## Key Features
-
-- ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
-- ✅ **Rich output formats** - Tables, JSON, annotated source code
-- ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
-- ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
-- ✅ **Flexible path resolution** - Works with absolute or relative paths
-- ✅ **Comprehensive error handling** - Context-aware messages for each mode
-- ⚠️ **Branch coverage limitation** - Branch-level metrics are collapsed to per-line totals. Use native SimpleCov reports for branch-by-branch analysis.
-
 ## Multi-Suite Coverage Merging
 
 ### How It Works
@@ -111,9 +104,12 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 **Advanced Usage:**
 - [MCP Integration](docs/MCP_INTEGRATION.md) - AI assistant configuration
 - [Library API](docs/LIBRARY_API.md) - Ruby API documentation
+- [Advanced Usage](docs/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
 - [Error Handling](docs/ERROR_HANDLING.md) - Error modes and exceptions
 
 **Reference:**
+- [Architecture](docs/ARCHITECTURE.md) - Design and internals
+- [Branch Coverage](docs/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
 - [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues
 - [Development](docs/DEVELOPMENT.md) - Contributing guide
 
@@ -122,7 +118,6 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 - **Ruby >= 3.2** (required by `mcp` gem dependency)
 - SimpleCov-generated `.resultset.json` file
 - `simplecov` gem >= 0.21
-- RVM users: export your preferred ruby/gemset *before* running commands (e.g. `rvm use 3.4.5@simplecov-mcp`)
 
 ## Configuring the Resultset
 
@@ -205,10 +200,10 @@ simplecov-mcp total --json
 ## Troubleshooting
 
 - **"command not found"** - See [Installation Guide](docs/INSTALLATION.md#path-configuration)
-- **"cannot load such file -- mcp"** - Upgrade to Ruby >= 3.2
-- **"Could not find .resultset.json"** - Run tests to generate coverage. See the [Configuring the Resultset](#configuring-the-resultset) section for more details.
+- **"cannot load such file -- mcp"** - Requires Ruby >= 3.2. Verify: `ruby -v`
+- **"Could not find .resultset.json"** - Ensure SimpleCov is configured in your test suite, then run tests to generate coverage. See the [Configuring the Resultset](#configuring-the-resultset) section for more details.
 - **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](docs/MCP_INTEGRATION.md#troubleshooting)
-- **Codex on macOS with RVM** - Codex's macOS sandbox disallows `/bin/ps`, which RVM needs. Use a different version manager (rbenv, chruby) or run outside the Codex environment.
+- **RVM in sandboxed environments (macOS)** - RVM requires `/bin/ps` which may be blocked by sandbox restrictions. Use rbenv or chruby instead.
 
 For more detailed help, see the full [Troubleshooting Guide](docs/TROUBLESHOOTING.md).
 

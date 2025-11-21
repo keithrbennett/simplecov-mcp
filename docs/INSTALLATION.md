@@ -66,27 +66,6 @@ which simplecov-mcp
 
 **Important:** When changing Ruby versions, reinstall the gem and update any MCP configurations that use absolute paths.
 
-### Manual PATH Setup
-
-If you're not using a version manager, add the gem bin directory to your PATH:
-
-1. Find your gem bin directory:
-   ```sh
-   gem env | grep "EXECUTABLE DIRECTORY"
-   # or
-   ruby -e 'puts Gem.bindir'
-   ```
-
-2. Add to your shell profile (`.bashrc`, `.zshrc`, etc.):
-   ```sh
-   export PATH="$(ruby -e 'puts Gem.bindir'):$PATH"
-   ```
-
-3. Reload your shell:
-   ```sh
-   source ~/.zshrc  # or ~/.bashrc
-   ```
-
 ### Bundler Execution
 
 If PATH setup is problematic, use bundler:
@@ -121,7 +100,7 @@ If you don't have coverage data yet:
 bundle exec rspec  # or your test command
 
 # Verify coverage file exists
-ls coverage/.resultset.json
+ls -l coverage/.resultset.json
 
 # Now test simplecov-mcp
 simplecov-mcp
@@ -133,17 +112,11 @@ simplecov-mcp
 
 Works with system Ruby or any version manager. Recommended: use rbenv or asdf.
 
+**Note:** RVM may not work in sandboxed environments (e.g., AI coding assistants) because it requires `/bin/ps`, which sandbox restrictions often block. Use rbenv or chruby instead for sandboxed environments.
+
 ### Linux
 
-Works with system Ruby or any version manager. May need to install Ruby development headers:
-
-```sh
-# Debian/Ubuntu
-sudo apt-get install ruby-dev
-
-# RHEL/CentOS
-sudo yum install ruby-devel
-```
+Works with system Ruby or any version manager.
 
 ### Windows
 
