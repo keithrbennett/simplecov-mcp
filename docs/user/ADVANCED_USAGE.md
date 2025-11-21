@@ -151,29 +151,20 @@ end
 
 ### Staleness in CI/CD
 
-**Example: GitHub Actions**
-```yaml
-- name: Validate Coverage Freshness
-  run: |
-    bundle exec rspec
-    simplecov-mcp --stale error --tracked-globs "lib/**/*.rb" || {
-      echo "Coverage is stale! Re-run tests."
-      exit 1
-    }
+Staleness checking is particularly useful in CI/CD pipelines to ensure coverage data is fresh:
+
+```sh
+# Run tests to generate coverage
+bundle exec rspec
+
+# Validate coverage freshness (fails with exit code 1 if stale)
+simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
+
+# Export validated data for CI artifacts
+simplecov-mcp list --json > coverage.json
 ```
 
-**Example: GitLab CI**
-```yaml
-coverage:validate:
-  script:
-    - bundle exec rspec
-    - simplecov-mcp list --stale error --json > coverage.json
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.json
-```
+The `--stale error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
 
 ---
 
@@ -373,181 +364,50 @@ relative_files = model.relativize(files)
 
 ---
 
-## CI/CD Integration Patterns
+## CI/CD Integration
 
-### GitHub Actions
+The CLI is designed for CI/CD use with features that integrate naturally into pipeline workflows:
 
-**Complete Workflow:**
-```yaml
-name: Coverage Analysis
+### Key Integration Features
 
-on: [push, pull_request]
+- **Exit codes**: Non-zero on failure, making it suitable for pipeline failure conditions
+- **JSON output**: `--json` flag for parsing by CI tools and custom processing
+- **Staleness checking**: `--stale error` to fail on outdated coverage data
+- **Success predicates**: Custom Ruby policies for coverage enforcement
 
-jobs:
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+### Basic CI Pattern
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.2
-          bundler-cache: true
+```bash
+# 1. Run tests to generate coverage
+bundle exec rspec
 
-      - name: Run tests with coverage
-        run: bundle exec rspec
+# 2. Validate coverage freshness (fails with exit code 1 if stale)
+simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
 
-      - name: Install simplecov-mcp
-        run: gem install simplecov-mcp
-
-      - name: Validate coverage freshness
-        run: |
-          simplecov-mcp --stale error \
-            --tracked-globs "lib/simplecov_mcp/tools/**/*.rb" \
-            --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
-
-      - name: Check minimum coverage
-        run: |
-          # Export coverage data
-          simplecov-mcp list --json > coverage.json
-
-          # Use jq to check minimum threshold
-          MIN_COVERAGE=$(jq '[.files[].percentage] | add / length' coverage.json)
-          if (( $(echo "$MIN_COVERAGE < 80" | bc -l) )); then
-            echo "Coverage below 80%: $MIN_COVERAGE%"
-            exit 1
-          fi
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage.json
-
-      - name: Comment PR with coverage
-        if: github.event_name == 'pull_request'
-        run: |
-          COVERAGE=$(simplecov-mcp list)
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## Coverage Report\n\`\`\`\n$COVERAGE\n\`\`\`"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+# 3. Export data for CI artifacts or further processing
+simplecov-mcp list --json > coverage.json
 ```
 
-### GitLab CI
+### Using Success Predicates
 
-```yaml
-coverage:
-  stage: test
-  script:
-    - bundle exec rspec
-    - gem install simplecov-mcp
-    - simplecov-mcp --stale error
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage/coverage.xml
-    paths:
-      - coverage/
-  coverage: '/TOTAL.*\s(\d+\.\d+)%/'
-```
+Enforce custom coverage policies with `--success-predicate`:
 
-### Jenkins Pipeline
-
-```groovy
-pipeline {
-    agent any
-
-    stages {
-        stage('Test') {
-            steps {
-                sh 'bundle exec rspec'
-            }
-        }
-
-        stage('Coverage Analysis') {
-            steps {
-                sh 'gem install simplecov-mcp'
-                sh '''
-                    simplecov-mcp list --json > coverage.json
-                    simplecov-mcp --stale error || exit 1
-                '''
-            }
-        }
-
-        stage('Coverage Report') {
-            steps {
-                publishHTML([
-                    reportDir: 'coverage',
-                    reportFiles: 'index.html',
-                    reportName: 'Coverage Report'
-                ])
-            }
-        }
-    }
-}
-```
-
-### Pre-commit Hooks
-
-```sh
-#!/bin/bash
-# .git/hooks/pre-commit
-
+```bash
 # Run tests
-bundle exec rspec || exit 1
+bundle exec rspec
 
-# Validate coverage
-simplecov-mcp --stale error --tracked-globs "lib/**/*.rb" || {
-    echo "Coverage validation failed!"
-    echo "Re-run tests or review coverage changes."
-    exit 1
-}
-
-# Check for files with low coverage
-LOW_COVERAGE=$(simplecov-mcp list --json | \
-    jq -r '.files[] | select(.percentage < 80) | .file' | \
-    head -5)
-
-if [ -n "$LOW_COVERAGE" ]; then
-    echo "Warning: Files with coverage below 80%:"
-    echo "$LOW_COVERAGE"
-fi
+# Apply coverage policy (fails with exit code 1 if predicate returns false)
+simplecov-mcp --success-predicate coverage_policy.rb
 ```
 
-### Using Success Predicates in CI/CD
+Exit codes:
+- `0` - Success (coverage meets requirements)
+- `1` - Failure (coverage policy not met or stale data detected)
+- `2` - Error (invalid predicate or system error)
 
-Use `--success-predicate` to enforce coverage policies:
+### Platform-Specific Examples
 
-**GitHub Actions:**
-```yaml
-- name: Enforce Coverage Policy
-  run: |
-    bundle exec rspec
-    bundle exec simplecov-mcp --success-predicate coverage_policy.rb
-```
-
-**GitLab CI:**
-```yaml
-coverage:enforce:
-  script:
-    - bundle exec rspec
-    - bundle exec simplecov-mcp --success-predicate coverage_policy.rb
-```
-
-**Jenkins:**
-```groovy
-stage('Coverage Policy') {
-    steps {
-        sh 'bundle exec rspec'
-        sh 'bundle exec simplecov-mcp --success-predicate coverage_policy.rb'
-    }
-}
-```
-
-The build will fail (exit code 1) if the predicate returns falsy.
+For platform-specific integration examples (GitHub Actions, GitLab CI, Jenkins, CircleCI, etc.), see community contributions in the [GitHub Discussions](https://github.com/simplecov-ruby/simplecov-mcp/discussions).
 
 ---
 
