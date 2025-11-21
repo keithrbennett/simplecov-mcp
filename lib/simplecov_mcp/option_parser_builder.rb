@@ -113,6 +113,9 @@ module SimpleCovMcp
     def add_help_handler(o)
       o.on('-h', '--help', 'Show help') do
         puts o
+        gem_root = File.expand_path('../..', __dir__)
+        puts "\nFor more detailed help, consult README.md and docs/user/**/*.md"
+        puts "in the installed gem at: #{gem_root}"
         exit 0
       end
     end
