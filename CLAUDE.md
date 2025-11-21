@@ -65,7 +65,7 @@ gem install simplecov-mcp-*.gem     # Install locally
 The codebase uses context-aware error handling via `ErrorHandlerFactory`:
 - **CLI**: User-friendly messages, exit codes, optional debug mode
 - **Library**: Raises custom exceptions for programmatic handling
-- **MCP Server**: Structured error responses, logging to `~/simplecov_mcp.log`
+- **MCP Server**: Structured error responses, logging to `./simplecov_mcp.log`
 
 ### Path Resolution
 Uses a multi-strategy approach for finding files in coverage data:
@@ -101,6 +101,12 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - The gem requires Ruby >= 3.2 due to the `mcp` dependency
 - No SimpleCov runtime dependency - only reads the generated `.resultset.json` files
 - Test files are in `spec/` and follow standard RSpec conventions
+
+## Documentation
+
+- **README.md** - Main documentation in the project root
+- **docs/user/** - User-facing documentation (installation, CLI usage, MCP integration, troubleshooting, examples, etc.)
+- **docs/dev/** - Developer documentation (architecture, decisions, contributing)
 
 ## Important Conventions
 

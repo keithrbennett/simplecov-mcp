@@ -103,6 +103,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 
 **Advanced Usage:**
 - [MCP Integration](docs/user/MCP_INTEGRATION.md) - AI assistant configuration
+- [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - Using CLI when MCP isn't available
 - [Library API](docs/user/LIBRARY_API.md) - Ruby API documentation
 - [Advanced Usage](docs/user/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
 - [Error Handling](docs/user/ERROR_HANDLING.md) - Error modes and exceptions

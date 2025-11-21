@@ -4,77 +4,11 @@
 
 ## Table of Contents
 
-- [Installation Issues](#installation-issues)
 - [Running Issues](#running-issues)
 - [Coverage Data Issues](#coverage-data-issues)
 - [MCP Server Issues](#mcp-server-issues)
 - [Development Issues](#development-issues)
 - [Diagnostic Commands](#diagnostic-commands)
-
-## Installation Issues
-
-### "command not found: simplecov-mcp"
-
-**Symptom:** Shell can't find the simplecov-mcp executable.
-
-**Solutions:**
-
-1. **Verify installation:**
-   ```bash
-   gem list simplecov-mcp
-   ```
-   If not listed, install it: `gem install simplecov-mcp`
-
-2. **Check PATH:**
-   ```bash
-   which simplecov-mcp
-   echo $PATH | grep -o "$(gem env gemdir)/bin"
-   ```
-
-3. **Rehash version manager shims:**
-   ```bash
-   # rbenv
-   rbenv rehash
-
-   # asdf
-   asdf reshim ruby
-
-   # RVM
-   rvm reload
-   ```
-
-4. **Use bundler as workaround:**
-   ```bash
-   bundle exec simplecov-mcp
-   ```
-
-### "cannot load such file -- mcp"
-
-**Symptom:** Ruby can't load the mcp gem dependency.
-
-**Cause:** Ruby version is too old (< 3.2).
-
-**Solution:**
-
-```bash
-# Check your Ruby version
-ruby -v  # Should be 3.2.0 or higher
-
-# Upgrade Ruby, then reinstall
-gem install simplecov-mcp
-```
-
-### Multiple versions causing conflicts
-
-**Symptom:** "wrong number of arguments" or other unexpected errors.
-
-**Solution:** Clean up and reinstall:
-
-```bash
-gem uninstall simplecov-mcp
-# Select "All versions" if prompted
-gem install simplecov-mcp
-```
 
 ## Running Issues
 
@@ -131,9 +65,11 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 
 ## MCP Server Issues
 
-### MCP Server Won't Start
+### MCP Integration Not Working
 
-**Symptom:** AI assistant reports "Could not connect to MCP server".
+**Symptoms:**
+- AI assistant reports "Could not connect to MCP server"
+- AI says "I don't have access to simplecov-mcp tools"
 
 **Diagnostic steps:**
 
@@ -149,13 +85,16 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    ```
    Should return JSON-RPC response.
 
-3. **Check Ruby version in MCP context:**
+3. **Verify MCP server is configured:**
    ```bash
-   # The version your MCP client sees might differ from your shell
-   $(which simplecov-mcp) --version
+   claude mcp list  # For Claude Code
+   codex mcp list   # For Codex
+   tail -f simplecov_mcp.log  # Check logs
    ```
 
-4. **Use absolute path in MCP config:**
+4. **Restart AI assistant** - Config changes often require restart
+
+5. **Use absolute path in MCP config:**
    ```bash
    # Find absolute path
    which simplecov-mcp
@@ -163,29 +102,10 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    # Update your MCP client config to use this path
    ```
 
-### MCP Tools Not Available in AI Assistant
+6. **Use CLI as fallback:**
 
-**Symptom:** AI says "I don't have access to simplecov-mcp tools".
-
-**Solutions:**
-
-1. **Restart AI assistant** - Config changes often require restart
-
-2. **Verify MCP server is configured:**
-   ```bash
-   # For Claude Code
-   claude mcp list
-
-   # Check logs
-   tail -f ~/simplecov_mcp.log
-   ```
-
-3. **Try CLI fallback:**
-   ```bash
-   # If MCP isn't working, use CLI with --json
-   simplecov-mcp list --json
-   simplecov-mcp summary lib/simplecov_mcp/cli.rb --json
-   ```
+   If MCP still isn't working, you can use the CLI with `--json` flag instead.
+   See **[CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md)** for complete guidance.
 
 ### Path Issues with Version Managers
 
@@ -272,5 +192,6 @@ If the above doesn't solve your problem:
 
 - [Installation Guide](INSTALLATION.md) - Setup and PATH configuration
 - [CLI Usage](CLI_USAGE.md) - Command-line options and examples
+- [CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md) - Using CLI when MCP isn't available
 - [MCP Integration](MCP_INTEGRATION.md) - MCP server configuration
 - [Error Handling](ERROR_HANDLING.md) - Understanding error modes

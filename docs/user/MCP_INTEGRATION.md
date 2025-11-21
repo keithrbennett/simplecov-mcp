@@ -409,17 +409,13 @@ To override the default log file location, specify the `--log-file` argument whe
 
 ### CLI Fallback
 
-**Important:** If the MCP server doesn't work, use CLI commands with `--json` for structured output:
+**Important:** If the MCP server doesn't work, you can use the CLI directly with the `--json` flag.
 
-```sh
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --json      # coverage_summary_tool
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --json    # uncovered_lines_tool
-simplecov-mcp detailed lib/simplecov_mcp/cli.rb --json     # coverage_detailed_tool
-simplecov-mcp list --json                      # all_files_coverage_tool
-simplecov-mcp version --json                   # version_tool
-```
-
-See [CLI Usage](CLI_USAGE.md) for complete documentation.
+See the **[CLI Fallback for LLMs Guide](CLI_FALLBACK_FOR_LLMS.md)** for:
+- Complete command reference and MCP tool mappings
+- Sample prompt to give your LLM
+- JSON output examples
+- Tips for using CLI as an MCP alternative
 
 ### Common Issues
 
@@ -477,6 +473,7 @@ gemini mcp add simplecov-mcp "$(which simplecov-mcp) --error-mode trace"
 
 ## Next Steps
 
-- **[CLI Usage](CLI_USAGE.md)** - Alternative to MCP for direct queries
+- **[CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md)** - Using CLI when MCP isn't available
+- **[CLI Usage](CLI_USAGE.md)** - Complete CLI reference
 - **[Examples](EXAMPLES.md)** - Example prompts and workflows
 - **[Troubleshooting](TROUBLESHOOTING.md)** - Detailed troubleshooting guide
