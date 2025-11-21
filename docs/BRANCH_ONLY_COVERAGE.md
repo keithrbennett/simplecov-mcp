@@ -2,16 +2,34 @@
 
 [Back to main README](../README.md)
 
-SimpleCov can collect *line* coverage, *branch* coverage, or both. Projects that
-enable the `:branch` mode without `:line` produce a `.resultset.json` where the
-per-file entries contain a `branches` hash while the legacy `lines` array is
-`null`. SimpleCov MCP synthesizes a line array on the fly so downstream
-consumers continue to work.
+> **Note:** This document is for **developers working on SimpleCov MCP**, not for users of the gem.
+> If you're a user, you don't need to read this - branch-only coverage "just works" automatically.
+> This explains the internal implementation for contributors who need to maintain or modify the code.
 
-## SimpleCov branch payloads
+## The Problem This Solves for SimpleCov MCP
 
-Each resultset groups coverage by absolute (or project-relative) path. A branch
-only entry looks like:
+SimpleCov can be configured to track different types of coverage:
+- **Line coverage**: Which lines of code were executed
+- **Branch coverage**: Which paths through if/else, case/when, etc. were taken
+- **Both**: Track both lines and branches together
+
+When users configure SimpleCov to track **only branch coverage** (without line coverage),
+the `.resultset.json` file has a different structure: the `lines` array is `null`,
+and only the `branches` data exists.
+
+**This breaks SimpleCov MCP** because our entire tool is designed around the `lines` array:
+- Our MCP tools (`coverage_summary_tool`, `uncovered_lines_tool`, etc.) expect line data
+- Our CLI commands expect line data
+- Our `CoverageModel` API expects line data
+
+Rather than failing with "no coverage data found" errors, SimpleCov MCP **automatically
+converts branch coverage into line coverage** so all our tools continue to work seamlessly
+for projects using branch-only configuration.
+
+## What Branch-Only Coverage Data Looks Like
+
+When SimpleCov writes branch-only coverage, the `.resultset.json` file looks different
+from the normal line coverage format. Here's an example:
 
 ```json
 {
@@ -27,57 +45,114 @@ only entry looks like:
 }
 ```
 
-Key observations:
+### Understanding the Branch Data Structure
 
-- The outer hash key is either a stringified Ruby array or the raw array itself:
-  `[:if, branch_id, line, column, end_line, end_column]`. Array structure:
-  - index 0: branch type (`:if`, `:case`, `:unless`, etc.)
-  - index 1: internal branch identifier
-  - **index 2: line where the branch starts** (the field we care about for coverage)
-  - index 3: column where the branch starts
-  - index 4: line where the branch expression ends
-  - index 5: column where the branch expression ends
-- SimpleCov reuses a single branch tuple for all recorded runs.
-- The nested hash contains targets (`[:then, …]`, `[:else, …]`, `[:when, …]`, etc.)
-  Each target tuple mirrors the same shape—branch type at index 0, an internal
-  identifier at 1, then the start/end positions for that branch leg.
-  The integer value is the execution count for that branch leg. SimpleCov MCP
-  sums these counts per line when synthesizing fallback line data.
+The `branches` hash uses a nested structure:
 
-## Synthesizing line coverage
+**Outer key** (e.g., `"[:if, 0, 12, 4, 20, 29]"`):
+- This is either a Ruby array or its stringified version
+- It describes where the branch decision happens (the `if` statement itself)
+- Format: `[type, id, start_line, start_col, end_line, end_col]`
+  - Position 0: Branch type (`:if`, `:case`, `:unless`, etc.)
+  - Position 1: SimpleCov's internal ID for this branch
+  - **Position 2: The line number** ← This is what we need for line coverage!
+  - Position 3: Starting column
+  - Position 4: Ending line
+  - Position 5: Ending column
 
-SimpleCov MCP exposes APIs and CLI tooling built around line-oriented coverage.
-To support branch-only projects, we reconstruct a minimal line array by summing
-branch hits per line. The resolver:
+**Nested hash** (the value of the outer key):
+- Contains each possible path through the branch
+- Keys are branch targets like `"[:then, 1, 13, 6, 13, 18]"` or `"[:else, 2, 15, 6, 15, 16]"`
+- Each target has the same array format as the outer key
+- Values are integers showing how many times that path was executed
+  - `4` means the `then` branch ran 4 times
+  - `0` means the `else` branch never ran
 
-1. Normalizes branch tuples, whether they arrive as arrays or strings.
-2. Extracts the line token (element `2`) and converts it to an integer.
-3. Aggregates hit counts across all branch targets for that line.
-4. Builds a dense array up to the highest line seen. Each populated slot stores
-   the total branch hits recorded for that line. Slots remain `nil` when a line
-   never appeared in the branch data.
+**Why this matters for our conversion:**
+- We extract the line number (position 2) from each branch target
+- We sum up all the execution counts for branches on the same line
+- This gives us enough information to build a line coverage array
 
-This produces the familiar SimpleCov shape (array index → line number - 1), so
-utilities like `summary`, `uncovered`, and staleness checks keep working.
+## How SimpleCov MCP Converts Branch Coverage to Line Coverage
 
-## Code map
+Since all of SimpleCov MCP's tools expect a `lines` array, we need to build one from
+the `branches` data. This happens automatically in the `CoverageLineResolver` whenever
+it detects that `lines` is `null` but `branches` exists.
 
-Relevant implementation points:
+### The Conversion Algorithm
 
-- `lib/simplecov_mcp/resolvers/coverage_line_resolver.rb` — entry point that
-  synthesizes the array when `lines` is missing.
-- Specs covering branch-only behaviour live in
-  `spec/resolvers/coverage_line_resolver_spec.rb` and
-  `spec/simplecov_mcp_model_spec.rb`.
-- Fixture data resides at
-  `spec/fixtures/branch_only_project/coverage/.resultset.json`.
+Here's how we transform branch data into line data:
 
-Implementation notes:
+**Step 1: Parse the branch keys**
+- Branch keys can be either raw Ruby arrays or stringified (e.g., `"[:if, 0, 12, 4, 20, 29]"`)
+- We handle both formats by parsing the string format when needed
 
-- The resolver must return `nil` when a path fails to match. `CovUtil.lookup_lines`
-  tries alternate keys (absolute, project-relative, cwd-stripped). Returning
-  `nil` allows those attempts to continue, ultimately raising the expected
-  `FileError` only after every variant is exhausted.
-- SimpleCov may evolve the branch tuple format. When that happens, extend
-  `extract_line_number` to recognize the new shape and refresh this document so
-  future maintainers understand which forms are supported.
+**Step 2: Extract line numbers**
+- From each branch target tuple, we pull out position 2 (the line number)
+- Invalid or malformed tuples are silently skipped
+
+**Step 3: Sum hits per line**
+- Multiple branches can exist on the same line (e.g., nested ifs, ternaries)
+- We add up all the execution counts for branches on the same line
+- Example: if line 15 has a `then` branch hit 4 times and an `else` branch hit 2 times,
+  that line gets a total of 6 hits
+
+**Step 4: Build the line array**
+- We create an array with length equal to the highest line number found
+- Each array position represents a line: `array[0]` = line 1, `array[1]` = line 2, etc.
+- Positions get the summed hit count for that line, or `nil` if no branches appeared there
+
+**Result:** We now have a `lines` array that looks exactly like SimpleCov's normal
+format, so all our tools (`summary`, `uncovered`, staleness checks, etc.) work without
+knowing branch coverage was involved.
+
+## Where to Find the Code
+
+If you need to modify or debug the branch coverage conversion, here's where everything lives:
+
+### Implementation
+**`lib/simplecov_mcp/resolvers/coverage_line_resolver.rb`**
+- Line 59-66: `lines_from_entry` - Detects when to synthesize line data
+- Line 68-103: `synthesize_lines_from_branches` - The main conversion logic
+- Line 105-123: `extract_line_number` - Parses line numbers from branch tuples
+
+This file is referenced in the code comments at line 79.
+
+### Tests
+**`spec/resolvers/coverage_line_resolver_spec.rb`**
+- Contains tests specifically for the resolver and branch synthesis
+
+**`spec/simplecov_mcp_model_spec.rb`**
+- Integration tests showing how the model uses synthesized line data
+
+### Test Data
+**`spec/fixtures/branch_only_project/coverage/.resultset.json`**
+- Example of real branch-only coverage data used in tests
+- Useful reference when debugging issues or adding new test cases
+
+## Important Implementation Notes
+
+### Why the resolver returns `nil` for missing files
+
+When `CoverageLineResolver.lookup_lines` can't find a file, it returns `nil` rather
+than immediately raising an error. This is deliberate:
+
+- The lookup tries multiple strategies: exact path match, relative path, path without
+  working directory prefix
+- Each strategy calls `lines_from_entry` which may return `nil`
+- Only after **all strategies fail** does the resolver raise a `FileError`
+- This ensures we try every possible way to find the file before giving up
+
+If you change `lines_from_entry` to raise an error immediately, the multi-strategy
+lookup will break!
+
+### Future-proofing for SimpleCov changes
+
+SimpleCov's branch tuple format could change in future versions. If that happens:
+
+1. Update `extract_line_number` to recognize the new tuple format
+2. Add test fixtures with the new format
+3. Update this documentation with the new structure
+4. Keep backward compatibility with the old format if possible
+
+This way, SimpleCov MCP continues working even when SimpleCov evolves.
