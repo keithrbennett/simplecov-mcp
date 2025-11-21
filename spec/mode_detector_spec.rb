@@ -138,6 +138,10 @@ RSpec.describe SimpleCovMcp::ModeDetector do
       expect(described_class.cli_mode?(['--version'], stdin: stdin)).to be true
     end
 
+    it 'chooses CLI mode for -v' do
+      expect(described_class.cli_mode?(['-v'], stdin: stdin)).to be true
+    end
+
     it 'chooses CLI mode for --json list' do
       expect(described_class.cli_mode?(['--json', 'list'], stdin: stdin)).to be true
     end

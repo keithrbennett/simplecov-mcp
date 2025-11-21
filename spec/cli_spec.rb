@@ -219,4 +219,18 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       expect(output).to include(SimpleCovMcp::VERSION)
     end
   end
+
+  describe 'version option (-v)' do
+    it 'prints the same version info as the version subcommand' do
+      output = run_cli('-v')
+      expect(output).to include('SimpleCovMcp version')
+      expect(output).to include(SimpleCovMcp::VERSION)
+    end
+
+    it 'respects --json when -v is used' do
+      output = run_cli('-v', '--json')
+      data = JSON.parse(output)
+      expect(data['version']).to eq(SimpleCovMcp::VERSION)
+    end
+  end
 end

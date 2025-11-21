@@ -13,7 +13,7 @@ module SimpleCovMcp
 
     def self.cli_mode?(argv, stdin: STDIN)
       # 1. Explicit flags that force CLI mode always win
-      cli_options = %w[--force-cli -h --help --version]
+      cli_options = %w[--force-cli -h --help --version -v]
       return true if (argv & cli_options).any?
 
       # 2. Find the first non-option argument

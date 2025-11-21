@@ -97,6 +97,9 @@ module SimpleCovMcp
         'Ruby file returning callable; exits 0 if truthy, 1 if falsy') do |v|
         config.success_predicate = v
       end
+      o.on('-v', '--version', 'Show version information and exit') do
+        config.show_version = true
+      end
     end
 
     def define_examples(o)

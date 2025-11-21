@@ -35,6 +35,7 @@ module SimpleCovMcp
       # Pre-scan for error-mode to ensure early errors are logged with correct verbosity
       pre_scan_error_mode(argv)
       parse_options!(argv)
+      enforce_version_subcommand_if_requested
 
       # Create error handler AFTER parsing options to respect user's --error-mode choice
       ensure_error_handler
@@ -154,6 +155,15 @@ module SimpleCovMcp
     def build_option_parser
       builder = OptionParserBuilder.new(config)
       builder.build_option_parser
+    end
+
+    # Converts the -v/--version flags into the version subcommand.
+    # When the user passes -v or --version, config.show_version is set to true during option parsing.
+    # This method intercepts that flag and redirects execution to the 'version' subcommand,
+    # ensuring consistent version display regardless of whether the user runs
+    # `simplecov-mcp -v`, `simplecov-mcp --version`, or `simplecov-mcp version`.
+    def enforce_version_subcommand_if_requested
+      @cmd = 'version' if config.show_version
     end
 
     def with_context_if_available(ctx)
