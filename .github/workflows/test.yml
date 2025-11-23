@@ -49,4 +49,6 @@ jobs:
         bundler-cache: true
 
     - name: Audit dependencies for vulnerabilities
-      uses: rubysec/bundler-audit-action@v1
+      uses: andrewmcodes/bundler-audit-action@main
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
