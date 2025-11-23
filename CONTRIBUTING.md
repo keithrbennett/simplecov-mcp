@@ -62,11 +62,11 @@ Optional tools:
 
 1. Update version in `lib/simplecov_mcp/version.rb`
 2. Update `RELEASE_NOTES.md`
-3. Tag and push:
+3. Commit, tag, and push:
    ```bash
-   git commit -m "Release v1.0.0"
-   git tag -a v1.0.0
-   # Include release notes summary in tag text
+   git add -A
+   git commit -m "Bump version to 1.0.0, update release notes"
+   git tag -a v1.0.0 -m "v1.0.0 - brief summary of release"
    git push origin main --tags
    ```
 4. Build and publish:
