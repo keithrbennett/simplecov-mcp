@@ -360,7 +360,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     def parse_jsonrpc_response(output)
       # MCP server should only write JSON-RPC responses to stdout.
-      output.lines.each do |line|
+      # Force UTF-8 encoding to handle any binary data in the output stream.
+      safe_output = output.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+      safe_output.lines.each do |line|
         stripped = line.strip
         next if stripped.empty?
 
@@ -649,7 +651,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
       result = run_mcp_json_stream(requests)
 
-      responses = result[:stdout].lines.map do |line|
+      # Force UTF-8 encoding to handle any binary data in the output stream
+      safe_stdout = result[:stdout].to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+      responses = safe_stdout.lines.map do |line|
         next if line.strip.empty?
 
         begin

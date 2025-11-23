@@ -83,7 +83,53 @@ RSpec.describe SimpleCovMcp::MCPServer do
     expect(fake_server.params[:name]).to eq('simplecov-mcp')
     # Ensure expected tools are registered
     tool_names = fake_server.params[:tools].map { |t| t.name.split('::').last }
-    expect(tool_names).to include('AllFilesCoverageTool', 'CoverageDetailedTool',
-      'CoverageRawTool', 'CoverageSummaryTool', 'UncoveredLinesTool', 'HelpTool')
+    expect(tool_names).to include(
+      'AllFilesCoverageTool',
+      'CoverageDetailedTool',
+      'CoverageRawTool',
+      'CoverageSummaryTool',
+      'CoverageTotalsTool',
+      'UncoveredLinesTool',
+      'CoverageTableTool',
+      'HelpTool',
+      'VersionTool'
+    )
+  end
+
+  describe 'TOOLSET and TOOL_GUIDE consistency' do
+    it 'includes all tools documented in HelpTool TOOL_GUIDE' do
+      # Get tool classes from TOOLSET
+      toolset_classes = described_class::TOOLSET
+
+      # Get tool classes from TOOL_GUIDE
+      tool_guide_classes = SimpleCovMcp::Tools::HelpTool::TOOL_GUIDE.map { |guide| guide[:tool] }
+
+      # Every tool in TOOL_GUIDE should be in TOOLSET
+      tool_guide_classes.each do |tool_class|
+        expect(toolset_classes).to include(tool_class),
+          "Expected TOOLSET to include #{tool_class.name}, but it was missing. " \
+          "Add it to MCPServer::TOOLSET or remove from HelpTool::TOOL_GUIDE."
+      end
+    end
+
+    it 'has corresponding TOOL_GUIDE entry for all tools (except HelpTool itself)' do
+      toolset_classes = described_class::TOOLSET
+      tool_guide_classes = SimpleCovMcp::Tools::HelpTool::TOOL_GUIDE.map { |guide| guide[:tool] }
+
+      # Every tool in TOOLSET should be in TOOL_GUIDE (except HelpTool which documents itself)
+      toolset_classes.each do |tool_class|
+        # HelpTool doesn't need an entry about itself
+        next if tool_class == SimpleCovMcp::Tools::HelpTool
+
+        expect(tool_guide_classes).to include(tool_class),
+          "Expected TOOL_GUIDE to document #{tool_class.name}, but it was missing. " \
+          "Add documentation for this tool to HelpTool::TOOL_GUIDE."
+      end
+    end
+
+    it 'registers the expected number of tools' do
+      # This helps catch accidental removal of tools
+      expect(described_class::TOOLSET.length).to eq(9)
+    end
   end
 end

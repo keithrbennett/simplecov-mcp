@@ -1,0 +1,144 @@
+# frozen_string_literal: true
+
+require 'spec_helper'
+
+RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
+  let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
+  let(:raw_totals) do
+    {
+      'lines' => { 'total' => 100, 'covered' => 80, 'uncovered' => 20 },
+      'percentage' => 80.0,
+      'files' => { 'total' => 10, 'ok' => 9, 'stale' => 1 }
+    }
+  end
+
+  subject(:presenter) do
+    described_class.new(
+      model: model,
+      check_stale: true,
+      tracked_globs: ['lib/**/*.rb']
+    )
+  end
+
+  before do
+    allow(model).to receive(:project_totals)
+      .with(tracked_globs: ['lib/**/*.rb'], check_stale: true)
+      .and_return(raw_totals)
+    allow(model).to receive(:relativize) { |payload| payload }
+  end
+
+  describe '#initialize' do
+    it 'stores the model, check_stale, and tracked_globs options' do
+      expect(presenter.model).to eq(model)
+      expect(presenter.check_stale).to eq(true)
+      expect(presenter.tracked_globs).to eq(['lib/**/*.rb'])
+    end
+  end
+
+  describe '#absolute_payload' do
+    it 'returns project totals from the model' do
+      result = presenter.absolute_payload
+
+      expect(result).to include('lines', 'percentage', 'files')
+      expect(result['lines']).to include('total' => 100, 'covered' => 80, 'uncovered' => 20)
+      expect(result['percentage']).to eq(80.0)
+      expect(result['files']).to include('total' => 10, 'ok' => 9, 'stale' => 1)
+    end
+
+    it 'caches the result on subsequent calls' do
+      presenter.absolute_payload
+      presenter.absolute_payload
+
+      expect(model).to have_received(:project_totals).once
+    end
+
+    it 'passes tracked_globs to the model' do
+      presenter.absolute_payload
+
+      expect(model).to have_received(:project_totals)
+        .with(tracked_globs: ['lib/**/*.rb'], check_stale: true)
+    end
+  end
+
+  describe '#relativized_payload' do
+    it 'returns the relativized payload from the model' do
+      result = presenter.relativized_payload
+
+      expect(result).to eq(raw_totals)
+    end
+
+    it 'calls relativize on the model' do
+      presenter.relativized_payload
+
+      expect(model).to have_received(:relativize).with(raw_totals)
+    end
+
+    it 'caches the result on subsequent calls' do
+      presenter.relativized_payload
+      presenter.relativized_payload
+
+      expect(model).to have_received(:relativize).once
+    end
+  end
+
+  context 'with check_stale: false' do
+    subject(:presenter) do
+      described_class.new(
+        model: model,
+        check_stale: false,
+        tracked_globs: nil
+      )
+    end
+
+    before do
+      allow(model).to receive(:project_totals)
+        .with(tracked_globs: nil, check_stale: false)
+        .and_return(raw_totals)
+    end
+
+    it 'passes check_stale: false to the model' do
+      presenter.absolute_payload
+
+      expect(model).to have_received(:project_totals)
+        .with(tracked_globs: nil, check_stale: false)
+    end
+  end
+
+  context 'with empty tracked_globs' do
+    subject(:presenter) do
+      described_class.new(
+        model: model,
+        check_stale: true,
+        tracked_globs: []
+      )
+    end
+
+    before do
+      allow(model).to receive(:project_totals)
+        .with(tracked_globs: [], check_stale: true)
+        .and_return(raw_totals)
+    end
+
+    it 'passes empty tracked_globs to the model' do
+      presenter.absolute_payload
+
+      expect(model).to have_received(:project_totals)
+        .with(tracked_globs: [], check_stale: true)
+    end
+  end
+
+  context 'with relativization that transforms data' do
+    before do
+      allow(model).to receive(:relativize) do |payload|
+        # Simulate relativization that might transform file paths in nested data
+        payload.merge('transformed' => true)
+      end
+    end
+
+    it 'applies the transformation from relativize' do
+      result = presenter.relativized_payload
+
+      expect(result['transformed']).to eq(true)
+    end
+  end
+end
