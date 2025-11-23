@@ -14,7 +14,8 @@ module SimpleCovMcp
         else
           puts "SimpleCovMcp version #{SimpleCovMcp::VERSION}"
           puts "Gem root: #{@gem_root}"
-          puts "\nFor usage help, consult README.md and docs/user/**/*.md in the gem root directory."
+          puts "\nFor usage help, consult README.md and docs/user/**/*.md " \
+               'in the gem root directory.'
         end
       end
 

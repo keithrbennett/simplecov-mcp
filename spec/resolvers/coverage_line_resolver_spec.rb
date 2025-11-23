@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
   describe '#lookup_lines' do
-    context 'direct path matching' do
+    context 'with direct path matching' do
       it 'returns lines array for exact path match' do
         abs_path = '/project/lib/foo.rb'
         cov_data = {
@@ -28,7 +28,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'CWD stripping fallback' do
+    context 'with CWD stripping fallback' do
       it 'finds relative path when absolute path includes CWD' do
         cwd = Dir.pwd
         relative_path = 'lib/bar.rb'
@@ -56,7 +56,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'error handling' do
+    context 'when handling errors' do
       it 'raises FileError when file is not found in coverage data' do
         cov_data = {
           '/project/lib/foo.rb' => { 'lines' => [1, 0] }
@@ -90,7 +90,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'branch-only coverage synthesis' do
+    context 'with branch-only coverage synthesis' do
       it 'synthesizes line hits when only branch coverage exists' do
         abs_path = '/tmp/branch_only.rb'
         branch_cov = {
@@ -201,7 +201,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'extract_line_number edge cases' do
+    context 'with extract_line_number edge cases' do
       let(:resolver) { described_class.new({}) }
 
       it 'extracts line number from array metadata' do
@@ -245,7 +245,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'preference for lines over branches' do
+    context 'with preference for lines over branches' do
       it 'prefers lines array when both lines and branches exist' do
         path = '/tmp/both.rb'
         cov_data = {

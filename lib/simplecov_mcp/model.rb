@@ -139,7 +139,8 @@ module SimpleCovMcp
     end
 
     def project_totals(tracked_globs: nil, check_stale: !@checker.off?)
-      rows = all_files(sort_order: :ascending, check_stale: check_stale, tracked_globs: tracked_globs)
+      rows = all_files(sort_order: :ascending, check_stale: check_stale,
+        tracked_globs: tracked_globs)
       totals_from_rows(rows)
     end
 

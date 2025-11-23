@@ -2,7 +2,6 @@
 # Usage: simplecov-mcp --success-predicate examples/success_predicates/directory_specific_thresholds_predicate.rb
 
 class DirectorySpecificThresholds
-
   def self.call(model)
     new(model).call
   end
@@ -21,8 +20,8 @@ class DirectorySpecificThresholds
       ['lib/simplecov_mcp/**/*.rb',                 85], # global default minimum
       ['lib/simplecov_mcp/option_parsers/**/*.rb',  95],
       ['lib/simplecov_mcp/tools/**/*.rb',          100]
-    ].map { |(filemask, threshold_pct)| files_ok?(filemask, threshold_pct) } \
-    .all?
+    ].map { |(filemask, threshold_pct)| files_ok?(filemask, threshold_pct) }
+      .all?
   end
 end
 

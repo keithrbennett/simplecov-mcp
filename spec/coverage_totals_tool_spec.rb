@@ -4,6 +4,8 @@ require 'spec_helper'
 require 'simplecov_mcp/tools/coverage_totals_tool'
 
 RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
+  subject(:tool_response) { described_class.call(root: root, server_context: server_context) }
+
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
@@ -23,13 +25,10 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
     allow(presenter).to receive(:relativized_payload).and_return(payload)
   end
 
-  subject { described_class.call(root: root, server_context: server_context) }
-
   it_behaves_like 'an MCP tool that returns text JSON'
 
   it 'returns aggregated totals' do
-    response = subject
-    data, = expect_mcp_text_json(response, expected_keys: ['lines', 'percentage', 'files'])
+    data, = expect_mcp_text_json(tool_response, expected_keys: ['lines', 'percentage', 'files'])
 
     expect(data['lines']).to include('total' => 42, 'covered' => 40, 'uncovered' => 2)
     expect(data['files']).to include('total' => 4, 'stale' => 0)

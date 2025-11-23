@@ -14,8 +14,8 @@ module SimpleCovMcp
 
           relative_path = presenter.relative_path
           summary = data['summary']
-          printf "%8.2f%%  %6d/%-6d  %s\n\n", summary['percentage'], summary['covered'], summary['total'],
-            relative_path
+          printf "%8.2f%%  %6d/%-6d  %s\n\n", summary['percentage'], summary['covered'],
+            summary['total'], relative_path
           print_source_for(model, path) if config.source_mode
         end
       end

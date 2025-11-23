@@ -28,7 +28,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
         [
           'invalid_cmd',
           'invalid command',
-          /list | summary <path> | raw <path> | uncovered <path> | detailed <path> | total | version/
+          /list \| summary <path> \| raw <path> \| uncovered <path>/
         ],
         [nil,           'nil command',            nil],
         ['',            'empty string command',   nil],

@@ -108,7 +108,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
       tool_guide_classes.each do |tool_class|
         expect(toolset_classes).to include(tool_class),
           "Expected TOOLSET to include #{tool_class.name}, but it was missing. " \
-          "Add it to MCPServer::TOOLSET or remove from HelpTool::TOOL_GUIDE."
+            'Add it to MCPServer::TOOLSET or remove from HelpTool::TOOL_GUIDE.'
       end
     end
 
@@ -123,7 +123,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
 
         expect(tool_guide_classes).to include(tool_class),
           "Expected TOOL_GUIDE to document #{tool_class.name}, but it was missing. " \
-          "Add documentation for this tool to HelpTool::TOOL_GUIDE."
+            'Add documentation for this tool to HelpTool::TOOL_GUIDE.'
       end
     end
 
@@ -146,7 +146,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
       tool_classes.each do |tool_class|
         expect(toolset_classes).to include(tool_class),
           "Expected TOOLSET to include #{tool_class.name}, but it was missing. " \
-          "The tool class exists in SimpleCovMcp::Tools but is not registered in MCPServer::TOOLSET."
+            'The tool class exists in SimpleCovMcp::Tools but is not registered in MCPServer::TOOLSET.'
       end
     end
   end

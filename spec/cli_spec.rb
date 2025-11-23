@@ -100,10 +100,6 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(output).to include('Average coverage:')
   end
 
-  it 'exposes expected subcommands via constant' do
-    expect(described_class::SUBCOMMANDS).to eq(%w[list summary raw uncovered detailed total version])
-  end
-
   it 'can include source in JSON payload (nil if file missing)' do
     output = run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
       '--source')

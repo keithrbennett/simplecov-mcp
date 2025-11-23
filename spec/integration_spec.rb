@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe 'SimpleCov MCP Integration Tests' do
-  # Timeout for MCP server operations (increased for JRuby compatibility)
-  MCP_TIMEOUT = 5
+# Timeout for MCP server operations (increased for JRuby compatibility)
+MCP_TIMEOUT = 5
 
+RSpec.describe 'SimpleCov MCP Integration Tests' do
   let(:project_root) { (FIXTURES_DIR / 'project1').to_s }
   let(:coverage_dir) { File.join(project_root, 'coverage') }
   let(:resultset_path) { File.join(coverage_dir, '.resultset.json') }
@@ -652,7 +652,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       result = run_mcp_json_stream(requests)
 
       # Force UTF-8 encoding to handle any binary data in the output stream
-      safe_stdout = result[:stdout].to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+      safe_stdout = result[:stdout].to_s
+        .encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
       responses = safe_stdout.lines.map do |line|
         next if line.strip.empty?
 

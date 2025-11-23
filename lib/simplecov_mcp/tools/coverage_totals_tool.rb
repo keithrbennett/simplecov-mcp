@@ -30,7 +30,8 @@ module SimpleCovMcp
           },
           stale: {
             type: 'string',
-            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            description: 'How to handle missing/outdated coverage data. ' \
+                         "'off' skips checks; 'error' raises.",
             enum: ['off', 'error'],
             default: 'off'
           },
@@ -42,7 +43,8 @@ module SimpleCovMcp
           },
           error_mode: {
             type: 'string',
-            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
+            description: "Error handling mode: 'off' (silent), 'on' (log errors), " \
+                         "'trace' (verbose).",
             enum: ['off', 'on', 'trace'],
             default: 'on'
           }

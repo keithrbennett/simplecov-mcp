@@ -3,6 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
+  subject(:presenter) do
+    described_class.new(
+      model: model,
+      check_stale: true,
+      tracked_globs: ['lib/**/*.rb']
+    )
+  end
+
   let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
   let(:raw_totals) do
     {
@@ -10,14 +18,6 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
       'percentage' => 80.0,
       'files' => { 'total' => 10, 'ok' => 9, 'stale' => 1 }
     }
-  end
-
-  subject(:presenter) do
-    described_class.new(
-      model: model,
-      check_stale: true,
-      tracked_globs: ['lib/**/*.rb']
-    )
   end
 
   before do
@@ -30,7 +30,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
   describe '#initialize' do
     it 'stores the model, check_stale, and tracked_globs options' do
       expect(presenter.model).to eq(model)
-      expect(presenter.check_stale).to eq(true)
+      expect(presenter.check_stale).to be(true)
       expect(presenter.tracked_globs).to eq(['lib/**/*.rb'])
     end
   end
@@ -138,7 +138,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
     it 'applies the transformation from relativize' do
       result = presenter.relativized_payload
 
-      expect(result['transformed']).to eq(true)
+      expect(result['transformed']).to be(true)
     end
   end
 end
