@@ -31,8 +31,22 @@ jobs:
         RSPEC_DISRUPTIVE_TESTS: exclude
     
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       if: matrix.ruby-version == '3.3'
       with:
         files: ./coverage/coverage.xml
         fail_ci_if_error: false
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4'
+        bundler-cache: true
+
+    - name: Audit dependencies for vulnerabilities
+      uses: rubysec/bundler-audit-action@v1
