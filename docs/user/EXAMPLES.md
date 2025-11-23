@@ -229,6 +229,46 @@ Using simplecov-mcp, create a coverage report showing:
 Format as markdown.
 ```
 
+## Test Run Integration
+
+### Display Low Coverage Files After RSpec
+
+Add this to your `spec/spec_helper.rb` to automatically report files below a coverage threshold after each test run:
+
+```ruby
+require 'simplecov'
+SimpleCov.start do
+  enable_coverage :branch
+  add_filter %r{^/spec/}
+  track_files 'lib/**/*.rb'  # Ensures new/untested files show up with 0%
+end
+
+# Report lowest coverage files at the end of the test run
+SimpleCov.at_exit do
+  SimpleCov.result.format!
+  require 'simplecov_mcp'
+  report = SimpleCovMcp::CoverageReporter.report(threshold: 80, count: 5)
+  puts report if report
+end
+```
+
+This produces output like:
+
+```
+Lowest coverage files (< 80%):
+    0.0%  lib/myapp/config_parser.rb
+   19.3%  lib/myapp/formatters/source_formatter.rb
+   24.0%  lib/myapp/model.rb
+   26.0%  lib/myapp/cli.rb
+   45.2%  lib/myapp/commands/base.rb
+```
+
+**Parameters:**
+- `threshold:` - Coverage percentage below which files are included (default: 80)
+- `count:` - Maximum number of files to show (default: 5)
+
+**Returns:** Formatted string, or `nil` if no files are below the threshold.
+
 ## CI/CD Integration
 
 ### GitHub Actions

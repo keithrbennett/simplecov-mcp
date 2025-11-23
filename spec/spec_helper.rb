@@ -8,6 +8,14 @@ begin
     add_filter %r{^/spec/}
     track_files 'lib/**/*.rb'
   end
+
+  # Report lowest coverage files at the end of the test run
+  SimpleCov.at_exit do
+    SimpleCov.result.format!
+    require 'simplecov_mcp'
+    report = SimpleCovMcp::CoverageReporter.report(threshold: 80, count: 5)
+    puts report if report
+  end
 rescue LoadError
   warn 'SimpleCov not available; skipping coverage'
 end
