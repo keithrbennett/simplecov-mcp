@@ -97,18 +97,17 @@ module SimpleCovMcp
 
     def initialize(message = nil, original_error = nil, file_path: nil, file_mtime: nil,
       cov_timestamp: nil, src_len: nil, cov_len: nil, resultset_path: nil)
-      super(message, original_error)
       @file_path = file_path
       @file_mtime = file_mtime
       @cov_timestamp = cov_timestamp
       @src_len = src_len
       @cov_len = cov_len
       @resultset_path = resultset_path
+      super(message || default_message, original_error)
     end
 
     def user_friendly_message
-      base = "Coverage data stale: #{message || default_message}"
-      base + build_details
+      "Coverage data stale: #{message}" + build_details
     end
 
     private

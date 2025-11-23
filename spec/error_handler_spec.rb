@@ -78,4 +78,28 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     end
     expect(logger.messages.join).to include('Error in test')
   end
+
+  it 'returns generic Error for non-RuntimeError exceptions' do
+    error = TypeError.new('wrong argument type')
+    result = handler.convert_standard_error(error)
+
+    expect(result).to be_a(SimpleCovMcp::Error)
+    expect(result.user_friendly_message).to include('An unexpected error occurred')
+  end
+
+  it 'returns generic Error for unrecognized SystemCallError' do
+    error = Errno::EEXIST.new('File exists')
+    result = handler.convert_standard_error(error)
+
+    expect(result).to be_a(SimpleCovMcp::Error)
+    expect(result.user_friendly_message).to include('An unexpected error occurred')
+  end
+
+  it 'handles NoMethodError with non-standard message format' do
+    error = NoMethodError.new('some weird error message without the expected pattern')
+    result = handler.convert_standard_error(error)
+
+    expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(result.user_friendly_message).to include('some weird error message')
+  end
 end

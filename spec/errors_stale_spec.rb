@@ -46,4 +46,38 @@ RSpec.describe SimpleCovMcp::CoverageDataStaleError do
     expect(msg).to match(/Coverage\s*-\s*time:\s*not found.*lines: 0/m)
     expect(msg).not_to include('Delta')
   end
+
+  it 'uses default message when message is nil' do
+    err = described_class.new(
+      nil,
+      nil,
+      file_path: 'lib/example.rb',
+      file_mtime: Time.now,
+      cov_timestamp: Time.now.to_i - 1000,
+      src_len: 10,
+      cov_len: 8,
+      resultset_path: '/coverage/.resultset.json'
+    )
+
+    msg = err.user_friendly_message
+    expect(msg).to include('Coverage data stale:')
+    expect(msg).to include('Coverage data appears stale for lib/example.rb')
+  end
+
+  it 'uses "file" in default message when file_path is also nil' do
+    err = described_class.new(
+      nil,
+      nil,
+      file_path: nil,
+      file_mtime: nil,
+      cov_timestamp: nil,
+      src_len: 0,
+      cov_len: 0,
+      resultset_path: nil
+    )
+
+    msg = err.user_friendly_message
+    expect(msg).to include('Coverage data stale:')
+    expect(msg).to include('Coverage data appears stale for file')
+  end
 end

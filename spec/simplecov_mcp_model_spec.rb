@@ -192,6 +192,15 @@ RSpec.describe SimpleCovMcp::CoverageModel do
         stale_model.summary_for('lib/foo.rb')
       end.to raise_error(SimpleCovMcp::FileNotFoundError, /File not found/)
     end
+
+    it 'raises FileError when lookup_lines raises RuntimeError' do
+      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
+        .and_raise(RuntimeError, 'Could not find coverage data')
+
+      expect do
+        model.summary_for('lib/some_file.rb')
+      end.to raise_error(SimpleCovMcp::FileError, /No coverage data found for file/)
+    end
   end
 
   describe 'resultset directory handling' do
