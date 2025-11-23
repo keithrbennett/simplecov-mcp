@@ -232,6 +232,8 @@ module SimpleCovMcp
       @error_handler.handle_error(error, context: 'CLI', reraise: false)
       # Show user-friendly message
       warn error.user_friendly_message
+      # Show stack trace in trace mode
+      warn error.backtrace.first(5).join("\n") if config.error_mode == :trace && error.backtrace
       exit 1
     end
   end
