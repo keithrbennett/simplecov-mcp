@@ -227,7 +227,7 @@ gem build simplecov-mcp.gemspec
 gem install simplecov-mcp-*.gem
 ```
 
-See [docs/dev/DEVELOPMENT.md](docs/dev/DEVELOPMENT.md) for more *(coming soon)*.
+See [docs/dev/DEVELOPMENT.md](docs/dev/DEVELOPMENT.md) for more.
 
 ## SimpleCov Dependency
 

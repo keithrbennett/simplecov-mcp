@@ -152,6 +152,46 @@ lib_table = model.format_table(lib_files, sort_order: :descending)
 puts lib_table
 ```
 
+### `project_totals(tracked_globs: nil)`
+
+Returns aggregated coverage totals across all files.
+
+**Parameters:**
+- `tracked_globs` (Array<String> or String, optional): Glob patterns to filter files
+
+**Returns:** `Hash` - See [project_totals return type](#project_totals)
+
+**Example:**
+```ruby
+totals = model.project_totals
+# => { 'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23 }, 'percentage' => 81.3, 'files' => { 'total' => 5, 'ok' => 4, 'stale' => 1 } }
+
+# Filter to specific directory
+lib_totals = model.project_totals(tracked_globs: 'lib/**/*.rb')
+```
+
+### `relativize(data)`
+
+Converts absolute file paths in coverage data to relative paths from project root.
+
+**Parameters:**
+- `data` (Hash or Array<Hash>): Coverage data with absolute file paths
+
+**Returns:** `Hash` or `Array<Hash>` - Same structure with relative paths
+
+**Example:**
+```ruby
+summary = model.summary_for('lib/simplecov_mcp/model.rb')
+# => { 'file' => '/home/user/project/lib/simplecov_mcp/model.rb', ... }
+
+relative_summary = model.relativize(summary)
+# => { 'file' => 'lib/simplecov_mcp/model.rb', ... }
+
+# Works with arrays too
+files = model.all_files
+relative_files = model.relativize(files)
+```
+
 ## Return Types
 
 ### `all_files`
@@ -232,6 +272,26 @@ Returns `Hash`:
 {
   'file' => String,              # Absolute file path
   'lines' => Array<Integer | nil>   # SimpleCov lines array (nil = irrelevant, 0 = uncovered, >0 = hit count)
+}
+```
+
+### `project_totals`
+
+Returns `Hash`:
+
+```ruby
+{
+  'lines' => {
+    'total' => Integer,      # Total relevant lines across all files
+    'covered' => Integer,    # Total covered lines
+    'uncovered' => Integer   # Total uncovered lines
+  },
+  'percentage' => Float,     # Overall coverage percentage
+  'files' => {
+    'total' => Integer,      # Total number of files
+    'ok' => Integer,         # Files with fresh coverage
+    'stale' => Integer       # Files with stale coverage
+  }
 }
 ```
 

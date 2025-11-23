@@ -71,15 +71,15 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 ## MCP Tools (Functions) Available
 
-| Tool                      | Purpose                    | Example Command                                      |
+| Tool                      | Purpose                    | Example CLI Command                                  |
 |---------------------------|----------------------------|------------------------------------------------------|
-| `all_files_coverage_tool` | Project-wide coverage data | `simplecov-mcp all-files`                            |
+| `all_files_coverage_tool` | Project-wide coverage data | `simplecov-mcp list`                                 |
 | `coverage_detailed_tool`  | Per-line hit counts        | `simplecov-mcp detailed lib/simplecov_mcp/model.rb`  |
 | `coverage_raw_tool`       | Raw SimpleCov lines array  | `simplecov-mcp raw lib/simplecov_mcp/model.rb`       |
 | `coverage_summary_tool`   | Get coverage % for a file  | `simplecov-mcp summary lib/simplecov_mcp/model.rb`   |
-| `coverage_table_tool`     | Formatted coverage table   | `simplecov-mcp table`                                |
+| `coverage_table_tool`     | Formatted coverage table   | `simplecov-mcp list`                                 |
 | `coverage_totals_tool`    | Aggregated line totals     | `simplecov-mcp total`                                |
-| `help_tool`               | Tool usage guidance        | `simplecov-mcp help`                                 |
+| `help_tool`               | Tool usage guidance        | `simplecov-mcp --help`                               |
 | `uncovered_lines_tool`    | Find missing test coverage | `simplecov-mcp uncovered lib/simplecov_mcp/cli.rb`   |
 | `version_tool`            | Display version info       | `simplecov-mcp version`                              |
 
@@ -150,7 +150,7 @@ puts "Missing lines: #{uncovered['uncovered'].inspect}"
 ## Custom Threshold Git Pre-Commit Hook
 
 ```ruby
-require_relative 'lib/simple_cov_mcp'
+require 'simplecov_mcp'
 
 files = SimpleCovMcp::CoverageModel.new.all_files
 critical, other = files.partition { |f| f['file'].include?('/lib/critical/') }
@@ -172,7 +172,7 @@ end
 ## Architecture Overview
 
 ```
-lib/simple_cov_mcp
+lib/simplecov_mcp
 ├── base_tool.rb
 ├── cli.rb
 ├── error_handler_factory.rb
@@ -188,6 +188,7 @@ lib/simple_cov_mcp
 │ ├── coverage_raw_tool.rb
 │ ├── coverage_summary_tool.rb
 │ ├── coverage_table_tool.rb
+│ ├── coverage_totals_tool.rb
 │ ├── help_tool.rb
 │ ├── uncovered_lines_tool.rb
 │ └── version_tool.rb

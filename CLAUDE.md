@@ -84,6 +84,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - `uncovered_lines_tool` - List of uncovered line numbers
 - `coverage_detailed_tool` - Per-line coverage with hit counts
 - `all_files_coverage_tool` - Project-wide coverage table
+- `coverage_totals_tool` - Aggregated line totals across project
 - `coverage_table_tool` - Formatted coverage table
 - `help_tool` - Indexed guidance on the tools above
 - `version_tool` - Version information
@@ -99,7 +100,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 
 - Run `bundle exec rspec` to generate coverage data that the tool can analyze
 - The gem requires Ruby >= 3.2 due to the `mcp` dependency
-- No SimpleCov runtime dependency - only reads the generated `.resultset.json` files
+- SimpleCov is a lazy-loaded runtime dependency - only loaded when multi-suite resultsets need merging
 - Test files are in `spec/` and follow standard RSpec conventions
 
 ## Documentation

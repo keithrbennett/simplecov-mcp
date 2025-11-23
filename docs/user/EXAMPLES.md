@@ -67,7 +67,7 @@ simplecov-mcp detailed lib/simplecov_mcp/cli.rb
 simplecov-mcp summary lib/simplecov_mcp/cli.rb --source=full
 
 # Focus on uncovered areas only
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=full --source=uncovered --source-context 5
+simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 5
 ```
 
 ### Working with JSON Output

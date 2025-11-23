@@ -13,9 +13,8 @@ $ simplecov-mcp summary nonexistent.rb
 File error: No coverage data found for the specified file
 ```
 
-For debugging, use the `--error-mode trace` flag to see full stack traces:
+For debugging, use the `--error-mode trace` flag to include stack traces in log output and display the first 5 lines of the backtrace in CLI output:
 
-# TODO This does not do what it says it does
 ```bash
 $ simplecov-mcp --error-mode trace summary nonexistent.rb
 ```

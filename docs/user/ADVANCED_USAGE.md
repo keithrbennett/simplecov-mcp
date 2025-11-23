@@ -332,7 +332,7 @@ class CoveragePolicy
   end
 end
 
-AllFilesAboveThreshold.new
+CoveragePolicy.new
 ```
 
 **Exit codes:**

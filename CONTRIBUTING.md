@@ -43,7 +43,7 @@ PRs should:
 
 ## Development Setup
 
-This project supports modern Ruby versions (3.1+). Typical workflow:
+This project requires Ruby >= 3.2 (due to the `mcp` gem dependency). Typical workflow:
 
 ```bash
 git clone https://github.com/keithrbennett/simplecov-mcp.git
@@ -60,8 +60,8 @@ Optional tools:
 
 ## Release Process (maintainer only)
 
-1. Update version in `lib/simplecov/mcp/version.rb`
-2. Update `CHANGELOG.md`
+1. Update version in `lib/simplecov_mcp/version.rb`
+2. Update `RELEASE_NOTES.md`
 3. Tag and push:
    ```bash
    git commit -m "Release v1.0.0"
