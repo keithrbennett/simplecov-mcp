@@ -131,5 +131,23 @@ RSpec.describe SimpleCovMcp::MCPServer do
       # This helps catch accidental removal of tools
       expect(described_class::TOOLSET.length).to eq(9)
     end
+
+    it 'registers all tool classes defined in SimpleCovMcp::Tools module' do
+      # This test catches the bug where a tool file is created, required in
+      # simplecov_mcp.rb, but not added to MCPServer::TOOLSET.
+      #
+      # Get all classes in the Tools module that inherit from BaseTool
+      tool_classes = SimpleCovMcp::Tools.constants
+        .map { |const_name| SimpleCovMcp::Tools.const_get(const_name) }
+        .select { |const| const.is_a?(Class) && const < SimpleCovMcp::BaseTool }
+
+      toolset_classes = described_class::TOOLSET
+
+      tool_classes.each do |tool_class|
+        expect(toolset_classes).to include(tool_class),
+          "Expected TOOLSET to include #{tool_class.name}, but it was missing. " \
+          "The tool class exists in SimpleCovMcp::Tools but is not registered in MCPServer::TOOLSET."
+      end
+    end
   end
 end
