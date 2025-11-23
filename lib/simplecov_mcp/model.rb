@@ -299,14 +299,6 @@ module SimpleCovMcp
       raise FileNotFoundError.new("File not found: #{path}")
     end
 
-    # staleness handled by StalenessChecker
-
-    def check_all_files_staleness!(cov_timestamp, tracked_globs: nil)
-      # handled by StalenessChecker
-    end
-
-    # Detailed stale message construction moved to CoverageDataStaleError
-
     def totals_from_rows(rows)
       covered = rows.sum { |row| row['covered'].to_i }
       total = rows.sum { |row| row['total'].to_i }
