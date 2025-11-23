@@ -360,7 +360,12 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     def parse_jsonrpc_response(output)
       # MCP server should only write JSON-RPC responses to stdout.
+      # Force UTF-8 encoding (JSON-RPC mandates UTF-8 per RFC 8259) to handle
+      # environments where Ruby defaults to US-ASCII.
       output.lines.each do |line|
+        line = line.force_encoding('UTF-8')
+        raise EncodingError, "Invalid UTF-8 in MCP response: #{line.inspect}" unless line.valid_encoding?
+
         stripped = line.strip
         next if stripped.empty?
 
@@ -650,6 +655,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       result = run_mcp_json_stream(requests)
 
       responses = result[:stdout].lines.map do |line|
+        # Force UTF-8 encoding for environments where Ruby defaults to US-ASCII
+        line = line.force_encoding('UTF-8')
+        next unless line.valid_encoding?
         next if line.strip.empty?
 
         begin
