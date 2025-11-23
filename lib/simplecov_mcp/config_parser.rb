@@ -27,9 +27,6 @@ module SimpleCovMcp
       parser.parse!(argv)
 
       config
-    rescue OptionParser::ParseError => e
-      # Re-raise with original error for caller to handle
-      raise e
     end
   end
 end
