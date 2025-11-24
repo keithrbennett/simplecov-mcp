@@ -104,5 +104,4 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
       end
     end
   end
-
 end

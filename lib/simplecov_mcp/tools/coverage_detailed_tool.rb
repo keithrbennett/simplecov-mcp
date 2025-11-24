@@ -20,7 +20,8 @@ module SimpleCovMcp
           with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
             model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
             presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
-            respond_json(presenter.relativized_payload, name: 'coverage_detailed.json', pretty: true)
+            respond_json(presenter.relativized_payload,
+              name: 'coverage_detailed.json', pretty: true)
           end
         end
       end
