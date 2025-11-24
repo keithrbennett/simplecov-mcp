@@ -79,12 +79,12 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     expect(logger.messages.join).to include('Error in test')
   end
 
-  it 'returns generic Error for non-RuntimeError exceptions' do
+  it 'converts TypeError to CoverageDataError for invalid data structures' do
     error = TypeError.new('wrong argument type')
     result = handler.convert_standard_error(error)
 
-    expect(result).to be_a(SimpleCovMcp::Error)
-    expect(result.user_friendly_message).to include('An unexpected error occurred')
+    expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(result.user_friendly_message).to include('Invalid coverage data structure')
   end
 
   it 'returns generic Error for unrecognized SystemCallError' do

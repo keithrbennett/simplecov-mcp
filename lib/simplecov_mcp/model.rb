@@ -5,6 +5,7 @@ require 'json'
 
 require_relative 'util'
 require_relative 'errors'
+require_relative 'error_handler'
 require_relative 'staleness_checker'
 require_relative 'path_relativizer'
 require_relative 'resultset_loader'
@@ -33,42 +34,7 @@ module SimpleCovMcp
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
 
-      begin
-        rs = CovUtil.find_resultset(@root, resultset: resultset)
-        loaded = ResultsetLoader.load(resultset_path: rs)
-        coverage_map = loaded.coverage_map or raise CoverageDataError.new("No 'coverage' key found in resultset file: #{rs}")
-
-        @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
-        @cov_timestamp = loaded.timestamp
-
-        @checker = StalenessChecker.new(
-          root: @root,
-          resultset: @resultset,
-          mode: staleness,
-          tracked_globs: tracked_globs,
-          timestamp: @cov_timestamp
-        )
-      rescue Errno::ENOENT => e
-        raise ResultsetNotFoundError.new("Coverage data not found at #{resultset || @root}")
-      rescue JSON::ParserError => e
-        raise CoverageDataError.new("Invalid coverage data format: #{e.message}")
-      rescue Errno::EACCES => e
-        raise FilePermissionError.new("Permission denied reading coverage data: #{e.message}")
-      rescue TypeError, NoMethodError => e
-        # These typically indicate the resultset has an unexpected structure
-        raise CoverageDataError.new("Invalid coverage data structure: #{e.message}")
-      rescue ArgumentError => e
-        # ArgumentError can occur from File.absolute_path or other path operations
-        raise CoverageDataError.new("Invalid path in coverage data: #{e.message}")
-      rescue RuntimeError => e
-        # RuntimeError from find_resultset or other operations
-        # Check if it's a resultset not found error
-        if e.message.downcase.include?('resultset')
-          raise ResultsetNotFoundError.new(e.message)
-        else
-          raise CoverageDataError.new("Failed to load coverage data: #{e.message}")
-        end
-      end
+      load_coverage_data(resultset, staleness, tracked_globs)
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -177,6 +143,27 @@ module SimpleCovMcp
     end
 
     private
+
+    def load_coverage_data(resultset, staleness, tracked_globs)
+      rs = CovUtil.find_resultset(@root, resultset: resultset)
+      loaded = ResultsetLoader.load(resultset_path: rs)
+      coverage_map = loaded.coverage_map or raise CoverageDataError.new("No 'coverage' key found in resultset file: #{rs}")
+
+      @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
+      @cov_timestamp = loaded.timestamp
+
+      @checker = StalenessChecker.new(
+        root: @root,
+        resultset: @resultset,
+        mode: staleness,
+        tracked_globs: tracked_globs,
+        timestamp: @cov_timestamp
+      )
+    rescue SimpleCovMcp::Error
+      raise # Re-raise our own errors as-is
+    rescue => e
+      raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
+    end
 
     def build_staleness_checker(mode:, tracked_globs:)
       StalenessChecker.new(

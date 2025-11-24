@@ -36,52 +36,93 @@ module SimpleCovMcp
       end
     end
 
-    # Convert standard Ruby errors to user-friendly custom errors
-    def convert_standard_error(error)
+    # Convert standard Ruby errors to user-friendly custom errors.
+    # @param error [Exception] the error to convert
+    # @param context [Symbol] :general (default) or :coverage_loading for context-specific messages
+    def convert_standard_error(error, context: :general)
       case error
       when Errno::ENOENT
-        filename = extract_filename(error.message)
-        FileNotFoundError.new("File not found: #{filename}", error)
+        convert_enoent(error, context)
       when Errno::EACCES
-        filename = extract_filename(error.message)
-        FilePermissionError.new("Permission denied accessing file: #{filename}", error)
+        convert_eacces(error, context)
       when Errno::EISDIR
         filename = extract_filename(error.message)
         NotAFileError.new("Expected file but found directory: #{filename}", error)
       when JSON::ParserError
-        CoverageDataError.new("Invalid coverage data format - JSON parsing failed: #{error.message}", error)
+        CoverageDataError.new("Invalid coverage data format: #{error.message}", error)
+      when TypeError
+        CoverageDataError.new("Invalid coverage data structure: #{error.message}", error)
       when ArgumentError
-        if error.message.include?('wrong number of arguments')
-          UsageError.new("Invalid number of arguments: #{error.message}", error)
-        else
-          ConfigurationError.new("Invalid configuration: #{error.message}", error)
-        end
+        convert_argument_error(error, context)
       when NoMethodError
-        method_info = extract_method_info(error.message)
-        CoverageDataError.new("Invalid coverage data structure - #{method_info}", error)
-      when RuntimeError, StandardError
-        # Handle string errors from CovUtil and other runtime errors
-        if error.message.include?('Could not find .resultset.json')
-          # Extract directory info if available
-          dir_info = error.message.match(/under (.+?)(?:;|$)/)&.[](1) || 'project directory'
-          CoverageDataError.new("Coverage data not found in #{dir_info} - please run your tests first", error)
-        elsif error.message.include?('No .resultset.json found in directory')
-          # Extract directory from error message
-          dir_info = error.message.match(/directory: (.+)$/)&.[](1) || 'specified directory'
-          CoverageDataError.new("Coverage data not found in directory: #{dir_info}", error)
-        elsif error.message.include?('Specified resultset not found')
-          # Extract path from error message
-          path_info = error.message.match(/not found: (.+)$/)&.[](1) || 'specified path'
-          ResultsetNotFoundError.new("Resultset file not found: #{path_info}", error)
-        else
-          Error.new("An unexpected error occurred: #{error.message}", error)
-        end
+        convert_no_method_error(error, context)
+      when RuntimeError
+        convert_runtime_error(error, context)
+      when StandardError
+        Error.new("An unexpected error occurred: #{error.message}", error)
       else
         Error.new("An unexpected error occurred: #{error.message}", error)
       end
     end
 
     private
+
+    def convert_enoent(error, context)
+      if context == :coverage_loading
+        ResultsetNotFoundError.new('Coverage data not found', error)
+      else
+        filename = extract_filename(error.message)
+        FileNotFoundError.new("File not found: #{filename}", error)
+      end
+    end
+
+    def convert_eacces(error, context)
+      if context == :coverage_loading
+        FilePermissionError.new("Permission denied reading coverage data: #{error.message}", error)
+      else
+        filename = extract_filename(error.message)
+        FilePermissionError.new("Permission denied accessing file: #{filename}", error)
+      end
+    end
+
+    def convert_argument_error(error, context)
+      if context == :coverage_loading
+        CoverageDataError.new("Invalid path in coverage data: #{error.message}", error)
+      elsif error.message.include?('wrong number of arguments')
+        UsageError.new("Invalid number of arguments: #{error.message}", error)
+      else
+        ConfigurationError.new("Invalid configuration: #{error.message}", error)
+      end
+    end
+
+    def convert_no_method_error(error, context)
+      if context == :coverage_loading
+        CoverageDataError.new("Invalid coverage data structure: #{error.message}", error)
+      else
+        method_info = extract_method_info(error.message)
+        CoverageDataError.new("Invalid coverage data structure - #{method_info}", error)
+      end
+    end
+
+    def convert_runtime_error(error, context)
+      message = error.message
+      if message.include?('Could not find .resultset.json')
+        dir_info = message.match(/under (.+?)(?:;|$)/)&.[](1) || 'project directory'
+        CoverageDataError.new("Coverage data not found in #{dir_info} - please run your tests first", error)
+      elsif message.include?('No .resultset.json found in directory')
+        dir_info = message.match(/directory: (.+)$/)&.[](1) || 'specified directory'
+        CoverageDataError.new("Coverage data not found in directory: #{dir_info}", error)
+      elsif message.include?('Specified resultset not found')
+        # Preserve the original message format for consistency with existing tests
+        ResultsetNotFoundError.new(message, error)
+      elsif context == :coverage_loading && message.downcase.include?('resultset')
+        ResultsetNotFoundError.new(message, error)
+      elsif context == :coverage_loading
+        CoverageDataError.new("Failed to load coverage data: #{message}", error)
+      else
+        Error.new("An unexpected error occurred: #{message}", error)
+      end
+    end
 
     def log_error(error, context)
       return unless log_errors?
