@@ -1,19 +1,20 @@
 #!/bin/bash
 
-# Pre-commit hook to run unit tests before allowing commit
-# Runs RSpec tests to ensure code quality before committing
+set -euo pipefail
 
-echo "Running unit tests before commit..."
+# Pre-commit hook to run RuboCop and RSpec before allowing commit.
 
-# Run the tests
-bundle exec rspec
+run_rubocop() {
+  echo "Running RuboCop..."
+  bundle exec rubocop
+}
 
-# Check if tests passed
-if [ $? -ne 0 ]; then
-    echo "❌ Unit tests failed. Commit aborted."
-    echo "Fix the failing tests and try again."
-    exit 1
-fi
+run_rspec() {
+  echo "Running unit tests..."
+  bundle exec rspec
+}
 
-echo "✅ All tests passed. Proceeding with commit."
-exit 0
+run_rubocop
+run_rspec
+
+echo "✅ All checks passed. Proceeding with commit."
