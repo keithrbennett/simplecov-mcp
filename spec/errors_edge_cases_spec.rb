@@ -3,6 +3,30 @@
 require 'spec_helper'
 
 RSpec.describe 'SimpleCovMcp error edge cases' do
+  describe SimpleCovMcp::ConfigurationError do
+    describe '#user_friendly_message' do
+      it 'prefixes message with "Configuration error:"' do
+        error = SimpleCovMcp::ConfigurationError.new('Invalid option value')
+
+        expect(error.user_friendly_message).to eq('Configuration error: Invalid option value')
+      end
+
+      it 'handles empty message' do
+        error = SimpleCovMcp::ConfigurationError.new('')
+
+        expect(error.user_friendly_message).to eq('Configuration error: ')
+      end
+
+      it 'handles nil message' do
+        # When nil is passed to StandardError, it uses the class name as the message
+        error = SimpleCovMcp::ConfigurationError.new(nil)
+
+        expect(error.user_friendly_message).to eq('Configuration error: SimpleCovMcp::ConfigurationError')
+      end
+    end
+  end
+
+
   describe SimpleCovMcp::CoverageDataStaleError do
     describe 'time formatting edge cases' do
       it 'handles invalid epoch seconds gracefully in rescue path' do
@@ -81,9 +105,9 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
     end
 
     describe 'default message generation' do
-      it 'uses default message when message is nil' do
+      it 'uses default message when message is nil with file_path' do
         error = SimpleCovMcp::CoverageDataStaleError.new(
-          nil, # No message provided
+          nil, # No message provided - triggers default_message
           nil,
           file_path: 'test.rb',
           file_mtime: Time.at(2000),
@@ -91,45 +115,59 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
         )
 
         message = error.user_friendly_message
-        # When message is nil, the error class name is used by StandardError
-        # which then triggers default_message to be called
-        expect(message).to include('Coverage data')
-        expect(message).to include('stale')
+        # default_message returns "Coverage data appears stale for test.rb"
+        expect(message).to include('Coverage data appears stale for test.rb')
         # File path should appear in the details section
         expect(message).to match(/File\s+-/)
       end
 
       it 'uses generic default message when file_path is nil' do
+        # This tests the fallback path when file_path is nil: fp = file_path || 'file'
         error = SimpleCovMcp::CoverageDataStaleError.new(
-          nil, # No message
+          nil, # No message - triggers default_message
           nil,
-          file_path: nil, # No file path
+          file_path: nil, # No file path - triggers 'file' fallback
           file_mtime: Time.at(2000),
           cov_timestamp: 1000
         )
 
         message = error.user_friendly_message
-        # When file_path is nil, should use 'file' as fallback
-        expect(message).to include('Coverage data')
-        expect(message).to include('file')
+        # When file_path is nil, default_message returns "Coverage data appears stale for file"
+        expect(message).to include('Coverage data appears stale for file')
       end
     end
   end
 
   describe SimpleCovMcp::CoverageDataProjectStaleError do
     describe 'default message generation' do
-      it 'uses default message when message is nil' do
+      # These tests exercise the private default_message method
+      it 'includes project stale info when message is nil' do
         error = SimpleCovMcp::CoverageDataProjectStaleError.new(
-          nil, # No message provided
+          nil, # StandardError sets message to class name when nil
           nil,
           cov_timestamp: 1000,
           newer_files: ['file1.rb', 'file2.rb']
         )
 
         message = error.user_friendly_message
-        # When message is nil, StandardError uses class name, then default_message is called
-        expect(message).to include('Coverage data')
-        expect(message).to include('project')
+        # user_friendly_message prefixes with "Coverage data stale (project):"
+        expect(message).to include('Coverage data stale (project)')
+        expect(message).to include('Newer files')
+      end
+
+      it 'exercises default_message directly via send' do
+        # Directly test the private default_message method for coverage
+        # This is necessary because user_friendly_message uses `message || default_message`
+        # and StandardError sets message to class name when initialized with nil
+        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+          'explicit message',
+          nil,
+          cov_timestamp: 1000
+        )
+
+        # Call the private default_message method directly
+        result = error.send(:default_message)
+        expect(result).to eq('Coverage data appears stale for project')
       end
     end
 

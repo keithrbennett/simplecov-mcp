@@ -204,5 +204,58 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         expect(error.message).to include('Something went wrong during resultset lookup')
       end
     end
+
+    it 'converts RuntimeError without "resultset" in message to CoverageDataError' do
+      # Test RuntimeError that does NOT contain 'resultset' in its message
+      # This exercises the else branch in the RuntimeError rescue clause
+      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_raise(
+        RuntimeError.new('Some completely unrelated runtime error')
+      )
+
+      expect do
+        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+        expect(error.message).to include('Failed to load coverage data')
+        expect(error.message).to include('Some completely unrelated runtime error')
+      end
+    end
+  end
+
+  describe 'all_files error handling' do
+    it 'skips files that raise FileError during coverage lookup' do
+      # This exercises the `next` statement in the all_files loop when FileError is raised
+      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+
+      # Mock lookup_lines to raise FileError for one specific file
+      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines).and_call_original
+      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'))
+        .and_raise(SimpleCovMcp::FileError.new('Corrupted coverage entry'))
+
+      # Should not raise, just skip the problematic file
+      result = model.all_files(check_stale: false)
+
+      # The result should contain bar.rb but not foo.rb
+      file_names = result.map { |r| File.basename(r['file']) }
+      expect(file_names).to include('bar.rb')
+      expect(file_names).not_to include('foo.rb')
+    end
+  end
+
+  describe 'resolve method error handling' do
+    it 'converts RuntimeError from lookup_lines to FileError' do
+      # This exercises the RuntimeError rescue clause in the resolve method
+      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+
+      # Mock lookup_lines to raise RuntimeError for a specific file
+      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
+        .and_raise(RuntimeError.new('Unexpected runtime error during lookup'))
+
+      expect do
+        model.summary_for('nonexistent_file.rb')
+      end.to raise_error(SimpleCovMcp::FileError) do |error|
+        expect(error.message).to include('No coverage data found for file')
+      end
+    end
   end
 end

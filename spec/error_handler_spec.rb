@@ -102,4 +102,56 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     expect(result).to be_a(SimpleCovMcp::CoverageDataError)
     expect(result.user_friendly_message).to include('some weird error message')
   end
+
+  describe 'else branch for non-StandardError exceptions' do
+    # This tests the else clause in convert_standard_error for exceptions
+    # that don't inherit from StandardError
+    it 'returns generic Error for Exception subclasses not inheriting from StandardError' do
+      # Create a custom exception that inherits from Exception, not StandardError
+      custom_exception_class = Class.new(Exception) do
+        def message
+          'Custom non-standard exception'
+        end
+      end
+
+      error = custom_exception_class.new
+      result = handler.convert_standard_error(error)
+
+      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result.user_friendly_message).to include('An unexpected error occurred')
+      expect(result.user_friendly_message).to include('Custom non-standard exception')
+    end
+
+    it 'returns generic Error for ScriptError subclasses' do
+      # ScriptError inherits from Exception, not StandardError
+      error = NotImplementedError.new('This feature is not implemented')
+      result = handler.convert_standard_error(error)
+
+      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result.user_friendly_message).to include('An unexpected error occurred')
+    end
+  end
+
+  describe 'extract_method_info fallback' do
+    # This tests the fallback path in extract_method_info when NoMethodError
+    # message doesn't match the expected pattern
+    it 'returns original message when pattern does not match' do
+      # Test various NoMethodError formats that won't match the regex
+      test_messages = [
+        'method not found',
+        'private method called',
+        'undefined local variable or method',
+        ''
+      ]
+
+      test_messages.each do |msg|
+        error = NoMethodError.new(msg)
+        result = handler.convert_standard_error(error)
+
+        expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+        # The original message should be preserved
+        expect(result.message).to include(msg) unless msg.empty?
+      end
+    end
+  end
 end
