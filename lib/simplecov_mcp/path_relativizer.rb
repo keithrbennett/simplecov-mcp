@@ -16,6 +16,21 @@ module SimpleCovMcp
       deep_copy_and_relativize(obj)
     end
 
+    # Converts an absolute path to a path relative to the root.
+    # Falls back to the original path if conversion fails (e.g., different drive on Windows).
+    #
+    # @param path [String] file path (absolute or relative)
+    # @return [String] relative path or original path on failure
+    def relativize_path(path)
+      root_str = @root.to_s
+      abs = File.absolute_path(path, root_str)
+      return path unless abs.start_with?(root_prefix(root_str)) || abs == root_str
+
+      Pathname.new(abs).relative_path_from(@root).to_s
+    rescue ArgumentError
+      path
+    end
+
     private
 
     def deep_copy_and_relativize(obj, key_context = nil)
@@ -42,16 +57,6 @@ module SimpleCovMcp
       else
         deep_copy_and_relativize(value)
       end
-    end
-
-    def relativize_path(path)
-      abs = File.absolute_path(path, @root.to_s)
-      root_str = @root.to_s
-      return path unless abs.start_with?(root_prefix(root_str)) || abs == root_str
-
-      Pathname.new(abs).relative_path_from(@root).to_s
-    rescue ArgumentError
-      path
     end
 
     def root_prefix(root_str)

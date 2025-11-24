@@ -39,7 +39,7 @@ module SimpleCovMcp
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
     def raw_for(path)
-      file_abs, coverage_lines = resolve(path)
+      file_abs, coverage_lines = coverage_data_for(path)
       { 'file' => file_abs, 'lines' => coverage_lines }
     end
 
@@ -49,13 +49,13 @@ module SimpleCovMcp
 
     # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'percentage'=>} }
     def summary_for(path)
-      file_abs, coverage_lines = resolve(path)
+      file_abs, coverage_lines = coverage_data_for(path)
       { 'file' => file_abs, 'summary' => CovUtil.summary(coverage_lines) }
     end
 
     # Returns { 'file' => <absolute_path>, 'uncovered' => [line,...], 'summary' => {...} }
     def uncovered_for(path)
-      file_abs, coverage_lines = resolve(path)
+      file_abs, coverage_lines = coverage_data_for(path)
       {
         'file' => file_abs,
         'uncovered' => CovUtil.uncovered(coverage_lines),
@@ -65,7 +65,7 @@ module SimpleCovMcp
 
     # Returns { 'file' => <absolute_path>, 'lines' => [{'line'=>,'hits'=>,'covered'=>},...], 'summary' => {...} }
     def detailed_for(path)
-      file_abs, coverage_lines = resolve(path)
+      file_abs, coverage_lines = coverage_data_for(path)
       {
         'file' => file_abs,
         'lines' => CovUtil.detailed(coverage_lines),
@@ -247,29 +247,58 @@ module SimpleCovMcp
       "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
     end
 
+    # Filters coverage rows to only include files matching the given glob patterns.
+    #
+    # @param rows [Array<Hash>] coverage rows with 'file' keys containing absolute paths
+    # @param tracked_globs [Array<String>, String, nil] glob patterns to match against
+    # @return [Array<Hash>] rows whose files match at least one pattern (or all rows if no patterns)
     def filter_rows_by_globs(rows, tracked_globs)
       patterns = Array(tracked_globs).compact.map(&:to_s).reject(&:empty?)
       return rows if patterns.empty?
 
-      root_pathname = Pathname.new(@root)
-      flags = File::FNM_PATHNAME | File::FNM_EXTGLOB
-
-      rows.select do |row|
-        abs_path = row['file']
-        rel_path = begin
-          Pathname.new(abs_path).relative_path_from(root_pathname).to_s
-        rescue ArgumentError
-          abs_path
-        end
-
-        patterns.any? do |pattern|
-          target = Pathname.new(pattern).absolute? ? abs_path : rel_path
-          File.fnmatch?(pattern, target, flags)
-        end
-      end
+      absolute_patterns = patterns.map { |p| absolutize_pattern(p) }
+      rows.select { |row| matches_any_pattern?(row['file'], absolute_patterns) }
     end
 
-    def resolve(path)
+    # Converts a relative pattern to absolute by joining with root.
+    # Absolute patterns are returned unchanged.
+    #
+    # @param pattern [String] glob pattern (e.g., "lib/**/*.rb")
+    # @return [String] absolute pattern
+    def absolutize_pattern(pattern)
+      absolute_pattern?(pattern) ? pattern : File.join(@root, pattern)
+    end
+
+    # Checks if a pattern is absolute, handling both Unix and Windows-style paths.
+    # On Unix, Pathname won't recognize "C:/" as absolute, so we check explicitly.
+    #
+    # @param pattern [String] glob pattern
+    # @return [Boolean] true if pattern is absolute
+    def absolute_pattern?(pattern)
+      Pathname.new(pattern).absolute? || pattern.match?(/\A[A-Za-z]:/)
+    end
+
+    # Tests if a file path matches any of the given absolute glob patterns.
+    # Uses File.fnmatch? for pure string matching without filesystem access,
+    # which is faster and works for paths that may no longer exist on disk.
+    #
+    # @param abs_path [String] absolute file path to test
+    # @param patterns [Array<String>] absolute glob patterns
+    # @return [Boolean] true if the path matches at least one pattern
+    def matches_any_pattern?(abs_path, patterns)
+      flags = File::FNM_PATHNAME | File::FNM_EXTGLOB
+      patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, flags) }
+    end
+
+    # Retrieves coverage data for a file path.
+    # Converts the path to absolute form and performs staleness checking if enabled.
+    #
+    # @param path [String] relative or absolute file path
+    # @return [Array(String, Array)] tuple of [absolute_path, coverage_lines]
+    # @raise [FileError] if no coverage data exists for the file
+    # @raise [FileNotFoundError] if the file does not exist
+    # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
+    def coverage_data_for(path)
       file_abs = File.absolute_path(path, @root)
       begin
         coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
