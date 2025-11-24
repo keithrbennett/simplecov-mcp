@@ -66,42 +66,52 @@ module SimpleCovMcp
       return if off?
 
       ts = coverage_timestamp
-      newer = []
-      deleted = []
       coverage_files = coverage_map.keys
-      coverage_files.each do |abs|
-        if File.file?(abs)
-          newer << rel(abs) if File.mtime(abs).to_i > ts.to_i
-        else
-          deleted << rel(abs)
-        end
-      end
 
-      missing = []
-      if @tracked_globs && !Array(@tracked_globs).empty?
-        patterns = Array(@tracked_globs).map { |g| File.absolute_path(g, @root) }
-        tracked = patterns.flat_map { |p| Dir.glob(p, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
-          .select { |p| File.file?(p) }
-        covered_set = coverage_files.to_set rescue coverage_files
-        tracked.each do |abs|
-          missing << rel(abs) unless covered_set.include?(abs)
-        end
-      end
+      newer, deleted = compute_newer_and_deleted_files(coverage_files, ts)
+      missing = compute_missing_files(coverage_files)
 
-      if !newer.empty? || !missing.empty? || !deleted.empty?
-        raise CoverageDataProjectStaleError.new(
-          nil,
-          nil,
-          cov_timestamp: ts,
-          newer_files: newer,
-          missing_files: missing,
-          deleted_files: deleted,
-          resultset_path: resultset_path
-        )
-      end
+      return if newer.empty? && missing.empty? && deleted.empty?
+
+      raise CoverageDataProjectStaleError.new(
+        nil,
+        nil,
+        cov_timestamp: ts,
+        newer_files: newer,
+        missing_files: missing,
+        deleted_files: deleted,
+        resultset_path: resultset_path
+      )
     end
 
     private
+
+    # Identifies files that are newer than coverage or have been deleted.
+    # Returns [newer_files, deleted_files] as arrays of relative paths.
+    def compute_newer_and_deleted_files(coverage_files, timestamp)
+      existing, deleted_abs = coverage_files.partition { |abs| File.file?(abs) }
+
+      newer = existing
+        .select { |abs| File.mtime(abs).to_i > timestamp.to_i }
+        .map { |abs| rel(abs) }
+      deleted = deleted_abs.map { |abs| rel(abs) }
+
+      [newer, deleted]
+    end
+
+    # Identifies tracked files that are missing from coverage.
+    # Returns array of relative paths for files matched by tracked_globs but not in coverage.
+    def compute_missing_files(coverage_files)
+      return [] unless @tracked_globs && Array(@tracked_globs).any?
+
+      patterns = Array(@tracked_globs).map { |g| File.absolute_path(g, @root) }
+      tracked = patterns
+        .flat_map { |p| Dir.glob(p, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
+        .select { |p| File.file?(p) }
+
+      covered_set = coverage_files.to_set
+      tracked.reject { |abs| covered_set.include?(abs) }.map { |abs| rel(abs) }
+    end
 
     def coverage_timestamp
       @cov_timestamp || 0
