@@ -59,21 +59,21 @@ module SimpleCovMcp
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
           tracked_globs: nil, error_mode: 'on', server_context:)
-          # Convert string inputs from MCP to symbols for internal use
-          sort_order_sym = sort_order.to_sym
-          stale_sym = stale.to_sym
+          with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
+            # Convert string inputs from MCP to symbols for internal use
+            sort_order_sym = sort_order.to_sym
+            stale_sym = stale.to_sym
 
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
-            tracked_globs: tracked_globs)
-          presenter = Presenters::ProjectCoveragePresenter.new(
-            model: model,
-            sort_order: sort_order_sym,
-            check_stale: (stale_sym == :error),
-            tracked_globs: tracked_globs
-          )
-          respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')
-        rescue => e
-          handle_mcp_error(e, 'AllFilesCoverageTool', error_mode: error_mode)
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
+              tracked_globs: tracked_globs)
+            presenter = Presenters::ProjectCoveragePresenter.new(
+              model: model,
+              sort_order: sort_order_sym,
+              check_stale: (stale_sym == :error),
+              tracked_globs: tracked_globs
+            )
+            respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')
+          end
         end
       end
     end

@@ -54,17 +54,17 @@ module SimpleCovMcp
       class << self
         def call(root: '.', resultset: nil, stale: 'off', tracked_globs: nil, error_mode: 'on',
           server_context:)
-          stale_sym = stale.to_sym
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
-            tracked_globs: tracked_globs)
-          presenter = Presenters::ProjectTotalsPresenter.new(
-            model: model,
-            check_stale: (stale_sym == :error),
-            tracked_globs: tracked_globs
-          )
-          respond_json(presenter.relativized_payload, name: 'coverage_totals.json', pretty: true)
-        rescue => e
-          handle_mcp_error(e, 'CoverageTotalsTool', error_mode: error_mode)
+          with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
+            stale_sym = stale.to_sym
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
+              tracked_globs: tracked_globs)
+            presenter = Presenters::ProjectTotalsPresenter.new(
+              model: model,
+              check_stale: (stale_sym == :error),
+              tracked_globs: tracked_globs
+            )
+            respond_json(presenter.relativized_payload, name: 'coverage_totals.json', pretty: true)
+          end
         end
       end
     end

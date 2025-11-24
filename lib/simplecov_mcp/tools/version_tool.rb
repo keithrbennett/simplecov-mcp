@@ -27,11 +27,11 @@ module SimpleCovMcp
 
       class << self
         def call(error_mode: 'on', server_context: nil, **_args)
-          ::MCP::Tool::Response.new([
-            { type: 'text', text: "SimpleCovMcp version: #{SimpleCovMcp::VERSION}" }
-          ])
-        rescue => error
-          handle_mcp_error(error, 'version_tool', error_mode: error_mode)
+          with_error_handling('VersionTool', error_mode: error_mode) do
+            ::MCP::Tool::Response.new([
+              { type: 'text', text: "SimpleCovMcp version: #{SimpleCovMcp::VERSION}" }
+            ])
+          end
         end
       end
     end

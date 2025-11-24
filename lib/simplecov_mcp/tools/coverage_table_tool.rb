@@ -59,30 +59,30 @@ module SimpleCovMcp
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
           tracked_globs: nil, error_mode: 'on', server_context:)
-          # Capture the output of the CLI's table report while honoring CLI options
-          # Convert string inputs from MCP to symbols for internal use
-          sort_order_sym = sort_order.to_sym
-          stale_sym = stale.to_sym
-          check_stale = (stale_sym == :error)
+          with_error_handling('CoverageTableTool', error_mode: error_mode) do
+            # Capture the output of the CLI's table report while honoring CLI options
+            # Convert string inputs from MCP to symbols for internal use
+            sort_order_sym = sort_order.to_sym
+            stale_sym = stale.to_sym
+            check_stale = (stale_sym == :error)
 
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
-            tracked_globs: tracked_globs)
-          presenter = Presenters::ProjectCoveragePresenter.new(
-            model: model,
-            sort_order: sort_order_sym,
-            check_stale: check_stale,
-            tracked_globs: tracked_globs
-          )
-          relativized = presenter.relative_files
-          table = model.format_table(
-            relativized,
-            sort_order: sort_order_sym,
-            check_stale: check_stale,
-            tracked_globs: nil # rows already filtered via all_files
-          )
-          ::MCP::Tool::Response.new([{ type: 'text', text: table }])
-        rescue => e
-          handle_mcp_error(e, 'CoverageTableTool', error_mode: error_mode)
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
+              tracked_globs: tracked_globs)
+            presenter = Presenters::ProjectCoveragePresenter.new(
+              model: model,
+              sort_order: sort_order_sym,
+              check_stale: check_stale,
+              tracked_globs: tracked_globs
+            )
+            relativized = presenter.relative_files
+            table = model.format_table(
+              relativized,
+              sort_order: sort_order_sym,
+              check_stale: check_stale,
+              tracked_globs: nil # rows already filtered via all_files
+            )
+            ::MCP::Tool::Response.new([{ type: 'text', text: table }])
+          end
         end
       end
     end

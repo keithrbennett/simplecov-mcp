@@ -17,11 +17,11 @@ module SimpleCovMcp
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: '.', resultset: nil, stale: 'off', error_mode: 'on', server_context:)
-          model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
-          presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)
-          respond_json(presenter.relativized_payload, name: 'coverage_raw.json', pretty: true)
-        rescue => e
-          handle_mcp_error(e, 'CoverageRawTool', error_mode: error_mode)
+          with_error_handling('CoverageRawTool', error_mode: error_mode) do
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
+            presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)
+            respond_json(presenter.relativized_payload, name: 'coverage_raw.json', pretty: true)
+          end
         end
       end
     end

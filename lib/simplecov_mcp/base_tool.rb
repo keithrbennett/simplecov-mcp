@@ -44,6 +44,15 @@ module SimpleCovMcp
     }
     def self.input_schema_def = INPUT_SCHEMA
 
+    # Wrap tool execution with consistent error handling.
+    # Yields to the block and rescues any error, delegating to handle_mcp_error.
+    # This eliminates duplicate rescue blocks across all tools.
+    def self.with_error_handling(tool_name, error_mode:)
+      yield
+    rescue => e
+      handle_mcp_error(e, tool_name, error_mode: error_mode)
+    end
+
     # Handle errors consistently across all MCP tools
     # Returns an MCP::Tool::Response with appropriate error message
     def self.handle_mcp_error(error, tool_name, error_mode: :on)

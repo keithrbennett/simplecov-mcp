@@ -102,13 +102,13 @@ module SimpleCovMcp
 
       class << self
         def call(query: nil, error_mode: 'on', server_context:, **_unused)
-          entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
-          entries = filter_entries(entries, query) if query && !query.strip.empty?
+          with_error_handling('HelpTool', error_mode: error_mode) do
+            entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
+            entries = filter_entries(entries, query) if query && !query.strip.empty?
 
-          data = { query: query, tools: entries }
-          respond_json(data, name: 'tools_help.json')
-        rescue => e
-          handle_mcp_error(e, 'HelpTool', error_mode: error_mode)
+            data = { query: query, tools: entries }
+            respond_json(data, name: 'tools_help.json')
+          end
         end
 
         private
