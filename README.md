@@ -65,6 +65,13 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb
 simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 ```
 
+**CLI - Find the Project Homepage Fast:**
+Run `simplecov-mcp -h` and the banner's second line shows the repository URL. Some terminal applications (e.g. iTerm2) will enable direct clicking the link using modifier keys such as `Cmd` and `Alt`.
+```
+Usage:      simplecov-mcp [options] [subcommand] [args]
+Repository: https://github.com/keithrbennett/simplecov-mcp  # <--- Project URL ---
+```
+
 **Ruby Library:**
 ```ruby
 require "simplecov_mcp"
