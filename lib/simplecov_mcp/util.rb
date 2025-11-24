@@ -40,6 +40,14 @@ module SimpleCovMcp
       end
     end
 
+    # Safe logging that never raises - use when logging should not interrupt execution.
+    # Unlike `log`, this method guarantees it will never propagate exceptions.
+    def safe_log(msg)
+      log(msg)
+    rescue StandardError
+      # Silently ignore all logging failures
+    end
+
     def find_resultset(root, resultset: nil)
       Resolvers::ResolverFactory.find_resultset(root, resultset: resultset)
     end

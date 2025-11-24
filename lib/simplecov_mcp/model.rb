@@ -115,8 +115,7 @@ module SimpleCovMcp
       coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
       @checker.stale_for_file?(file_abs, coverage_lines)
     rescue StandardError => e
-      # Log the error if possible
-      CovUtil.log("Failed to check staleness for #{path}: #{e.message}") rescue nil
+      CovUtil.safe_log("Failed to check staleness for #{path}: #{e.message}")
       false
     end
 

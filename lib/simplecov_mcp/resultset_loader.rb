@@ -86,9 +86,7 @@ module SimpleCovMcp
         return if duplicates.empty?
 
         message = "Merging duplicate coverage suites for #{duplicates.join(', ')}"
-        CovUtil.log(message)
-      rescue StandardError
-        # Logging should never block coverage loading
+        CovUtil.safe_log(message)
       end
 
       def compute_combined_timestamp(suites)
@@ -129,7 +127,7 @@ module SimpleCovMcp
       def log_timestamp_warning(raw_value, error = nil)
         message = "Coverage resultset timestamp could not be parsed: #{raw_value.inspect}"
         message = "#{message} (#{error.message})" if error
-        CovUtil.log(message) rescue nil
+        CovUtil.safe_log(message)
       end
     end
   end
