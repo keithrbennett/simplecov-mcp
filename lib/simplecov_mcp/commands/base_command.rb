@@ -58,16 +58,6 @@ module SimpleCovMcp
           context: config.source_context)
       end
 
-      def fetch_raw(model, path)
-        @raw_cache ||= {}
-        return @raw_cache[path] if @raw_cache.key?(path)
-
-        raw = model.raw_for(path)
-        @raw_cache[path] = raw
-      rescue StandardError
-        nil
-      end
-
       def print_source_for(model, path)
         formatted = source_formatter.format_source_for(model, path, mode: config.source_mode,
           context: config.source_context)
