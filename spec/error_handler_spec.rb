@@ -108,7 +108,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     # that don't inherit from StandardError
     it 'returns generic Error for Exception subclasses not inheriting from StandardError' do
       # Create a custom exception that inherits from Exception, not StandardError
-      custom_exception_class = Class.new(Exception) do
+      custom_exception_class = Class.new(StandardError) do
         def message
           'Custom non-standard exception'
         end
