@@ -154,4 +154,21 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
       end
     end
   end
+
+  # ErrorHandler#convert_runtime_error handles RuntimeErrors differently based on context:
+  # - :coverage_loading assumes errors relate to coverage data and maps them to
+  #   CoverageDataError or ResultsetNotFoundError
+  # - :general (or any other context) maps unrecognized errors to generic Error
+  # This tests the final else branch in convert_runtime_error.
+  describe 'convert_runtime_error with general context' do
+    it 'converts RuntimeError with unrecognized message to generic Error' do
+      error = RuntimeError.new('Some completely unexpected runtime error')
+
+      result = handler.convert_standard_error(error, context: :general)
+
+      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result.user_friendly_message)
+        .to include('An unexpected error occurred', 'unexpected runtime error')
+    end
+  end
 end

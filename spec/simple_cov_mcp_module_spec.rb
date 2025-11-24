@@ -13,4 +13,19 @@ RSpec.describe SimpleCovMcp do
       SimpleCovMcp.run(['--force-cli'])
     end
   end
+
+  # When no thread-local context exists, active_log_file= creates one
+  # from the default context rather than modifying an existing one.
+  describe '.active_log_file=' do
+    it 'creates context from default when no current context exists' do
+      Thread.current[:simplecov_mcp_context] = nil
+
+      SimpleCovMcp.active_log_file = '/tmp/test.log'
+
+      expect(SimpleCovMcp.context).not_to be_nil
+      expect(SimpleCovMcp.active_log_file).to eq('/tmp/test.log')
+    ensure
+      SimpleCovMcp.active_log_file = File::NULL
+    end
+  end
 end

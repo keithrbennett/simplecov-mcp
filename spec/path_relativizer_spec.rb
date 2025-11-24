@@ -79,5 +79,20 @@ RSpec.describe SimpleCovMcp::PathRelativizer do
     ensure
       FileUtils.rm_f(file_with_space)
     end
+
+    # On Windows, relative_path_from raises ArgumentError for paths on different
+    # drives (e.g., C: vs D:). The rescue block returns the original path.
+    it 'returns original path when relative_path_from raises ArgumentError' do
+      fake_pathname = instance_double(Pathname)
+      allow(fake_pathname).to receive(:relative_path_from)
+        .and_raise(ArgumentError, 'different prefix')
+      allow(Pathname).to receive(:new).and_call_original
+      allow(Pathname).to receive(:new).with(File.absolute_path('lib/foo.rb', root))
+        .and_return(fake_pathname)
+
+      result = relativizer.relativize_path(File.join(root, 'lib/foo.rb'))
+
+      expect(result).to eq(File.join(root, 'lib/foo.rb'))
+    end
   end
 end

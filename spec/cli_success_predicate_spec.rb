@@ -117,6 +117,23 @@ RSpec.describe SimpleCovMcp::CoverageCLI, 'success predicate' do
     end
   end
 
+  # run_success_predicate must call exit(). If it doesn't, CoverageCLI#run raises
+  # an error to catch this invariant violation during development.
+  describe 'guard after run_success_predicate' do
+    it 'raises error if run_success_predicate does not exit' do
+      with_temp_predicate("->(model) { true }\n") do |path|
+        cli = described_class.new
+        allow(cli).to receive(:exit).and_return(nil)
+
+        expect do
+          silence_output do
+            cli.run(['--success-predicate', path, '--root', root, '--resultset', 'coverage'])
+          end
+        end.to raise_error(RuntimeError, /did not call exit/)
+      end
+    end
+  end
+
   describe 'run_subcommand error handling' do
     it 'handles generic errors in subcommands' do
       # Force a generic error in the command execution

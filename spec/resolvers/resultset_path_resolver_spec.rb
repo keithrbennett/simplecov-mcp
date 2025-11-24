@@ -51,5 +51,12 @@ RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
 
       expect(resolved).to eq(File.join(project_root, 'coverage', '.resultset.json'))
     end
+
+    # In non-strict mode, resolve_candidate returns nil instead of raising
+    # when the path doesn't exist, allowing fallback resolution to continue.
+    it 'returns nil for non-existent path in non-strict mode' do
+      result = resolver.send(:resolve_candidate, '/nonexistent/path.json', strict: false)
+      expect(result).to be_nil
+    end
   end
 end

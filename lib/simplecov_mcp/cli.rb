@@ -47,10 +47,9 @@ module SimpleCovMcp
       )
 
       SimpleCovMcp.with_context(context) do
-        # If success predicate specified, run it and exit
         if config.success_predicate
           run_success_predicate
-          next
+          raise 'run_success_predicate did not call exit. This line should never be reached.'
         end
 
         if @cmd

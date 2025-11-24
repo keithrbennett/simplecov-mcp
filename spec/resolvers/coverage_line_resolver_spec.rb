@@ -243,6 +243,18 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
         result = resolver.send(:extract_line_number, nil)
         expect(result).to be_nil
       end
+
+      # The rescue block catches ArgumentError/TypeError from malformed metadata
+      # that can't be converted to line numbers.
+      [ArgumentError, TypeError].each do |error_class|
+        it "returns nil when string operations raise #{error_class}" do
+          weird_object = Object.new
+          allow(weird_object).to receive(:to_s).and_raise(error_class, 'test error')
+
+          result = resolver.send(:extract_line_number, weird_object)
+          expect(result).to be_nil
+        end
+      end
     end
 
     context 'with preference for lines over branches' do
