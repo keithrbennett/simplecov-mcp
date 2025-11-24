@@ -27,12 +27,12 @@
 ## Coding & Testing Guidelines
 - Target Ruby >= 3.2; use two-space indentation and `# frozen_string_literal: true` in Ruby files.
 - Match existing style and patterns (see `CoverageModel` and `CovUtil` helpers). Comments should clarify non-obvious logic only.
-- Never undo or overwrite user changes outside your scope; integrate with them instead.
+- Never undo or overwrite user changes outside your scope; integrate with them instead. However, if the new changes would be better implemented by modifying other sections, e.g. extracting now-duplicated behavior into a special method, then _do_ do that.
 - When adding behavior, couple it with tests; keep or raise coverage. Specs belong in `spec/**/*_spec.rb` mirroring the lib path.
 - Validate meaningful changes with `bundle exec rspec` when feasible; note skipped verification in your summary if you cannot run it.
 
 ## MCP Tool Playbook
-- Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool` (optionally with a `query`).
+- Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool`.
 - Go-to mappings:
   - File summary → `coverage_summary_tool` (`{ "path": "lib/simplecov_mcp/model.rb" }`)
   - Per-line detail → `coverage_detailed_tool`

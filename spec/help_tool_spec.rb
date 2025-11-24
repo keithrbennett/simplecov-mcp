@@ -21,33 +21,6 @@ RSpec.describe SimpleCovMcp::Tools::HelpTool do
 
     expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool',
       'all_files_coverage_tool', 'coverage_totals_tool', 'coverage_table_tool', 'version_tool')
-    expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs', 'example'))
-  end
-
-  it 'filters entries when a query is provided' do
-    response = described_class.call(query: 'uncovered', server_context: server_context)
-    payload = response.payload.first
-    expect(payload['type']).to eq('text')
-    data = JSON.parse(payload['text'])
-
-    expect(data['tools']).not_to be_empty
-    expect(data['tools']).to all(satisfy do |entry|
-      combined =
-        [entry['tool'], entry['label'], entry['use_when'], entry['avoid_when']]
-        .compact.join(' ').downcase
-      combined.include?('uncovered')
-    end)
-    expect(data['tools'].map { |entry| entry['tool'] }).to include('uncovered_lines_tool')
-  end
-
-  it 'ignores non-string metadata when filtering entries' do
-    entries = [
-      { 'tool' => 'match', 'label' => nil, 'use_when' => 'match feature' },
-      { 'tool' => 'other', 'label' => 'something else', 'use_when' => 123 }
-    ]
-
-    filtered = described_class.send(:filter_entries, entries, 'match')
-
-    expect(filtered.map { |entry| entry['tool'] }).to eq(['match'])
+    expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
 end

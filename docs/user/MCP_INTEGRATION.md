@@ -224,7 +224,7 @@ simplecov-mcp exposes 9 MCP tools:
 | `all_files_coverage_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
 | `coverage_totals_tool` | Aggregated line totals | `tracked_globs` |
 | `coverage_table_tool` | Formatted coverage table | `sort_order` |
-| `help_tool` | Tool discovery | `query` (optional) |
+| `help_tool` | Tool discovery | (none) |
 | `version_tool` | Version information | (none) |
 
 ### JSON Response Format
@@ -301,7 +301,7 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Utility Tools
 
-**`help_tool`** - Tool discovery (optional `query` parameter)
+**`help_tool`** - Tool discovery
 **`version_tool`** - Version information
 
 ## Example Prompts for AI Assistants

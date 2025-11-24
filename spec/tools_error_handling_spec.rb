@@ -21,47 +21,16 @@ RSpec.describe 'MCP Tool error handling' do
   # exists for consistency with other tools but is unlikely to be triggered in practice.
 
   describe SimpleCovMcp::Tools::HelpTool do
-    it 'handles errors during query processing' do
-      # Simulate an error during filter_entries
-      allow(described_class).to receive(:filter_entries).and_raise(StandardError, 'Filter error')
+    it 'returns tool information without errors' do
+      response = described_class.call(error_mode: 'on', server_context: server_context)
 
-      response = described_class.call(query: 'test', error_mode: 'on',
-        server_context: server_context)
-
-      # Should return error response
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
-    end
 
-    it 'returns empty array when tokens are empty after filtering' do
-      # Test the edge case where query contains only non-word characters
-      response = described_class.call(query: '!!!', server_context: server_context)
-
-      data = JSON.parse(response.payload.first['text'])
-      # With empty tokens, should return all entries (no filtering applied)
-      expect(data['tools']).not_to be_empty
-    end
-
-    it 'handles non-string, non-array values in filter' do
-      # Test value_matches? with values that are neither strings nor arrays
-      # This exercises the 'else false' branch
-      allow(described_class).to receive(:format_entry).and_return({
-        'tool' => 'test_tool',
-        'label' => nil, # Neither string nor array
-        'use_when' => 123, # Neither string nor array
-        'avoid_when' => true, # Neither string nor array
-        'inputs' => {}, # Neither string nor array
-        'example' => 'example'
-      })
-
-      response = described_class.call(query: 'test', server_context: server_context)
-
-      # Should not crash, should return response
-      expect(response).to be_a(MCP::Tool::Response)
-      data = JSON.parse(response.payload.first['text'])
+      data = JSON.parse(item[:text] || item['text'])
       expect(data).to have_key('tools')
+      expect(data['tools']).not_to be_empty
     end
   end
 
