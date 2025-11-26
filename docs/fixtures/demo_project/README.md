@@ -1,0 +1,9 @@
+# Demo project fixture
+
+This small demo project powers the documentation examples that rely on partial coverage and tracked globs.
+
+- Location: `docs/fixtures/demo_project`
+- Resultset: `.resultset.json` in this directory
+- Suggested alias for docs: `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`
+
+Files include controllers, models, payments services, background jobs, and an API client. A few files are intentionally missing from the resultset so the `--tracked-globs` examples surface gaps.

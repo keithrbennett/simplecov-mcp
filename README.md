@@ -8,7 +8,7 @@
 
 **simplecov-mcp** makes SimpleCov coverage data queryable and actionable through three interfaces:
 
-- **MCP server** - Let AI assistants analyze your coverage
+- **MCP server** - Lets AI assistants analyze your coverage
 - **CLI** - Fast command-line coverage reports and queries
 - **Ruby library** - Programmatic API for custom tooling
 
@@ -66,7 +66,7 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 ```
 
 **CLI - Find the Project Homepage Fast:**
-Run `simplecov-mcp -h` and the banner's second line shows the repository URL. Some terminal applications (e.g. iTerm2) will enable direct clicking the link using modifier keys such as `Cmd` and `Alt`.
+Run `simplecov-mcp -h` and the banner's second line shows the repository URL. Some terminal applications (e.g. iTerm2) will enable direct clicking the link using modifier keys such as `Cmd` or `Alt`.
 ```
 Usage:      simplecov-mcp [options] [subcommand] [args]
 Repository: https://github.com/keithrbennett/simplecov-mcp  # <--- Project URL ---
@@ -164,6 +164,47 @@ simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
 # Export for analysis
 simplecov-mcp list --json > coverage-report.json
 ```
+
+### Working with JSON Output
+
+The `--json` flag enables programmatic processing of coverage data using command-line JSON tools.
+
+**Using jq:**
+```sh
+# Filter files below 80% coverage
+simplecov-mcp list --json | jq '.files[] | select(.percentage < 80)'
+```
+
+**Using Ruby one-liners:**
+```sh
+# Count files below threshold
+simplecov-mcp list --json | ruby -r json -e '
+  puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
+'
+```
+
+**Using rexe:**
+
+[rexe](https://github.com/keithrbennett/rexe) is a Ruby gem that enables shorter Ruby command lines by providing command-line options for input and output formats, plus other conveniences. It eliminates the need for explicit JSON parsing and formatting code.
+
+Install: `gem install rexe`
+
+```sh
+# Filter files below 80% coverage with pretty JSON output
+simplecov-mcp list --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+
+# Count files below threshold
+simplecov-mcp list --json | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+
+# Human-readable output with AwesomePrint
+simplecov-mcp list --json | rexe -ij -mb -oa 'self["files"].first(3)'
+```
+
+With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AwesomePrint output (`-oa`) for human consumption.
+
+Run `rexe -h` to see all available options, or visit the [rexe project page](https://github.com/keithrbennett/rexe) for more examples.
+
+For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md).
 
 ### CI/CD Integration
 

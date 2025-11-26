@@ -2,6 +2,10 @@
 
 [Back to main README](../README.md)
 
+> Examples use `smcp`, an alias pointed at the demo fixture with partial coverage:<br>
+> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`<br>
+> Swap `smcp` with `simplecov-mcp` if you want to target your own project/resultset.
+
 ## Table of Contents
 
 - [Advanced MCP Integration](#advanced-mcp-integration)
@@ -51,16 +55,16 @@ Use JSON-RPC over stdin to test the MCP server:
 
 ```sh
 # Get version
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | smcp
 
 # Get file summary
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb"}}}' | smcp
 
 # List all files with sorting
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending"}}}' | smcp
 
 # Get uncovered lines
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"lib/simplecov_mcp/cli.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb"}}}' | smcp
 ```
 
 ---
@@ -91,10 +95,10 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if any file is stale
-simplecov-mcp --stale error summary lib/simplecov_mcp/model.rb
+smcp --stale error summary app/models/order.rb
 
 # Check specific file staleness
-simplecov-mcp summary lib/simplecov_mcp/model.rb --stale error
+smcp summary app/models/order.rb --stale error
 ```
 
 **Ruby API:**
@@ -104,7 +108,7 @@ model = SimpleCovMcp::CoverageModel.new(
 )
 
 begin
-  summary = model.summary_for('lib/simplecov_mcp/model.rb')
+  summary = model.summary_for('app/models/order.rb')
 rescue SimpleCovMcp::CoverageDataStaleError => e
   puts "File modified after coverage: #{e.file_path}"
   puts "Coverage timestamp: #{e.cov_timestamp}"
@@ -125,19 +129,19 @@ Detects system-wide staleness issues:
 **CLI Usage:**
 ```sh
 # Track specific patterns
-simplecov-mcp --stale error \
-  --tracked-globs "lib/simplecov_mcp/tools/**/*.rb" \
-  --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
+smcp --stale error \
+  --tracked-globs "lib/payments/**/*.rb" \
+  --tracked-globs "lib/ops/jobs/**/*.rb"
 
 # Combine with JSON output for parsing
-simplecov-mcp list --stale error --json > stale-check.json
+smcp list --stale error --json > stale-check.json
 ```
 
 **Ruby API:**
 ```ruby
 model = SimpleCovMcp::CoverageModel.new(
   staleness: 'error',
-  tracked_globs: ['lib/simplecov_mcp/tools/**/*.rb', 'lib/simplecov_mcp/commands/**/*.rb']
+  tracked_globs: ['lib/payments/**/*.rb', 'lib/ops/jobs/**/*.rb']
 )
 
 begin
@@ -158,10 +162,10 @@ Staleness checking is particularly useful in CI/CD pipelines to ensure coverage 
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
+smcp --stale error --tracked-globs "lib/**/*.rb"
 
 # Export validated data for CI artifacts
-simplecov-mcp list --json > coverage.json
+smcp list --json > coverage.json
 ```
 
 The `--stale error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
@@ -180,8 +184,8 @@ Path resolution order:
 ```ruby
 model = SimpleCovMcp::CoverageModel.new(root: '/project')
 
-model.summary_for('/project/lib/simplecov_mcp/model.rb')  # Absolute
-model.summary_for('lib/simplecov_mcp/model.rb')           # Relative
+model.summary_for('/project/app/models/order.rb')  # Absolute
+model.summary_for('app/models/order.rb')           # Relative
 ```
 
 ### Working with Multiple Projects
@@ -224,13 +228,13 @@ coverage_b = model_b.all_files
 **CLI Error Modes:**
 ```sh
 # Silent mode - minimal output
-simplecov-mcp --error-mode off summary lib/simplecov_mcp/model.rb
+smcp --error-mode off summary app/models/order.rb
 
 # Standard mode - user-friendly errors (default)
-simplecov-mcp --error-mode on summary lib/simplecov_mcp/model.rb
+smcp --error-mode on summary app/models/order.rb
 
 # Verbose mode - full stack traces
-simplecov-mcp --error-mode trace summary lib/simplecov_mcp/model.rb
+smcp --error-mode trace summary app/models/order.rb
 ```
 
 **Ruby API Error Handling:**
@@ -294,13 +298,13 @@ Use `--success-predicate` to enforce custom coverage policies in CI/CD. Example 
 **Quick Usage:**
 ```sh
 # All files must be >= 80%
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
+smcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # Total project coverage >= 85%
-simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
+smcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
 
 # Custom predicate
-simplecov-mcp --success-predicate coverage_policy.rb
+smcp --success-predicate coverage_policy.rb
 ```
 
 **Creating a predicate:**
@@ -350,12 +354,12 @@ Convert absolute paths to relative for cleaner output:
 model = SimpleCovMcp::CoverageModel.new(root: '/project')
 
 # Get data with absolute paths
-data = model.summary_for('lib/simplecov_mcp/model.rb')
-# => { 'file' => '/project/lib/simplecov_mcp/model.rb', ... }
+data = model.summary_for('app/models/order.rb')
+# => { 'file' => '/project/app/models/order.rb', ... }
 
 # Relativize paths
 relative_data = model.relativize(data)
-# => { 'file' => 'lib/simplecov_mcp/model.rb', ... }
+# => { 'file' => 'app/models/order.rb', ... }
 
 # Works with arrays too
 files = model.all_files
@@ -382,10 +386,10 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-simplecov-mcp --stale error --tracked-globs "lib/**/*.rb"
+smcp --stale error --tracked-globs "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
-simplecov-mcp list --json > coverage.json
+smcp list --json > coverage.json
 ```
 
 ### Using Success Predicates
@@ -397,7 +401,7 @@ Enforce custom coverage policies with `--success-predicate`:
 bundle exec rspec
 
 # Apply coverage policy (fails with exit code 1 if predicate returns false)
-simplecov-mcp --success-predicate coverage_policy.rb
+smcp --success-predicate coverage_policy.rb
 ```
 
 Exit codes:
@@ -428,10 +432,20 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 --tracked-globs "lib/**/*.rb"
 
 # Multiple patterns
---tracked-globs "lib/simplecov_mcp/tools/**/*.rb" --tracked-globs "lib/simplecov_mcp/commands/**/*.rb"
+--tracked-globs "lib/payments/**/*.rb" --tracked-globs "lib/ops/jobs/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
-simplecov-mcp list --json | jq '.files[] | select(.file | test("spec") | not)'
+smcp list --json | jq '.files[] | select(.file | test("spec") | not)'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("spec") }.each do |f|
+    puts JSON.pretty_generate(f)
+  end
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
 
 # Complex patterns
 --tracked-globs "lib/{models,controllers}/**/*.rb"
@@ -443,16 +457,16 @@ simplecov-mcp list --json | jq '.files[] | select(.file | test("spec") | not)'
 **1. Monitor Subsystem Coverage:**
 ```sh
 # API layer only
-simplecov-mcp list --tracked-globs "lib/api/**/*.rb"
+smcp list --tracked-globs "lib/api/**/*.rb"
 
 # Core business logic
-simplecov-mcp list --tracked-globs "lib/domain/**/*.rb"
+smcp list --tracked-globs "lib/domain/**/*.rb"
 ```
 
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-simplecov-mcp --stale error \
+smcp --stale error \
   --tracked-globs "lib/features/**/*.rb"
 ```
 
@@ -460,7 +474,7 @@ simplecov-mcp --stale error \
 ```sh
 # Generate separate reports per layer
 for layer in models views controllers; do
-  simplecov-mcp list \
+  smcp list \
     --tracked-globs "app/${layer}/**/*.rb" \
     --json > "coverage-${layer}.json"
 done
@@ -647,12 +661,12 @@ The CLI supports annotated source viewing:
 
 ```sh
 # Show uncovered lines with context
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb \
+smcp uncovered app/models/order.rb \
   --source uncovered \
   --source-context 3
 
 # Show full file with coverage annotations
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb \
+smcp uncovered app/models/order.rb \
   --source full \
   --source-context 0
 ```
@@ -682,7 +696,7 @@ def annotate_source(file_path)
   output.join
 end
 
-puts annotate_source('lib/simplecov_mcp/model.rb')
+puts annotate_source('app/models/order.rb')
 ```
 
 ### Integration with Coverage Trackers
@@ -691,7 +705,7 @@ puts annotate_source('lib/simplecov_mcp/model.rb')
 ```sh
 #!/bin/bash
 bundle exec rspec
-simplecov-mcp list --json > coverage.json
+smcp list --json > coverage.json
 
 # Transform to Codecov format (example)
 jq '{
@@ -702,6 +716,30 @@ jq '{
     }
   ]
 }' coverage.json | curl -X POST \
+  -H "Authorization: token $CODECOV_TOKEN" \
+  -d @- https://codecov.io/upload
+
+# Ruby alternative:
+ruby -r json -e '
+  data = JSON.parse(File.read("coverage.json"))
+  transformed = {
+    coverage: data["files"].map { |f|
+      {name: f["file"], coverage: f["percentage"]}
+    }
+  }
+  puts JSON.pretty_generate(transformed)
+' | curl -X POST \
+  -H "Authorization: token $CODECOV_TOKEN" \
+  -d @- https://codecov.io/upload
+
+# Rexe alternative:
+rexe -f coverage.json -oJ '
+  {
+    coverage: self["files"].map { |f|
+      {name: f["file"], coverage: f["percentage"]}
+    }
+  }
+' | curl -X POST \
   -H "Authorization: token $CODECOV_TOKEN" \
   -d @- https://codecov.io/upload
 ```

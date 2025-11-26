@@ -110,7 +110,7 @@ simplecov-mcp
 
 ### macOS
 
-Works with system Ruby or any version manager. Recommended: use rbenv or asdf.
+Works with system Ruby or any version manager. Recommended: use rbenv or asdf, not rvm (see note below).
 
 **Note:** RVM may not work in sandboxed environments (e.g., AI coding assistants) because it requires `/bin/ps`, which sandbox restrictions often block. Use rbenv or chruby instead for sandboxed environments.
 

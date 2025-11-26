@@ -32,6 +32,13 @@ Using `jq`:
 jq . examples/mcp-inputs/coverage_summary.json
 ```
 
+Using Ruby:
+```sh
+ruby -r json -e '
+  puts JSON.pretty_generate(JSON.parse(File.read("examples/mcp-inputs/coverage_summary.json")))
+'
+```
+
 Using `rexe`:
 ```sh
 rexe -f examples/mcp-inputs/coverage_summary.json -oJ
@@ -42,6 +49,13 @@ rexe -f examples/mcp-inputs/coverage_summary.json -oJ
 Using `jq`:
 ```sh
 exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json | jq .
+```
+
+Using Ruby:
+```sh
+exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json | ruby -r json -e '
+  puts JSON.pretty_generate(JSON.parse($stdin.read))
+'
 ```
 
 Using `rexe`:

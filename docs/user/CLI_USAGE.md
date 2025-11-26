@@ -4,6 +4,10 @@
 
 Complete reference for using simplecov-mcp from the command line.
 
+> Docs use `smcp` as a shortcut pointing at the demo fixture with partial coverage:<br>
+> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`<br>
+> Replace `smcp` with `simplecov-mcp` to run commands against your own project.
+
 ## Table of Contents
 
 - [Quick Reference](#quick-reference)
@@ -17,30 +21,30 @@ Complete reference for using simplecov-mcp from the command line.
 
 ```sh
 # Show coverage table for all files
-simplecov-mcp
-simplecov-mcp list
+smcp
+smcp list
 
 # Check specific file
-simplecov-mcp summary lib/simplecov_mcp/model.rb
+smcp summary app/models/order.rb
 
 # Find uncovered lines
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb
+smcp uncovered app/models/order.rb
 
 # Get detailed per-line coverage
-simplecov-mcp detailed lib/simplecov_mcp/model.rb
+smcp detailed app/models/order.rb
 
 # Get raw SimpleCov data
-simplecov-mcp raw lib/simplecov_mcp/model.rb
+smcp raw app/models/order.rb
 
 # Get project totals
-simplecov-mcp total
-simplecov-mcp total --json
+smcp total
+smcp total --json
 
 # Show version
-simplecov-mcp version
+smcp version
 
 # Get help
-simplecov-mcp --help
+smcp --help
 ```
 
 ## Subcommands
@@ -50,9 +54,9 @@ simplecov-mcp --help
 Show coverage summary for all files (default subcommand).
 
 ```sh
-simplecov-mcp list
-simplecov-mcp list --sort-order descending
-simplecov-mcp list --json
+smcp list
+smcp list --sort-order descending
+smcp list --json
 ```
 
 **Options:**
@@ -63,14 +67,18 @@ simplecov-mcp list --json
 
 **Output (table format):**
 ```
-┌──────────────────────────────────────────────────────────┬──────────┬──────────┬────────┬───────┐
-│ File                                                     │        % │  Covered │  Total │ Stale │
-├──────────────────────────────────────────────────────────┼──────────┼──────────┼────────┼───────┤
-│ lib/simplecov_mcp/tools/coverage_summary_tool.rb         │    85.71 │       12 │     14 │       │
-│ lib/simplecov_mcp/cli.rb                                 │    92.31 │       12 │     13 │   T   │
-│ lib/simplecov_mcp/model.rb                               │   100.00 │        8 │      8 │       │
-└──────────────────────────────────────────────────────────┴──────────┴──────────┴────────┴───────┘
-Files: total 3, ok 2, stale 1
+┌────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
+│ File                                   │        % │   Covered │   Total │ Stale │
+├────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
+│ lib/payments/refund_service.rb         │   60.00% │         3 │       5 │       │
+│ app/controllers/orders_controller.rb   │   70.00% │         7 │      10 │       │
+│ lib/ops/jobs/report_job.rb             │   80.00% │         4 │       5 │       │
+│ lib/payments/processor.rb              │   80.00% │         4 │       5 │       │
+│ app/models/order.rb                    │   85.71% │         6 │       7 │       │
+│ lib/api/client.rb                      │   88.89% │         8 │       9 │       │
+│ app/models/user.rb                     │  100.00% │         6 │       6 │       │
+└────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
+Files: total 7, ok 7, stale 0
 ```
 
 **Stale indicators:** M (missing file), T (timestamp mismatch), L (line count mismatch)
@@ -80,9 +88,9 @@ Files: total 3, ok 2, stale 1
 Show covered/total/percentage for a specific file.
 
 ```sh
-simplecov-mcp summary lib/simplecov_mcp/model.rb
-simplecov-mcp summary lib/simplecov_mcp/model.rb --json
-simplecov-mcp summary lib/simplecov_mcp/model.rb --source
+smcp summary app/models/order.rb
+smcp summary app/models/order.rb --json
+smcp summary app/models/order.rb --source
 ```
 
 **Arguments:**
@@ -94,16 +102,16 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb --source
 
 **Output (default format):**
 ```
-  85.71%      12/14      lib/simplecov_mcp/model.rb
+  85.71%       6/7       app/models/order.rb
 ```
 
 **Output (JSON format):**
 ```json
 {
-  "file": "lib/simplecov_mcp/model.rb",
+  "file": "app/models/order.rb",
   "summary": {
-    "covered": 12,
-    "total": 14,
+    "covered": 6,
+    "total": 7,
     "percentage": 85.71
   },
   "stale": false
@@ -115,9 +123,9 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb --source
 Show uncovered line numbers for a specific file.
 
 ```sh
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb --source=uncovered
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb --source=uncovered --source-context 3
+smcp uncovered app/controllers/orders_controller.rb
+smcp uncovered app/controllers/orders_controller.rb --source=uncovered
+smcp uncovered app/controllers/orders_controller.rb --source=uncovered --source-context 3
 ```
 
 **Arguments:**
@@ -131,27 +139,26 @@ simplecov-mcp uncovered lib/simplecov_mcp/model.rb --source=uncovered --source-c
 
 **Output (default format):**
 ```
-File:            lib/simplecov_mcp/model.rb
-Uncovered lines: 5, 9, 12, 18, 23
-Summary:        85.71%     12/14
+File:            app/controllers/orders_controller.rb
+Uncovered lines: 14, 15, 20
+Summary:         70.0%      7/10
 ```
 
 **Output (with source):**
 ```
-File:            lib/simplecov_mcp/model.rb
-Uncovered lines: 5, 9, 12
-Summary:        85.71%     12/14
+File:            app/controllers/orders_controller.rb
+Uncovered lines: 14, 15, 20
+Summary:         70.0%      7/10
 
   Line     | Source
   ------+-----------------------------------------------------------
-     3  ✓ | def initialize(name)
-     4  ✓ |   @name = name
-     5  · |   @validated = false  # Uncovered
-     6  ✓ | end
-     7    |
-     8  ✓ | def validate
-     9  · |   return if @validated  # Uncovered
-    10  ✓ |   # ...
+    14  · |       def show(id)
+    15  · |         @repo.find(id)
+    16  ✓ |       end
+    17    |
+    18  ✓ |       def cancel(id)
+    19  ✓ |         order = @repo.find(id)
+    20  · |         return :missing unless order
 ```
 
 **Legend:**
@@ -164,9 +171,9 @@ Summary:        85.71%     12/14
 Show per-line coverage with hit counts.
 
 ```sh
-simplecov-mcp detailed lib/simplecov_mcp/model.rb
-simplecov-mcp detailed lib/simplecov_mcp/model.rb --json
-simplecov-mcp detailed lib/simplecov_mcp/model.rb --source
+smcp detailed app/models/order.rb
+smcp detailed app/models/order.rb --json
+smcp detailed app/models/order.rb --source
 ```
 
 **Arguments:**
@@ -178,28 +185,35 @@ simplecov-mcp detailed lib/simplecov_mcp/model.rb --source
 
 **Output (default format):**
 ```
-File: lib/simplecov_mcp/model.rb
+File: app/models/order.rb
   Line    Hits  Covered
  -----    ----  -------
-     1       1    yes
-     2       0     no
-     3       1    yes
-     4       5    yes
+     6       1    yes
+     7       1    yes
+     8       1    yes
+    11       1    yes
+    12       1    yes
+    15       1    yes
+    16       0     no
 ```
 
 **Output (JSON format):**
 ```json
 {
-  "file": "lib/simplecov_mcp/model.rb",
+  "file": "app/models/order.rb",
   "lines": [
-    { "line": 1, "hits": 1, "covered": true },
-    { "line": 2, "hits": 0, "covered": false },
-    { "line": 4, "hits": 5, "covered": true }
+    { "line": 6, "hits": 1, "covered": true },
+    { "line": 7, "hits": 1, "covered": true },
+    { "line": 8, "hits": 1, "covered": true },
+    { "line": 11, "hits": 1, "covered": true },
+    { "line": 12, "hits": 1, "covered": true },
+    { "line": 15, "hits": 1, "covered": true },
+    { "line": 16, "hits": 0, "covered": false }
   ],
   "summary": {
-    "covered": 2,
-    "total": 3,
-    "percentage": 66.67
+    "covered": 6,
+    "total": 7,
+    "percentage": 85.71
   },
   "stale": false
 }
@@ -210,8 +224,8 @@ File: lib/simplecov_mcp/model.rb
 Show the raw SimpleCov lines array.
 
 ```sh
-simplecov-mcp raw lib/simplecov_mcp/model.rb
-simplecov-mcp raw lib/simplecov_mcp/model.rb --json
+smcp raw app/models/order.rb
+smcp raw app/models/order.rb --json
 ```
 
 **Arguments:**
@@ -219,15 +233,15 @@ simplecov-mcp raw lib/simplecov_mcp/model.rb --json
 
 **Output (default format):**
 ```
-File: lib/simplecov_mcp/model.rb
-[1, 0, nil, 5, 2, nil, 1]
+File: app/models/order.rb
+[nil, nil, nil, nil, nil, 1, 1, 1, nil, nil, 1, 1, nil, nil, 1, 0, nil, nil, nil, nil]
 ```
 
 **Output (JSON format):**
 ```json
 {
-  "file": "lib/simplecov_mcp/model.rb",
-  "lines": [1, 0, null, 5, 2, null, 1],
+  "file": "app/models/order.rb",
+  "lines": [null, null, null, null, null, 1, 1, 1, null, null, 1, 1, null, null, 1, 0, null, null, null, null],
   "stale": false
 }
 ```
@@ -242,23 +256,23 @@ File: lib/simplecov_mcp/model.rb
 Show aggregated totals for all tracked files.
 
 ```sh
-simplecov-mcp total
-simplecov-mcp total --json
-simplecov-mcp total --tracked-globs "lib/simplecov_mcp/commands/*.rb"
+smcp total
+smcp total --json
+smcp total --tracked-globs "lib/ops/jobs/*.rb"
 ```
 
 **Output (default format):**
 ```
-Lines: total 123       covered 120       uncovered 3
-Average coverage:  97.56% across 4 files (ok: 4, stale: 0)
+Lines: total 47       covered 38       uncovered 9
+Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
 ```
 
 **Output (JSON format):**
 ```json
 {
-  "lines": { "total": 123, "covered": 120, "uncovered": 3 },
-  "percentage": 97.56,
-  "files": { "total": 4, "ok": 4, "stale": 0 }
+  "lines": { "total": 47, "covered": 38, "uncovered": 9 },
+  "percentage": 80.85,
+  "files": { "total": 7, "ok": 7, "stale": 0 }
 }
 ```
 
@@ -271,8 +285,8 @@ Average coverage:  97.56% across 4 files (ok: 4, stale: 0)
 Show version information.
 
 ```sh
-simplecov-mcp version
-simplecov-mcp version --json
+smcp version
+smcp version --json
 ```
 
 **Output:**
@@ -295,7 +309,7 @@ For a detailed explanation of how to configure the resultset location, including
 Project root directory (default: current directory).
 
 ```sh
-simplecov-mcp --root /path/to/project
+smcp --root /path/to/project
 ```
 
 ### `-j, --json`
@@ -303,7 +317,7 @@ simplecov-mcp --root /path/to/project
 Output as JSON instead of human-readable format.
 
 ```sh
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --json
+smcp summary lib/api/client.rb --json
 ```
 
 Useful for:
@@ -320,8 +334,8 @@ Sort order for `list` subcommand.
 - `descending`, `d` - Highest coverage first
 
 ```sh
-simplecov-mcp list --sort-order ascending
-simplecov-mcp list --sort-order d  # Short form
+smcp list --sort-order ascending
+smcp list --sort-order d  # Short form
 ```
 
 ### `-s, --source[=MODE]`
@@ -334,12 +348,12 @@ Include source code in output.
 
 ```sh
 # Show full source
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --source
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --source=full
+smcp summary lib/api/client.rb --source
+smcp summary lib/api/client.rb --source=full
 
 # Show only uncovered lines
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb -s=u  # Short form
+smcp uncovered lib/api/client.rb --source=uncovered
+smcp uncovered lib/api/client.rb -s=u  # Short form
 ```
 
 ### `-c, --source-context N`
@@ -347,7 +361,7 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb -s=u  # Short form
 Number of context lines around uncovered code (for `--source=uncovered`).
 
 ```sh
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 3
+smcp uncovered lib/api/client.rb --source=uncovered --source-context 3
 ```
 
 **Default:** 2 lines
@@ -357,8 +371,8 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-con
 Enable or disable ANSI color codes in source output.
 
 ```sh
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source --color
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source --no-color
+smcp uncovered lib/api/client.rb --source --color
+smcp uncovered lib/api/client.rb --source --no-color
 ```
 
 **Default:** Colors enabled if output is a TTY
@@ -373,8 +387,8 @@ Staleness checking mode.
 
 ```sh
 # Exit with error if coverage is stale
-simplecov-mcp --stale error
-simplecov-mcp -S e  # Short form
+smcp --stale error
+smcp -S e  # Short form
 ```
 
 **Staleness conditions:**
@@ -388,7 +402,7 @@ simplecov-mcp -S e  # Short form
 Comma-separated glob patterns for files that should be tracked.
 
 ```sh
-simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb,lib/simplecov_mcp/commands/**/*.rb"
+smcp list --tracked-globs "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb"
 ```
 
 Used with `--stale error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
@@ -398,9 +412,9 @@ Used with `--stale error` to detect new files not yet in coverage and to filter 
 Log file location. Use 'stdout' or 'stderr' to log to standard streams.
 
 ```sh
-simplecov-mcp --log-file /var/log/simplecov.log
-simplecov-mcp --log-file stdout # Log to standard output
-simplecov-mcp --log-file stderr # Log to standard error
+smcp --log-file /var/log/simplecov.log
+smcp --log-file stdout # Log to standard output
+smcp --log-file stderr # Log to standard error
 ```
 
 **Default:** `./simplecov_mcp.log`
@@ -415,7 +429,7 @@ Error handling verbosity.
 - `trace`, `t` - Log errors with full stack traces
 
 ```sh
-simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
+smcp --error-mode trace summary lib/api/client.rb
 ```
 
 ### `--force-cli`
@@ -423,7 +437,7 @@ simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
 Force CLI mode even when stdin is piped or when the process is running in a non-interactive shell (CI, Codex, etc.). Without it, the executable may fall back to MCP server mode.
 
 ```sh
-simplecov-mcp --force-cli list
+smcp --force-cli list
 ```
 
 ### `--success-predicate FILE`
@@ -448,7 +462,7 @@ The predicate file must return a callable (lambda, proc, or object with `#call` 
 **Example usage:**
 ```sh
 # Use example predicate
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
+smcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
 bundle exec simplecov-mcp --success-predicate coverage_policy.rb
@@ -474,7 +488,7 @@ Default for `list` subcommand. Uses Unicode box-drawing characters.
 ┌──────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                             │        % │   Covered │   Total │ Stale │
 ├──────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ lib/simplecov_mcp/model.rb       │   91.67% │        11 │      12 │       │
+│ lib/payments/refund_service.rb   │   60.00% │         3 │       5 │       │
 └──────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 ```
 
@@ -484,10 +498,10 @@ Machine-readable output. Paths are relative to project root.
 
 ```json
 {
-  "file": "lib/simplecov_mcp/util.rb",
+  "file": "app/models/order.rb",
   "summary": {
-    "covered": 12,
-    "total": 14,
+    "covered": 6,
+    "total": 7,
     "percentage": 85.71
   },
   "stale": false
@@ -522,7 +536,7 @@ Default command-line options applied to all invocations.
 
 ```sh
 export SIMPLECOV_MCP_OPTS="--resultset coverage --json"
-simplecov-mcp summary lib/simplecov_mcp/cli.rb  # Automatically uses options above
+smcp summary lib/api/client.rb  # Automatically uses options above
 ```
 
 **Precedence:** Command-line arguments override environment options
@@ -530,8 +544,8 @@ simplecov-mcp summary lib/simplecov_mcp/cli.rb  # Automatically uses options abo
 ```sh
 # Environment sets --json, but --no-json on command line wins
 export SIMPLECOV_MCP_OPTS="--json"
-simplecov-mcp summary lib/simplecov_mcp/cli.rb  # Uses JSON (from env)
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --json  # Explicit, same result
+smcp summary lib/api/client.rb  # Uses JSON (from env)
+smcp summary lib/api/client.rb --json  # Explicit, same result
 ```
 
 **Examples:**
@@ -557,52 +571,70 @@ export SIMPLECOV_MCP_OPTS="--resultset coverage --stale error --json"
 
 ```sh
 # Show all files sorted by lowest coverage first
-simplecov-mcp
+smcp
 
 # Find the 5 files with worst coverage
-simplecov-mcp list | head -10
+smcp list | head -10
 ```
 
 ### Detailed File Investigation
 
 ```sh
 # Check a specific file
-simplecov-mcp summary lib/simplecov_mcp/tools/coverage_summary_tool.rb
+smcp summary lib/payments/refund_service.rb
 
 # See which lines aren't covered
-simplecov-mcp uncovered lib/simplecov_mcp/tools/coverage_summary_tool.rb
+smcp uncovered lib/payments/refund_service.rb
 
 # View uncovered code in context
-simplecov-mcp uncovered lib/simplecov_mcp/tools/coverage_summary_tool.rb --source=uncovered --source-context 3
+smcp uncovered lib/payments/refund_service.rb --source=uncovered --source-context 3
 
 # Get detailed hit counts
-simplecov-mcp detailed lib/simplecov_mcp/tools/coverage_summary_tool.rb
+smcp detailed lib/payments/refund_service.rb
 ```
 
 ### JSON Output for Scripts
 
 ```sh
 # Get JSON for parsing
-simplecov-mcp list --json > coverage.json
+smcp list --json > coverage.json
 
 # Extract files below threshold
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 80)'
+smcp list --json | jq '.files[] | select(.percentage < 80)'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
+    puts JSON.pretty_generate(f)
+  end
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below 80% coverage
-simplecov-mcp list --json | jq '[.files[] | select(.percentage < 80)] | length'
+smcp list --json | jq '[.files[] | select(.percentage < 80)] | length'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 ```
 
 ### Filtering and Sorting
 
 ```sh
 # Show only lib/ files
-simplecov-mcp list --tracked-globs "lib/**/*.rb"
+smcp list --tracked-globs "lib/**/*.rb"
 
 # Show files sorted by highest coverage
-simplecov-mcp list --sort-order descending
+smcp list --sort-order descending
 
 # Check specific directory
-simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
+smcp list --tracked-globs "lib/payments/**/*.rb"
 ```
 
 
@@ -611,55 +643,55 @@ simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-simplecov-mcp --stale error
+smcp --stale error
 
 # Check with specific file patterns
-simplecov-mcp list --stale error --tracked-globs "lib/simplecov_mcp/tools/**/*.rb,lib/simplecov_mcp/commands/**/*.rb"
+smcp list --stale error --tracked-globs "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb"
 
 # See which files are stale (don't error)
-simplecov-mcp list  # Stale files marked with !
+smcp list  # Stale files marked with !
 ```
 
 ### Source Code Display
 
 ```sh
 # Show full source with coverage markers
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --source
+smcp summary lib/api/client.rb --source
 
 # Show only uncovered lines with context
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered
+smcp uncovered lib/api/client.rb --source=uncovered
 
 # More context around uncovered code
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 5
+smcp uncovered lib/api/client.rb --source=uncovered --source-context 5
 
 # Without colors (for logging)
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source --no-color
+smcp uncovered lib/api/client.rb --source --no-color
 ```
 
 ### CI/CD Integration
 
 ```sh
 # Fail build if coverage is stale
-simplecov-mcp --stale error || exit 1
+smcp --stale error || exit 1
 
 # Generate JSON report for artifact
-simplecov-mcp list --json > artifacts/coverage-report.json
+smcp list --json > artifacts/coverage-report.json
 
 # Check specific directory in monorepo
-simplecov-mcp --root services/api --resultset services/api/coverage
+smcp --root services/api --resultset services/api/coverage
 ```
 
 ### Debugging
 
 ```sh
 # Verbose error output
-simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
+smcp --error-mode trace summary lib/api/client.rb
 
 # Custom log file
-simplecov-mcp --log-file /tmp/simplecov-debug.log summary lib/simplecov_mcp/cli.rb
+smcp --log-file /tmp/simplecov-debug.log summary lib/api/client.rb
 
 # Check what resultset is being used
-simplecov-mcp --error-mode trace 2>&1 | grep resultset
+smcp --error-mode trace 2>&1 | grep resultset
 ```
 
 ## Exit Codes

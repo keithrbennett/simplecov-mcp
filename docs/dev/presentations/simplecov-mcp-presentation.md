@@ -100,6 +100,16 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-con
 
 # JSON for scripts
 simplecov-mcp --json | jq '.files[] | select(.percentage < 80)'
+
+# Ruby alternative:
+simplecov-mcp --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
+    puts JSON.pretty_generate(f)
+  end
+'
+
+# Rexe alternative:
+simplecov-mcp --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 ```
 
 ---

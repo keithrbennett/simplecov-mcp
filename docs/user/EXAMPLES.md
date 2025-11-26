@@ -4,6 +4,10 @@
 
 Practical examples for common tasks with simplecov-mcp. Examples are organized by skill level and use case.
 
+> For brevity, these examples use `smcp`, an alias to the demo fixture with partial coverage:<br>
+> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`<br>
+> Swap `smcp` for `simplecov-mcp` to run against your own project and resultset.
+
 ## Table of Contents
 
 - [Quick Start Examples](#quick-start-examples)
@@ -19,39 +23,49 @@ Practical examples for common tasks with simplecov-mcp. Examples are organized b
 
 ```bash
 # Default: show all files, worst coverage first
-simplecov-mcp
+smcp
 
 # Show files with best coverage first
-simplecov-mcp list --sort-order descending
+smcp list --sort-order descending
 
 # Export to JSON for processing
-simplecov-mcp list --json > coverage-report.json
+smcp list --json > coverage-report.json
 ```
 
 ### Check Specific File
 
 ```bash
 # Quick summary
-simplecov-mcp summary lib/simplecov_mcp/model.rb
+smcp summary app/models/order.rb
 
 # See which lines aren't covered
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb
+smcp uncovered app/controllers/orders_controller.rb
 
 # View uncovered code with context
-simplecov-mcp uncovered lib/simplecov_mcp/model.rb --source=uncovered --source-context 3
+smcp uncovered app/controllers/orders_controller.rb --source=uncovered --source-context 3
 ```
 
 ### Find Coverage Gaps
 
 ```bash
 # Files with worst coverage
-simplecov-mcp list | head -10
+smcp list | head -10
 
 # Only show files below 80%
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 95)'
+smcp list --json | jq '.files[] | select(.percentage < 95)'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
+    puts JSON.pretty_generate(f)
+  end
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 95 }'
 
 # Check specific directory
-simplecov-mcp list --tracked-globs "lib/simplecov_mcp/presenters/**/*.rb"
+smcp list --tracked-globs "lib/payments/**/*.rb"
 ```
 
 ## CLI Examples
@@ -61,30 +75,80 @@ simplecov-mcp list --tracked-globs "lib/simplecov_mcp/presenters/**/*.rb"
 **Detailed investigation:**
 ```bash
 # See detailed hit counts
-simplecov-mcp detailed lib/simplecov_mcp/cli.rb
+smcp detailed lib/api/client.rb
 
 # Show full source with coverage markers
-simplecov-mcp summary lib/simplecov_mcp/cli.rb --source=full
+smcp summary lib/api/client.rb --source=full
 
 # Focus on uncovered areas only
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 5
+smcp uncovered lib/payments/refund_service.rb --source=uncovered --source-context 5
 ```
 
 ### Working with JSON Output
 
-In addition to the benefit of JSON encoding being human readable, it can be used in single line commands to fetch and compute values using `jq`.
+In addition to the benefit of JSON encoding being human readable, it can be used in single line commands to fetch and compute values using `jq`, Ruby's JSON library, or `rexe`.
 Here are some examples:
 
 **Parse and filter:**
 ```bash
 # Files below threshold
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
+smcp list --json | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
+    puts JSON.pretty_generate({file: f["file"], coverage: f["percentage"]})
+  end
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -oJ '
+  self["files"].select { |f| f["percentage"] < 95 }.map do |f|
+    {file: f["file"], coverage: f["percentage"]}
+  end
+'
 
 # Count total uncovered lines
-simplecov-mcp total --json | jq '.lines.uncovered'
+smcp total --json | jq '.lines.uncovered'
 
-# Group by directory
-simplecov-mcp list --json | jq '.files | group_by(.file | split("/")[0]) | map({dir: .[0].file | split("/")[0], avg: (map(.percentage) | add / length)})'
+# Ruby alternative:
+smcp total --json | ruby -r json -e '
+  puts JSON.parse($stdin.read)["lines"]["uncovered"]
+'
+
+# Rexe alternative:
+smcp total --json | rexe -ij -mb -op 'self["lines"]["uncovered"]'
+
+# Group by directory (full path)
+smcp list --json |
+  jq '.files
+      | map(. + {dir: (.file | split("/") | .[0:-1] | join("/"))})
+      | sort_by(.dir)
+      | group_by(.dir)
+      | map({dir: .[0].dir, avg: (map(.percentage) | add / length)})'
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  grouped = JSON.parse($stdin.read)["files"]
+    .map { |f| f.merge("dir" => File.dirname(f["file"])) }
+    .group_by { |f| f["dir"] }
+    .map { |dir, files|
+      avg = files.sum { |f| f["percentage"] } / files.size
+      {dir: dir, avg: avg}
+    }
+  puts JSON.pretty_generate(grouped)
+'
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb -oJ '
+  self["files"]
+    .map { |f| f.merge("dir" => File.dirname(f["file"])) }
+    .group_by { |f| f["dir"] }
+    .map { |dir, files|
+      avg = files.sum { |f| f["percentage"] } / files.size
+      {dir: dir, avg: avg}
+    }
+'
 ```
 
 **Generate reports:**
@@ -92,10 +156,34 @@ simplecov-mcp list --json | jq '.files | group_by(.file | split("/")[0]) | map({
 # Create markdown table
 echo "| Coverage | File |" > report.md
 echo "|----------|------|" >> report.md
-simplecov-mcp list --json | jq -r '.files[] | "| \(.percentage)% | \(.file) |"' >> report.md
+smcp list --json | jq -r '.files[] | "| \(.percentage)% | \(.file) |"' >> report.md
+
+# Ruby alternative:
+smcp list --json | ruby -r json -e '
+  JSON.parse($stdin.read)["files"].each do |f|
+    puts "| #{f["percentage"]}% | #{f["file"]} |"
+  end
+' >> report.md
+
+# Rexe alternative:
+smcp list --json | rexe -ij -mb '
+  self["files"].each { |f| puts "| #{f["percentage"]}% | #{f["file"]} |" }
+' >> report.md
 
 # Export for spreadsheet
-simplecov-mcp list --json | jq -r '.files[] | [.file, .percentage] | @csv' > coverage.csv
+smcp list --json | jq -r '.files[] | [.file, .percentage] | @csv' > coverage.csv
+
+# Ruby alternative:
+smcp list --json | ruby -r json -r csv -e '
+  JSON.parse($stdin.read)["files"].each do |f|
+    puts CSV.generate_line([f["file"], f["percentage"]]).chomp
+  end
+' > coverage.csv
+
+# Rexe alternative:
+smcp list --json | rexe -r csv -ij -mb '
+  self["files"].each { |f| puts CSV.generate_line([f["file"], f["percentage"]]).chomp }
+' > coverage.csv
 ```
 
 ## Ruby Library Examples
@@ -105,7 +193,8 @@ simplecov-mcp list --json | jq -r '.files[] | [.file, .percentage] | @csv' > cov
 ```ruby
 require "simplecov_mcp"
 
-model = SimpleCovMcp::CoverageModel.new
+root = "docs/fixtures/demo_project"
+model = SimpleCovMcp::CoverageModel.new(root: root)
 
 # Project totals
 totals = model.project_totals
@@ -113,11 +202,11 @@ puts "Total files: #{totals['files']['total']}"
 puts "Average coverage: #{totals['percentage']}%"
 
 # Check specific file
-summary = model.summary_for("lib/simplecov_mcp/cli.rb")
+summary = model.summary_for("app/models/order.rb")
 puts "Coverage: #{summary['summary']['percentage']}%"
 
 # Find uncovered lines
-uncovered = model.uncovered_for("lib/simplecov_mcp/cli.rb")
+uncovered = model.uncovered_for("lib/payments/refund_service.rb")
 puts "Uncovered lines: #{uncovered['uncovered'].join(', ')}"
 ```
 
@@ -126,7 +215,8 @@ puts "Uncovered lines: #{uncovered['uncovered'].join(', ')}"
 ```ruby
 require "simplecov_mcp"
 
-model = SimpleCovMcp::CoverageModel.new
+root = "docs/fixtures/demo_project"
+model = SimpleCovMcp::CoverageModel.new(root: root)
 all_files = model.all_files
 
 # Find files below threshold
@@ -141,12 +231,10 @@ if low_coverage.any?
 end
 
 # Group by directory using totals command logic
-dirs = ['.'] + `find lib/simplecov_mcp -type d`.split("\n")
-
+dirs = %w[app lib lib/payments lib/ops/jobs].uniq
 dirs.each do |dir|
-  pattern = File.join(dir, '*.rb')
+  pattern = File.join(dir, '**/*.rb')
   totals = model.project_totals(tracked_globs: pattern)
-
   puts "#{dir}: #{totals['percentage'].round(2)}% (#{totals['files']['total']} files)"
 end
 ```
@@ -157,11 +245,12 @@ end
 require "simplecov_mcp"
 require "pathname"
 
-model = SimpleCovMcp::CoverageModel.new
+root = "docs/fixtures/demo_project"
+model = SimpleCovMcp::CoverageModel.new(root: root)
 all_files = model.all_files
 
-# Filter to lib/simplecov_mcp (coverage data stores absolute paths)
-lib_root = File.expand_path("lib/simplecov_mcp", Dir.pwd)
+# Filter to lib/payments (coverage data stores absolute paths)
+lib_root = File.expand_path("lib/payments", File.expand_path(root, Dir.pwd))
 lib_files = all_files.select { |f| f['file'].start_with?(lib_root) }
 
 # Generate custom table
@@ -180,7 +269,7 @@ end
 
 ### Coverage Analysis
 
-    ```
+```
 Using simplecov-mcp, show me a table of all files sorted by coverage percentage.
 ```
 
@@ -192,27 +281,27 @@ Using simplecov-mcp, find the 10 files with the lowest coverage and create a mar
 ```
 
 ```
-Using simplecov-mcp, analyze the lib/simplecov_mcp/tools/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
+Using simplecov-mcp, analyze the lib/payments/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
 ```
 
 ### Finding Specific Issues
 
 ```
-Using simplecov-mcp, show me the uncovered lines in lib/simplecov_mcp/cli.rb with 5 lines of context around each uncovered block.
+Using simplecov-mcp, show me the uncovered lines in app/controllers/orders_controller.rb with 5 lines of context around each uncovered block.
 ```
 
 ```
-Using simplecov-mcp, find all files in lib/simplecov_mcp/presenters/ with less than 80% coverage and list the specific uncovered line numbers for each.
+Using simplecov-mcp, find all files in lib/payments/ with less than 80% coverage and list the specific uncovered line numbers for each.
 ```
 
 ### Test Generation
 
 ```
-Using simplecov-mcp, identify the uncovered lines in lib/simplecov_mcp/mcp_server.rb and write RSpec tests to cover them.
+Using simplecov-mcp, identify the uncovered lines in lib/ops/jobs/report_job.rb and write RSpec tests to cover them.
 ```
 
 ```
-Using simplecov-mcp, analyze coverage gaps in the lib/simplecov_mcp/commands/ directory and generate a test plan prioritizing:
+Using simplecov-mcp, analyze coverage gaps in the app/controllers/ directory and generate a test plan prioritizing:
 1. Public API methods
 2. Error handling paths
 3. Edge cases
@@ -299,11 +388,35 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          simplecov-mcp list --json > coverage.json
+          smcp list --json > coverage.json
           BELOW_THRESHOLD=$(jq '[.files[] | select(.percentage < 80)] | length' coverage.json)
+
+          # Ruby alternative:
+          # BELOW_THRESHOLD=$(ruby -r json -e '
+          #   puts JSON.parse(File.read("coverage.json"))["files"].count { |f| f["percentage"] < 80 }
+          # ')
+
+          # Rexe alternative:
+          # BELOW_THRESHOLD=$(rexe -f coverage.json -op 'self["files"].count { |f| f["percentage"] < 80 }')
+
           if [ "$BELOW_THRESHOLD" -gt 0 ]; then
             echo "❌ $BELOW_THRESHOLD files below 80% coverage"
             jq -r '.files[] | select(.percentage < 80) | "\(.file): \(.percentage)%"' coverage.json
+
+            # Ruby alternative:
+            # ruby -r json -e '
+            #   JSON.parse(File.read("coverage.json"))["files"].select { |f| f["percentage"] < 80 }.each do |f|
+            #     puts "#{f["file"]}: #{f["percentage"]}%"
+            #   end
+            # '
+
+            # Rexe alternative:
+            # rexe -f coverage.json '
+            #   self["files"].select { |f| f["percentage"] < 80 }.each do |f|
+            #     puts "#{f["file"]}: #{f["percentage"]}%"
+            #   end
+            # '
+
             exit 1
           fi
           echo "✓ All files meet coverage threshold"
@@ -364,7 +477,7 @@ end
 
 ```bash
 # Use in CI
-simplecov-mcp --success-predicate coverage_policy.rb
+smcp --success-predicate coverage_policy.rb
 ```
 
 ## Advanced Usage
@@ -374,14 +487,15 @@ simplecov-mcp --success-predicate coverage_policy.rb
 ```ruby
 require "simplecov_mcp"
 
-model = SimpleCovMcp::CoverageModel.new
+root = "docs/fixtures/demo_project"
+model = SimpleCovMcp::CoverageModel.new(root: root)
 all_files = model.all_files
 
 # Calculate coverage by directory (uses the same data as `simplecov-mcp total`)
 patterns = %w[
-  lib/simplecov_mcp/tools/**/*.rb
-  lib/simplecov_mcp/commands/**/*.rb
-  lib/simplecov_mcp/presenters/**/*.rb
+  app/**/*.rb
+  lib/payments/**/*.rb
+  lib/ops/jobs/**/*.rb
 ]
 
 results = patterns.map do |pattern|
@@ -409,7 +523,8 @@ require "simplecov_mcp"
 require "json"
 
 # Save current coverage
-model = SimpleCovMcp::CoverageModel.new
+root = "docs/fixtures/demo_project"
+model = SimpleCovMcp::CoverageModel.new(root: root)
 current = model.all_files
 
 File.write("coverage_baseline.json", JSON.pretty_generate(current))
