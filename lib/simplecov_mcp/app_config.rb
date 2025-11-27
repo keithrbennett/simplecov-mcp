@@ -15,7 +15,6 @@ module SimpleCovMcp
     :stale_mode,
     :tracked_globs,
     :log_file,
-    :success_predicate,
     :show_version,
     keyword_init: true
   ) do
@@ -32,7 +31,6 @@ module SimpleCovMcp
       stale_mode: :off,
       tracked_globs: nil,
       log_file: nil,
-      success_predicate: nil,
       show_version: false
     )
       super

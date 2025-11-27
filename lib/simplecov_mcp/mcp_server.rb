@@ -32,6 +32,7 @@ module SimpleCovMcp
       Tools::CoverageTotalsTool,
       Tools::UncoveredLinesTool,
       Tools::CoverageTableTool,
+      Tools::ValidateTool,
       Tools::HelpTool,
       Tools::VersionTool
     ].freeze

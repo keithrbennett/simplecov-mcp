@@ -1,6 +1,6 @@
-# Success Predicate Examples
+# Coverage Validation Predicate Examples
 
-This directory contains example success predicates for use with the `--success-predicate` option.
+This directory contains example coverage validation predicates for use with the `validate` subcommand.
 
 > **⚠️ SECURITY WARNING**
 >
@@ -18,8 +18,14 @@ This directory contains example success predicates for use with the `--success-p
 
 ## Usage
 
+**File mode:**
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/<filename>.rb
+simplecov-mcp validate examples/success_predicates/<filename>.rb
+```
+
+**String mode:**
+```sh
+simplecov-mcp validate --string '->(model) { model.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 The predicate receives a `CoverageModel` instance and returns:
@@ -33,14 +39,14 @@ The predicate receives a `CoverageModel` instance and returns:
 All files must have >= 80% coverage.
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
+simplecov-mcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 ```
 
 ### `project_coverage_minimum_predicate.rb`
 Total project coverage must be >= 85%.
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
+simplecov-mcp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 ```
 
 ### `directory_specific_thresholds_predicate.rb`
@@ -50,7 +56,7 @@ Different thresholds for different directories:
 - `lib/legacy/` - 60% required
 
 ```sh
-simplecov-mcp --success-predicate examples/success_predicates/directory_specific_thresholds_predicate.rb
+simplecov-mcp validate examples/success_predicates/directory_specific_thresholds_predicate.rb
 ```
 
 ## Creating Custom Predicates
@@ -112,7 +118,7 @@ See [docs/user/LIBRARY_API.md](../../docs/user/LIBRARY_API.md) for the complete 
 
 ### When to Use Standalone Scripts Instead
 
-For more complex scenarios, you may prefer writing a standalone Ruby script that uses the `simplecov-mcp` library directly instead of using the `--success-predicate` option.
+For more complex scenarios, you may prefer writing a standalone Ruby script that uses the `simplecov-mcp` library directly instead of using the `validate` subcommand.
 
 **Use a standalone script when:**
 - **External dependencies needed** - Your policy requires other gems or libraries
@@ -162,21 +168,21 @@ Both approaches execute arbitrary code with full system privileges, so the secur
 **GitHub Actions:**
 ```yaml
 - name: Enforce Coverage Policy
-  run: bundle exec simplecov-mcp --success-predicate coverage_policy.rb
+  run: bundle exec simplecov-mcp validate coverage_policy.rb
 ```
 
 **GitLab CI:**
 ```yaml
 coverage:enforce:
   script:
-    - bundle exec simplecov-mcp --success-predicate coverage_policy.rb
+    - bundle exec simplecov-mcp validate coverage_policy.rb
 ```
 
 **Jenkins:**
 ```groovy
 stage('Coverage Policy') {
     steps {
-        sh 'bundle exec simplecov-mcp --success-predicate coverage_policy.rb'
+        sh 'bundle exec simplecov-mcp validate coverage_policy.rb'
     }
 }
 ```

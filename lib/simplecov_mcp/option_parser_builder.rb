@@ -5,7 +5,7 @@ require_relative 'option_normalizers'
 module SimpleCovMcp
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
 
     attr_reader :config
 
@@ -46,6 +46,8 @@ module SimpleCovMcp
           uncovered <path>        Show uncovered lines and a summary
           detailed <path>         Show per-line rows with hits/covered
           total                   Show aggregated line totals and average %
+          validate <file>            Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
+          validate --string <code>   Evaluate coverage policy from code string
           version                 Show version information
 
         SUBCOMMANDS
@@ -92,10 +94,6 @@ module SimpleCovMcp
       end
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
-      end
-      o.on('--success-predicate FILE', String,
-        'Ruby file returning callable; exits 0 if truthy, 1 if falsy') do |v|
-        config.success_predicate = v
       end
       o.on('-v', '--version', 'Show version information and exit') do
         config.show_version = true

@@ -461,32 +461,41 @@ Force CLI mode even when stdin is piped or when the process is running in a non-
 smcp --force-cli list
 ```
 
-### `--success-predicate FILE`
+### `validate` Subcommand
 
-Run a custom success predicate for CI/CD coverage enforcement.
+Validate coverage against custom policies for CI/CD enforcement.
 
 > **⚠️ SECURITY WARNING**
 >
-> Success predicates execute as **arbitrary Ruby code with full system privileges**. They have unrestricted access
+> Validation predicates execute as **arbitrary Ruby code with full system privileges**. They have unrestricted access
 > to file system, network, system commands, and environment variables.
 >
-> **Only use predicate files from trusted sources.** 
+> **Only use predicate files from trusted sources.**
 > Review predicates before use, especially in CI/CD environments.
 
-The predicate file must return a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns `true` or `false`.
+The predicate must be a callable (lambda, proc, or object with `#call` method) that receives a `CoverageModel` and returns `true` or `false`.
 
 **Predicate return values:**
 - `true` - Coverage meets your criteria (CLI exits with code 0)
 - `false` - Coverage fails your criteria (CLI exits with code 1)
 - Exception raised - Predicate error (CLI exits with code 2)
 
-**Example usage:**
+**File mode (most common):**
 ```sh
 # Use example predicate
-smcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
+smcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
-bundle exec simplecov-mcp --success-predicate coverage_policy.rb
+bundle exec simplecov-mcp validate coverage_policy.rb
+```
+
+**String mode (inline code):**
+```sh
+# Simple inline validation
+smcp validate --string '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+
+# With global options
+smcp --resultset coverage validate --string '->(m) { m.all_files.size > 0 }'
 ```
 
 **Example predicate file:**

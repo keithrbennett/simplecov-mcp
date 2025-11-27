@@ -16,7 +16,6 @@ module SimpleCovMcp
       -g --tracked-globs
       -l --log-file
       --error-mode
-      --success-predicate
     ].freeze
   end
 end
