@@ -4,8 +4,8 @@
 
 Complete reference for using simplecov-mcp from the command line.
 
-> Docs use `smcp` as a shortcut pointing at the demo fixture with partial coverage:<br>
-> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`<br>
+> Docs use `smcp` as a shortcut pointing at the demo fixture with partial coverage:
+> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`
 > Replace `smcp` with `simplecov-mcp` to run commands against your own project.
 
 ## Table of Contents
