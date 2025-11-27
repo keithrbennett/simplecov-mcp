@@ -28,7 +28,7 @@ This report reviews the current capabilities and suggests focused enhancements t
   - MCP: `group_summary_tool(groups: ["lib/**", "spec/**"])` returning group rollups.
 
 - Focus views
-  - Top N worst files: `simplecov-mcp list --top 20` and MCP `top_files_tool(limit: 20, order: "ascending|descending")`.
+  - Top N worst files: `simplecov-mcp --top 20 list` and MCP `top_files_tool(limit: 20, order: "ascending|descending")`.
   - Hotspots by uncovered count: list files ranked by uncovered lines, not percentage.
 
 - Config file support

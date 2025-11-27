@@ -38,7 +38,7 @@ smcp raw app/models/order.rb
 
 # Get project totals
 smcp total
-smcp total --json
+smcp -j total  # -j = --json
 
 # Show version
 smcp version
@@ -55,8 +55,8 @@ Show coverage summary for all files (default subcommand).
 
 ```sh
 smcp list
-smcp list --sort-order descending
-smcp list --json
+smcp -o d list  # -o = --sort-order, d = descending
+smcp -j list             # -j = --json
 ```
 
 **Options:**
@@ -257,8 +257,8 @@ Show aggregated totals for all tracked files.
 
 ```sh
 smcp total
-smcp total --json
-smcp total --tracked-globs "lib/ops/jobs/*.rb"
+smcp -j total
+smcp -g "lib/ops/jobs/*.rb" total  # -g = --tracked-globs
 ```
 
 **Output (default format):**
@@ -286,7 +286,7 @@ Show version information.
 
 ```sh
 smcp version
-smcp version --json
+smcp -j version
 ```
 
 **Output:**
@@ -334,8 +334,8 @@ Sort order for `list` subcommand.
 - `descending`, `d` - Highest coverage first
 
 ```sh
-smcp list --sort-order ascending
-smcp list --sort-order d  # Short form
+smcp -o a list  # a = ascending
+smcp -o d list  # d = descending
 ```
 
 ### `-s, --source[=MODE]`
@@ -348,12 +348,11 @@ Include source code in output.
 
 ```sh
 # Show full source
-smcp summary lib/api/client.rb --source
-smcp summary lib/api/client.rb --source=full
+smcp -s summary lib/api/client.rb      # -s = --source (default: full)
+smcp -s=f summary lib/api/client.rb    # f = full
 
 # Show only uncovered lines
-smcp uncovered lib/api/client.rb --source=uncovered
-smcp uncovered lib/api/client.rb -s=u  # Short form
+smcp -s=u uncovered lib/api/client.rb  # u = uncovered
 ```
 
 ### `-c, --source-context N`
@@ -361,7 +360,7 @@ smcp uncovered lib/api/client.rb -s=u  # Short form
 Number of context lines around uncovered code (for `--source=uncovered`).
 
 ```sh
-smcp uncovered lib/api/client.rb --source=uncovered --source-context 3
+smcp -s=u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --source-context
 ```
 
 **Default:** 2 lines
@@ -402,7 +401,7 @@ smcp -S e  # Short form
 Comma-separated glob patterns for files that should be tracked.
 
 ```sh
-smcp list --tracked-globs "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb"
+smcp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
 Used with `--stale error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
@@ -412,9 +411,9 @@ Used with `--stale error` to detect new files not yet in coverage and to filter 
 Log file location. Use 'stdout' or 'stderr' to log to standard streams.
 
 ```sh
-smcp --log-file /var/log/simplecov.log
-smcp --log-file stdout # Log to standard output
-smcp --log-file stderr # Log to standard error
+smcp -l /var/log/simplecov.log  # -l = --log-file
+smcp -l stdout                   # Log to standard output
+smcp -l stderr                   # Log to standard error
 ```
 
 **Default:** `./simplecov_mcp.log`
@@ -597,44 +596,44 @@ smcp detailed lib/payments/refund_service.rb
 
 ```sh
 # Get JSON for parsing
-smcp list --json > coverage.json
+smcp -j list > coverage.json
 
 # Extract files below threshold
-smcp list --json | jq '.files[] | select(.percentage < 80)'
+smcp -j list | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-smcp list --json | ruby -r json -e '
+smcp -j list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp list --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+smcp -j list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below 80% coverage
-smcp list --json | jq '[.files[] | select(.percentage < 80)] | length'
+smcp -j list | jq '[.files[] | select(.percentage < 80)] | length'
 
 # Ruby alternative:
-smcp list --json | ruby -r json -e '
+smcp -j list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 
 # Rexe alternative:
-smcp list --json | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+smcp -j list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 ```
 
 ### Filtering and Sorting
 
 ```sh
 # Show only lib/ files
-smcp list --tracked-globs "lib/**/*.rb"
+smcp -g "lib/**/*.rb" list
 
 # Show files sorted by highest coverage
-smcp list --sort-order descending
+smcp -o d list
 
 # Check specific directory
-smcp list --tracked-globs "lib/payments/**/*.rb"
+smcp -g "lib/payments/**/*.rb" list
 ```
 
 
@@ -643,10 +642,10 @@ smcp list --tracked-globs "lib/payments/**/*.rb"
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-smcp --stale error
+smcp -S error  # -S = --stale
 
 # Check with specific file patterns
-smcp list --stale error --tracked-globs "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb"
+smcp -S error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
 smcp list  # Stale files marked with !
@@ -672,13 +671,13 @@ smcp uncovered lib/api/client.rb --source --no-color
 
 ```sh
 # Fail build if coverage is stale
-smcp --stale error || exit 1
+smcp -S error || exit 1
 
 # Generate JSON report for artifact
-smcp list --json > artifacts/coverage-report.json
+smcp -j list > artifacts/coverage-report.json
 
 # Check specific directory in monorepo
-smcp --root services/api --resultset services/api/coverage
+smcp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
 ```
 
 ### Debugging

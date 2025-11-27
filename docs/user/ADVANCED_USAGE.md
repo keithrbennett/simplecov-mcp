@@ -94,11 +94,8 @@ A file is considered stale when any of the following are true:
 
 **CLI Usage:**
 ```sh
-# Fail if any file is stale
-smcp --stale error summary app/models/order.rb
-
-# Check specific file staleness
-smcp summary app/models/order.rb --stale error
+# Fail if any file is stale (option before subcommand)
+smcp -S error summary app/models/order.rb  # -S = --stale
 ```
 
 **Ruby API:**
@@ -129,12 +126,12 @@ Detects system-wide staleness issues:
 **CLI Usage:**
 ```sh
 # Track specific patterns
-smcp --stale error \
-  --tracked-globs "lib/payments/**/*.rb" \
-  --tracked-globs "lib/ops/jobs/**/*.rb"
+smcp -S error \
+  -g "lib/payments/**/*.rb" \
+  -g "lib/ops/jobs/**/*.rb"  # -S = --stale, -g = --tracked-globs
 
 # Combine with JSON output for parsing
-smcp list --stale error --json > stale-check.json
+smcp -S error -j list > stale-check.json
 ```
 
 **Ruby API:**
@@ -162,10 +159,10 @@ Staleness checking is particularly useful in CI/CD pipelines to ensure coverage 
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-smcp --stale error --tracked-globs "lib/**/*.rb"
+smcp -S error -g "lib/**/*.rb"
 
 # Export validated data for CI artifacts
-smcp list --json > coverage.json
+smcp -j list > coverage.json
 ```
 
 The `--stale error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
@@ -386,10 +383,10 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-smcp --stale error --tracked-globs "lib/**/*.rb"
+smcp -S error -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
-smcp list --json > coverage.json
+smcp -j list > coverage.json
 ```
 
 ### Using Success Predicates
@@ -435,17 +432,17 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 --tracked-globs "lib/payments/**/*.rb" --tracked-globs "lib/ops/jobs/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
-smcp list --json | jq '.files[] | select(.file | test("spec") | not)'
+smcp -j list | jq '.files[] | select(.file | test("spec") | not)'
 
 # Ruby alternative:
-smcp list --json | ruby -r json -e '
+smcp -j list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("spec") }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp list --json | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
+smcp -j list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
 
 # Complex patterns
 --tracked-globs "lib/{models,controllers}/**/*.rb"
@@ -457,26 +454,23 @@ smcp list --json | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].includ
 **1. Monitor Subsystem Coverage:**
 ```sh
 # API layer only
-smcp list --tracked-globs "lib/api/**/*.rb"
+smcp -g "lib/api/**/*.rb" list
 
 # Core business logic
-smcp list --tracked-globs "lib/domain/**/*.rb"
+smcp -g "lib/domain/**/*.rb" list
 ```
 
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-smcp --stale error \
-  --tracked-globs "lib/features/**/*.rb"
+smcp -S error -g "lib/features/**/*.rb"
 ```
 
 **3. Multi-tier Reporting:**
 ```sh
 # Generate separate reports per layer
 for layer in models views controllers; do
-  smcp list \
-    --tracked-globs "app/${layer}/**/*.rb" \
-    --json > "coverage-${layer}.json"
+  smcp -g "app/${layer}/**/*.rb" -j list > "coverage-${layer}.json"
 done
 ```
 
@@ -705,7 +699,7 @@ puts annotate_source('app/models/order.rb')
 ```sh
 #!/bin/bash
 bundle exec rspec
-smcp list --json > coverage.json
+smcp -j list > coverage.json
 
 # Transform to Codecov format (example)
 jq '{

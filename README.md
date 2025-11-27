@@ -153,16 +153,15 @@ See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete d
 
 ```sh
 # Files with worst coverage
-simplecov-mcp list --sort-order d # display table in descending order, worst will be at end of output
-simplecov-mcp list -o d           # same as above, short form option
+simplecov-mcp -o d list           # -o = --sort-order, d = descending (worst at end)
 simplecov-mcp list | less         # display table in pager, worst files first
 simplecov-mcp list | head -10     # truncate the table
 
 # Specific directory
-simplecov-mcp list --tracked-globs "lib/simplecov_mcp/tools/**/*.rb"
+simplecov-mcp -g "lib/simplecov_mcp/tools/**/*.rb" list  # -g = --tracked-globs
 
 # Export for analysis
-simplecov-mcp list --json > coverage-report.json
+simplecov-mcp -j list > coverage-report.json  # -j = --json
 ```
 
 ### Working with JSON Output
@@ -172,13 +171,13 @@ The `--json` flag enables programmatic processing of coverage data using command
 **Using jq:**
 ```sh
 # Filter files below 80% coverage
-simplecov-mcp list --json | jq '.files[] | select(.percentage < 80)'
+simplecov-mcp -j list | jq '.files[] | select(.percentage < 80)'
 ```
 
 **Using Ruby one-liners:**
 ```sh
 # Count files below threshold
-simplecov-mcp list --json | ruby -r json -e '
+simplecov-mcp -j list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 ```
@@ -191,13 +190,13 @@ Install: `gem install rexe`
 
 ```sh
 # Filter files below 80% coverage with pretty JSON output
-simplecov-mcp list --json | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+simplecov-mcp -j list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below threshold
-simplecov-mcp list --json | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+simplecov-mcp -j list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 
 # Human-readable output with AwesomePrint
-simplecov-mcp list --json | rexe -ij -mb -oa 'self["files"].first(3)'
+simplecov-mcp -j list | rexe -ij -mb -oa 'self["files"].first(3)'
 ```
 
 With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AwesomePrint output (`-oa`) for human consumption.
@@ -210,10 +209,10 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 
 ```sh
 # Fail build if coverage is stale
-simplecov-mcp --stale error || exit 1
+simplecov-mcp -S error || exit 1  # -S = --stale
 
 # Generate coverage report artifact
-simplecov-mcp list --json > artifacts/coverage.json
+simplecov-mcp -j list > artifacts/coverage.json
 ```
 
 ### Investigate Specific Files
@@ -226,14 +225,14 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb
 simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 
 # View in context
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 3
+simplecov-mcp -s=u -c 3 uncovered lib/simplecov_mcp/cli.rb  # -s = --source (u = uncovered), -c = --source-context
 
 # Detailed hit counts
 simplecov-mcp detailed lib/simplecov_mcp/util.rb
 
 # Project totals
 simplecov-mcp total
-simplecov-mcp total --json
+simplecov-mcp -j total
 ```
 
 ## Commands and Tools
