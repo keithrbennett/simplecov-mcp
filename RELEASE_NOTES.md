@@ -1,5 +1,81 @@
 # Release Notes
 
+## v1.2.0 (Unreleased)
+
+### 🚨 BREAKING CHANGES
+
+#### Success Predicate Refactored to `validate` Subcommand
+
+The `--success-predicate` option has been **removed** and replaced with the new `validate` subcommand for improved CLI semantics and functionality.
+
+**What changed:**
+- **Old (removed)**: `simplecov-mcp --success-predicate policy.rb`
+- **New**: `simplecov-mcp validate policy.rb`
+
+**Why this change:**
+1. **Better CLI design** - Subcommands provide clearer separation of concerns and more intuitive usage
+2. **Consistent with other tools** - Follows CLI patterns from git, docker, kubectl, etc.
+3. **Option ordering clarity** - Global options must now precede the subcommand, eliminating ambiguity
+4. **Enhanced functionality** - Added inline code support with `-i/--inline` flag
+
+**Migration guide:**
+
+```bash
+# Before (v1.1.0 and earlier)
+simplecov-mcp --success-predicate coverage_policy.rb
+simplecov-mcp --resultset coverage --success-predicate policy.rb
+
+# After (v1.2.0+)
+simplecov-mcp validate coverage_policy.rb
+simplecov-mcp --resultset coverage validate policy.rb
+
+# NEW: Inline code support
+simplecov-mcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+```
+
+**Exit codes remain unchanged:**
+- `0` - Predicate passed (coverage meets requirements)
+- `1` - Predicate failed or usage error
+- `2` - Predicate error (exception, syntax error, file not found, etc.)
+
+**For CI/CD users:** Update your build scripts to use the new `validate` subcommand. The functionality is identical; only the syntax has changed.
+
+### ✨ New Features
+
+#### `validate` Subcommand
+- **File mode**: `simplecov-mcp validate <file>` - Evaluate Ruby file containing predicate
+- **Inline mode**: `simplecov-mcp validate -i <code>` - Evaluate Ruby code provided on command line
+- **Long form**: `--inline` also supported as alias for `-i`
+- **MCP support**: New `validate_tool` for MCP protocol with `code` and `file` parameters
+
+**Examples:**
+```bash
+# File-based validation (most common)
+simplecov-mcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
+
+# Inline validation (quick checks)
+simplecov-mcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+
+# With global options
+simplecov-mcp --root . --resultset coverage validate policy.rb
+```
+
+### 🔧 Internal Changes
+
+- **New `PredicateEvaluator` class** - Shared logic for evaluating predicates from both files and strings
+- **New `ValidateCommand` class** - CLI subcommand implementation following existing command pattern
+- **New `ValidateTool` class** - MCP tool for programmatic validation
+- **Updated CLI option parsing** - Global options are now properly separated from subcommand-specific options
+- **Removed `success_predicate` from AppConfig** - No longer needed with subcommand architecture
+
+### 📚 Documentation
+
+- All documentation updated to reflect `validate` subcommand
+- Examples directory updated with new syntax
+- Migration notes included in this release
+
+---
+
 ## v1.1.0
 
 - Add a `total` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
