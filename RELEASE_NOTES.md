@@ -15,7 +15,7 @@ simplecov-mcp --success-predicate policy.rb
 simplecov-mcp validate policy.rb
 ```
 
-**Why:** Subcommand architecture provides better CLI semantics, consistent with tools like git/docker, and enables inline code support via `-i` flag.
+**Why:** This functionality is a much better fit for a subcommand than an option. Subcommands provide clearer CLI semantics and enable inline code support via `-i` flag.
 
 **Details:** Exit codes unchanged (0=pass, 1=fail, 2=error). See `docs/user/ADVANCED_USAGE.md` for complete usage and examples.
 
