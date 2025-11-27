@@ -5,7 +5,7 @@
 Practical examples for common tasks with simplecov-mcp. Examples are organized by skill level and use case.
 
 > For brevity, these examples use `smcp`, an alias to the demo fixture with partial coverage:
-> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`
+> `alias smcp='simplecov-mcp --root docs/fixtures/demo_project'`
 > Swap `smcp` for `simplecov-mcp` to run against your own project and resultset.
 
 ## Table of Contents

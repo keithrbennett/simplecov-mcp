@@ -3,7 +3,7 @@
 [Back to main README](../README.md)
 
 > Examples use `smcp`, an alias pointed at the demo fixture with partial coverage:
-> `alias smcp='SIMPLECOV_MCP_OPTS="--root docs/fixtures/demo_project" simplecov-mcp'`
+> `alias smcp='simplecov-mcp --root docs/fixtures/demo_project'`
 > Swap `smcp` with `simplecov-mcp` if you want to target your own project/resultset.
 
 ## Table of Contents
