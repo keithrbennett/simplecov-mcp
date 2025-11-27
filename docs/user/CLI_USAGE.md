@@ -44,7 +44,7 @@ smcp -j total  # -j = --json
 smcp version
 
 # Get help
-smcp --help
+smcp -h  # -h = --help
 ```
 
 ## Subcommands
@@ -60,10 +60,13 @@ smcp -j list             # -j = --json
 ```
 
 **Options:**
-- `--sort-order` - Sort by coverage percentage (ascending or descending)
-- `--tracked-globs` - Filter to specific file patterns
-- `--stale` - Staleness checking mode (off or error)
-- `--json` - Output as JSON
+
+| Short | Long              | Description                                           |
+|-------|-------------------|-------------------------------------------------------|
+| `-o`  | `--sort-order`    | Sort by coverage percentage (ascending or descending) |
+| `-g`  | `--tracked-globs` | Filter to specific file patterns                      |
+| `-S`  | `--stale`         | Staleness checking mode (off or error)                |
+| `-j`  | `--json`          | Output as JSON                                        |
 
 **Output (table format):**
 ```
@@ -97,8 +100,11 @@ smcp summary app/models/order.rb --source
 - `<path>` - File path (relative to project root or absolute)
 
 **Options:**
-- `--json` - Output as JSON
-- `--source[=MODE]` - Include source code (full or uncovered)
+
+| Short | Long             | Description                                |
+|-------|------------------|--------------------------------------------|
+| `-j`  | `--json`         | Output as JSON                             |
+| `-s`  | `--source[=MODE]`| Include source code (full or uncovered)    |
 
 **Output (default format):**
 ```
@@ -132,10 +138,14 @@ smcp uncovered app/controllers/orders_controller.rb --source=uncovered --source-
 - `<path>` - File path (relative to project root or absolute)
 
 **Options:**
-- `--source=uncovered` - Show uncovered lines with context
-- `--source-context N` - Lines of context around uncovered lines (default: 2)
-- `--color` / `--no-color` - Enable/disable syntax coloring
-- `--json` - Output as JSON
+
+| Short | Long                  | Description                                           |
+|-------|-----------------------|-------------------------------------------------------|
+| `-s`  | `--source=uncovered`  | Show uncovered lines with context                     |
+| `-c`  | `--source-context N`  | Lines of context around uncovered lines (default: 2)  |
+|       | `--color`             | Enable syntax coloring                                |
+|       | `--no-color`          | Disable syntax coloring                               |
+| `-j`  | `--json`              | Output as JSON                                        |
 
 **Output (default format):**
 ```
@@ -180,8 +190,11 @@ smcp detailed app/models/order.rb --source
 - `<path>` - File path (relative to project root or absolute)
 
 **Options:**
-- `--json` - Output as JSON
-- `--source` - Include source code
+
+| Short | Long       | Description         |
+|-------|------------|---------------------|
+| `-j`  | `--json`   | Output as JSON      |
+| `-s`  | `--source` | Include source code |
 
 **Output (default format):**
 ```
