@@ -477,7 +477,7 @@ end
 
 ```bash
 # Use in CI
-smcp --success-predicate coverage_policy.rb
+smcp validate coverage_policy.rb
 ```
 
 ## Advanced Usage

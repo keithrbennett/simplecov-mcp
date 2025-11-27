@@ -276,7 +276,7 @@ cli = SimpleCovMcp::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 
 ### Building Custom Coverage Policies
 
-Use `--success-predicate` to enforce custom coverage policies in CI/CD. Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
+Use the `validate` subcommand to enforce custom coverage policies in CI/CD. Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
 
 > **⚠️ SECURITY WARNING**
 >
@@ -295,13 +295,16 @@ Use `--success-predicate` to enforce custom coverage policies in CI/CD. Example 
 **Quick Usage:**
 ```sh
 # All files must be >= 80%
-smcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
+smcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # Total project coverage >= 85%
-smcp --success-predicate examples/success_predicates/project_coverage_minimum_predicate.rb
+smcp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 
-# Custom predicate
-smcp --success-predicate coverage_policy.rb
+# Custom predicate from file
+smcp validate coverage_policy.rb
+
+# Inline string mode
+smcp validate --string '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Creating a predicate:**
@@ -389,16 +392,16 @@ smcp -S error -g "lib/**/*.rb"
 smcp -j list > coverage.json
 ```
 
-### Using Success Predicates
+### Using Coverage Validation
 
-Enforce custom coverage policies with `--success-predicate`:
+Enforce custom coverage policies with the `validate` subcommand:
 
 ```bash
 # Run tests
 bundle exec rspec
 
 # Apply coverage policy (fails with exit code 1 if predicate returns false)
-smcp --success-predicate coverage_policy.rb
+smcp validate coverage_policy.rb
 ```
 
 Exit codes:

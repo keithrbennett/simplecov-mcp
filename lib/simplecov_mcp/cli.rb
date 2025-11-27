@@ -11,7 +11,7 @@ require_relative 'presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   class CoverageCLI
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
     HORIZONTAL_RULE = '-' * 79
 
     # Reference shared constant to avoid duplication with ModeDetector
@@ -47,11 +47,6 @@ module SimpleCovMcp
       )
 
       SimpleCovMcp.with_context(context) do
-        if config.success_predicate
-          run_success_predicate
-          raise 'run_success_predicate did not call exit. This line should never be reached.'
-        end
-
         if @cmd
           run_subcommand(@cmd, @cmd_args)
         else
@@ -93,24 +88,28 @@ module SimpleCovMcp
 
     def parse_options!(argv)
       require 'optparse'
-      extract_subcommand!(argv)
+      global_opts, subcommand_args = extract_subcommand_and_split!(argv)
       parser = build_option_parser
-      parser.parse!(argv)
-      @cmd_args = argv
+      parser.parse!(global_opts)
+      @cmd_args = subcommand_args
     end
 
-    def extract_subcommand!(argv)
+    def extract_subcommand_and_split!(argv)
       # Environment options (e.g., from SIMPLECOV_MCP_OPTS) may precede the subcommand.
-      # Walk the array so we can skip over any option/argument pairs before
-      # we decide what the first meaningful token is.
-      return if argv.empty?
+      # Walk the array to find the subcommand and split argv into:
+      # - global_opts: options before the subcommand
+      # - subcommand_args: args after the subcommand
+      return [argv, []] if argv.empty?
 
       first_unknown = nil
       pending_option = nil
+      global_opts = []
+      subcommand_index = nil
 
       argv.each_with_index do |token, index|
         # skip the argument that belongs to the previous option
         if pending_option
+          global_opts << token
           pending_option = nil
           next
         end
@@ -119,21 +118,29 @@ module SimpleCovMcp
           # CLI options (and --foo=value forms) start with '-'; values beginning with '-' are skipped via pending_option
           # Remember options that expect a following argument so we can skip
           # that value on the next iteration.
+          global_opts << token
           pending_option = expects_argument?(token) && !token.include?('=') ? token : nil
           next
         elsif SUBCOMMANDS.include?(token)
-          # Found the real subcommand; pluck it out so option parsing sees the
-          # remaining args in their original order.
+          # Found the real subcommand
           @cmd = token
-          argv.delete_at(index)
-          return
+          subcommand_index = index
+          break
         else
           first_unknown ||= token
         end
       end
 
-      if first_unknown
+      if first_unknown && !subcommand_index
         raise UsageError.new("Unknown subcommand: '#{first_unknown}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
+      end
+
+      # Return global options and subcommand args (everything after the subcommand)
+      if subcommand_index
+        subcommand_args = argv[(subcommand_index + 1)..]
+        [global_opts, subcommand_args]
+      else
+        [global_opts, []]
       end
     end
 
@@ -185,43 +192,6 @@ module SimpleCovMcp
     def handle_option_parser_error(error, argv: [])
       @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
       @error_helper.handle_option_parser_error(error, argv: argv)
-    end
-
-    def run_success_predicate
-      predicate = load_success_predicate(config.success_predicate)
-      model = CoverageModel.new(**config.model_options)
-
-      result = predicate.call(model)
-      exit(result ? 0 : 1)
-    rescue => e
-      warn "Success predicate error: #{e.message}"
-      warn e.backtrace.first(5).join("\n") if config.error_mode == :trace
-      exit 2 # Exit code 2 for predicate errors
-    end
-
-    def load_success_predicate(path)
-      unless File.exist?(path)
-        raise "Success predicate file not found: #{path}"
-      end
-
-      content = File.read(path)
-
-      # WARNING: The predicate code executes with full Ruby privileges.
-      # It has unrestricted access to the file system, network, and system commands.
-      # Only use predicate files from trusted sources.
-      #
-      # We evaluate in a fresh Object context to prevent accidental access to
-      # CLI internals, but this provides NO security isolation.
-      evaluation_context = Object.new
-      predicate = evaluation_context.instance_eval(content, path, 1)
-
-      unless predicate.respond_to?(:call)
-        raise 'Success predicate must be callable (lambda, proc, or object with #call method)'
-      end
-
-      predicate
-    rescue SyntaxError => e
-      raise "Syntax error in success predicate file: #{e.message}"
     end
 
     def handle_user_facing_error(error)

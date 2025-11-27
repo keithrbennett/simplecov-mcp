@@ -8,6 +8,7 @@ require_relative 'raw_command'
 require_relative 'uncovered_command'
 require_relative 'detailed_command'
 require_relative 'total_command'
+require_relative 'validate_command'
 
 module SimpleCovMcp
   module Commands
@@ -19,7 +20,8 @@ module SimpleCovMcp
         'raw' => RawCommand,
         'uncovered' => UncoveredCommand,
         'detailed' => DetailedCommand,
-        'total' => TotalCommand
+        'total' => TotalCommand,
+        'validate' => ValidateCommand
       }.freeze
 
       def self.create(command_name, cli_context)
@@ -27,7 +29,7 @@ module SimpleCovMcp
         unless command_class
           raise UsageError.for_subcommand(
             'list | summary <path> | raw <path> | uncovered <path> | detailed <path> ' \
-              '| total | version'
+              '| total | validate <file> | validate --string <code> | version'
           )
         end
 
