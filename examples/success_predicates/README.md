@@ -25,7 +25,7 @@ simplecov-mcp validate examples/success_predicates/<filename>.rb
 
 **String mode:**
 ```sh
-simplecov-mcp validate --string '->(model) { model.all_files.all? { |f| f["percentage"] >= 80 } }'
+simplecov-mcp validate -e '->(model) { model.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 The predicate receives a `CoverageModel` instance and returns:

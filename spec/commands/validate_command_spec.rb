@@ -117,12 +117,12 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
     end
   end
 
-  describe 'validate subcommand with --string flag' do
+  describe 'validate subcommand with -e/--string flag' do
     it 'exits 0 when predicate code returns truthy value' do
       _out, _err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', '->(model) { true }'
+        'validate', '-e', '->(model) { true }'
       )
       expect(status).to eq(0)
     end
@@ -131,7 +131,7 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       _out, _err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', '->(model) { false }'
+        'validate', '-e', '->(model) { false }'
       )
       expect(status).to eq(1)
     end
@@ -140,7 +140,7 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       _out, err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', "->(model) { raise 'Boom!' }"
+        'validate', '-e', "->(model) { raise 'Boom!' }"
       )
       expect(status).to eq(2)
       expect(err).to include('Predicate error: Boom!')
@@ -150,7 +150,7 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       _out, err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', '-> { invalid syntax'
+        'validate', '-e', '-> { invalid syntax'
       )
       expect(status).to eq(2)
       expect(err).to include('Syntax error in predicate code')
@@ -160,7 +160,7 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       _out, err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', '42'
+        'validate', '-e', '42'
       )
       expect(status).to eq(2)
       expect(err).to include('Predicate must be callable')
@@ -173,31 +173,31 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       _out, _err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string', code
+        'validate', '-e', code
       )
       expect(status).to eq(0)
     end
   end
 
   describe 'error handling' do
-    it 'raises error when no file or --string flag provided' do
+    it 'raises error when no file or -e flag provided' do
       _out, err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
         'validate'
       )
       expect(status).to eq(1)
-      expect(err).to include('validate <file> | --string <code>')
+      expect(err).to include('validate <file> | -e <code>')
     end
 
-    it 'raises error when --string flag provided without code' do
+    it 'raises error when -e flag provided without code' do
       _out, err, status = run_cli_with_status(
         '--root', root,
         '--resultset', 'coverage',
-        'validate', '--string'
+        'validate', '-e'
       )
       expect(status).to eq(1)
-      expect(err).to include('validate --string <code>')
+      expect(err).to include('validate -e <code>')
     end
   end
 end
