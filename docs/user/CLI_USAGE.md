@@ -356,8 +356,11 @@ smcp -o d list  # d = descending
 Include source code in output.
 
 **Modes:**
-- `full`, `f` - Show all source lines (default if no MODE given)
-- `uncovered`, `u` - Show only uncovered lines with context
+
+| Short | Long        | Description                                         |
+|-------|-------------|-----------------------------------------------------|
+| `f`   | `full`      | Show all source lines (default if no MODE given)    |
+| `u`   | `uncovered` | Show only uncovered lines with context              |
 
 ```sh
 # Show full source
@@ -394,8 +397,11 @@ smcp uncovered lib/api/client.rb --source --no-color
 Staleness checking mode.
 
 **Modes:**
-- `off`, `o` - Detect and mark stale files, but don't raise error (default)
-- `error`, `e` - Detect stale files and raise error
+
+| Short | Long    | Description                                              |
+|-------|---------|----------------------------------------------------------|
+| `o`   | `off`   | Detect and mark stale files, but don't raise error (default) |
+| `e`   | `error` | Detect stale files and raise error                       |
 
 ```sh
 # Exit with error if coverage is stale
@@ -436,9 +442,12 @@ smcp -l stderr                   # Log to standard error
 Error handling verbosity.
 
 **Modes:**
-- `off` - Silent (no error logging)
-- `on` - Log errors without stack traces (default)
-- `trace`, `t` - Log errors with full stack traces
+
+| Short | Long    | Description                                    |
+|-------|---------|------------------------------------------------|
+|       | `off`   | Silent (no error logging)                      |
+|       | `on`    | Log errors without stack traces (default)      |
+| `t`   | `trace` | Log errors with full stack traces              |
 
 ```sh
 smcp --error-mode trace summary lib/api/client.rb

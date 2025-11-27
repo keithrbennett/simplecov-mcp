@@ -27,12 +27,12 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
         (?<major>0|[1-9]\d*)\.
         (?<minor>0|[1-9]\d*)\.
         (?<patch>0|[1-9]\d*)
-        (?:-(?<prerelease>[0-9A-Za-z.-]+))?
+        (?:[.-](?<prerelease>[0-9A-Za-z.-]+))?
         (?:\+(?<buildmetadata>[0-9A-Za-z.-]+))?
       \z}x
     end
 
-    it 'follows semantic versioning format' do
+    it 'follows semantic versioning format (accepting hyphen or dot pre-release separator)' do
       expect(version).to match(semver_regex)
     end
 
