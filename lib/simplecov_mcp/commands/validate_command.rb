@@ -10,33 +10,33 @@ module SimpleCovMcp
     #
     # Usage:
     #   simplecov-mcp validate policy.rb                # File mode
-    #   simplecov-mcp validate -e '->(m) { ... }'       # String mode
+    #   simplecov-mcp validate -i '->(m) { ... }'       # Inline mode
     class ValidateCommand < BaseCommand
       def execute(args)
         # Parse command-specific options
-        string_mode = false
+        inline_mode = false
         code = nil
 
-        # Simple option parsing for -e/--string flag
+        # Simple option parsing for -i/--inline flag
         while args.first&.start_with?('-')
           case args.first
-          when '-e', '--string'
-            string_mode = true
+          when '-i', '--inline'
+            inline_mode = true
             args.shift
-            code = args.shift or raise UsageError.for_subcommand('validate -e <code>')
+            code = args.shift or raise UsageError.for_subcommand('validate -i <code>')
           else
             raise UsageError.new("Unknown option for validate: #{args.first}")
           end
         end
 
-        # If not string mode, expect a file path as positional argument
-        unless string_mode
-          file_path = args.shift or raise UsageError.for_subcommand('validate <file> | -e <code>')
+        # If not inline mode, expect a file path as positional argument
+        unless inline_mode
+          file_path = args.shift or raise UsageError.for_subcommand('validate <file> | -i <code>')
           code = file_path
         end
 
         # Evaluate the predicate
-        result = if string_mode
+        result = if inline_mode
           PredicateEvaluator.evaluate_code(code, model)
         else
           PredicateEvaluator.evaluate_file(code, model)
