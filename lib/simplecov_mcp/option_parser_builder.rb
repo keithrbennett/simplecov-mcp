@@ -46,8 +46,8 @@ module SimpleCovMcp
           uncovered <path>        Show uncovered lines and a summary
           detailed <path>         Show per-line rows with hits/covered
           total                   Show aggregated line totals and average %
-          validate <file>            Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
-          validate --string <code>   Evaluate coverage policy from code string
+          validate <file>         Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
+          validate -e <code>      Evaluate coverage policy from code string
           version                 Show version information
 
         SUBCOMMANDS

@@ -304,7 +304,7 @@ smcp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 smcp validate coverage_policy.rb
 
 # Inline string mode
-smcp validate --string '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+smcp validate -e '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Creating a predicate:**

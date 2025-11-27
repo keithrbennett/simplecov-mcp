@@ -492,10 +492,10 @@ bundle exec simplecov-mcp validate coverage_policy.rb
 **String mode (inline code):**
 ```sh
 # Simple inline validation
-smcp validate --string '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+smcp validate -e '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 
 # With global options
-smcp --resultset coverage validate --string '->(m) { m.all_files.size > 0 }'
+smcp --resultset coverage validate -e '->(m) { m.all_files.size > 0 }'
 ```
 
 **Example predicate file:**

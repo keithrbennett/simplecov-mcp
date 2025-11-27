@@ -29,7 +29,7 @@ module SimpleCovMcp
         unless command_class
           raise UsageError.for_subcommand(
             'list | summary <path> | raw <path> | uncovered <path> | detailed <path> ' \
-              '| total | validate <file> | validate --string <code> | version'
+              '| total | validate <file> | validate -e <code> | version'
           )
         end
 

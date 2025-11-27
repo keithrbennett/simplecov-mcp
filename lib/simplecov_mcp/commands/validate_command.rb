@@ -9,21 +9,21 @@ module SimpleCovMcp
     # Exits with code 0 (pass), 1 (fail), or 2 (error).
     #
     # Usage:
-    #   simplecov-mcp validate policy.rb                   # File mode
-    #   simplecov-mcp validate --string '->(m) { ... }'    # String mode
+    #   simplecov-mcp validate policy.rb                # File mode
+    #   simplecov-mcp validate -e '->(m) { ... }'       # String mode
     class ValidateCommand < BaseCommand
       def execute(args)
         # Parse command-specific options
         string_mode = false
         code = nil
 
-        # Simple option parsing for --string flag
+        # Simple option parsing for -e/--string flag
         while args.first&.start_with?('-')
           case args.first
-          when '--string'
+          when '-e', '--string'
             string_mode = true
             args.shift
-            code = args.shift or raise UsageError.for_subcommand('validate --string <code>')
+            code = args.shift or raise UsageError.for_subcommand('validate -e <code>')
           else
             raise UsageError.new("Unknown option for validate: #{args.first}")
           end
@@ -31,7 +31,7 @@ module SimpleCovMcp
 
         # If not string mode, expect a file path as positional argument
         unless string_mode
-          file_path = args.shift or raise UsageError.for_subcommand('validate <file> | --string <code>')
+          file_path = args.shift or raise UsageError.for_subcommand('validate <file> | -e <code>')
           code = file_path
         end
 
