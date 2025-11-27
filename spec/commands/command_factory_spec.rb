@@ -48,7 +48,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
       commands = described_class.available_commands
       expect(commands).to be_an(Array)
       expect(commands).to contain_exactly('list', 'version', 'summary', 'raw', 'uncovered',
-        'detailed', 'total')
+        'detailed', 'total', 'validate')
     end
 
     it 'returns the keys from COMMAND_MAP' do

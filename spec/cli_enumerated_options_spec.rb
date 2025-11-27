@@ -17,7 +17,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--sort-order', 'descending', 'list'], accessor: :sort_order,
         expected: :descending },
 
-      { argv: ['--source', 'f', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
+      { argv: ['--source=f', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
       { argv: ['--source=u', 'summary', 'lib/foo.rb'], accessor: :source_mode,
         expected: :uncovered },
       { argv: ['--source=full', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },

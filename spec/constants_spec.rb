@@ -25,7 +25,6 @@ RSpec.describe SimpleCovMcp::Constants do
         -g --tracked-globs
         -l --log-file
         --error-mode
-        --success-predicate
       ]
 
       expect(options).to eq(expected_options)

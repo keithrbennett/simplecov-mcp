@@ -117,36 +117,21 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   describe 'CLI Integration with Real Coverage Data' do
     it 'executes all major CLI commands without errors' do
       # Test list command
-      list_output = nil
-      silence_output do |out, _err|
-        cli = SimpleCovMcp::CoverageCLI.new
-        cli.run(['list', '--root', project_root, '--resultset', coverage_dir])
-        list_output = out.string
-      end
-
+      list_output, _err, status = run_cli_with_status('--root', project_root, '--resultset', coverage_dir, 'list')
+      expect(status).to eq(0)
       expect(list_output).to include('lib/foo.rb', 'lib/bar.rb')
       expect(list_output).to include('66.67', '33.33')
 
       # Test summary command
-      summary_output = nil
-      silence_output do |out, _err|
-        cli = SimpleCovMcp::CoverageCLI.new
-        cli.run(['summary', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
-        summary_output = out.string
-      end
-
+      summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/foo.rb')
+      expect(status).to eq(0)
       expect(summary_output).to include('66.67%', '2/3')
 
       # Test JSON output
-      json_output = nil
-      silence_output do |out, _err|
-        cli = SimpleCovMcp::CoverageCLI.new
-        cli.run([
-          'summary', 'lib/foo.rb', '--json', '--root', project_root, '--resultset', coverage_dir
-        ])
-        json_output = out.string
-      end
-
+      json_output, _err, status = run_cli_with_status(
+        '--json', '--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/foo.rb'
+      )
+      expect(status).to eq(0)
       json_data = JSON.parse(json_output)
       expect(json_data).to include('file', 'summary')
       expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
@@ -154,23 +139,17 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'handles different output formats correctly' do
       # Test uncovered command with different outputs
-      uncovered_output = nil
-      silence_output do |out, _err|
-        cli = SimpleCovMcp::CoverageCLI.new
-        cli.run(['uncovered', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
-        uncovered_output = out.string
-      end
-
+      uncovered_output, _err, status = run_cli_with_status(
+        '--root', project_root, '--resultset', coverage_dir, 'uncovered', 'lib/foo.rb'
+      )
+      expect(status).to eq(0)
       expect(uncovered_output).to match(/Uncovered lines:\s*2\b/)
 
       # Test detailed command
-      detailed_output = nil
-      silence_output do |out, _err|
-        cli = SimpleCovMcp::CoverageCLI.new
-        cli.run(['detailed', 'lib/foo.rb', '--root', project_root, '--resultset', coverage_dir])
-        detailed_output = out.string
-      end
-
+      detailed_output, _err, status = run_cli_with_status(
+        '--root', project_root, '--resultset', coverage_dir, 'detailed', 'lib/foo.rb'
+      )
+      expect(status).to eq(0)
       expect(detailed_output).to include('Line', 'Hits', 'Covered')
     end
   end
@@ -264,20 +243,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     it 'provides helpful CLI error messages' do
-      output, error, status = nil, nil, nil
-      silence_output do |out, err|
-        begin
-          cli = SimpleCovMcp::CoverageCLI.new
-          cli.run([
-            'summary', 'lib/nonexistent.rb', '--root', project_root, '--resultset', coverage_dir
-          ])
-          status = 0
-        rescue SystemExit => e
-          status = e.status
-        end
-        output = out.string
-        error = err.string
-      end
+      output, error, status = run_cli_with_status(
+        '--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/nonexistent.rb'
+      )
 
       expect(status).to eq(1)
       expect(error).to include('File error:', 'No coverage entry found')

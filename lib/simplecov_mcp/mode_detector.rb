@@ -6,7 +6,7 @@ module SimpleCovMcp
   # Centralizes the logic for detecting whether to run in CLI or MCP server mode.
   # This makes the mode detection strategy explicit and testable.
   class ModeDetector
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
 
     # Reference shared constant to avoid duplication with CoverageCLI
     OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT

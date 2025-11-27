@@ -36,7 +36,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   context 'ENOENT mapping' do
     let(:model_method) { :summary_for }
     let(:raised_error) { Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb') }
-    let(:invoke_args) { ['summary', 'lib/missing.rb', '--root', root, '--resultset', 'coverage'] }
+    let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'summary', 'lib/missing.rb'] }
     let(:expected_message) { 'File error: File not found: lib/missing.rb' }
     include_examples 'maps error to exit 1 with message'
   end
@@ -44,7 +44,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   context 'EACCES mapping' do
     let(:model_method) { :raw_for }
     let(:raised_error) { Errno::EACCES.new('Permission denied @ rb_sysopen - secret.rb') }
-    let(:invoke_args) { ['raw', 'lib/secret.rb', '--root', root, '--resultset', 'coverage'] }
+    let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'raw', 'lib/secret.rb'] }
     let(:expected_message) { 'Permission denied: lib/secret.rb' }
     include_examples 'maps error to exit 1 with message'
   end
@@ -54,8 +54,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
-    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset',
-      'coverage', '--stale', 'error')
+    _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
+      '--stale', 'error', 'summary', 'lib/foo.rb')
     expect(status).to eq(1)
     expect(err).to include('Coverage data stale:')
     expect(err).to match(/File\s+- time:/)
@@ -69,8 +69,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
-    _out, err, status = run_cli_with_status('summary', 'lib/foo.rb', '--root', root, '--resultset',
-      'coverage', '--stale', 'off')
+    _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
+      '--stale', 'off', 'summary', 'lib/foo.rb')
     expect(status).to eq(0)
     expect(err).to eq('')
   end
@@ -80,8 +80,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     # This is a regression test for the "can't convert nil into Integer" crash
     # that was previously mentioned in comments
     out, err, status = run_cli_with_status(
-      'uncovered', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
-      '--source=uncovered', '--source-context', '2', '--no-color'
+      '--root', root, '--resultset', 'coverage', '--source=uncovered', '--source-context', '2',
+      '--no-color', 'uncovered', 'lib/foo.rb'
     )
 
     expect(status).to eq(0)
@@ -94,8 +94,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   it 'renders source with full mode without crashing' do
     # Additional regression test for source rendering with full mode
     out, err, status = run_cli_with_status(
-      'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
-      '--source=full', '--no-color'
+      '--root', root, '--resultset', 'coverage', '--source=full', '--no-color',
+      'summary', 'lib/foo.rb'
     )
 
     expect(status).to eq(0)
@@ -115,8 +115,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
 
       out, err, status = run_cli_with_status(
-        'summary', 'lib/foo.rb', '--root', root, '--resultset', 'coverage',
-        '--source=full', '--no-color'
+        '--root', root, '--resultset', 'coverage', '--source=full', '--no-color',
+        'summary', 'lib/foo.rb'
       )
 
       expect(status).to eq(0)
@@ -141,13 +141,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
 
     it 'reports invalid enum value for --opt=value' do
-      _out, err, status = run_cli_with_status('list', '--stale=bogus')
+      _out, err, status = run_cli_with_status('--stale=bogus', 'list')
       expect(status).to eq(1)
       expect(err).to include('invalid argument: --stale=bogus')
     end
 
     it 'reports invalid enum value for --opt value' do
-      _out, err, status = run_cli_with_status('list', '--stale', 'bogus')
+      _out, err, status = run_cli_with_status('--stale', 'bogus', 'list')
       expect(status).to eq(1)
       expect(err).to include('invalid argument: bogus')
     end

@@ -6,13 +6,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'errors with usage when summary path is missing' do
-    _out, err, status = run_cli_with_status('summary', '--root', root, '--resultset', 'coverage')
+    _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'summary')
     expect(status).to eq(1)
     expect(err).to include('Usage: simplecov-mcp summary <path>')
   end
 
   it 'errors with meaningful message for unknown subcommand' do
-    out, err, status = run_cli_with_status('bogus', '--root', root, '--resultset', 'coverage')
+    _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'bogus')
     expect(status).to eq(1)
     expect(err).to include("Unknown subcommand: 'bogus'")
     expect(err).to include('Valid subcommands:')
@@ -22,8 +22,10 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     tmp = File.join(root, 'lib', 'brand_new_file_for_cli_usage_spec.rb')
     begin
       File.write(tmp, "# new file\n")
-      _out, err, status = run_cli_with_status('list', '--root', root, '--resultset', 'coverage',
-        '--stale', 'error', '--tracked-globs', 'lib/**/*.rb')
+      _out, err, status = run_cli_with_status(
+        '--root', root, '--resultset', 'coverage', '--stale', 'error', '--tracked-globs',
+        'lib/**/*.rb', 'list'
+      )
       expect(status).to eq(1)
       expect(err).to include('Coverage data stale (project)')
     ensure
@@ -32,8 +34,9 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'list with stale=off prints table and exits 0' do
-    out, err, status = run_cli_with_status('list', '--root', root, '--resultset', 'coverage',
-      '--stale', 'off')
+    out, err, status = run_cli_with_status(
+      '--root', root, '--resultset', 'coverage', '--stale', 'off', 'list'
+    )
     expect(status).to eq(0)
     expect(err).to eq('')
     expect(out).to include('File')

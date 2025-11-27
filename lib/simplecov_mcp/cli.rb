@@ -88,64 +88,31 @@ module SimpleCovMcp
 
     def parse_options!(argv)
       require 'optparse'
-      global_opts, subcommand_args = extract_subcommand_and_split!(argv)
       parser = build_option_parser
-      parser.parse!(global_opts)
-      @cmd_args = subcommand_args
-    end
 
-    def extract_subcommand_and_split!(argv)
-      # Environment options (e.g., from SIMPLECOV_MCP_OPTS) may precede the subcommand.
-      # Walk the array to find the subcommand and split argv into:
-      # - global_opts: options before the subcommand
-      # - subcommand_args: args after the subcommand
-      return [argv, []] if argv.empty?
-
-      first_unknown = nil
-      pending_option = nil
-      global_opts = []
-      subcommand_index = nil
-
-      argv.each_with_index do |token, index|
-        # skip the argument that belongs to the previous option
-        if pending_option
-          global_opts << token
-          pending_option = nil
-          next
-        end
-
-        if token.start_with?('-')
-          # CLI options (and --foo=value forms) start with '-'; values beginning with '-' are skipped via pending_option
-          # Remember options that expect a following argument so we can skip
-          # that value on the next iteration.
-          global_opts << token
-          pending_option = expects_argument?(token) && !token.include?('=') ? token : nil
-          next
-        elsif SUBCOMMANDS.include?(token)
-          # Found the real subcommand
-          @cmd = token
-          subcommand_index = index
-          break
-        else
-          first_unknown ||= token
-        end
+      # order! parses global options (updating config) and removes them from argv.
+      # It stops cleanly at the first subcommand (e.g., 'list', 'summary') or unknown option.
+      # If it stops at an unknown option, it raises OptionParser::InvalidOption.
+      begin
+        parser.order!(argv)
+      rescue OptionParser::InvalidOption => e
+        # If the unknown option looks like it might be a subcommand (doesn't start with -),
+        # raise UsageError. Otherwise, let the standard handler deal with it.
+        # However, order! treats non-option arguments (subcommands) as stopping points,
+        # so this rescue block specifically catches actual unknown options like --foo.
+        raise e
       end
 
-      if first_unknown && !subcommand_index
-        raise UsageError.new("Unknown subcommand: '#{first_unknown}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
+      # The first remaining argument is the subcommand
+      @cmd = argv.shift
+
+      # Verify it's a valid subcommand if present
+      if @cmd && !SUBCOMMANDS.include?(@cmd)
+        raise UsageError.new("Unknown subcommand: '#{@cmd}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
       end
 
-      # Return global options and subcommand args (everything after the subcommand)
-      if subcommand_index
-        subcommand_args = argv[(subcommand_index + 1)..]
-        [global_opts, subcommand_args]
-      else
-        [global_opts, []]
-      end
-    end
-
-    def expects_argument?(option)
-      OPTIONS_EXPECTING_ARGUMENT.include?(option)
+      # Any remaining arguments belong to the subcommand
+      @cmd_args = argv
     end
 
     def ensure_error_handler
