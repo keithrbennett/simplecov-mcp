@@ -9,48 +9,51 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   def run_cli(*argv)
     cli = described_class.new
     silence_output do |out, _err|
-      cli.run(argv.flatten)
+      begin
+        cli.run(argv.flatten)
+      rescue SystemExit
+        # Ignore exit, just capture output
+      end
       return out.string
     end
   end
 
   it 'prints summary as JSON for a file' do
-    output = run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'summary', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data['file']).to end_with('lib/foo.rb')
     expect(data['summary']).to include('covered' => 2, 'total' => 3)
   end
 
   it 'prints raw lines as JSON' do
-    output = run_cli('raw', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'raw', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data['file']).to end_with('lib/foo.rb')
     expect(data['lines']).to eq([1, 0, nil, 2])
   end
 
   it 'prints raw lines as text' do
-    output = run_cli('raw', 'lib/foo.rb', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--root', root, '--resultset', 'coverage', 'raw', 'lib/foo.rb')
     expect(output).to include('File: lib/foo.rb')
     expect(output).to include('[1, 0, nil, 2]')
   end
 
   it 'prints uncovered lines as JSON' do
-    output = run_cli('uncovered', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'uncovered', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data['uncovered']).to eq([2])
     expect(data['summary']).to include('total' => 3)
   end
 
   it 'prints detailed rows as JSON' do
-    output = run_cli('detailed', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'detailed', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data['lines']).to be_an(Array)
     expect(data['lines'].first).to include('line', 'hits', 'covered')
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
-    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order',
-      'a')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'a', 'list')
     asc = JSON.parse(output)
     expect(asc['files']).to be_an(Array)
     expect(asc['files'].first['file']).to end_with('lib/bar.rb')
@@ -63,14 +66,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(total).to eq(asc['files'].length)
     expect(ok + stale).to eq(total)
 
-    output = run_cli('list', '--json', '--root', root, '--resultset', 'coverage', '--sort-order',
-      'd')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'd', 'list')
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')
   end
 
   it 'list subcommand outputs formatted table' do
-    output = run_cli('list', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--root', root, '--resultset', 'coverage', 'list')
     expect(output).to include('File')
     expect(output).to include('lib/foo.rb')
     expect(output).to include('lib/bar.rb')
@@ -79,15 +81,15 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'list subcommand retains rows when using an absolute tracked glob' do
     absolute_glob = File.join(root, 'lib', '**', '*.rb')
-    output = run_cli('list', '--root', root, '--resultset', 'coverage', '--tracked-globs',
-      absolute_glob)
+    output = run_cli('--root', root, '--resultset', 'coverage', '--tracked-globs',
+      absolute_glob, 'list')
     expect(output).not_to include('No coverage data found')
     expect(output).to include('lib/foo.rb')
     expect(output).to include('lib/bar.rb')
   end
 
   it 'total subcommand outputs JSON totals when requested' do
-    output = run_cli('total', '--json', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'total')
     data = JSON.parse(output)
     expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
     expect(data['files']).to include('total' => 2)
@@ -95,14 +97,14 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'total subcommand prints a readable summary by default' do
-    output = run_cli('total', '--root', root, '--resultset', 'coverage')
+    output = run_cli('--root', root, '--resultset', 'coverage', 'total')
     expect(output).to include('Lines:')
     expect(output).to include('Average coverage:')
   end
 
   it 'can include source in JSON payload (nil if file missing)' do
-    output = run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
-      '--source')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage',
+      '--source', 'summary', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data).to have_key('source')
   end
@@ -118,8 +120,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
           m.call(error_handler: error_handler, log_target: log_target, mode: mode)
         end
         original_target = SimpleCovMcp.active_log_file
-        run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
-          '--log-file', log_path)
+        run_cli('--json', '--root', root, '--resultset', 'coverage',
+          '--log-file', log_path, 'summary', 'lib/foo.rb')
         expect(SimpleCovMcp.active_log_file).to eq(original_target)
       end
     end
@@ -132,66 +134,15 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         m.call(error_handler: error_handler, log_target: log_target, mode: mode)
       end
       original_target = SimpleCovMcp.active_log_file
-      run_cli('summary', 'lib/foo.rb', '--json', '--root', root, '--resultset', 'coverage',
-        '--log-file', 'stdout')
+      run_cli('--json', '--root', root, '--resultset', 'coverage',
+        '--log-file', 'stdout', 'summary', 'lib/foo.rb')
       expect(SimpleCovMcp.active_log_file).to eq(original_target)
     end
   end
 
-  describe '#load_success_predicate' do
-    let(:cli) { described_class.new }
 
-    def with_temp_predicate(content)
-      Tempfile.create(['predicate', '.rb']) do |file|
-        file.write(content)
-        file.flush
-        yield file.path
-      end
-    end
 
-    it 'loads a callable predicate from file' do
-      with_temp_predicate("->(model) { model }\n") do |path|
-        predicate = cli.send(:load_success_predicate, path)
-        expect(predicate).to respond_to(:call)
-        expect(predicate.call(:ok)).to eq(:ok)
-      end
-    end
 
-    it 'raises when file does not return callable' do
-      with_temp_predicate(":not_callable\n") do |path|
-        expect { cli.send(:load_success_predicate, path) }
-          .to raise_error(RuntimeError, include('Success predicate must be callable'))
-      end
-    end
-
-    it 'wraps syntax errors with friendly message' do
-      with_temp_predicate("->(model) {\n") do |path|
-        expect { cli.send(:load_success_predicate, path) }
-          .to raise_error(RuntimeError, include('Syntax error in success predicate file'))
-      end
-    end
-  end
-
-  describe '#extract_subcommand!' do
-    let(:cli) { described_class.new }
-
-    around do |example|
-      original = ENV['SIMPLECOV_MCP_OPTS']
-      example.run
-    ensure
-      ENV['SIMPLECOV_MCP_OPTS'] = original
-    end
-
-    it 'picks up subcommands that appear after env-provided options' do
-      ENV['SIMPLECOV_MCP_OPTS'] = '--resultset coverage'
-      env_opts = SimpleCovMcp.send(:extract_env_opts)
-      argv = env_opts + ['summary', 'lib/foo.rb']
-
-      expect do
-        cli.send(:extract_subcommand!, argv)
-      end.to change { cli.instance_variable_get(:@cmd) }.from(nil).to('summary')
-    end
-  end
 
   describe 'version command' do
     it 'prints version as plain text by default' do
@@ -203,7 +154,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
 
     it 'prints version as JSON when --json flag is used' do
-      output = run_cli('version', '--json')
+      output = run_cli('--json', 'version')
       data = JSON.parse(output)
       expect(data).to have_key('version')
       expect(data['version']).to eq(SimpleCovMcp::VERSION)

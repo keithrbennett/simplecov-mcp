@@ -74,6 +74,13 @@ module SimpleCovMcp
           inputs: ['root/resultset (optional)', 'sort_order', 'stale']
         },
         {
+          tool: ValidateTool,
+          label: 'Validate coverage policy',
+          use_when: 'User needs to enforce coverage rules (e.g., minimum percentage) in CI.',
+          avoid_when: 'User just wants to view coverage data.',
+          inputs: ['path (required)', 'root/resultset (optional)']
+        },
+        {
           tool: VersionTool,
           label: 'simplecov-mcp version',
           use_when: 'User needs to confirm the running gem version.',

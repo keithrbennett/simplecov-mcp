@@ -128,8 +128,7 @@ RSpec.describe SimpleCovMcp::MCPServer do
     end
 
     it 'registers the expected number of tools' do
-      # This helps catch accidental removal of tools
-      expect(described_class::TOOLSET.length).to eq(9)
+      expect(described_class::TOOLSET.length).to eq(10)
     end
 
     it 'registers all tool classes defined in SimpleCovMcp::Tools module' do
