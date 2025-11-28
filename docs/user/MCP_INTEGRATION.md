@@ -257,7 +257,7 @@ All file-specific tools accept these parameters:
 - `root` (optional) - Project root directory (default: `.`)
 - `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
 - `stale` (optional) - Staleness mode: `"off"` (default) or `"error"`
-- `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"` (alias: `"trace"`)
+- `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"`
 
 ### Tool Details
 

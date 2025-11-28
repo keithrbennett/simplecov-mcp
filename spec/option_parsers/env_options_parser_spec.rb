@@ -129,12 +129,6 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:log)
       end
-
-      it 'maps legacy aliases to supported modes' do
-        argv = ['--error-mode', 'trace']
-        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
-        expect(result).to eq(:debug)
-      end
     end
 
     context 'when error-mode is not found' do
@@ -178,14 +172,6 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
     end
   end
 
-  describe 'integration with ErrorHandlerFactory' do
-    it 'maps trace alias to an accepted error_mode' do
-      mode = parser.pre_scan_error_mode(['--error-mode', 'trace'])
-      expect { SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: mode) }.not_to raise_error
-      expect(mode).to eq(:debug)
-    end
-  end
-
   describe '#normalize_error_mode (private)' do
     it 'normalizes "off" to :off' do
       expect(parser.send(:normalize_error_mode, 'off')).to eq(:off)
@@ -202,14 +188,6 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
     it 'normalizes "debug" to :debug' do
       expect(parser.send(:normalize_error_mode, 'debug')).to eq(:debug)
       expect(parser.send(:normalize_error_mode, 'DEBUG')).to eq(:debug)
-    end
-
-    it 'normalizes legacy aliases' do
-      expect(parser.send(:normalize_error_mode, 'trace')).to eq(:debug)
-      expect(parser.send(:normalize_error_mode, 'TRACE')).to eq(:debug)
-      expect(parser.send(:normalize_error_mode, 't')).to eq(:debug)
-      expect(parser.send(:normalize_error_mode, 'T')).to eq(:debug)
-      expect(parser.send(:normalize_error_mode, 'on')).to eq(:log)
     end
 
     it 'defaults unknown values to :log' do

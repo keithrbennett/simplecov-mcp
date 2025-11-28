@@ -53,14 +53,14 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
       end
 
-      it 'accepts error_mode "on" (default)' do
-        response = described_class.call(error_mode: 'on', server_context: server_context)
+      it 'accepts error_mode "log" (default)' do
+        response = described_class.call(error_mode: 'log', server_context: server_context)
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
       end
 
-      it 'accepts error_mode "trace"' do
-        response = described_class.call(error_mode: 'trace', server_context: server_context)
+      it 'accepts error_mode "debug"' do
+        response = described_class.call(error_mode: 'debug', server_context: server_context)
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
       end
@@ -88,7 +88,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         # Clear the cached VERSION constant to trigger const_missing
         SimpleCovMcp.send(:remove_const, :VERSION) if SimpleCovMcp.const_defined?(:VERSION)
 
-        response = described_class.call(error_mode: 'on', server_context: server_context)
+        response = described_class.call(error_mode: 'log', server_context: server_context)
 
         # Should return error response in MCP format
         expect(response).to be_a(MCP::Tool::Response)
@@ -107,7 +107,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         # Replace VERSION with our mock object
         stub_const('SimpleCovMcp::VERSION', version_obj)
 
-        response = described_class.call(error_mode: 'on', server_context: server_context)
+        response = described_class.call(error_mode: 'log', server_context: server_context)
 
         # Should return error response in MCP format via the rescue block
         expect(response).to be_a(MCP::Tool::Response)
@@ -130,8 +130,8 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
 
-        # Test error_mode 'trace' (should include more detail)
-        response = described_class.call(error_mode: 'trace', server_context: server_context)
+        # Test error_mode 'debug' (should include more detail)
+        response = described_class.call(error_mode: 'debug', server_context: server_context)
         expect(response).to be_a(MCP::Tool::Response)
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')

@@ -137,6 +137,10 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
         expect(described_class.normalize_error_mode('off')).to eq(:off)
       end
 
+      it 'normalizes "o" to :off' do
+        expect(described_class.normalize_error_mode('o')).to eq(:off)
+      end
+
       it 'normalizes "log" to :log' do
         expect(described_class.normalize_error_mode('log')).to eq(:log)
       end
@@ -145,17 +149,10 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
         expect(described_class.normalize_error_mode('debug')).to eq(:debug)
       end
 
-      it 'normalizes legacy aliases' do
-        expect(described_class.normalize_error_mode('trace')).to eq(:debug)
-        expect(described_class.normalize_error_mode('t')).to eq(:debug)
-        expect(described_class.normalize_error_mode('on')).to eq(:log)
-      end
-
       it 'is case-insensitive' do
         expect(described_class.normalize_error_mode('OFF')).to eq(:off)
         expect(described_class.normalize_error_mode('Log')).to eq(:log)
         expect(described_class.normalize_error_mode('DEBUG')).to eq(:debug)
-        expect(described_class.normalize_error_mode('TRACE')).to eq(:debug)
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do

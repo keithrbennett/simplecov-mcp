@@ -63,7 +63,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
       begin
-        args = env_opts + ['--error-mode', 'trace', 'summary', 'lib/foo.rb']
+        args = env_opts + ['--error-mode', 'debug', 'summary', 'lib/foo.rb']
         silence_output { cli.send(:run, args) }
       rescue SystemExit, SimpleCovMcp::Error
         # Expected to fail, but options should be parsed

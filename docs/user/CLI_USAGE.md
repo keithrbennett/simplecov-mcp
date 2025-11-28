@@ -447,7 +447,7 @@ Error handling verbosity.
 |-------|---------|----------------------------------------------------|
 |       | `off`   | Silent (no error logging)                          |
 | `l`   | `log`   | Log errors without stack traces (default)          |
-| `d`   | `debug` | Log errors with full stack traces (alias: `trace`) |
+| `d`   | `debug` | Log errors with full stack traces                  |
 
 ```sh
 smcp --error-mode debug summary lib/api/client.rb

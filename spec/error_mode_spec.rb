@@ -60,11 +60,6 @@ RSpec.describe 'Error Mode System' do
         expect(logged_message).to include('spec/error_mode_spec.rb') # Stack trace included
       end
     end
-
-    it 'accepts legacy aliases' do
-      handler = SimpleCovMcp::ErrorHandler.new(error_mode: :trace, logger: test_logger)
-      expect(handler.error_mode).to eq(:debug)
-    end
   end
 
   describe 'ErrorHandlerFactory' do
@@ -143,7 +138,6 @@ RSpec.describe 'Error Mode System' do
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :off) }.not_to raise_error
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :log) }.not_to raise_error
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :debug) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :trace) }.not_to raise_error
     end
   end
 end

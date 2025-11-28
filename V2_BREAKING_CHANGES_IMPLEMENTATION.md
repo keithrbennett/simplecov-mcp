@@ -199,10 +199,12 @@ Changes needed:
 7. Update RELEASE_NOTES.md:
    - Add: "BREAKING: Error mode 'on' renamed to 'log', 'trace' renamed to 'debug'"
 
-8. Run tests:
+8. Update this breaking changes guide to record that legacy aliases `:on` and `:trace` are no longer supported; explicitly state that only `:off`, `:log`, and `:debug` remain.
+
+9. Run tests:
    bundle exec rspec
 
-9. Run rubocop to ensure code style compliance:
+10. Run rubocop to ensure code style compliance:
    bundle exec rubocop
 
 Please make these changes and ensure all tests and rubocop pass. The key is that :on becomes :log and :trace becomes :debug throughout.

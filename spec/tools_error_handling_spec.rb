@@ -22,7 +22,7 @@ RSpec.describe 'MCP Tool error handling' do
 
   describe SimpleCovMcp::Tools::HelpTool do
     it 'returns tool information without errors' do
-      response = described_class.call(error_mode: 'on', server_context: server_context)
+      response = described_class.call(error_mode: 'log', server_context: server_context)
 
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
@@ -40,7 +40,7 @@ RSpec.describe 'MCP Tool error handling' do
 
       response = described_class.call(
         path: 'lib/foo.rb',
-        error_mode: 'on',
+        error_mode: 'log',
         server_context: server_context
       )
 
@@ -60,7 +60,7 @@ RSpec.describe 'MCP Tool error handling' do
 
       response = SimpleCovMcp::Tools::CoverageRawTool.call(
         path: 'lib/foo.rb',
-        error_mode: 'on',
+        error_mode: 'log',
         server_context: server_context
       )
 
@@ -80,7 +80,7 @@ RSpec.describe 'MCP Tool error handling' do
 
       response = SimpleCovMcp::Tools::UncoveredLinesTool.call(
         path: 'lib/foo.rb',
-        error_mode: 'on',
+        error_mode: 'log',
         server_context: server_context
       )
 
@@ -100,7 +100,7 @@ RSpec.describe 'MCP Tool error handling' do
 
       response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
         path: 'lib/foo.rb',
-        error_mode: 'on',
+        error_mode: 'log',
         server_context: server_context
       )
 
@@ -117,7 +117,7 @@ RSpec.describe 'MCP Tool error handling' do
       allow(SimpleCovMcp::CoverageModel).to receive(:new).and_raise(StandardError, 'Model error')
 
       response = SimpleCovMcp::Tools::CoverageTotalsTool.call(
-        error_mode: 'on',
+        error_mode: 'log',
         server_context: server_context
       )
 

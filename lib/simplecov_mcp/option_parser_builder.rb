@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'option_normalizers'
+require_relative 'version'
 
 module SimpleCovMcp
   class OptionParserBuilder
@@ -89,7 +90,7 @@ module SimpleCovMcp
         config.log_file = v
       end
       o.on('--error-mode MODE', String,
-        'Error handling mode: off|log|debug (default log). ' \
+        'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |v|
         config.error_mode = normalize_error_mode(v)
       end
