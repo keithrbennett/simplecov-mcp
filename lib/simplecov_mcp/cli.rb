@@ -66,7 +66,7 @@ module SimpleCovMcp
       presenter = Presenters::ProjectCoveragePresenter.new(
         model: model,
         sort_order: sort_order,
-        check_stale: (config.stale_mode == :error),
+        check_stale: (config.staleness == :error),
         tracked_globs: config.tracked_globs
       )
 
@@ -79,7 +79,7 @@ module SimpleCovMcp
       output.puts model.format_table(
         file_summaries,
         sort_order: sort_order,
-        check_stale: (config.stale_mode == :error),
+        check_stale: (config.staleness == :error),
         tracked_globs: nil
       )
     end
@@ -93,15 +93,7 @@ module SimpleCovMcp
       # order! parses global options (updating config) and removes them from argv.
       # It stops cleanly at the first subcommand (e.g., 'list', 'summary') or unknown option.
       # If it stops at an unknown option, it raises OptionParser::InvalidOption.
-      begin
-        parser.order!(argv)
-      rescue OptionParser::InvalidOption => e
-        # If the unknown option looks like it might be a subcommand (doesn't start with -),
-        # raise UsageError. Otherwise, let the standard handler deal with it.
-        # However, order! treats non-option arguments (subcommands) as stopping points,
-        # so this rescue block specifically catches actual unknown options like --foo.
-        raise e
-      end
+      parser.order!(argv)
 
       # The first remaining argument is the subcommand
       @cmd = argv.shift

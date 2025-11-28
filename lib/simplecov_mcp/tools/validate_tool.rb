@@ -31,27 +31,32 @@ module SimpleCovMcp
           },
           file: {
             type: 'string',
-            description: 'Path to Ruby file containing predicate code (absolute or relative to root).'
+            description:
+              'Path to Ruby file containing predicate code (absolute or relative to root).'
           },
           root: {
             type: 'string',
-            description: 'Project root used to resolve relative paths (defaults to current workspace).',
+            description:
+              'Project root used to resolve relative paths (defaults to current workspace).',
             default: '.'
           },
           resultset: {
             type: 'string',
-            description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
+            description:
+              'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
           },
           stale: {
             type: 'string',
-            description: "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
-            enum: %w[off error],
+            description:
+              "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
+            enum: ['off', 'error'],
             default: 'off'
           },
           error_mode: {
             type: 'string',
-            description: "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: %w[off on trace],
+            description:
+              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
+            enum: ['off', 'on', 'trace'],
             default: 'on'
           }
         },
@@ -69,11 +74,11 @@ module SimpleCovMcp
           with_error_handling('ValidateTool', error_mode: error_mode) do
             # Validate that exactly one of code or file is provided
             if code && file
-              raise UsageError.new('Provide either code or file parameter, not both')
+              raise UsageError, 'Provide either code or file parameter, not both'
             end
 
             unless code || file
-              raise UsageError.new('Either code or file parameter is required')
+              raise UsageError, 'Either code or file parameter is required'
             end
 
             model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)

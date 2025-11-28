@@ -24,8 +24,8 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--source=uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode,
         expected: :uncovered },
 
-      { argv: ['-S', 'e', 'list'], accessor: :stale_mode, expected: :error },
-      { argv: ['-S', 'o', 'list'], accessor: :stale_mode, expected: :off },
+      { argv: ['-S', 'e', 'list'], accessor: :staleness, expected: :error },
+      { argv: ['-S', 'o', 'list'], accessor: :staleness, expected: :off },
 
       { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
       { argv: ['--error-mode', 'on', 'list'], accessor: :error_mode, expected: :on },

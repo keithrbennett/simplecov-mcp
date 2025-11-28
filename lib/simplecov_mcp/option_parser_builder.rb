@@ -78,7 +78,7 @@ module SimpleCovMcp
       o.on('--no-color', 'Disable ANSI colors') { config.color = false }
       o.on('-S', '--stale MODE', String,
         'Staleness mode: o[ff]|e[rror] (default off)') do |v|
-        config.stale_mode = normalize_stale_mode(v)
+        config.staleness = normalize_staleness(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array,
         'Globs for filtering files (list/total subcommands)') do |v|
@@ -129,8 +129,8 @@ module SimpleCovMcp
       OptionNormalizers.normalize_source_mode(v, strict: true)
     end
 
-    def normalize_stale_mode(v)
-      OptionNormalizers.normalize_stale_mode(v, strict: true)
+    def normalize_staleness(v)
+      OptionNormalizers.normalize_staleness(v, strict: true)
     end
 
     def normalize_error_mode(v)

@@ -12,7 +12,7 @@ module SimpleCovMcp
     :source_context,
     :color,
     :error_mode,
-    :stale_mode,
+    :staleness,
     :tracked_globs,
     :log_file,
     :show_version,
@@ -28,7 +28,7 @@ module SimpleCovMcp
       source_context: 2,
       color: STDOUT.tty?,
       error_mode: :on,
-      stale_mode: :off,
+      staleness: :off,
       tracked_globs: nil,
       log_file: nil,
       show_version: false
@@ -41,7 +41,7 @@ module SimpleCovMcp
       {
         root: root,
         resultset: resultset,
-        staleness: stale_mode,
+        staleness: staleness,
         tracked_globs: tracked_globs
       }
     end

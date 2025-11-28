@@ -9,7 +9,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   before do
     cli.config.root = root
     cli.config.resultset = 'coverage'
-    cli.config.stale_mode = :off
+    cli.config.staleness = :off
     cli.config.tracked_globs = nil
   end
 

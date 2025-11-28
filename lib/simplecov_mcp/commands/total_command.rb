@@ -13,7 +13,7 @@ module SimpleCovMcp
 
         presenter = Presenters::ProjectTotalsPresenter.new(
           model: model,
-          check_stale: (config.stale_mode == :error),
+          check_stale: (config.staleness == :error),
           tracked_globs: config.tracked_globs
         )
         payload = presenter.absolute_payload

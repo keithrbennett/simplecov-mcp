@@ -18,7 +18,7 @@ module SimpleCovMcp
       'uncovered' => :uncovered
     }.freeze
 
-    STALE_MODE_MAP = {
+    STALENESS_MAP = {
       'o' => :off,
       'off' => :off,
       'e' => :error,
@@ -67,8 +67,8 @@ module SimpleCovMcp
     # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_stale_mode(value, strict: true)
-      normalized = STALE_MODE_MAP[value.to_s.downcase]
+    def normalize_staleness(value, strict: true)
+      normalized = STALENESS_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 

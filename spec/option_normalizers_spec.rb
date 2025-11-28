@@ -91,42 +91,42 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
     end
   end
 
-  describe '.normalize_stale_mode' do
+  describe '.normalize_staleness' do
     context 'with strict mode (default)' do
       it 'normalizes "o" to :off' do
-        expect(described_class.normalize_stale_mode('o')).to eq(:off)
+        expect(described_class.normalize_staleness('o')).to eq(:off)
       end
 
       it 'normalizes "off" to :off' do
-        expect(described_class.normalize_stale_mode('off')).to eq(:off)
+        expect(described_class.normalize_staleness('off')).to eq(:off)
       end
 
       it 'normalizes "e" to :error' do
-        expect(described_class.normalize_stale_mode('e')).to eq(:error)
+        expect(described_class.normalize_staleness('e')).to eq(:error)
       end
 
       it 'normalizes "error" to :error' do
-        expect(described_class.normalize_stale_mode('error')).to eq(:error)
+        expect(described_class.normalize_staleness('error')).to eq(:error)
       end
 
       it 'is case-insensitive' do
-        expect(described_class.normalize_stale_mode('OFF')).to eq(:off)
-        expect(described_class.normalize_stale_mode('Error')).to eq(:error)
+        expect(described_class.normalize_staleness('OFF')).to eq(:off)
+        expect(described_class.normalize_staleness('Error')).to eq(:error)
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_stale_mode('invalid') }
+        expect { described_class.normalize_staleness('invalid') }
           .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
       end
     end
 
     context 'with strict: false' do
       it 'returns nil for invalid values' do
-        expect(described_class.normalize_stale_mode('invalid', strict: false)).to be_nil
+        expect(described_class.normalize_staleness('invalid', strict: false)).to be_nil
       end
 
       it 'still normalizes valid values' do
-        expect(described_class.normalize_stale_mode('e', strict: false)).to eq(:error)
+        expect(described_class.normalize_staleness('e', strict: false)).to eq(:error)
       end
     end
   end
@@ -193,8 +193,8 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
       expect(described_class::SOURCE_MODE_MAP).to be_frozen
     end
 
-    it 'has frozen STALE_MODE_MAP' do
-      expect(described_class::STALE_MODE_MAP).to be_frozen
+    it 'has frozen STALENESS_MAP' do
+      expect(described_class::STALENESS_MAP).to be_frozen
     end
 
     it 'has frozen ERROR_MODE_MAP' do

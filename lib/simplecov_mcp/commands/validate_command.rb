@@ -25,7 +25,7 @@ module SimpleCovMcp
             args.shift
             code = args.shift or raise UsageError.for_subcommand('validate -i <code>')
           else
-            raise UsageError.new("Unknown option for validate: #{args.first}")
+            raise UsageError, "Unknown option for validate: #{args.first}"
           end
         end
 
@@ -43,7 +43,7 @@ module SimpleCovMcp
         end
 
         exit(result ? 0 : 1)
-      rescue UsageError => e
+      rescue UsageError
         # Usage errors should exit with code 1, not 2
         raise
       rescue => e
