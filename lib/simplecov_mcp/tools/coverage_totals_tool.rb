@@ -55,11 +55,14 @@ module SimpleCovMcp
         def call(root: '.', resultset: nil, stale: :off, tracked_globs: nil, error_mode: 'on',
           server_context:)
           with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale,
+            # Convert string inputs from MCP to symbols for internal use
+            stale_sym = stale.to_sym
+
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
               tracked_globs: tracked_globs)
             presenter = Presenters::ProjectTotalsPresenter.new(
               model: model,
-              check_stale: (stale.to_s == 'error'),
+              check_stale: (stale_sym == :error),
               tracked_globs: tracked_globs
             )
             respond_json(presenter.relativized_payload, name: 'coverage_totals.json', pretty: true)

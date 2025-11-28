@@ -534,6 +534,37 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(version_text).to match(/SimpleCovMcp version: \d+\.\d+/)
     end
 
+    it 'executes validate_tool via JSON-RPC' do
+      request = {
+        jsonrpc: '2.0',
+        id: 80,
+        method: 'tools/call',
+        params: {
+          name: 'validate_tool',
+          arguments: {
+            code: '->(m) { true }',
+            root: project_root,
+            resultset: coverage_dir
+          }
+        }
+      }
+
+      stdout = run_mcp_json(request)[:stdout]
+      response = parse_jsonrpc_response(stdout)
+
+      expect(response['id']).to eq(80)
+      content = response['result']['content']
+      expect(content.first['type']).to eq('text')
+
+      begin
+        result_json = JSON.parse(content.first['text'])
+      rescue JSON::ParserError
+        puts "DEBUG: Failed to parse JSON. Content was: #{content.first['text']}"
+        raise
+      end
+      expect(result_json).to include('result' => true)
+    end
+
     it 'handles error responses for invalid tool calls' do
       request = {
         jsonrpc: '2.0',

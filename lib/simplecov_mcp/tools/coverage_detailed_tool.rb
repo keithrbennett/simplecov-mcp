@@ -15,16 +15,17 @@ module SimpleCovMcp
         Example: "Show detailed coverage for lib/simple_cov_mcp/model.rb".
       DESC
       input_schema(**input_schema_def)
-            class << self
-              def call(path:, root: '.', resultset: nil, stale: :off, error_mode: 'on', server_context:)
-                with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
-                  model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
-                  presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
-                  respond_json(presenter.relativized_payload, name: 'coverage_detailed.json',
-                    pretty: true)
-                end
-              end
-            end
+      class << self
+        def call(path:, root: '.', resultset: nil, stale: :off, error_mode: 'on',
+          server_context:)
+          with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
+            presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
+            respond_json(presenter.relativized_payload, name: 'coverage_detailed.json',
+              pretty: true)
+          end
+        end
+      end
     end
   end
 end

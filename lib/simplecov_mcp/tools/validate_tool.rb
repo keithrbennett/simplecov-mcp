@@ -69,11 +69,12 @@ module SimpleCovMcp
       input_schema(**VALIDATE_INPUT_SCHEMA)
 
       class << self
-        def call(code: nil, file: nil, root: '.', resultset: nil, stale: :off, error_mode: 'on',
-          server_context:)
+        def call(
+          code: nil, file: nil, root: '.', resultset: nil, stale: :off,
+          error_mode: 'on', server_context:
+        )
           with_error_handling('ValidateTool', error_mode: error_mode) do
             # Re-use logic from ValidateCommand, but adapt for MCP return format
-            require_relative '../commands/validate_command'
             require_relative '../cli'
 
             # Create a minimal CLI shim to reuse command logic
@@ -83,23 +84,20 @@ module SimpleCovMcp
             cli.config.staleness = stale
             cli.config.error_mode = error_mode.to_sym
 
-            command = Commands::ValidateCommand.new(cli)
-            
             # We need to capture the boolean result instead of letting it exit
             # Commands::ValidateCommand is designed to exit, so we'll use the model and evaluator directly
             # This duplicates some logic from ValidateCommand#execute but avoids the exit(status) call
-            
+
             model = CoverageModel.new(**cli.config.model_options)
-            evaluator = PredicateEvaluator.new(model)
-            
+
             result = if code
-                       evaluator.evaluate_code(code)
+                       PredicateEvaluator.evaluate_code(code, model)
                      elsif file
                        # Resolve file path relative to root if needed
                        predicate_path = File.expand_path(file, root)
-                       evaluator.evaluate_file(predicate_path)
+                       PredicateEvaluator.evaluate_file(predicate_path, model)
                      else
-                       raise UsageError.new("Either 'code' or 'file' must be provided")
+                       raise UsageError, "Either 'code' or 'file' must be provided"
                      end
 
             respond_json({ result: result }, name: 'validate_result.json', pretty: true)
