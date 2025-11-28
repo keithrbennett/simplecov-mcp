@@ -16,7 +16,6 @@ RSpec.describe SimpleCovMcp::AppConfig do
       expect(config.source_mode).to be_nil
       expect(config.tracked_globs).to be_nil
       expect(config.log_file).to be_nil
-
     end
 
     it 'allows overriding defaults via keyword arguments' do

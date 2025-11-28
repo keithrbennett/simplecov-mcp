@@ -117,13 +117,15 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   describe 'CLI Integration with Real Coverage Data' do
     it 'executes all major CLI commands without errors' do
       # Test list command
-      list_output, _err, status = run_cli_with_status('--root', project_root, '--resultset', coverage_dir, 'list')
+      list_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
+        coverage_dir, 'list')
       expect(status).to eq(0)
       expect(list_output).to include('lib/foo.rb', 'lib/bar.rb')
       expect(list_output).to include('66.67', '33.33')
 
       # Test summary command
-      summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/foo.rb')
+      summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
+        coverage_dir, 'summary', 'lib/foo.rb')
       expect(status).to eq(0)
       expect(summary_output).to include('66.67%', '2/3')
 

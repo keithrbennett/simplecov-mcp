@@ -25,7 +25,7 @@ module SimpleCovMcp
             args.shift
             code = args.shift or raise UsageError.for_subcommand('validate -i <code>')
           else
-            raise UsageError.new("Unknown option for validate: #{args.first}")
+            raise UsageError, "Unknown option for validate: #{args.first}"
           end
         end
 
@@ -44,8 +44,9 @@ module SimpleCovMcp
 
         exit(result ? 0 : 1)
       rescue UsageError => e
-        # Usage errors should exit with code 1, not 2
-        raise
+        warn "Usage error: #{e.user_friendly_message}"
+        warn e.backtrace.first(5).join("\n") if config.error_mode == :trace && e.backtrace
+        exit 2
       rescue => e
         handle_predicate_error(e)
       end

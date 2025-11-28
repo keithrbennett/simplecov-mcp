@@ -186,8 +186,8 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
         '--resultset', 'coverage',
         'validate'
       )
-      expect(status).to eq(1)
-      expect(err).to include('validate <file> | -i <code>')
+      expect(status).to eq(2)
+      expect(err).to include('Usage: simplecov-mcp validate <file> | -i <code>')
     end
 
     it 'raises error when -i flag provided without code' do
@@ -196,8 +196,8 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
         '--resultset', 'coverage',
         'validate', '-i'
       )
-      expect(status).to eq(1)
-      expect(err).to include('validate -i <code>')
+      expect(status).to eq(2)
+      expect(err).to include('Usage: simplecov-mcp validate -i <code>')
     end
   end
 end
