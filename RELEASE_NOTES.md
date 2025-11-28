@@ -32,6 +32,20 @@
 
 3. Error handling modes were renamed for clarity: `on` → `log`, `trace` → `debug`. The old names are **no longer supported**.
 
+4. The `total` subcommand has been **renamed** to `totals` for consistency with what it returns (multiple aggregated totals). The old name `total` still works as an alias for backward compatibility.
+
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp total
+
+   # After
+   simplecov-mcp totals
+
+   # Old syntax still works (backward compatible)
+   simplecov-mcp total
+   ```
+
 ### ✨ New Features
 
 - **validate subcommand**: File mode (`validate <file>`) and inline mode (`validate -i <code>`)
@@ -41,7 +55,7 @@
 
 ## v1.1.0
 
-- Add a `total` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
+- Add a `totals` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
 - Refactor command line and environment argument handling
 
 ## v1.0.1 (2025-10-23)

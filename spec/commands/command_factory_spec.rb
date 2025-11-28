@@ -14,7 +14,8 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
         ['raw', SimpleCovMcp::Commands::RawCommand],
         ['uncovered', SimpleCovMcp::Commands::UncoveredCommand],
         ['detailed', SimpleCovMcp::Commands::DetailedCommand],
-        ['total', SimpleCovMcp::Commands::TotalCommand]
+        ['totals', SimpleCovMcp::Commands::TotalsCommand],
+        ['total', SimpleCovMcp::Commands::TotalsCommand] # Alias
       ].each do |command_name, command_class|
         it "creates a #{command_class.name.split('::').last} for \"#{command_name}\"" do
           command = described_class.create(command_name, cli_context)
@@ -48,7 +49,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
       commands = described_class.available_commands
       expect(commands).to be_an(Array)
       expect(commands).to contain_exactly('list', 'version', 'summary', 'raw', 'uncovered',
-        'detailed', 'total', 'validate')
+        'detailed', 'totals', 'total', 'validate')
     end
 
     it 'returns the keys from COMMAND_MAP' do
@@ -68,7 +69,8 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
       expect(described_class::COMMAND_MAP['raw']).to eq(SimpleCovMcp::Commands::RawCommand)
       expect(described_class::COMMAND_MAP['uncovered']).to eq(SimpleCovMcp::Commands::UncoveredCommand)
       expect(described_class::COMMAND_MAP['detailed']).to eq(SimpleCovMcp::Commands::DetailedCommand)
-      expect(described_class::COMMAND_MAP['total']).to eq(SimpleCovMcp::Commands::TotalCommand)
+      expect(described_class::COMMAND_MAP['totals']).to eq(SimpleCovMcp::Commands::TotalsCommand)
+      expect(described_class::COMMAND_MAP['total']).to eq(SimpleCovMcp::Commands::TotalsCommand)
     end
   end
 end

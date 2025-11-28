@@ -196,7 +196,7 @@ Please make these changes and ensure all tests pass. The key is that :on becomes
 
 **Prompt:**
 
-```
+````
 I need to rename the MCP tool parameter from `stale` to `staleness` to match the CoverageModel API, eliminating the translation layer.
 
 Current state:
@@ -261,7 +261,7 @@ Changes needed:
    bundle exec rspec
 
 Please make these changes systematically, ensuring that all tools now use `staleness` consistently.
-```
+````
 
 ---
 

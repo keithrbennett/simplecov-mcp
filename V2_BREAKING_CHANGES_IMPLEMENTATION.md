@@ -218,7 +218,7 @@ Please make these changes and ensure all tests and rubocop pass. The key is that
 
 **Prompt:**
 
-```
+````
 ⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
 
 I need to rename the MCP tool parameter from `stale` to `staleness` to match the CoverageModel API, eliminating the translation layer.
@@ -288,7 +288,7 @@ Changes needed:
    bundle exec rubocop
 
 Please make these changes systematically, ensuring that all tools now use `staleness` consistently. Confirm all tests and rubocop pass.
-```
+````
 
 ---
 

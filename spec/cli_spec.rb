@@ -90,16 +90,16 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(output).to include('lib/bar.rb')
   end
 
-  it 'total subcommand outputs JSON totals when requested' do
-    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'total')
+  it 'totals subcommand outputs JSON totals when requested' do
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'totals')
     data = JSON.parse(output)
     expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
     expect(data['files']).to include('total' => 2)
     expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
   end
 
-  it 'total subcommand prints a readable summary by default' do
-    output = run_cli('--root', root, '--resultset', 'coverage', 'total')
+  it 'totals subcommand prints a readable summary by default' do
+    output = run_cli('--root', root, '--resultset', 'coverage', 'totals')
     expect(output).to include('Lines:')
     expect(output).to include('Average coverage:')
   end

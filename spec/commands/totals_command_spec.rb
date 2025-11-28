@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Commands::TotalCommand do
+RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
@@ -47,7 +47,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalCommand do
     it 'raises when unexpected arguments are provided' do
       expect do
         command.execute(['extra'])
-      end.to raise_error(SimpleCovMcp::UsageError, include('total'))
+      end.to raise_error(SimpleCovMcp::UsageError, include('totals'))
     end
   end
 end

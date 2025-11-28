@@ -37,8 +37,8 @@ smcp detailed app/models/order.rb
 smcp raw app/models/order.rb
 
 # Get project totals
-smcp total
-smcp -j total  # -j = --json
+smcp totals
+smcp -j totals  # -j = --json
 
 # Show version
 smcp version
@@ -264,14 +264,14 @@ File: app/models/order.rb
 - `0` - Line is executable but was not executed
 - `null` - Line is not executable (comment, blank line)
 
-### `total`
+### `totals`
 
 Show aggregated totals for all tracked files.
 
 ```sh
-smcp total
-smcp -j total
-smcp -g "lib/ops/jobs/*.rb" total  # -g = --tracked-globs
+smcp totals
+smcp -j totals
+smcp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 ```
 
 **Output (default format):**
@@ -423,7 +423,7 @@ Comma-separated glob patterns for files that should be tracked.
 smcp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
-Used with `--staleness error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
+Used with `--staleness error` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
 
 ### `-l, --log-file PATH`
 

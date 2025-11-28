@@ -6,7 +6,7 @@ require_relative 'version'
 module SimpleCovMcp
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
 
     attr_reader :config
 
@@ -46,7 +46,7 @@ module SimpleCovMcp
           raw <path>              Show the SimpleCov 'lines' array
           uncovered <path>        Show uncovered lines and a summary
           detailed <path>         Show per-line rows with hits/covered
-          total                   Show aggregated line totals and average %
+          totals                  Show aggregated line totals and average %
           validate <file>         Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
           validate -e <code>      Evaluate coverage policy from code string
           version                 Show version information
@@ -82,7 +82,7 @@ module SimpleCovMcp
         config.staleness = normalize_staleness(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list/total subcommands)') do |v|
+        'Globs for filtering files (list/totals subcommands)') do |v|
         config.tracked_globs = v
       end
       o.on('-l', '--log-file PATH', String,
@@ -109,7 +109,7 @@ module SimpleCovMcp
           simplecov-mcp --resultset coverage list
           simplecov-mcp --json --resultset coverage summary lib/foo.rb
           simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
-          simplecov-mcp total --json
+          simplecov-mcp totals --json
         EXAMPLES
     end
 
