@@ -13,6 +13,8 @@ This document provides step-by-step prompts for implementing the breaking change
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the `stale_mode` attribute to `staleness` throughout the codebase for consistency.
 
 Current state:
@@ -52,6 +54,8 @@ Please make these changes, ensuring that every reference to `stale_mode` is chan
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the CLI option from `--stale` to `--staleness` for clarity and consistency.
 
 Changes needed:
@@ -92,6 +96,8 @@ Please make these changes and confirm that the CLI accepts `--staleness` but no 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to standardize on using symbols (`:off`, `:error`) instead of strings ('off', 'error') for the staleness parameter throughout the codebase.
 
 Current state:
@@ -148,6 +154,8 @@ Please make these changes systematically, ensuring that symbols are used everywh
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the error mode value `:on` to `:log` for better clarity about what it does (enables error logging).
 
 Current values: :off, :on, :trace
@@ -209,6 +217,8 @@ Please make these changes and ensure all tests and rubocop pass. The key is that
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the MCP tool parameter from `stale` to `staleness` to match the CoverageModel API, eliminating the translation layer.
 
 Current state:
@@ -287,6 +297,8 @@ Please make these changes systematically, ensuring that all tools now use `stale
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to comprehensively update all test files to reflect the Phase 1 breaking changes:
 - stale_mode → staleness
 - --stale → --staleness
@@ -340,6 +352,8 @@ Please go through all test files systematically, update them for the new naming 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to update all documentation to reflect the Phase 1 breaking changes for v2.0.
 
 Changes to document:
@@ -453,6 +467,8 @@ Please update all these documentation files to reflect the new naming convention
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to add a new `--format` option to control output format, while keeping `--json` as a deprecated alias.
 
 Current state:
@@ -555,6 +571,8 @@ Please implement this, ensuring backward compatibility with --json while guiding
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to make the `--source` option require an explicit mode value instead of having an optional value with a default.
 
 Current state:
@@ -644,6 +662,8 @@ Please make these changes, ensuring that --source no longer accepts an optional 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to update all documentation and examples to reflect the Phase 2 CLI refinements.
 
 Changes to document:
@@ -719,6 +739,8 @@ Please update all documentation to show the new recommended syntax while noting 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the `total` subcommand to `totals` (plural) for consistency with what it returns (multiple aggregated totals).
 
 Changes needed:
@@ -779,6 +801,8 @@ Please make these changes to rename the subcommand to 'totals'. Confirm all test
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to improve the error messages and warnings for the success predicate feature (--success-predicate option).
 
 Current state:
@@ -911,6 +935,8 @@ Please implement these improved error messages and security warnings. Confirm al
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to create a comprehensive migration guide and polish all documentation for the v2.0 release.
 
 Tasks:
@@ -1172,6 +1198,8 @@ Please create these files and perform a comprehensive documentation review.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 Before releasing v2.0, I need to ensure everything works correctly.
 
 Tasks:
@@ -1254,6 +1282,8 @@ Please run through this complete testing checklist and report any issues found.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 Final preparation for v2.0.0 release.
 
 Tasks:
