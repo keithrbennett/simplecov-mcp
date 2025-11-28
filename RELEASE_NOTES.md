@@ -4,20 +4,31 @@
 
 ### 🚨 BREAKING CHANGE
 
-The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.
+#### Command Line Interface
 
-**Migration:**
-```bash
-# Before
-simplecov-mcp --success-predicate policy.rb
+1. The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.
 
-# After
-simplecov-mcp validate policy.rb
-```
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp --success-predicate policy.rb
 
-**Why:** This functionality is a much better fit for a subcommand than an option. Subcommands provide clearer CLI semantics and enable inline code support via `-i` flag.
+   # After
+   simplecov-mcp validate policy.rb
+   ```
 
-**Details:** Exit codes unchanged (0=pass, 1=fail, 2=error). See `docs/user/ADVANCED_USAGE.md` for complete usage and examples.
+2. The `--stale` option has been **renamed** to `--staleness`. The short flag `-S` has been preserved as an alias for `--staleness`.
+
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp --stale error
+
+   # After
+   simplecov-mcp --staleness error
+   # OR
+   simplecov-mcp -S error
+   ```
 
 ### ✨ New Features
 

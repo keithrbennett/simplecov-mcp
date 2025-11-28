@@ -95,7 +95,7 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if any file is stale (option before subcommand)
-smcp -S error summary app/models/order.rb  # -S = --stale
+smcp --staleness error summary app/models/order.rb
 ```
 
 **Ruby API:**
@@ -126,12 +126,12 @@ Detects system-wide staleness issues:
 **CLI Usage:**
 ```sh
 # Track specific patterns
-smcp -S error \
+smcp --staleness error \
   -g "lib/payments/**/*.rb" \
-  -g "lib/ops/jobs/**/*.rb"  # -S = --stale, -g = --tracked-globs
+  -g "lib/ops/jobs/**/*.rb"  # -g = --tracked-globs
 
 # Combine with JSON output for parsing
-smcp -S error -j list > stale-check.json
+smcp --staleness error -j list > stale-check.json
 ```
 
 **Ruby API:**
@@ -159,13 +159,13 @@ Staleness checking is particularly useful in CI/CD pipelines to ensure coverage 
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-smcp -S error -g "lib/**/*.rb"
+smcp --staleness error -g "lib/**/*.rb"
 
 # Export validated data for CI artifacts
 smcp -j list > coverage.json
 ```
 
-The `--stale error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
+The `--staleness error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
 
 ---
 
@@ -386,7 +386,7 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-smcp -S error -g "lib/**/*.rb"
+smcp --staleness error -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
 smcp -j list > coverage.json
@@ -466,7 +466,7 @@ smcp -g "lib/domain/**/*.rb" list
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-smcp -S error -g "lib/features/**/*.rb"
+smcp --staleness error -g "lib/features/**/*.rb"
 ```
 
 **3. Multi-tier Reporting:**

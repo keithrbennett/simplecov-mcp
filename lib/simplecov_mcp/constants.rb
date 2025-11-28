@@ -12,7 +12,7 @@ module SimpleCovMcp
       -o --sort-order
       -s --source
       -c --source-context
-      -S --stale
+      -S --staleness
       -g --tracked-globs
       -l --log-file
       --error-mode

@@ -431,7 +431,7 @@ jobs:
 **Check for stale coverage:**
 ```yaml
       - name: Verify coverage is fresh
-        run: simplecov-mcp --stale error || exit 1
+        run: simplecov-mcp --staleness error || exit 1
 ```
 
 ### GitLab CI
@@ -443,7 +443,7 @@ test:
     - gem install simplecov-mcp
   script:
     - bundle exec rspec
-    - simplecov-mcp --stale error
+    - simplecov-mcp --staleness error
   artifacts:
     paths:
       - coverage/

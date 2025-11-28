@@ -209,7 +209,7 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 
 ```sh
 # Fail build if coverage is stale
-simplecov-mcp -S error || exit 1  # -S = --stale
+simplecov-mcp --staleness error || exit 1
 
 # Generate coverage report artifact
 simplecov-mcp -j list > artifacts/coverage.json

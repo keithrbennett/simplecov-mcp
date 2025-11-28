@@ -26,6 +26,8 @@ RSpec.describe 'CLI enumerated option parsing' do
 
       { argv: ['-S', 'e', 'list'], accessor: :staleness, expected: :error },
       { argv: ['-S', 'o', 'list'], accessor: :staleness, expected: :off },
+      { argv: ['--staleness', 'e', 'list'], accessor: :staleness, expected: :error },
+      { argv: ['--staleness', 'o', 'list'], accessor: :staleness, expected: :off },
 
       { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
       { argv: ['--error-mode', 'on', 'list'], accessor: :error_mode, expected: :on },
@@ -45,6 +47,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--sort-order', 'asc', 'list'] },
       { argv: ['--source=x', 'summary', 'lib/foo.rb'] },
       { argv: ['-S', 'x', 'list'] },
+      { argv: ['--staleness', 'x', 'list'] },
       { argv: ['--error-mode', 'bad', 'list'] }
     ]
 
@@ -61,6 +64,12 @@ RSpec.describe 'CLI enumerated option parsing' do
   describe 'missing value hints' do
     it 'exits 1 when -S is provided without a value' do
       _out, err, status = run_cli_with_status('-S', 'list')
+      expect(status).to eq(1)
+      expect(err).to include('invalid argument')
+    end
+
+    it 'exits 1 when --staleness is provided without a value' do
+      _out, err, status = run_cli_with_status('--staleness', 'list')
       expect(status).to eq(1)
       expect(err).to include('invalid argument')
     end

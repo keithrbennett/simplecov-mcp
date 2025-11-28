@@ -76,8 +76,8 @@ module SimpleCovMcp
       end
       o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
       o.on('--no-color', 'Disable ANSI colors') { config.color = false }
-      o.on('-S', '--stale MODE', String,
-        'Staleness mode: o[ff]|e[rror] (default off)') do |v|
+      o.on('-S', '--staleness MODE', String,
+        'Staleness detection: o[ff]|e[rror] (default off)') do |v|
         config.staleness = normalize_staleness(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array,

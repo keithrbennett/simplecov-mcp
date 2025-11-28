@@ -55,7 +55,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--stale', 'error', 'summary', 'lib/foo.rb')
+      '--staleness', 'error', 'summary', 'lib/foo.rb')
     expect(status).to eq(1)
     expect(err).to include('Coverage data stale:')
     expect(err).to match(/File\s+- time:/)
@@ -70,7 +70,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--stale', 'off', 'summary', 'lib/foo.rb')
+      '--staleness', 'off', 'summary', 'lib/foo.rb')
     expect(status).to eq(0)
     expect(err).to eq('')
   end
@@ -141,13 +141,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
 
     it 'reports invalid enum value for --opt=value' do
-      _out, err, status = run_cli_with_status('--stale=bogus', 'list')
+      _out, err, status = run_cli_with_status('--staleness=bogus', 'list')
       expect(status).to eq(1)
-      expect(err).to include('invalid argument: --stale=bogus')
+      expect(err).to include('invalid argument: --staleness=bogus')
     end
 
     it 'reports invalid enum value for --opt value' do
-      _out, err, status = run_cli_with_status('--stale', 'bogus', 'list')
+      _out, err, status = run_cli_with_status('--staleness', 'bogus', 'list')
       expect(status).to eq(1)
       expect(err).to include('invalid argument: bogus')
     end

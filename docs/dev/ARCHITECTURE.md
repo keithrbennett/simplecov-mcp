@@ -16,13 +16,13 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, extracts all test suites that expose `coverage` data (e.g., "RSpec", "Minitest"), merges them if multiple suites exist, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
 3. **Path relativizing** – `PathRelativizer` produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
 4. **Derived metrics** – `CovUtil.summary`, `CovUtil.uncovered`, and `CovUtil.detailed` compute coverage stats from the raw `lines` arrays. `CoverageModel` exposes `summary_for`, `uncovered_for`, `detailed_for`, and `raw_for` helpers that wrap these utilities.
-5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--stale error`) or simply mark rows as stale for display.
+5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--staleness error`) or simply mark rows as stale for display.
 
 ## Interfaces
 
 ### CLI (`SimpleCovMcp::CoverageCLI`)
 
-- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--stale`, `--json`, and `--source` modes.
+- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--staleness`, `--json`, and `--source` modes.
 - Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `version`) translate to calls on `CoverageModel`.
 - Uses `ErrorHandlerFactory.for_cli` to convert unexpected exceptions into friendly user messages while honoring `--error-mode`.
 - Formatting logic (tables, JSON) lives in the model to keep presentation consistent with MCP responses.

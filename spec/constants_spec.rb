@@ -21,7 +21,7 @@ RSpec.describe SimpleCovMcp::Constants do
         -o --sort-order
         -s --source
         -c --source-context
-        -S --stale
+        -S --staleness
         -g --tracked-globs
         -l --log-file
         --error-mode

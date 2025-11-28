@@ -124,7 +124,7 @@ simplecov-mcp --resultset coverage-all/
 simplecov-mcp --sort-order d
 
 # Staleness checking (file newer than coverage?)
-simplecov-mcp --stale error
+simplecov-mcp --staleness error
 
 # Track new files missing from coverage
 simplecov-mcp --tracked-globs "lib/**/tools/*.rb"

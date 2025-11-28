@@ -65,7 +65,7 @@ smcp -j list             # -j = --json
 |-------|-------------------|-------------------------------------------------------|
 | `-o`  | `--sort-order`    | Sort by coverage percentage (ascending or descending) |
 | `-g`  | `--tracked-globs` | Filter to specific file patterns                      |
-| `-S`  | `--stale`         | Staleness checking mode (off or error)                |
+| `-S`  | `--staleness`     | Staleness checking mode (off or error)                |
 | `-j`  | `--json`          | Output as JSON                                        |
 
 **Output (table format):**
@@ -291,7 +291,7 @@ Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
 
 **Notes:**
 - Respects `--tracked-globs` when you only want to aggregate a subset of files.
-- Honors `--stale error` to raise if coverage data is out of date.
+- Honors `--staleness error` to raise if coverage data is out of date.
 
 ### `version`
 
@@ -392,7 +392,7 @@ smcp uncovered lib/api/client.rb --source --no-color
 
 **Default:** Colors enabled if output is a TTY
 
-### `-S, --stale MODE`
+### `-S, --staleness MODE`
 
 Staleness checking mode.
 
@@ -405,7 +405,7 @@ Staleness checking mode.
 
 ```sh
 # Exit with error if coverage is stale
-smcp --stale error
+smcp --staleness error
 smcp -S e  # Short form
 ```
 
@@ -423,7 +423,7 @@ Comma-separated glob patterns for files that should be tracked.
 smcp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
-Used with `--stale error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
+Used with `--staleness error` to detect new files not yet in coverage and to filter the `list`/`total` subcommands.
 
 ### `-l, --log-file PATH`
 
@@ -590,7 +590,7 @@ export SIMPLECOV_MCP_OPTS="--error-mode trace"
 export SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
 
 # Multiple options
-export SIMPLECOV_MCP_OPTS="--resultset coverage --stale error --json"
+export SIMPLECOV_MCP_OPTS="--resultset coverage --staleness error --json"
 ```
 
 
@@ -673,10 +673,10 @@ smcp -g "lib/payments/**/*.rb" list
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-smcp -S error  # -S = --stale
+smcp --staleness error
 
 # Check with specific file patterns
-smcp -S error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+smcp --staleness error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
 smcp list  # Stale files marked with !
@@ -702,7 +702,7 @@ smcp uncovered lib/api/client.rb --source --no-color
 
 ```sh
 # Fail build if coverage is stale
-smcp -S error || exit 1
+smcp --staleness error || exit 1
 
 # Generate JSON report for artifact
 smcp -j list > artifacts/coverage-report.json
@@ -727,7 +727,7 @@ smcp --error-mode trace 2>&1 | grep resultset
 ## Exit Codes
 
 - `0` - Success
-- `1` - Error (file not found, coverage data missing, stale coverage with `--stale error`, etc.)
+- `1` - Error (file not found, coverage data missing, stale coverage with `--staleness error`, etc.)
 
 ## Next Steps
 
