@@ -35,9 +35,12 @@ Changes needed:
 3. Run the test suite to ensure nothing broke:
    bundle exec rspec
 
-4. Verify all tests pass before proceeding.
+4. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
 
-Please make these changes, ensuring that every reference to `stale_mode` is changed to `staleness`, and confirm all tests pass.
+5. Fix any rubocop violations before proceeding.
+
+Please make these changes, ensuring that every reference to `stale_mode` is changed to `staleness`, and confirm all tests and rubocop pass.
 ```
 
 ---
@@ -74,7 +77,10 @@ Changes needed:
 5. Run tests to verify:
    bundle exec rspec
 
-Please make these changes and confirm that the CLI accepts `--staleness` but no longer accepts `--stale` or `-S`.
+6. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes and confirm that the CLI accepts `--staleness` but no longer accepts `--stale` or `-S`, and that all tests and rubocop pass.
 ```
 
 ---
