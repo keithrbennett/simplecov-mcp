@@ -62,13 +62,13 @@ Changes needed:
 
 1. In lib/simplecov_mcp/option_parser_builder.rb (around line 77):
    - Change: o.on('-S', '--stale MODE', String, 'Staleness mode: o[ff]|e[rror] (default off)')
-   - To: o.on('--staleness MODE', String, 'Staleness detection: off|error (default off)')
-   - Remove the '-S' short form for clarity
+   - To: o.on('-S', '--staleness MODE', String, 'Staleness detection: off|error (default off)')
+   - Keep the '-S' short form for convenience
 
 2. In lib/simplecov_mcp/constants.rb (around line 15):
-   - Change: '-S --stale'
-   - To: '--staleness'
-   - Remove the '-S' entry
+   - Update: '-S --stale'
+   - To: '-S --staleness'
+   - Keep both the short and long form
 
 3. Update any help text or examples that reference `--stale`:
    - lib/simplecov_mcp/option_parser_builder.rb - Check the examples section
@@ -76,7 +76,7 @@ Changes needed:
    - docs/user/CLI_USAGE.md - Update option documentation
 
 4. Update RELEASE_NOTES.md to document this breaking change:
-   - Add to the v2.0 section: "BREAKING: `--stale` option renamed to `--staleness`"
+   - Add to the v2.0 section: "BREAKING: `--stale` option renamed to `--staleness` (short form `-S` kept)"
 
 5. Run tests to verify:
    bundle exec rspec
@@ -84,7 +84,7 @@ Changes needed:
 6. Run rubocop to ensure code style compliance:
    bundle exec rubocop
 
-Please make these changes and confirm that the CLI accepts `--staleness` but no longer accepts `--stale` or `-S`, and that all tests and rubocop pass.
+Please make these changes and confirm that the CLI accepts `--staleness` and `-S` but no longer accepts `--stale`, and that all tests and rubocop pass.
 ```
 
 ---
@@ -358,7 +358,7 @@ I need to update all documentation to reflect the Phase 1 breaking changes for v
 
 Changes to document:
 - stale_mode → staleness
-- --stale → --staleness (no short form -S)
+- --stale → --staleness (short form -S kept)
 - Error modes: on → log, trace → debug
 - MCP tool parameter: stale → staleness
 - All enum values are now symbols internally
@@ -374,7 +374,7 @@ Files to update:
 2. docs/user/CLI_USAGE.md:
    - Update the full options reference section
    - Update all examples using `--stale` to use `--staleness`
-   - Document that -S short form no longer exists
+   - Document that -S short form is kept for `--staleness`
    - Update error mode documentation (off|log|debug)
    - Add migration notes for users upgrading from v1.x
 
@@ -411,7 +411,7 @@ Files to update:
 
      ### Parameter Naming Consistency
      - **BREAKING:** `stale_mode` renamed to `staleness` throughout API
-     - **BREAKING:** CLI option `--stale` renamed to `--staleness` (short form `-S` removed)
+     - **BREAKING:** CLI option `--stale` renamed to `--staleness` (short form `-S` kept)
      - **BREAKING:** MCP tool parameter `stale` renamed to `staleness`
 
      ### Error Mode Values
