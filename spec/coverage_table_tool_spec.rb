@@ -11,9 +11,9 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     setup_mcp_response_stub
   end
 
-  def run_tool(stale: :off)
+  def run_tool(staleness: :off)
     # Let real CoverageModel work to test actual format_table behavior
-    described_class.call(root: root, stale: stale,
+    described_class.call(root: root, staleness: staleness,
       server_context: server_context).payload.first[:text]
   end
 
@@ -43,6 +43,6 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
     ).and_return(model)
     allow(model).to receive(:format_table).and_return('Mock table output')
 
-    described_class.call(root: root, stale: :error, server_context: server_context)
+    described_class.call(root: root, staleness: :error, server_context: server_context)
   end
 end

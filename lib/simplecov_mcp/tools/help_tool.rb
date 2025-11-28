@@ -29,49 +29,49 @@ module SimpleCovMcp
           label: 'Single-file coverage summary',
           use_when: 'User wants covered/total line counts or percentage for one file.',
           avoid_when: 'User needs repo-wide stats or specific uncovered lines.',
-          inputs: ['path (required)', 'root/resultset/stale (optional)']
+          inputs: ['path (required)', 'root/resultset/staleness (optional)']
         },
         {
           tool: UncoveredLinesTool,
           label: 'Uncovered line numbers',
           use_when: 'User asks which lines in a file still lack tests.',
           avoid_when: 'User only wants overall percentages or detailed per-line hit data.',
-          inputs: ['path (required)', 'root/resultset/stale (optional)']
+          inputs: ['path (required)', 'root/resultset/staleness (optional)']
         },
         {
           tool: CoverageDetailedTool,
           label: 'Per-line coverage details',
           use_when: 'User needs per-line hit counts for a file.',
           avoid_when: 'User only wants totals or uncovered line numbers.',
-          inputs: ['path (required)', 'root/resultset/stale (optional)']
+          inputs: ['path (required)', 'root/resultset/staleness (optional)']
         },
         {
           tool: CoverageRawTool,
           label: 'Raw SimpleCov lines array',
           use_when: 'User needs the raw SimpleCov `lines` array for a file.',
           avoid_when: 'User expects human-friendly summaries or explanations.',
-          inputs: ['path (required)', 'root/resultset/stale (optional)']
+          inputs: ['path (required)', 'root/resultset/staleness (optional)']
         },
         {
           tool: AllFilesCoverageTool,
           label: 'Repo-wide file coverage',
           use_when: 'User wants coverage percentages for every tracked file.',
           avoid_when: 'User asks about a single file.',
-          inputs: ['root/resultset (optional)', 'sort_order', 'stale', 'tracked_globs']
+          inputs: ['root/resultset (optional)', 'sort_order', 'staleness', 'tracked_globs']
         },
         {
           tool: CoverageTotalsTool,
           label: 'Project coverage totals',
           use_when: 'User wants total/covered/uncovered line counts or the average percent.',
           avoid_when: 'User needs per-file breakdowns.',
-          inputs: ['root/resultset (optional)', 'stale', 'tracked_globs']
+          inputs: ['root/resultset (optional)', 'staleness', 'tracked_globs']
         },
         {
           tool: CoverageTableTool,
           label: 'Formatted coverage table',
           use_when: 'User wants the plain-text table produced by the CLI.',
           avoid_when: 'User needs JSON data for automation.',
-          inputs: ['root/resultset (optional)', 'sort_order', 'stale']
+          inputs: ['root/resultset (optional)', 'sort_order', 'staleness']
         },
         {
           tool: ValidateTool,

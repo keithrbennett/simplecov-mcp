@@ -26,12 +26,12 @@ module SimpleCovMcp
           type: 'string',
           description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
         },
-        stale: {
+        staleness: {
           type: 'string',
-          description: 'How to handle missing/outdated coverage data.' \
+          description: 'How to handle missing/outdated coverage data. ' \
                        "'off' skips checks; 'error' raises.",
-          enum: %w[off error],
-          default: 'off'
+          enum: [:off, :error],
+          default: :off
         },
         error_mode: {
           type: 'string',

@@ -256,7 +256,7 @@ All file-specific tools accept these parameters:
 - `path` (required for file tools) - File path (relative or absolute)
 - `root` (optional) - Project root directory (default: `.`)
 - `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
-- `stale` (optional) - Staleness mode: `"off"` (default) or `"error"`
+- `staleness` (optional) - Staleness mode: `"off"` (default) or `"error"`
 - `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"`
 
 ### Tool Details
@@ -292,7 +292,7 @@ These tools analyze individual files. All require `path` parameter.
 - Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
 
 **`coverage_totals_tool`** - Aggregated line totals
-- Parameters: `tracked_globs` (array), `stale`
+- Parameters: `tracked_globs` (array), `staleness`
 - Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N}}`
 
 **`coverage_table_tool`** - Formatted ASCII table

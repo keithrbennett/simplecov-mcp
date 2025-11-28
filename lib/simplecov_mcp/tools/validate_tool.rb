@@ -10,7 +10,7 @@ module SimpleCovMcp
       description <<~DESC
         Validates coverage data against a predicate (Ruby code that evaluates to true/false).
         Use this to enforce coverage policies programmatically.
-        Inputs: Either 'code' (Ruby string) OR 'file' (path to Ruby file), plus optional root/resultset/stale/error_mode.
+        Inputs: Either 'code' (Ruby string) OR 'file' (path to Ruby file), plus optional root/resultset/staleness/error_mode.
         Output: JSON object {"result": Boolean} where true means policy passed, false means failed.
         On error (syntax error, file not found, etc.), returns an MCP error response.
         Security Warning: Predicates execute as arbitrary Ruby code with full system privileges.
@@ -45,12 +45,12 @@ module SimpleCovMcp
             description:
               'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
           },
-          stale: {
+          staleness: {
             type: 'string',
             description:
               "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
-            enum: ['off', 'error'],
-            default: 'off'
+            enum: [:off, :error],
+            default: :off
           },
           error_mode: {
             type: 'string',
@@ -70,7 +70,7 @@ module SimpleCovMcp
 
       class << self
         def call(
-          code: nil, file: nil, root: '.', resultset: nil, stale: :off,
+          code: nil, file: nil, root: '.', resultset: nil, staleness: :off,
           error_mode: 'on', server_context:
         )
           with_error_handling('ValidateTool', error_mode: error_mode) do
@@ -81,7 +81,7 @@ module SimpleCovMcp
             cli = CoverageCLI.new
             cli.config.root = root
             cli.config.resultset = resultset
-            cli.config.staleness = stale
+            cli.config.staleness = staleness.to_sym
             cli.config.error_mode = error_mode.to_sym
 
             # We need to capture the boolean result instead of letting it exit
