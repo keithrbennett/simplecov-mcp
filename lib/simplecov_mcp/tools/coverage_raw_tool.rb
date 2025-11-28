@@ -16,7 +16,7 @@ module SimpleCovMcp
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: '.', resultset: nil, stale: 'off', error_mode: 'on', server_context:)
+        def call(path:, root: '.', resultset: nil, stale: :off, error_mode: 'on', server_context:)
           with_error_handling('CoverageRawTool', error_mode: error_mode) do
             model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
             presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)

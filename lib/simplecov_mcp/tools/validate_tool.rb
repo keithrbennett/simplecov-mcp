@@ -69,27 +69,40 @@ module SimpleCovMcp
       input_schema(**VALIDATE_INPUT_SCHEMA)
 
       class << self
-        def call(code: nil, file: nil, root: '.', resultset: nil, stale: 'off', error_mode: 'on',
+        def call(code: nil, file: nil, root: '.', resultset: nil, stale: :off, error_mode: 'on',
           server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
-            # Validate that exactly one of code or file is provided
-            if code && file
-              raise UsageError, 'Provide either code or file parameter, not both'
-            end
+            # Re-use logic from ValidateCommand, but adapt for MCP return format
+            require_relative '../commands/validate_command'
+            require_relative '../cli'
 
-            unless code || file
-              raise UsageError, 'Either code or file parameter is required'
-            end
+            # Create a minimal CLI shim to reuse command logic
+            cli = CoverageCLI.new
+            cli.config.root = root
+            cli.config.resultset = resultset
+            cli.config.staleness = stale
+            cli.config.error_mode = error_mode.to_sym
 
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
-
+            command = Commands::ValidateCommand.new(cli)
+            
+            # We need to capture the boolean result instead of letting it exit
+            # Commands::ValidateCommand is designed to exit, so we'll use the model and evaluator directly
+            # This duplicates some logic from ValidateCommand#execute but avoids the exit(status) call
+            
+            model = CoverageModel.new(**cli.config.model_options)
+            evaluator = PredicateEvaluator.new(model)
+            
             result = if code
-              PredicateEvaluator.evaluate_code(code, model)
-            else
-              PredicateEvaluator.evaluate_file(file, model)
-            end
+                       evaluator.evaluate_code(code)
+                     elsif file
+                       # Resolve file path relative to root if needed
+                       predicate_path = File.expand_path(file, root)
+                       evaluator.evaluate_file(predicate_path)
+                     else
+                       raise UsageError.new("Either 'code' or 'file' must be provided")
+                     end
 
-            respond_json({ result: !!result }, name: 'validate_result.json')
+            respond_json({ result: result }, name: 'validate_result.json', pretty: true)
           end
         end
       end

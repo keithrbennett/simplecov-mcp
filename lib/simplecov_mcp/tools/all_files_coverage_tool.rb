@@ -57,7 +57,7 @@ module SimpleCovMcp
         }
       )
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
+        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: :off,
           tracked_globs: nil, error_mode: 'on', server_context:)
           with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
