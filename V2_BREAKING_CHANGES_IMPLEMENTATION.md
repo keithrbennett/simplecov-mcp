@@ -133,7 +133,10 @@ Changes needed:
 
 7. Fix any failures related to string vs symbol comparisons.
 
-Please make these changes systematically, ensuring that symbols are used everywhere except at the CLI parsing boundary where we convert user input strings to symbols.
+8. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes systematically, ensuring that symbols are used everywhere except at the CLI parsing boundary where we convert user input strings to symbols. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -191,7 +194,10 @@ Changes needed:
 8. Run tests:
    bundle exec rspec
 
-Please make these changes and ensure all tests pass. The key is that :on becomes :log and :trace becomes :debug throughout.
+9. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes and ensure all tests and rubocop pass. The key is that :on becomes :log and :trace becomes :debug throughout.
 ```
 
 ---
@@ -266,7 +272,10 @@ Changes needed:
    bundle exec rspec spec/*_tool_spec.rb
    bundle exec rspec
 
-Please make these changes systematically, ensuring that all tools now use `staleness` consistently.
+7. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes systematically, ensuring that all tools now use `staleness` consistently. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -316,7 +325,10 @@ Changes needed:
    - Check that all code paths are still tested
    - Look at coverage/.resultset.json or run with coverage report
 
-Please go through all test files systematically, update them for the new naming conventions, and ensure all tests pass.
+7. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please go through all test files systematically, update them for the new naming conventions, and ensure all tests and rubocop pass.
 ```
 
 ---
@@ -424,6 +436,9 @@ Files to update:
      ```
      ```
 
+9. If any code changes were made (not just docs), run rubocop:
+   bundle exec rubocop
+
 Please update all these documentation files to reflect the new naming conventions, add the migration guide, and ensure all examples are accurate.
 ```
 
@@ -525,7 +540,10 @@ Changes needed:
 9. Run tests:
    bundle exec rspec
 
-Please implement this, ensuring backward compatibility with --json while guiding users toward --format.
+10. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please implement this, ensuring backward compatibility with --json while guiding users toward --format. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -611,7 +629,10 @@ Changes needed:
 8. Run tests:
    bundle exec rspec
 
-Please make these changes, ensuring that --source no longer accepts an optional value.
+9. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes, ensuring that --source no longer accepts an optional value. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -681,6 +702,9 @@ Files to update:
    ```
    ```
 
+6. If any code changes were made (not just docs), run rubocop:
+   bundle exec rubocop
+
 Please update all documentation to show the new recommended syntax while noting backward compatibility.
 ```
 
@@ -738,9 +762,12 @@ Changes needed:
 9. Run tests:
    bundle exec rspec
 
+10. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
 Optional: If you want backward compatibility, add an alias in the command factory.
 
-Please make these changes to rename the subcommand to 'totals'.
+Please make these changes to rename the subcommand to 'totals'. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -869,7 +896,10 @@ Changes needed:
 7. Run tests:
    bundle exec rspec
 
-Please implement these improved error messages and security warnings.
+8. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please implement these improved error messages and security warnings. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -1126,6 +1156,9 @@ Use `--format json` for future-proof code.
    - Ensure description is current
    - Check required Ruby version
    - Verify dependencies
+
+7. If any code changes were made, run rubocop:
+   bundle exec rubocop
 
 Please create these files and perform a comprehensive documentation review.
 ```
