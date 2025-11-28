@@ -58,9 +58,9 @@ The `ErrorHandler` class (lib/simplecov_mcp/error_handler.rb:7) provides configu
 class ErrorHandler
   attr_accessor :error_mode, :logger
 
-  VALID_ERROR_MODES = [:off, :on, :trace].freeze
+  VALID_ERROR_MODES = [:off, :log, :debug].freeze
 
-  def initialize(error_mode: :on, logger: nil)
+  def initialize(error_mode: :log, logger: nil)
     @error_mode = error_mode
     @logger = logger
   end
@@ -86,7 +86,7 @@ The `ErrorHandlerFactory` (lib/simplecov_mcp/error_handler_factory.rb:4) creates
 
 ```ruby
 module ErrorHandlerFactory
-  def self.for_cli(error_mode: :on)
+  def self.for_cli(error_mode: :log)
     ErrorHandler.new(error_mode: error_mode)
   end
 
@@ -94,8 +94,8 @@ module ErrorHandlerFactory
     ErrorHandler.new(error_mode: :off)  # No logging
   end
 
-  def self.for_mcp_server(error_mode: :on)
-    ErrorHandler.new(error_mode: :on)   # Logs to file
+  def self.for_mcp_server(error_mode: :log)
+    ErrorHandler.new(error_mode: :log)   # Logs to file
   end
 end
 ```

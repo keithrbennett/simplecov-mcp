@@ -27,7 +27,7 @@ module SimpleCovMcp
       source_mode: nil,
       source_context: 2,
       color: STDOUT.tty?,
-      error_mode: :on,
+      error_mode: :log,
       staleness: :off,
       tracked_globs: nil,
       log_file: nil,

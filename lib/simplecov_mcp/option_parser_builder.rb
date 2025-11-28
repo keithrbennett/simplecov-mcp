@@ -89,7 +89,8 @@ module SimpleCovMcp
         config.log_file = v
       end
       o.on('--error-mode MODE', String,
-        'Error handling mode: off|on|t[trace] (default on)') do |v|
+        'Error handling mode: off|log|debug (default log). ' \
+        'off (silent), log (log errors to file), debug (verbose with backtraces)') do |v|
         config.error_mode = normalize_error_mode(v)
       end
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do

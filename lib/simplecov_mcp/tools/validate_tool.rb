@@ -91,14 +91,14 @@ module SimpleCovMcp
             model = CoverageModel.new(**cli.config.model_options)
 
             result = if code
-                       PredicateEvaluator.evaluate_code(code, model)
-                     elsif file
-                       # Resolve file path relative to root if needed
-                       predicate_path = File.expand_path(file, root)
-                       PredicateEvaluator.evaluate_file(predicate_path, model)
-                     else
-                       raise UsageError, "Either 'code' or 'file' must be provided"
-                     end
+              PredicateEvaluator.evaluate_code(code, model)
+            elsif file
+              # Resolve file path relative to root if needed
+              predicate_path = File.expand_path(file, root)
+              PredicateEvaluator.evaluate_file(predicate_path, model)
+            else
+              raise UsageError, "Either 'code' or 'file' must be provided"
+            end
 
             respond_json({ result: result }, name: 'validate_result.json', pretty: true)
           end

@@ -168,9 +168,9 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 
 If the above doesn't solve your problem:
 
-1. **Check error mode** - Run with `--error-mode trace` for full stack traces:
+1. **Check error mode** - Run with `--error-mode debug` (alias: `trace`) for full stack traces:
    ```bash
-   simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
+   simplecov-mcp --error-mode debug summary lib/simplecov_mcp/cli.rb
    ```
 
 2. **Check logs:**

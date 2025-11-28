@@ -70,7 +70,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       end
 
       # Command line should override environment
-      expect(cli.config.error_mode).to eq(:trace)
+      expect(cli.config.error_mode).to eq(:debug)
     end
 
     it 'handles malformed SIMPLECOV_MCP_OPTS gracefully' do

@@ -10,7 +10,7 @@ RSpec.describe SimpleCovMcp::AppConfig do
       expect(config.json).to be false
       expect(config.sort_order).to eq(:ascending)
       expect(config.source_context).to eq(2)
-      expect(config.error_mode).to eq(:on)
+      expect(config.error_mode).to eq(:log)
       expect(config.staleness).to eq(:off)
       expect(config.resultset).to be_nil
       expect(config.source_mode).to be_nil
@@ -122,8 +122,8 @@ RSpec.describe SimpleCovMcp::AppConfig do
     end
 
     it 'uses symbols for error_mode' do
-      config = described_class.new(error_mode: :trace)
-      expect(config.error_mode).to eq(:trace)
+      config = described_class.new(error_mode: :debug)
+      expect(config.error_mode).to eq(:debug)
       expect(config.error_mode).to be_a(Symbol)
     end
 

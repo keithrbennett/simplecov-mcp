@@ -47,7 +47,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ## Error Handling & Logging
 
 - Custom exceptions under `lib/simplecov_mcp/errors.rb` capture context for configuration issues, missing files, stale coverage, and general runtime errors. Each implements `#user_friendly_message` for consistent UX.
-- `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:on`, `:trace`) control whether errors are recorded and whether stack traces are included.
+- `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:log`, `:debug`) control whether errors are recorded and whether stack traces are included.
 - Runtime configuration (error handlers, log destinations) flows through `SimpleCovMcp::AppContext`. Entry points push a context with `SimpleCovMcp.with_context`, which stores the active configuration in a thread-local slot (`SimpleCovMcp.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
 - Two helper accessors clarify intent:
   - `SimpleCovMcp.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.

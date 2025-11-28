@@ -137,22 +137,25 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
         expect(described_class.normalize_error_mode('off')).to eq(:off)
       end
 
-      it 'normalizes "on" to :on' do
-        expect(described_class.normalize_error_mode('on')).to eq(:on)
+      it 'normalizes "log" to :log' do
+        expect(described_class.normalize_error_mode('log')).to eq(:log)
       end
 
-      it 'normalizes "trace" to :trace' do
-        expect(described_class.normalize_error_mode('trace')).to eq(:trace)
+      it 'normalizes "debug" to :debug' do
+        expect(described_class.normalize_error_mode('debug')).to eq(:debug)
       end
 
-      it 'normalizes "t" to :trace' do
-        expect(described_class.normalize_error_mode('t')).to eq(:trace)
+      it 'normalizes legacy aliases' do
+        expect(described_class.normalize_error_mode('trace')).to eq(:debug)
+        expect(described_class.normalize_error_mode('t')).to eq(:debug)
+        expect(described_class.normalize_error_mode('on')).to eq(:log)
       end
 
       it 'is case-insensitive' do
         expect(described_class.normalize_error_mode('OFF')).to eq(:off)
-        expect(described_class.normalize_error_mode('On')).to eq(:on)
-        expect(described_class.normalize_error_mode('TRACE')).to eq(:trace)
+        expect(described_class.normalize_error_mode('Log')).to eq(:log)
+        expect(described_class.normalize_error_mode('DEBUG')).to eq(:debug)
+        expect(described_class.normalize_error_mode('TRACE')).to eq(:debug)
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do
@@ -161,14 +164,14 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
       end
     end
 
-    context 'with strict: false and default: :on' do
+    context 'with strict: false and default: :log' do
       it 'returns default for invalid values' do
         expect(described_class.normalize_error_mode('invalid', strict: false,
-          default: :on)).to eq(:on)
+          default: :log)).to eq(:log)
       end
 
       it 'returns default for nil' do
-        expect(described_class.normalize_error_mode(nil, strict: false, default: :on)).to eq(:on)
+        expect(described_class.normalize_error_mode(nil, strict: false, default: :log)).to eq(:log)
       end
 
       it 'still normalizes valid values' do

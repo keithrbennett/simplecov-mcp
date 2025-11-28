@@ -114,7 +114,7 @@ module SimpleCovMcp
 
     def pre_scan_error_mode(argv)
       env_parser = OptionParsers::EnvOptionsParser.new
-      config.error_mode = env_parser.pre_scan_error_mode(argv) || :on
+      config.error_mode = env_parser.pre_scan_error_mode(argv) || :log
     end
 
     def build_option_parser
@@ -160,8 +160,8 @@ module SimpleCovMcp
       @error_handler.handle_error(error, context: 'CLI', reraise: false)
       # Show user-friendly message
       warn error.user_friendly_message
-      # Show stack trace in trace mode
-      warn error.backtrace.first(5).join("\n") if config.error_mode == :trace && error.backtrace
+      # Show stack trace in debug mode
+      warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace
       exit 1
     end
   end

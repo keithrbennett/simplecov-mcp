@@ -443,14 +443,14 @@ Error handling verbosity.
 
 **Modes:**
 
-| Short | Long    | Description                                    |
-|-------|---------|------------------------------------------------|
-|       | `off`   | Silent (no error logging)                      |
-|       | `on`    | Log errors without stack traces (default)      |
-| `t`   | `trace` | Log errors with full stack traces              |
+| Short | Long    | Description                                        |
+|-------|---------|----------------------------------------------------|
+|       | `off`   | Silent (no error logging)                          |
+| `l`   | `log`   | Log errors without stack traces (default)          |
+| `d`   | `debug` | Log errors with full stack traces (alias: `trace`) |
 
 ```sh
-smcp --error-mode trace summary lib/api/client.rb
+smcp --error-mode debug summary lib/api/client.rb
 ```
 
 ### `--force-cli`
@@ -584,7 +584,7 @@ smcp summary lib/api/client.rb --json  # Explicit, same result
 export SIMPLECOV_MCP_OPTS="--resultset build/coverage"
 
 # Enable detailed error logging
-export SIMPLECOV_MCP_OPTS="--error-mode trace"
+export SIMPLECOV_MCP_OPTS="--error-mode debug"
 
 # Paths with spaces
 export SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
@@ -715,13 +715,13 @@ smcp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
 
 ```sh
 # Verbose error output
-smcp --error-mode trace summary lib/api/client.rb
+smcp --error-mode debug summary lib/api/client.rb
 
 # Custom log file
 smcp --log-file /tmp/simplecov-debug.log summary lib/api/client.rb
 
 # Check what resultset is being used
-smcp --error-mode trace 2>&1 | grep resultset
+smcp --error-mode debug 2>&1 | grep resultset
 ```
 
 ## Exit Codes

@@ -43,7 +43,7 @@ module SimpleCovMcp
       private
 
       def normalize_error_mode(value)
-        OptionNormalizers.normalize_error_mode(value, strict: false, default: :on)
+        OptionNormalizers.normalize_error_mode(value, strict: false, default: :log)
       end
     end
   end

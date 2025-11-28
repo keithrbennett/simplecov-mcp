@@ -8,7 +8,7 @@ module SimpleCovMcp
     # - Logs errors for debugging
     # - Shows stack traces only when explicitly requested
     # - Suitable for user-facing command line interface
-    def self.for_cli(error_mode: :on)
+    def self.for_cli(error_mode: :log)
       ErrorHandler.new(error_mode: error_mode)
     end
 
@@ -24,7 +24,7 @@ module SimpleCovMcp
     # - Logs errors for server debugging
     # - Shows stack traces only when explicitly requested
     # - Suitable for long-running server processes
-    def self.for_mcp_server(error_mode: :on)
+    def self.for_mcp_server(error_mode: :log)
       ErrorHandler.new(error_mode: error_mode)
     end
   end

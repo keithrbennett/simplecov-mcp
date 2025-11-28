@@ -228,10 +228,10 @@ coverage_b = model_b.all_files
 smcp --error-mode off summary app/models/order.rb
 
 # Standard mode - user-friendly errors (default)
-smcp --error-mode on summary app/models/order.rb
+smcp --error-mode log summary app/models/order.rb
 
 # Verbose mode - full stack traces
-smcp --error-mode trace summary app/models/order.rb
+smcp --error-mode debug summary app/models/order.rb
 ```
 
 **Ruby API Error Handling:**

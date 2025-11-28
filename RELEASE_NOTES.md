@@ -30,6 +30,8 @@
    simplecov-mcp -S error
    ```
 
+3. Error handling modes were renamed for clarity: `on` → `log`, `trace` → `debug` (the `trace` and `on` aliases are still accepted for backward compatibility).
+
 ### ✨ New Features
 
 - **validate subcommand**: File mode (`validate <file>`) and inline mode (`validate -i <code>`)
@@ -106,7 +108,7 @@ This release represents a complete maturation of simplecov-mcp from experimental
 
 #### Error Handling Overhaul
 - **Context-aware errors** - Different error strategies for CLI, library, and MCP server modes
-- **Three error modes**: `off`, `on`, `trace` (configurable via `--error-mode` or `SIMPLECOV_MCP_OPTS`)
+- **Three error modes**: `off`, `log`, `debug` (configurable via `--error-mode` or `SIMPLECOV_MCP_OPTS`; legacy `on`/`trace` aliases remain)
 - **Custom exception hierarchy** - `SimpleCovMcp::Error` base class with specific subtypes
 - **Logging fallback** - Graceful degradation to stderr when log file is unavailable (CLI/library modes only)
 - **Structured MCP errors** - JSON-RPC compliant error responses with proper error codes

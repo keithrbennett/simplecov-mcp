@@ -27,9 +27,13 @@ module SimpleCovMcp
 
     ERROR_MODE_MAP = {
       'off' => :off,
-      'on' => :on,
-      't' => :trace,
-      'trace' => :trace
+      'log' => :log,
+      'l' => :log,
+      'on' => :log, # Legacy alias
+      'debug' => :debug,
+      'd' => :debug,
+      't' => :debug, # Legacy short alias
+      'trace' => :debug # Legacy alias
     }.freeze
 
     module_function
@@ -80,9 +84,10 @@ module SimpleCovMcp
     # @param strict [Boolean] If true, raises on invalid value; if false, returns default
     # @param default [Symbol] The default value to return if invalid and not strict
     # @return [Symbol] The normalized symbol or default if invalid and not strict
+    # Legacy aliases: "on" → :log, "trace"/"t" → :debug
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_error_mode(value, strict: true, default: :on)
-      normalized = ERROR_MODE_MAP[value&.downcase]
+    def normalize_error_mode(value, strict: true, default: :log)
+      normalized = ERROR_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 
