@@ -67,8 +67,6 @@ module SimpleCovMcp
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     def normalize_source_mode(value, strict: true)
-      return :full if value.nil? || value == ''
-
       normalized = SOURCE_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict

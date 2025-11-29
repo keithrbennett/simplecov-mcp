@@ -42,7 +42,7 @@ smcp summary app/models/order.rb
 smcp uncovered app/controllers/orders_controller.rb
 
 # View uncovered code with context
-smcp -s=u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u = uncovered), -c = --source-context
+smcp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u = uncovered), -c = --context-lines
 ```
 
 ### Find Coverage Gaps
@@ -78,10 +78,10 @@ smcp -g "lib/payments/**/*.rb" list  # -g = --tracked-globs
 smcp detailed lib/api/client.rb
 
 # Show full source with coverage markers
-smcp -s=f summary lib/api/client.rb  # f = full
+smcp -s f summary lib/api/client.rb  # f = full
 
 # Focus on uncovered areas only
-smcp -s=u -c 5 uncovered lib/payments/refund_service.rb  # u = uncovered
+smcp -s u -c 5 uncovered lib/payments/refund_service.rb  # u = uncovered
 ```
 
 ### Working with JSON Output

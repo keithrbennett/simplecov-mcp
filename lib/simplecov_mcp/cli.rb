@@ -160,7 +160,7 @@ module SimpleCovMcp
     def check_for_misplaced_global_options(cmd, args)
       # Global options that users commonly place after subcommands by mistake
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
-                          -c --source-context -S --staleness -g --tracked-globs
+                          -c --context-lines -S --staleness -g --tracked-globs
                           -l --log-file --error-mode --color --no-color]
 
       misplaced = args.select { |arg| global_options.include?(arg) }

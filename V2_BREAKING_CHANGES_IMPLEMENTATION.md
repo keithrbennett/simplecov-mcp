@@ -583,7 +583,7 @@ Current state:
 
 Target state:
 - `--source MODE` requires explicit value: full or uncovered
-- Rename `--source-context` to `--context` for brevity
+- Rename `--source-context` to `--context-lines` for brevity
 
 Changes needed:
 
@@ -611,7 +611,7 @@ Changes needed:
      ```
    - To:
      ```ruby
-     o.on('-c', '--context N', Integer,
+     o.on('-c', '--context-lines N', Integer,
        'Context lines around uncovered lines (default: 2)') do |v|
      ```
 
@@ -635,16 +635,16 @@ Changes needed:
 5. Update documentation:
    - README.md - Update --source examples to include mode
    - docs/user/CLI_USAGE.md - Update option documentation
-   - Change all `--source-context` to `--context`
+   - Change all `--source-context` to `--context-lines`
 
 6. Update tests:
    - spec/cli_enumerated_options_spec.rb - Test that --source requires a value
    - Test that omitting the value raises an error
-   - Test --context instead of --source-context
+   - Test `--context-lines` instead of `--source-context`
 
 7. Update RELEASE_NOTES.md:
    - Add: "BREAKING: `--source` now requires explicit mode (full|uncovered)"
-   - Add: "BREAKING: `--source-context` renamed to `--context`"
+   - Add: "BREAKING: `--source-context` renamed to `--context-lines`"
 
 8. Run tests:
    bundle exec rspec
@@ -680,13 +680,13 @@ Files to update:
    - Update "Working with JSON Output" section to show --format json
    - Add deprecation note for --json
    - Update --source examples to include explicit mode
-   - Update --source-context to --context
+   - Update --source-context to --context-lines
 
 2. docs/user/CLI_USAGE.md:
    - Add --format option documentation
    - Mark --json as deprecated
    - Update --source documentation
-   - Update --context documentation (was --source-context)
+   - Update --context-lines documentation (was --source-context)
    - Update all examples
 
 3. docs/user/EXAMPLES.md:
@@ -704,7 +704,7 @@ Files to update:
    - **NEW:** `--format FORMAT` option for output format control (table|json)
    - **DEPRECATED:** `--json` flag (use `--format json` instead, but still supported)
    - **BREAKING:** `--source` now requires explicit mode: `--source full` or `--source uncovered`
-   - **BREAKING:** `--source-context` renamed to `--context` for brevity
+   - **BREAKING:** `--source-context` renamed to `--context-lines` for brevity
 
    ### Migration Examples
 
@@ -717,7 +717,7 @@ Files to update:
    # New (recommended)
    simplecov-mcp --format json list
    simplecov-mcp --source uncovered lib/foo.rb
-   simplecov-mcp --source uncovered --context 3 lib/foo.rb
+   simplecov-mcp --source uncovered --context-lines 3 lib/foo.rb
 
    # Old syntax (still works but deprecated)
    simplecov-mcp --json list  # Shows deprecation warning
@@ -963,7 +963,7 @@ This guide helps you upgrade from simplecov-mcp v1.x to v2.0.
 
 ### 3. CLI Options
 - `--source` now requires explicit mode
-- `--source-context` → `--context`
+- `--source-context` → `--context-lines`
 - `total` subcommand → `totals`
 
 ### 4. Output Format
@@ -987,7 +987,7 @@ simplecov-mcp --json list
 
 # Source display
 simplecov-mcp --source uncovered lib/foo.rb
-simplecov-mcp --source-context 3 uncovered lib/foo.rb
+simplecov-mcp --source --source-context 3 uncovered lib/foo.rb
 
 # Error modes
 simplecov-mcp --error-mode on
@@ -1011,7 +1011,7 @@ simplecov-mcp --json list  # Shows deprecation warning
 
 # Source display
 simplecov-mcp --source uncovered lib/foo.rb
-simplecov-mcp --context 3 uncovered lib/foo.rb
+simplecov-mcp --context-lines 3 uncovered lib/foo.rb
 
 # Error modes
 simplecov-mcp --error-mode log
@@ -1248,7 +1248,7 @@ Tasks:
    bundle exec exe/simplecov-mcp --source uncovered lib/simplecov_mcp/model.rb
 
    # Context lines
-   bundle exec exe/simplecov-mcp --source uncovered --context 3 lib/simplecov_mcp/model.rb
+   bundle exec exe/simplecov-mcp --source uncovered --context-lines 3 lib/simplecov_mcp/model.rb
 
    # Totals
    bundle exec exe/simplecov-mcp totals
@@ -1311,7 +1311,7 @@ Tasks:
    - Rename error mode on → log, trace → debug
    - Rename MCP tool parameter stale → staleness
    - Make --source require explicit mode
-   - Rename --source-context → --context
+   - Rename --source-context → --context-lines
    - Rename total subcommand → totals
    - Add --format option (--json deprecated)
    - Convert internal enums to symbols

@@ -46,6 +46,28 @@
    simplecov-mcp total
    ```
 
+5. The `--source` option now **requires** an explicit mode argument (`full` or `uncovered`).
+
+   **Migration:**
+   ```bash
+   # Before (implied full)
+   simplecov-mcp --source summary lib/foo.rb
+
+   # After
+   simplecov-mcp --source full summary lib/foo.rb
+   ```
+
+6. The `--source-context` option has been **renamed** to `--context-lines` for brevity.
+
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp --source uncovered --source-context 3 lib/foo.rb
+
+   # After
+   simplecov-mcp --source uncovered --context-lines 3 lib/foo.rb
+   ```
+
 ### ✨ New Features
 
 - **validate subcommand**: File mode (`validate <file>`) and inline mode (`validate -i <code>`)

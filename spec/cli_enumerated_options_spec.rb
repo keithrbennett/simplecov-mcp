@@ -17,11 +17,12 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--sort-order', 'descending', 'list'], accessor: :sort_order,
         expected: :descending },
 
-      { argv: ['--source=f', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
-      { argv: ['--source=u', 'summary', 'lib/foo.rb'], accessor: :source_mode,
+      { argv: ['--source', 'f', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
+      { argv: ['--source', 'u', 'summary', 'lib/foo.rb'], accessor: :source_mode,
         expected: :uncovered },
-      { argv: ['--source=full', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
-      { argv: ['--source=uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode,
+      { argv: ['--source', 'full', 'summary', 'lib/foo.rb'], accessor: :source_mode,
+        expected: :full },
+      { argv: ['--source', 'uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode,
         expected: :uncovered },
 
       { argv: ['-S', 'e', 'list'], accessor: :staleness, expected: :error },
@@ -46,7 +47,7 @@ RSpec.describe 'CLI enumerated option parsing' do
   describe 'rejects invalid values' do
     invalid_cases = [
       { argv: ['--sort-order', 'asc', 'list'] },
-      { argv: ['--source=x', 'summary', 'lib/foo.rb'] },
+      { argv: ['--source', 'x', 'summary', 'lib/foo.rb'] },
       { argv: ['-S', 'x', 'list'] },
       { argv: ['--staleness', 'x', 'list'] },
       { argv: ['--error-mode', 'bad', 'list'] }
@@ -72,6 +73,15 @@ RSpec.describe 'CLI enumerated option parsing' do
     it 'exits 1 when --staleness is provided without a value' do
       _out, err, status = run_cli_with_status('--staleness', 'list')
       expect(status).to eq(1)
+      expect(err).to include('invalid argument')
+    end
+
+    it 'exits 1 when --source is provided without a value' do
+      _out, err, status = run_cli_with_status('--source', 'summary', 'lib/foo.rb')
+      expect(status).to eq(1)
+      # Depending on OptParse implementation for required argument, it might say "missing argument"
+      # But usually it consumes next arg. If 'summary' is consumed as argument for source:
+      # normalize_source_mode('summary') -> raises InvalidArgument.
       expect(err).to include('invalid argument')
     end
   end

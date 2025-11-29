@@ -17,7 +17,7 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 ### Key Features
 
 - ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
-- ✅ **Rich output formats** - Tables, JSON, annotated source code
+- **Annotated source code** - `--source full|uncovered` with `--context-lines N` for context lines
 - ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
 - ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
@@ -225,7 +225,7 @@ simplecov-mcp summary lib/simplecov_mcp/model.rb
 simplecov-mcp uncovered lib/simplecov_mcp/cli.rb
 
 # View in context
-simplecov-mcp -s=u -c 3 uncovered lib/simplecov_mcp/cli.rb  # -s = --source (u = uncovered), -c = --source-context
+simplecov-mcp -s u -c 3 uncovered lib/simplecov_mcp/cli.rb  # -s = --source (u = uncovered), -c = --context-lines
 
 # Detailed hit counts
 simplecov-mcp detailed lib/simplecov_mcp/util.rb

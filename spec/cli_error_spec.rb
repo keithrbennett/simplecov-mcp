@@ -80,7 +80,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     # This is a regression test for the "can't convert nil into Integer" crash
     # that was previously mentioned in comments
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--source=uncovered', '--source-context', '2',
+      '--root', root, '--resultset', 'coverage', '--source', 'uncovered', '--context-lines', '2',
       '--no-color', 'uncovered', 'lib/foo.rb'
     )
 
@@ -94,7 +94,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   it 'renders source with full mode without crashing' do
     # Additional regression test for source rendering with full mode
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--source=full', '--no-color',
+      '--root', root, '--resultset', 'coverage', '--source', 'full', '--no-color',
       'summary', 'lib/foo.rb'
     )
 
@@ -115,7 +115,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
 
       out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', '--source=full', '--no-color',
+        '--root', root, '--resultset', 'coverage', '--source', 'full', '--no-color',
         'summary', 'lib/foo.rb'
       )
 

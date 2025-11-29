@@ -70,12 +70,12 @@ module SimpleCovMcp
         'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
         config.sort_order = normalize_sort_order(v)
       end
-      o.on('-s', '--source[=MODE]', String,
-        'Include source (MODE: f[ull]|u[ncovered]; default full)') do |v|
+      o.on('-s', '--source MODE', String,
+        'Source display: f[ull]|u[ncovered]') do |v|
         config.source_mode = normalize_source_mode(v)
       end
-      o.on('-c', '--source-context N', Integer,
-        'For --source=uncovered, show N context lines (default: 2)') do |v|
+      o.on('-c', '--context-lines N', Integer,
+        'Context lines around uncovered lines (default: 2)') do |v|
         config.source_context = v
       end
       o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
@@ -111,7 +111,7 @@ module SimpleCovMcp
         Examples:
           simplecov-mcp --resultset coverage list
           simplecov-mcp --format json --resultset coverage summary lib/foo.rb
-          simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
+          simplecov-mcp --source uncovered --context-lines 2 uncovered lib/foo.rb
           simplecov-mcp totals --format json
         EXAMPLES
     end

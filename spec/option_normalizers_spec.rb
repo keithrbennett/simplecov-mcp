@@ -45,12 +45,14 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
   describe '.normalize_source_mode' do
     context 'with strict mode (default)' do
-      it 'normalizes nil to :full' do
-        expect(described_class.normalize_source_mode(nil)).to eq(:full)
+      it 'raises OptionParser::InvalidArgument for nil' do
+        expect { described_class.normalize_source_mode(nil) }
+          .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
       end
 
-      it 'normalizes empty string to :full' do
-        expect(described_class.normalize_source_mode('')).to eq(:full)
+      it 'raises OptionParser::InvalidArgument for empty string' do
+        expect { described_class.normalize_source_mode('') }
+          .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
       end
 
       it 'normalizes "f" to :full' do

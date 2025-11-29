@@ -93,7 +93,7 @@ Show covered/total/percentage for a specific file.
 ```sh
 smcp summary app/models/order.rb
 smcp summary app/models/order.rb --json
-smcp summary app/models/order.rb --source
+smcp summary app/models/order.rb --source full
 ```
 
 **Arguments:**
@@ -104,7 +104,7 @@ smcp summary app/models/order.rb --source
 | Short | Long             | Description                                |
 |-------|------------------|--------------------------------------------|
 | `-j`  | `--json`         | Output as JSON                             |
-| `-s`  | `--source[=MODE]`| Include source code (full or uncovered)    |
+| `-s`  | `--source MODE`  | Include source code (full or uncovered)    |
 
 **Output (default format):**
 ```
@@ -130,8 +130,8 @@ Show uncovered line numbers for a specific file.
 
 ```sh
 smcp uncovered app/controllers/orders_controller.rb
-smcp uncovered app/controllers/orders_controller.rb --source=uncovered
-smcp uncovered app/controllers/orders_controller.rb --source=uncovered --source-context 3
+smcp uncovered app/controllers/orders_controller.rb --source uncovered
+smcp uncovered app/controllers/orders_controller.rb --source uncovered --context-lines 3
 ```
 
 **Arguments:**
@@ -141,8 +141,8 @@ smcp uncovered app/controllers/orders_controller.rb --source=uncovered --source-
 
 | Short | Long                  | Description                                           |
 |-------|-----------------------|-------------------------------------------------------|
-| `-s`  | `--source=uncovered`  | Show uncovered lines with context                     |
-| `-c`  | `--source-context N`  | Lines of context around uncovered lines (default: 2)  |
+| `-s`  | `--source uncovered`  | Show uncovered lines with context                     |
+| `-c`  | `--context-lines N`   | Lines of context around uncovered lines (default: 2)  |
 |       | `--color`             | Enable syntax coloring                                |
 |       | `--no-color`          | Disable syntax coloring                               |
 | `-j`  | `--json`              | Output as JSON                                        |
@@ -183,7 +183,7 @@ Show per-line coverage with hit counts.
 ```sh
 smcp detailed app/models/order.rb
 smcp detailed app/models/order.rb --json
-smcp detailed app/models/order.rb --source
+smcp detailed app/models/order.rb --source full
 ```
 
 **Arguments:**
@@ -191,10 +191,10 @@ smcp detailed app/models/order.rb --source
 
 **Options:**
 
-| Short | Long       | Description         |
-|-------|------------|---------------------|
-| `-j`  | `--json`   | Output as JSON      |
-| `-s`  | `--source` | Include source code |
+| Short | Long            | Description         |
+|-------|-----------------|---------------------|
+| `-j`  | `--json`        | Output as JSON      |
+| `-s`  | `--source MODE` | Include source code |
 
 **Output (default format):**
 ```
@@ -351,7 +351,7 @@ smcp -o a list  # a = ascending
 smcp -o d list  # d = descending
 ```
 
-### `-s, --source[=MODE]`
+### `-s, --source MODE`
 
 Include source code in output.
 
@@ -359,24 +359,24 @@ Include source code in output.
 
 | Short | Long        | Description                                         |
 |-------|-------------|-----------------------------------------------------|
-| `f`   | `full`      | Show all source lines (default if no MODE given)    |
+| `f`   | `full`      | Show all source lines                               |
 | `u`   | `uncovered` | Show only uncovered lines with context              |
 
 ```sh
 # Show full source
-smcp -s summary lib/api/client.rb      # -s = --source (default: full)
-smcp -s=f summary lib/api/client.rb    # f = full
+smcp -s full summary lib/api/client.rb      # -s = --source
+smcp -s f summary lib/api/client.rb         # f = full
 
 # Show only uncovered lines
-smcp -s=u uncovered lib/api/client.rb  # u = uncovered
+smcp -s u uncovered lib/api/client.rb       # u = uncovered
 ```
 
-### `-c, --source-context N`
+### `-c, --context-lines N`
 
-Number of context lines around uncovered code (for `--source=uncovered`).
+Number of context lines around uncovered code (for `--source uncovered`).
 
 ```sh
-smcp -s=u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --source-context
+smcp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-lines
 ```
 
 **Default:** 2 lines
@@ -617,7 +617,7 @@ smcp summary lib/payments/refund_service.rb
 smcp uncovered lib/payments/refund_service.rb
 
 # View uncovered code in context
-smcp uncovered lib/payments/refund_service.rb --source=uncovered --source-context 3
+smcp uncovered lib/payments/refund_service.rb --source uncovered --context-lines 3
 
 # Get detailed hit counts
 smcp detailed lib/payments/refund_service.rb
@@ -686,16 +686,16 @@ smcp list  # Stale files marked with !
 
 ```sh
 # Show full source with coverage markers
-smcp summary lib/api/client.rb --source
+smcp summary lib/api/client.rb --source full
 
 # Show only uncovered lines with context
-smcp uncovered lib/api/client.rb --source=uncovered
+smcp uncovered lib/api/client.rb --source uncovered
 
 # More context around uncovered code
-smcp uncovered lib/api/client.rb --source=uncovered --source-context 5
+smcp uncovered lib/api/client.rb --source uncovered --context-lines 5
 
 # Without colors (for logging)
-smcp uncovered lib/api/client.rb --source --no-color
+smcp uncovered lib/api/client.rb --source full --no-color
 ```
 
 ### CI/CD Integration

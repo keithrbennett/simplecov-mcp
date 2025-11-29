@@ -113,7 +113,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'can include source in JSON payload (nil if file missing)' do
     output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
-      '--source', 'summary', 'lib/foo.rb')
+      '--source', 'full', 'summary', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data).to have_key('source')
   end
