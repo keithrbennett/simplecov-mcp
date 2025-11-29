@@ -13,10 +13,10 @@ $ simplecov-mcp summary nonexistent.rb
 File error: No coverage data found for the specified file
 ```
 
-For debugging, use the `--error-mode trace` flag to include stack traces in log output and display the first 5 lines of the backtrace in CLI output:
+For debugging, use the `--error-mode debug` flag to include stack traces in log output and display the first 5 lines of the backtrace in CLI output:
 
 ```bash
-$ simplecov-mcp --error-mode trace summary nonexistent.rb
+$ simplecov-mcp --error-mode debug summary nonexistent.rb
 ```
 
 ## Library Mode
@@ -72,7 +72,7 @@ end
 
 ## Stale Coverage Errors
 
-When strict staleness checking is enabled (`--stale error`), the model (and CLI) raise a `CoverageDataStaleError` if a source file appears newer than the coverage data or the line counts differ.
+When strict staleness checking is enabled (`--staleness error`), the model (and CLI) raise a `CoverageDataStaleError` if a source file appears newer than the coverage data or the line counts differ.
 
 - Enable per instance: `SimpleCovMcp::CoverageModel.new(staleness: 'error')`
 

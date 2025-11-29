@@ -10,13 +10,12 @@ RSpec.describe SimpleCovMcp::AppConfig do
       expect(config.json).to be false
       expect(config.sort_order).to eq(:ascending)
       expect(config.source_context).to eq(2)
-      expect(config.error_mode).to eq(:on)
-      expect(config.stale_mode).to eq(:off)
+      expect(config.error_mode).to eq(:log)
+      expect(config.staleness).to eq(:off)
       expect(config.resultset).to be_nil
       expect(config.source_mode).to be_nil
       expect(config.tracked_globs).to be_nil
       expect(config.log_file).to be_nil
-
     end
 
     it 'allows overriding defaults via keyword arguments' do
@@ -24,12 +23,12 @@ RSpec.describe SimpleCovMcp::AppConfig do
         root: '/custom',
         json: true,
         sort_order: :descending,
-        stale_mode: :error
+        staleness: :error
       )
       expect(config.root).to eq('/custom')
       expect(config.json).to be true
       expect(config.sort_order).to eq(:descending)
-      expect(config.stale_mode).to eq(:error)
+      expect(config.staleness).to eq(:error)
     end
 
     it 'is mutable (struct fields can be changed)' do
@@ -46,7 +45,7 @@ RSpec.describe SimpleCovMcp::AppConfig do
       config = described_class.new(
         root: '/custom/root',
         resultset: '/custom/.resultset.json',
-        stale_mode: :error,
+        staleness: :error,
         tracked_globs: ['lib/**/*.rb']
       )
 
@@ -116,15 +115,15 @@ RSpec.describe SimpleCovMcp::AppConfig do
       expect(config.sort_order).to be_a(Symbol)
     end
 
-    it 'uses symbols for stale_mode' do
-      config = described_class.new(stale_mode: :error)
-      expect(config.stale_mode).to eq(:error)
-      expect(config.stale_mode).to be_a(Symbol)
+    it 'uses symbols for staleness' do
+      config = described_class.new(staleness: :error)
+      expect(config.staleness).to eq(:error)
+      expect(config.staleness).to be_a(Symbol)
     end
 
     it 'uses symbols for error_mode' do
-      config = described_class.new(error_mode: :trace)
-      expect(config.error_mode).to eq(:trace)
+      config = described_class.new(error_mode: :debug)
+      expect(config.error_mode).to eq(:debug)
       expect(config.error_mode).to be_a(Symbol)
     end
 

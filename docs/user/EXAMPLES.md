@@ -109,15 +109,15 @@ smcp -j list | rexe -ij -mb -oJ '
 '
 
 # Count total uncovered lines
-smcp -j total | jq '.lines.uncovered'
+smcp -j totals | jq '.lines.uncovered'
 
 # Ruby alternative:
-smcp -j total | ruby -r json -e '
+smcp -j totals | ruby -r json -e '
   puts JSON.parse($stdin.read)["lines"]["uncovered"]
 '
 
 # Rexe alternative:
-smcp -j total | rexe -ij -mb -op 'self["lines"]["uncovered"]'
+smcp -j totals | rexe -ij -mb -op 'self["lines"]["uncovered"]'
 
 # Group by directory (full path)
 smcp -j list |
@@ -431,7 +431,7 @@ jobs:
 **Check for stale coverage:**
 ```yaml
       - name: Verify coverage is fresh
-        run: simplecov-mcp --stale error || exit 1
+        run: simplecov-mcp --staleness error || exit 1
 ```
 
 ### GitLab CI
@@ -443,7 +443,7 @@ test:
     - gem install simplecov-mcp
   script:
     - bundle exec rspec
-    - simplecov-mcp --stale error
+    - simplecov-mcp --staleness error
   artifacts:
     paths:
       - coverage/
@@ -491,7 +491,7 @@ root = "docs/fixtures/demo_project"
 model = SimpleCovMcp::CoverageModel.new(root: root)
 all_files = model.all_files
 
-# Calculate coverage by directory (uses the same data as `simplecov-mcp total`)
+# Calculate coverage by directory (uses the same data as `simplecov-mcp totals`)
 patterns = %w[
   app/**/*.rb
   lib/payments/**/*.rb

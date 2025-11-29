@@ -5,15 +5,15 @@ require_relative '../presenters/project_totals_presenter'
 
 module SimpleCovMcp
   module Commands
-    class TotalCommand < BaseCommand
+    class TotalsCommand < BaseCommand
       def execute(args)
         unless args.empty?
-          raise UsageError.for_subcommand('total')
+          raise UsageError.for_subcommand('totals')
         end
 
         presenter = Presenters::ProjectTotalsPresenter.new(
           model: model,
-          check_stale: (config.stale_mode == :error),
+          check_stale: (config.staleness == :error),
           tracked_globs: config.tracked_globs
         )
         payload = presenter.absolute_payload

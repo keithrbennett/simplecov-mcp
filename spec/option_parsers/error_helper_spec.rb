@@ -33,10 +33,10 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
 
   # Test data for enumerated options
   OPTION_TESTS = {
-    stale: {
-      long: '--stale',
+    staleness: {
+      long: '--staleness',
       short: '-S',
-      pattern: /Valid values for --stale: o\[ff\]|e\[rror\]/
+      pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
     },
     source: {
       long: '--source',
@@ -89,13 +89,13 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         end
       end
 
-      context 'for --stale option edge cases' do
+      context 'for --staleness option edge cases' do
         it 'suggests valid values when value is missing' do
-          error = OptionParser::InvalidArgument.new('missing argument: --stale')
+          error = OptionParser::InvalidArgument.new('missing argument: --staleness')
           expect_error_output(
             error: error,
-            argv: ['--stale'],
-            pattern: /Valid values for --stale: o\[ff\]|e\[rror\]/
+            argv: ['--staleness'],
+            pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
           )
         end
 
@@ -103,8 +103,8 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('invalid argument: --other')
           expect_error_output(
             error: error,
-            argv: ['--stale', '--other-option'],
-            pattern: /Valid values for --stale: o\[ff\]|e\[rror\]/
+            argv: ['--staleness', '--other-option'],
+            pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
           )
         end
       end
@@ -115,8 +115,8 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: bad')
         expect_error_output(
           error: error,
-          argv: ['--resultset', 'coverage', '--stale', 'bad', '--json'],
-          pattern: /Valid values for --stale: o\[ff\]|e\[rror\]/
+          argv: ['--resultset', 'coverage', '--staleness', 'bad', '--json'],
+          pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
         )
       end
 
@@ -164,7 +164,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
         expect do
-          helper.handle_option_parser_error(error, argv: ['--stale', 'xyz'])
+          helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'])
         end.to raise_error(SystemExit) do |e|
           expect(e.status).to eq(1)
         end
@@ -177,7 +177,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
 
         expect do
           begin
-            helper.handle_option_parser_error(error, argv: ['--stale', 'xyz'],
+            helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'],
               usage_hint: 'Custom hint message')
           rescue SystemExit
             # Ignore exit call
@@ -212,7 +212,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       error = OptionParser::MissingArgument.new('missing argument: --resultset')
 
       stderr_output = capture_stderr do
-        helper.handle_option_parser_error(error, argv: ['--stale', 'off', '--resultset'])
+        helper.handle_option_parser_error(error, argv: ['--staleness', 'off', '--resultset'])
       end
 
       expect(stderr_output).to match(/Error:.*missing argument.*--resultset/)

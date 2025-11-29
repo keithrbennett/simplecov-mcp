@@ -33,12 +33,12 @@ module SimpleCovMcp
             default: 'ascending',
             enum: ['ascending', 'descending']
           },
-          stale: {
+          staleness: {
             type: 'string',
             description: 'How to handle missing/outdated coverage data. ' \
                          "'off' skips checks; 'error' raises.",
-            enum: ['off', 'error'],
-            default: 'off'
+            enum: [:off, :error],
+            default: :off
           },
           tracked_globs: {
             type: 'array',
@@ -57,30 +57,21 @@ module SimpleCovMcp
       )
 
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
+        def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
           tracked_globs: nil, error_mode: 'on', server_context:)
           with_error_handling('CoverageTableTool', error_mode: error_mode) do
-            # Capture the output of the CLI's table report while honoring CLI options
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = sort_order.to_sym
-            stale_sym = stale.to_sym
-            check_stale = (stale_sym == :error)
+            staleness_sym = staleness.to_sym
 
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: staleness_sym,
               tracked_globs: tracked_globs)
-            presenter = Presenters::ProjectCoveragePresenter.new(
-              model: model,
+            table = model.format_table(
               sort_order: sort_order_sym,
-              check_stale: check_stale,
+              check_stale: (staleness_sym == :error),
               tracked_globs: tracked_globs
             )
-            relativized = presenter.relative_files
-            table = model.format_table(
-              relativized,
-              sort_order: sort_order_sym,
-              check_stale: check_stale,
-              tracked_globs: nil # rows already filtered via all_files
-            )
+            # Return text response
             ::MCP::Tool::Response.new([{ type: 'text', text: table }])
           end
         end

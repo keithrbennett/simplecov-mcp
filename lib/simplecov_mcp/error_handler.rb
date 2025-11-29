@@ -9,9 +9,9 @@ module SimpleCovMcp
   class ErrorHandler
     attr_accessor :error_mode, :logger
 
-    VALID_ERROR_MODES = [:off, :on, :trace].freeze
+    VALID_ERROR_MODES = [:off, :log, :debug].freeze
 
-    def initialize(error_mode: :on, logger: nil)
+    def initialize(error_mode: :log, logger: nil)
       unless VALID_ERROR_MODES.include?(error_mode)
         raise ArgumentError, "Invalid error_mode: #{error_mode.inspect}. Valid modes: #{VALID_ERROR_MODES.inspect}"
       end
@@ -25,7 +25,7 @@ module SimpleCovMcp
     end
 
     def show_stack_traces?
-      error_mode == :trace
+      error_mode == :debug
     end
 
     # Handle an error with appropriate logging and re-raising behavior

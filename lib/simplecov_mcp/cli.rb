@@ -11,7 +11,7 @@ require_relative 'presenters/project_coverage_presenter'
 
 module SimpleCovMcp
   class CoverageCLI
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
     HORIZONTAL_RULE = '-' * 79
 
     # Reference shared constant to avoid duplication with ModeDetector
@@ -66,7 +66,7 @@ module SimpleCovMcp
       presenter = Presenters::ProjectCoveragePresenter.new(
         model: model,
         sort_order: sort_order,
-        check_stale: (config.stale_mode == :error),
+        check_stale: (config.staleness == :error),
         tracked_globs: config.tracked_globs
       )
 
@@ -79,7 +79,7 @@ module SimpleCovMcp
       output.puts model.format_table(
         file_summaries,
         sort_order: sort_order,
-        check_stale: (config.stale_mode == :error),
+        check_stale: (config.staleness == :error),
         tracked_globs: nil
       )
     end
@@ -93,15 +93,7 @@ module SimpleCovMcp
       # order! parses global options (updating config) and removes them from argv.
       # It stops cleanly at the first subcommand (e.g., 'list', 'summary') or unknown option.
       # If it stops at an unknown option, it raises OptionParser::InvalidOption.
-      begin
-        parser.order!(argv)
-      rescue OptionParser::InvalidOption => e
-        # If the unknown option looks like it might be a subcommand (doesn't start with -),
-        # raise UsageError. Otherwise, let the standard handler deal with it.
-        # However, order! treats non-option arguments (subcommands) as stopping points,
-        # so this rescue block specifically catches actual unknown options like --foo.
-        raise e
-      end
+      parser.order!(argv)
 
       # The first remaining argument is the subcommand
       @cmd = argv.shift
@@ -122,7 +114,7 @@ module SimpleCovMcp
 
     def pre_scan_error_mode(argv)
       env_parser = OptionParsers::EnvOptionsParser.new
-      config.error_mode = env_parser.pre_scan_error_mode(argv) || :on
+      config.error_mode = env_parser.pre_scan_error_mode(argv) || :log
     end
 
     def build_option_parser
@@ -168,8 +160,8 @@ module SimpleCovMcp
       @error_handler.handle_error(error, context: 'CLI', reraise: false)
       # Show user-friendly message
       warn error.user_friendly_message
-      # Show stack trace in trace mode
-      warn error.backtrace.first(5).join("\n") if config.error_mode == :trace && error.backtrace
+      # Show stack trace in debug mode
+      warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace
       exit 1
     end
   end

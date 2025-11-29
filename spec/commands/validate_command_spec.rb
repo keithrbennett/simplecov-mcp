@@ -49,10 +49,10 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       end
     end
 
-    it 'shows backtrace when predicate errors with --error-mode trace' do
+    it 'shows backtrace when predicate errors with --error-mode debug' do
       with_temp_predicate("->(model) { raise 'Boom!' }\n") do |path|
         _out, err, status = run_cli_with_status(
-          '--error-mode', 'trace',
+          '--error-mode', 'debug',
           '--root', root,
           '--resultset', 'coverage',
           'validate', path

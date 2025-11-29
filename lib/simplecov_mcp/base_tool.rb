@@ -26,18 +26,19 @@ module SimpleCovMcp
           type: 'string',
           description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
         },
-        stale: {
+        staleness: {
           type: 'string',
-          description: 'How to handle missing/outdated coverage data.' \
+          description: 'How to handle missing/outdated coverage data. ' \
                        "'off' skips checks; 'error' raises.",
-          enum: %w[off error],
-          default: 'off'
+          enum: [:off, :error],
+          default: :off
         },
         error_mode: {
           type: 'string',
-          description: "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-          enum: %w[off on trace],
-          default: 'on'
+          description: "Error handling mode: 'off' (silent), 'log' (log errors), " \
+              "'debug' (verbose with backtraces).",
+          enum: %w[off log debug],
+          default: 'log'
         }
       },
       required: ['path']
@@ -55,7 +56,7 @@ module SimpleCovMcp
 
     # Handle errors consistently across all MCP tools
     # Returns an MCP::Tool::Response with appropriate error message
-    def self.handle_mcp_error(error, tool_name, error_mode: :on)
+    def self.handle_mcp_error(error, tool_name, error_mode: :log)
       # Create error handler with the specified mode
       error_handler = ErrorHandlerFactory.for_mcp_server(error_mode: error_mode.to_sym)
 

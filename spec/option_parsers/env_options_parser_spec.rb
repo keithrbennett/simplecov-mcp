@@ -106,9 +106,9 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
     context 'when error-mode is found' do
       it 'extracts error-mode with space separator' do
-        argv = ['--error-mode', 'trace', '--other-option']
+        argv = ['--error-mode', 'debug', '--other-option']
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
-        expect(result).to eq(:trace)
+        expect(result).to eq(:debug)
       end
 
       it 'extracts error-mode with equals separator' do
@@ -125,9 +125,9 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       end
 
       it 'returns first error-mode when multiple are present' do
-        argv = ['--error-mode', 'on', '--error-mode', 'off']
+        argv = ['--error-mode', 'log', '--error-mode', 'off']
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
-        expect(result).to eq(:on)
+        expect(result).to eq(:log)
       end
     end
 
@@ -148,7 +148,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
     context 'error handling during pre-scan' do
       it 'returns nil when normalizer raises an error' do
         faulty_normalizer = ->(value) { raise StandardError, 'Intentional error' }
-        argv = ['--error-mode', 'on']
+        argv = ['--error-mode', 'log']
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
         expect(result).to be_nil
@@ -156,7 +156,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
       it 'returns nil when normalizer raises ArgumentError' do
         faulty_normalizer = ->(value) { raise ArgumentError, 'Bad argument' }
-        argv = ['--error-mode', 'on']
+        argv = ['--error-mode', 'log']
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
         expect(result).to be_nil
@@ -172,14 +172,6 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
     end
   end
 
-  describe 'integration with ErrorHandlerFactory' do
-    it 'maps trace alias to an accepted error_mode' do
-      mode = parser.pre_scan_error_mode(['--error-mode', 'trace'])
-      expect { SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: mode) }.not_to raise_error
-      expect(mode).to eq(:trace)
-    end
-  end
-
   describe '#normalize_error_mode (private)' do
     it 'normalizes "off" to :off' do
       expect(parser.send(:normalize_error_mode, 'off')).to eq(:off)
@@ -187,29 +179,25 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       expect(parser.send(:normalize_error_mode, 'Off')).to eq(:off)
     end
 
-    it 'normalizes "on" to :on' do
-      expect(parser.send(:normalize_error_mode, 'on')).to eq(:on)
-      expect(parser.send(:normalize_error_mode, 'ON')).to eq(:on)
+    it 'normalizes "log" to :log' do
+      expect(parser.send(:normalize_error_mode, 'log')).to eq(:log)
+      expect(parser.send(:normalize_error_mode, 'LOG')).to eq(:log)
+      expect(parser.send(:normalize_error_mode, 'Log')).to eq(:log)
     end
 
-    it 'normalizes "trace" to :trace' do
-      expect(parser.send(:normalize_error_mode, 'trace')).to eq(:trace)
-      expect(parser.send(:normalize_error_mode, 'TRACE')).to eq(:trace)
+    it 'normalizes "debug" to :debug' do
+      expect(parser.send(:normalize_error_mode, 'debug')).to eq(:debug)
+      expect(parser.send(:normalize_error_mode, 'DEBUG')).to eq(:debug)
     end
 
-    it 'normalizes "t" to :trace' do
-      expect(parser.send(:normalize_error_mode, 't')).to eq(:trace)
-      expect(parser.send(:normalize_error_mode, 'T')).to eq(:trace)
+    it 'defaults unknown values to :log' do
+      expect(parser.send(:normalize_error_mode, 'unknown')).to eq(:log)
+      expect(parser.send(:normalize_error_mode, 'invalid')).to eq(:log)
+      expect(parser.send(:normalize_error_mode, '')).to eq(:log)
     end
 
-    it 'defaults unknown values to :on' do
-      expect(parser.send(:normalize_error_mode, 'unknown')).to eq(:on)
-      expect(parser.send(:normalize_error_mode, 'invalid')).to eq(:on)
-      expect(parser.send(:normalize_error_mode, '')).to eq(:on)
-    end
-
-    it 'handles nil by defaulting to :on' do
-      expect(parser.send(:normalize_error_mode, nil)).to eq(:on)
+    it 'handles nil by defaulting to :log' do
+      expect(parser.send(:normalize_error_mode, nil)).to eq(:log)
     end
   end
 

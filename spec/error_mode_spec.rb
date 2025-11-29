@@ -27,8 +27,8 @@ RSpec.describe 'Error Mode System' do
       end
     end
 
-    context 'with error_mode: :on' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :on, logger: test_logger) }
+    context 'with error_mode: :log' do
+      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :log, logger: test_logger) }
 
       it 'logs errors but not stack traces' do
         expect(handler.log_errors?).to be true
@@ -41,8 +41,8 @@ RSpec.describe 'Error Mode System' do
       end
     end
 
-    context 'with error_mode: :trace' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :trace, logger: test_logger) }
+    context 'with error_mode: :debug' do
+      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :debug, logger: test_logger) }
 
       it 'logs errors with stack traces' do
         expect(handler.log_errors?).to be true
@@ -64,14 +64,14 @@ RSpec.describe 'Error Mode System' do
 
   describe 'ErrorHandlerFactory' do
     it 'creates handlers with correct modes' do
-      cli_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: :trace)
-      expect(cli_handler.error_mode).to eq(:trace)
+      cli_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: :debug)
+      expect(cli_handler.error_mode).to eq(:debug)
 
       lib_handler = SimpleCovMcp::ErrorHandlerFactory.for_library(error_mode: :off)
       expect(lib_handler.error_mode).to eq(:off)
 
-      mcp_handler = SimpleCovMcp::ErrorHandlerFactory.for_mcp_server(error_mode: :on)
-      expect(mcp_handler.error_mode).to eq(:on)
+      mcp_handler = SimpleCovMcp::ErrorHandlerFactory.for_mcp_server(error_mode: :log)
+      expect(mcp_handler.error_mode).to eq(:log)
     end
   end
 
@@ -82,7 +82,7 @@ RSpec.describe 'Error Mode System' do
       test_error = StandardError.new('Test MCP error')
 
       # Test different error modes
-      [:off, :on, :trace].each do |mode|
+      [:off, :log, :debug].each do |mode|
         expect(SimpleCovMcp::ErrorHandlerFactory)
           .to receive(:for_mcp_server).with(error_mode: mode).and_call_original
 
@@ -101,10 +101,10 @@ RSpec.describe 'Error Mode System' do
 
       # Test that the option parser accepts the flag
       expect do
-        cli.send(:parse_options!, ['--error-mode', 'trace', 'summary', 'lib/foo.rb'])
+        cli.send(:parse_options!, ['--error-mode', 'debug', 'summary', 'lib/foo.rb'])
       end.not_to raise_error
 
-      expect(cli.config.error_mode).to eq(:trace)
+      expect(cli.config.error_mode).to eq(:debug)
     end
 
     it 'creates error handler with specified mode' do
@@ -136,8 +136,8 @@ RSpec.describe 'Error Mode System' do
 
     it 'accepts all valid error modes' do
       expect { SimpleCovMcp::ErrorHandler.new(error_mode: :off) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :on) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :trace) }.not_to raise_error
+      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :log) }.not_to raise_error
+      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :debug) }.not_to raise_error
     end
   end
 end

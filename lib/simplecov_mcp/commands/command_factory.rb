@@ -7,7 +7,7 @@ require_relative 'summary_command'
 require_relative 'raw_command'
 require_relative 'uncovered_command'
 require_relative 'detailed_command'
-require_relative 'total_command'
+require_relative 'totals_command'
 require_relative 'validate_command'
 
 module SimpleCovMcp
@@ -20,7 +20,8 @@ module SimpleCovMcp
         'raw' => RawCommand,
         'uncovered' => UncoveredCommand,
         'detailed' => DetailedCommand,
-        'total' => TotalCommand,
+        'totals' => TotalsCommand,
+        'total' => TotalsCommand, # Alias for backward compatibility
         'validate' => ValidateCommand
       }.freeze
 
@@ -29,7 +30,7 @@ module SimpleCovMcp
         unless command_class
           raise UsageError.for_subcommand(
             'list | summary <path> | raw <path> | uncovered <path> | detailed <path> ' \
-              '| total | validate <file> | validate -i <code> | version'
+              '| totals | validate <file> | validate -i <code> | version'
           )
         end
 

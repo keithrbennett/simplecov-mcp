@@ -78,7 +78,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 | `coverage_raw_tool`       | Raw SimpleCov lines array  | `simplecov-mcp raw lib/simplecov_mcp/model.rb`       |
 | `coverage_summary_tool`   | Get coverage % for a file  | `simplecov-mcp summary lib/simplecov_mcp/model.rb`   |
 | `coverage_table_tool`     | Formatted coverage table   | `simplecov-mcp list`                                 |
-| `coverage_totals_tool`    | Aggregated line totals     | `simplecov-mcp total`                                |
+| `coverage_totals_tool`    | Aggregated line totals     | `simplecov-mcp totals`                               |
 | `help_tool`               | Tool usage guidance        | `simplecov-mcp --help`                               |
 | `uncovered_lines_tool`    | Find missing test coverage | `simplecov-mcp uncovered lib/simplecov_mcp/cli.rb`   |
 | `version_tool`            | Display version info       | `simplecov-mcp version`                              |
@@ -124,7 +124,7 @@ simplecov-mcp --resultset coverage-all/
 simplecov-mcp --sort-order d
 
 # Staleness checking (file newer than coverage?)
-simplecov-mcp --stale error
+simplecov-mcp --staleness error
 
 # Track new files missing from coverage
 simplecov-mcp --tracked-globs "lib/**/tools/*.rb"

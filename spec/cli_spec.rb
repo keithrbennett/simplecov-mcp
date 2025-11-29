@@ -53,7 +53,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
-    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'a', 'list')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'a',
+      'list')
     asc = JSON.parse(output)
     expect(asc['files']).to be_an(Array)
     expect(asc['files'].first['file']).to end_with('lib/bar.rb')
@@ -66,7 +67,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(total).to eq(asc['files'].length)
     expect(ok + stale).to eq(total)
 
-    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'd', 'list')
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', '--sort-order', 'd',
+      'list')
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')
   end
@@ -88,16 +90,16 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(output).to include('lib/bar.rb')
   end
 
-  it 'total subcommand outputs JSON totals when requested' do
-    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'total')
+  it 'totals subcommand outputs JSON totals when requested' do
+    output = run_cli('--json', '--root', root, '--resultset', 'coverage', 'totals')
     data = JSON.parse(output)
     expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
     expect(data['files']).to include('total' => 2)
     expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
   end
 
-  it 'total subcommand prints a readable summary by default' do
-    output = run_cli('--root', root, '--resultset', 'coverage', 'total')
+  it 'totals subcommand prints a readable summary by default' do
+    output = run_cli('--root', root, '--resultset', 'coverage', 'totals')
     expect(output).to include('Lines:')
     expect(output).to include('Average coverage:')
   end

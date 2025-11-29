@@ -48,10 +48,10 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
 
 ### Stale Coverage Errors
 
-`--stale error` (or `staleness: 'error'`) compares file mtimes and line counts to the coverage snapshot. When it fails:
+`--staleness error` (or `staleness: 'error'`) compares file mtimes and line counts to the coverage snapshot. When it fails:
 
 - Regenerate coverage (`bundle exec rspec`) so the snapshot matches current sources.
-- Or drop back to warning-only behaviour using `--stale off` / `staleness: 'off'`.
+- Or drop back to warning-only behaviour using `--staleness off` / `staleness: 'off'`.
 
 If you only care about a subset of files, supply `--tracked-globs` (CLI) or `tracked_globs:` (API) so new files outside those globs do not trigger staleness.
 
@@ -168,9 +168,9 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 
 If the above doesn't solve your problem:
 
-1. **Check error mode** - Run with `--error-mode trace` for full stack traces:
+1. **Check error mode** - Run with `--error-mode debug` for full stack traces:
    ```bash
-   simplecov-mcp --error-mode trace summary lib/simplecov_mcp/cli.rb
+   simplecov-mcp --error-mode debug summary lib/simplecov_mcp/cli.rb
    ```
 
 2. **Check logs:**

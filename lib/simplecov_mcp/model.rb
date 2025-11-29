@@ -22,10 +22,10 @@ module SimpleCovMcp
     # Params:
     # - root: project root directory (default '.')
     # - resultset: path or directory to .resultset.json
-    # - staleness: 'off' or 'error' (default 'off'). When 'error', raises
+    # - staleness: :off or :error (default :off). When :error, raises
     #   stale errors if sources are newer than coverage or line counts mismatch.
     # - tracked_globs: only used for all_files project-level staleness.
-    def initialize(root: '.', resultset: nil, staleness: 'off', tracked_globs: nil)
+    def initialize(root: '.', resultset: nil, staleness: :off, tracked_globs: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
       @relativizer = PathRelativizer.new(
@@ -75,7 +75,7 @@ module SimpleCovMcp
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
     def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
-      stale_checker = build_staleness_checker(mode: 'off', tracked_globs: tracked_globs)
+      stale_checker = build_staleness_checker(mode: :off, tracked_globs: tracked_globs)
 
       rows = @cov.map do |abs_path, _data|
         begin
@@ -98,7 +98,7 @@ module SimpleCovMcp
       rows = filter_rows_by_globs(rows, tracked_globs)
 
       if check_stale
-        build_staleness_checker(mode: 'error', tracked_globs: tracked_globs).check_project!(@cov)
+        build_staleness_checker(mode: :error, tracked_globs: tracked_globs).check_project!(@cov)
       end
 
       sort_rows(rows, sort_order: sort_order)

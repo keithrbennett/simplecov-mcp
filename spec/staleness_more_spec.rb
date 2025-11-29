@@ -11,7 +11,7 @@ RSpec.describe 'Additional staleness cases' do
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
         File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] } # 2 entries vs 3 lines in source
       })
-      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage', staleness: 'error')
+      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage', staleness: :error)
       # bar.rb has 2 coverage entries but 3 source lines in fixtures
       expect do
         model.summary_for('lib/bar.rb')
@@ -21,7 +21,7 @@ RSpec.describe 'Additional staleness cases' do
 
   describe SimpleCovMcp::StalenessChecker do
     it 'flags deleted files present only in coverage' do
-      checker = described_class.new(root: root, resultset: 'coverage', mode: 'error',
+      checker = described_class.new(root: root, resultset: 'coverage', mode: :error,
         timestamp: Time.now.to_i)
       coverage_map = {
         File.join(root, 'lib', 'does_not_exist_anymore.rb') => { 'lines' => [1] }
@@ -32,7 +32,7 @@ RSpec.describe 'Additional staleness cases' do
     end
 
     it 'does not raise for empty tracked_globs when nothing else is stale' do
-      checker = described_class.new(root: root, resultset: 'coverage', mode: 'error',
+      checker = described_class.new(root: root, resultset: 'coverage', mode: :error,
         tracked_globs: [], timestamp: Time.now.to_i)
       expect do
         checker.check_project!({})

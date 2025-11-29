@@ -23,7 +23,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     begin
       File.write(tmp, "# new file\n")
       _out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', '--stale', 'error', '--tracked-globs',
+        '--root', root, '--resultset', 'coverage', '--staleness', 'error', '--tracked-globs',
         'lib/**/*.rb', 'list'
       )
       expect(status).to eq(1)
@@ -35,7 +35,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   it 'list with stale=off prints table and exits 0' do
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--stale', 'off', 'list'
+      '--root', root, '--resultset', 'coverage', '--staleness', 'off', 'list'
     )
     expect(status).to eq(0)
     expect(err).to eq('')

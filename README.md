@@ -209,7 +209,7 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 
 ```sh
 # Fail build if coverage is stale
-simplecov-mcp -S error || exit 1  # -S = --stale
+simplecov-mcp --staleness error || exit 1
 
 # Generate coverage report artifact
 simplecov-mcp -j list > artifacts/coverage.json
@@ -231,13 +231,13 @@ simplecov-mcp -s=u -c 3 uncovered lib/simplecov_mcp/cli.rb  # -s = --source (u =
 simplecov-mcp detailed lib/simplecov_mcp/util.rb
 
 # Project totals
-simplecov-mcp total
-simplecov-mcp -j total
+simplecov-mcp totals
+simplecov-mcp -j totals
 ```
 
 ## Commands and Tools
 
-**CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `total`, `version`
+**CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `totals`, `version`
 
 **MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `all_files_coverage_tool`, `coverage_totals_tool`, `coverage_table_tool`, `help_tool`, `version_tool`
 

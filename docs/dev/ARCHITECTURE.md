@@ -16,13 +16,13 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, extracts all test suites that expose `coverage` data (e.g., "RSpec", "Minitest"), merges them if multiple suites exist, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
 3. **Path relativizing** – `PathRelativizer` produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
 4. **Derived metrics** – `CovUtil.summary`, `CovUtil.uncovered`, and `CovUtil.detailed` compute coverage stats from the raw `lines` arrays. `CoverageModel` exposes `summary_for`, `uncovered_for`, `detailed_for`, and `raw_for` helpers that wrap these utilities.
-5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--stale error`) or simply mark rows as stale for display.
+5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--staleness error`) or simply mark rows as stale for display.
 
 ## Interfaces
 
 ### CLI (`SimpleCovMcp::CoverageCLI`)
 
-- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--stale`, `--json`, and `--source` modes.
+- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--staleness`, `--json`, and `--source` modes.
 - Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `version`) translate to calls on `CoverageModel`.
 - Uses `ErrorHandlerFactory.for_cli` to convert unexpected exceptions into friendly user messages while honoring `--error-mode`.
 - Formatting logic (tables, JSON) lives in the model to keep presentation consistent with MCP responses.
@@ -47,7 +47,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ## Error Handling & Logging
 
 - Custom exceptions under `lib/simplecov_mcp/errors.rb` capture context for configuration issues, missing files, stale coverage, and general runtime errors. Each implements `#user_friendly_message` for consistent UX.
-- `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:on`, `:trace`) control whether errors are recorded and whether stack traces are included.
+- `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:log`, `:debug`) control whether errors are recorded and whether stack traces are included.
 - Runtime configuration (error handlers, log destinations) flows through `SimpleCovMcp::AppContext`. Entry points push a context with `SimpleCovMcp.with_context`, which stores the active configuration in a thread-local slot (`SimpleCovMcp.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
 - Two helper accessors clarify intent:
   - `SimpleCovMcp.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.

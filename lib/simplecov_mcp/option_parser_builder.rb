@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 require_relative 'option_normalizers'
+require_relative 'version'
 
 module SimpleCovMcp
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
-    SUBCOMMANDS = %w[list summary raw uncovered detailed total validate version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
 
     attr_reader :config
 
@@ -45,7 +46,7 @@ module SimpleCovMcp
           raw <path>              Show the SimpleCov 'lines' array
           uncovered <path>        Show uncovered lines and a summary
           detailed <path>         Show per-line rows with hits/covered
-          total                   Show aggregated line totals and average %
+          totals                  Show aggregated line totals and average %
           validate <file>         Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
           validate -e <code>      Evaluate coverage policy from code string
           version                 Show version information
@@ -76,12 +77,12 @@ module SimpleCovMcp
       end
       o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
       o.on('--no-color', 'Disable ANSI colors') { config.color = false }
-      o.on('-S', '--stale MODE', String,
-        'Staleness mode: o[ff]|e[rror] (default off)') do |v|
-        config.stale_mode = normalize_stale_mode(v)
+      o.on('-S', '--staleness MODE', String,
+        'Staleness detection: o[ff]|e[rror] (default off)') do |v|
+        config.staleness = normalize_staleness(v)
       end
       o.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list/total subcommands)') do |v|
+        'Globs for filtering files (list/totals subcommands)') do |v|
         config.tracked_globs = v
       end
       o.on('-l', '--log-file PATH', String,
@@ -89,7 +90,8 @@ module SimpleCovMcp
         config.log_file = v
       end
       o.on('--error-mode MODE', String,
-        'Error handling mode: off|on|t[trace] (default on)') do |v|
+        'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
+        'off (silent), log (log errors to file), debug (verbose with backtraces)') do |v|
         config.error_mode = normalize_error_mode(v)
       end
       o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
@@ -107,7 +109,7 @@ module SimpleCovMcp
           simplecov-mcp --resultset coverage list
           simplecov-mcp --json --resultset coverage summary lib/foo.rb
           simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
-          simplecov-mcp total --json
+          simplecov-mcp totals --json
         EXAMPLES
     end
 
@@ -129,8 +131,8 @@ module SimpleCovMcp
       OptionNormalizers.normalize_source_mode(v, strict: true)
     end
 
-    def normalize_stale_mode(v)
-      OptionNormalizers.normalize_stale_mode(v, strict: true)
+    def normalize_staleness(v)
+      OptionNormalizers.normalize_staleness(v, strict: true)
     end
 
     def normalize_error_mode(v)

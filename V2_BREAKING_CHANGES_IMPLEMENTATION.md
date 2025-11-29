@@ -13,6 +13,8 @@ This document provides step-by-step prompts for implementing the breaking change
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the `stale_mode` attribute to `staleness` throughout the codebase for consistency.
 
 Current state:
@@ -35,9 +37,12 @@ Changes needed:
 3. Run the test suite to ensure nothing broke:
    bundle exec rspec
 
-4. Verify all tests pass before proceeding.
+4. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
 
-Please make these changes, ensuring that every reference to `stale_mode` is changed to `staleness`, and confirm all tests pass.
+5. Fix any rubocop violations before proceeding.
+
+Please make these changes, ensuring that every reference to `stale_mode` is changed to `staleness`, and confirm all tests and rubocop pass.
 ```
 
 ---
@@ -49,19 +54,21 @@ Please make these changes, ensuring that every reference to `stale_mode` is chan
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the CLI option from `--stale` to `--staleness` for clarity and consistency.
 
 Changes needed:
 
 1. In lib/simplecov_mcp/option_parser_builder.rb (around line 77):
    - Change: o.on('-S', '--stale MODE', String, 'Staleness mode: o[ff]|e[rror] (default off)')
-   - To: o.on('--staleness MODE', String, 'Staleness detection: off|error (default off)')
-   - Remove the '-S' short form for clarity
+   - To: o.on('-S', '--staleness MODE', String, 'Staleness detection: off|error (default off)')
+   - Keep the '-S' short form for convenience
 
 2. In lib/simplecov_mcp/constants.rb (around line 15):
-   - Change: '-S --stale'
-   - To: '--staleness'
-   - Remove the '-S' entry
+   - Update: '-S --stale'
+   - To: '-S --staleness'
+   - Keep both the short and long form
 
 3. Update any help text or examples that reference `--stale`:
    - lib/simplecov_mcp/option_parser_builder.rb - Check the examples section
@@ -69,12 +76,15 @@ Changes needed:
    - docs/user/CLI_USAGE.md - Update option documentation
 
 4. Update RELEASE_NOTES.md to document this breaking change:
-   - Add to the v2.0 section: "BREAKING: `--stale` option renamed to `--staleness`"
+   - Add to the v2.0 section: "BREAKING: `--stale` option renamed to `--staleness` (short form `-S` kept)"
 
 5. Run tests to verify:
    bundle exec rspec
 
-Please make these changes and confirm that the CLI accepts `--staleness` but no longer accepts `--stale` or `-S`.
+6. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes and confirm that the CLI accepts `--staleness` and `-S` but no longer accepts `--stale`, and that all tests and rubocop pass.
 ```
 
 ---
@@ -86,6 +96,8 @@ Please make these changes and confirm that the CLI accepts `--staleness` but no 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to standardize on using symbols (`:off`, `:error`) instead of strings ('off', 'error') for the staleness parameter throughout the codebase.
 
 Current state:
@@ -127,7 +139,10 @@ Changes needed:
 
 7. Fix any failures related to string vs symbol comparisons.
 
-Please make these changes systematically, ensuring that symbols are used everywhere except at the CLI parsing boundary where we convert user input strings to symbols.
+8. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes systematically, ensuring that symbols are used everywhere except at the CLI parsing boundary where we convert user input strings to symbols. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -139,6 +154,8 @@ Please make these changes systematically, ensuring that symbols are used everywh
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the error mode value `:on` to `:log` for better clarity about what it does (enables error logging).
 
 Current values: :off, :on, :trace
@@ -182,10 +199,15 @@ Changes needed:
 7. Update RELEASE_NOTES.md:
    - Add: "BREAKING: Error mode 'on' renamed to 'log', 'trace' renamed to 'debug'"
 
-8. Run tests:
+8. Update this breaking changes guide to record that legacy aliases `:on` and `:trace` are no longer supported; explicitly state that only `:off`, `:log`, and `:debug` remain.
+
+9. Run tests:
    bundle exec rspec
 
-Please make these changes and ensure all tests pass. The key is that :on becomes :log and :trace becomes :debug throughout.
+10. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes and ensure all tests and rubocop pass. The key is that :on becomes :log and :trace becomes :debug throughout.
 ```
 
 ---
@@ -197,6 +219,8 @@ Please make these changes and ensure all tests pass. The key is that :on becomes
 **Prompt:**
 
 ````
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the MCP tool parameter from `stale` to `staleness` to match the CoverageModel API, eliminating the translation layer.
 
 Current state:
@@ -260,7 +284,10 @@ Changes needed:
    bundle exec rspec spec/*_tool_spec.rb
    bundle exec rspec
 
-Please make these changes systematically, ensuring that all tools now use `staleness` consistently.
+7. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes systematically, ensuring that all tools now use `staleness` consistently. Confirm all tests and rubocop pass.
 ````
 
 ---
@@ -272,6 +299,8 @@ Please make these changes systematically, ensuring that all tools now use `stale
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to comprehensively update all test files to reflect the Phase 1 breaking changes:
 - stale_mode → staleness
 - --stale → --staleness
@@ -310,7 +339,10 @@ Changes needed:
    - Check that all code paths are still tested
    - Look at coverage/.resultset.json or run with coverage report
 
-Please go through all test files systematically, update them for the new naming conventions, and ensure all tests pass.
+7. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please go through all test files systematically, update them for the new naming conventions, and ensure all tests and rubocop pass.
 ```
 
 ---
@@ -322,11 +354,13 @@ Please go through all test files systematically, update them for the new naming 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to update all documentation to reflect the Phase 1 breaking changes for v2.0.
 
 Changes to document:
 - stale_mode → staleness
-- --stale → --staleness (no short form -S)
+- --stale → --staleness (short form -S kept)
 - Error modes: on → log, trace → debug
 - MCP tool parameter: stale → staleness
 - All enum values are now symbols internally
@@ -342,7 +376,7 @@ Files to update:
 2. docs/user/CLI_USAGE.md:
    - Update the full options reference section
    - Update all examples using `--stale` to use `--staleness`
-   - Document that -S short form no longer exists
+   - Document that -S short form is kept for `--staleness`
    - Update error mode documentation (off|log|debug)
    - Add migration notes for users upgrading from v1.x
 
@@ -379,7 +413,7 @@ Files to update:
 
      ### Parameter Naming Consistency
      - **BREAKING:** `stale_mode` renamed to `staleness` throughout API
-     - **BREAKING:** CLI option `--stale` renamed to `--staleness` (short form `-S` removed)
+     - **BREAKING:** CLI option `--stale` renamed to `--staleness` (short form `-S` kept)
      - **BREAKING:** MCP tool parameter `stale` renamed to `staleness`
 
      ### Error Mode Values
@@ -418,6 +452,9 @@ Files to update:
      ```
      ```
 
+9. If any code changes were made (not just docs), run rubocop:
+   bundle exec rubocop
+
 Please update all these documentation files to reflect the new naming conventions, add the migration guide, and ensure all examples are accurate.
 ```
 
@@ -432,6 +469,8 @@ Please update all these documentation files to reflect the new naming convention
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to add a new `--format` option to control output format, while keeping `--json` as a deprecated alias.
 
 Current state:
@@ -519,7 +558,10 @@ Changes needed:
 9. Run tests:
    bundle exec rspec
 
-Please implement this, ensuring backward compatibility with --json while guiding users toward --format.
+10. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please implement this, ensuring backward compatibility with --json while guiding users toward --format. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -531,6 +573,8 @@ Please implement this, ensuring backward compatibility with --json while guiding
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to make the `--source` option require an explicit mode value instead of having an optional value with a default.
 
 Current state:
@@ -605,7 +649,10 @@ Changes needed:
 8. Run tests:
    bundle exec rspec
 
-Please make these changes, ensuring that --source no longer accepts an optional value.
+9. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please make these changes, ensuring that --source no longer accepts an optional value. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -617,6 +664,8 @@ Please make these changes, ensuring that --source no longer accepts an optional 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to update all documentation and examples to reflect the Phase 2 CLI refinements.
 
 Changes to document:
@@ -675,6 +724,9 @@ Files to update:
    ```
    ```
 
+6. If any code changes were made (not just docs), run rubocop:
+   bundle exec rubocop
+
 Please update all documentation to show the new recommended syntax while noting backward compatibility.
 ```
 
@@ -689,6 +741,8 @@ Please update all documentation to show the new recommended syntax while noting 
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to rename the `total` subcommand to `totals` (plural) for consistency with what it returns (multiple aggregated totals).
 
 Changes needed:
@@ -732,9 +786,12 @@ Changes needed:
 9. Run tests:
    bundle exec rspec
 
+10. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
 Optional: If you want backward compatibility, add an alias in the command factory.
 
-Please make these changes to rename the subcommand to 'totals'.
+Please make these changes to rename the subcommand to 'totals'. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -746,6 +803,8 @@ Please make these changes to rename the subcommand to 'totals'.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 I need to improve the error messages and warnings for the success predicate feature (--success-predicate option).
 
 Current state:
@@ -863,7 +922,10 @@ Changes needed:
 7. Run tests:
    bundle exec rspec
 
-Please implement these improved error messages and security warnings.
+8. Run rubocop to ensure code style compliance:
+   bundle exec rubocop
+
+Please implement these improved error messages and security warnings. Confirm all tests and rubocop pass.
 ```
 
 ---
@@ -875,6 +937,8 @@ Please implement these improved error messages and security warnings.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. If you make any code changes (not just docs), run `bundle exec rubocop` and fix all violations before committing.
+
 I need to create a comprehensive migration guide and polish all documentation for the v2.0 release.
 
 Tasks:
@@ -1121,6 +1185,9 @@ Use `--format json` for future-proof code.
    - Check required Ruby version
    - Verify dependencies
 
+7. If any code changes were made, run rubocop:
+   bundle exec rubocop
+
 Please create these files and perform a comprehensive documentation review.
 ```
 
@@ -1133,6 +1200,8 @@ Please create these files and perform a comprehensive documentation review.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 Before releasing v2.0, I need to ensure everything works correctly.
 
 Tasks:
@@ -1215,6 +1284,8 @@ Please run through this complete testing checklist and report any issues found.
 **Prompt:**
 
 ```
+⚠️ IMPORTANT: This repository has a pre-commit hook that runs rubocop. Your commit will be REJECTED if rubocop fails. Always run `bundle exec rubocop` after tests and fix all violations before committing.
+
 Final preparation for v2.0.0 release.
 
 Tasks:

@@ -3,7 +3,7 @@
 module SimpleCovMcp
   module OptionParsers
     class ErrorHelper
-      SUBCOMMANDS = %w[list summary raw uncovered detailed total version].freeze
+      SUBCOMMANDS = %w[list summary raw uncovered detailed totals version].freeze
 
       def initialize(subcommands = SUBCOMMANDS)
         @subcommands = subcommands
@@ -92,7 +92,7 @@ module SimpleCovMcp
 
       def enumerated_option_rules
         [
-          { switches: ['-S', '--stale'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
+          { switches: ['-S', '--staleness'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
           { switches: ['-s', '--source'], values: %w[full f uncovered u],
             display: 'f[ull]|u[ncovered]' },
           { switches: ['--error-mode'], values: %w[off on trace t], display: 'off|on|t[race]' },

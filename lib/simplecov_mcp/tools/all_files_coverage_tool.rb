@@ -34,12 +34,12 @@ module SimpleCovMcp
             default: 'ascending',
             enum: ['ascending', 'descending']
           },
-          stale: {
+          staleness: {
             type: 'string',
             description:
               "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
-            enum: ['off', 'error'],
-            default: 'off'
+            enum: [:off, :error],
+            default: :off
           },
           tracked_globs: {
             type: 'array',
@@ -57,19 +57,19 @@ module SimpleCovMcp
         }
       )
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', stale: 'off',
+        def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
           tracked_globs: nil, error_mode: 'on', server_context:)
           with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = sort_order.to_sym
-            stale_sym = stale.to_sym
+            staleness_sym = staleness.to_sym
 
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: stale_sym,
+            model = CoverageModel.new(root: root, resultset: resultset, staleness: staleness_sym,
               tracked_globs: tracked_globs)
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,
               sort_order: sort_order_sym,
-              check_stale: (stale_sym == :error),
+              check_stale: (staleness_sym == :error),
               tracked_globs: tracked_globs
             )
             respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')

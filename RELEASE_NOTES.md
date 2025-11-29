@@ -2,22 +2,49 @@
 
 ## v2.0.0.pre.1 (Unreleased)
 
-### 🚨 BREAKING CHANGE
+### 🚨 BREAKING CHANGES
 
-The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.
+#### Command Line Interface
 
-**Migration:**
-```bash
-# Before
-simplecov-mcp --success-predicate policy.rb
+1. The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.
 
-# After
-simplecov-mcp validate policy.rb
-```
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp --success-predicate policy.rb
 
-**Why:** This functionality is a much better fit for a subcommand than an option. Subcommands provide clearer CLI semantics and enable inline code support via `-i` flag.
+   # After
+   simplecov-mcp validate policy.rb
+   ```
 
-**Details:** Exit codes unchanged (0=pass, 1=fail, 2=error). See `docs/user/ADVANCED_USAGE.md` for complete usage and examples.
+2. The `--stale` option has been **renamed** to `--staleness`. The short flag `-S` has been preserved as an alias for `--staleness`.
+
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp --stale error
+
+   # After
+   simplecov-mcp --staleness error
+   # OR
+   simplecov-mcp -S error
+   ```
+
+3. Error handling modes were renamed for clarity: `on` → `log`, `trace` → `debug`. The old names are **no longer supported**.
+
+4. The `total` subcommand has been **renamed** to `totals` for consistency with what it returns (multiple aggregated totals). The old name `total` still works as an alias for backward compatibility.
+
+   **Migration:**
+   ```bash
+   # Before
+   simplecov-mcp total
+
+   # After
+   simplecov-mcp totals
+
+   # Old syntax still works (backward compatible)
+   simplecov-mcp total
+   ```
 
 ### ✨ New Features
 
@@ -28,7 +55,7 @@ simplecov-mcp validate policy.rb
 
 ## v1.1.0
 
-- Add a `total` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
+- Add a `totals` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
 - Refactor command line and environment argument handling
 
 ## v1.0.1 (2025-10-23)
@@ -95,7 +122,7 @@ This release represents a complete maturation of simplecov-mcp from experimental
 
 #### Error Handling Overhaul
 - **Context-aware errors** - Different error strategies for CLI, library, and MCP server modes
-- **Three error modes**: `off`, `on`, `trace` (configurable via `--error-mode` or `SIMPLECOV_MCP_OPTS`)
+- **Three error modes**: `off`, `log`, `debug` (configurable via `--error-mode` or `SIMPLECOV_MCP_OPTS`)
 - **Custom exception hierarchy** - `SimpleCovMcp::Error` base class with specific subtypes
 - **Logging fallback** - Graceful degradation to stderr when log file is unavailable (CLI/library modes only)
 - **Structured MCP errors** - JSON-RPC compliant error responses with proper error codes
