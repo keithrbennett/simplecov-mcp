@@ -23,8 +23,9 @@ Gem::Specification.new do |spec|
   spec.executables   = ['simplecov-mcp']
   spec.require_paths = ['lib']
 
-  # Runtime deps (stdlib: json, time, pathname)
+  # Runtime deps (stdlib: json, time, pathname, yaml)
   spec.add_dependency 'mcp', '~> 0.3'
   spec.add_dependency 'simplecov', '>= 0.21', '< 1.0'
+  spec.add_dependency 'awesome_print', '~> 1.9'
   spec.metadata['rubygems_mfa_required'] = 'true'
 end
