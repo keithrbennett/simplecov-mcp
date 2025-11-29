@@ -41,6 +41,10 @@ module SimpleCovMcp
     def self.format(obj, format)
       ensure_requirements_for(format)
       formatter_for(format).call(obj)
+    rescue LoadError => e
+      gem_name = e.message[/-- (\S+)/, 1] || 'required gem'
+      raise LoadError, "The #{format} format requires the '#{gem_name}' gem. " \
+                       "Install it with: gem install #{gem_name}"
     end
   end
 end
