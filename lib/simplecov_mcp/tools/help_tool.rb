@@ -9,22 +9,13 @@ module SimpleCovMcp
         Returns help containing descriptions of all tools, including: use_when, avoid_when, inputs.
       DESC
 
-      # Schema for the HelpTool
-      HELP_INPUT_SCHEMA = {
+      input_schema(
         type: 'object',
         additionalProperties: false,
         properties: {
-          error_mode: {
-            type: 'string',
-            description:
-              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
-            enum: ['off', 'log', 'debug'],
-            default: 'log'
-          }
+          error_mode: ERROR_MODE_PROPERTY
         }
-      }.freeze
-
-      input_schema(**HELP_INPUT_SCHEMA)
+      )
 
       TOOL_GUIDE = [
         {

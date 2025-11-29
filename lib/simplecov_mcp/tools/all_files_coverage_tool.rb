@@ -14,20 +14,8 @@ module SimpleCovMcp
         Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}} sorted as requested. "stale" is a string ('M', 'T', 'L') or false.
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
-      # Schema for the AllFilesCoverageTool
-      ALL_FILES_INPUT_SCHEMA = {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          root: {
-            type: 'string',
-            description: 'Project root used to resolve relative inputs.',
-            default: '.'
-          },
-          resultset: {
-            type: 'string',
-            description: 'Path to the SimpleCov .resultset.json file.'
-          },
+      input_schema(**coverage_schema(
+        additional_properties: {
           sort_order: {
             type: 'string',
             description: 'Sort order for coverage percentages.' \
@@ -35,30 +23,9 @@ module SimpleCovMcp
             default: 'ascending',
             enum: ['ascending', 'descending']
           },
-          staleness: {
-            type: 'string',
-            description:
-              "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
-            enum: [:off, :error],
-            default: :off
-          },
-          tracked_globs: {
-            type: 'array',
-            description: 'Glob patterns for files that should exist in the coverage report' \
-                         '(helps flag new files).',
-            items: { type: 'string' }
-          },
-          error_mode: {
-            type: 'string',
-            description:
-              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
-            enum: ['off', 'log', 'debug'],
-            default: 'log'
-          }
+          tracked_globs: TRACKED_GLOBS_PROPERTY
         }
-      }.freeze
-
-      input_schema(**ALL_FILES_INPUT_SCHEMA)
+      ))
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
           tracked_globs: nil, error_mode: 'log', server_context:)

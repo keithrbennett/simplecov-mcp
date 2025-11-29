@@ -46,7 +46,7 @@ Tests generate coverage data to `coverage/.resultset.json` which the tool can th
 # Test CLI locally during development
 bundle exec exe/simplecov-mcp
 
-# Test MCP server (single-line JSON-RPC)
+# Test MCP server (JSON-RPC on a single line; pipe to jq for pretty output)
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | bundle exec exe/simplecov-mcp
  
 # Discover available tools before issuing a request

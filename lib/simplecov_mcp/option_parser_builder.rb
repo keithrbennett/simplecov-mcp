@@ -63,7 +63,7 @@ module SimpleCovMcp
       end
       o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }
       o.on('-f', '--format FORMAT', String,
-        'Output format: t[able]|j[son]|y[aml]|a[wesome_print] (default: table)') do |v|
+        'Output format: t[able]|j[son]|pretty-json|y[aml]|a[wesome-print] (default: table)') do |v|
         config.format = normalize_format(v)
       end
       o.on('-o', '--sort-order ORDER', String,

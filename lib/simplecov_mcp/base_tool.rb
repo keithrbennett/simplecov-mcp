@@ -7,43 +7,62 @@ require_relative 'error_handler'
 
 module SimpleCovMcp
   class BaseTool < ::MCP::Tool
-    INPUT_SCHEMA = {
-      type: 'object',
-      additionalProperties: false,
-      properties: {
-        path: {
-          type: 'string',
-          description: 'Repo-relative or absolute path to the file whose coverage data you need.',
-          examples: ['lib/simple_cov_mcp/model.rb']
-        },
-        root: {
-          type: 'string',
-          description: 'Project root used to resolve relative paths ' \
-                       '(defaults to current workspace).',
-          default: '.'
-        },
-        resultset: {
-          type: 'string',
-          description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
-        },
-        staleness: {
-          type: 'string',
-          description: 'How to handle missing/outdated coverage data. ' \
-                       "'off' skips checks; 'error' raises.",
-          enum: [:off, :error],
-          default: :off
-        },
-        error_mode: {
-          type: 'string',
-          description: "Error handling mode: 'off' (silent), 'log' (log errors), " \
-              "'debug' (verbose with backtraces).",
-          enum: %w[off log debug],
-          default: 'log'
-        }
+    COMMON_PROPERTIES = {
+      root: {
+        type: 'string',
+        description: 'Project root used to resolve relative paths ' \
+                     '(defaults to current workspace).',
+        default: '.'
       },
+      resultset: {
+        type: 'string',
+        description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
+      },
+      staleness: {
+        type: 'string',
+        description: 'How to handle missing/outdated coverage data. ' \
+                     "'off' skips checks; 'error' raises.",
+        enum: [:off, :error],
+        default: :off
+      },
+      error_mode: {
+        type: 'string',
+        description: "Error handling mode: 'off' (silent), 'log' (log errors), " \
+            "'debug' (verbose with backtraces).",
+        enum: %w[off log debug],
+        default: 'log'
+      }
+    }.freeze
+
+    ERROR_MODE_PROPERTY = COMMON_PROPERTIES[:error_mode].freeze
+
+    TRACKED_GLOBS_PROPERTY = {
+      type: 'array',
+      description: 'Glob patterns for files that should exist in the coverage report' \
+                   '(helps flag new files).',
+      items: { type: 'string' }
+    }.freeze
+
+    PATH_PROPERTY = {
+      type: 'string',
+      description: 'Repo-relative or absolute path to the file whose coverage data you need.',
+      examples: ['lib/simple_cov_mcp/model.rb']
+    }.freeze
+
+    def self.coverage_schema(additional_properties: {}, required: [])
+      {
+        type: 'object',
+        additionalProperties: false,
+        properties: COMMON_PROPERTIES.merge(additional_properties),
+        required: required
+      }.freeze
+    end
+
+    FILE_INPUT_SCHEMA = coverage_schema(
+      additional_properties: { path: PATH_PROPERTY },
       required: ['path']
-    }
-    def self.input_schema_def = INPUT_SCHEMA
+    )
+    def self.input_schema_def = FILE_INPUT_SCHEMA
 
     # Wrap tool execution with consistent error handling.
     # Yields to the block and rescues any error, delegating to handle_mcp_error.

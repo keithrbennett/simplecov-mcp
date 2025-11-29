@@ -161,23 +161,23 @@ simplecov-mcp list | head -10     # truncate the table
 simplecov-mcp -g "lib/simplecov_mcp/tools/**/*.rb" list  # -g = --tracked-globs
 
 # Export for analysis
-simplecov-mcp -j list > coverage-report.json  # -j = --json
+simplecov-mcp -fJ list > coverage-report.json
 ```
 
 ### Working with JSON Output
 
-The `--json` flag enables programmatic processing of coverage data using command-line JSON tools.
+The `-fJ` flag enables programmatic processing of coverage data using command-line JSON tools.
 
 **Using jq:**
 ```sh
 # Filter files below 80% coverage
-simplecov-mcp -j list | jq '.files[] | select(.percentage < 80)'
+simplecov-mcp -fJ list | jq '.files[] | select(.percentage < 80)'
 ```
 
 **Using Ruby one-liners:**
 ```sh
 # Count files below threshold
-simplecov-mcp -j list | ruby -r json -e '
+simplecov-mcp -fJ list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 ```
@@ -189,14 +189,14 @@ simplecov-mcp -j list | ruby -r json -e '
 Install: `gem install rexe`
 
 ```sh
-# Filter files below 80% coverage with pretty JSON output
-simplecov-mcp -j list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+# Filter files below 80% coverage with pretty-printed JSON output
+simplecov-mcp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below threshold
-simplecov-mcp -j list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+simplecov-mcp -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 
 # Human-readable output with AwesomePrint
-simplecov-mcp -j list | rexe -ij -mb -oa 'self["files"].first(3)'
+simplecov-mcp -fJ list | rexe -ij -mb -oa 'self["files"].first(3)'
 ```
 
 With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AwesomePrint output (`-oa`) for human consumption.
@@ -212,7 +212,7 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 simplecov-mcp --staleness error || exit 1
 
 # Generate coverage report artifact
-simplecov-mcp -j list > artifacts/coverage.json
+simplecov-mcp -fJ list > artifacts/coverage.json
 ```
 
 ### Investigate Specific Files
@@ -232,7 +232,7 @@ simplecov-mcp detailed lib/simplecov_mcp/util.rb
 
 # Project totals
 simplecov-mcp totals
-simplecov-mcp -j totals
+simplecov-mcp -fJ totals
 ```
 
 ## Commands and Tools

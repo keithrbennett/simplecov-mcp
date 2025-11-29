@@ -29,7 +29,7 @@ smcp
 smcp -o d list  # -o = --sort-order, d = descending
 
 # Export to JSON for processing
-smcp -j list > coverage-report.json  # -j = --json
+smcp -fJ list > coverage-report.json
 ```
 
 ### Check Specific File
@@ -52,17 +52,17 @@ smcp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (
 smcp list | head -10
 
 # Only show files below 80%
-smcp -j list | jq '.files[] | select(.percentage < 95)'
+smcp -fJ list | jq '.files[] | select(.percentage < 95)'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 95 }'
+smcp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 95 }'
 
 # Check specific directory
 smcp -g "lib/payments/**/*.rb" list  # -g = --tracked-globs
@@ -92,35 +92,35 @@ Here are some examples:
 **Parse and filter:**
 ```bash
 # Files below threshold
-smcp -j list | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
+smcp -fJ list | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
     puts JSON.pretty_generate({file: f["file"], coverage: f["percentage"]})
   end
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -oJ '
+smcp -fJ list | rexe -ij -mb -oJ '
   self["files"].select { |f| f["percentage"] < 95 }.map do |f|
     {file: f["file"], coverage: f["percentage"]}
   end
 '
 
 # Count total uncovered lines
-smcp -j totals | jq '.lines.uncovered'
+smcp -fJ totals | jq '.lines.uncovered'
 
 # Ruby alternative:
-smcp -j totals | ruby -r json -e '
+smcp -fJ totals | ruby -r json -e '
   puts JSON.parse($stdin.read)["lines"]["uncovered"]
 '
 
 # Rexe alternative:
-smcp -j totals | rexe -ij -mb -op 'self["lines"]["uncovered"]'
+smcp -fJ totals | rexe -ij -mb -op 'self["lines"]["uncovered"]'
 
 # Group by directory (full path)
-smcp -j list |
+smcp -fJ list |
   jq '.files
       | map(. + {dir: (.file | split("/") | .[0:-1] | join("/"))})
       | sort_by(.dir)
@@ -128,7 +128,7 @@ smcp -j list |
       | map({dir: .[0].dir, avg: (map(.percentage) | add / length)})'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   grouped = JSON.parse($stdin.read)["files"]
     .map { |f| f.merge("dir" => File.dirname(f["file"])) }
     .group_by { |f| f["dir"] }
@@ -140,7 +140,7 @@ smcp -j list | ruby -r json -e '
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -oJ '
+smcp -fJ list | rexe -ij -mb -oJ '
   self["files"]
     .map { |f| f.merge("dir" => File.dirname(f["file"])) }
     .group_by { |f| f["dir"] }
@@ -156,32 +156,32 @@ smcp -j list | rexe -ij -mb -oJ '
 # Create markdown table
 echo "| Coverage | File |" > report.md
 echo "|----------|------|" >> report.md
-smcp -j list | jq -r '.files[] | "| \(.percentage)% | \(.file) |"' >> report.md
+smcp -fJ list | jq -r '.files[] | "| \(.percentage)% | \(.file) |"' >> report.md
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].each do |f|
     puts "| #{f["percentage"]}% | #{f["file"]} |"
   end
 ' >> report.md
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb '
+smcp -fJ list | rexe -ij -mb '
   self["files"].each { |f| puts "| #{f["percentage"]}% | #{f["file"]} |" }
 ' >> report.md
 
 # Export for spreadsheet
-smcp -j list | jq -r '.files[] | [.file, .percentage] | @csv' > coverage.csv
+smcp -fJ list | jq -r '.files[] | [.file, .percentage] | @csv' > coverage.csv
 
 # Ruby alternative:
-smcp -j list | ruby -r json -r csv -e '
+smcp -fJ list | ruby -r json -r csv -e '
   JSON.parse($stdin.read)["files"].each do |f|
     puts CSV.generate_line([f["file"], f["percentage"]]).chomp
   end
 ' > coverage.csv
 
 # Rexe alternative:
-smcp -j list | rexe -r csv -ij -mb '
+smcp -fJ list | rexe -r csv -ij -mb '
   self["files"].each { |f| puts CSV.generate_line([f["file"], f["percentage"]]).chomp }
 ' > coverage.csv
 ```
@@ -388,7 +388,7 @@ jobs:
 
       - name: Check coverage threshold
         run: |
-          smcp -j list > coverage.json
+          smcp -fJ list > coverage.json
           BELOW_THRESHOLD=$(jq '[.files[] | select(.percentage < 80)] | length' coverage.json)
 
           # Ruby alternative:

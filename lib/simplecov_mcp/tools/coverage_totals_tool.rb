@@ -15,43 +15,11 @@ module SimpleCovMcp
         Example: "Give me total/covered/uncovered line counts and the overall coverage percent."
       DESC
 
-      # Schema for the CoverageTotalsTool
-      TOTALS_INPUT_SCHEMA = {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          root: {
-            type: 'string',
-            description: 'Project root used to resolve relative inputs.',
-            default: '.'
-          },
-          resultset: {
-            type: 'string',
-            description: 'Path to the SimpleCov .resultset.json file.'
-          },
-          staleness: {
-            type: 'string',
-            description: 'How to handle missing/outdated coverage data. ' \
-                         "'off' skips checks; 'error' raises.",
-            enum: [:off, :error],
-            default: :off
-          },
-          tracked_globs: {
-            type: 'array',
-            description: 'Glob patterns for files that should exist in the coverage report' \
-                         '(helps flag new files).',
-            items: { type: 'string' }
-          },
-          error_mode: {
-            type: 'string',
-            description: "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
-            enum: ['off', 'log', 'debug'],
-            default: 'log'
-          }
+      input_schema(**coverage_schema(
+        additional_properties: {
+          tracked_globs: TRACKED_GLOBS_PROPERTY
         }
-      }.freeze
-
-      input_schema(**TOTALS_INPUT_SCHEMA)
+      ))
 
       class << self
         def call(root: '.', resultset: nil, staleness: :off, tracked_globs: nil,

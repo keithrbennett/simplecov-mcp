@@ -37,8 +37,7 @@ This report reviews the current capabilities and suggests focused enhancements t
 ## Developer/Automation Convenience
 
 - Machine-readable outputs
-  - CLI: `--format json|ndjson|table` (ndjson helpful for streaming large sets).
-  - Add `--out FILE` to write JSON to a path (avoids shell redirection in CI).
+  - CLI: `-fJ|json|table` (pretty vs single-line) with optional `--out FILE` to write results directly.
 
 - Standard formats
   - Exporters: JUnit XML (per-file as testcases), SARIF (uncovered lines as results), GitHub Actions annotations.

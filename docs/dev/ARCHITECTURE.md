@@ -22,7 +22,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 ### CLI (`SimpleCovMcp::CoverageCLI`)
 
-- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--staleness`, `--json`, and `--source` modes.
+- Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--staleness`, `-fJ`, and `--source` modes.
 - Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `version`) translate to calls on `CoverageModel`.
 - Uses `ErrorHandlerFactory.for_cli` to convert unexpected exceptions into friendly user messages while honoring `--error-mode`.
 - Formatting logic (tables, JSON) lives in the model to keep presentation consistent with MCP responses.

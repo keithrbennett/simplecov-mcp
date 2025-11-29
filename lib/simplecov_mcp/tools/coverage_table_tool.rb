@@ -14,54 +14,21 @@ module SimpleCovMcp
         Output: text block containing the formatted coverage table with headers and percentages.
         Example: "Show me the CLI coverage table sorted descending".
       DESC
-      # Schema for the CoverageTableTool
-      TABLE_INPUT_SCHEMA = {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          root: {
-            type: 'string',
-            description: 'Project root used to resolve relative inputs.',
-            default: '.'
-          },
-          resultset: {
-            type: 'string',
-            description: 'Path to the SimpleCov .resultset.json file.'
-          },
+      input_schema(**coverage_schema(
+        additional_properties: {
           sort_order: {
             type: 'string',
             description: 'Sort order for the printed coverage table (ascending or descending).',
             default: 'ascending',
             enum: ['ascending', 'descending']
           },
-          staleness: {
-            type: 'string',
-            description: 'How to handle missing/outdated coverage data. ' \
-                         "'off' skips checks; 'error' raises.",
-            enum: [:off, :error],
-            default: :off
-          },
-          tracked_globs: {
-            type: 'array',
-            description: 'Glob patterns for files that should exist in the coverage report ' \
-                         '(helps flag new files).',
-            items: { type: 'string' }
-          },
-          error_mode: {
-            type: 'string',
-            description:
-              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
-            enum: ['off', 'log', 'debug'],
-            default: 'log'
-          }
+          tracked_globs: TRACKED_GLOBS_PROPERTY
         }
-      }.freeze
-
-      input_schema(**TABLE_INPUT_SCHEMA)
-                class << self
-                  def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
-                    tracked_globs: nil, error_mode: 'log', server_context:)
-                    with_error_handling('CoverageTableTool', error_mode: error_mode) do
+      ))
+      class << self
+        def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
+          tracked_globs: nil, error_mode: 'log', server_context:)
+          with_error_handling('CoverageTableTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = sort_order.to_sym
             staleness_sym = staleness.to_sym

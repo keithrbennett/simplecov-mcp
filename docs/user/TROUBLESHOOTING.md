@@ -104,7 +104,7 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 
 6. **Use CLI as fallback:**
 
-   If MCP still isn't working, you can use the CLI with `--json` flag instead.
+   If MCP still isn't working, you can use the CLI with `-fJ` flag instead.
    See **[CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md)** for complete guidance.
 
 ### Path Issues with Version Managers

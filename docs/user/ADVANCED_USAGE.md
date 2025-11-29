@@ -131,7 +131,7 @@ smcp --staleness error \
   -g "lib/ops/jobs/**/*.rb"  # -g = --tracked-globs
 
 # Combine with JSON output for parsing
-smcp --staleness error -j list > stale-check.json
+smcp --staleness error -fJ list > stale-check.json
 ```
 
 **Ruby API:**
@@ -162,7 +162,7 @@ bundle exec rspec
 smcp --staleness error -g "lib/**/*.rb"
 
 # Export validated data for CI artifacts
-smcp -j list > coverage.json
+smcp -fJ list > coverage.json
 ```
 
 The `--staleness error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
@@ -375,7 +375,7 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 ### Key Integration Features
 
 - **Exit codes**: Non-zero on failure, making it suitable for pipeline failure conditions
-- **JSON output**: `--json` flag for parsing by CI tools and custom processing
+- **JSON output**: `-fJ` format for parsing by CI tools and custom processing
 - **Staleness checking**: `--stale error` to fail on outdated coverage data
 - **Success predicates**: Custom Ruby policies for coverage enforcement
 
@@ -389,7 +389,7 @@ bundle exec rspec
 smcp --staleness error -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
-smcp -j list > coverage.json
+smcp -fJ list > coverage.json
 ```
 
 ### Using Coverage Validation
@@ -435,17 +435,17 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 --tracked-globs "lib/payments/**/*.rb" --tracked-globs "lib/ops/jobs/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
-smcp -j list | jq '.files[] | select(.file | test("spec") | not)'
+smcp -fJ list | jq '.files[] | select(.file | test("spec") | not)'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("spec") }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
+smcp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
 
 # Complex patterns
 --tracked-globs "lib/{models,controllers}/**/*.rb"
@@ -473,7 +473,7 @@ smcp --staleness error -g "lib/features/**/*.rb"
 ```sh
 # Generate separate reports per layer
 for layer in models views controllers; do
-  smcp -g "app/${layer}/**/*.rb" -j list > "coverage-${layer}.json"
+  smcp -g "app/${layer}/**/*.rb" -fJ list > "coverage-${layer}.json"
 done
 ```
 
@@ -702,7 +702,7 @@ puts annotate_source('app/models/order.rb')
 ```sh
 #!/bin/bash
 bundle exec rspec
-smcp -j list > coverage.json
+smcp -fJ list > coverage.json
 
 # Transform to Codecov format (example)
 jq '{

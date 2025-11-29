@@ -19,11 +19,8 @@ module SimpleCovMcp
         - "Run coverage policy from file" → {"file": "coverage_policy.rb"}
       DESC
 
-      # Custom input schema for validate tool
-      VALIDATE_INPUT_SCHEMA = {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
+      input_schema(**coverage_schema(
+        additional_properties: {
           code: {
             type: 'string',
             description: 'Ruby code string that returns a callable predicate. ' \
@@ -33,36 +30,9 @@ module SimpleCovMcp
             type: 'string',
             description:
               'Path to Ruby file containing predicate code (absolute or relative to root).'
-          },
-          root: {
-            type: 'string',
-            description:
-              'Project root used to resolve relative paths (defaults to current workspace).',
-            default: '.'
-          },
-          resultset: {
-            type: 'string',
-            description:
-              'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
-          },
-          staleness: {
-            type: 'string',
-            description:
-              "How to handle missing/outdated coverage data. 'off' skips checks; 'error' raises.",
-            enum: [:off, :error],
-            default: :off
-          },
-          error_mode: {
-            type: 'string',
-            description:
-              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
-            enum: ['off', 'log', 'debug'],
-            default: 'log'
           }
         }
-      }.freeze
-
-      input_schema(**VALIDATE_INPUT_SCHEMA)
+      ))
       class << self
         def call(code: nil, file: nil, root: '.', resultset: nil, staleness: :off,
           error_mode: 'log', server_context:)

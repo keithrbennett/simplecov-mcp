@@ -8,7 +8,8 @@ module SimpleCovMcp
     # Following the rexe pattern for simple, extensible formatting
     FORMATTERS = {
       table: ->(obj) { obj }, # Pass through - table formatting handled elsewhere
-      json: ->(obj) { JSON.pretty_generate(obj) },
+      json: lambda(&:to_json),
+      pretty_json: ->(obj) { JSON.pretty_generate(obj) },
       yaml: ->(obj) {
         require 'yaml'
         obj.to_yaml

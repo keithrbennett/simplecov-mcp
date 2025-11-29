@@ -4,6 +4,16 @@
 
 ### 🚨 BREAKING CHANGES
 
+
+### Recent Breaking Changes (unreleased)
+
+- Removed short/long JSON flags `-j` / `-J` / `--json` / `--pretty-json`. Use the format flag instead: `-fj` (single-line JSON) or `-fJ` (pretty JSON). Long form: `--format json` or `--format pretty-json`.
+- Standardized format aliases to use hyphens: `awesome-print` (short: `-f ap`), YAML short flag `-f y`.
+- Updated docs and examples to reflect the new format usage; legacy deprecated flags are no longer documented.
+- MCP tool argument names aligned with `CoverageModel` API parameter names for consistency.
+- Success predicate error messages clarified (more actionable output when validation fails).
+
+
 #### Command Line Interface
 
 1. The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.

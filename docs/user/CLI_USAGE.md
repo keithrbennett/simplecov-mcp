@@ -38,7 +38,7 @@ smcp raw app/models/order.rb
 
 # Get project totals
 smcp totals
-smcp -j totals  # -j = --json
+smcp -fJ totals
 
 # Show version
 smcp version
@@ -56,17 +56,20 @@ Show coverage summary for all files (default subcommand).
 ```sh
 smcp list
 smcp -o d list  # -o = --sort-order, d = descending
-smcp -j list             # -j = --json
+smcp -fJ list           
 ```
 
 **Options:**
 
-| Short | Long              | Description                                           |
-|-------|-------------------|-------------------------------------------------------|
-| `-o`  | `--sort-order`    | Sort by coverage percentage (ascending or descending) |
-| `-g`  | `--tracked-globs` | Filter to specific file patterns                      |
-| `-S`  | `--staleness`     | Staleness checking mode (off or error)                |
-| `-j`  | `--json`          | Output as JSON                                        |
+| Short   | Long                     | Description                                           |
+|---------|--------------------------|-------------------------------------------------------|
+| `-o`    | `--sort-order`           | Sort by coverage percentage (ascending or descending) |
+| `-g`    | `--tracked-globs`        | Filter to specific file patterns                      |
+| `-S`    | `--staleness`            | Staleness checking mode (off or error)                |
+| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                         |
+| `-fj`   | `--format json`          | Output as single-line JSON                            |
+| `-f y`  | `--format yaml`          | Output as YAML                                        |
+| `-f ap` | `--format awesome_print` | Output using AwesomePrint                             |
 
 **Output (table format):**
 ```
@@ -92,7 +95,7 @@ Show covered/total/percentage for a specific file.
 
 ```sh
 smcp summary app/models/order.rb
-smcp summary app/models/order.rb --json
+smcp summary app/models/order.rb -fJ
 smcp summary app/models/order.rb --source full
 ```
 
@@ -103,7 +106,10 @@ smcp summary app/models/order.rb --source full
 
 | Short | Long             | Description                                |
 |-------|------------------|--------------------------------------------|
-| `-j`  | `--json`         | Output as JSON                             |
+| `-fJ` | `--format pretty-json` | Output as pretty-printed JSON         |
+| `-fj` | `--format json`        | Output as single-line JSON            |
+| `-f y` | `--format yaml`        | Output as YAML                        |
+| `-f ap` | `--format awesome_print` | Output using AwesomePrint         |
 | `-s`  | `--source MODE`  | Include source code (full or uncovered)    |
 
 **Output (default format):**
@@ -145,7 +151,10 @@ smcp uncovered app/controllers/orders_controller.rb --source uncovered --context
 | `-c`  | `--context-lines N`   | Lines of context around uncovered lines (default: 2)  |
 |       | `--color`             | Enable syntax coloring                                |
 |       | `--no-color`          | Disable syntax coloring                               |
-| `-j`  | `--json`              | Output as JSON                                        |
+| `-fJ` | `--format pretty-json` | Output as pretty-printed JSON                        |
+| `-fj` | `--format json`        | Output as single-line JSON                          |
+| `-f y` | `--format yaml`        | Output as YAML                                      |
+| `-f ap` | `--format awesome_print` | Output using AwesomePrint                         |
 
 **Output (default format):**
 ```
@@ -182,7 +191,7 @@ Show per-line coverage with hit counts.
 
 ```sh
 smcp detailed app/models/order.rb
-smcp detailed app/models/order.rb --json
+smcp detailed app/models/order.rb -fJ
 smcp detailed app/models/order.rb --source full
 ```
 
@@ -191,10 +200,13 @@ smcp detailed app/models/order.rb --source full
 
 **Options:**
 
-| Short | Long            | Description         |
-|-------|-----------------|---------------------|
-| `-j`  | `--json`        | Output as JSON      |
-| `-s`  | `--source MODE` | Include source code |
+| Short   | Long                     | Description                   |
+|---------|--------------------------|-------------------------------|
+| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON |
+| `-fj`   | `--format json`          | Output as single-line JSON    |
+| `-f y`  | `--format yaml`          | Output as YAML                |
+| `-f ap` | `--format awesome_print` | Output using AwesomePrint     |
+| `-s`    | `--source MODE`          | Include source code           |
 
 **Output (default format):**
 ```
@@ -238,7 +250,7 @@ Show the raw SimpleCov lines array.
 
 ```sh
 smcp raw app/models/order.rb
-smcp raw app/models/order.rb --json
+smcp raw app/models/order.rb -fJ
 ```
 
 **Arguments:**
@@ -270,7 +282,7 @@ Show aggregated totals for all tracked files.
 
 ```sh
 smcp totals
-smcp -j totals
+smcp -fJ totals
 smcp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 ```
 
@@ -299,7 +311,7 @@ Show version information.
 
 ```sh
 smcp version
-smcp -j version
+smcp -fJ version
 ```
 
 **Output:**
@@ -325,12 +337,12 @@ Project root directory (default: current directory).
 smcp --root /path/to/project
 ```
 
-### `-j, --json`
+### `-fJ`
 
-Output as JSON instead of human-readable format.
+Output as pretty-printed JSON instead of human-readable format.
 
 ```sh
-smcp summary lib/api/client.rb --json
+smcp summary lib/api/client.rb -fJ
 ```
 
 Useful for:
@@ -565,17 +577,17 @@ Default command-line options applied to all invocations.
 **Format:** Shell-style string containing any valid CLI options
 
 ```sh
-export SIMPLECOV_MCP_OPTS="--resultset coverage --json"
+export SIMPLECOV_MCP_OPTS="--resultset coverage -fJ"
 smcp summary lib/api/client.rb  # Automatically uses options above
 ```
 
 **Precedence:** Command-line arguments override environment options
 
 ```sh
-# Environment sets --json, but --no-json on command line wins
-export SIMPLECOV_MCP_OPTS="--json"
+# Environment sets -fJ; explicit CLI options still take precedence
+export SIMPLECOV_MCP_OPTS="-fJ"
 smcp summary lib/api/client.rb  # Uses JSON (from env)
-smcp summary lib/api/client.rb --json  # Explicit, same result
+smcp summary lib/api/client.rb -fJ  # Explicit, same result
 ```
 
 **Examples:**
@@ -590,7 +602,7 @@ export SIMPLECOV_MCP_OPTS="--error-mode debug"
 export SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
 
 # Multiple options
-export SIMPLECOV_MCP_OPTS="--resultset coverage --staleness error --json"
+export SIMPLECOV_MCP_OPTS="--resultset coverage --staleness error -fJ"
 ```
 
 
@@ -627,31 +639,31 @@ smcp detailed lib/payments/refund_service.rb
 
 ```sh
 # Get JSON for parsing
-smcp -j list > coverage.json
+smcp -fJ list > coverage.json
 
 # Extract files below threshold
-smcp -j list | jq '.files[] | select(.percentage < 80)'
+smcp -fJ list | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+smcp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below 80% coverage
-smcp -j list | jq '[.files[] | select(.percentage < 80)] | length'
+smcp -fJ list | jq '[.files[] | select(.percentage < 80)] | length'
 
 # Ruby alternative:
-smcp -j list | ruby -r json -e '
+smcp -fJ list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 
 # Rexe alternative:
-smcp -j list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+smcp -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 ```
 
 ### Filtering and Sorting
@@ -705,7 +717,7 @@ smcp uncovered lib/api/client.rb --source full --no-color
 smcp --staleness error || exit 1
 
 # Generate JSON report for artifact
-smcp -j list > artifacts/coverage-report.json
+smcp -fJ list > artifacts/coverage-report.json
 
 # Check specific directory in monorepo
 smcp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
