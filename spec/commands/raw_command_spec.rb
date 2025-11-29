@@ -29,12 +29,7 @@ RSpec.describe SimpleCovMcp::Commands::RawCommand do
     expect(output).to include('Coverage')
   end
 
-      expect(output).to include('File: lib/foo.rb')
-      # Example match: "[1, 0, nil, 2]"
-      expect(output).to match(/\[1,\s0,\snil,\s2\]/)
-    end
-
-    it 'emits JSON when requested, including stale metadata' do
+  it 'emits JSON when requested, including stale metadata' do
       cli_context.config.format = :json
       stub_staleness_check('L')
 

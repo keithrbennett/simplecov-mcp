@@ -28,13 +28,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
     expect(output).to include('50.00%')
   end
 
-      expect(output).to include('Lines:')
-      expect(output).to include('Average coverage:')
-      expect(output).to match(/total\s+6\b/)
-      expect(output).to include('across 2 files')
-    end
-
-    it 'emits JSON when requested' do
+  it 'emits JSON when requested' do
       cli_context.config.format = :json
 
       json_output = nil

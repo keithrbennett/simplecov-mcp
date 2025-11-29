@@ -29,13 +29,7 @@ RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
     expect(output).to include('33.33%')
   end
 
-      expect(output).to include('File:            lib/foo.rb')
-      expect(output).to include('Uncovered lines: 2')
-      # Example match: "Summary:         66.67%       2/3"
-      expect(output).to match(/Summary:\s+66\.67%.*2\/3/)
-    end
-
-    it 'emits JSON when requested, including stale metadata' do
+  it 'emits JSON when requested, including stale metadata' do
       cli_context.config.format = :json
       stub_staleness_check('L')
 
