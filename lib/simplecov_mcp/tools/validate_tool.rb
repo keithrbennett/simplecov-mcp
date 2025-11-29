@@ -55,24 +55,17 @@ module SimpleCovMcp
           error_mode: {
             type: 'string',
             description:
-              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
-        },
-        oneOf: [
-          { required: ['code'] },
-          { required: ['file'] }
-        ]
+        }
       }.freeze
 
       input_schema(**VALIDATE_INPUT_SCHEMA)
-
       class << self
-        def call(
-          code: nil, file: nil, root: '.', resultset: nil, staleness: :off,
-          error_mode: 'on', server_context:
-        )
+        def call(code: nil, file: nil, root: '.', resultset: nil, staleness: :off,
+          error_mode: 'log', server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
             # Re-use logic from ValidateCommand, but adapt for MCP return format
             require_relative '../cli'

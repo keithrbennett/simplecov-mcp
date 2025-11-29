@@ -14,7 +14,8 @@ module SimpleCovMcp
         Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}} sorted as requested. "stale" is a string ('M', 'T', 'L') or false.
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
-      input_schema(
+      # Schema for the AllFilesCoverageTool
+      ALL_FILES_INPUT_SCHEMA = {
         type: 'object',
         additionalProperties: false,
         properties: {
@@ -50,15 +51,17 @@ module SimpleCovMcp
           error_mode: {
             type: 'string',
             description:
-              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
         }
-      )
+      }.freeze
+
+      input_schema(**ALL_FILES_INPUT_SCHEMA)
       class << self
         def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
-          tracked_globs: nil, error_mode: 'on', server_context:)
+          tracked_globs: nil, error_mode: 'log', server_context:)
           with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = sort_order.to_sym

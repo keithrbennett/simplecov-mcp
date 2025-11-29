@@ -15,7 +15,8 @@ module SimpleCovMcp
         Example: "Give me total/covered/uncovered line counts and the overall coverage percent."
       DESC
 
-      input_schema(
+      # Schema for the CoverageTotalsTool
+      TOTALS_INPUT_SCHEMA = {
         type: 'object',
         additionalProperties: false,
         properties: {
@@ -43,17 +44,18 @@ module SimpleCovMcp
           },
           error_mode: {
             type: 'string',
-            description: "Error handling mode: 'off' (silent), 'on' (log errors), " \
-                         "'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+            description: "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
         }
-      )
+      }.freeze
+
+      input_schema(**TOTALS_INPUT_SCHEMA)
 
       class << self
         def call(root: '.', resultset: nil, staleness: :off, tracked_globs: nil,
-          error_mode: 'on', server_context:)
+          error_mode: 'log', server_context:)
           with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
             staleness_sym = staleness.to_sym

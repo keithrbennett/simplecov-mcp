@@ -16,7 +16,7 @@ module SimpleCovMcp
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: '.', resultset: nil, staleness: :off, error_mode: 'on',
+        def call(path:, root: '.', resultset: nil, staleness: :off, error_mode: 'log',
           server_context:)
           with_error_handling('UncoveredLinesTool', error_mode: error_mode) do
             model = CoverageModel.new(

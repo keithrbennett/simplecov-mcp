@@ -9,19 +9,22 @@ module SimpleCovMcp
         Returns help containing descriptions of all tools, including: use_when, avoid_when, inputs.
       DESC
 
-      input_schema(
+      # Schema for the HelpTool
+      HELP_INPUT_SCHEMA = {
         type: 'object',
         additionalProperties: false,
         properties: {
           error_mode: {
             type: 'string',
             description:
-              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
         }
-      )
+      }.freeze
+
+      input_schema(**HELP_INPUT_SCHEMA)
 
       TOOL_GUIDE = [
         {
@@ -97,7 +100,7 @@ module SimpleCovMcp
       ].freeze
 
       class << self
-        def call(error_mode: 'on', server_context:, **_unused)
+        def call(error_mode: 'log', server_context:, **_unused)
           with_error_handling('HelpTool', error_mode: error_mode) do
             entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
 

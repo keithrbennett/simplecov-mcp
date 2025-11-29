@@ -161,6 +161,16 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
         expect { described_class.normalize_error_mode('invalid') }
           .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
       end
+
+      it 'raises OptionParser::InvalidArgument for "on"' do
+        expect { described_class.normalize_error_mode('on') }
+          .to raise_error(OptionParser::InvalidArgument, /invalid argument: on/)
+      end
+
+      it 'raises OptionParser::InvalidArgument for "trace"' do
+        expect { described_class.normalize_error_mode('trace') }
+          .to raise_error(OptionParser::InvalidArgument, /invalid argument: trace/)
+      end
     end
 
     context 'with strict: false and default: :log' do

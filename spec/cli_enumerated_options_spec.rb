@@ -50,7 +50,9 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--source', 'x', 'summary', 'lib/foo.rb'] },
       { argv: ['-S', 'x', 'list'] },
       { argv: ['--staleness', 'x', 'list'] },
-      { argv: ['--error-mode', 'bad', 'list'] }
+      { argv: ['--error-mode', 'bad', 'list'] },
+      { argv: ['--error-mode', 'on', 'list'] },
+      { argv: ['--error-mode', 'trace', 'list'] }
     ]
 
     invalid_cases.each do |c|

@@ -14,7 +14,8 @@ module SimpleCovMcp
         Output: text block containing the formatted coverage table with headers and percentages.
         Example: "Show me the CLI coverage table sorted descending".
       DESC
-      input_schema(
+      # Schema for the CoverageTableTool
+      TABLE_INPUT_SCHEMA = {
         type: 'object',
         additionalProperties: false,
         properties: {
@@ -49,17 +50,18 @@ module SimpleCovMcp
           error_mode: {
             type: 'string',
             description:
-              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
         }
-      )
+      }.freeze
 
-      class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
-          tracked_globs: nil, error_mode: 'on', server_context:)
-          with_error_handling('CoverageTableTool', error_mode: error_mode) do
+      input_schema(**TABLE_INPUT_SCHEMA)
+                class << self
+                  def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
+                    tracked_globs: nil, error_mode: 'log', server_context:)
+                    with_error_handling('CoverageTableTool', error_mode: error_mode) do
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = sort_order.to_sym
             staleness_sym = staleness.to_sym

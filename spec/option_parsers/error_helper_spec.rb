@@ -46,7 +46,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
     error_mode: {
       long: '--error-mode',
       short: nil,
-      pattern: /Valid values for --error-mode: off\|on\|t\[race\]/
+      pattern: /Valid values for --error-mode: o\[ff\]|l\[og\]|d\[ebug\]/
     },
     sort_order: {
       long: '--sort-order',

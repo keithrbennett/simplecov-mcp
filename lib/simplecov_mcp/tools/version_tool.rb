@@ -11,23 +11,25 @@ module SimpleCovMcp
         Output: plain text line "SimpleCovMcp version: x.y.z".
         Example: "What version of simplecov-mcp is installed?".
       DESC
-      input_schema(
+      # Schema for the VersionTool
+      VERSION_INPUT_SCHEMA = {
         type: 'object',
         additionalProperties: false,
         properties: {
           error_mode: {
             type: 'string',
             description:
-              "Error handling mode: 'off' (silent), 'on' (log errors), 'trace' (verbose).",
-            enum: ['off', 'on', 'trace'],
-            default: 'on'
+              "Error handling mode: 'off' (silent), 'log' (log errors), 'debug' (verbose with backtraces).",
+            enum: ['off', 'log', 'debug'],
+            default: 'log'
           }
         }
-      )
+      }.freeze
 
-      class << self
-        def call(error_mode: 'on', server_context: nil, **_args)
-          with_error_handling('VersionTool', error_mode: error_mode) do
+      input_schema(**VERSION_INPUT_SCHEMA)
+                class << self
+                  def call(error_mode: 'log', server_context: nil, **_args)
+                    with_error_handling('VersionTool', error_mode: error_mode) do
             ::MCP::Tool::Response.new([
               { type: 'text', text: "SimpleCovMcp version: #{SimpleCovMcp::VERSION}" }
             ])
