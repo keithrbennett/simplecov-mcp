@@ -275,6 +275,9 @@ RSpec/DescribeClass:
     - 'spec/integration_spec.rb'
     - 'spec/**/*_integration_spec.rb'
 
+RSpec/DescribeMethod:
+  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
+
 RSpec/MultipleMemoizedHelpers:
   Enabled: false
 

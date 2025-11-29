@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative '../shared_examples/formatted_command_examples'
 
 RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -15,35 +16,40 @@ RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
   end
 
   describe '#execute' do
-    it 'prints uncovered line numbers with the summary' do
-    output = nil
+    context 'with table format' do
+      it 'prints uncovered line numbers with the summary' do
+        output = capture_command_output(command, ['lib/bar.rb'])
 
-    silence_output do |stdout, _stderr|
-      command.execute(['lib/bar.rb'])
-      output = stdout.string
+        expect(output).to include('│', 'lib/bar.rb', '33.33%')
+      end
     end
 
-    # Expect table format with box-drawing characters
-    expect(output).to include('│')  # Box drawing character
-    expect(output).to include('lib/bar.rb')
-    expect(output).to include('33.33%')
-  end
-
-  it 'emits JSON when requested, including stale metadata' do
-      cli_context.config.format = :json
-      stub_staleness_check('L')
-
-      json_output = nil
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        json_output = stdout.string
+    context 'when the file is fully covered' do
+      before do
+        mock_presenter(
+          SimpleCovMcp::Presenters::CoverageUncoveredPresenter,
+          absolute_payload: {
+            'file' => 'lib/perfect.rb',
+            'uncovered' => [],
+            'summary' => { 'covered' => 10, 'total' => 10, 'percentage' => 100.0 }
+          },
+          relative_path: 'lib/perfect.rb'
+        )
       end
 
-      payload = JSON.parse(json_output)
-      expect(payload['file']).to eq('lib/foo.rb')
-      expect(payload['uncovered']).to eq([2])
-      expect(payload['summary']).to include('covered' => 2, 'total' => 3, 'percentage' => 66.67)
-      expect(payload['stale']).to eq('L')
+      it 'prints a success message instead of a table' do
+        output = capture_command_output(command, ['lib/perfect.rb'])
+
+        expect(output).to include('All lines covered!', '100.00%')
+        expect(output).not_to include('│')
+      end
+    end
+
+    context 'with stale data' do
+      before { stub_staleness_check('L') }
+
+      it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
+        { 'file' => 'lib/foo.rb', 'uncovered' => [2], 'summary' => nil, 'stale' => 'L' }
     end
   end
 end

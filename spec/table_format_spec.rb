@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Table format for all commands' do
+RSpec.describe SimpleCovMcp::CoverageCLI, 'table format for all commands' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli(*argv)

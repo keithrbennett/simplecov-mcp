@@ -126,6 +126,33 @@ module TestIOHelpers
     allow(checker_double).to receive(:check_file!)
     allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker_double)
   end
+
+  # Stub a presenter with specific payload data
+  # @param presenter_class [Class] The presenter class to stub (e.g., SimpleCovMcp::Presenters::CoverageRawPresenter)
+  # @param absolute_payload [Hash] The data hash to return from #absolute_payload
+  # @param relative_path [String] The path to return from #relative_path
+  def mock_presenter(presenter_class, absolute_payload:, relative_path:)
+    presenter_double = instance_double(presenter_class)
+    allow(presenter_double).to receive_messages(
+      absolute_payload: absolute_payload,
+      relative_path: relative_path
+    )
+    allow(presenter_class).to receive(:new).and_return(presenter_double)
+    presenter_double
+  end
+
+  # Capture the output of a command execution
+  # @param command [SimpleCovMcp::Commands::BaseCommand] The command instance to execute
+  # @param args [Array] The arguments to pass to execute
+  # @return [String] The captured output
+  def capture_command_output(command, args)
+    output = nil
+    silence_output do |stdout, _stderr|
+      command.execute(args.dup)
+      output = stdout.string
+    end
+    output
+  end
 end
 
 # CLI test helpers

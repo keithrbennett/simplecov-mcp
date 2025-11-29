@@ -24,7 +24,7 @@ module SimpleCovMcp
           # Table format for uncovered lines
           uncovered_lines = data['uncovered']
           if uncovered_lines.empty?
-            puts "All lines covered!"
+            puts 'All lines covered!'
           else
             headers = ['Line']
             rows = uncovered_lines.map { |line| [line.to_s] }

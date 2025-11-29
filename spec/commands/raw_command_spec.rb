@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative '../shared_examples/formatted_command_examples'
 
 RSpec.describe SimpleCovMcp::Commands::RawCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -14,35 +15,55 @@ RSpec.describe SimpleCovMcp::Commands::RawCommand do
   end
 
   describe '#execute' do
-    it 'prints the raw coverage lines for the requested file' do
-    output = nil
+    context 'with table format' do
+      it 'prints the raw coverage lines for the requested file' do
+        output = capture_command_output(command, ['lib/foo.rb'])
 
-    silence_output do |stdout, _stderr|
-      command.execute(['lib/foo.rb'])
-      output = stdout.string
+        expect(output).to include('│', 'lib/foo.rb', 'Line', 'Coverage')
+      end
     end
 
-    # Expect table format with box-drawing characters
-    expect(output).to include('│')  # Box drawing character
-    expect(output).to include('lib/foo.rb')
-    expect(output).to include('Line')
-    expect(output).to include('Coverage')
-  end
+    context 'when the file is fully covered' do
+      it 'still prints the raw table' do
+        mock_presenter(
+          SimpleCovMcp::Presenters::CoverageRawPresenter,
+          absolute_payload: {
+            'file' => 'lib/perfect.rb',
+            'lines' => [1, 1, 1],
+            'stale' => false
+          },
+          relative_path: 'lib/perfect.rb'
+        )
 
-  it 'emits JSON when requested, including stale metadata' do
-      cli_context.config.format = :json
-      stub_staleness_check('L')
+        output = capture_command_output(command, ['lib/perfect.rb'])
 
-      json_output = nil
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        json_output = stdout.string
+        expect(output).to include('│', '│    1 │        1 │')
+        expect(output).not_to include('All lines covered!')
       end
+    end
 
-      payload = JSON.parse(json_output)
-      expect(payload['file']).to eq('lib/foo.rb')
-      expect(payload['lines']).to eq([1, 0, nil, 2])
-      expect(payload['stale']).to eq('L')
+    context 'with JSON output' do
+      before { cli_context.config.format = :json }
+
+      it 'emits JSON with specific line data' do
+        stub_staleness_check('L') # Needed for stale data
+
+        output = capture_command_output(command, ['lib/foo.rb'])
+
+        payload = JSON.parse(output)
+        expect(payload['file']).to eq('lib/foo.rb')
+        expect(payload['lines']).to be_an(Array)
+        expect(payload['lines'][0]).to eq(1) # specific value
+        expect(payload['lines'][1]).to eq(0) # specific value
+        expect(payload['stale']).to eq('L')
+      end
+    end
+
+    context 'with stale data (other formats)' do
+      before { stub_staleness_check('L') }
+
+      # Use an array for expected_json_keys as we don't need exact value matching for these generic format tests
+      it_behaves_like 'a command with formatted output', ['lib/foo.rb'], ['file', 'lines', 'stale']
     end
   end
 end

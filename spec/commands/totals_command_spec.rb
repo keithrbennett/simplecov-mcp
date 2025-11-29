@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative '../shared_examples/formatted_command_examples'
 
 RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -14,35 +15,15 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
   end
 
   describe '#execute' do
-    it 'prints aggregated totals for the project' do
-    output = nil
+    context 'with table format' do
+      it 'prints aggregated totals for the project' do
+        output = capture_command_output(command, [])
 
-    silence_output do |stdout, _stderr|
-      command.execute([])
-      output = stdout.string
-    end
-
-    # Expect table format with box-drawing characters
-    expect(output).to include('│')  # Box drawing character
-    expect(output).to include('Lines')
-    expect(output).to include('50.00%')
-  end
-
-  it 'emits JSON when requested' do
-      cli_context.config.format = :json
-
-      json_output = nil
-      silence_output do |stdout, _stderr|
-        command.execute([])
-        json_output = stdout.string
+        expect(output).to include('│', 'Lines', '50.00%')
       end
-
-      payload = JSON.parse(json_output)
-      expect(payload['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
-      expect(payload['files']).to include('total' => 2)
-      expect(payload['files']['ok'] + payload['files']['stale']).to eq(payload['files']['total'])
-      expect(payload).to include('percentage')
     end
+
+    it_behaves_like 'a command with formatted output', [], ['lines', 'files', 'percentage']
 
     it 'raises when unexpected arguments are provided' do
       expect do

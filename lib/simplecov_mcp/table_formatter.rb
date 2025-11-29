@@ -10,7 +10,7 @@ module SimpleCovMcp
     # @param alignments [Array<Symbol>] Column alignments (:left, :right, :center)
     # @return [String] Formatted table
     def self.format(headers:, rows:, alignments: nil)
-      return "No data to display" if rows.empty?
+      return 'No data to display' if rows.empty?
 
       alignments ||= [:left] * headers.size
       all_rows = [headers] + rows.map { |row| row.map(&:to_s) }
@@ -47,7 +47,7 @@ module SimpleCovMcp
       formatted = cells.each_with_index.map do |cell, i|
         align_cell(cell.to_s, widths[i], alignments[i])
       end
-      '│ ' + formatted.join(' │ ') + ' │'
+      "│ #{formatted.join(' │ ')} │"
     end
 
     private_class_method def self.align_cell(content, width, alignment)

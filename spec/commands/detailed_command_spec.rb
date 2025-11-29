@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative '../shared_examples/formatted_command_examples'
 
 RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -15,34 +16,19 @@ RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
   end
 
   describe '#execute' do
-    it 'prints the detailed coverage table' do
-      output = nil
+    context 'with table format' do
+      it 'prints the detailed coverage table' do
+        output = capture_command_output(command, ['lib/foo.rb'])
 
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        output = stdout.string
+        expect(output).to include('File: lib/foo.rb', 'Line', 'Covered')
       end
-
-      expect(output).to include('File: lib/foo.rb')
-      expect(output).to include('Line')
-      expect(output).to include('Covered')
     end
 
-    it 'emits JSON when requested, including stale metadata' do
-      cli_context.config.format = :json
-      stub_staleness_check('L')
+    context 'with stale data' do
+      before { stub_staleness_check('L') }
 
-      json_output = nil
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        json_output = stdout.string
-      end
-
-      payload = JSON.parse(json_output)
-      expect(payload['file']).to eq('lib/foo.rb')
-      expect(payload['lines']).to be_an(Array)
-      expect(payload['summary']).to include('covered' => 2, 'total' => 3, 'percentage' => 66.67)
-      expect(payload['stale']).to eq('L')
+      it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
+        { 'file' => 'lib/foo.rb', 'lines' => nil, 'summary' => nil, 'stale' => 'L' }
     end
   end
 end

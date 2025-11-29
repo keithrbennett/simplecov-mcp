@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'CLI format option' do
+RSpec.describe SimpleCovMcp::CoverageCLI, 'format option' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli(*argv)
@@ -115,7 +115,7 @@ RSpec.describe 'CLI format option' do
       ['option after summary', ['summary', 'lib/foo.rb', '--format', 'json'], '--format'],
       ['option after raw', ['raw', 'lib/foo.rb', '-f', 'json'], '-f'],
       ['option after detailed', ['detailed', 'lib/foo.rb', '-f', 'json'], '-f'],
-      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', '/tmp'], '--root'],
+      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', '/tmp'], '--root']
     ].each do |desc, args, option|
       it "detects #{desc}" do
         _out, err, status = run_cli_with_status(*args)
