@@ -169,7 +169,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
 
     it 'works with version command and other flags' do
-      output = run_cli('version', '--root', root)
+      output = run_cli('--root', root, 'version')
       expect(output).to include('SimpleCovMcp version')
       expect(output).to include(SimpleCovMcp::VERSION)
     end

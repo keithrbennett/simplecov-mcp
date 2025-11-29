@@ -48,11 +48,22 @@ RSpec.describe 'CLI format option' do
       expect(data).to have_key('files')
     end
 
-    it 'does NOT parse format option after subcommand' do
-      # This should output table format because --format comes after 'list'
-      output = run_cli('--root', root, '--resultset', 'coverage', 'list', '--format', 'json')
-      expect(output).to include('File', '%')  # Table output
-      expect(output).not_to include('"files"')  # Not JSON
+    it 'shows helpful error when global option comes after subcommand' do
+      _out, err, status = run_cli_with_status(
+        '--root', root, '--resultset', 'coverage', 'list', '--format', 'json'
+      )
+      expect(status).to eq(1)
+      expect(err).to include('Global option(s) must come BEFORE the subcommand')
+      expect(err).to include('You used: list --format')
+      expect(err).to include('Correct: --format list')
+    end
+
+    it 'error message suggests correct usage' do
+      _out, err, status = run_cli_with_status('list', '--format', 'json')
+      expect(status).to eq(1)
+      expect(err).to include('You used: list --format')
+      expect(err).to include('Correct: --format list')
+      expect(err).to include('Example:')
     end
   end
 

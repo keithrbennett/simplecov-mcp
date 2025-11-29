@@ -141,6 +141,9 @@ module SimpleCovMcp
     end
 
     def run_subcommand(cmd, args)
+      # Check if user mistakenly placed global options after the subcommand
+      check_for_misplaced_global_options(cmd, args)
+
       command = Commands::CommandFactory.create(cmd, self)
       command.execute(args)
     rescue SimpleCovMcp::Error => e
@@ -152,6 +155,24 @@ module SimpleCovMcp
     def handle_option_parser_error(error, argv: [])
       @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
       @error_helper.handle_option_parser_error(error, argv: argv)
+    end
+
+    def check_for_misplaced_global_options(cmd, args)
+      # Global options that users commonly place after subcommands by mistake
+      global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
+                          -c --source-context -S --staleness -g --tracked-globs
+                          -l --log-file --error-mode --color --no-color]
+
+      misplaced = args.select { |arg| global_options.include?(arg) }
+      return if misplaced.empty?
+
+      option_list = misplaced.join(', ')
+      raise UsageError.new(
+        "Global option(s) must come BEFORE the subcommand.\n" \
+        "You used: #{cmd} #{option_list}\n" \
+        "Correct: #{option_list} #{cmd}\n\n" \
+        "Example: simplecov-mcp --format json #{cmd}"
+      )
     end
 
     def handle_user_facing_error(error)
