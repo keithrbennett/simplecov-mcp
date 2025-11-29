@@ -90,4 +90,39 @@ RSpec.describe 'CLI format option' do
       expect(data).to have_key('gem_root')
     end
   end
+
+  describe 'comprehensive misplaced option detection' do
+    # Array of test cases: [description, args_array, expected_option_in_error]
+    [
+      # Short-form options
+      ['short -f after list', ['list', '-f', 'json'], '-f'],
+      ['short -r after totals', ['totals', '-r', '.resultset.json'], '-r'],
+      ['short -R after list', ['list', '-R', '/tmp'], '-R'],
+      ['short -o after list', ['list', '-o', 'a'], '-o'],
+      ['short -s after list', ['list', '-s', 'full'], '-s'],
+      ['short -S after list', ['list', '-S', 'error'], '-S'],
+
+      # Long-form options
+      ['--sort-order after list', ['list', '--sort-order', 'ascending'], '--sort-order'],
+      ['--source after list', ['list', '--source', 'full'], '--source'],
+      ['--staleness after totals', ['totals', '--staleness', 'error'], '--staleness'],
+      ['--color after list', ['list', '--color'], '--color'],
+      ['--no-color after list', ['list', '--no-color'], '--no-color'],
+      ['--log-file after list', ['list', '--log-file', '/tmp/test.log'], '--log-file'],
+
+      # Different subcommands
+      ['option after version', ['version', '--format', 'json'], '--format'],
+      ['option after summary', ['summary', 'lib/foo.rb', '--format', 'json'], '--format'],
+      ['option after raw', ['raw', 'lib/foo.rb', '-f', 'json'], '-f'],
+      ['option after detailed', ['detailed', 'lib/foo.rb', '-f', 'json'], '-f'],
+      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', '/tmp'], '--root'],
+    ].each do |desc, args, option|
+      it "detects #{desc}" do
+        _out, err, status = run_cli_with_status(*args)
+        expect(status).to eq(1)
+        expect(err).to include('Global option(s) must come BEFORE the subcommand')
+        expect(err).to include(option)
+      end
+    end
+  end
 end
