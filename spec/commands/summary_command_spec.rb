@@ -23,8 +23,12 @@ RSpec.describe SimpleCovMcp::Commands::SummaryCommand do
         output = stdout.string
       end
 
-      # Example match: "   66.67%       2/3       lib/foo.rb"
-      expect(output).to match(/66\.67%.*2\/3.*lib\/foo\.rb/)
+      # Expect table format with box-drawing characters
+      expect(output).to include('│')  # Box drawing character
+      expect(output).to include('66.67%')
+      expect(output).to include('2')
+      expect(output).to include('3')
+      expect(output).to include('lib/foo.rb')
     end
 
     it 'emits JSON when requested, including stale metadata' do

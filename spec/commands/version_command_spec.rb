@@ -19,10 +19,12 @@ RSpec.describe SimpleCovMcp::Commands::VersionCommand do
         output = stdout.string
       end
 
-      expect(output).to include("SimpleCovMcp version #{SimpleCovMcp::VERSION}")
-      expect(output).to include('Gem root:')
-      expect(output).to include('For usage help, consult README.md and docs/user/**/*.md')
-      expect(output).to include('gem root directory')
+      # Expect table format with box-drawing characters
+      expect(output).to include('│')  # Box drawing character
+      expect(output).to include(SimpleCovMcp::VERSION)
+      expect(output).to include('Gem Root')
+      expect(output).to include('Documentation')
+      expect(output).to include('README.md')
     end
 
     it 'includes a valid gem root path that exists' do
@@ -33,11 +35,13 @@ RSpec.describe SimpleCovMcp::Commands::VersionCommand do
         output = stdout.string
       end
 
-      # Extract gem root path from output
-      gem_root_line = output.lines.find { |line| line.start_with?('Gem root:') }
+      # Extract gem root from table output - look for line with Gem Root
+      gem_root_line = output.lines.find { |line| line.include?('Gem Root') }
       expect(gem_root_line).not_to be_nil
 
-      gem_root = gem_root_line.split('Gem root:').last.strip
+      # Extract path from table cell (value is in the last column before final │)
+      parts = gem_root_line.split('│')
+      gem_root = parts[-2].strip  # Second to last part is the value column
       expect(File.directory?(gem_root)).to be true
     end
 

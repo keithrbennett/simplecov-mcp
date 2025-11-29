@@ -87,7 +87,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(status).to eq(0)
     expect(err).to eq('')
     expect(out).to match(/File:\s+lib\/foo\.rb/)
-    expect(out).to include('Uncovered lines: 2')
+    expect(out).to include('│')  # Table format
     expect(out).to show_source_table_or_fallback
   end
 

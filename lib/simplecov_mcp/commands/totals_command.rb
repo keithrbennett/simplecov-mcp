@@ -2,6 +2,7 @@
 
 require_relative 'base_command'
 require_relative '../presenters/project_totals_presenter'
+require_relative '../table_formatter'
 
 module SimpleCovMcp
   module Commands
@@ -22,10 +23,30 @@ module SimpleCovMcp
         lines = payload['lines']
         files = payload['files']
 
-        printf "Lines: total %-8d covered %-8d uncovered %-8d\n",
-          lines['total'], lines['covered'], lines['uncovered']
-        printf "Average coverage: %6.2f%% across %d files (ok: %d, stale: %d)\n",
-          payload['percentage'], files['total'], files['ok'], files['stale']
+        # Table format
+        headers = ['Metric', 'Total', 'Covered', 'Uncovered', '%']
+        rows = [
+          [
+            'Lines',
+            lines['total'].to_s,
+            lines['covered'].to_s,
+            lines['uncovered'].to_s,
+            format('%.2f%%', payload['percentage'])
+          ],
+          [
+            'Files',
+            files['total'].to_s,
+            files['ok'].to_s,
+            files['stale'].to_s,
+            ''
+          ]
+        ]
+
+        puts TableFormatter.format(
+          headers: headers,
+          rows: rows,
+          alignments: [:left, :right, :right, :right, :right]
+        )
       end
     end
   end

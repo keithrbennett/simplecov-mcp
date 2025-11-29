@@ -15,12 +15,18 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
 
   describe '#execute' do
     it 'prints aggregated totals for the project' do
-      output = nil
+    output = nil
 
-      silence_output do |stdout, _stderr|
-        command.execute([])
-        output = stdout.string
-      end
+    silence_output do |stdout, _stderr|
+      command.execute([])
+      output = stdout.string
+    end
+
+    # Expect table format with box-drawing characters
+    expect(output).to include('│')  # Box drawing character
+    expect(output).to include('Lines')
+    expect(output).to include('50.00%')
+  end
 
       expect(output).to include('Lines:')
       expect(output).to include('Average coverage:')

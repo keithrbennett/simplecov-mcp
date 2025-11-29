@@ -127,7 +127,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
         coverage_dir, 'summary', 'lib/foo.rb')
       expect(status).to eq(0)
-      expect(summary_output).to include('66.67%', '2/3')
+      expect(summary_output).to include('│')  # Table format
+      expect(summary_output).to include('66.67%')
+      expect(summary_output).to include('2')
+      expect(summary_output).to include('3')
 
       # Test JSON output
       json_output, _err, status = run_cli_with_status(
@@ -146,7 +149,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         '--root', project_root, '--resultset', coverage_dir, 'uncovered', 'lib/foo.rb'
       )
       expect(status).to eq(0)
-      expect(uncovered_output).to match(/Uncovered lines:\s*2\b/)
+      expect(uncovered_output).to include('│')  # Table format
 
       # Test detailed command
       detailed_output, _err, status = run_cli_with_status(

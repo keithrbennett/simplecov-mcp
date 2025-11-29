@@ -16,12 +16,18 @@ RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
 
   describe '#execute' do
     it 'prints uncovered line numbers with the summary' do
-      output = nil
+    output = nil
 
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        output = stdout.string
-      end
+    silence_output do |stdout, _stderr|
+      command.execute(['lib/bar.rb'])
+      output = stdout.string
+    end
+
+    # Expect table format with box-drawing characters
+    expect(output).to include('│')  # Box drawing character
+    expect(output).to include('lib/bar.rb')
+    expect(output).to include('33.33%')
+  end
 
       expect(output).to include('File:            lib/foo.rb')
       expect(output).to include('Uncovered lines: 2')

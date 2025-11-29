@@ -15,12 +15,19 @@ RSpec.describe SimpleCovMcp::Commands::RawCommand do
 
   describe '#execute' do
     it 'prints the raw coverage lines for the requested file' do
-      output = nil
+    output = nil
 
-      silence_output do |stdout, _stderr|
-        command.execute(['lib/foo.rb'])
-        output = stdout.string
-      end
+    silence_output do |stdout, _stderr|
+      command.execute(['lib/foo.rb'])
+      output = stdout.string
+    end
+
+    # Expect table format with box-drawing characters
+    expect(output).to include('│')  # Box drawing character
+    expect(output).to include('lib/foo.rb')
+    expect(output).to include('Line')
+    expect(output).to include('Coverage')
+  end
 
       expect(output).to include('File: lib/foo.rb')
       # Example match: "[1, 0, nil, 2]"

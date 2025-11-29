@@ -2,6 +2,7 @@
 
 require_relative 'base_command'
 require_relative '../presenters/coverage_uncovered_presenter'
+require_relative '../table_formatter'
 
 module SimpleCovMcp
   module Commands
@@ -13,11 +14,29 @@ module SimpleCovMcp
           break if emit_structured_format_with_optional_source(data, model, path)
 
           relative_path = presenter.relative_path
-          puts "File:            #{relative_path}"
-          puts "Uncovered lines: #{data['uncovered'].join(', ')}"
           summary = data['summary']
-          printf "Summary:      %8.2f%%  %6d/%-6d\n\n", summary['percentage'], summary['covered'],
-            summary['total']
+
+          puts "File: #{relative_path}"
+          puts "Coverage: #{format('%.2f%%', summary['percentage'])} " \
+               "(#{summary['covered']}/#{summary['total']} lines)"
+          puts
+
+          # Table format for uncovered lines
+          uncovered_lines = data['uncovered']
+          if uncovered_lines.empty?
+            puts "All lines covered!"
+          else
+            headers = ['Line']
+            rows = uncovered_lines.map { |line| [line.to_s] }
+
+            puts TableFormatter.format(
+              headers: headers,
+              rows: rows,
+              alignments: [:right]
+            )
+          end
+
+          puts
           print_source_for(model, path) if config.source_mode
         end
       end

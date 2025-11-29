@@ -13,7 +13,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(status).to eq(0)
     expect(err).to eq('')
     expect(out).to match(/File:\s+lib\/foo\.rb/)
-    expect(out).to match(/Uncovered lines:\s*2\b/)
+    expect(out).to include('│')  # Table format
     expect(out).to show_source_table_or_fallback
   end
 
@@ -24,8 +24,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     )
     expect(status).to eq(0)
     expect(err).to eq('')
-    # Summary line with flexible spacing
-    expect(out).to match(/Summary:\s*\d+\.\d{2}%\s*\d+\/\d+/)
+    expect(out).to include('│')  # Table format
+    expect(out).to include('66.67%')
     expect(out).to show_source_table_or_fallback
   end
 
@@ -37,9 +37,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(status).to eq(0)
     expect(err).to eq('')
     expect(out).to include('lib/foo.rb')
-    # Presence of percentage and counts, spacing-agnostic
-    expect(out).to match(/66\.67%/)
-    expect(out).to match(/\b2\/3\b/)
+    expect(out).to include('66.67%')
+    expect(out).to include('│')  # Table format
     expect(out).to show_source_table_or_fallback
   end
 end

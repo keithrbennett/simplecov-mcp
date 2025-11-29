@@ -2,6 +2,7 @@
 
 require 'json'
 require_relative 'base_command'
+require_relative '../table_formatter'
 
 module SimpleCovMcp
   module Commands
@@ -10,10 +11,12 @@ module SimpleCovMcp
         @gem_root = File.expand_path('../../..', __dir__)
 
         if config.format == :table
-          puts "SimpleCovMcp version #{SimpleCovMcp::VERSION}"
-          puts "Gem root: #{@gem_root}"
-          puts "\nFor usage help, consult README.md and docs/user/**/*.md " \
-               'in the gem root directory.'
+          data = {
+            'Version' => SimpleCovMcp::VERSION,
+            'Gem Root' => @gem_root,
+            'Documentation' => 'README.md and docs/user/**/*.md in gem root'
+          }
+          puts TableFormatter.format_vertical(data)
         else
           puts SimpleCovMcp::Formatters.format(version_info, config.format)
         end
