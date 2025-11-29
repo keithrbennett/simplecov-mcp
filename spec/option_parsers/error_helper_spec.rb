@@ -115,7 +115,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: bad')
         expect_error_output(
           error: error,
-          argv: ['--resultset', 'coverage', '--staleness', 'bad', '--json'],
+          argv: ['--resultset', 'coverage', '--staleness', 'bad', '--format', 'json'],
           pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
         )
       end
@@ -124,7 +124,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: invalid')
         expect_error_output(
           error: error,
-          argv: ['--json', '--sort-order=invalid', '--resultset', 'coverage'],
+          argv: ['--format', 'json', '--sort-order=invalid', '--resultset', 'coverage'],
           pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
         )
       end
@@ -201,7 +201,8 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       error = OptionParser::InvalidArgument.new('some error')
 
       stderr_output = capture_stderr do
-        helper.handle_option_parser_error(error, argv: ['--json', '--resultset', 'coverage'])
+        helper.handle_option_parser_error(error,
+          argv: ['--format', 'json', '--resultset', 'coverage'])
       end
 
       expect(stderr_output).to match(/Error: invalid argument: some error/)

@@ -70,8 +70,9 @@ module SimpleCovMcp
         tracked_globs: config.tracked_globs
       )
 
-      if config.json
-        output.puts JSON.pretty_generate(presenter.relativized_payload)
+      if config.format != :table
+        require_relative 'formatters'
+        output.puts Formatters.format(presenter.relativized_payload, config.format)
         return
       end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json'
+require_relative '../formatters'
 require_relative '../formatters/source_formatter'
 require_relative '../model'
 require_relative '../errors'
@@ -33,22 +34,22 @@ module SimpleCovMcp
         raise FilePermissionError.new("Permission denied: #{path}")
       end
 
-      def maybe_output_json(obj, model)
-        return false unless config.json
+      def maybe_output_structured_format(obj, model)
+        return false if config.format == :table
 
-        puts JSON.pretty_generate(model.relativize(obj))
+        puts SimpleCovMcp::Formatters.format(model.relativize(obj), config.format)
         true
       end
 
-      def emit_json_with_optional_source(data, model, path)
-        return false unless config.json
+      def emit_structured_format_with_optional_source(data, model, path)
+        return false if config.format == :table
 
         relativized = model.relativize(data)
         if config.source_mode
           payload = relativized.merge('source' => build_source_payload(model, path))
-          puts JSON.pretty_generate(payload)
+          puts SimpleCovMcp::Formatters.format(payload, config.format)
         else
-          puts JSON.pretty_generate(relativized)
+          puts SimpleCovMcp::Formatters.format(relativized, config.format)
         end
         true
       end

@@ -10,7 +10,7 @@ module SimpleCovMcp
         handle_with_path(args, 'summary') do |path|
           presenter = Presenters::CoverageSummaryPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
-          break if emit_json_with_optional_source(data, model, path)
+          break if emit_structured_format_with_optional_source(data, model, path)
 
           relative_path = presenter.relative_path
           summary = data['summary']

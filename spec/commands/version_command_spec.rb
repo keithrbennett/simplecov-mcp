@@ -7,7 +7,7 @@ RSpec.describe SimpleCovMcp::Commands::VersionCommand do
   let(:command) { described_class.new(cli_context) }
 
   before do
-    cli_context.config.json = false
+    cli_context.config.format = :table
   end
 
   describe '#execute' do
@@ -42,7 +42,7 @@ RSpec.describe SimpleCovMcp::Commands::VersionCommand do
     end
 
     it 'emits JSON with version and gem_root when requested' do
-      cli_context.config.json = true
+      cli_context.config.format = :json
 
       json_output = nil
       silence_output do |stdout, _stderr|

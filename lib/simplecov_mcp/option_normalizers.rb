@@ -34,6 +34,18 @@ module SimpleCovMcp
       'd' => :debug
     }.freeze
 
+    FORMAT_MAP = {
+      't' => :table,
+      'table' => :table,
+      'j' => :json,
+      'json' => :json,
+      'y' => :yaml,
+      'yaml' => :yaml,
+      'a' => :awesome_print,
+      'awesome_print' => :awesome_print,
+      'ap' => :awesome_print
+    }.freeze
+
     module_function
 
     # Normalize sort order value.
@@ -89,6 +101,19 @@ module SimpleCovMcp
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 
       default
+    end
+
+    # Normalize format value.
+    # @param value [String, Symbol] The value to normalize
+    # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
+    # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
+    # @raise [OptionParser::InvalidArgument] If strict and value is invalid
+    def normalize_format(value, strict: true)
+      normalized = FORMAT_MAP[value.to_s.downcase]
+      return normalized if normalized
+      raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
+      nil
     end
   end
 end

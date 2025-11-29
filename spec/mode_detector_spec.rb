@@ -9,14 +9,14 @@ RSpec.describe SimpleCovMcp::ModeDetector do
     CLI_MODE_SCENARIOS = [
       # Priority 1: --force-cli flag (highest priority)
       [['--force-cli'], false, true, '--force-cli with piped input'],
-      [['--force-cli', '--json'], false, true, '--force-cli with other flags'],
+      [['--force-cli', '--format', 'json'], false, true, '--force-cli with other flags'],
 
       # Priority 2: Valid subcommands (must be first arg)
       [['list'], false, true, 'list subcommand'],
       [['summary', 'lib/foo.rb'], false, true, 'summary with path'],
       [['version'], false, true, 'version subcommand'],
       [['total'], false, true, 'total subcommand'],
-      [['list', '--json'], false, true, 'subcommand with trailing flags'],
+      [['list', '--format', 'json'], false, true, 'subcommand with trailing flags'],
 
       # Priority 3: Invalid subcommand attempts (must be first non-flag arg)
       [['invalid-command'], false, true, 'invalid subcommand (shows error)'],
@@ -25,12 +25,12 @@ RSpec.describe SimpleCovMcp::ModeDetector do
       # Priority 4: TTY determines mode when no subcommand/force-cli
       [[], true, true, 'empty args with TTY'],
       [[], false, false, 'empty args with piped input'],
-      [['--json'], true, true, 'flags only with TTY'],
-      [['--json'], false, false, 'flags only with piped input'],
-      [['-r', 'foo', '--json'], false, false, 'multiple flags with piped input'],
+      [['--format', 'json'], true, true, 'flags only with TTY'],
+      [['--format', 'json'], false, false, 'flags only with piped input'],
+      [['-r', 'foo', '--format', 'json'], false, false, 'multiple flags with piped input'],
 
       # Edge cases: flags before subcommands should now be detected as CLI mode
-      [['--json', 'list'], false, true, 'flag first = CLI mode'],
+      [['--format', 'json', 'list'], false, true, 'flag first = CLI mode'],
       [['-r', 'foo', 'summary'], false, true, 'option first = CLI mode'],
     ].freeze
 
@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::ModeDetector do
     # Simpler test cases for the inverse method
     MCP_SCENARIOS = [
       [[], false, true, 'piped input, no args'],
-      [['--json'], false, true, 'piped input with flags'],
+      [['--format', 'json'], false, true, 'piped input with flags'],
       [[], true, false, 'TTY, no args'],
       [['--force-cli'], false, false, '--force-cli flag'],
       [['list'], false, false, 'subcommand'],
@@ -143,11 +143,11 @@ RSpec.describe SimpleCovMcp::ModeDetector do
     end
 
     it 'chooses CLI mode for --json list' do
-      expect(described_class.cli_mode?(['--json', 'list'], stdin: stdin)).to be true
+      expect(described_class.cli_mode?(['--format', 'json', 'list'], stdin: stdin)).to be true
     end
 
     it 'chooses MCP mode for flags without a subcommand' do
-      expect(described_class.cli_mode?(['--json'], stdin: stdin)).to be false
+      expect(described_class.cli_mode?(['--format', 'json'], stdin: stdin)).to be false
     end
   end
 end

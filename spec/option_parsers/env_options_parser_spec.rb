@@ -30,8 +30,8 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       end
 
       it 'parses simple options correctly' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --json'
-        expect(parser.parse_env_opts).to eq(['--error-mode', 'off', '--json'])
+        ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --format json'
+        expect(parser.parse_env_opts).to eq(['--error-mode', 'off', '--format', 'json'])
       end
 
       it 'handles quoted strings with spaces' do

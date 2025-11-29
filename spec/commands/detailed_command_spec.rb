@@ -10,7 +10,7 @@ RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
   before do
     cli_context.config.root = root
     cli_context.config.resultset = 'coverage'
-    cli_context.config.json = false
+    cli_context.config.format = :table
     cli_context.config.source_mode = nil
   end
 
@@ -29,7 +29,7 @@ RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
     end
 
     it 'emits JSON when requested, including stale metadata' do
-      cli_context.config.json = true
+      cli_context.config.format = :json
       stub_staleness_check('L')
 
       json_output = nil

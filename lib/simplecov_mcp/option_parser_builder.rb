@@ -41,7 +41,7 @@ module SimpleCovMcp
     def define_subcommands_help(o)
       o.separator <<~SUBCOMMANDS
         Subcommands:
-          list                    Show files coverage (table or --json)
+          list                    Show files coverage (default: table, or use --format)
           summary <path>          Show covered/total/% for a file
           raw <path>              Show the SimpleCov 'lines' array
           uncovered <path>        Show uncovered lines and a summary
@@ -62,7 +62,10 @@ module SimpleCovMcp
         config.resultset = v
       end
       o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }
-      o.on('-j', '--json', 'Output JSON for machine consumption') { config.json = true }
+      o.on('-f', '--format FORMAT', String,
+        'Output format: t[able]|j[son]|y[aml]|a[wesome_print] (default: table)') do |v|
+        config.format = normalize_format(v)
+      end
       o.on('-o', '--sort-order ORDER', String,
         'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
         config.sort_order = normalize_sort_order(v)
@@ -107,9 +110,9 @@ module SimpleCovMcp
 
         Examples:
           simplecov-mcp --resultset coverage list
-          simplecov-mcp --json --resultset coverage summary lib/foo.rb
+          simplecov-mcp --format json --resultset coverage summary lib/foo.rb
           simplecov-mcp --source=uncovered --source-context 2 uncovered lib/foo.rb
-          simplecov-mcp totals --json
+          simplecov-mcp totals --format json
         EXAMPLES
     end
 
@@ -137,6 +140,10 @@ module SimpleCovMcp
 
     def normalize_error_mode(v)
       OptionNormalizers.normalize_error_mode(v, strict: true)
+    end
+
+    def normalize_format(v)
+      OptionNormalizers.normalize_format(v, strict: true)
     end
   end
 end

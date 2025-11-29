@@ -18,6 +18,7 @@ RSpec.describe SimpleCovMcp::Constants do
       expected_options = %w[
         -r --resultset
         -R --root
+        -f --format
         -o --sort-order
         -s --source
         -c --source-context

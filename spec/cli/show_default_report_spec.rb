@@ -15,7 +15,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
   describe '#show_default_report' do
     it 'prints JSON summary using relativized payload when json mode is enabled' do
-      cli.config.json = true
+      cli.config.format = :json
 
       output = nil
       silence_output do |stdout, _stderr|

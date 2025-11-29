@@ -10,7 +10,7 @@ module SimpleCovMcp
         handle_with_path(args, 'raw') do |path|
           presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
-          break if maybe_output_json(data, model)
+          break if maybe_output_structured_format(data, model)
 
           relative_path = presenter.relative_path
           puts "File: #{relative_path}"

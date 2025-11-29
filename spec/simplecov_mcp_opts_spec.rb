@@ -14,7 +14,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
 
   describe 'CLI option parsing from environment' do
     it 'parses simple options from SIMPLECOV_MCP_OPTS' do
-      ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --json'
+      ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --format json'
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
       begin
@@ -25,7 +25,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       end
 
       expect(cli.config.error_mode).to eq(:off)
-      expect(cli.config.json).to be true
+      expect(cli.config.format).to eq(:json)
     end
 
     it 'handles quoted options with spaces' do
@@ -172,7 +172,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
   describe 'integration with actual CLI usage' do
     it 'works end-to-end with --resultset option' do
       test_resultset = File.join(Dir.tmpdir, 'test_coverage', '.resultset.json')
-      ENV['SIMPLECOV_MCP_OPTS'] = "--resultset #{test_resultset} --json"
+      ENV['SIMPLECOV_MCP_OPTS'] = "--resultset #{test_resultset} --format json"
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
       allow_any_instance_of(Object).to receive(:exit)
@@ -182,7 +182,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       end.not_to raise_error
 
       expect(cli.config.resultset).to eq(test_resultset)
-      expect(cli.config.json).to be true
+      expect(cli.config.format).to eq(:json)
     end
   end
 end

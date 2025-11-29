@@ -7,7 +7,7 @@ RSpec.describe SimpleCovMcp::AppConfig do
     it 'creates a config with default values' do
       config = described_class.new
       expect(config.root).to eq('.')
-      expect(config.json).to be false
+      expect(config.format).to eq(:table)
       expect(config.sort_order).to eq(:ascending)
       expect(config.source_context).to eq(2)
       expect(config.error_mode).to eq(:log)
@@ -21,12 +21,12 @@ RSpec.describe SimpleCovMcp::AppConfig do
     it 'allows overriding defaults via keyword arguments' do
       config = described_class.new(
         root: '/custom',
-        json: true,
+        format: :json,
         sort_order: :descending,
         staleness: :error
       )
       expect(config.root).to eq('/custom')
-      expect(config.json).to be true
+      expect(config.format).to eq(:json)
       expect(config.sort_order).to eq(:descending)
       expect(config.staleness).to eq(:error)
     end
@@ -34,9 +34,9 @@ RSpec.describe SimpleCovMcp::AppConfig do
     it 'is mutable (struct fields can be changed)' do
       config = described_class.new
       config.root = '/new/root'
-      config.json = true
+      config.format = :json
       expect(config.root).to eq('/new/root')
-      expect(config.json).to be true
+      expect(config.format).to eq(:json)
     end
   end
 
@@ -84,31 +84,37 @@ RSpec.describe SimpleCovMcp::AppConfig do
 
   describe 'struct behavior' do
     it 'supports equality comparison' do
-      config1 = described_class.new(root: '/foo', json: true)
-      config2 = described_class.new(root: '/foo', json: true)
-      config3 = described_class.new(root: '/bar', json: true)
+      config1 = described_class.new(root: '/foo', format: :json)
+      config2 = described_class.new(root: '/foo', format: :json)
+      config3 = described_class.new(root: '/bar', format: :json)
 
       expect(config1).to eq(config2)
       expect(config1).not_to eq(config3)
     end
 
     it 'provides readable inspect output' do
-      config = described_class.new(root: '/test', json: true)
+      config = described_class.new(root: '/test', format: :json)
       output = config.inspect
       expect(output).to include('root="/test"')
-      expect(output).to include('json=true')
+      expect(output).to include('format=:json')
     end
 
     it 'converts to hash' do
-      config = described_class.new(root: '/test', json: true)
+      config = described_class.new(root: '/test', format: :json)
       hash = config.to_h
       expect(hash).to be_a(Hash)
       expect(hash[:root]).to eq('/test')
-      expect(hash[:json]).to be true
+      expect(hash[:format]).to eq(:json)
     end
   end
 
   describe 'symbol enumerated values' do
+    it 'uses symbols for format' do
+      config = described_class.new(format: :json)
+      expect(config.format).to eq(:json)
+      expect(config.format).to be_a(Symbol)
+    end
+
     it 'uses symbols for sort_order' do
       config = described_class.new(sort_order: :descending)
       expect(config.sort_order).to eq(:descending)

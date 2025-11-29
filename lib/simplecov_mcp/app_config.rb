@@ -6,7 +6,7 @@ module SimpleCovMcp
   AppConfig = Struct.new(
     :root,
     :resultset,
-    :json,
+    :format,
     :sort_order,
     :source_mode,
     :source_context,
@@ -22,7 +22,7 @@ module SimpleCovMcp
     def initialize(
       root: '.',
       resultset: nil,
-      json: false,
+      format: :table,
       sort_order: :ascending,
       source_mode: nil,
       source_context: 2,

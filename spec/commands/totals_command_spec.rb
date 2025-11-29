@@ -10,7 +10,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
   before do
     cli_context.config.root = root
     cli_context.config.resultset = 'coverage'
-    cli_context.config.json = false
+    cli_context.config.format = :table
   end
 
   describe '#execute' do
@@ -29,7 +29,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
     end
 
     it 'emits JSON when requested' do
-      cli_context.config.json = true
+      cli_context.config.format = :json
 
       json_output = nil
       silence_output do |stdout, _stderr|

@@ -131,7 +131,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
       # Test JSON output
       json_output, _err, status = run_cli_with_status(
-        '--json', '--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/foo.rb'
+        '--format', 'json', '--root', project_root, '--resultset', coverage_dir,
+        'summary', 'lib/foo.rb'
       )
       expect(status).to eq(0)
       json_data = JSON.parse(json_output)

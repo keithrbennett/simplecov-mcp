@@ -17,7 +17,7 @@ module SimpleCovMcp
           tracked_globs: config.tracked_globs
         )
         payload = presenter.absolute_payload
-        return if maybe_output_json(payload, model)
+        return if maybe_output_structured_format(payload, model)
 
         lines = payload['lines']
         files = payload['files']

@@ -9,6 +9,7 @@ module SimpleCovMcp
     OPTIONS_EXPECTING_ARGUMENT = %w[
       -r --resultset
       -R --root
+      -f --format
       -o --sort-order
       -s --source
       -c --source-context
