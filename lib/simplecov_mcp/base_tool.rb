@@ -93,11 +93,10 @@ module SimpleCovMcp
       ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => json }])
     end
 
-    private
-
     def self.log_mcp_error(error, tool_name, error_handler)
       # Use the provided error handler for logging
       error_handler.send(:log_error, error, tool_name)
     end
+    private_class_method :log_mcp_error
   end
 end
