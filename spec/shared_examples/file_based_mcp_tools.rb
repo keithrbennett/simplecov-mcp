@@ -81,8 +81,10 @@ FILE_BASED_TOOL_CONFIGS = {
       'includes percentage in summary data' => ->(config) {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive(:summary_for).and_return(config[:mock_data])
-        allow(model).to receive(:staleness_for).and_return(false)
+        allow(model).to receive_messages(
+          summary_for: config[:mock_data],
+          staleness_for: false
+        )
         relativizer = SimpleCovMcp::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],
@@ -133,8 +135,10 @@ FILE_BASED_TOOL_CONFIGS = {
       'includes both uncovered lines and summary' => ->(config) {
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive(:uncovered_for).and_return(config[:mock_data])
-        allow(model).to receive(:staleness_for).and_return(false)
+        allow(model).to receive_messages(
+          uncovered_for: config[:mock_data],
+          staleness_for: false
+        )
         relativizer = SimpleCovMcp::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],

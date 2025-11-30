@@ -8,13 +8,6 @@
 
 # Offense count: 1
 # Offense count: 1
-# Offense count: 6
-# This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/ReceiveMessages:
-  Exclude:
-    - 'spec/coverage_table_tool_spec.rb'
-    - 'spec/shared_examples/file_based_mcp_tools.rb'
-
 # Offense count: 3
 RSpec/RemoveConst:
   Exclude:

@@ -122,7 +122,10 @@ module TestIOHelpers
   # @param value [String, false] The staleness value to return ('L', 'T', 'M', or false)
   def stub_staleness_check(value)
     checker_double = instance_double(SimpleCovMcp::StalenessChecker)
-    allow(checker_double).to receive_messages(stale_for_file?: value, off?: false)
+    allow(checker_double).to receive_messages(
+      stale_for_file?: value,
+      off?: false
+    )
     allow(checker_double).to receive(:check_file!)
     allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker_double)
   end
