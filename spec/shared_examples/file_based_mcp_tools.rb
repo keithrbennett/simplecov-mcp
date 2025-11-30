@@ -57,7 +57,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
   tool_specific_examples = config[:tool_specific_examples] || {}
   tool_specific_examples.each do |example_name, example_block|
     it example_name do
-      instance_exec(config, &example_block)
+      expect { instance_exec(config, &example_block) }.not_to raise_error
     end
   end
 end

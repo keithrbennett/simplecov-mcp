@@ -8,12 +8,6 @@
 
 # Offense count: 1
 # Offense count: 1
-# Configuration parameters: AllowedPatterns.
-# AllowedPatterns: ^expect_, ^assert_
-RSpec/NoExpectationExample:
-  Exclude:
-    - 'spec/shared_examples/file_based_mcp_tools.rb'
-
 # Offense count: 6
 # This cop supports unsafe autocorrection (--autocorrect-all).
 RSpec/ReceiveMessages:
