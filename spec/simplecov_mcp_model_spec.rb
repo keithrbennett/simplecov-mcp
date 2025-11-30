@@ -88,7 +88,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       end
 
       expect(model.staleness_for('lib/foo.rb')).to eq('T')
-      expect(model.staleness_for('lib/bar.rb')).to eq(false)
+      expect(model.staleness_for('lib/bar.rb')).to be(false)
     end
 
     it 'returns false when an exception occurs during staleness check' do
@@ -99,12 +99,12 @@ RSpec.describe SimpleCovMcp::CoverageModel do
         .and_raise(StandardError, 'Something went wrong')
 
       # The rescue clause should catch the error and return false
-      expect(model.staleness_for('lib/foo.rb')).to eq(false)
+      expect(model.staleness_for('lib/foo.rb')).to be(false)
     end
 
     it 'returns false when coverage data is not found for the file' do
       # Try to get staleness for a file that doesn't exist in coverage
-      expect(model.staleness_for('lib/nonexistent.rb')).to eq(false)
+      expect(model.staleness_for('lib/nonexistent.rb')).to be(false)
     end
   end
 

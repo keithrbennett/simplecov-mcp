@@ -45,7 +45,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
     end
 
     expect(data).to have_key('stale')
-    expect(data['stale']).to eq(false)
+    expect(data['stale']).to be(false)
 
     # Run tool-specific validations if provided
     if additional_validations
