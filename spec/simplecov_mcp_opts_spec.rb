@@ -17,12 +17,12 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --format json'
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
-      begin
-        silence_output { cli.send(:run, env_opts + ['summary', 'lib/foo.rb']) }
-      rescue Exception => e
-        # Expected to fail due to missing file, but options should be parsed
-        puts "DEBUG: Caught exception: #{e.class}: #{e.message}" if ENV['DEBUG']
+      silence_output do
+        cli.send(:run, env_opts + ['summary', 'lib/foo.rb'])
       end
+    rescue SimpleCovMcp::Error, SystemExit => e
+      # Expected to fail due to missing file, but options should be parsed
+      puts "DEBUG: Caught exception: #{e.class}: #{e.message}" if ENV['DEBUG']
 
       expect(cli.config.error_mode).to eq(:off)
       expect(cli.config.format).to eq(:json)
