@@ -23,11 +23,11 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
   # Helper method to test error output matches expected pattern
   def expect_error_output(error:, argv:, pattern:)
     expect do
-      begin
-        helper.handle_option_parser_error(error, argv: argv)
-      rescue SystemExit
-        # Ignore exit call
-      end
+
+      helper.handle_option_parser_error(error, argv: argv)
+    rescue SystemExit
+      # Ignore exit call
+
     end.to output(pattern).to_stderr
   end
 
@@ -176,12 +176,12 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
         expect do
-          begin
-            helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'],
-              usage_hint: 'Custom hint message')
-          rescue SystemExit
-            # Ignore exit call
-          end
+
+          helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'],
+            usage_hint: 'Custom hint message')
+        rescue SystemExit
+          # Ignore exit call
+
         end.to output(/Custom hint message/).to_stderr
       end
     end
