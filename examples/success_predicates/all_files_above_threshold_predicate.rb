@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Success predicate: All files must have >= 80% coverage, illustrates use of a class `call` method
 # Usage: simplecov-mcp --success-predicate examples/success_predicates/all_files_above_threshold_predicate.rb
 class AllFilesAboveThreshold

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Success predicate: Different thresholds for different directories, using a `call` class method
 # Usage: simplecov-mcp --success-predicate examples/success_predicates/directory_specific_thresholds_predicate.rb
 
