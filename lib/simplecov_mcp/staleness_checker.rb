@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require 'time'
-require 'json'
 require 'pathname'
-require 'set'
 require_relative 'errors'
 require_relative 'util'
 

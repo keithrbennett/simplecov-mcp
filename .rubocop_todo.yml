@@ -41,12 +41,6 @@ Lint/RedundantDirGlobSort:
     - 'spec/spec_helper.rb'
 
 # Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantRequireStatement:
-  Exclude:
-    - 'lib/simplecov_mcp/staleness_checker.rb'
-
-# Offense count: 1
 Lint/RescueException:
   Exclude:
     - 'spec/simplecov_mcp_opts_spec.rb'

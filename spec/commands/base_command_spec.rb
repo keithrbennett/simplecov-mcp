@@ -14,8 +14,8 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
       end
 
       # Expose protected methods for testing
-      def public_handle_with_path(args, name, &block)
-        handle_with_path(args, name, &block)
+      def public_handle_with_path(args, name, &)
+        handle_with_path(args, name, &)
       end
     end
   end

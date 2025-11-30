@@ -3,6 +3,7 @@
 require 'json'
 require 'time'
 require 'pathname'
+require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 requires explicit require for set; RuboCop targets 3.2
 require 'optparse'
 require 'mcp'
 require 'mcp/server/transports/stdio_transport'
