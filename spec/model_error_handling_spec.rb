@@ -66,11 +66,13 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       allow(File).to receive(:read).with(end_with('.resultset.json'))
         .and_return(malformed_resultset.to_json)
 
-      # This might succeed or fail depending on how the code handles it
-      # Let's make it fail by mocking transform_keys on the coverage hash to raise NoMethodError
-      coverage_hash = malformed_resultset['RSpec']['coverage']
-      allow(coverage_hash).to receive(:transform_keys)
+      broken_map = instance_double('CoverageMap')
+      allow(broken_map).to receive(:transform_keys)
         .and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
+      allow(SimpleCovMcp::ResultsetLoader).to receive(:load).and_return(
+        SimpleCovMcp::ResultsetLoader::Result.new(coverage_map: broken_map,
+          timestamp: 0, suite_names: ['RSpec'])
+      )
 
       expect do
         described_class.new(root: root, resultset: 'coverage')

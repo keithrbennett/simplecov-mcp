@@ -13,18 +13,18 @@ RSpec.describe SimpleCovMcp::BaseTool do
     end.new
   end
 
-  around do |example|
-    orig_handler = begin
-      SimpleCovMcp.error_handler
-    rescue StandardError
-      nil
-    end
+  let(:orig_handler) do
+    SimpleCovMcp.error_handler
+  rescue StandardError
+    nil
+  end
 
+  before do
     SimpleCovMcp.error_handler = handler
     setup_mcp_response_stub
+  end
 
-    example.run
-  ensure
+  after do
     SimpleCovMcp.error_handler = orig_handler if orig_handler
   end
 

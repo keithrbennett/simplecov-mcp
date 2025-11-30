@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'simplecov_mcp/tools/all_files_coverage_tool'
 
 RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
-  subject { described_class.call(root: root, server_context: server_context) }
+  subject(:call_tool) { described_class.call(root: root, server_context: server_context) }
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:server_context) { instance_double('ServerContext').as_null_object }
@@ -33,7 +33,7 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
   it_behaves_like 'an MCP tool that returns text JSON'
 
   it 'returns all files coverage data with counts' do
-    response = subject
+    response = call_tool
     data, _item = expect_mcp_text_json(response, expected_keys: ['files', 'counts'])
 
     files = data['files']

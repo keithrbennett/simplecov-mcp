@@ -7,12 +7,6 @@
 # versions of RuboCop, may require this file to be generated again.
 
 # Offense count: 1
-# Configuration parameters: EnforcedStyle, IgnoreSharedExamples.
-# SupportedStyles: always, named_only
-RSpec/NamedSubject:
-  Exclude:
-    - 'spec/all_files_coverage_tool_spec.rb'
-
 # Offense count: 1
 # Configuration parameters: AllowedPatterns.
 # AllowedPatterns: ^expect_, ^assert_
