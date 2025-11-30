@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 1
-# Offense count: 1
-# Offense count: 3
-RSpec/RemoveConst:
-  Exclude:
-    - 'spec/version_spec.rb'
-    - 'spec/version_tool_spec.rb'
-
 # Offense count: 2
 RSpec/StubbedMock:
   Exclude:

@@ -108,7 +108,7 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
       original_module = SimpleCovMcp
       original_version = SimpleCovMcp::VERSION
 
-      Object.send(:remove_const, :SimpleCovMcp)
+      hide_const('SimpleCovMcp')
 
       version_path = File.expand_path('../lib/simplecov_mcp/version.rb', __dir__)
       load version_path
@@ -116,7 +116,6 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
       expect(Object.const_defined?(:SimpleCovMcp)).to be true
       expect(SimpleCovMcp::VERSION).to eq(original_version)
     ensure
-      Object.send(:remove_const, :SimpleCovMcp) if Object.const_defined?(:SimpleCovMcp)
       Object.const_set(:SimpleCovMcp, original_module)
     end
   end
