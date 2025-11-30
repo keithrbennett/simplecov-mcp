@@ -17,13 +17,6 @@ module SimpleCovMcp
       end
     end
 
-    # Expose the registered tools so embedders can introspect without booting the server.
-    def toolset
-      TOOLSET
-    end
-
-    private
-
     TOOLSET = [
       Tools::AllFilesCoverageTool,
       Tools::CoverageDetailedTool,
@@ -36,6 +29,13 @@ module SimpleCovMcp
       Tools::HelpTool,
       Tools::VersionTool
     ].freeze
+
+    # Expose the registered tools so embedders can introspect without booting the server.
+    def toolset
+      TOOLSET
+    end
+
+    private
 
     attr_reader :context
   end
