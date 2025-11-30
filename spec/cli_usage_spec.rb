@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe SimpleCovMcp::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -19,17 +20,15 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   end
 
   it 'list honors stale=error and tracked_globs by exiting 1 when project is stale' do
-    tmp = File.join(root, 'lib', 'brand_new_file_for_cli_usage_spec.rb')
-    begin
-      File.write(tmp, "# new file\n")
+    Tempfile.create(['brand_new_file_for_cli_usage_spec', '.rb'], File.join(root, 'lib')) do |f|
+      f.write("# new file\n")
+      f.flush
       _out, err, status = run_cli_with_status(
         '--root', root, '--resultset', 'coverage', '--staleness', 'error', '--tracked-globs',
         'lib/**/*.rb', 'list'
       )
       expect(status).to eq(1)
       expect(err).to include('Coverage data stale (project)')
-    ensure
-      File.delete(tmp) if File.exist?(tmp)
     end
   end
 

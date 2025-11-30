@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tempfile'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -35,15 +36,13 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   it 'all_files detects new files via tracked_globs' do
     with_stubbed_coverage_timestamp(Time.now.to_i) do
-      tmp = File.join(root, 'lib', 'brand_new_file.rb')
-      begin
-        File.write(tmp, "# new file\n")
+      Tempfile.create(['brand_new_file', '.rb'], File.join(root, 'lib')) do |f|
+        f.write("# new file\n")
+        f.flush
         model = described_class.new(root: root, staleness: :error)
         expect do
           model.all_files(tracked_globs: ['lib/**/*.rb'])
         end.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
-      ensure
-        File.delete(tmp) if File.exist?(tmp)
       end
     end
   end
