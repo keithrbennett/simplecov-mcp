@@ -40,9 +40,7 @@ module SimpleCovMcp
         relativized_payload['counts']
       end
 
-      private
-
-      def build_counts(files)
+      private def build_counts(files)
         total = files.length
         stale = files.count { |f| f['stale'] }
         { 'total' => total, 'ok' => total - stale, 'stale' => stale }

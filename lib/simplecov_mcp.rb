@@ -118,16 +118,14 @@ module SimpleCovMcp
       @default_context = default_context.with_error_handler(handler)
     end
 
-    private
-
-    def default_context
+    private def default_context
       @default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,
         log_target: nil
       )
     end
 
-    def extract_env_opts
+    private def extract_env_opts
       require 'shellwords'
       opts_string = ENV['SIMPLECOV_MCP_OPTS']
       return [] unless opts_string && !opts_string.empty?

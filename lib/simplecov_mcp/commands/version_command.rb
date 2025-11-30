@@ -22,9 +22,7 @@ module SimpleCovMcp
         end
       end
 
-      private
-
-      def version_info
+      private def version_info
         {
           version: SimpleCovMcp::VERSION,
           gem_root: @gem_root

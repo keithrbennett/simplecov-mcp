@@ -31,9 +31,7 @@ module SimpleCovMcp
       path
     end
 
-    private
-
-    def deep_copy_and_relativize(obj)
+    private def deep_copy_and_relativize(obj)
       case obj
       when Hash
         obj.each_with_object({}) do |(k, v), acc|
@@ -46,7 +44,7 @@ module SimpleCovMcp
       end
     end
 
-    def relativize_value(key, value)
+    private def relativize_value(key, value)
       key_str = key.to_s
       if @scalar_keys.include?(key_str) && value.is_a?(String)
         relativize_path(value)
@@ -59,7 +57,7 @@ module SimpleCovMcp
       end
     end
 
-    def root_prefix(root_str)
+    private def root_prefix(root_str)
       root_str.end_with?(File::SEPARATOR) ? root_str : root_str + File::SEPARATOR
     end
   end

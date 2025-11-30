@@ -12,9 +12,7 @@ module SimpleCovMcp
   DEFAULT_LOG_FILESPEC = './simplecov_mcp.log'
 
   module CovUtil
-    module_function
-
-    def log(msg)
+    module_function def log(msg)
       log_file = SimpleCovMcp.active_log_file
 
       case log_file
@@ -42,21 +40,21 @@ module SimpleCovMcp
 
     # Safe logging that never raises - use when logging should not interrupt execution.
     # Unlike `log`, this method guarantees it will never propagate exceptions.
-    def safe_log(msg)
+    module_function def safe_log(msg)
       log(msg)
     rescue StandardError
       # Silently ignore all logging failures
     end
 
-    def find_resultset(root, resultset: nil)
+    module_function def find_resultset(root, resultset: nil)
       Resolvers::ResolverFactory.find_resultset(root, resultset: resultset)
     end
 
-    def lookup_lines(cov, file_abs)
+    module_function def lookup_lines(cov, file_abs)
       Resolvers::ResolverFactory.lookup_lines(cov, file_abs)
     end
 
-    def summary(arr)
+    module_function def summary(arr)
       total = 0
       covered = 0
       arr.compact.each do |hits|
@@ -67,7 +65,7 @@ module SimpleCovMcp
       { 'covered' => covered, 'total' => total, 'percentage' => percentage }
     end
 
-    def uncovered(arr)
+    module_function def uncovered(arr)
       out = []
 
       arr.each_with_index do |hits, i|
@@ -78,7 +76,7 @@ module SimpleCovMcp
       out
     end
 
-    def detailed(arr)
+    module_function def detailed(arr)
       rows = []
       arr.each_with_index do |hits, i|
         h = hits&.to_i

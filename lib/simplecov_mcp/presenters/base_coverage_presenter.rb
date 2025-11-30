@@ -34,9 +34,7 @@ module SimpleCovMcp
         relativized_payload['file']
       end
 
-      private
-
-      def build_payload
+      private def build_payload
         raise NotImplementedError, "#{self.class} must implement #build_payload"
       end
     end

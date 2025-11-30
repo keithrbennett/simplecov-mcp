@@ -17,15 +17,13 @@ module SimpleCovMcp
         )
       end
 
-      protected
-
       attr_reader :cli, :config, :source_formatter
 
-      def model
+      protected def model
         @model ||= CoverageModel.new(**config.model_options)
       end
 
-      def handle_with_path(args, name)
+      protected def handle_with_path(args, name)
         path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
         yield(path)
       rescue Errno::ENOENT
@@ -34,14 +32,14 @@ module SimpleCovMcp
         raise FilePermissionError.new("Permission denied: #{path}")
       end
 
-      def maybe_output_structured_format?(obj, model)
+      protected def maybe_output_structured_format?(obj, model)
         return false if config.format == :table
 
         puts SimpleCovMcp::Formatters.format(model.relativize(obj), config.format)
         true
       end
 
-      def emit_structured_format_with_optional_source?(data, model, path)
+      protected def emit_structured_format_with_optional_source?(data, model, path)
         return false if config.format == :table
 
         relativized = model.relativize(data)
@@ -54,12 +52,12 @@ module SimpleCovMcp
         true
       end
 
-      def build_source_payload(model, path)
+      protected def build_source_payload(model, path)
         source_formatter.build_source_payload(model, path, mode: config.source_mode,
           context: config.source_context)
       end
 
-      def print_source_for(model, path)
+      protected def print_source_for(model, path)
         formatted = source_formatter.format_source_for(model, path, mode: config.source_mode,
           context: config.source_context)
         puts formatted

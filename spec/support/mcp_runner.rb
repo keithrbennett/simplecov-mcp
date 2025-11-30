@@ -15,9 +15,7 @@ module Spec
       # always returns a hash containing those streams plus the `Process::Status`
       # so callers can make assertions without duplicating the boilerplate.
 
-      module_function
-
-      def call(requests: nil, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
+      module_function def call(requests: nil, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
         close_stdin: true)
         payload = build_payload(requests, input)
 
@@ -44,19 +42,19 @@ module Spec
         raise "MCP server timed out after #{timeout} seconds"
       end
 
-      def call_json(request_hash, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
-        close_stdin: true)
+      module_function def call_json(request_hash, input: nil, env: {}, lib_path:, exe_path:,
+        timeout: 5, close_stdin: true)
         call(requests: request_hash, input: input, env: env, lib_path: lib_path,
           exe_path: exe_path, timeout: timeout, close_stdin: close_stdin)
       end
 
-      def call_json_stream(request_hashes, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
-        close_stdin: true)
+      module_function def call_json_stream(request_hashes, input: nil, env: {}, lib_path:,
+        exe_path:, timeout: 5, close_stdin: true)
         call(requests: Array(request_hashes), input: input, env: env, lib_path: lib_path,
           exe_path: exe_path, timeout: timeout, close_stdin: close_stdin)
       end
 
-      def build_payload(requests, input)
+      module_function def build_payload(requests, input)
         return input unless requests
 
         normalized = requests.is_a?(Array) ? requests : [requests]

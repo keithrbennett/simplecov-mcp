@@ -6,9 +6,7 @@ module SimpleCovMcp
   module Presenters
     # Provides shared uncovered coverage payloads for CLI and MCP callers.
     class CoverageUncoveredPresenter < BaseCoveragePresenter
-      private
-
-      def build_payload
+      private def build_payload
         model.uncovered_for(path)
       end
     end

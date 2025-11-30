@@ -26,9 +26,7 @@ module SimpleCovMcp
         )
       end
 
-      private
-
-      def extract_suite_entries(raw, resultset_path)
+      private def extract_suite_entries(raw, resultset_path)
         raw
           .select { |_, data| data.is_a?(Hash) && data.key?('coverage') && !data['coverage'].nil? }
           .map do |name, data|
@@ -41,13 +39,13 @@ module SimpleCovMcp
           end
       end
 
-      def build_coverage_map(suites, resultset_path)
+      private def build_coverage_map(suites, resultset_path)
         return suites.first&.coverage if suites.length == 1
 
         merge_suite_coverages(suites, resultset_path)
       end
 
-      def normalize_suite_coverage(coverage, suite_name:, resultset_path:)
+      private def normalize_suite_coverage(coverage, suite_name:, resultset_path:)
         unless coverage.is_a?(Hash)
           raise CoverageDataError.new("Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{resultset_path}")
         end
@@ -60,7 +58,7 @@ module SimpleCovMcp
         end
       end
 
-      def merge_suite_coverages(suites, resultset_path)
+      private def merge_suite_coverages(suites, resultset_path)
         require_simplecov_for_merge!(resultset_path)
         log_duplicate_suite_names(suites)
 
@@ -72,7 +70,7 @@ module SimpleCovMcp
         end
       end
 
-      def require_simplecov_for_merge!(resultset_path)
+      private def require_simplecov_for_merge!(resultset_path)
         require 'simplecov'
       rescue LoadError
         raise CoverageDataError.new(
@@ -80,7 +78,7 @@ module SimpleCovMcp
         )
       end
 
-      def log_duplicate_suite_names(suites)
+      private def log_duplicate_suite_names(suites)
         grouped = suites.group_by(&:name)
         duplicates = grouped.select { |_, entries| entries.length > 1 }.keys
         return if duplicates.empty?
@@ -89,11 +87,11 @@ module SimpleCovMcp
         CovUtil.safe_log(message)
       end
 
-      def compute_combined_timestamp(suites)
+      private def compute_combined_timestamp(suites)
         suites.map(&:timestamp).compact.max.to_i
       end
 
-      def normalize_coverage_timestamp(timestamp_value, created_at_value)
+      private def normalize_coverage_timestamp(timestamp_value, created_at_value)
         raw = timestamp_value.nil? ? created_at_value : timestamp_value
         return 0 if raw.nil?
 
@@ -113,7 +111,7 @@ module SimpleCovMcp
         0
       end
 
-      def normalize_string_timestamp(value)
+      private def normalize_string_timestamp(value)
         str = value.strip
         return 0 if str.empty?
 
@@ -124,7 +122,7 @@ module SimpleCovMcp
         end
       end
 
-      def log_timestamp_warning(raw_value, error = nil)
+      private def log_timestamp_warning(raw_value, error = nil)
         message = "Coverage resultset timestamp could not be parsed: #{raw_value.inspect}"
         message = "#{message} (#{error.message})" if error
         CovUtil.safe_log(message)

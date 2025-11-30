@@ -100,9 +100,7 @@ module SimpleCovMcp
           end
         end
 
-        private
-
-        def format_entry(guide)
+        private def format_entry(guide)
           {
             'tool' => guide[:tool].tool_name,
             'label' => guide[:label],

@@ -25,9 +25,7 @@ module SimpleCovMcp
       end
     end
 
-    private
-
-    def configure_banner(parser)
+    private def configure_banner(parser)
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:      simplecov-mcp [options] [subcommand] [args]
@@ -38,7 +36,7 @@ module SimpleCovMcp
         BANNER
     end
 
-    def define_subcommands_help(parser)
+    private def define_subcommands_help(parser)
       parser.separator <<~SUBCOMMANDS
         Subcommands:
           list                    Show files coverage (default: table, or use --format)
@@ -54,7 +52,7 @@ module SimpleCovMcp
         SUBCOMMANDS
     end
 
-    def define_options(parser)
+    private def define_options(parser)
       parser.separator 'Options:'
       parser.on('-r', '--resultset PATH', String,
         'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') \
@@ -109,7 +107,7 @@ module SimpleCovMcp
       end
     end
 
-    def define_examples(parser)
+    private def define_examples(parser)
       parser.separator <<~EXAMPLES
 
         Examples:
@@ -120,7 +118,7 @@ module SimpleCovMcp
         EXAMPLES
     end
 
-    def add_help_handler(parser)
+    private def add_help_handler(parser)
       parser.on('-h', '--help', 'Show help') do
         puts parser
         gem_root = File.expand_path('../..', __dir__)
@@ -130,23 +128,23 @@ module SimpleCovMcp
       end
     end
 
-    def normalize_sort_order(value)
+    private def normalize_sort_order(value)
       OptionNormalizers.normalize_sort_order(value, strict: true)
     end
 
-    def normalize_source_mode(value)
+    private def normalize_source_mode(value)
       OptionNormalizers.normalize_source_mode(value, strict: true)
     end
 
-    def normalize_staleness(value)
+    private def normalize_staleness(value)
       OptionNormalizers.normalize_staleness(value, strict: true)
     end
 
-    def normalize_error_mode(value)
+    private def normalize_error_mode(value)
       OptionNormalizers.normalize_error_mode(value, strict: true)
     end
 
-    def normalize_format(value)
+    private def normalize_format(value)
       OptionNormalizers.normalize_format(value, strict: true)
     end
   end

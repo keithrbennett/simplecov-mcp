@@ -27,9 +27,7 @@ module SimpleCovMcp
         resolve_fallback or raise_not_found_error
       end
 
-      private
-
-      def resolve_candidate(path, strict:)
+      private def resolve_candidate(path, strict:)
         return path if File.file?(path)
         return resolve_directory(path) if File.directory?(path)
 
@@ -37,24 +35,24 @@ module SimpleCovMcp
         nil
       end
 
-      def resolve_directory(path)
+      private def resolve_directory(path)
         candidate = File.join(path, '.resultset.json')
         return candidate if File.file?(candidate)
 
         raise "No .resultset.json found in directory: #{path}"
       end
 
-      def raise_not_found_error_for_file(path)
+      private def raise_not_found_error_for_file(path)
         raise "Specified resultset not found: #{path}"
       end
 
-      def resolve_fallback
+      private def resolve_fallback
         @candidates
           .map { |p| File.absolute_path(p, @root) }
           .find { |p| File.file?(p) }
       end
 
-      def normalize_resultset_path(resultset)
+      private def normalize_resultset_path(resultset)
         candidate = Pathname.new(resultset)
         return candidate.cleanpath.to_s if candidate.absolute?
 
@@ -64,13 +62,13 @@ module SimpleCovMcp
         File.absolute_path(resultset, @root)
       end
 
-      def within_root?(path)
+      private def within_root?(path)
         normalized_root = Pathname.new(@root).cleanpath.to_s
         root_with_sep = normalized_root.end_with?(File::SEPARATOR) ? normalized_root : "#{normalized_root}#{File::SEPARATOR}"
         path == normalized_root || path.start_with?(root_with_sep)
       end
 
-      def raise_not_found_error
+      private def raise_not_found_error
         raise "Could not find .resultset.json under #{@root.inspect}; run tests or set --resultset option"
       end
     end

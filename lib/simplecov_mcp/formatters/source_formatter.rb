@@ -83,11 +83,9 @@ module SimpleCovMcp
         out.join("\n")
       end
 
-      private
-
       attr_reader :color_enabled
 
-      def fetch_raw(model, path)
+      private def fetch_raw(model, path)
         @raw_cache ||= {}
         return @raw_cache[path] if @raw_cache.key?(path)
 
@@ -97,7 +95,7 @@ module SimpleCovMcp
         nil
       end
 
-      def mark_uncovered_lines_with_context(coverage_lines, context_line_count, total_lines)
+      private def mark_uncovered_lines_with_context(coverage_lines, context_line_count, total_lines)
         include_line = Array.new(total_lines, false)
         misses = find_uncovered_lines(coverage_lines)
 
@@ -108,7 +106,7 @@ module SimpleCovMcp
         include_line
       end
 
-      def find_uncovered_lines(coverage_lines)
+      private def find_uncovered_lines(coverage_lines)
         misses = []
         coverage_lines.each_with_index do |hits, i|
           misses << i if !hits.nil? && hits.to_i == 0
@@ -116,14 +114,14 @@ module SimpleCovMcp
         misses
       end
 
-      def mark_context_lines(include_line, center_line, context_count, total_lines)
+      private def mark_context_lines(include_line, center_line, context_count, total_lines)
         start_line = [0, center_line - context_count].max
         end_line = [total_lines - 1, center_line + context_count].min
 
         (start_line..end_line).each { |i| include_line[i] = true }
       end
 
-      def build_row_data(src_lines, coverage_lines, include_line)
+      private def build_row_data(src_lines, coverage_lines, include_line)
         out = []
         src_lines.each_with_index do |code, i|
           next unless include_line[i]
@@ -136,7 +134,7 @@ module SimpleCovMcp
         out
       end
 
-      def colorize(text, color)
+      private def colorize(text, color)
         return text unless color_enabled
 
         codes = { green: 32, red: 31, dim: 2 }

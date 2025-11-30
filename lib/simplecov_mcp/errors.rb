@@ -14,9 +14,7 @@ module SimpleCovMcp
       message
     end
 
-    protected
-
-    def format_epoch_both(epoch_seconds)
+    protected def format_epoch_both(epoch_seconds)
       return [nil, nil] unless epoch_seconds
 
       t = Time.at(epoch_seconds.to_i)
@@ -25,7 +23,7 @@ module SimpleCovMcp
       [epoch_seconds.to_s, epoch_seconds.to_s]
     end
 
-    def format_time_both(time)
+    protected def format_time_both(time)
       return [nil, nil] unless time
 
       t = time.is_a?(Time) ? time : Time.parse(time.to_s)
@@ -34,7 +32,7 @@ module SimpleCovMcp
       [time.to_s, time.to_s]
     end
 
-    def format_delta_seconds(file_mtime, cov_timestamp)
+    protected def format_delta_seconds(file_mtime, cov_timestamp)
       return nil unless file_mtime && cov_timestamp
 
       seconds = file_mtime.to_i - cov_timestamp.to_i
@@ -110,14 +108,12 @@ module SimpleCovMcp
       "Coverage data stale: #{message}" + build_details
     end
 
-    private
-
-    def default_message
+    private def default_message
       fp = file_path || 'file'
       "Coverage data appears stale for #{fp}"
     end
 
-    def build_details
+    private def build_details
       file_utc, file_local = format_time_both(@file_mtime)
       cov_utc,  cov_local  = format_epoch_both(@cov_timestamp)
       delta_str = format_delta_seconds(@file_mtime, @cov_timestamp)
@@ -154,13 +150,11 @@ module SimpleCovMcp
       base + build_details
     end
 
-    private
-
-    def default_message
+    private def default_message
       'Coverage data appears stale for project'
     end
 
-    def build_details
+    private def build_details
       cov_utc, cov_local = format_epoch_both(@cov_timestamp)
       parts = []
       parts << "\nCoverage  - time: #{cov_utc || 'not found'} (local #{cov_local || 'n/a'})"

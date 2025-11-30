@@ -12,14 +12,7 @@ module SimpleCovMcp
   #   end
   #
   module CoverageReporter
-    module_function
-
-    # Returns formatted report of low coverage files.
-    # @param threshold [Numeric] coverage percentage threshold (default: 80)
-    # @param count [Integer] maximum number of files to return (default: 5)
-    # @param model [CoverageModel, nil] optional model instance (creates one if nil)
-    # @return [String, nil] formatted output string, or nil if no files below threshold
-    def report(threshold: 80, count: 5, model: nil)
+    module_function def report(threshold: 80, count: 5, model: nil)
       model ||= CoverageModel.new
       file_list = model.all_files(sort_order: :ascending)
         .select { |f| f['percentage'] < threshold }

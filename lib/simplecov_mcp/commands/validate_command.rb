@@ -50,9 +50,7 @@ module SimpleCovMcp
         handle_predicate_error(e)
       end
 
-      private
-
-      def handle_predicate_error(error)
+      private def handle_predicate_error(error)
         warn "Predicate error: #{error.message}"
         warn error.backtrace.first(5).join("\n") if config.error_mode == :debug
         exit 2

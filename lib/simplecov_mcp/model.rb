@@ -141,9 +141,7 @@ module SimpleCovMcp
       lines.join("\n")
     end
 
-    private
-
-    def load_coverage_data(resultset, staleness, tracked_globs)
+    private def load_coverage_data(resultset, staleness, tracked_globs)
       rs = CovUtil.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs)
       coverage_map = loaded.coverage_map or raise CoverageDataError.new("No 'coverage' key found in resultset file: #{rs}")
@@ -164,7 +162,7 @@ module SimpleCovMcp
       raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
     end
 
-    def build_staleness_checker(mode:, tracked_globs:)
+    private def build_staleness_checker(mode:, tracked_globs:)
       StalenessChecker.new(
         root: @root,
         resultset: @resultset,
@@ -174,7 +172,7 @@ module SimpleCovMcp
       )
     end
 
-    def prepare_rows(rows, sort_order:, check_stale:, tracked_globs:)
+    private def prepare_rows(rows, sort_order:, check_stale:, tracked_globs:)
       if rows.nil?
         all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
       else
@@ -183,7 +181,7 @@ module SimpleCovMcp
       end
     end
 
-    def sort_rows(rows, sort_order: :ascending)
+    private def sort_rows(rows, sort_order: :ascending)
       rows.sort do |a, b|
         pct_cmp = (sort_order == :descending) \
                     ? (b['percentage'] <=> a['percentage'])
@@ -192,7 +190,7 @@ module SimpleCovMcp
       end
     end
 
-    def compute_table_widths(rows)
+    private def compute_table_widths(rows)
       max_file_length = rows.map { |f| f['file'].length }.max.to_i
       file_width = [max_file_length, 'File'.length].max + 2
       pct_width = 8
@@ -210,7 +208,7 @@ module SimpleCovMcp
       }
     end
 
-    def border_line(widths, left, middle, right)
+    private def border_line(widths, left, middle, right)
       h_line = ->(col_width) { '─' * (col_width + 2) }
       left +
         h_line.call(widths[:file]) +
@@ -221,14 +219,14 @@ module SimpleCovMcp
         right
     end
 
-    def header_row(widths)
+    private def header_row(widths)
       sprintf(
         "│ %-#{widths[:file]}s │ %#{widths[:pct]}s │ %#{widths[:covered]}s │ %#{widths[:total]}s │ %#{widths[:stale]}s │",
         'File', ' %', 'Covered', 'Total', 'Stale'.center(widths[:stale])
       )
     end
 
-    def data_row(file_data, widths)
+    private def data_row(file_data, widths)
       stale_text_str = file_data['stale'] ? file_data['stale'].to_s : ''
       sprintf(
         "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
@@ -240,7 +238,7 @@ module SimpleCovMcp
       )
     end
 
-    def summary_counts(rows)
+    private def summary_counts(rows)
       total = rows.length
       stale_count = rows.count { |f| f['stale'] }
       ok_count = total - stale_count
@@ -252,7 +250,7 @@ module SimpleCovMcp
     # @param rows [Array<Hash>] coverage rows with 'file' keys containing absolute paths
     # @param tracked_globs [Array<String>, String, nil] glob patterns to match against
     # @return [Array<Hash>] rows whose files match at least one pattern (or all rows if no patterns)
-    def filter_rows_by_globs(rows, tracked_globs)
+    private def filter_rows_by_globs(rows, tracked_globs)
       patterns = Array(tracked_globs).compact.map(&:to_s).reject(&:empty?)
       return rows if patterns.empty?
 
@@ -265,7 +263,7 @@ module SimpleCovMcp
     #
     # @param pattern [String] glob pattern (e.g., "lib/**/*.rb")
     # @return [String] absolute pattern
-    def absolutize_pattern(pattern)
+    private def absolutize_pattern(pattern)
       absolute_pattern?(pattern) ? pattern : File.join(@root, pattern)
     end
 
@@ -274,7 +272,7 @@ module SimpleCovMcp
     #
     # @param pattern [String] glob pattern
     # @return [Boolean] true if pattern is absolute
-    def absolute_pattern?(pattern)
+    private def absolute_pattern?(pattern)
       Pathname.new(pattern).absolute? || pattern.match?(/\A[A-Za-z]:/)
     end
 
@@ -285,7 +283,7 @@ module SimpleCovMcp
     # @param abs_path [String] absolute file path to test
     # @param patterns [Array<String>] absolute glob patterns
     # @return [Boolean] true if the path matches at least one pattern
-    def matches_any_pattern?(abs_path, patterns)
+    private def matches_any_pattern?(abs_path, patterns)
       flags = File::FNM_PATHNAME | File::FNM_EXTGLOB
       patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, flags) }
     end
@@ -298,7 +296,7 @@ module SimpleCovMcp
     # @raise [FileError] if no coverage data exists for the file
     # @raise [FileNotFoundError] if the file does not exist
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
-    def coverage_data_for(path)
+    private def coverage_data_for(path)
       file_abs = File.absolute_path(path, @root)
       begin
         coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
@@ -315,7 +313,7 @@ module SimpleCovMcp
       raise FileNotFoundError.new("File not found: #{path}")
     end
 
-    def totals_from_rows(rows)
+    private def totals_from_rows(rows)
       covered = rows.sum { |row| row['covered'].to_i }
       total = rows.sum { |row| row['total'].to_i }
       uncovered = total - covered

@@ -15,9 +15,7 @@ module Api
       @http.post(url_for(path), body: body)
     end
 
-    private
-
-    def url_for(path)
+    private def url_for(path)
       "#{@base_url}/#{path}"
     end
   end

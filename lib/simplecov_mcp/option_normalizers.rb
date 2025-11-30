@@ -49,14 +49,7 @@ module SimpleCovMcp
       'ap' => :awesome_print
     }.freeze
 
-    module_function
-
-    # Normalize sort order value.
-    # @param value [String, Symbol] The value to normalize
-    # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
-    # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
-    # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_sort_order(value, strict: true)
+    module_function def normalize_sort_order(value, strict: true)
       normalized = SORT_ORDER_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
@@ -69,7 +62,7 @@ module SimpleCovMcp
     # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_source_mode(value, strict: true)
+    module_function def normalize_source_mode(value, strict: true)
       normalized = SOURCE_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
@@ -82,7 +75,7 @@ module SimpleCovMcp
     # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_staleness(value, strict: true)
+    module_function def normalize_staleness(value, strict: true)
       normalized = STALENESS_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
@@ -96,7 +89,7 @@ module SimpleCovMcp
     # @param default [Symbol] The default value to return if invalid and not strict
     # @return [Symbol] The normalized symbol or default if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_error_mode(value, strict: true, default: :log)
+    module_function def normalize_error_mode(value, strict: true, default: :log)
       normalized = ERROR_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
@@ -109,7 +102,7 @@ module SimpleCovMcp
     # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    def normalize_format(value, strict: true)
+    module_function def normalize_format(value, strict: true)
       normalized = FORMAT_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict

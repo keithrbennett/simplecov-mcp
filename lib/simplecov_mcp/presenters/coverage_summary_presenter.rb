@@ -6,9 +6,7 @@ module SimpleCovMcp
   module Presenters
     # Builds a consistent summary payload that both the CLI and MCP surfaces can use.
     class CoverageSummaryPresenter < BaseCoveragePresenter
-      private
-
-      def build_payload
+      private def build_payload
         model.summary_for(path)
       end
     end

@@ -63,9 +63,7 @@ module SimpleCovMcp
       end
     end
 
-    private
-
-    def convert_enoent(error, context)
+    private def convert_enoent(error, context)
       if context == :coverage_loading
         ResultsetNotFoundError.new('Coverage data not found', error)
       else
@@ -74,7 +72,7 @@ module SimpleCovMcp
       end
     end
 
-    def convert_eacces(error, context)
+    private def convert_eacces(error, context)
       if context == :coverage_loading
         FilePermissionError.new("Permission denied reading coverage data: #{error.message}", error)
       else
@@ -83,7 +81,7 @@ module SimpleCovMcp
       end
     end
 
-    def convert_argument_error(error, context)
+    private def convert_argument_error(error, context)
       if context == :coverage_loading
         CoverageDataError.new("Invalid path in coverage data: #{error.message}", error)
       elsif error.message.include?('wrong number of arguments')
@@ -93,7 +91,7 @@ module SimpleCovMcp
       end
     end
 
-    def convert_no_method_error(error, context)
+    private def convert_no_method_error(error, context)
       if context == :coverage_loading
         CoverageDataError.new("Invalid coverage data structure: #{error.message}", error)
       else
@@ -102,7 +100,7 @@ module SimpleCovMcp
       end
     end
 
-    def convert_runtime_error(error, context)
+    private def convert_runtime_error(error, context)
       message = error.message
       if message.include?('Could not find .resultset.json')
         dir_info = message.match(/under (.+?)(?:;|$)/)&.[](1) || 'project directory'
@@ -125,7 +123,7 @@ module SimpleCovMcp
       end
     end
 
-    def log_error(error, context)
+    private def log_error(error, context)
       return unless log_errors?
 
       message = build_log_message(error, context)
@@ -136,7 +134,7 @@ module SimpleCovMcp
       end
     end
 
-    def build_log_message(error, context)
+    private def build_log_message(error, context)
       parts = ["Error#{context ? " in #{context}" : ''}: #{error.class}: #{error.message}"]
 
       if show_stack_traces? && error.backtrace
@@ -146,13 +144,13 @@ module SimpleCovMcp
       parts.join("\n")
     end
 
-    def extract_filename(message)
+    private def extract_filename(message)
       # Extract filename from "No such file or directory @ rb_sysopen - filename"
       match = message.match(/@ \w+ - (.+)$/)
       match ? match[1] : 'unknown file'
     end
 
-    def extract_method_info(message)
+    private def extract_method_info(message)
       match = message.match(/undefined method `(.+?)' for (.+)$/)
       if match
         method_name = match[1]

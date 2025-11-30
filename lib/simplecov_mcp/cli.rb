@@ -82,9 +82,7 @@ module SimpleCovMcp
       )
     end
 
-    private
-
-    def parse_options!(argv)
+    private def parse_options!(argv)
       require 'optparse'
       parser = build_option_parser
 
@@ -105,17 +103,17 @@ module SimpleCovMcp
       @cmd_args = argv
     end
 
-    def error_handler
+    private def error_handler
       @error_handler ||= @custom_error_handler ||
                          ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
-    def pre_scan_error_mode(argv)
+    private def pre_scan_error_mode(argv)
       env_parser = OptionParsers::EnvOptionsParser.new
       config.error_mode = env_parser.pre_scan_error_mode(argv) || :log
     end
 
-    def build_option_parser
+    private def build_option_parser
       builder = OptionParserBuilder.new(config)
       builder.build_option_parser
     end
@@ -125,11 +123,11 @@ module SimpleCovMcp
     # This method intercepts that flag and redirects execution to the 'version' subcommand,
     # ensuring consistent version display regardless of whether the user runs
     # `simplecov-mcp -v`, `simplecov-mcp --version`, or `simplecov-mcp version`.
-    def enforce_version_subcommand_if_requested
+    private def enforce_version_subcommand_if_requested
       @cmd = 'version' if config.show_version
     end
 
-    def with_context_if_available(ctx)
+    private def with_context_if_available(ctx)
       if ctx
         SimpleCovMcp.with_context(ctx) { yield }
       else
@@ -137,7 +135,7 @@ module SimpleCovMcp
       end
     end
 
-    def run_subcommand(cmd, args)
+    private def run_subcommand(cmd, args)
       # Check if user mistakenly placed global options after the subcommand
       check_for_misplaced_global_options(cmd, args)
 
@@ -149,12 +147,12 @@ module SimpleCovMcp
       error_handler.handle_error(e, context: "subcommand '#{cmd}'")
     end
 
-    def handle_option_parser_error(error, argv: [])
+    private def handle_option_parser_error(error, argv: [])
       @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
       @error_helper.handle_option_parser_error(error, argv: argv)
     end
 
-    def check_for_misplaced_global_options(cmd, args)
+    private def check_for_misplaced_global_options(cmd, args)
       # Global options that users commonly place after subcommands by mistake
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
                           -c --context-lines -S --staleness -g --tracked-globs
@@ -172,7 +170,7 @@ module SimpleCovMcp
       )
     end
 
-    def handle_user_facing_error(error)
+    private def handle_user_facing_error(error)
       error_handler.handle_error(error, context: 'CLI', reraise: false)
       warn error.user_friendly_message
       warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace

@@ -19,16 +19,14 @@ module SimpleCovMcp
         raise_not_found_error(file_abs)
       end
 
-      private
-
       attr_reader :cov_data
 
-      def find_direct_match(file_abs)
+      private def find_direct_match(file_abs)
         entry = cov_data[file_abs]
         lines_from_entry(entry)
       end
 
-      def find_stripped_match(file_abs)
+      private def find_stripped_match(file_abs)
         return unless file_abs.start_with?(cwd_with_slash)
 
         relative_path = file_abs[(cwd.length + 1)..-1]
@@ -36,15 +34,15 @@ module SimpleCovMcp
         lines_from_entry(entry)
       end
 
-      def cwd
+      private def cwd
         @cwd ||= Dir.pwd
       end
 
-      def cwd_with_slash
+      private def cwd_with_slash
         @cwd_with_slash ||= "#{cwd}/"
       end
 
-      def raise_not_found_error(file_abs)
+      private def raise_not_found_error(file_abs)
         raise FileError.new("No coverage entry found for #{file_abs}")
       end
 
@@ -54,7 +52,7 @@ module SimpleCovMcp
       #
       # Returning nil tells callers to keep searching; the resolver will raise
       # a FileError if no variant yields coverage data.
-      def lines_from_entry(entry)
+      private def lines_from_entry(entry)
         return unless entry.is_a?(Hash)
 
         lines = entry['lines']
@@ -73,7 +71,7 @@ module SimpleCovMcp
       # We care about the third tuple element (line number). We sum branch-leg
       # hits per line so the synthetic array still behaves like legacy line
       # coverage (any positive value counts as executed).
-      def synthesize_lines_from_branches(branch_data)
+      private def synthesize_lines_from_branches(branch_data)
         # Detailed shape and rationale documented in docs/BRANCH_ONLY_COVERAGE.md
         return unless branch_data.is_a?(Hash) && branch_data.any?
 
@@ -103,7 +101,7 @@ module SimpleCovMcp
       # Branch metadata arrives as either the raw SimpleCov array
       # (e.g. [:if, 0, 12, 4, 20, 29]) or the stringified JSON version
       # ("[:if, 0, 12, 4, 20, 29]"). We normalize both forms and pull the line.
-      def extract_line_number(meta)
+      private def extract_line_number(meta)
         if meta.is_a?(Array)
           line_token = meta[2]
           # Integer(..., exception: false) returns nil on failure, so malformed

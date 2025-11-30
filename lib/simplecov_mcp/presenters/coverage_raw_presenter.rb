@@ -6,9 +6,7 @@ module SimpleCovMcp
   module Presenters
     # Provides shared raw coverage payloads for CLI and MCP callers.
     class CoverageRawPresenter < BaseCoveragePresenter
-      private
-
-      def build_payload
+      private def build_payload
         model.raw_for(path)
       end
     end

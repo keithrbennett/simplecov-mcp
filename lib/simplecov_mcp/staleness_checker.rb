@@ -82,11 +82,7 @@ module SimpleCovMcp
       )
     end
 
-    private
-
-    # Identifies files that are newer than coverage or have been deleted.
-    # Returns [newer_files, deleted_files] as arrays of relative paths.
-    def compute_newer_and_deleted_files(coverage_files, timestamp)
+    private def compute_newer_and_deleted_files(coverage_files, timestamp)
       existing, deleted_abs = coverage_files.partition { |abs| File.file?(abs) }
 
       newer = existing
@@ -99,7 +95,7 @@ module SimpleCovMcp
 
     # Identifies tracked files that are missing from coverage.
     # Returns array of relative paths for files matched by tracked_globs but not in coverage.
-    def compute_missing_files(coverage_files)
+    private def compute_missing_files(coverage_files)
       return [] unless @tracked_globs && Array(@tracked_globs).any?
 
       patterns = Array(@tracked_globs).map { |g| File.absolute_path(g, @root) }
@@ -111,17 +107,17 @@ module SimpleCovMcp
       tracked.reject { |abs| covered_set.include?(abs) }.map { |abs| rel(abs) }
     end
 
-    def coverage_timestamp
+    private def coverage_timestamp
       @cov_timestamp || 0
     end
 
-    def resultset_path
+    private def resultset_path
       @resultset_path ||= CovUtil.find_resultset(@root, resultset: @resultset)
     rescue StandardError
       nil
     end
 
-    def safe_count_lines(path)
+    private def safe_count_lines(path)
       return 0 unless File.file?(path)
 
       File.foreach(path).count
@@ -129,7 +125,7 @@ module SimpleCovMcp
       0
     end
 
-    def missing_trailing_newline?(path)
+    private def missing_trailing_newline?(path)
       return false unless File.file?(path)
 
       File.open(path, 'rb') do |f|
@@ -143,7 +139,7 @@ module SimpleCovMcp
       false
     end
 
-    def rel(path)
+    private def rel(path)
       # Handle relative vs absolute path mismatches that cause ArgumentError
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
     rescue ArgumentError
@@ -154,7 +150,7 @@ module SimpleCovMcp
     # Centralized computation of staleness-related details for a single file.
     # Returns a Hash with keys:
     #  :exists, :file_mtime, :coverage_timestamp, :cov_len, :src_len, :newer, :len_mismatch
-    def compute_file_staleness_details(file_abs, coverage_lines)
+    private def compute_file_staleness_details(file_abs, coverage_lines)
       coverage_ts = coverage_timestamp
 
       exists = File.file?(file_abs)
@@ -207,7 +203,7 @@ module SimpleCovMcp
     # - SimpleCov coverage array length: 3
     # - Missing trailing newline: true
     # - Adjustment: 4 - 1 = 3 (now matches)
-    def adjust_line_count_for_missing_newline(file_abs:, exists:, cov_len:, src_len:)
+    private def adjust_line_count_for_missing_newline(file_abs:, exists:, cov_len:, src_len:)
       # Only adjust if:
       # 1. File exists (can't check newlines for missing files)
       # 2. Coverage data is present (cov_len > 0)
@@ -227,7 +223,7 @@ module SimpleCovMcp
     #
     # Note: Empty coverage (cov_len == 0) is not considered a mismatch, as it may represent
     # files that were never executed or files that are legitimately empty.
-    def length_mismatch?(cov_len, adjusted_src_len)
+    private def length_mismatch?(cov_len, adjusted_src_len)
       cov_len.positive? && adjusted_src_len != cov_len
     end
 
@@ -241,7 +237,7 @@ module SimpleCovMcp
     # The logic: newer &&= !len_mismatch means:
     # - If len_mismatch is true, set newer to false (length mismatch takes precedence)
     # - This way, staleness is categorized as either 'T' (time-based) OR 'L' (length-based), not both
-    def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch)
+    private def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch)
       newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
       # If there's a length mismatch, don't also flag as "newer" - the mismatch is more specific
       newer &&= !len_mismatch

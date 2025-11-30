@@ -95,6 +95,10 @@ Layout/IndentationConsistency:
 
 # ===== Style =====
 
+Style/AccessModifierDeclarations:
+  Enabled: true
+  EnforcedStyle: inline
+
 Style/StringLiterals:
   EnforcedStyle: single_quotes
 
