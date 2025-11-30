@@ -197,7 +197,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      all_data, _ = expect_mcp_text_json(all_files_response, expected_keys: ['files', 'counts'])
+      all_data, = expect_mcp_text_json(all_files_response, expected_keys: ['files', 'counts'])
       expect(all_data['files'].length).to eq(2)
       expect(all_data['counts']['total']).to eq(2)
     end
@@ -210,7 +210,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      summary_data, _ = expect_mcp_text_json(summary_response)
+      summary_data, = expect_mcp_text_json(summary_response)
 
       # Get data from detailed tool
       detailed_response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
@@ -219,7 +219,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         resultset: coverage_dir,
         server_context: server_context
       )
-      detailed_data, _ = expect_mcp_text_json(detailed_response)
+      detailed_data, = expect_mcp_text_json(detailed_response)
 
       # Verify consistency between tools
       expect(summary_data['summary']['covered']).to eq(2)

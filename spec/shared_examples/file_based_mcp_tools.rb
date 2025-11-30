@@ -93,7 +93,7 @@ FILE_BASED_TOOL_CONFIGS = {
 
         response = config[:tool_class].call(path: 'lib/foo.rb',
           server_context: instance_double('ServerContext').as_null_object)
-        data, _ = expect_mcp_text_json(response)
+        data, = expect_mcp_text_json(response)
 
         expect(data['summary']['percentage']).to be_a(Float)
       }
@@ -145,7 +145,7 @@ FILE_BASED_TOOL_CONFIGS = {
 
         response = config[:tool_class].call(path: 'lib/foo.rb',
           server_context: instance_double('ServerContext').as_null_object)
-        data, _ = expect_mcp_text_json(response)
+        data, = expect_mcp_text_json(response)
 
         expect(data['uncovered']).to be_an(Array)
         expect(data['summary']).to include('covered', 'total', 'percentage')
