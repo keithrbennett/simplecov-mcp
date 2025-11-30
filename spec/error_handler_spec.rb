@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::ErrorHandler do
   subject(:handler) { described_class.new(error_mode: :log, logger: logger) }
+
   let(:logger) do
     Class.new do
       attr_reader :messages

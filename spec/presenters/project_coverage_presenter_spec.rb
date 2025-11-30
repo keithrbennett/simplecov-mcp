@@ -11,6 +11,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
       tracked_globs: tracked_globs
     )
   end
+
   let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
   let(:sort_order) { :ascending }
   let(:check_stale) { true }

@@ -5,6 +5,7 @@ require 'simplecov_mcp/tools/all_files_coverage_tool'
 
 RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
   subject { described_class.call(root: root, server_context: server_context) }
+
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:server_context) { instance_double('ServerContext').as_null_object }
 

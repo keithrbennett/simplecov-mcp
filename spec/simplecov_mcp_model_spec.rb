@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
   subject(:model) { described_class.new(root: root) }
+
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
 

@@ -10,6 +10,7 @@ require 'spec_helper'
 
 RSpec.shared_examples 'a file-based MCP tool' do |config|
   subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
+
   let(:server_context) { instance_double('ServerContext').as_null_object }
   let(:tool_class) { config[:tool_class] }
   let(:model_method) { config[:model_method] }
