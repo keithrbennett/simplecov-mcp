@@ -3,6 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
+  subject(:presenter) do
+    described_class.new(
+      model: model,
+      sort_order: sort_order,
+      check_stale: check_stale,
+      tracked_globs: tracked_globs
+    )
+  end
   let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
   let(:sort_order) { :ascending }
   let(:check_stale) { true }
@@ -26,14 +34,6 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
     ]
   end
 
-  subject(:presenter) do
-    described_class.new(
-      model: model,
-      sort_order: sort_order,
-      check_stale: check_stale,
-      tracked_globs: tracked_globs
-    )
-  end
 
   before do
     allow(model).to receive(:all_files).with(sort_order: sort_order, check_stale: check_stale,

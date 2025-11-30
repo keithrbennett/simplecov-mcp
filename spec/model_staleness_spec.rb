@@ -25,6 +25,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect { model.summary_for('lib/foo.rb') }.not_to raise_error
     end
   end
+
   it 'all_files raises project-level stale when any source file is newer than coverage' do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: :error)

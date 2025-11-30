@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
+  subject(:model) { described_class.new(root: root) }
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
-  subject(:model) { described_class.new(root: root) }
 
   describe 'initialization error handling' do
     it 'raises FileError when File.read raises Errno::ENOENT directly' do

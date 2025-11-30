@@ -66,7 +66,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
   describe 'logging configuration' do
     let(:test_message) { 'test log message' }
 
-    around(:each) do |example|
+    around do |example|
       # Reset logging settings so each example starts clean.
       old_default = SimpleCovMcp.default_log_file
       old_active = SimpleCovMcp.active_log_file

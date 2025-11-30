@@ -3,6 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::ErrorHandler do
+  subject(:handler) { described_class.new(error_mode: :log, logger: logger) }
   let(:logger) do
     Class.new do
       attr_reader :messages
@@ -12,7 +13,6 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     end.new
   end
 
-  subject(:handler) { described_class.new(error_mode: :log, logger: logger) }
 
   it 'maps filesystem errors to friendly custom errors' do
     e = handler.convert_standard_error(Errno::EISDIR.new('Is a directory @ rb_sysopen - a_dir'))

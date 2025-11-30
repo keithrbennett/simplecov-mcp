@@ -9,6 +9,7 @@ require 'spec_helper'
 # - Have predictable output filename
 
 RSpec.shared_examples 'a file-based MCP tool' do |config|
+  subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
   let(:server_context) { instance_double('ServerContext').as_null_object }
   let(:tool_class) { config[:tool_class] }
   let(:model_method) { config[:model_method] }
@@ -31,7 +32,6 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
     allow(model).to receive(:staleness_for).with('lib/foo.rb').and_return(false)
   end
 
-  subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
 
   it_behaves_like 'an MCP tool that returns text JSON'
 
