@@ -34,7 +34,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
       # Stub exit method to prevent process termination
-      allow_any_instance_of(Object).to receive(:exit)
+      allow(Kernel).to receive(:exit)
 
       # silence_output captures the expected error message from the CLI trying to
       # load the (non-existent) resultset, preventing it from leaking to the console.
@@ -49,7 +49,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--log-file stdout'
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
-      allow_any_instance_of(Object).to receive(:exit)
+      allow(Kernel).to receive(:exit)
 
       silence_output do
         cli.send(:run, env_opts + ['--help'])
@@ -122,7 +122,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       allow(STDIN).to receive(:tty?).and_return(false)
 
       # Stub exit to prevent process termination
-      allow_any_instance_of(Object).to receive(:exit)
+      allow(Kernel).to receive(:exit)
 
       # Run with --help which should produce help output
       output = nil
@@ -175,7 +175,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = "--resultset #{test_resultset} --format json"
       env_opts = SimpleCovMcp.send(:extract_env_opts)
 
-      allow_any_instance_of(Object).to receive(:exit)
+      allow(Kernel).to receive(:exit)
 
       expect do
         silence_output { cli.send(:run, env_opts + ['--help']) }

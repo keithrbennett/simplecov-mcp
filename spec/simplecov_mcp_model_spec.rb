@@ -77,14 +77,15 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   describe 'staleness_for' do
     it 'returns the staleness character for a file' do
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker)
-        .to receive(:stale_for_file?) do |_, file_abs, _|
-          if file_abs == File.expand_path('lib/foo.rb', root)
-            'T'
-          else
-            false
-          end
+      checker = instance_double(SimpleCovMcp::StalenessChecker, off?: false)
+      allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:stale_for_file?) do |file_abs, _|
+        if file_abs == File.expand_path('lib/foo.rb', root)
+          'T'
+        else
+          false
         end
+      end
 
       expect(model.staleness_for('lib/foo.rb')).to eq('T')
       expect(model.staleness_for('lib/bar.rb')).to eq(false)
@@ -92,7 +93,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
     it 'returns false when an exception occurs during staleness check' do
       # Stub the checker to raise an error
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:stale_for_file?)
+      checker = instance_double(SimpleCovMcp::StalenessChecker, off?: false)
+      allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:stale_for_file?)
         .and_raise(StandardError, 'Something went wrong')
 
       # The rescue clause should catch the error and return false
@@ -184,7 +187,9 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     it 'converts Errno::ENOENT to FileNotFoundError during resolve' do
       # We need to trigger Errno::ENOENT inside the resolve method
       # Stub the checker's check_file! method to raise Errno::ENOENT
-      allow_any_instance_of(SimpleCovMcp::StalenessChecker).to receive(:check_file!)
+      checker = instance_double(SimpleCovMcp::StalenessChecker, off?: false)
+      allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:check_file!)
         .and_raise(Errno::ENOENT, 'No such file or directory')
 
       # Create a model with staleness checking enabled to trigger the check_file! call
