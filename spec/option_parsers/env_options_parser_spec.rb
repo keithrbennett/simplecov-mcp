@@ -145,7 +145,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       end
     end
 
-    context 'error handling during pre-scan' do
+    context 'when handling errors during pre-scan' do
       it 'returns nil when normalizer raises an error' do
         faulty_normalizer = ->(_) { raise StandardError, 'Intentional error' }
         argv = ['--error-mode', 'log']

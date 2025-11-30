@@ -55,7 +55,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
   describe '#handle_option_parser_error' do
     context 'with invalid enumerated option values' do
       OPTION_TESTS.each do |_name, config|
-        context "for #{config[:long]} option" do
+        context "when parsing #{config[:long]} option" do
           let(:error) { OptionParser::InvalidArgument.new('invalid argument: xyz') }
 
           it 'suggests valid values for space-separated form with invalid value' do
@@ -86,7 +86,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         end
       end
 
-      context 'for --staleness option edge cases' do
+      context 'when handling --staleness option edge cases' do
         it 'suggests valid values when value is missing' do
           error = OptionParser::InvalidArgument.new('missing argument: --staleness')
           expect_error_output(
@@ -156,7 +156,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       end
     end
 
-    context 'exit behavior' do
+    context 'when exiting after invalid option' do
       it 'exits with status 1' do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
@@ -168,7 +168,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       end
     end
 
-    context 'usage hint customization' do
+    context 'when customizing usage hint' do
       it 'uses custom usage hint when provided' do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
@@ -182,7 +182,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
     end
   end
 
-  describe 'edge cases' do
+  describe 'when handling edge cases' do
     it 'handles empty argv gracefully' do
       error = OptionParser::InvalidArgument.new('some error')
       expect_error_output(

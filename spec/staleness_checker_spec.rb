@@ -58,7 +58,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     end
   end
 
-  context 'compute_file_staleness_details' do
+  context 'when computing file staleness details' do
     include_examples 'a staleness check',
       description: 'detects newer file vs coverage timestamp',
       file_lines: ['a', 'b'],
@@ -124,7 +124,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expected_error: nil
   end
 
-  context 'missing_trailing_newline? edge cases' do
+  context 'when handling missing_trailing_newline? edge cases' do
     let(:checker) do
       described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
     end
@@ -193,7 +193,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     end
   end
 
-  context 'line count adjustment with missing trailing newline' do
+  context 'when adjusting line count with missing trailing newline' do
     let(:checker) do
       described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
     end
@@ -247,7 +247,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     end
   end
 
-  context 'safe_count_lines edge cases' do
+  context 'when handling safe_count_lines edge cases' do
     let(:checker) do
       described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
     end
@@ -288,7 +288,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
     end
   end
 
-  context 'rel method with path prefix mismatches' do
+  context 'when rel has path prefix mismatches' do
     let(:checker) do
       described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)
     end

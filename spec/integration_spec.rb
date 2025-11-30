@@ -675,7 +675,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(response_ids).to include(100).or include(101)
     end
 
-    context 'MCP protocol error handling' do
+    context 'when handling MCP protocol errors' do
       it 'returns error for unknown tool name' do
         request = {
           jsonrpc: '2.0',

@@ -34,7 +34,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
   end
 
-  context 'ENOENT mapping' do
+  context 'when mapping ENOENT' do
     let(:model_method) { :summary_for }
     let(:raised_error) { Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb') }
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'summary', 'lib/missing.rb'] }
@@ -43,7 +43,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     include_examples 'maps error to exit 1 with message'
   end
 
-  context 'EACCES mapping' do
+  context 'when mapping EACCES' do
     let(:model_method) { :raw_for }
     let(:raised_error) { Errno::EACCES.new('Permission denied @ rb_sysopen - secret.rb') }
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'raw', 'lib/secret.rb'] }
