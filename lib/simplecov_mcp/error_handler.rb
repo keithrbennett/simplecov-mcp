@@ -153,8 +153,8 @@ module SimpleCovMcp
     end
 
     def extract_method_info(message)
-      # Extract method info from "undefined method `foo' for #<Object:0x...>"
-      if match = message.match(/undefined method `(.+?)' for (.+)$/)
+      match = message.match(/undefined method `(.+?)' for (.+)$/)
+      if match
         method_name = match[1]
         object_info = match[2].gsub(/#<.*?>/, 'object')
         "missing method '#{method_name}' on #{object_info}"

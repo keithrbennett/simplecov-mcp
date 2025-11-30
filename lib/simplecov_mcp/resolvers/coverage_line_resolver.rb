@@ -9,14 +9,12 @@ module SimpleCovMcp
 
       def lookup_lines(file_abs)
         # First try exact match
-        if direct_match = find_direct_match(file_abs)
-          return direct_match
-        end
+        direct_match = find_direct_match(file_abs)
+        return direct_match if direct_match
 
         # Then try without current working directory prefix
-        if stripped_match = find_stripped_match(file_abs)
-          return stripped_match
-        end
+        stripped_match = find_stripped_match(file_abs)
+        return stripped_match if stripped_match
 
         raise_not_found_error(file_abs)
       end
