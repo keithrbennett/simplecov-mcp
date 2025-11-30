@@ -7,7 +7,7 @@ require_relative '../table_formatter'
 module SimpleCovMcp
   module Commands
     class VersionCommand < BaseCommand
-      def execute(args)
+      def execute(_args)
         @gem_root = File.expand_path('../../..', __dir__)
 
         if config.format == :table

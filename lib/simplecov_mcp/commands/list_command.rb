@@ -5,7 +5,7 @@ require_relative 'base_command'
 module SimpleCovMcp
   module Commands
     class ListCommand < BaseCommand
-      def execute(args)
+      def execute(_args)
         cli.send(:show_default_report, sort_order: config.sort_order)
       end
     end

@@ -33,7 +33,7 @@ module SimpleCovMcp
 
     private
 
-    def deep_copy_and_relativize(obj, key_context = nil)
+    def deep_copy_and_relativize(obj)
       case obj
       when Hash
         obj.each_with_object({}) do |(k, v), acc|
