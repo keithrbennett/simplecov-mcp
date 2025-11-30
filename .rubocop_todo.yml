@@ -12,13 +12,6 @@
 # Offense count: 8
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Offense count: 3
-# Configuration parameters: AssignmentOnly.
-RSpec/InstanceVariable:
-  Exclude:
-    - 'spec/base_tool_spec.rb'
-    - 'spec/resolvers/resultset_path_resolver_spec.rb'
-
-# Offense count: 3
 RSpec/LeakyConstantDeclaration:
   Exclude:
     - 'spec/mode_detector_spec.rb'

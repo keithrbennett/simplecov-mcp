@@ -2,18 +2,16 @@
 
 require 'spec_helper'
 require 'tmpdir'
+require 'fileutils'
 
 RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
   describe '#find_resultset' do
-    around do |example|
-      Dir.mktmpdir do |dir|
-        @tmp_root = dir
-        example.run
-      end
-    end
-
-    let(:root) { @tmp_root }
+    let(:root) { Dir.mktmpdir }
     let(:resolver) { described_class.new(root: root) }
+
+    after do
+      FileUtils.remove_entry(root) if root && Dir.exist?(root)
+    end
 
     it 'raises when a specified resultset file cannot be found' do
       expect do

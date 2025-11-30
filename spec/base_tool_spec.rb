@@ -13,18 +13,19 @@ RSpec.describe SimpleCovMcp::BaseTool do
     end.new
   end
 
-  before do
-    @orig_handler = begin
+  around do |example|
+    orig_handler = begin
       SimpleCovMcp.error_handler
     rescue StandardError
       nil
     end
+
     SimpleCovMcp.error_handler = handler
     setup_mcp_response_stub
-  end
 
-  after do
-    SimpleCovMcp.error_handler = @orig_handler if @orig_handler
+    example.run
+  ensure
+    SimpleCovMcp.error_handler = orig_handler if orig_handler
   end
 
   shared_examples 'friendly response and logged' do
