@@ -111,11 +111,7 @@ RSpec.describe 'Error Mode System' do
       cli = SimpleCovMcp::CoverageCLI.new
       cli.send(:parse_options!, ['--error-mode', 'off', 'summary', 'lib/foo.rb'])
 
-      # Trigger error handler creation
-      cli.send(:ensure_error_handler)
-
-      error_handler = cli.instance_variable_get(:@error_handler)
-      expect(error_handler.error_mode).to eq(:off)
+      expect(cli.send(:error_handler).error_mode).to eq(:off)
     end
 
     it 'validates error mode values' do

@@ -37,11 +37,8 @@ module SimpleCovMcp
       parse_options!(argv)
       enforce_version_subcommand_if_requested
 
-      # Create error handler AFTER parsing options to respect user's --error-mode choice
-      ensure_error_handler
-
       context = SimpleCovMcp.create_context(
-        error_handler: @error_handler,
+        error_handler: error_handler, # construct after options to respect --error-mode
         log_target: config.log_file.nil? ? SimpleCovMcp.context.log_target : config.log_file,
         mode: :cli
       )
@@ -108,9 +105,9 @@ module SimpleCovMcp
       @cmd_args = argv
     end
 
-    def ensure_error_handler
-      @error_handler ||=
-        @custom_error_handler || ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
+    def error_handler
+      @error_handler ||= @custom_error_handler ||
+                         ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
     def pre_scan_error_mode(argv)
@@ -149,7 +146,7 @@ module SimpleCovMcp
     rescue SimpleCovMcp::Error => e
       handle_user_facing_error(e)
     rescue => e
-      @error_handler.handle_error(e, context: "subcommand '#{cmd}'")
+      error_handler.handle_error(e, context: "subcommand '#{cmd}'")
     end
 
     def handle_option_parser_error(error, argv: [])
@@ -176,13 +173,8 @@ module SimpleCovMcp
     end
 
     def handle_user_facing_error(error)
-      # Ensure error handler exists (may not be initialized if error occurs during option parsing)
-      ensure_error_handler
-      # Log the error if error_mode allows it
-      @error_handler.handle_error(error, context: 'CLI', reraise: false)
-      # Show user-friendly message
+      error_handler.handle_error(error, context: 'CLI', reraise: false)
       warn error.user_friendly_message
-      # Show stack trace in debug mode
       warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace
       exit 1
     end
