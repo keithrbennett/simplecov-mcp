@@ -19,7 +19,8 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     before do
       # Build a fake model that raises the specified error from the specified method
       fake_model = Class.new do
-        def initialize(*) end
+        def initialize(*)
+        end
       end
       error_to_raise = raised_error
       fake_model.define_method(model_method) { |*| raise error_to_raise }

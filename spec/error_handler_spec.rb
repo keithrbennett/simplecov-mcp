@@ -9,8 +9,8 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     Class.new do
       attr_reader :messages
 
-      def initialize; @messages = []; end
-      def error(msg); @messages << msg; end
+      def initialize() = @messages = []
+      def error(msg) = @messages << msg
     end.new
   end
 
