@@ -226,7 +226,7 @@ RSpec::Matchers.define :show_source_table_or_fallback do
     has_table_header || has_fallback
   end
 
-  failure_message do |output|
+  failure_message do |_output|
     "expected output to include a source table header (e.g., 'Line | Source') " \
       "or the fallback '[source not available]'"
   end

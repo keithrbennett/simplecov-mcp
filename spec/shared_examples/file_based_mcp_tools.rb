@@ -74,7 +74,7 @@ FILE_BASED_TOOL_CONFIGS = {
       'file' => '/abs/path/lib/foo.rb',
       'summary' => { 'covered' => 10, 'total' => 12, 'percentage' => 83.33 }
     },
-    additional_validations: ->(data, item) {
+    additional_validations: ->(data, _item) {
       expect(data['summary']).to include('covered', 'total', 'percentage')
     },
     tool_specific_examples: {
@@ -126,7 +126,7 @@ FILE_BASED_TOOL_CONFIGS = {
       'uncovered' => [5, 9, 12],
       'summary' => { 'covered' => 10, 'total' => 12, 'percentage' => 83.33 }
     },
-    additional_validations: ->(data, item) {
+    additional_validations: ->(data, _item) {
       expect(data['uncovered']).to eq([5, 9, 12])
     },
     tool_specific_examples: {
@@ -167,7 +167,7 @@ FILE_BASED_TOOL_CONFIGS = {
       ],
       'summary' => { 'covered' => 1, 'total' => 2, 'percentage' => 50.0 }
     },
-    additional_validations: ->(data, item) {
+    additional_validations: ->(data, _item) {
       expect(data['lines']).to be_an(Array)
       expect(data['lines'].first).to include('line', 'hits', 'covered')
     }

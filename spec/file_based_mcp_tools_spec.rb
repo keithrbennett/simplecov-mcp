@@ -11,7 +11,7 @@ require 'simplecov_mcp/tools/coverage_detailed_tool'
 
 RSpec.describe 'File-based MCP Tools' do
   # Test each file-based tool using the shared example with its specific configuration
-  FILE_BASED_TOOL_CONFIGS.each do |tool_name, config|
+  FILE_BASED_TOOL_CONFIGS.each do |_tool_name, config|
     describe config[:tool_class] do
       it_behaves_like 'a file-based MCP tool', config
     end
@@ -27,7 +27,7 @@ RSpec.describe 'File-based MCP Tools' do
 
     it 'all file-based tools accept the same basic parameters' do
       # Test that all tools can be called with the same parameter signature
-      FILE_BASED_TOOL_CONFIGS.each do |tool_name, config|
+      FILE_BASED_TOOL_CONFIGS.each do |_tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
@@ -46,7 +46,7 @@ RSpec.describe 'File-based MCP Tools' do
     end
 
     it 'all file-based tools return JSON resources with consistent structure' do
-      FILE_BASED_TOOL_CONFIGS.each do |tool_name, config|
+      FILE_BASED_TOOL_CONFIGS.each do |_tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
@@ -79,7 +79,7 @@ RSpec.describe 'File-based MCP Tools' do
         config[:expected_keys].include?('summary')
       end
 
-      summary_tools.each do |tool_name, config|
+      summary_tools.each do |_tool_name, config|
         model = instance_double(SimpleCovMcp::CoverageModel)
         allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])

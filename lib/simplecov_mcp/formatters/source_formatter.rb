@@ -53,7 +53,7 @@ module SimpleCovMcp
       end
 
       def format_source_rows(rows)
-        marker = ->(covered, hits) do
+        marker = ->(covered, _hits) do
           case covered
           when true then colorize('✓', :green)
           when false then colorize('·', :red)

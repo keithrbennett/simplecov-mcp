@@ -54,7 +54,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
 
   describe '#handle_option_parser_error' do
     context 'with invalid enumerated option values' do
-      OPTION_TESTS.each do |name, config|
+      OPTION_TESTS.each do |_name, config|
         context "for #{config[:long]} option" do
           let(:error) { OptionParser::InvalidArgument.new('invalid argument: xyz') }
 
