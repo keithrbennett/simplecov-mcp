@@ -93,7 +93,7 @@ module SimpleCovMcp
       if active.nil? || active.log_target == previous_default.log_target
         Thread.current[THREAD_CONTEXT_KEY] = @default_context
       end
-      value
+      value # rubocop:disable Lint/Void -- return assigned log target for symmetry
     end
 
     def active_log_file
@@ -107,7 +107,7 @@ module SimpleCovMcp
       else
         Thread.current[THREAD_CONTEXT_KEY] = default_context.with_log_target(value)
       end
-      value
+      value # rubocop:disable Lint/Void -- return assigned log target for symmetry
     end
 
     def error_handler
