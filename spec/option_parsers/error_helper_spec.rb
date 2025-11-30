@@ -2,6 +2,29 @@
 
 require 'spec_helper'
 
+OPTION_TESTS = {
+  staleness: {
+    long: '--staleness',
+    short: '-S',
+    pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
+  },
+  source: {
+    long: '--source',
+    short: '-s',
+    pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
+  },
+  error_mode: {
+    long: '--error-mode',
+    short: nil,
+    pattern: /Valid values for --error-mode: o\[ff\]|l\[og\]|d\[ebug\]/
+  },
+  sort_order: {
+    long: '--sort-order',
+    short: '-o',
+    pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
+  }
+}.freeze
+
 RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
   subject(:helper) { described_class.new }
 
@@ -28,30 +51,6 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       # Ignore exit call
     end.to output(pattern).to_stderr
   end
-
-  # Test data for enumerated options
-  OPTION_TESTS = {
-    staleness: {
-      long: '--staleness',
-      short: '-S',
-      pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
-    },
-    source: {
-      long: '--source',
-      short: '-s',
-      pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
-    },
-    error_mode: {
-      long: '--error-mode',
-      short: nil,
-      pattern: /Valid values for --error-mode: o\[ff\]|l\[og\]|d\[ebug\]/
-    },
-    sort_order: {
-      long: '--sort-order',
-      short: '-o',
-      pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
-    }
-  }.freeze
 
   describe '#handle_option_parser_error' do
     context 'with invalid enumerated option values' do

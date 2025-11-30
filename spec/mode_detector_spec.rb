@@ -2,38 +2,47 @@
 
 require 'spec_helper'
 
+# Array-driven test cases for comprehensive coverage
+# Format: [argv, tty?, expected_result, description]
+CLI_MODE_SCENARIOS = [
+  # Priority 1: --force-cli flag (highest priority)
+  [['--force-cli'], false, true, '--force-cli with piped input'],
+  [['--force-cli', '--format', 'json'], false, true, '--force-cli with other flags'],
+
+  # Priority 2: Valid subcommands (must be first arg)
+  [['list'], false, true, 'list subcommand'],
+  [['summary', 'lib/foo.rb'], false, true, 'summary with path'],
+  [['version'], false, true, 'version subcommand'],
+  [['total'], false, true, 'total subcommand'],
+  [['list', '--format', 'json'], false, true, 'subcommand with trailing flags'],
+
+  # Priority 3: Invalid subcommand attempts (must be first non-flag arg)
+  [['invalid-command'], false, true, 'invalid subcommand (shows error)'],
+  [['lib/foo.rb'], false, true, 'file path (shows error)'],
+
+  # Priority 4: TTY determines mode when no subcommand/force-cli
+  [[], true, true, 'empty args with TTY'],
+  [[], false, false, 'empty args with piped input'],
+  [['--format', 'json'], true, true, 'flags only with TTY'],
+  [['--format', 'json'], false, false, 'flags only with piped input'],
+  [['-r', 'foo', '--format', 'json'], false, false, 'multiple flags with piped input'],
+
+  # Edge cases: flags before subcommands should now be detected as CLI mode
+  [['--format', 'json', 'list'], false, true, 'flag first = CLI mode'],
+  [['-r', 'foo', 'summary'], false, true, 'option first = CLI mode'],
+].freeze
+
+# Simpler test cases for the inverse method
+MCP_SCENARIOS = [
+  [[], false, true, 'piped input, no args'],
+  [['--format', 'json'], false, true, 'piped input with flags'],
+  [[], true, false, 'TTY, no args'],
+  [['--force-cli'], false, false, '--force-cli flag'],
+  [['list'], false, false, 'subcommand'],
+].freeze
+
 RSpec.describe SimpleCovMcp::ModeDetector do
   describe '.cli_mode?' do
-    # Array-driven test cases for comprehensive coverage
-    # Format: [argv, tty?, expected_result, description]
-    CLI_MODE_SCENARIOS = [
-      # Priority 1: --force-cli flag (highest priority)
-      [['--force-cli'], false, true, '--force-cli with piped input'],
-      [['--force-cli', '--format', 'json'], false, true, '--force-cli with other flags'],
-
-      # Priority 2: Valid subcommands (must be first arg)
-      [['list'], false, true, 'list subcommand'],
-      [['summary', 'lib/foo.rb'], false, true, 'summary with path'],
-      [['version'], false, true, 'version subcommand'],
-      [['total'], false, true, 'total subcommand'],
-      [['list', '--format', 'json'], false, true, 'subcommand with trailing flags'],
-
-      # Priority 3: Invalid subcommand attempts (must be first non-flag arg)
-      [['invalid-command'], false, true, 'invalid subcommand (shows error)'],
-      [['lib/foo.rb'], false, true, 'file path (shows error)'],
-
-      # Priority 4: TTY determines mode when no subcommand/force-cli
-      [[], true, true, 'empty args with TTY'],
-      [[], false, false, 'empty args with piped input'],
-      [['--format', 'json'], true, true, 'flags only with TTY'],
-      [['--format', 'json'], false, false, 'flags only with piped input'],
-      [['-r', 'foo', '--format', 'json'], false, false, 'multiple flags with piped input'],
-
-      # Edge cases: flags before subcommands should now be detected as CLI mode
-      [['--format', 'json', 'list'], false, true, 'flag first = CLI mode'],
-      [['-r', 'foo', 'summary'], false, true, 'option first = CLI mode'],
-    ].freeze
-
     CLI_MODE_SCENARIOS.each do |argv, is_tty, expected, description|
       it "#{expected ? 'CLI' : 'MCP'}: #{description}" do
         stdin = double('stdin', tty?: is_tty)
@@ -60,15 +69,6 @@ RSpec.describe SimpleCovMcp::ModeDetector do
   end
 
   describe '.mcp_server_mode?' do
-    # Simpler test cases for the inverse method
-    MCP_SCENARIOS = [
-      [[], false, true, 'piped input, no args'],
-      [['--format', 'json'], false, true, 'piped input with flags'],
-      [[], true, false, 'TTY, no args'],
-      [['--force-cli'], false, false, '--force-cli flag'],
-      [['list'], false, false, 'subcommand'],
-    ].freeze
-
     MCP_SCENARIOS.each do |argv, is_tty, expected, description|
       it "#{expected ? 'MCP' : 'CLI'}: #{description}" do
         stdin = double('stdin', tty?: is_tty)
