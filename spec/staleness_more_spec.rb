@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe 'Additional staleness cases' do
+RSpec.describe SimpleCovMcp do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   describe SimpleCovMcp::CoverageModel do
@@ -11,7 +11,7 @@ RSpec.describe 'Additional staleness cases' do
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
         File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] } # 2 entries vs 3 lines in source
       })
-      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage', staleness: :error)
+      model = described_class.new(root: root, resultset: 'coverage', staleness: :error)
       # bar.rb has 2 coverage entries but 3 source lines in fixtures
       expect do
         model.summary_for('lib/bar.rb')

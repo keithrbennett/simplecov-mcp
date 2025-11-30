@@ -31,18 +31,6 @@ RSpec/ContextWording:
     - 'spec/option_parsers/error_helper_spec.rb'
     - 'spec/staleness_checker_spec.rb'
 
-# Offense count: 38
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: SkipBlocks, EnforcedStyle, OnlyStaticConstants.
-# SupportedStyles: described_class, explicit
-RSpec/DescribedClass:
-  Exclude:
-    - 'spec/errors_edge_cases_spec.rb'
-    - 'spec/model_error_handling_spec.rb'
-    - 'spec/simple_cov_mcp_module_spec.rb'
-    - 'spec/staleness_more_spec.rb'
-    - 'spec/tools_error_handling_spec.rb'
-
 # Offense count: 8
 # This cop supports unsafe autocorrection (--autocorrect-all).
 RSpec/IncludeExamples:

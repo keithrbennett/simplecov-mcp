@@ -9,7 +9,7 @@ require 'simplecov_mcp/tools/uncovered_lines_tool'
 require 'simplecov_mcp/tools/coverage_detailed_tool'
 require 'simplecov_mcp/tools/coverage_totals_tool'
 
-RSpec.describe 'MCP Tool error handling' do
+RSpec.describe SimpleCovMcp::Tools do
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
   before do
@@ -58,7 +58,7 @@ RSpec.describe 'MCP Tool error handling' do
       allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
       allow(model).to receive(:raw_for).and_raise(StandardError, 'Raw data error')
 
-      response = SimpleCovMcp::Tools::CoverageRawTool.call(
+      response = described_class.call(
         path: 'lib/foo.rb',
         error_mode: 'log',
         server_context: server_context
@@ -78,7 +78,7 @@ RSpec.describe 'MCP Tool error handling' do
       allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
       allow(model).to receive(:uncovered_for).and_raise(StandardError, 'Uncovered error')
 
-      response = SimpleCovMcp::Tools::UncoveredLinesTool.call(
+      response = described_class.call(
         path: 'lib/foo.rb',
         error_mode: 'log',
         server_context: server_context
@@ -98,7 +98,7 @@ RSpec.describe 'MCP Tool error handling' do
       allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
       allow(model).to receive(:detailed_for).and_raise(StandardError, 'Detailed error')
 
-      response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
+      response = described_class.call(
         path: 'lib/foo.rb',
         error_mode: 'log',
         server_context: server_context
@@ -116,7 +116,7 @@ RSpec.describe 'MCP Tool error handling' do
     it 'handles errors during totals calculation' do
       allow(SimpleCovMcp::CoverageModel).to receive(:new).and_raise(StandardError, 'Model error')
 
-      response = SimpleCovMcp::Tools::CoverageTotalsTool.call(
+      response = described_class.call(
         error_mode: 'log',
         server_context: server_context
       )

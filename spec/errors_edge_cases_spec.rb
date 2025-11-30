@@ -2,24 +2,24 @@
 
 require 'spec_helper'
 
-RSpec.describe 'SimpleCovMcp error edge cases' do
+RSpec.describe SimpleCovMcp do
   describe SimpleCovMcp::ConfigurationError do
     describe '#user_friendly_message' do
       it 'prefixes message with "Configuration error:"' do
-        error = SimpleCovMcp::ConfigurationError.new('Invalid option value')
+        error = described_class.new('Invalid option value')
 
         expect(error.user_friendly_message).to eq('Configuration error: Invalid option value')
       end
 
       it 'handles empty message' do
-        error = SimpleCovMcp::ConfigurationError.new('')
+        error = described_class.new('')
 
         expect(error.user_friendly_message).to eq('Configuration error: ')
       end
 
       it 'handles nil message' do
         # When nil is passed to StandardError, it uses the class name as the message
-        error = SimpleCovMcp::ConfigurationError.new(nil)
+        error = described_class.new(nil)
 
         expect(error.user_friendly_message).to eq('Configuration error: SimpleCovMcp::ConfigurationError')
       end
@@ -36,7 +36,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
           raise ArgumentError, "Can't convert"
         end
 
-        error = SimpleCovMcp::CoverageDataStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           file_path: 'test.rb',
@@ -58,7 +58,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
           'unparseable_time_string'
         end
 
-        error = SimpleCovMcp::CoverageDataStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           file_path: 'test.rb',
@@ -87,7 +87,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
           raise ArgumentError, "Can't convert"
         end
 
-        error = SimpleCovMcp::CoverageDataStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           file_path: 'test.rb',
@@ -106,7 +106,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
     describe 'default message generation' do
       it 'uses default message when message is nil with file_path' do
-        error = SimpleCovMcp::CoverageDataStaleError.new(
+        error = described_class.new(
           nil, # No message provided - triggers default_message
           nil,
           file_path: 'test.rb',
@@ -123,7 +123,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'uses generic default message when file_path is nil' do
         # This tests the fallback path when file_path is nil: fp = file_path || 'file'
-        error = SimpleCovMcp::CoverageDataStaleError.new(
+        error = described_class.new(
           nil, # No message - triggers default_message
           nil,
           file_path: nil, # No file path - triggers 'file' fallback
@@ -142,7 +142,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
     describe 'default message generation' do
       # These tests exercise the private default_message method
       it 'includes project stale info when message is nil' do
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           nil, # StandardError sets message to class name when nil
           nil,
           cov_timestamp: 1000,
@@ -159,7 +159,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
         # Directly test the private default_message method for coverage
         # This is necessary because user_friendly_message uses `message || default_message`
         # and StandardError sets message to class name when initialized with nil
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'explicit message',
           nil,
           cov_timestamp: 1000
@@ -174,7 +174,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
     describe 'large file list truncation' do
       it 'shows all files when there are 10 or fewer deleted files' do
         deleted_files = (1..10).map { |i| "deleted_file_#{i}.rb" }
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           cov_timestamp: 1000,
@@ -191,7 +191,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'truncates and shows ellipsis when there are more than 10 deleted files' do
         deleted_files = (1..15).map { |i| "deleted_file_#{i}.rb" }
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           cov_timestamp: 1000,
@@ -214,7 +214,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'shows all files when there are 10 or fewer missing files' do
         missing_files = (1..10).map { |i| "missing_file_#{i}.rb" }
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           cov_timestamp: 1000,
@@ -231,7 +231,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'truncates and shows ellipsis when there are more than 10 missing files' do
         missing_files = (1..12).map { |i| "missing_file_#{i}.rb" }
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           cov_timestamp: 1000,
@@ -252,7 +252,7 @@ RSpec.describe 'SimpleCovMcp error edge cases' do
 
       it 'truncates and shows ellipsis when there are more than 10 newer files' do
         newer_files = (1..20).map { |i| "newer_file_#{i}.rb" }
-        error = SimpleCovMcp::CoverageDataProjectStaleError.new(
+        error = described_class.new(
           'Test error',
           nil,
           cov_timestamp: 1000,

@@ -7,10 +7,10 @@ RSpec.describe SimpleCovMcp do
   # These tests verify the integration with ModeDetector
   describe 'mode detection integration' do
     it 'uses ModeDetector for CLI mode detection' do
-      expect(SimpleCovMcp::ModeDetector).to receive(:cli_mode?).with(['--force-cli'])
+      expect(described_class::ModeDetector).to receive(:cli_mode?).with(['--force-cli'])
         .and_return(true)
-      expect(SimpleCovMcp::CoverageCLI).to receive_message_chain(:new, :run)
-      SimpleCovMcp.run(['--force-cli'])
+      expect(described_class::CoverageCLI).to receive_message_chain(:new, :run)
+      described_class.run(['--force-cli'])
     end
   end
 
@@ -20,12 +20,12 @@ RSpec.describe SimpleCovMcp do
     it 'creates context from default when no current context exists' do
       Thread.current[:simplecov_mcp_context] = nil
 
-      SimpleCovMcp.active_log_file = '/tmp/test.log'
+      described_class.active_log_file = '/tmp/test.log'
 
-      expect(SimpleCovMcp.context).not_to be_nil
-      expect(SimpleCovMcp.active_log_file).to eq('/tmp/test.log')
+      expect(described_class.context).not_to be_nil
+      expect(described_class.active_log_file).to eq('/tmp/test.log')
     ensure
-      SimpleCovMcp.active_log_file = File::NULL
+      described_class.active_log_file = File::NULL
     end
   end
 end

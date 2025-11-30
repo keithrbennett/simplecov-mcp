@@ -11,7 +11,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       allow(JSON).to receive(:parse).and_raise(JSON::ParserError.new('unexpected token'))
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data format')
         expect(error.message).to include('unexpected token')
@@ -26,7 +26,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied reading coverage data')
         expect(error.message).to include('Permission denied')
@@ -46,7 +46,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         .and_return(malformed_resultset.to_json)
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
@@ -72,7 +72,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         .and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
@@ -101,7 +101,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Invalid path in coverage data')
         expect(error.message).to include('null byte')
@@ -115,7 +115,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         # Verify the original error message details are preserved
         expect(error.message).to include('765')
@@ -132,7 +132,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied')
         expect(error.message).to match(/\.resultset\.json/)
@@ -170,7 +170,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         )
 
         expect do
-          SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+          described_class.new(root: root, resultset: 'coverage')
         end.to raise_error(test_case[:expected_type]) do |error|
           expect(error.message).to include(test_case[:expected_content])
         end
@@ -186,7 +186,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: '/nonexistent/path')
+        described_class.new(root: root, resultset: '/nonexistent/path')
       end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Specified resultset not found')
       end
@@ -199,7 +199,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Something went wrong during resultset lookup')
       end
@@ -213,7 +213,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       )
 
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
         expect(error.message).to include('Failed to load coverage data')
         expect(error.message).to include('Some completely unrelated runtime error')
@@ -224,7 +224,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
   describe 'all_files error handling' do
     it 'skips files that raise FileError during coverage lookup' do
       # This exercises the `next` statement in the all_files loop when FileError is raised
-      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+      model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise FileError for one specific file
       allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines).and_call_original
@@ -245,7 +245,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
   describe 'resolve method error handling' do
     it 'converts RuntimeError from lookup_lines to FileError' do
       # This exercises the RuntimeError rescue clause in the resolve method
-      model = SimpleCovMcp::CoverageModel.new(root: root, resultset: 'coverage')
+      model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise RuntimeError for a specific file
       allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
