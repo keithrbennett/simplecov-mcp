@@ -47,7 +47,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
     let(:expected_pattern) { /Error: invalid args/ }
     let(:log_fragment) { 'invalid args' }
 
-    include_examples 'friendly response and logged'
+    it_behaves_like 'friendly response and logged'
   end
 
   context 'with standard error' do
@@ -56,6 +56,6 @@ RSpec.describe SimpleCovMcp::BaseTool do
     let(:expected_pattern) { /Error: .*File not found: missing.rb/ }
     let(:log_fragment) { 'File not found' }
 
-    include_examples 'friendly response and logged'
+    it_behaves_like 'friendly response and logged'
   end
 end

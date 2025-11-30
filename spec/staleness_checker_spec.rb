@@ -59,7 +59,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
   end
 
   context 'when computing file staleness details' do
-    include_examples 'a staleness check',
+    it_behaves_like 'a staleness check',
       description: 'detects newer file vs coverage timestamp',
       file_lines: ['a', 'b'],
       coverage_lines: [1, 1],
@@ -76,7 +76,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expected_stale_char: 'T',
       expected_error: SimpleCovMcp::CoverageDataStaleError
 
-    include_examples 'a staleness check',
+    it_behaves_like 'a staleness check',
       description: 'detects length mismatch between source and coverage',
       file_lines: ['a', 'b', 'c', 'd'],
       coverage_lines: [1, 1],
@@ -93,7 +93,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expected_stale_char: 'L',
       expected_error: SimpleCovMcp::CoverageDataStaleError
 
-    include_examples 'a staleness check',
+    it_behaves_like 'a staleness check',
       description: 'treats missing file as stale',
       file_lines: nil,
       coverage_lines: [1, 1, 1],
@@ -108,7 +108,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
       expected_stale_char: 'M',
       expected_error: SimpleCovMcp::CoverageDataStaleError
 
-    include_examples 'a staleness check',
+    it_behaves_like 'a staleness check',
       description: 'is not stale when timestamps and lengths match',
       file_lines: ['a', 'b', 'c'],
       coverage_lines: [1, 0, nil],

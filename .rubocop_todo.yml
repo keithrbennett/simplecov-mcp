@@ -11,12 +11,6 @@
 # Prefixes: when, with, without
 # Offense count: 8
 # This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/IncludeExamples:
-  Exclude:
-    - 'spec/base_tool_spec.rb'
-    - 'spec/cli_error_spec.rb'
-    - 'spec/staleness_checker_spec.rb'
-
 # Offense count: 3
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:

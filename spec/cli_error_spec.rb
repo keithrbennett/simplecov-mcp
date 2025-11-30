@@ -40,7 +40,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'summary', 'lib/missing.rb'] }
     let(:expected_message) { 'File error: File not found: lib/missing.rb' }
 
-    include_examples 'maps error to exit 1 with message'
+    it_behaves_like 'maps error to exit 1 with message'
   end
 
   context 'when mapping EACCES' do
@@ -49,7 +49,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'raw', 'lib/secret.rb'] }
     let(:expected_message) { 'Permission denied: lib/secret.rb' }
 
-    include_examples 'maps error to exit 1 with message'
+    it_behaves_like 'maps error to exit 1 with message'
   end
 
   it 'emits detailed stale coverage info and exits 1' do
