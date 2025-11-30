@@ -44,12 +44,16 @@ module Spec
         raise "MCP server timed out after #{timeout} seconds"
       end
 
-      def call_json(request_hash, **kwargs)
-        call(requests: request_hash, **kwargs)
+      def call_json(request_hash, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
+        close_stdin: true)
+        call(requests: request_hash, input: input, env: env, lib_path: lib_path,
+          exe_path: exe_path, timeout: timeout, close_stdin: close_stdin)
       end
 
-      def call_json_stream(request_hashes, **kwargs)
-        call(requests: Array(request_hashes), **kwargs)
+      def call_json_stream(request_hashes, input: nil, env: {}, lib_path:, exe_path:, timeout: 5,
+        close_stdin: true)
+        call(requests: Array(request_hashes), input: input, env: env, lib_path: lib_path,
+          exe_path: exe_path, timeout: timeout, close_stdin: close_stdin)
       end
 
       def build_payload(requests, input)

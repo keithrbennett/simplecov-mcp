@@ -30,8 +30,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   end
 
   it 'configures CLI to enforce stale checking when requested' do
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(model).to receive_messages(
+    model = instance_double(SimpleCovMcp::CoverageModel,
       all_files: [
         { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
           'stale' => false }
@@ -39,13 +38,22 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
       relativize: ->(payload) { payload },
       format_table: 'Mock table output'
     )
-    expect(SimpleCovMcp::CoverageModel).to receive(:new).with(
+    allow(SimpleCovMcp::CoverageModel).to receive(:new).with(
       root: root,
       resultset: nil,
       staleness: :error,
       tracked_globs: nil
     ).and_return(model)
+    allow(model).to receive(:format_table).and_return('Mock table output')
 
     described_class.call(root: root, staleness: :error, server_context: server_context)
+
+    expect(SimpleCovMcp::CoverageModel).to have_received(:new).with(
+      root: root,
+      resultset: nil,
+      staleness: :error,
+      tracked_globs: nil
+    )
+    expect(model).to have_received(:format_table)
   end
 end
