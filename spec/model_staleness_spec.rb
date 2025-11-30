@@ -6,8 +6,8 @@ require 'tempfile'
 RSpec.describe SimpleCovMcp::CoverageModel do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
-  def with_stubbed_coverage_timestamp(ts) = begin
-    mock_resultset_with_timestamp(root, ts)
+  def with_stubbed_coverage_timestamp(timestamp) = begin
+    mock_resultset_with_timestamp(root, timestamp)
     yield
   end
 

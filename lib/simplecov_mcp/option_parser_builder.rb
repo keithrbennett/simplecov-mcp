@@ -16,19 +16,19 @@ module SimpleCovMcp
 
     def build_option_parser
       require 'optparse'
-      OptionParser.new do |o|
-        configure_banner(o)
-        define_subcommands_help(o)
-        define_options(o)
-        define_examples(o)
-        add_help_handler(o)
+      OptionParser.new do |parser|
+        configure_banner(parser)
+        define_subcommands_help(parser)
+        define_options(parser)
+        define_examples(parser)
+        add_help_handler(parser)
       end
     end
 
     private
 
-    def configure_banner(o)
-      o.banner = <<~BANNER
+    def configure_banner(parser)
+      parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:      simplecov-mcp [options] [subcommand] [args]
         Repository: https://github.com/keithrbennett/simplecov-mcp
@@ -38,8 +38,8 @@ module SimpleCovMcp
         BANNER
     end
 
-    def define_subcommands_help(o)
-      o.separator <<~SUBCOMMANDS
+    def define_subcommands_help(parser)
+      parser.separator <<~SUBCOMMANDS
         Subcommands:
           list                    Show files coverage (default: table, or use --format)
           summary <path>          Show covered/total/% for a file
@@ -54,59 +54,63 @@ module SimpleCovMcp
         SUBCOMMANDS
     end
 
-    def define_options(o)
-      o.separator 'Options:'
-      o.on('-r', '--resultset PATH', String,
+    def define_options(parser)
+      parser.separator 'Options:'
+      parser.on('-r', '--resultset PATH', String,
         'Path or directory that contains .resultset.json (default: coverage/.resultset.json)') \
-      do |v|
-        config.resultset = v
+      do |value|
+        config.resultset = value
       end
-      o.on('-R', '--root PATH', String, 'Project root (default: .)') { |v| config.root = v }
-      o.on('-f', '--format FORMAT', String,
-        'Output format: t[able]|j[son]|pretty-json|y[aml]|a[wesome-print] (default: table)') do |v|
-        config.format = normalize_format(v)
+      parser.on('-R', '--root PATH', String, 'Project root (default: .)') do |value|
+        config.root = value
       end
-      o.on('-o', '--sort-order ORDER', String,
-        'Sort order for list: a[scending]|d[escending] (default ascending)') do |v|
-        config.sort_order = normalize_sort_order(v)
+      parser.on(
+        '-f', '--format FORMAT', String,
+        'Output format: t[able]|j[son]|pretty-json|y[aml]|a[wesome-print] (default: table)'
+      ) do |value|
+        config.format = normalize_format(value)
       end
-      o.on('-s', '--source MODE', String,
-        'Source display: f[ull]|u[ncovered]') do |v|
-        config.source_mode = normalize_source_mode(v)
+      parser.on('-o', '--sort-order ORDER', String,
+        'Sort order for list: a[scending]|d[escending] (default ascending)') do |value|
+        config.sort_order = normalize_sort_order(value)
       end
-      o.on('-c', '--context-lines N', Integer,
-        'Context lines around uncovered lines (default: 2)') do |v|
-        config.source_context = v
+      parser.on('-s', '--source MODE', String,
+        'Source display: f[ull]|u[ncovered]') do |value|
+        config.source_mode = normalize_source_mode(value)
       end
-      o.on('--color', 'Enable ANSI colors for source output') { config.color = true }
-      o.on('--no-color', 'Disable ANSI colors') { config.color = false }
-      o.on('-S', '--staleness MODE', String,
-        'Staleness detection: o[ff]|e[rror] (default off)') do |v|
-        config.staleness = normalize_staleness(v)
+      parser.on('-c', '--context-lines N', Integer,
+        'Context lines around uncovered lines (default: 2)') do |value|
+        config.source_context = value
       end
-      o.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list/totals subcommands)') do |v|
-        config.tracked_globs = v
+      parser.on('--color', 'Enable ANSI colors for source output') { config.color = true }
+      parser.on('--no-color', 'Disable ANSI colors') { config.color = false }
+      parser.on('-S', '--staleness MODE', String,
+        'Staleness detection: o[ff]|e[rror] (default off)') do |value|
+        config.staleness = normalize_staleness(value)
       end
-      o.on('-l', '--log-file PATH', String,
-        'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') do |v|
-        config.log_file = v
+      parser.on('-g', '--tracked-globs x,y,z', Array,
+        'Globs for filtering files (list/totals subcommands)') do |value|
+        config.tracked_globs = value
       end
-      o.on('--error-mode MODE', String,
+      parser.on('-l', '--log-file PATH', String,
+        'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') do |value|
+        config.log_file = value
+      end
+      parser.on('--error-mode MODE', String,
         'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
-        'off (silent), log (log errors to file), debug (verbose with backtraces)') do |v|
-        config.error_mode = normalize_error_mode(v)
+        'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
+        config.error_mode = normalize_error_mode(value)
       end
-      o.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
+      parser.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
         # This flag is mainly for mode detection - no action needed here
       end
-      o.on('-v', '--version', 'Show version information and exit') do
+      parser.on('-v', '--version', 'Show version information and exit') do
         config.show_version = true
       end
     end
 
-    def define_examples(o)
-      o.separator <<~EXAMPLES
+    def define_examples(parser)
+      parser.separator <<~EXAMPLES
 
         Examples:
           simplecov-mcp --resultset coverage list
@@ -116,9 +120,9 @@ module SimpleCovMcp
         EXAMPLES
     end
 
-    def add_help_handler(o)
-      o.on('-h', '--help', 'Show help') do
-        puts o
+    def add_help_handler(parser)
+      parser.on('-h', '--help', 'Show help') do
+        puts parser
         gem_root = File.expand_path('../..', __dir__)
         puts "\nFor more detailed help, consult README.md and docs/user/**/*.md"
         puts "in the installed gem at: #{gem_root}"
@@ -126,24 +130,24 @@ module SimpleCovMcp
       end
     end
 
-    def normalize_sort_order(v)
-      OptionNormalizers.normalize_sort_order(v, strict: true)
+    def normalize_sort_order(value)
+      OptionNormalizers.normalize_sort_order(value, strict: true)
     end
 
-    def normalize_source_mode(v)
-      OptionNormalizers.normalize_source_mode(v, strict: true)
+    def normalize_source_mode(value)
+      OptionNormalizers.normalize_source_mode(value, strict: true)
     end
 
-    def normalize_staleness(v)
-      OptionNormalizers.normalize_staleness(v, strict: true)
+    def normalize_staleness(value)
+      OptionNormalizers.normalize_staleness(value, strict: true)
     end
 
-    def normalize_error_mode(v)
-      OptionNormalizers.normalize_error_mode(v, strict: true)
+    def normalize_error_mode(value)
+      OptionNormalizers.normalize_error_mode(value, strict: true)
     end
 
-    def normalize_format(v)
-      OptionNormalizers.normalize_format(v, strict: true)
+    def normalize_format(value)
+      OptionNormalizers.normalize_format(value, strict: true)
     end
   end
 end

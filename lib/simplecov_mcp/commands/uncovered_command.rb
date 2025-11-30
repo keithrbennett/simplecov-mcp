@@ -11,7 +11,7 @@ module SimpleCovMcp
         handle_with_path(args, 'uncovered') do |path|
           presenter = Presenters::CoverageUncoveredPresenter.new(model: model, path: path)
           data = presenter.absolute_payload
-          break if emit_structured_format_with_optional_source(data, model, path)
+          break if emit_structured_format_with_optional_source?(data, model, path)
 
           relative_path = presenter.relative_path
           summary = data['summary']

@@ -8,7 +8,7 @@ require_relative '../lib/simplecov_mcp'
 
 def check_coverage_data
   unless File.exist?('spec/fixtures/project1/coverage/.resultset.json')
-    puts <<~EOS
+    puts <<~DOC
       Error: Coverage data file not found.
 
       Please run this script from project root directory:
@@ -18,17 +18,17 @@ def check_coverage_data
       If coverage data is missing, run tests first to generate it:
 
           bundle exec rspec
-    EOS
+    DOC
     exit 1
   end
 end
 
 def output_examples
-  puts <<~EOS
+  puts <<~DOC
     # simplecov-mcp Library Usage Examples
     =============================================
 
-  EOS
+  DOC
 
   # Initialize coverage model
   # Using the built-in coverage data from running specs
@@ -37,15 +37,15 @@ def output_examples
     resultset: 'spec/fixtures/project1/coverage'
   )
 
-  puts <<~EOS
+  puts <<~DOC
     ## 1. Full Coverage Table
     ```
     #{model.format_table}
     ```
 
-  EOS
+  DOC
 
-  puts <<~EOS
+  puts <<~DOC
     ## 2. Filter by Directory (lib/ only)
     ```ruby
     # Filter files by directory (e.g., only show files in lib/)
@@ -55,21 +55,21 @@ def output_examples
     # => formatted table showing only files from lib/ directory
     ```
 
-  EOS
+  DOC
 
   # Execute the code
   all_files_data = model.all_files
   lib_files = all_files_data.select { |file| file['file'].include?('/lib/') }
   lib_files_table = model.format_table(lib_files)
-  puts <<~EOS
+  puts <<~DOC
     Result:
     ```
     #{lib_files_table}
     ```
 
-  EOS
+  DOC
 
-  puts <<~EOS
+  puts <<~DOC
     ## 3. Filter by Pattern (files with specific naming)
     ```ruby
     # Filter by pattern (e.g., only show files with "foo" in name)
@@ -78,20 +78,20 @@ def output_examples
     # => formatted table showing only files with 'foo' in filename
     ```
 
-  EOS
+  DOC
 
   # Execute the code
   foo_files = all_files_data.select { |file| file['file'].include?('foo') }
   foo_table = model.format_table(foo_files)
-  puts <<~EOS
+  puts <<~DOC
     Result:
     ```
     #{foo_table}
     ```
 
-    EOS
+  DOC
 
-  puts <<~EOS
+  puts <<~DOC
     ## 4. Filter by Coverage Threshold (only high-coverage files)
     ```ruby
     # Filter by coverage percentage (e.g., only files >= 50% coverage)
@@ -100,20 +100,20 @@ def output_examples
     # => formatted table showing only well-covered files
     ```
 
-    EOS
+  DOC
 
   # Execute the code
   high_coverage_files = all_files_data.select { |file| file['percentage'] >= 50.0 }
   high_coverage_table = model.format_table(high_coverage_files)
-  puts <<~EOS
+  puts <<~DOC
     Result:
     ```
     #{high_coverage_table}
     ```
 
-    EOS
+  DOC
 
-  puts <<~EOS
+  puts <<~DOC
     ## 5. Staleness Analysis
     ```ruby
     # Analyze coverage staleness to find potentially problematic files
@@ -126,7 +126,7 @@ def output_examples
     puts model.format_table(healthy_files, sort_order: :descending)
     ```
 
-    EOS
+  DOC
 
   # Execute the stale analysis
   stale_files, healthy_files = all_files_data.partition { |file| file['stale'] }
@@ -149,7 +149,7 @@ def output_examples
   puts 'Then run this script again to see partition results change.'
   puts
 
-  puts <<~EOS
+  puts <<~DOC
     ## Summary
     This example demonstrates how simplecov-mcp can be used as a library to:
     - Load and query coverage data
@@ -160,7 +160,7 @@ def output_examples
 
     The table formatting functionality (format_table) is now accessible
     directly in library mode, not just through the CLI!
-  EOS
+  DOC
 end
 
 def main

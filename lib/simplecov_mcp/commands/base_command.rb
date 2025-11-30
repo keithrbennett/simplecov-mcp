@@ -34,14 +34,14 @@ module SimpleCovMcp
         raise FilePermissionError.new("Permission denied: #{path}")
       end
 
-      def maybe_output_structured_format(obj, model)
+      def maybe_output_structured_format?(obj, model)
         return false if config.format == :table
 
         puts SimpleCovMcp::Formatters.format(model.relativize(obj), config.format)
         true
       end
 
-      def emit_structured_format_with_optional_source(data, model, path)
+      def emit_structured_format_with_optional_source?(data, model, path)
         return false if config.format == :table
 
         relativized = model.relativize(data)

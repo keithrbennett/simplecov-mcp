@@ -172,7 +172,7 @@ module SimpleCovMcp
       )
 
       # Check if the source file has been modified since coverage was generated
-      len_mismatch = check_length_mismatch(cov_len, adjusted_src_len)
+      len_mismatch = length_mismatch?(cov_len, adjusted_src_len)
       newer = check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch)
 
       {
@@ -227,7 +227,7 @@ module SimpleCovMcp
     #
     # Note: Empty coverage (cov_len == 0) is not considered a mismatch, as it may represent
     # files that were never executed or files that are legitimately empty.
-    def check_length_mismatch(cov_len, adjusted_src_len)
+    def length_mismatch?(cov_len, adjusted_src_len)
       cov_len.positive? && adjusted_src_len != cov_len
     end
 
