@@ -270,10 +270,7 @@ RSpec/NestedGroups:
   Enabled: false
 
 RSpec/DescribeClass:
-  Enabled: true
-  Exclude:
-    - 'spec/integration_spec.rb'
-    - 'spec/**/*_integration_spec.rb'
+  Enabled: false
 
 RSpec/DescribeMethod:
   Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")

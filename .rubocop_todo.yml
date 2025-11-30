@@ -31,20 +31,6 @@ RSpec/ContextWording:
     - 'spec/option_parsers/error_helper_spec.rb'
     - 'spec/staleness_checker_spec.rb'
 
-# Offense count: 9
-# Configuration parameters: IgnoredMetadata.
-RSpec/DescribeClass:
-  Exclude:
-    - 'spec/cli_enumerated_options_spec.rb'
-    - 'spec/error_mode_spec.rb'
-    - 'spec/errors_edge_cases_spec.rb'
-    - 'spec/file_based_mcp_tools_spec.rb'
-    - 'spec/logging_fallback_spec.rb'
-    - 'spec/mcp_logging_spec.rb'
-    - 'spec/simplecov_mcp_opts_spec.rb'
-    - 'spec/staleness_more_spec.rb'
-    - 'spec/tools_error_handling_spec.rb'
-
 # Offense count: 38
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: SkipBlocks, EnforcedStyle, OnlyStaticConstants.
