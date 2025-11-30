@@ -4,6 +4,7 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
+
   subject(:model) { described_class.new(root: root) }
 
   describe 'initialization error handling' do

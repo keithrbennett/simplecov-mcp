@@ -46,6 +46,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
     let(:tool) { 'coverage_summary' }
     let(:expected_pattern) { /Error: invalid args/ }
     let(:log_fragment) { 'invalid args' }
+
     include_examples 'friendly response and logged'
   end
 
@@ -54,6 +55,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
     let(:tool) { 'coverage_raw' }
     let(:expected_pattern) { /Error: .*File not found: missing.rb/ }
     let(:log_fragment) { 'File not found' }
+
     include_examples 'friendly response and logged'
   end
 end

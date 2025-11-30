@@ -5,6 +5,7 @@ require 'fileutils'
 
 RSpec.describe SimpleCovMcp::StalenessChecker do
   let(:tmpdir) { Dir.mktmpdir('scmcp-stale') }
+
   after { FileUtils.remove_entry(tmpdir) if tmpdir && File.directory?(tmpdir) }
 
   def write_file(path, lines)

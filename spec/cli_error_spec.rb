@@ -38,6 +38,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     let(:raised_error) { Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb') }
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'summary', 'lib/missing.rb'] }
     let(:expected_message) { 'File error: File not found: lib/missing.rb' }
+
     include_examples 'maps error to exit 1 with message'
   end
 
@@ -46,6 +47,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     let(:raised_error) { Errno::EACCES.new('Permission denied @ rb_sysopen - secret.rb') }
     let(:invoke_args) { ['--root', root, '--resultset', 'coverage', 'raw', 'lib/secret.rb'] }
     let(:expected_message) { 'Permission denied: lib/secret.rb' }
+
     include_examples 'maps error to exit 1 with message'
   end
 
