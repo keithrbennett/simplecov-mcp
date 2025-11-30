@@ -302,7 +302,7 @@ module SimpleCovMcp
       file_abs = File.absolute_path(path, @root)
       begin
         coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
-      rescue RuntimeError => e
+      rescue RuntimeError
         raise FileError.new("No coverage data found for file: #{path}")
       end
       @checker.check_file!(file_abs, coverage_lines) unless @checker.off?
@@ -311,7 +311,7 @@ module SimpleCovMcp
       end
 
       [file_abs, coverage_lines]
-    rescue Errno::ENOENT => e
+    rescue Errno::ENOENT
       raise FileNotFoundError.new("File not found: #{path}")
     end
 

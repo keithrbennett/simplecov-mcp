@@ -34,7 +34,7 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
   it 'returns all files coverage data with counts' do
     response = subject
-    data, item = expect_mcp_text_json(response, expected_keys: ['files', 'counts'])
+    data, _item = expect_mcp_text_json(response, expected_keys: ['files', 'counts'])
 
     files = data['files']
     counts = data['counts']

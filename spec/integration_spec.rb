@@ -176,7 +176,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      data, item = expect_mcp_text_json(summary_response, expected_keys: ['file', 'summary'])
+      data, _item = expect_mcp_text_json(summary_response, expected_keys: ['file', 'summary'])
       expect(data['summary']).to include('covered' => 2, 'total' => 3)
 
       # Test raw coverage tool
@@ -187,7 +187,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      raw_data, raw_item = expect_mcp_text_json(raw_response, expected_keys: ['file', 'lines'])
+      raw_data, _raw_item = expect_mcp_text_json(raw_response, expected_keys: ['file', 'lines'])
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
 
       # Test all files tool
@@ -249,7 +249,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     it 'provides helpful CLI error messages' do
-      output, error, status = run_cli_with_status(
+      _output, error, status = run_cli_with_status(
         '--root', project_root, '--resultset', coverage_dir, 'summary', 'lib/nonexistent.rb'
       )
 

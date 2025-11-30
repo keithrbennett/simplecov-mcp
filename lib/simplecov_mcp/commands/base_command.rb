@@ -28,9 +28,9 @@ module SimpleCovMcp
       def handle_with_path(args, name)
         path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
         yield(path)
-      rescue Errno::ENOENT => e
+      rescue Errno::ENOENT
         raise FileNotFoundError.new("File not found: #{path}")
-      rescue Errno::EACCES => e
+      rescue Errno::EACCES
         raise FilePermissionError.new("Permission denied: #{path}")
       end
 

@@ -396,7 +396,6 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
     it 'accepts sort_order parameter' do
       # Test that sort_order parameter is passed through correctly
-      rows_desc = model.all_files(sort_order: :descending)
       output_asc = model.format_table(sort_order: :ascending)
       output_desc = model.format_table(sort_order: :descending)
 
