@@ -91,6 +91,93 @@ Layout/SpaceInsideHashLiteralBraces:
 Layout/TrailingWhitespace:
   Enabled: true
 
+
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: true
+  AllowedMethods:
+    - change
+    - not_change
+    - raise_error
+
+Lint/SuppressedException:
+  AllowComments: true
+
+Lint/UnusedBlockArgument:
+  AllowUnusedKeywordArguments: true
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+# ===== Naming =====
+
+Naming/AccessorMethodName:
+  Enabled: true
+
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: optional
+
+Naming/PredicatePrefix:
+  Enabled: true
+  AllowedMethods:
+    - is_a?
+
+Naming/VariableNumber:
+  EnforcedStyle: normalcase
+
+# ===== RSpec specific cops =====
+
+RSpec/ContextWording:
+  Enabled: true
+  Prefixes:
+    - when
+    - with
+    - without
+    - if
+    - unless
+    - for
+
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/DescribeMethod:
+  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MessageSpies:
+  Enabled: false  # Allow both mock (receive) and spy (have_received) styles
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false  # Gem uses SimpleCovMcp but paths use simplecov_mcp per gem naming convention
+
+RSpec/VerifiedDoubleReference:
+  Enabled: false  # Allow string references when class may not be loaded
+
+RSpec/VerifiedDoubles:
+  Enabled: false  # Allow both verified and unverified doubles
+
+# ===== Security =====
+
+Security/Eval:
+  Enabled: true
+
+Security/MarshalLoad:
+  Enabled: true
+
+Security/YAMLLoad:
+  Enabled: true
+
 # ===== Style =====
 
 Style/AccessModifierDeclarations:
@@ -209,119 +296,3 @@ Style/TrailingCommaInHashLiteral:
 
 Style/WordArray:
   Enabled: false
-
-# ===== Metrics (All Disabled per request) =====
-
-Metrics/AbcSize:
-  Enabled: false
-
-Metrics/BlockLength:
-  Enabled: false
-
-Metrics/BlockNesting:
-  Enabled: false
-
-Metrics/ClassLength:
-  Enabled: false
-
-Metrics/CyclomaticComplexity:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
-Metrics/ModuleLength:
-  Enabled: false
-
-Metrics/ParameterLists:
-  Enabled: false
-
-Metrics/PerceivedComplexity:
-  Enabled: false
-
-# ===== Lint =====
-
-Lint/AmbiguousBlockAssociation:
-  Enabled: true
-  AllowedMethods:
-    - change
-    - not_change
-    - raise_error
-
-Lint/SuppressedException:
-  AllowComments: true
-
-Lint/UnusedBlockArgument:
-  AllowUnusedKeywordArguments: true
-
-Lint/UnusedMethodArgument:
-  AllowUnusedKeywordArguments: true
-
-# ===== Naming =====
-
-Naming/AccessorMethodName:
-  Enabled: true
-
-Naming/MemoizedInstanceVariableName:
-  EnforcedStyleForLeadingUnderscores: optional
-
-Naming/PredicatePrefix:
-  Enabled: true
-  AllowedMethods:
-    - is_a?
-
-Naming/VariableNumber:
-  EnforcedStyle: normalcase
-
-# ===== Security =====
-
-Security/Eval:
-  Enabled: true
-
-Security/MarshalLoad:
-  Enabled: true
-
-Security/YAMLLoad:
-  Enabled: true
-
-# ===== RSpec specific cops =====
-
-RSpec/ContextWording:
-  Enabled: true
-  Prefixes:
-    - when
-    - with
-    - without
-    - if
-    - unless
-    - for
-
-RSpec/DescribeClass:
-  Enabled: false
-
-RSpec/DescribeMethod:
-  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
-
-RSpec/ExampleLength:
-  Enabled: false
-
-RSpec/MessageSpies:
-  Enabled: false  # Allow both mock (receive) and spy (have_received) styles
-
-RSpec/MultipleExpectations:
-  Enabled: false
-
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-
-RSpec/NestedGroups:
-  Enabled: false
-
-RSpec/SpecFilePathFormat:
-  Enabled: false  # Gem uses SimpleCovMcp but paths use simplecov_mcp per gem naming convention
-
-RSpec/VerifiedDoubleReference:
-  Enabled: false  # Allow string references when class may not be loaded
-
-RSpec/VerifiedDoubles:
-  Enabled: false  # Allow both verified and unverified doubles
