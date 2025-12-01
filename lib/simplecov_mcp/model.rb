@@ -220,7 +220,7 @@ module SimpleCovMcp
     end
 
     private def header_row(widths)
-      sprintf(
+      format(
         "│ %-#{widths[:file]}s │ %#{widths[:pct]}s │ %#{widths[:covered]}s │ %#{widths[:total]}s │ %#{widths[:stale]}s │",
         'File', ' %', 'Covered', 'Total', 'Stale'.center(widths[:stale])
       )
@@ -228,7 +228,7 @@ module SimpleCovMcp
 
     private def data_row(file_data, widths)
       stale_text_str = file_data['stale'] ? file_data['stale'].to_s : ''
-      sprintf(
+      format(
         "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
         file_data['file'],
         file_data['percentage'],

@@ -62,12 +62,12 @@ module SimpleCovMcp
         end
 
         lines = []
-        lines << sprintf('%6s  %2s | %s', 'Line', ' ', 'Source')
-        lines << sprintf('%6s  %2s-+-%s', '------', '--', '-' * 60)
+        lines << format('%6s  %2s | %s', 'Line', ' ', 'Source')
+        lines << format('%6s  %2s-+-%s', '------', '--', '-' * 60)
 
         rows.each do |r|
           m = marker.call(r['covered'], r['hits'])
-          lines << sprintf('%6d  %2s | %s', r['line'], m, r['code'])
+          lines << format('%6d  %2s | %s', r['line'], m, r['code'])
         end
         lines.join("\n")
       end
@@ -75,10 +75,10 @@ module SimpleCovMcp
       def format_detailed_rows(rows)
         # Simple aligned columns: line, hits, covered
         out = []
-        out << sprintf('%6s  %6s  %7s', 'Line', 'Hits', 'Covered')
-        out << sprintf('%6s  %6s  %7s', '-----', '----', '-------')
+        out << format('%6s  %6s  %7s', 'Line', 'Hits', 'Covered')
+        out << format('%6s  %6s  %7s', '-----', '----', '-------')
         rows.each do |r|
-          out << sprintf('%6d  %6d  %5s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
+          out << format('%6d  %6d  %5s', r['line'], r['hits'], r['covered'] ? 'yes' : 'no')
         end
         out.join("\n")
       end
