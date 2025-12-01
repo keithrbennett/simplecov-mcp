@@ -102,10 +102,10 @@ module SimpleCovMcp
 
     def active_log_file=(value)
       current = Thread.current[THREAD_CONTEXT_KEY]
-      if current
-        Thread.current[THREAD_CONTEXT_KEY] = current.with_log_target(value)
+      Thread.current[THREAD_CONTEXT_KEY] = if current
+        current.with_log_target(value)
       else
-        Thread.current[THREAD_CONTEXT_KEY] = default_context.with_log_target(value)
+        default_context.with_log_target(value)
       end
       value # rubocop:disable Lint/Void -- return assigned log target for symmetry
     end
