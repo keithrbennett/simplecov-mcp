@@ -208,7 +208,7 @@ Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: no_comma
 
 Style/WordArray:
-  EnforcedStyle: brackets
+  Enabled: false
 
 # ===== Metrics (All Disabled per request) =====
 

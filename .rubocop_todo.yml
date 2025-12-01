@@ -6,20 +6,4 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 26
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle, MinSize, WordRegex.
-# SupportedStyles: percent, brackets
-Style/WordArray:
-  Exclude:
-    - 'lib/simplecov_mcp/base_tool.rb'
-    - 'lib/simplecov_mcp/cli.rb'
-    - 'lib/simplecov_mcp/constants.rb'
-    - 'lib/simplecov_mcp/mode_detector.rb'
-    - 'lib/simplecov_mcp/model.rb'
-    - 'lib/simplecov_mcp/option_parser_builder.rb'
-    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
-    - 'spec/constants_spec.rb'
-    - 'spec/path_relativizer_spec.rb'
-    - 'spec/presenters/project_coverage_presenter_spec.rb'
-    - 'spec/shared_examples/file_based_mcp_tools.rb'
+# ALL FIXED!!!
