@@ -238,7 +238,7 @@ module SimpleCovMcp
     # - If len_mismatch is true, set newer to false (length mismatch takes precedence)
     # - This way, staleness is categorized as either 'T' (time-based) OR 'L' (length-based), not both
     private def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch)
-      newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
+      newer = file_mtime && file_mtime.to_i > coverage_ts.to_i
       # If there's a length mismatch, don't also flag as "newer" - the mismatch is more specific
       newer &&= !len_mismatch
       newer
