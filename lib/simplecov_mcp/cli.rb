@@ -96,7 +96,7 @@ module SimpleCovMcp
 
       # Verify it's a valid subcommand if present
       if @cmd && !SUBCOMMANDS.include?(@cmd)
-        raise UsageError.new("Unknown subcommand: '#{@cmd}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}")
+        raise UsageError, "Unknown subcommand: '#{@cmd}'. Valid subcommands: #{SUBCOMMANDS.join(', ')}"
       end
 
       # Any remaining arguments belong to the subcommand
@@ -162,12 +162,10 @@ module SimpleCovMcp
       return if misplaced.empty?
 
       option_list = misplaced.join(', ')
-      raise UsageError.new(
-        "Global option(s) must come BEFORE the subcommand.\n" \
+      raise UsageError, "Global option(s) must come BEFORE the subcommand.\n" \
         "You used: #{cmd} #{option_list}\n" \
         "Correct: #{option_list} #{cmd}\n\n" \
         "Example: simplecov-mcp --format json #{cmd}"
-      )
     end
 
     private def handle_user_facing_error(error)

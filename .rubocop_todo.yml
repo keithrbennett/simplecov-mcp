@@ -6,19 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 16
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: EnforcedStyle, AllowedCompactTypes.
-# SupportedStyles: compact, exploded
-Style/RaiseArgs:
-  Exclude:
-    - 'lib/simplecov_mcp/cli.rb'
-    - 'lib/simplecov_mcp/commands/base_command.rb'
-    - 'lib/simplecov_mcp/model.rb'
-    - 'lib/simplecov_mcp/resolvers/coverage_line_resolver.rb'
-    - 'lib/simplecov_mcp/resultset_loader.rb'
-    - 'spec/commands/base_command_spec.rb'
-
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantConstantBase:

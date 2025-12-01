@@ -27,9 +27,9 @@ module SimpleCovMcp
         path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
         yield(path)
       rescue Errno::ENOENT
-        raise FileNotFoundError.new("File not found: #{path}")
+        raise FileNotFoundError, "File not found: #{path}"
       rescue Errno::EACCES
-        raise FilePermissionError.new("Permission denied: #{path}")
+        raise FilePermissionError, "Permission denied: #{path}"
       end
 
       protected def maybe_output_structured_format?(obj, model)

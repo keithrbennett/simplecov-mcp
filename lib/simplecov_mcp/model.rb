@@ -144,7 +144,7 @@ module SimpleCovMcp
     private def load_coverage_data(resultset, staleness, tracked_globs)
       rs = CovUtil.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs)
-      coverage_map = loaded.coverage_map or raise CoverageDataError.new("No 'coverage' key found in resultset file: #{rs}")
+      coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 
       @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
       @cov_timestamp = loaded.timestamp
@@ -301,16 +301,16 @@ module SimpleCovMcp
       begin
         coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
       rescue RuntimeError
-        raise FileError.new("No coverage data found for file: #{path}")
+        raise FileError, "No coverage data found for file: #{path}"
       end
       @checker.check_file!(file_abs, coverage_lines) unless @checker.off?
       if coverage_lines.nil?
-        raise FileError.new("No coverage data found for file: #{path}")
+        raise FileError, "No coverage data found for file: #{path}"
       end
 
       [file_abs, coverage_lines]
     rescue Errno::ENOENT
-      raise FileNotFoundError.new("File not found: #{path}")
+      raise FileNotFoundError, "File not found: #{path}"
     end
 
     private def totals_from_rows(rows)

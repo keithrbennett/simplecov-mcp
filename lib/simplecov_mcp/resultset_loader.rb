@@ -16,7 +16,7 @@ module SimpleCovMcp
         raw = JSON.parse(File.read(resultset_path))
 
         suites = extract_suite_entries(raw, resultset_path)
-        raise CoverageDataError.new("No test suite with coverage data found in resultset file: #{resultset_path}") if suites.empty?
+        raise CoverageDataError, "No test suite with coverage data found in resultset file: #{resultset_path}" if suites.empty?
 
         coverage_map = build_coverage_map(suites, resultset_path)
         Result.new(
@@ -47,7 +47,7 @@ module SimpleCovMcp
 
       private def normalize_suite_coverage(coverage, suite_name:, resultset_path:)
         unless coverage.is_a?(Hash)
-          raise CoverageDataError.new("Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{resultset_path}")
+          raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{resultset_path}"
         end
 
         needs_adaptation = coverage.values.any? { |value| value.is_a?(Array) }
@@ -73,9 +73,7 @@ module SimpleCovMcp
       private def require_simplecov_for_merge!(resultset_path)
         require 'simplecov'
       rescue LoadError
-        raise CoverageDataError.new(
-          "Multiple coverage suites detected in #{resultset_path}, but the simplecov gem could not be loaded. Install simplecov to enable suite merging."
-        )
+        raise CoverageDataError, "Multiple coverage suites detected in #{resultset_path}, but the simplecov gem could not be loaded. Install simplecov to enable suite merging."
       end
 
       private def log_duplicate_suite_names(suites)

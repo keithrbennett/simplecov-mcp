@@ -30,7 +30,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
         # Stub the block to raise Errno::ENOENT
         expect do
           test_command.public_handle_with_path(args, 'test') do |_path|
-            raise Errno::ENOENT.new('No such file or directory')
+            raise Errno::ENOENT, 'No such file or directory'
           end
         end.to raise_error(SimpleCovMcp::FileNotFoundError, 'File not found: lib/missing.rb')
       end
@@ -40,7 +40,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
 
         expect do
           test_command.public_handle_with_path(args, 'test') do |_path|
-            raise Errno::ENOENT.new('No such file or directory')
+            raise Errno::ENOENT, 'No such file or directory'
           end
         end.to raise_error(SimpleCovMcp::FileNotFoundError, /some\/other\/path\.rb/)
       end
@@ -53,7 +53,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
         # Stub the block to raise Errno::EACCES
         expect do
           test_command.public_handle_with_path(args, 'test') do |_path|
-            raise Errno::EACCES.new('Permission denied')
+            raise Errno::EACCES, 'Permission denied'
           end
         end.to raise_error(SimpleCovMcp::FilePermissionError, 'Permission denied: lib/secret.rb')
       end
@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
 
         expect do
           test_command.public_handle_with_path(args, 'test') do |_path|
-            raise Errno::EACCES.new('Permission denied')
+            raise Errno::EACCES, 'Permission denied'
           end
         end.to raise_error(SimpleCovMcp::FilePermissionError, /\/root\/protected\.rb/)
       end
