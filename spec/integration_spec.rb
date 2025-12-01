@@ -748,7 +748,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           params: {
             name: 'coverage_summary_tool',
             arguments: {
-              path: 12345, # Should be string, not number
+              path: 12_345, # Should be string, not number
               root: project_root,
               resultset: coverage_dir
             }
