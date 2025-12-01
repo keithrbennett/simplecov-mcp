@@ -14,7 +14,7 @@ module SimpleCovMcp
         # Suggest a subcommand when an invalid option matches a known subcommand
         option = extract_invalid_option(message)
 
-        if option && option.start_with?('--') && @subcommands.include?(option[2..-1])
+        if option&.start_with?('--') && @subcommands.include?(option[2..-1])
           suggest_subcommand(option)
         else
           # Generic message from OptionParser

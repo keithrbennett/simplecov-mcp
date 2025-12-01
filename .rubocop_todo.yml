@@ -10,9 +10,9 @@
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: ConvertCodeThatCanStartToReturnNil, AllowedMethods, MaxChainLength.
 # AllowedMethods: present?, blank?, presence, try, try!
-Style/SafeNavigation:
-  Exclude:
-    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
+#Style/SafeNavigation:
+#  Exclude:
+#    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
