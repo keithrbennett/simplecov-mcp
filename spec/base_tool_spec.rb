@@ -8,7 +8,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
     Class.new do
       attr_reader :messages
 
-      def initialize() = @messages = []
+      def initialize = @messages = []
       def error(msg) = @messages << msg
     end.new
   end
