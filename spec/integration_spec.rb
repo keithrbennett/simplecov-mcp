@@ -707,7 +707,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           text = content.first['text']
           expect(text.downcase).to include('error').or include('not found')
         else
-          fail 'Expected either error or result field in response'
+          raise 'Expected either error or result field in response'
         end
       end
 
@@ -736,7 +736,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           text = content.first['text']
           expect(text.downcase).to include('error').or include('required').or include('path')
         else
-          fail 'Expected either error or result field in response'
+          raise 'Expected either error or result field in response'
         end
       end
 
