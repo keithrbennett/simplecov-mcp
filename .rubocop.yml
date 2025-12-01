@@ -30,56 +30,8 @@ Layout/LineLength:
     - '\s*#'  # Allow long comment lines
     - '^\s*\#.*http'  # Allow URLs in comments
 
-Layout/EmptyLinesAroundClassBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/EmptyLinesAroundModuleBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/EmptyLinesAroundBlockBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/SpaceInsideHashLiteralBraces:
-  EnforcedStyle: space
-
-Layout/SpaceInsideBlockBraces:
-  EnforcedStyle: space
-
-Layout/HashAlignment:
-  EnforcedHashRocketStyle: key
-  EnforcedColonStyle: key
-
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-Layout/FirstArrayElementIndentation:
-  EnforcedStyle: consistent
-
-Layout/FirstHashElementIndentation:
-  EnforcedStyle: consistent
-
-Layout/EndAlignment:
-  EnforcedStyleAlignWith: start_of_line
-
-Layout/ExtraSpacing:
-  Enabled: false  # AllowForAlignment doesn't reliably detect intentional vertical alignment
-
-Layout/LineEndStringConcatenationIndentation:
-  Enabled: false  # Allow indented continuation style for backslash string concatenation
-
-Layout/TrailingWhitespace:
-  Enabled: true
-
-Layout/ParameterAlignment:
-  EnforcedStyle: with_fixed_indentation
-
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
-
-Layout/MultilineMethodCallBraceLayout:
-  Enabled: false  # Disabled due to bug: miscalculates indentation, places closing paren at column 1 instead of aligning with method call
-
-# Layout cops we explicitly don't want enforced:
 
 Layout/ClosingHeredocIndentation:
   Enabled: false  # Don't enforce heredoc closing delimiter indentation
@@ -90,8 +42,54 @@ Layout/EmptyLines:
 Layout/EmptyLinesAroundAccessModifier:
   EnforcedStyle: around  # Require empty line before AND after private/protected/public
 
+Layout/EmptyLinesAroundBlockBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EmptyLinesAroundClassBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EmptyLinesAroundModuleBody:
+  EnforcedStyle: no_empty_lines
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: start_of_line
+
+Layout/ExtraSpacing:
+  Enabled: false  # AllowForAlignment doesn't reliably detect intentional vertical alignment
+
+Layout/FirstArrayElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
+
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: key
+  EnforcedColonStyle: key
+
 Layout/IndentationConsistency:
   EnforcedStyle: normal  # Use standard Ruby indentation (not Rails indented_internal_methods)
+
+Layout/LineEndStringConcatenationIndentation:
+  Enabled: false  # Allow indented continuation style for backslash string concatenation
+
+Layout/MultilineMethodCallBraceLayout:
+  Enabled: false  # Disabled due to bug: miscalculates indentation, places closing paren at column 1 instead of aligning with method call
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/SpaceInsideBlockBraces:
+  EnforcedStyle: space
+
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+
+Layout/TrailingWhitespace:
+  Enabled: true
 
 # ===== Style =====
 
@@ -99,42 +97,24 @@ Style/AccessModifierDeclarations:
   Enabled: true
   EnforcedStyle: inline
 
-Style/StderrPuts:
-  Enabled: false
-
-Style/StringConcatenation:
-  Enabled: false
-
-Style/RedundantConstantBase:
-  Enabled: false
-
-Style/RedundantFormat:
-  Enabled: false
-
-Style/MultilineBlockChain:
-  Enabled: false
-
-Style/FormatStringToken:
-    Enabled: false
-
-Style/StringLiterals:
-  EnforcedStyle: single_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: single_quotes
-
 Style/BlockDelimiters:
   EnforcedStyle: line_count_based
 
-Style/FrozenStringLiteralComment:
-  Enabled: true
-  EnforcedStyle: always
+Style/ClassAndModuleChildren:
+  Enabled: false  # Allow both nested and compact module/class definitions
 
 Style/Documentation:
   Enabled: false
 
-Style/ClassAndModuleChildren:
-  Enabled: false  # Allow both nested and compact module/class definitions
+Style/EmptyMethod:
+  EnforcedStyle: expanded
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
 
 Style/GuardClause:
   Enabled: false  # Don't enforce guard clauses
@@ -142,23 +122,11 @@ Style/GuardClause:
 Style/IfUnlessModifier:
   Enabled: false  # Allow both if/unless modifiers and multi-line forms
 
-Style/NumericPredicate:
-  Enabled: false  # Allow both .zero? and == 0
-
-Style/SymbolArray:
-  EnforcedStyle: brackets
-
-Style/WordArray:
-  EnforcedStyle: brackets
-
-Style/TrailingCommaInArrayLiteral:
-  EnforcedStyleForMultiline: no_comma
-
-Style/TrailingCommaInHashLiteral:
-  EnforcedStyleForMultiline: no_comma
-
-Style/TrailingCommaInArguments:
-  EnforcedStyleForMultiline: no_comma
+Style/KeywordParametersOrder:
+  Enabled: true
+  Exclude:
+    - 'lib/simplecov_mcp/tools/**/*.rb'  # Tools keep kwarg order to match CLI/docs
+    - 'spec/support/mcp_runner.rb'
 
 Style/Lambda:
   EnforcedStyle: literal
@@ -166,27 +134,20 @@ Style/Lambda:
 Style/LambdaCall:
   Enabled: false
 
-Style/RescueStandardError:
-  EnforcedStyle: implicit
-
-Style/RedundantReturn:
-  Enabled: true
-  AllowMultipleReturnValues: true
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
-
-Style/SingleLineMethods:
-  AllowIfMethodIsEmpty: false
-
 Style/MethodDefParentheses:
   Enabled: false  # Allow both def foo and def foo()
 
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/MultilineTernaryOperator:
+  Enabled: false  # Allow multiline ternary operators
+
+Style/NumericPredicate:
+  Enabled: false  # Allow both .zero? and == 0
+
 Style/ParenthesesAroundCondition:
   AllowInMultilineConditions: true
-
-Style/RegexpLiteral:
-  Enabled: false
 
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:
@@ -196,14 +157,51 @@ Style/PercentLiteralDelimiters:
     '%i': '[]'
     '%I': '[]'
 
-Style/MultilineTernaryOperator:
-  Enabled: false  # Allow multiline ternary operators
+Style/RedundantConstantBase:
+  Enabled: false
 
-Style/KeywordParametersOrder:
+Style/RedundantFormat:
+  Enabled: false
+
+Style/RedundantReturn:
   Enabled: true
-  Exclude:
-    - 'lib/simplecov_mcp/tools/**/*.rb'  # Tools keep kwarg order to match CLI/docs
-    - 'spec/support/mcp_runner.rb'
+  AllowMultipleReturnValues: true
+
+Style/RegexpLiteral:
+  Enabled: false
+
+Style/RescueStandardError:
+  EnforcedStyle: implicit
+
+Style/SingleLineMethods:
+  AllowIfMethodIsEmpty: false
+
+Style/StderrPuts:
+  Enabled: false
+
+Style/StringConcatenation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: single_quotes
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: no_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: no_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: no_comma
+
+Style/WordArray:
+  EnforcedStyle: brackets
 
 # ===== Metrics (All Disabled per request) =====
 
@@ -236,15 +234,6 @@ Metrics/PerceivedComplexity:
 
 # ===== Lint =====
 
-Lint/SuppressedException:
-  AllowComments: true
-
-Lint/UnusedMethodArgument:
-  AllowUnusedKeywordArguments: true
-
-Lint/UnusedBlockArgument:
-  AllowUnusedKeywordArguments: true
-
 Lint/AmbiguousBlockAssociation:
   Enabled: true
   AllowedMethods:
@@ -252,7 +241,22 @@ Lint/AmbiguousBlockAssociation:
     - not_change
     - raise_error
 
+Lint/SuppressedException:
+  AllowComments: true
+
+Lint/UnusedBlockArgument:
+  AllowUnusedKeywordArguments: true
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
 # ===== Naming =====
+
+Naming/AccessorMethodName:
+  Enabled: true
+
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: optional
 
 Naming/PredicatePrefix:
   Enabled: true
@@ -261,12 +265,6 @@ Naming/PredicatePrefix:
 
 Naming/VariableNumber:
   EnforcedStyle: normalcase
-
-Naming/AccessorMethodName:
-  Enabled: true
-
-Naming/MemoizedInstanceVariableName:
-  EnforcedStyleForLeadingUnderscores: optional
 
 # ===== Security =====
 
@@ -279,29 +277,7 @@ Security/MarshalLoad:
 Security/YAMLLoad:
   Enabled: true
 
-# Devs can use fetch when they deem it necessary, no need for this rule
-Style/FetchEnvVar:
-  Enabled: false
-
 # ===== RSpec specific cops =====
-
-RSpec/ExampleLength:
-  Enabled: false
-
-RSpec/MultipleExpectations:
-  Enabled: false
-
-RSpec/NestedGroups:
-  Enabled: false
-
-RSpec/DescribeClass:
-  Enabled: false
-
-RSpec/DescribeMethod:
-  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
-
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
 
 RSpec/ContextWording:
   Enabled: true
@@ -313,14 +289,32 @@ RSpec/ContextWording:
     - unless
     - for
 
+RSpec/DescribeClass:
+  Enabled: false
+
+RSpec/DescribeMethod:
+  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
+
+RSpec/ExampleLength:
+  Enabled: false
+
 RSpec/MessageSpies:
   Enabled: false  # Allow both mock (receive) and spy (have_received) styles
 
-RSpec/VerifiedDoubles:
-  Enabled: false  # Allow both verified and unverified doubles
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+RSpec/SpecFilePathFormat:
+  Enabled: false  # Gem uses SimpleCovMcp but paths use simplecov_mcp per gem naming convention
 
 RSpec/VerifiedDoubleReference:
   Enabled: false  # Allow string references when class may not be loaded
 
-RSpec/SpecFilePathFormat:
-  Enabled: false  # Gem uses SimpleCovMcp but paths use simplecov_mcp per gem naming convention
+RSpec/VerifiedDoubles:
+  Enabled: false  # Allow both verified and unverified doubles
