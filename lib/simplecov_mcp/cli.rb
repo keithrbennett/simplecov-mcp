@@ -127,11 +127,11 @@ module SimpleCovMcp
       @cmd = 'version' if config.show_version
     end
 
-    private def with_context_if_available(ctx)
+    private def with_context_if_available(ctx, &block)
       if ctx
-        SimpleCovMcp.with_context(ctx) { yield }
+        SimpleCovMcp.with_context(ctx, &block)
       else
-        yield
+        block.call
       end
     end
 
