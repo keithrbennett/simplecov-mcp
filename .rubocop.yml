@@ -102,6 +102,9 @@ Style/AccessModifierDeclarations:
 Style/StderrPuts:
   Enabled: false
 
+Style/StringConcatenation:
+  Enabled: false
+
 Style/RedundantConstantBase:
   Enabled: false
 
