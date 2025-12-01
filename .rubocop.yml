@@ -102,6 +102,9 @@ Style/AccessModifierDeclarations:
 Style/RedundantConstantBase:
   Enabled: false
 
+Style/RedundantFormat:
+  Enabled: false
+
 Style/MultilineBlockChain:
   Enabled: false
 
