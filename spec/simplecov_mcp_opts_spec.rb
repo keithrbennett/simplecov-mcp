@@ -119,7 +119,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = '--force-cli'
 
       # Mock STDIN to not be a TTY (would normally trigger MCP server mode)
-      allow(STDIN).to receive(:tty?).and_return(false)
+      allow($stdin).to receive(:tty?).and_return(false)
 
       # Stub exit to prevent process termination
       allow(Kernel).to receive(:exit)
@@ -140,7 +140,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
       ENV['SIMPLECOV_MCP_OPTS'] = ''
 
       # Mock STDIN to not be a TTY and to provide valid JSON-RPC
-      allow(STDIN).to receive(:tty?).and_return(false)
+      allow($stdin).to receive(:tty?).and_return(false)
 
       # Provide a minimal JSON-RPC request that the server can handle
       json_request = JSON.generate({
@@ -154,7 +154,7 @@ RSpec.describe 'SIMPLECOV_MCP_OPTS Environment Variable' do
         }
       })
 
-      allow(STDIN).to receive(:gets).and_return(json_request, nil)
+      allow($stdin).to receive(:gets).and_return(json_request, nil)
 
       # Capture output to verify MCP server response
       output = nil

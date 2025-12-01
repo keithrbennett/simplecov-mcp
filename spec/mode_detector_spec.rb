@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::ModeDetector do
     end
 
     it 'uses STDIN by default when no stdin parameter given' do
-      allow(STDIN).to receive(:tty?).and_return(true)
+      allow($stdin).to receive(:tty?).and_return(true)
       expect(described_class.cli_mode?([])).to be true
     end
   end

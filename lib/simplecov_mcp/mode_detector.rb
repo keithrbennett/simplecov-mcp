@@ -11,7 +11,7 @@ module SimpleCovMcp
     # Reference shared constant to avoid duplication with CoverageCLI
     OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
 
-    def self.cli_mode?(argv, stdin: STDIN)
+    def self.cli_mode?(argv, stdin: $stdin)
       # 1. Explicit flags that force CLI mode always win
       cli_options = %w[--force-cli -h --help --version -v]
       return true if argv.intersect?(cli_options)
@@ -27,7 +27,7 @@ module SimpleCovMcp
       stdin.tty?
     end
 
-    def self.mcp_server_mode?(argv, stdin: STDIN)
+    def self.mcp_server_mode?(argv, stdin: $stdin)
       !cli_mode?(argv, stdin: stdin)
     end
 

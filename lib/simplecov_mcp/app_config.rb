@@ -26,7 +26,7 @@ module SimpleCovMcp
       sort_order: :ascending,
       source_mode: nil,
       source_context: 2,
-      color: STDOUT.tty?,
+      color: $stdout.tty?,
       error_mode: :log,
       staleness: :off,
       tracked_globs: nil,

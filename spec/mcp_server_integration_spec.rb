@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'MCP Server Bootstrap' do
   it 'does not crash on startup in non-TTY environments' do
     # Simulate a non-TTY environment, which should trigger MCP mode
-    allow(STDIN).to receive(:tty?).and_return(false)
+    allow($stdin).to receive(:tty?).and_return(false)
 
     # The server will try to run, but we only need to ensure it gets past
     # the point where the NameError would have occurred. We can mock the
