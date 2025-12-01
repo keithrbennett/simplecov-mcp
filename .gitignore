@@ -1,9 +1,9 @@
 # AI Tools
-.claude/
-.gemini/
+/.claude/
+/.gemini/
 
 # Directory for untracked AI reports, of which there may be many
-untracked-ai-reports/
+/untracked/
 
 # Bundler
 /.bundle/
@@ -11,7 +11,7 @@ untracked-ai-reports/
 
 # Build artifacts
 /pkg/
-*.gem
+/*.gem
 
 # Coverage
 /coverage/
@@ -34,9 +34,9 @@ untracked-ai-reports/
 /.env
 /.env.*
 /.direnv/
-.ruby-version
-.ruby-gemset
-.rbenv-version
+/.ruby-version
+/.ruby-gemset
+/.rbenv-version
 
 # Editors/IDE
 .DS_Store
@@ -49,10 +49,10 @@ untracked-ai-reports/
 *.log
 
 # Lockfile (for libraries)
-Gemfile.lock
+/Gemfile.lock
 
 # RSpec
-.rspec_status
+/.rspec_status
 
-retired/
-.aider*
+/retired/
+/.aider*
