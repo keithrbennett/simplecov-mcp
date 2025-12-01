@@ -135,7 +135,8 @@ module SimpleCovMcp
     end
 
     private def build_log_message(error, context)
-      parts = ["Error#{context ? " in #{context}" : ''}: #{error.class}: #{error.message}"]
+      context_suffix = context ? " in #{context}" : ''
+      parts = ["Error#{context_suffix}: #{error.class}: #{error.message}"]
 
       if show_stack_traces? && error.backtrace
         parts << error.backtrace.join("\n")

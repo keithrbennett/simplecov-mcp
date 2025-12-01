@@ -9,14 +9,6 @@
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
-# SupportedStyles: trailing_conditional, ternary
-Style/EmptyStringInsideInterpolation:
-  Exclude:
-    - 'lib/simplecov_mcp/error_handler.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
 # SupportedStyles: allow_single_line, allow_always, disallow, require_single_line, require_always
 Style/EndlessMethod:
   Exclude:
