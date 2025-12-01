@@ -24,12 +24,6 @@ AllCops:
 
 # ===== Layout & Formatting =====
 
-Layout/LineLength:
-  Max: 100
-  AllowedPatterns:
-    - '\s*#'  # Allow long comment lines
-    - '^\s*\#.*http'  # Allow URLs in comments
-
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
@@ -73,6 +67,12 @@ Layout/IndentationConsistency:
 Layout/LineEndStringConcatenationIndentation:
   Enabled: false  # Allow indented continuation style for backslash string concatenation
 
+Layout/LineLength:
+  Max: 100
+  AllowedPatterns:
+    - '\s*#'  # Allow long comment lines
+    - '^\s*\#.*http'  # Allow URLs in comments
+
 Layout/MultilineMethodCallBraceLayout:
   Enabled: false  # Disabled due to bug: miscalculates indentation, places closing paren at column 1 instead of aligning with method call
 
@@ -108,6 +108,10 @@ Style/Documentation:
 
 Style/EmptyMethod:
   EnforcedStyle: expanded
+
+# Devs can use fetch when they deem it necessary, no need for this rule
+Style/FetchEnvVar:
+  Enabled: false
 
 Style/FormatStringToken:
   Enabled: false
