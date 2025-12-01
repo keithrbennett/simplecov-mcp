@@ -6,16 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 4
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: AllowedVars, DefaultToNil.
-Style/FetchEnvVar:
-  Exclude:
-    - 'lib/simplecov_mcp.rb'
-    - 'lib/simplecov_mcp/option_parsers/env_options_parser.rb'
-    - 'spec/option_parsers/env_options_parser_spec.rb'
-    - 'spec/simplecov_mcp_opts_spec.rb'
-
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.

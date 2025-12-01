@@ -262,6 +262,10 @@ Security/MarshalLoad:
 Security/YAMLLoad:
   Enabled: true
 
+# Devs can use fetch when they deem it necessary, no need for this rule
+Style/FetchEnvVar:
+  Enabled: false
+
 # ===== RSpec specific cops =====
 
 RSpec/ExampleLength:
