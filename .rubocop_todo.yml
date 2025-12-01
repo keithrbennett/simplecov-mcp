@@ -8,10 +8,10 @@
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
-Style/RescueModifier:
-  Exclude:
-    - 'lib/simplecov_mcp/formatters/source_formatter.rb'
-    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
+#Style/RescueModifier:
+#  Exclude:
+#    - 'lib/simplecov_mcp/formatters/source_formatter.rb'
+#    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
 
 # Offense count: 18
 # This cop supports safe autocorrection (--autocorrect).

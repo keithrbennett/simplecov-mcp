@@ -40,7 +40,11 @@ module SimpleCovMcp
       def build_source_rows(src_lines, cov_lines, mode:, context: 2)
         # Normalize inputs defensively to avoid type errors in formatting
         coverage_lines = cov_lines || []
-        context_line_count = context.to_i rescue 2
+        context_line_count = begin
+          context.to_i
+        rescue
+          2
+        end
         context_line_count = 0 if context_line_count.negative?
 
         n = src_lines.length

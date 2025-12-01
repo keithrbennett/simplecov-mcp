@@ -29,7 +29,9 @@ module SimpleCovMcp
       end
 
       private def extract_invalid_option(message)
-        message.match(/invalid option: (.+)/)[1] rescue nil
+        message.match(/invalid option: (.+)/)[1]
+      rescue
+        nil
       end
 
       private def suggest_subcommand(option)
