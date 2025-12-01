@@ -180,8 +180,7 @@ Style/ParenthesesAroundCondition:
   AllowInMultilineConditions: true
 
 Style/RegexpLiteral:
-  EnforcedStyle: mixed
-  AllowInnerSlashes: true
+  Enabled: false
 
 Style/PercentLiteralDelimiters:
   PreferredDelimiters:

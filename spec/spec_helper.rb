@@ -5,7 +5,7 @@ begin
   require 'simplecov'
   SimpleCov.start do
     enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
-    add_filter %r{^/spec/}
+    add_filter(/^\/spec\//)
     track_files 'lib/**/*.rb'
   end
 
