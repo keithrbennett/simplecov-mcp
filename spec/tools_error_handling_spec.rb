@@ -16,7 +16,7 @@ RSpec.describe SimpleCovMcp::Tools do
     setup_mcp_response_stub
   end
 
-  # Note: VersionTool error handling is difficult to test because the tool is so simple
+  # NOTE: VersionTool error handling is difficult to test because the tool is so simple
   # and doesn't have any complex logic that could fail. The rescue clause in the tool
   # exists for consistency with other tools but is unlikely to be triggered in practice.
 

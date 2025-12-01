@@ -149,7 +149,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
           helper.handle_option_parser_error(error, argv: ['--summary'])
         end
 
-        # Note: The subcommand detection logic isn't fully working as expected
+        # NOTE: The subcommand detection logic isn't fully working as expected
         # because extract_invalid_option doesn't properly parse the error message
         expect(stderr_output).to match(/Error:.*--summary/)
         expect(stderr_output).to match(/Run 'simplecov-mcp --help'/)
