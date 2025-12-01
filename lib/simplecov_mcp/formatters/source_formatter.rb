@@ -19,7 +19,7 @@ module SimpleCovMcp
         begin
           rows = build_source_rows(src, lines_cov, mode: mode, context: context)
           format_source_rows(rows)
-        rescue StandardError
+        rescue
           # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
           '[source not available]'
         end
@@ -95,7 +95,7 @@ module SimpleCovMcp
 
         raw = model.raw_for(path)
         @raw_cache[path] = raw
-      rescue StandardError
+      rescue
         nil
       end
 

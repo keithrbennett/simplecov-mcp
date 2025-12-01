@@ -15,7 +15,7 @@ RSpec.describe SimpleCovMcp::BaseTool do
 
   let(:orig_handler) do
     SimpleCovMcp.error_handler
-  rescue StandardError
+  rescue
     nil
   end
 

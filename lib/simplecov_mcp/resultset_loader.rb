@@ -104,7 +104,7 @@ module SimpleCovMcp
           log_timestamp_warning(raw)
           0
         end
-      rescue StandardError => e
+      rescue => e
         log_timestamp_warning(raw, e)
         0
       end

@@ -35,7 +35,7 @@ module SimpleCovMcp
           end
         end
         nil
-      rescue StandardError
+      rescue
         # Ignore errors during pre-scan; they'll be caught during actual parsing
         nil
       end

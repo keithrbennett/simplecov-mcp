@@ -19,7 +19,7 @@ module SimpleCovMcp
 
       t = Time.at(epoch_seconds.to_i)
       [t.utc.iso8601, t.getlocal.iso8601]
-    rescue StandardError
+    rescue
       [epoch_seconds.to_s, epoch_seconds.to_s]
     end
 
@@ -28,7 +28,7 @@ module SimpleCovMcp
 
       t = time.is_a?(Time) ? time : Time.parse(time.to_s)
       [t.utc.iso8601, t.getlocal.iso8601]
-    rescue StandardError
+    rescue
       [time.to_s, time.to_s]
     end
 
@@ -38,7 +38,7 @@ module SimpleCovMcp
       seconds = file_mtime.to_i - cov_timestamp.to_i
       sign = seconds >= 0 ? '+' : '-'
       "#{sign}#{seconds.abs}s"
-    rescue StandardError
+    rescue
       nil
     end
   end

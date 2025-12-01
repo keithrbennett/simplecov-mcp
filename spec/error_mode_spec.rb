@@ -51,7 +51,7 @@ RSpec.describe 'Error Mode System' do
         # Create an error with a proper backtrace
         begin
           raise StandardError, 'Test error message'
-        rescue StandardError => e
+        rescue => e
           handler.handle_error(e, context: 'test', reraise: false)
         end
 

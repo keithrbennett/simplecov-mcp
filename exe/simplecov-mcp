@@ -14,7 +14,7 @@ begin
     $stderr.puts 'Please run with a supported Ruby version (e.g., via rbenv, rvm, asdf).'
     exit 1
   end
-rescue StandardError
+rescue
   # If anything goes wrong, let the app load and potentially fail with a more specific error.
 end
 

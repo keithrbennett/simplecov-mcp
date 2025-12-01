@@ -113,7 +113,7 @@ module SimpleCovMcp
 
     private def resultset_path
       @resultset_path ||= CovUtil.find_resultset(@root, resultset: @resultset)
-    rescue StandardError
+    rescue
       nil
     end
 
@@ -121,7 +121,7 @@ module SimpleCovMcp
       return 0 unless File.file?(path)
 
       File.foreach(path).count
-    rescue StandardError
+    rescue
       0
     end
 
@@ -135,7 +135,7 @@ module SimpleCovMcp
         f.seek(-1, IO::SEEK_END)
         f.getbyte != 0x0A
       end
-    rescue StandardError
+    rescue
       false
     end
 
