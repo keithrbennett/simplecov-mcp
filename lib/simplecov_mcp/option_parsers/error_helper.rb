@@ -14,7 +14,7 @@ module SimpleCovMcp
         # Suggest a subcommand when an invalid option matches a known subcommand
         option = extract_invalid_option(message)
 
-        if option&.start_with?('--') && @subcommands.include?(option[2..-1])
+        if option&.start_with?('--') && @subcommands.include?(option[2..])
           suggest_subcommand(option)
         else
           # Generic message from OptionParser
@@ -35,7 +35,7 @@ module SimpleCovMcp
       end
 
       private def suggest_subcommand(option)
-        subcommand = option[2..-1]
+        subcommand = option[2..]
         warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
         warn "Try: #{program_name} #{subcommand} [args]"
       end

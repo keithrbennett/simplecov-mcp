@@ -16,10 +16,10 @@
 
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
-Style/SlicingWithRange:
-  Exclude:
-    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
-    - 'lib/simplecov_mcp/resolvers/coverage_line_resolver.rb'
+#Style/SlicingWithRange:
+#  Exclude:
+#    - 'lib/simplecov_mcp/option_parsers/error_helper.rb'
+#    - 'lib/simplecov_mcp/resolvers/coverage_line_resolver.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).

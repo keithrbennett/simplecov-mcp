@@ -29,7 +29,7 @@ module SimpleCovMcp
       private def find_stripped_match(file_abs)
         return unless file_abs.start_with?(cwd_with_slash)
 
-        relative_path = file_abs[(cwd.length + 1)..-1]
+        relative_path = file_abs[(cwd.length + 1)..]
         entry = cov_data[relative_path]
         lines_from_entry(entry)
       end
