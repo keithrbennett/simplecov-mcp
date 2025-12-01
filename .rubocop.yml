@@ -99,6 +99,9 @@ Style/AccessModifierDeclarations:
   Enabled: true
   EnforcedStyle: inline
 
+Style/MultilineBlockChain:
+  Enabled: false
+
 Style/FormatStringToken:
     Enabled: false
 

@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 15
-Style/MultilineBlockChain:
-  Exclude:
-    - 'lib/simplecov_mcp/resolvers/coverage_line_resolver.rb'
-    - 'spec/model_error_handling_spec.rb'
-    - 'spec/option_parsers/env_options_parser_spec.rb'
-    - 'spec/option_parsers/error_helper_spec.rb'
-
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: MinDigits, Strict, AllowedNumbers, AllowedPatterns.
