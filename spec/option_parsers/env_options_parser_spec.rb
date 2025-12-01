@@ -163,7 +163,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
       end
 
       it 'returns nil when normalizer raises RuntimeError' do
-        faulty_normalizer = ->(_) { raise RuntimeError, 'Runtime problem' }
+        faulty_normalizer = ->(_) { raise 'Runtime problem' }
         argv = ['--error-mode=off']
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
