@@ -53,8 +53,8 @@ module SimpleCovMcp
         needs_adaptation = coverage.values.any? { |value| value.is_a?(Array) }
         return coverage unless needs_adaptation
 
-        coverage.each_with_object({}) do |(file, value), acc|
-          acc[file] = value.is_a?(Array) ? { 'lines' => value } : value
+        coverage.transform_values do |value|
+          value.is_a?(Array) ? { 'lines' => value } : value
         end
       end
 
