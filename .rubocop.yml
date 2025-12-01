@@ -99,6 +99,9 @@ Style/AccessModifierDeclarations:
   Enabled: true
   EnforcedStyle: inline
 
+Style/RedundantConstantBase:
+  Enabled: false
+
 Style/MultilineBlockChain:
   Enabled: false
 

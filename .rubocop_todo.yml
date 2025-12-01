@@ -8,12 +8,6 @@
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
-Style/RedundantConstantBase:
-  Exclude:
-    - 'spec/mcp_server_spec.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
 Style/RedundantException:
   Exclude:
     - 'spec/option_parsers/env_options_parser_spec.rb'
