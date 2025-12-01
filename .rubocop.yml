@@ -202,7 +202,7 @@ Style/TrailingCommaInArguments:
   EnforcedStyleForMultiline: no_comma
 
 Style/TrailingCommaInArrayLiteral:
-  EnforcedStyleForMultiline: no_comma
+  Enabled: false
 
 Style/TrailingCommaInHashLiteral:
   EnforcedStyleForMultiline: no_comma
