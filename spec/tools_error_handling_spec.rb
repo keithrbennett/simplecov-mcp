@@ -28,7 +28,7 @@ RSpec.describe SimpleCovMcp::Tools do
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
 
-      data = JSON.parse(item[:text] || item['text'])
+      data = JSON.parse(item['text'])
       expect(data).to have_key('tools')
       expect(data['tools']).not_to be_empty
     end
@@ -48,7 +48,7 @@ RSpec.describe SimpleCovMcp::Tools do
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
+      expect(item['text']).to include('Error')
     end
   end
 
@@ -68,7 +68,7 @@ RSpec.describe SimpleCovMcp::Tools do
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
+      expect(item['text']).to include('Error')
     end
   end
 
@@ -88,7 +88,7 @@ RSpec.describe SimpleCovMcp::Tools do
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
+      expect(item['text']).to include('Error')
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe SimpleCovMcp::Tools do
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
+      expect(item['text']).to include('Error')
     end
   end
 
@@ -124,7 +124,7 @@ RSpec.describe SimpleCovMcp::Tools do
       expect(response).to be_a(MCP::Tool::Response)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      expect(item[:text] || item['text']).to include('Error')
+      expect(item['text']).to include('Error')
     end
   end
 end

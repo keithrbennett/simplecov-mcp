@@ -15,14 +15,14 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
       response = described_class.call(server_context: server_context)
       item = response.payload.first
       expect(item[:type] || item['type']).to eq('text')
-      text = item[:text] || item['text']
+      text = item['text']
       expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
     end
 
     it 'includes the exact version constant value' do
       response = described_class.call(server_context: server_context)
       item = response.payload.first
-      text = item[:text] || item['text']
+      text = item['text']
       expect(text).to include(SimpleCovMcp::VERSION)
     end
 
@@ -30,7 +30,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
       expected_format = "SimpleCovMcp version: #{SimpleCovMcp::VERSION}"
       response = described_class.call(server_context: server_context)
       item = response.payload.first
-      text = item[:text] || item['text']
+      text = item['text']
       expect(text).to eq(expected_format)
     end
 
@@ -49,7 +49,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
       it 'accepts error_mode parameter without affecting output' do
         response = described_class.call(error_mode: 'off', server_context: server_context)
         item = response.payload.first
-        text = item[:text] || item['text']
+        text = item['text']
         expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
       end
 
@@ -74,7 +74,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
           another: { nested: 'data' }
         )
         item = response.payload.first
-        text = item[:text] || item['text']
+        text = item['text']
         expect(text).to eq("SimpleCovMcp version: #{SimpleCovMcp::VERSION}")
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
 
-        error_text = item[:text] || item['text']
+        error_text = item['text']
         expect(error_text).to include('Error')
       end
 
@@ -112,7 +112,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
 
-        error_text = item[:text] || item['text']
+        error_text = item['text']
         expect(error_text).to include('Error')
       end
 
@@ -133,7 +133,7 @@ RSpec.describe SimpleCovMcp::Tools::VersionTool do
         expect(response).to be_a(MCP::Tool::Response)
         item = response.payload.first
         expect(item[:type] || item['type']).to eq('text')
-        error_text = item[:text] || item['text']
+        error_text = item['text']
         expect(error_text).to include('Error')
       end
     end

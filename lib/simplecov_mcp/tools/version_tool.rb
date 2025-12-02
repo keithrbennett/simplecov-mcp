@@ -22,7 +22,7 @@ module SimpleCovMcp
         def call(error_mode: 'log', server_context: nil, **_args)
           with_error_handling('VersionTool', error_mode: error_mode) do
             ::MCP::Tool::Response.new([
-              { type: 'text', text: "SimpleCovMcp version: #{SimpleCovMcp::VERSION}" }
+              { 'type' => 'text', 'text' => "SimpleCovMcp version: #{SimpleCovMcp::VERSION}" }
             ])
           end
         end

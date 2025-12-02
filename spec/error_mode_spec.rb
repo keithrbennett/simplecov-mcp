@@ -88,7 +88,7 @@ RSpec.describe 'Error Mode System' do
 
         response = SimpleCovMcp::BaseTool.handle_mcp_error(test_error, 'TestTool', error_mode: mode)
         expect(response).to be_a(MCP::Tool::Response)
-        expect(response.payload.first[:text]).to include('Error:')
+        expect(response.payload.first['text']).to include('Error:')
       end
     end
   end

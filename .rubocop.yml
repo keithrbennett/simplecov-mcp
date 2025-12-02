@@ -193,6 +193,9 @@ Style/ClassAndModuleChildren:
 Style/Documentation:
   Enabled: false
 
+Style/DoubleNegation:
+  Enabled: false
+
 Style/EmptyMethod:
   EnforcedStyle: expanded
 

@@ -83,7 +83,7 @@ module SimpleCovMcp
       normalized = error.is_a?(SimpleCovMcp::Error) \
         ? error : error_handler.convert_standard_error(error)
       log_mcp_error(normalized, tool_name, error_handler)
-      ::MCP::Tool::Response.new([{ type: 'text', text: "Error: #{normalized.user_friendly_message}" }])
+      ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => "Error: #{normalized.user_friendly_message}" }])
     end
 
     # Respond with JSON as a resource to avoid clients mutating content types.

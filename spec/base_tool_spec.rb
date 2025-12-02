@@ -32,13 +32,13 @@ RSpec.describe SimpleCovMcp::BaseTool do
     it 'returns friendly text' do
       resp = described_class.handle_mcp_error(error, tool, error_mode: :log)
       expect(resp).to be_a(MCP::Tool::Response)
-      expect(resp.payload.first[:text]).to match(expected_pattern)
+      expect(resp.payload.first['text']).to match(expected_pattern)
     end
 
     it 'respects error_mode :off' do
       resp = described_class.handle_mcp_error(error, tool, error_mode: :off)
       expect(resp).to be_a(MCP::Tool::Response)
-      expect(resp.payload.first[:text]).to match(expected_pattern)
+      expect(resp.payload.first['text']).to match(expected_pattern)
     end
   end
 

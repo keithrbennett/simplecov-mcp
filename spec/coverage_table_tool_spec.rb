@@ -14,7 +14,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   def run_tool(staleness: :off)
     # Let real CoverageModel work to test actual format_table behavior
     described_class.call(root: root, staleness: staleness,
-      server_context: server_context).payload.first[:text]
+      server_context: server_context).payload.first['text']
   end
 
   it 'returns a formatted table as a string' do

@@ -41,7 +41,7 @@ module SimpleCovMcp
               tracked_globs: tracked_globs
             )
             # Return text response
-            ::MCP::Tool::Response.new([{ type: 'text', text: table }])
+            ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => table }])
           end
         end
       end
