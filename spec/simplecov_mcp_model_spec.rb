@@ -13,7 +13,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       # Stub find_resultset to return a path, but File.read to raise ENOENT
       allow(SimpleCovMcp::CovUtil).to receive(:find_resultset)
         .and_return('/some/path/.resultset.json')
-      allow(File).to receive(:read).with('/some/path/.resultset.json')
+      allow(JSON).to receive(:load_file).with('/some/path/.resultset.json')
         .and_raise(Errno::ENOENT, 'No such file')
 
       expect do
@@ -268,6 +268,40 @@ RSpec.describe SimpleCovMcp::CoverageModel do
 
   describe 'multiple suites in resultset' do
     let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
+    let(:suite_a_cov) do
+      {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
+      }
+    end
+    let(:suite_b_cov) do
+      {
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 1, 1] }
+      }
+    end
+    let(:resultset) do
+      {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
+      }
+    end
+
+    let(:shared_file) { File.join(root, 'lib', 'foo.rb') }
+    let(:suite_a_cov_combined) do
+      {
+        shared_file => { 'lines' => [1, 0, nil, 0] }
+      }
+    end
+    let(:suite_b_cov_combined) do
+      {
+        shared_file => { 'lines' => [0, 3, nil, 1] }
+      }
+    end
+    let(:resultset_combined) do
+      {
+        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov_combined },
+        'Cucumber' => { 'timestamp' => 150, 'coverage' => suite_b_cov_combined }
+      }
+    end
 
     before do
       allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_wrap_original do
@@ -280,23 +314,11 @@ RSpec.describe SimpleCovMcp::CoverageModel do
           original.call(search_root, resultset: resultset)
         end
       end
-      allow(File).to receive(:read).and_call_original
+      # This line might need to be removed as we now mock JSON.load_file directly
     end
 
     it 'merges coverage data from multiple suites while keeping latest timestamp' do
-      suite_a_cov = {
-        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
-      }
-      suite_b_cov = {
-        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 1, 1] }
-      }
-
-      resultset = {
-        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
-        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
-      }
-
-      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+      allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset)
 
       model = described_class.new(root: root)
       files = model.all_files(sort_order: :ascending)
@@ -308,20 +330,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
     end
 
     it 'combines coverage arrays when the same file appears in multiple suites' do
-      shared_file = File.join(root, 'lib', 'foo.rb')
-      suite_a_cov = {
-        shared_file => { 'lines' => [1, 0, nil, 0] }
-      }
-      suite_b_cov = {
-        shared_file => { 'lines' => [0, 3, nil, 1] }
-      }
-
-      resultset = {
-        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
-        'Cucumber' => { 'timestamp' => 150, 'coverage' => suite_b_cov }
-      }
-
-      allow(File).to receive(:read).with(resultset_path).and_return(resultset.to_json)
+      allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset_combined)
 
       model = described_class.new(root: root)
       detailed = model.detailed_for('lib/foo.rb')

@@ -4,11 +4,37 @@ require 'spec_helper'
 
 RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
+  let(:malformed_resultset) do
+    {
+      'RSpec' => {
+        'coverage' => 'not_a_hash' # Should be a hash, not a string
+      }
+    }
+  end
 
   describe 'initialization error handling' do
+    let(:valid_resultset) do
+      {
+        'RSpec' => {
+          'coverage' => {
+            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] } # Path with NULL byte
+          }
+        },
+        'timestamp' => 1000
+      }
+    end
+    let(:malformed_resultset) do
+      {
+        'RSpec' => {
+          'coverage' => 'not_a_hash' # Should be a hash, not a string
+        }
+      }
+    end
+
     it 'raises CoverageDataError with message detail for invalid JSON format' do
       # Mock JSON.parse to raise JSON::ParserError
-      allow(JSON).to receive(:parse).and_raise(JSON::ParserError.new('unexpected token'))
+      allow(JSON).to receive(:load_file).with(anything)
+        .and_raise(JSON::ParserError.new('unexpected token'))
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -20,8 +46,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
     it 'raises FilePermissionError when coverage file is not readable' do
       # Mock File.read to raise Errno::EACCES
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json')).and_raise(
+      allow(JSON).to receive(:load_file).with(anything).and_raise(
         Errno::EACCES.new('Permission denied')
       )
 
@@ -33,17 +58,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       end
     end
 
-    it 'raises CoverageDataError when resultset structure is invalid (TypeError)' do
-      # Create a malformed resultset that will cause TypeError
-      malformed_resultset = {
-        'RSpec' => {
-          'coverage' => 'not_a_hash' # Should be a hash, not a string
-        }
-      }
 
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json'))
-        .and_return(malformed_resultset.to_json)
+    it 'raises CoverageDataError when resultset structure is invalid (TypeError)' do
+      allow(JSON).to receive(:load_file).with(anything).and_return(malformed_resultset)
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -62,9 +79,9 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
         }
       }
 
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json'))
-        .and_return(malformed_resultset.to_json)
+      allow(File).to receive(:open).and_call_original
+      allow(File).to receive(:open).with(end_with('.resultset.json'), 'r')
+        .and_return(StringIO.new(malformed_resultset.to_json))
 
       broken_map = instance_double('CoverageMap')
       allow(broken_map).to receive(:transform_keys)
@@ -81,20 +98,12 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       end
     end
 
-    it 'raises CoverageDataError when path operations raise ArgumentError' do
-      # Create a valid resultset structure with a problematic path
-      valid_resultset = {
-        'RSpec' => {
-          'coverage' => {
-            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] } # Path with NULL byte
-          },
-          'timestamp' => 1000
-        }
-      }
 
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(end_with('.resultset.json'))
-        .and_return(valid_resultset.to_json)
+
+
+    it 'raises CoverageDataError when path operations raise ArgumentError' do
+      allow(JSON).to receive(:load_file).with(end_with('.resultset.json'))
+        .and_return(valid_resultset)
 
       # Mock File.absolute_path to raise ArgumentError when called with the problematic path
       # But allow it to work for the root initialization
@@ -112,8 +121,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
     end
 
     it 'preserves error context in JSON::ParserError messages' do
-      # Mock JSON.parse to raise JSON::ParserError with specific message
-      allow(JSON).to receive(:parse).and_raise(
+      allow(JSON).to receive(:load_file).with(anything).and_raise(
         JSON::ParserError.new('765: unexpected token at line 3, column 5')
       )
 
@@ -129,8 +137,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
     it 'provides helpful error for permission issues with file path' do
       # Mock to raise permission error with actual file path
       resultset_path = File.join(root, 'coverage', '.resultset.json')
-      allow(File).to receive(:read).and_call_original
-      allow(File).to receive(:read).with(resultset_path).and_raise(
+      allow(JSON).to receive(:load_file).with(resultset_path).and_raise(
         Errno::EACCES.new(resultset_path)
       )
 
@@ -144,39 +151,37 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
   end
 
   describe 'error context preservation' do
-    it 'includes original exception message in all specific error types' do
-      test_cases = [
-        {
-          error_class: JSON::ParserError,
-          message: 'unexpected character at byte 42',
-          expected_type: SimpleCovMcp::CoverageDataError,
-          expected_content: 'unexpected character at byte 42'
-        },
-        {
-          error_class: Errno::EACCES,
-          message: '/path/to/coverage/.resultset.json',
-          expected_type: SimpleCovMcp::FilePermissionError,
-          expected_content: '/path/to/coverage/.resultset.json'
-        },
-        {
-          error_class: TypeError,
-          message: 'no implicit conversion of String into Integer',
-          expected_type: SimpleCovMcp::CoverageDataError,
-          expected_content: 'no implicit conversion'
-        }
-      ]
+    it 'includes original exception message for JSON::ParserError' do
+      allow(JSON).to receive(:load_file).with(anything)
+        .and_raise(JSON::ParserError.new('unexpected character at byte 42'))
 
-      test_cases.each do |test_case|
-        allow(File).to receive(:read).and_call_original
-        allow(File).to receive(:read).with(end_with('.resultset.json')).and_raise(
-          test_case[:error_class].new(test_case[:message])
-        )
+      expect do
+        described_class.new(root: root, resultset: 'coverage')
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+        expect(error.message).to include('unexpected character at byte 42')
+      end
+    end
 
-        expect do
-          described_class.new(root: root, resultset: 'coverage')
-        end.to raise_error(test_case[:expected_type]) do |error|
-          expect(error.message).to include(test_case[:expected_content])
-        end
+    it 'includes original exception message for Errno::EACCES' do
+      resultset_path = File.join(root, 'coverage', '.resultset.json')
+      allow(JSON).to receive(:load_file).with(resultset_path).and_raise(Errno::EACCES.new(resultset_path))
+
+      expect do
+        described_class.new(root: root, resultset: 'coverage')
+      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+        expect(error.message).to include(resultset_path)
+      end
+    end
+
+    it 'includes original exception message for TypeError' do
+      # Mock to cause TypeError within ResultsetLoader's processing
+      allow(JSON).to receive(:load_file).with(anything).and_return(malformed_resultset)
+
+      expect do
+        described_class.new(root: root, resultset: 'coverage')
+      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+        expect(error.message).to include('Invalid coverage data structure')
+        expect(error.message).to include('suite "RSpec"')
       end
     end
   end

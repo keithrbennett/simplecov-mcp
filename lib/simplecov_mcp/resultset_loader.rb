@@ -13,7 +13,8 @@ module SimpleCovMcp
 
     class << self
       def load(resultset_path:)
-        raw = JSON.parse(File.read(resultset_path))
+        raw = JSON.load_file(resultset_path)
+
 
         suites = extract_suite_entries(raw, resultset_path)
         raise CoverageDataError, "No test suite with coverage data found in resultset file: #{resultset_path}" if suites.empty?

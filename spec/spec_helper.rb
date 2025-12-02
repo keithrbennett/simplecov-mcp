@@ -65,14 +65,16 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
     File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0, 1] }
   }
 
-  fake_resultset = {
+  fake_resultset_hash = {
     'RSpec' => {
       'coverage' => coverage || default_coverage
     }.merge(metadata)
   }
 
-  allow(File).to receive(:read).and_call_original
-  allow(File).to receive(:read).with(end_with('.resultset.json')).and_return(fake_resultset.to_json)
+  allow(JSON).to receive(:load_file).and_call_original # Allow real JSON.load_file for other calls
+
+  allow(JSON).to receive(:load_file).with(end_with('.resultset.json'))
+    .and_return(fake_resultset_hash)
   allow(SimpleCovMcp::CovUtil).to receive(:find_resultset)
     .and_wrap_original do |method, search_root, resultset: nil|
     if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
@@ -95,8 +97,8 @@ RSpec.configure do |config|
 
   # Suppress logging during tests by redirecting to /dev/null
   # This is cheap and doesn't break tests that verify logging behavior
-  SimpleCovMcp.default_log_file = File::NULL
-  SimpleCovMcp.active_log_file = File::NULL
+  SimpleCovMcp.default_log_file = 'stderr'
+  SimpleCovMcp.active_log_file = 'stderr'
 
   # Reset log file after each test to ensure tests that change it don't pollute others
   config.after do
