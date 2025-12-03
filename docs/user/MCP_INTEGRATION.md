@@ -213,7 +213,7 @@ For any MCP client that uses JSON configuration:
 
 ### Tool Catalog
 
-simplecov-mcp exposes 9 MCP tools:
+simplecov-mcp exposes 10 MCP tools:
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
@@ -224,6 +224,7 @@ simplecov-mcp exposes 9 MCP tools:
 | `all_files_coverage_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
 | `coverage_totals_tool` | Aggregated line totals | `tracked_globs` |
 | `coverage_table_tool` | Formatted coverage table | `sort_order` |
+| `validate_tool` | Validate coverage policies | `code` or `file` |
 | `help_tool` | Tool discovery | (none) |
 | `version_tool` | Version information | (none) |
 
@@ -298,6 +299,16 @@ These tools analyze individual files. All require `path` parameter.
 **`coverage_table_tool`** - Formatted ASCII table
 - Parameters: `sort_order` (`ascending`|`descending`)
 - Returns: Plain text table
+
+#### Policy Validation Tools
+
+**`validate_tool`** - Validate coverage against custom policies
+- Parameters: Either `code` (Ruby string) OR `file` (path to Ruby file), plus optional `root`, `resultset`, `staleness`, `error_mode`
+- Returns: `{"result": Boolean}` where `true` means policy passed, `false` means failed
+- Security Warning: Predicates execute as arbitrary Ruby code with full system privileges. Only use predicate files from trusted sources.
+- Examples:
+  - Check if all files have at least 80% coverage: `{"code": "->(m) { m.all_files.all? { |f| f['percentage'] >= 80 } }"}`
+  - Run coverage policy from file: `{"file": "coverage_policy.rb"}`
 
 #### Utility Tools
 

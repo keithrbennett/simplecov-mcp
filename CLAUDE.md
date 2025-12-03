@@ -86,6 +86,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - `all_files_coverage_tool` - Project-wide coverage table
 - `coverage_totals_tool` - Aggregated line totals across project
 - `coverage_table_tool` - Formatted coverage table
+- `validate_tool` - Validate coverage against custom policies (Ruby predicates)
 - `help_tool` - Indexed guidance on the tools above
 - `version_tool` - Version information
 
