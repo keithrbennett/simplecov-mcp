@@ -160,11 +160,15 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       it 'exits with status 1' do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
-        expect do
-          helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'])
-        end.to raise_error(SystemExit) do |e|
-          expect(e.status).to eq(1)
+        stderr_output = capture_stderr do
+          expect do
+            helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'])
+          end.to raise_error(SystemExit) do |e|
+            expect(e.status).to eq(1)
+          end
         end
+
+        expect(stderr_output).to include('invalid argument: xyz')
       end
     end
 
