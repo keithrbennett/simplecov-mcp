@@ -51,7 +51,9 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
 
     it 'prints totals as JSON' do
       with_json_output('totals') do |data|
+        expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
         expect(data['files']).to include('total' => 2)
+        expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
       end
     end
   end

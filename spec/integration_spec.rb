@@ -10,6 +10,39 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   let(:coverage_dir) { File.join(project_root, 'coverage') }
   let(:resultset_path) { File.join(coverage_dir, '.resultset.json') }
 
+  describe 'End-to-End Coverage Model Functionality' do
+    it 'loads fixture coverage and surfaces core stats across APIs' do
+      model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
+
+      files = model.all_files
+      expect(files.length).to eq(2)
+      files_by_name = files.to_h { |f| [File.basename(f['file']), f] }
+
+      foo = files_by_name.fetch('foo.rb')
+      bar = files_by_name.fetch('bar.rb')
+      expect(foo['percentage']).to be_within(0.01).of(66.67)
+      expect(bar['percentage']).to be_within(0.01).of(33.33)
+
+      raw = model.raw_for('lib/foo.rb')
+      expect(raw['lines']).to eq([1, 0, nil, 2])
+
+      summary = model.summary_for('lib/foo.rb')
+      expect(summary['summary']).to include('covered' => 2, 'total' => 3)
+
+      uncovered = model.uncovered_for('lib/foo.rb')
+      expect(uncovered['uncovered']).to eq([2])
+
+      detailed = model.detailed_for('lib/foo.rb')
+      expect(detailed['lines']).to include({ 'line' => 2, 'hits' => 0, 'covered' => false })
+
+      table = model.format_table
+      expect(table).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
+      data_lines = table.split("\n").select { |line| line.include?('lib/') }
+      expect(data_lines.first).to include('lib/foo.rb') # Highest coverage first (descending default)
+      expect(data_lines.last).to include('lib/bar.rb')
+    end
+  end
+
   describe 'CLI Integration with Real Coverage Data' do
     it 'executes all major CLI commands without errors' do
       # Test list command
