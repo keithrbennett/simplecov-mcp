@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'support/fake_mcp'
 
 RSpec.describe SimpleCovMcp::MCPServer do
   # This spec verifies the MCP server boot path without requiring the real
@@ -10,55 +11,8 @@ RSpec.describe SimpleCovMcp::MCPServer do
     # Prepare fakes for MCP server and transport
     module ::MCP; end unless defined?(::MCP)
 
-    # Fake server captures the last created instance so we can assert on the
-    # name/version/tools passed in by SimpleCovMcp::MCPServer. The
-    # `last_instance` accessor is a class-level handle to the most recently
-    # instantiated fake. Because the production code constructs the server
-    # internally, we can't grab the instance directly; recording the most
-    # recent instance lets the test fetch it after `run` completes.
-    fake_server_class = Class.new do
-      class << self
-        # Holds the most recently created fake server instance so tests can
-        # inspect it after the code under test performs internal construction.
-        attr_accessor :last_instance
-      end
-      attr_reader :params
-
-      def initialize(name:, version:, tools:)
-        @params = { name: name, version: version, tools: tools }
-        self.class.last_instance = self
-      end
-    end
-
-    # Fake stdio transport records whether `open` was called and the server
-    # it was initialized with, to confirm that the server was started. It also
-    # exposes a `last_instance` class accessor for the same reason as above:
-    # to retrieve the instance created during `run` so we can assert on it.
-    fake_transport_class = Class.new do
-      class << self
-        # Holds the most recently created fake transport instance for later
-        # assertions (e.g., that `open` was invoked).
-        attr_accessor :last_instance
-      end
-      attr_reader :server, :opened
-
-      def initialize(server)
-        @server = server
-        @opened = false
-        self.class.last_instance = self
-      end
-
-      def open
-        @opened = true
-      end
-
-      def opened?
-        @opened
-      end
-    end
-
-    stub_const('MCP::Server', fake_server_class)
-    stub_const('MCP::Server::Transports::StdioTransport', fake_transport_class)
+    stub_const('MCP::Server', FakeMCP::Server)
+    stub_const('MCP::Server::Transports::StdioTransport', FakeMCP::StdioTransport)
 
     server_context = SimpleCovMcp.create_context(
       error_handler: SimpleCovMcp::ErrorHandlerFactory.for_mcp_server,
@@ -73,8 +27,8 @@ RSpec.describe SimpleCovMcp::MCPServer do
     expect(SimpleCovMcp.context).to eq(baseline_context)
 
     # Fetch the instances created during `run` via the class-level hooks.
-    fake_server = fake_server_class.last_instance
-    fake_transport = fake_transport_class.last_instance
+    fake_server = FakeMCP::Server.last_instance
+    fake_transport = FakeMCP::StdioTransport.last_instance
 
     expect(fake_transport).not_to be_nil
     expect(fake_transport).to be_opened

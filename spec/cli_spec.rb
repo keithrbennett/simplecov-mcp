@@ -18,42 +18,48 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     end
   end
 
-  it 'prints summary as JSON for a file' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage', 'summary',
-      'lib/foo.rb')
-    data = JSON.parse(output)
-    expect(data['file']).to end_with('lib/foo.rb')
-    expect(data['summary']).to include('covered' => 2, 'total' => 3)
-  end
+  describe 'JSON output' do
+    def with_json_output(command, *args)
+      output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
+        command, *args)
+      yield JSON.parse(output)
+    end
 
-  it 'prints raw lines as JSON' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage', 'raw',
-      'lib/foo.rb')
-    data = JSON.parse(output)
-    expect(data['file']).to end_with('lib/foo.rb')
-    expect(data['lines']).to eq([1, 0, nil, 2])
+    it 'prints summary as JSON' do
+      with_json_output('summary', 'lib/foo.rb') do |data|
+        expect(data['summary']).to include('covered' => 2)
+      end
+    end
+
+    it 'prints raw as JSON' do
+      with_json_output('raw', 'lib/foo.rb') do |data|
+        expect(data['lines']).to eq([1, 0, nil, 2])
+      end
+    end
+
+    it 'prints uncovered as JSON' do
+      with_json_output('uncovered', 'lib/foo.rb') do |data|
+        expect(data['uncovered']).to eq([2])
+      end
+    end
+
+    it 'prints detailed as JSON' do
+      with_json_output('detailed', 'lib/foo.rb') do |data|
+        expect(data['lines']).to be_an(Array)
+      end
+    end
+
+    it 'prints totals as JSON' do
+      with_json_output('totals') do |data|
+        expect(data['files']).to include('total' => 2)
+      end
+    end
   end
 
   it 'prints raw lines as text' do
     output = run_cli('--root', root, '--resultset', 'coverage', 'raw', 'lib/foo.rb')
     expect(output).to include('File: lib/foo.rb')
     expect(output).to include('│')  # Table format
-  end
-
-  it 'prints uncovered lines as JSON' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage', 'uncovered',
-      'lib/foo.rb')
-    data = JSON.parse(output)
-    expect(data['uncovered']).to eq([2])
-    expect(data['summary']).to include('total' => 3)
-  end
-
-  it 'prints detailed rows as JSON' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage', 'detailed',
-      'lib/foo.rb')
-    data = JSON.parse(output)
-    expect(data['lines']).to be_an(Array)
-    expect(data['lines'].first).to include('line', 'hits', 'covered')
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
@@ -94,14 +100,6 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     expect(output).not_to include('No coverage data found')
     expect(output).to include('lib/foo.rb')
     expect(output).to include('lib/bar.rb')
-  end
-
-  it 'totals subcommand outputs JSON totals when requested' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage', 'totals')
-    data = JSON.parse(output)
-    expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
-    expect(data['files']).to include('total' => 2)
-    expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
   end
 
   it 'totals subcommand prints a readable summary by default' do

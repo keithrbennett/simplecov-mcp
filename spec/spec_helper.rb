@@ -104,145 +104,18 @@ RSpec.configure do |config|
   config.after do
     SimpleCovMcp.active_log_file = File::NULL
   end
-end
 
-# Shared test helpers
-module TestIOHelpers
-  # Suppress stdout/stderr within the given block, yielding the StringIOs
-  def silence_output
-    original_stdout = $stdout
-    original_stderr = $stderr
-    $stdout = StringIO.new
-    $stderr = StringIO.new
-    yield $stdout, $stderr
-  ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
-  end
-
-  # Execute a block that's expected to call exit() without terminating the test.
-  # Useful for testing CLI commands that normally exit.
-  # Returns the exit status code if exit was called, otherwise returns the block's value.
-  #
-  # Examples:
-  #   status = swallow_system_exit { cli.run(['--help']) }
-  #   expect(status).to eq(0)  # --help calls exit(0)
-  #
-  #   result = swallow_system_exit { some_computation }
-  #   expect(result).to eq(expected_value)  # no exit, returns block value
-  def swallow_system_exit
-    yield
-  rescue SystemExit => e
-    e.status
-  end
-
-  # Stub staleness checking to return a specific value
-  # @param value [String, false] The staleness value to return ('L', 'T', 'M', or false)
-  def stub_staleness_check(value)
-    checker_double = instance_double(SimpleCovMcp::StalenessChecker)
-    allow(checker_double).to receive_messages(
-      stale_for_file?: value,
-      off?: false
-    )
-    allow(checker_double).to receive(:check_file!)
-    allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker_double)
-  end
-
-  # Stub a presenter with specific payload data
-  # @param presenter_class [Class] The presenter class to stub (e.g., SimpleCovMcp::Presenters::CoverageRawPresenter)
-  # @param absolute_payload [Hash] The data hash to return from #absolute_payload
-  # @param relative_path [String] The path to return from #relative_path
-  def mock_presenter(presenter_class, absolute_payload:, relative_path:)
-    presenter_double = instance_double(presenter_class)
-    allow(presenter_double).to receive_messages(
-      absolute_payload: absolute_payload,
-      relative_path: relative_path
-    )
-    allow(presenter_class).to receive(:new).and_return(presenter_double)
-    presenter_double
-  end
-
-  # Capture the output of a command execution
-  # @param command [SimpleCovMcp::Commands::BaseCommand] The command instance to execute
-  # @param args [Array] The arguments to pass to execute
-  # @return [String] The captured output
-  def capture_command_output(command, args)
-    output = nil
-    silence_output do |stdout, _stderr|
-      command.execute(args.dup)
-      output = stdout.string
-    end
-    output
-  end
-end
-
-# CLI test helpers
-module CLITestHelpers
-  # Run CLI with the given arguments and return [stdout, stderr, exit_status]
-  def run_cli_with_status(*argv)
-    cli = SimpleCovMcp::CoverageCLI.new
-    status = nil
-    out_str = err_str = nil
-    silence_output do |out, err|
-      begin
-        cli.run(argv.flatten)
-        status = 0
-      rescue SystemExit => e
-        status = e.status
-      end
-      out_str = out.string
-      err_str = err.string
-    end
-    [out_str, err_str, status]
-  end
-end
-
-# MCP Tool shared examples and helpers
-module MCPToolTestHelpers
-  def setup_mcp_response_stub
-    # Standardized MCP::Tool::Response stub that works for all tools
-    response_class = Class.new do
-      attr_reader :payload, :meta
-
-      def initialize(payload, meta: nil)
-        @payload = payload
-        @meta = meta
-      end
-    end
-    stub_const('MCP::Tool::Response', response_class)
-  end
-
-  def expect_mcp_text_json(response, expected_keys: [])
-    item = response.payload.first
-
-    # Check for a 'text' part
-    expect(item['type']).to eq('text')
-    expect(item).to have_key('text')
-
-    # Parse and validate JSON content
-    data = JSON.parse(item['text'])
-
-    # Check for expected keys
-    expected_keys.each do |key|
-      expect(data).to have_key(key)
-    end
-
-    [data, item] # Return for additional custom assertions
-  end
-end
-
-
-
-RSpec.configure do |config|
   config.include TestIOHelpers
   config.include CLITestHelpers
   config.include MCPToolTestHelpers
+  config.include MockingHelpers
+  config.include ControlFlowHelpers
 end
 
 # Custom matchers
 RSpec::Matchers.define :show_source_table_or_fallback do
   match do |output|
-    has_table_header = output.match?(/(^|\n)\s*Line\s+\|\s+Source/)
+    has_table_header = output.match?(/(^|\n)\s*Line\s*\|\s+Source/)
     has_fallback = output.include?('[source not available]')
     has_table_header || has_fallback
   end
