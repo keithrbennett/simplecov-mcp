@@ -15,8 +15,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
   it 'errors with meaningful message for unknown subcommand' do
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'bogus')
     expect(status).to eq(1)
-    expect(err).to include("Unknown subcommand: 'bogus'")
-    expect(err).to include('Valid subcommands:')
+    expect(err).to include("Unknown subcommand: 'bogus'", 'Valid subcommands:')
   end
 
   it 'list honors stale=error and tracked_globs by exiting 1 when project is stale' do
@@ -38,7 +37,6 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     )
     expect(status).to eq(0)
     expect(err).to eq('')
-    expect(out).to include('File')
-    expect(out).to include('lib/foo.rb')
+    expect(out).to include('File', 'lib/foo.rb')
   end
 end

@@ -53,17 +53,12 @@ RSpec.describe SimpleCovMcp::CoverageCLI, 'format option' do
         '--root', root, '--resultset', 'coverage', 'list', '--format', 'json'
       )
       expect(status).to eq(1)
-      expect(err).to include('Global option(s) must come BEFORE the subcommand')
-      expect(err).to include('You used: list --format')
-      expect(err).to include('Correct: --format list')
-    end
-
-    it 'error message suggests correct usage' do
-      _out, err, status = run_cli_with_status('list', '--format', 'json')
-      expect(status).to eq(1)
-      expect(err).to include('You used: list --format')
-      expect(err).to include('Correct: --format list')
-      expect(err).to include('Example:')
+      expect(err).to include(
+        'Global option(s) must come BEFORE the subcommand',
+        'You used: list --format',
+        'Correct: --format list',
+        'Example:'
+      )
     end
   end
 
