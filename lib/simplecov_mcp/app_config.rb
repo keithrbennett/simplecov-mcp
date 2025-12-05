@@ -23,7 +23,7 @@ module SimpleCovMcp
       root: '.',
       resultset: nil,
       format: :table,
-      sort_order: :ascending,
+      sort_order: :descending,
       source_mode: nil,
       source_context: 2,
       color: $stdout.tty?,

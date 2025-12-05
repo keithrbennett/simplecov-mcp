@@ -8,7 +8,7 @@ RSpec.describe SimpleCovMcp::AppConfig do
       config = described_class.new
       expect(config.root).to eq('.')
       expect(config.format).to eq(:table)
-      expect(config.sort_order).to eq(:ascending)
+      expect(config.sort_order).to eq(:descending)
       expect(config.source_context).to eq(2)
       expect(config.error_mode).to eq(:log)
       expect(config.staleness).to eq(:off)

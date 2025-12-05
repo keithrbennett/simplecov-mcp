@@ -122,6 +122,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(status).to eq(0)
       expect(list_output).to include('lib/foo.rb', 'lib/bar.rb')
       expect(list_output).to include('66.67', '33.33')
+      data_lines = list_output.lines.select { |line| line.include?('lib/') }
+      expect(data_lines.first).to include('lib/foo.rb') # Highest coverage first (descending default)
+      expect(data_lines.last).to include('lib/bar.rb')
 
       # Test summary command
       summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',

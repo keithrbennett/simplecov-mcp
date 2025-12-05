@@ -59,6 +59,8 @@ smcp -o d list  # -o = --sort-order, d = descending
 smcp -fJ list           
 ```
 
+Default sort order is descending (highest coverage first) so the lowest-coverage files stay visible at the bottom of the scrollback.
+
 **Options:**
 
 | Short   | Long                     | Description                                           |

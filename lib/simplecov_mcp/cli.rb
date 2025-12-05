@@ -58,7 +58,7 @@ module SimpleCovMcp
       with_context_if_available(context) { handle_user_facing_error(e) }
     end
 
-    def show_default_report(sort_order: :ascending, output: $stdout)
+    def show_default_report(sort_order: :descending, output: $stdout)
       model = CoverageModel.new(**config.model_options)
       presenter = Presenters::ProjectCoveragePresenter.new(
         model: model,

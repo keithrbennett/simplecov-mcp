@@ -69,7 +69,7 @@ module SimpleCovMcp
         config.format = normalize_format(value)
       end
       parser.on('-o', '--sort-order ORDER', String,
-        'Sort order for list: a[scending]|d[escending] (default ascending)') do |value|
+        'Sort order for list: a[scending]|d[escending] (default descending)') do |value|
         config.sort_order = normalize_sort_order(value)
       end
       parser.on('-s', '--source MODE', String,
