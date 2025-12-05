@@ -387,7 +387,7 @@ smcp -s u uncovered lib/api/client.rb       # u = uncovered
 
 ### `-c, --context-lines N`
 
-Number of context lines around uncovered code (for `--source uncovered`).
+Number of context lines around uncovered code (for `--source uncovered`). Must be a non-negative integer.
 
 ```sh
 smcp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-lines

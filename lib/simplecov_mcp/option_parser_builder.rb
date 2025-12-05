@@ -77,7 +77,7 @@ module SimpleCovMcp
         config.source_mode = normalize_source_mode(value)
       end
       parser.on('-c', '--context-lines N', Integer,
-        'Context lines around uncovered lines (default: 2)') do |value|
+        'Context lines around uncovered lines (non-negative, default: 2)') do |value|
         config.source_context = value
       end
       parser.on('--color', 'Enable ANSI colors for source output') { config.color = true }
