@@ -107,6 +107,12 @@ RSpec.describe SimpleCovMcp::Formatters::SourceFormatter do
         result = formatter.format_source_for(model, path, mode: :full)
         expect(result).to eq('[source not available]')
       end
+
+      it 'propagates ArgumentError' do
+        expect do
+          formatter.format_source_for(model, path, mode: :full, context: -1)
+        end.to raise_error(ArgumentError, 'Context lines cannot be negative')
+      end
     end
 
     context 'with color enabled' do
@@ -147,17 +153,16 @@ RSpec.describe SimpleCovMcp::Formatters::SourceFormatter do
   end
 
   describe '#build_source_rows' do
-    it 'handles negative context count by defaulting to 0' do
-      # Negative context should be clamped to zero, so only uncovered lines appear.
-      rows = formatter.build_source_rows(
-        source_content.lines(chomp: true),
-        coverage_lines,
-        mode: :uncovered,
-        context: -1
-      )
-      # Only the uncovered line (index 2, line 3) should be included if context is 0
-      expect(rows.size).to eq(1)
-      expect(rows.first['line']).to eq(3)
+    it 'raises error for negative context count' do
+      # Negative context should raise ArgumentError
+      expect do
+        formatter.build_source_rows(
+          source_content.lines(chomp: true),
+          coverage_lines,
+          mode: :uncovered,
+          context: -1
+        )
+      end.to raise_error(ArgumentError, 'Context lines cannot be negative')
     end
 
     it 'handles default context (2 lines)' do

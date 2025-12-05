@@ -19,6 +19,8 @@ module SimpleCovMcp
         begin
           rows = build_source_rows(src, lines_cov, mode: mode, context: context)
           format_source_rows(rows)
+        rescue ArgumentError
+          raise
         rescue
           # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
           '[source not available]'
@@ -45,7 +47,7 @@ module SimpleCovMcp
         rescue
           2
         end
-        context_line_count = 0 if context_line_count.negative?
+        raise ArgumentError, 'Context lines cannot be negative' if context_line_count.negative?
 
         n = src_lines.length
         include_line = Array.new(n, mode == :full)
