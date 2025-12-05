@@ -5,25 +5,17 @@ require 'spec_helper'
 RSpec.describe SimpleCovMcp::OptionNormalizers do
   describe '.normalize_sort_order' do
     context 'with strict mode (default)' do
-      it 'normalizes "a" to :ascending' do
-        expect(described_class.normalize_sort_order('a')).to eq(:ascending)
-      end
-
-      it 'normalizes "ascending" to :ascending' do
-        expect(described_class.normalize_sort_order('ascending')).to eq(:ascending)
-      end
-
-      it 'normalizes "d" to :descending' do
-        expect(described_class.normalize_sort_order('d')).to eq(:descending)
-      end
-
-      it 'normalizes "descending" to :descending' do
-        expect(described_class.normalize_sort_order('descending')).to eq(:descending)
-      end
-
-      it 'is case-insensitive' do
-        expect(described_class.normalize_sort_order('ASCENDING')).to eq(:ascending)
-        expect(described_class.normalize_sort_order('Descending')).to eq(:descending)
+      [
+        ['a', :ascending],
+        ['ascending', :ascending],
+        ['d', :descending],
+        ['descending', :descending],
+        ['ASCENDING', :ascending],
+        ['Descending', :descending]
+      ].each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.normalize_sort_order(input)).to eq(expected)
+        end
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do
@@ -45,35 +37,24 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
   describe '.normalize_source_mode' do
     context 'with strict mode (default)' do
-      it 'raises OptionParser::InvalidArgument for nil' do
-        expect { described_class.normalize_source_mode(nil) }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
+      [nil, ''].each do |input|
+        it "raises OptionParser::InvalidArgument for #{input.inspect}" do
+          expect { described_class.normalize_source_mode(input) }
+            .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
+        end
       end
 
-      it 'raises OptionParser::InvalidArgument for empty string' do
-        expect { described_class.normalize_source_mode('') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
-      end
-
-      it 'normalizes "f" to :full' do
-        expect(described_class.normalize_source_mode('f')).to eq(:full)
-      end
-
-      it 'normalizes "full" to :full' do
-        expect(described_class.normalize_source_mode('full')).to eq(:full)
-      end
-
-      it 'normalizes "u" to :uncovered' do
-        expect(described_class.normalize_source_mode('u')).to eq(:uncovered)
-      end
-
-      it 'normalizes "uncovered" to :uncovered' do
-        expect(described_class.normalize_source_mode('uncovered')).to eq(:uncovered)
-      end
-
-      it 'is case-insensitive' do
-        expect(described_class.normalize_source_mode('FULL')).to eq(:full)
-        expect(described_class.normalize_source_mode('Uncovered')).to eq(:uncovered)
+      [
+        ['f', :full],
+        ['full', :full],
+        ['u', :uncovered],
+        ['uncovered', :uncovered],
+        ['FULL', :full],
+        ['Uncovered', :uncovered]
+      ].each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.normalize_source_mode(input)).to eq(expected)
+        end
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do
@@ -95,25 +76,17 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
   describe '.normalize_staleness' do
     context 'with strict mode (default)' do
-      it 'normalizes "o" to :off' do
-        expect(described_class.normalize_staleness('o')).to eq(:off)
-      end
-
-      it 'normalizes "off" to :off' do
-        expect(described_class.normalize_staleness('off')).to eq(:off)
-      end
-
-      it 'normalizes "e" to :error' do
-        expect(described_class.normalize_staleness('e')).to eq(:error)
-      end
-
-      it 'normalizes "error" to :error' do
-        expect(described_class.normalize_staleness('error')).to eq(:error)
-      end
-
-      it 'is case-insensitive' do
-        expect(described_class.normalize_staleness('OFF')).to eq(:off)
-        expect(described_class.normalize_staleness('Error')).to eq(:error)
+      [
+        ['o', :off],
+        ['off', :off],
+        ['e', :error],
+        ['error', :error],
+        ['OFF', :off],
+        ['Error', :error]
+      ].each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.normalize_staleness(input)).to eq(expected)
+        end
       end
 
       it 'raises OptionParser::InvalidArgument for invalid values' do
@@ -135,52 +108,36 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
 
   describe '.normalize_error_mode' do
     context 'with strict mode (default)' do
-      it 'normalizes "off" to :off' do
-        expect(described_class.normalize_error_mode('off')).to eq(:off)
+      [
+        ['off', :off],
+        ['o', :off],
+        ['log', :log],
+        ['l', :log],
+        ['debug', :debug],
+        ['d', :debug],
+        ['OFF', :off],
+        ['Log', :log],
+        ['DEBUG', :debug]
+      ].each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.normalize_error_mode(input)).to eq(expected)
+        end
       end
 
-      it 'normalizes "o" to :off' do
-        expect(described_class.normalize_error_mode('o')).to eq(:off)
-      end
-
-      it 'normalizes "log" to :log' do
-        expect(described_class.normalize_error_mode('log')).to eq(:log)
-      end
-
-      it 'normalizes "debug" to :debug' do
-        expect(described_class.normalize_error_mode('debug')).to eq(:debug)
-      end
-
-      it 'is case-insensitive' do
-        expect(described_class.normalize_error_mode('OFF')).to eq(:off)
-        expect(described_class.normalize_error_mode('Log')).to eq(:log)
-        expect(described_class.normalize_error_mode('DEBUG')).to eq(:debug)
-      end
-
-      it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_error_mode('invalid') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
-      end
-
-      it 'raises OptionParser::InvalidArgument for "on"' do
-        expect { described_class.normalize_error_mode('on') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: on/)
-      end
-
-      it 'raises OptionParser::InvalidArgument for "trace"' do
-        expect { described_class.normalize_error_mode('trace') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: trace/)
+      ['invalid', 'on', 'trace'].each do |input|
+        it "raises OptionParser::InvalidArgument for '#{input}'" do
+          expect { described_class.normalize_error_mode(input) }
+            .to raise_error(OptionParser::InvalidArgument, /invalid argument: #{input}/)
+        end
       end
     end
 
     context 'with strict: false and default: :log' do
-      it 'returns default for invalid values' do
-        expect(described_class.normalize_error_mode('invalid', strict: false,
-          default: :log)).to eq(:log)
-      end
-
-      it 'returns default for nil' do
-        expect(described_class.normalize_error_mode(nil, strict: false, default: :log)).to eq(:log)
+      [['invalid', :log], [nil, :log]].each do |input, expected|
+        it "returns default #{expected} for #{input.inspect}" do
+          expect(described_class.normalize_error_mode(input, strict: false,
+            default: :log)).to eq(expected)
+        end
       end
 
       it 'still normalizes valid values' do
@@ -196,21 +153,51 @@ RSpec.describe SimpleCovMcp::OptionNormalizers do
     end
   end
 
+  describe '.normalize_format' do
+    context 'with strict mode (default)' do
+      [
+        ['t', :table],
+        ['table', :table],
+        ['j', :json],
+        ['json', :json],
+        ['pretty_json', :pretty_json],
+        ['pretty-json', :pretty_json],
+        ['y', :yaml],
+        ['yaml', :yaml],
+        ['a', :awesome_print],
+        ['awesome_print', :awesome_print],
+        ['ap', :awesome_print],
+        ['TABLE', :table],
+        ['Json', :json]
+      ].each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.normalize_format(input)).to eq(expected)
+        end
+      end
+
+      it 'raises OptionParser::InvalidArgument for invalid values' do
+        expect { described_class.normalize_format('invalid') }
+          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
+      end
+    end
+
+    context 'with strict: false' do
+      it 'returns nil for invalid values' do
+        expect(described_class.normalize_format('invalid', strict: false)).to be_nil
+      end
+
+      it 'still normalizes valid values' do
+        expect(described_class.normalize_format('json', strict: false)).to eq(:json)
+      end
+    end
+  end
+
   describe 'constant maps' do
-    it 'has frozen SORT_ORDER_MAP' do
-      expect(described_class::SORT_ORDER_MAP).to be_frozen
-    end
-
-    it 'has frozen SOURCE_MODE_MAP' do
-      expect(described_class::SOURCE_MODE_MAP).to be_frozen
-    end
-
-    it 'has frozen STALENESS_MAP' do
-      expect(described_class::STALENESS_MAP).to be_frozen
-    end
-
-    it 'has frozen ERROR_MODE_MAP' do
-      expect(described_class::ERROR_MODE_MAP).to be_frozen
+    [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :STALENESS_MAP, :ERROR_MODE_MAP,
+     :FORMAT_MAP].each do |const|
+      it "has frozen #{const}" do
+        expect(described_class.const_get(const)).to be_frozen
+      end
     end
   end
 end

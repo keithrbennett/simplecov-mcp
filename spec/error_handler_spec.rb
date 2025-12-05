@@ -172,4 +172,26 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
         .to include('An unexpected error occurred', 'unexpected runtime error')
     end
   end
+
+  describe '#handle_error with reraise' do
+    it 're-raises SimpleCovMcp::Error when reraise is true' do
+      error = SimpleCovMcp::FileNotFoundError.new('Test file not found')
+
+      expect { handler.handle_error(error, context: 'test', reraise: true) }
+        .to raise_error(SimpleCovMcp::FileNotFoundError, 'Test file not found')
+
+      # Verify it was logged
+      expect(logger.messages.join).to include('Error in test')
+    end
+
+    it 'converts and re-raises StandardError when reraise is true' do
+      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
+
+      expect { handler.handle_error(error, context: 'test', reraise: true) }
+        .to raise_error(SimpleCovMcp::FileNotFoundError)
+
+      # Verify it was logged
+      expect(logger.messages.join).to include('Error in test')
+    end
+  end
 end

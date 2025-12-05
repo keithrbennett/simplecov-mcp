@@ -27,6 +27,41 @@ RSpec.describe SimpleCovMcp do
   end
 
 
+  describe SimpleCovMcp::ResultsetNotFoundError do
+    describe '#user_friendly_message' do
+      it 'includes helpful tips in CLI mode' do
+        # Create a CLI context (not MCP mode)
+        error_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli
+        context = SimpleCovMcp.create_context(error_handler: error_handler, mode: :cli)
+        SimpleCovMcp.with_context(context) do
+          error = described_class.new('Coverage data not found')
+          message = error.user_friendly_message
+
+          expect(message).to include(
+            'File error: Coverage data not found',
+            'Try one of the following:',
+            'cd to a directory containing coverage/.resultset.json',
+            'Specify a resultset: simplecov-mcp -r PATH',
+            'Use -h for help: simplecov-mcp -h'
+          )
+        end
+      end
+
+      it 'does not include helpful tips in MCP mode' do
+        # Create an MCP context
+        error_handler = SimpleCovMcp::ErrorHandlerFactory.for_mcp_server
+        context = SimpleCovMcp.create_context(error_handler: error_handler, mode: :mcp)
+        SimpleCovMcp.with_context(context) do
+          error = described_class.new('Coverage data not found')
+          message = error.user_friendly_message
+
+          expect(message).to eq('File error: Coverage data not found')
+          expect(message).not_to include('Try one of the following:')
+        end
+      end
+    end
+  end
+
   describe SimpleCovMcp::CoverageDataStaleError do
     describe 'time formatting edge cases' do
       it 'handles invalid epoch seconds gracefully in rescue path' do

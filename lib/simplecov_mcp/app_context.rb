@@ -19,7 +19,7 @@ module SimpleCovMcp
       self.class.new(error_handler: error_handler, log_target: target, mode: mode)
     end
 
-    def mcp_mode? = mode == :mcp_server
+    def mcp_mode? = mode == :mcp
     def cli_mode? = mode == :cli
     def library_mode? = mode == :library
   end

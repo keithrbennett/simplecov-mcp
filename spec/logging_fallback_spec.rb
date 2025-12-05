@@ -54,7 +54,7 @@ RSpec.describe 'Logging Fallback Behavior' do
         context = SimpleCovMcp.create_context(
           error_handler: SimpleCovMcp::ErrorHandlerFactory.for_mcp_server,
           log_target: '/invalid/path/that/does/not/exist.log',
-          mode: :mcp_server
+          mode: :mcp
         )
 
         stderr_output = nil
@@ -115,10 +115,10 @@ RSpec.describe 'Logging Fallback Behavior' do
       expect(context.mcp_mode?).to be false
     end
 
-    it 'correctly identifies MCP server mode' do
+    it 'correctly identifies MCP mode' do
       context = SimpleCovMcp.create_context(
         error_handler: SimpleCovMcp::ErrorHandlerFactory.for_mcp_server,
-        mode: :mcp_server
+        mode: :mcp
       )
       expect(context.library_mode?).to be false
       expect(context.cli_mode?).to be false

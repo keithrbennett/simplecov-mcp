@@ -57,7 +57,7 @@ module SimpleCovMcp
 
         handler = ErrorHandlerFactory.for_mcp_server(error_mode: config.error_mode)
         context = create_context(error_handler: handler, log_target: config.log_file,
-          mode: :mcp_server)
+          mode: :mcp)
         with_context(context) { MCPServer.new(context: context).run }
       end
     end

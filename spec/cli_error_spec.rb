@@ -161,4 +161,22 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       expect(err).to include('Error: invalid option: --no-such-option')
     end
   end
+
+  describe 'subcommand error handling' do
+    it 'handles generic exceptions from subcommands' do
+      # Stub the CommandFactory to return a command that raises a StandardError
+      fake_command = Class.new do
+        def initialize(_cli) = nil
+        def execute(_args) = raise(StandardError, 'Unexpected error in subcommand')
+      end
+
+      allow(SimpleCovMcp::Commands::CommandFactory).to receive(:create)
+        .and_return(fake_command.new(nil))
+
+      _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'summary',
+        'lib/foo.rb')
+      expect(status).to eq(1)
+      expect(err).to include('Unexpected error in subcommand')
+    end
+  end
 end

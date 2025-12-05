@@ -199,5 +199,15 @@ RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
       expect(status).to eq(1)
       expect(err).to include('validate -i <code>')
     end
+
+    it 'raises error when unknown option is provided' do
+      _out, err, status = run_cli_with_status(
+        '--root', root,
+        '--resultset', 'coverage',
+        'validate', '--unknown-option'
+      )
+      expect(status).to eq(1)
+      expect(err).to include('Unknown option for validate: --unknown-option')
+    end
   end
 end
