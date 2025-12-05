@@ -91,11 +91,11 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         # Verify counts summary
         expect(table).to include('Files: total 2')
 
-        # Test sorting (ascending by default - bar.rb should be first with lower coverage)
+        # Test sorting (descending by default - highest coverage first)
         lines = table.split("\n")
         data_lines = lines.select { |line| line.include?('lib/') }
-        expect(data_lines.first).to include('lib/bar.rb') # Lower coverage first
-        expect(data_lines.last).to include('lib/foo.rb')  # Higher coverage last
+        expect(data_lines.first).to include('lib/foo.rb') # Higher coverage first
+        expect(data_lines.last).to include('lib/bar.rb')  # Lower coverage last
       end
 
       it 'supports different sorting options' do

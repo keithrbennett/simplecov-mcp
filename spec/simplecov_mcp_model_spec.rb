@@ -109,6 +109,14 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   end
 
   describe 'all_files' do
+    it 'sorts descending (default) by percentage then by file path' do
+      files = model.all_files
+      # lib/foo.rb has 66.67%, lib/bar.rb has 33.33%
+      expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
+      expect(files.first['percentage']).to be_within(0.01).of(66.67)
+      expect(files.last['file']).to eq(File.expand_path('lib/bar.rb', root))
+    end
+
     it 'sorts ascending by percentage then by file path' do
       files = model.all_files(sort_order: :ascending)
       expect(files.first['file']).to eq(File.expand_path('lib/bar.rb', root))

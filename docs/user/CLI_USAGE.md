@@ -357,12 +357,12 @@ Useful for:
 Sort order for `list` subcommand.
 
 **Values:**
-- `ascending`, `a` - Lowest coverage first (default)
-- `descending`, `d` - Highest coverage first
+- `descending`, `d` - Highest coverage first (default)
+- `ascending`, `a` - Lowest coverage first
 
 ```sh
+smcp -o d list  # d = descending (default)
 smcp -o a list  # a = ascending
-smcp -o d list  # d = descending
 ```
 
 ### `-s, --source MODE`

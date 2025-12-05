@@ -44,12 +44,12 @@ raw = model.raw_for("lib/foo.rb")
 
 ## Method Reference
 
-### `all_files(sort_order: :ascending)`
+### `all_files(sort_order: :descending)`
 
 Returns coverage summary for all files in the resultset.
 
 **Parameters:**
-- `sort_order` (Symbol, optional): `:ascending` (default) or `:descending` by coverage percentage
+- `sort_order` (Symbol, optional): `:descending` (default) or `:ascending` by coverage percentage
 
 **Returns:** `Array<Hash>` - See [all_files return type](#all_files)
 
@@ -130,13 +130,13 @@ raw = model.raw_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
 ```
 
-### `format_table(rows = nil, sort_order: :ascending)`
+### `format_table(rows = nil, sort_order: :descending)`
 
 Generates formatted ASCII table string.
 
 **Parameters:**
 - `rows` (Array<Hash>, optional): Custom row data; defaults to `all_files`
-- `sort_order` (Symbol, optional): `:ascending` (default) or `:descending`
+- `sort_order` (Symbol, optional): `:descending` (default) or `:ascending`
 
 **Returns:** `String` - Formatted table with Unicode borders
 

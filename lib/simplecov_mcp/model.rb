@@ -74,7 +74,7 @@ module SimpleCovMcp
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-    def all_files(sort_order: :ascending, check_stale: !@checker.off?, tracked_globs: nil)
+    def all_files(sort_order: :descending, check_stale: !@checker.off?, tracked_globs: nil)
       stale_checker = build_staleness_checker(mode: :off, tracked_globs: tracked_globs)
 
       rows = @cov.map do |abs_path, _data|
@@ -120,7 +120,7 @@ module SimpleCovMcp
     end
 
     # Returns formatted table string for all files coverage data
-    def format_table(rows = nil, sort_order: :ascending, check_stale: !@checker.off?,
+    def format_table(rows = nil, sort_order: :descending, check_stale: !@checker.off?,
       tracked_globs: nil)
       rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale,
         tracked_globs: tracked_globs)
@@ -181,7 +181,7 @@ module SimpleCovMcp
       end
     end
 
-    private def sort_rows(rows, sort_order: :ascending)
+    private def sort_rows(rows, sort_order: :descending)
       rows.sort do |a, b|
         pct_cmp = (sort_order == :descending) \
                     ? (b['percentage'] <=> a['percentage'])
