@@ -4,79 +4,18 @@
 
 ### 🚨 BREAKING CHANGES
 
+Version 2.0 introduces several breaking changes to improve consistency and align with Ruby conventions. Key changes include:
 
-### Recent Breaking Changes (unreleased)
+- **CLI**: Global options must now precede subcommands (e.g., `simplecov-mcp --format json list` instead of `simplecov-mcp list --format json`)
+- **Options renamed**: `--stale` → `--staleness`, `--source-context` → `--context-lines`, `--json` → `--format`
+- **Error modes**: `on` → `log`, `trace` → `debug`
+- **Subcommands**: `--success-predicate` flag replaced with `validate` subcommand
+- **Source option**: Now requires explicit mode (`--source full` or `--source uncovered`)
+- **Default sort**: Changed from ascending to descending (best coverage first)
+- **MCP tools**: Parameter `stale` renamed to `staleness`, error modes updated
+- **Ruby API**: `CLIConfig` renamed to `AppConfig`, field changes (`json` → `format`, `stale_mode` → `staleness`)
 
-- Removed short/long JSON flags `-j` / `-J` / `--json` / `--pretty-json`. Use the format flag instead: `-fj` (single-line JSON) or `-fJ` (pretty JSON). Long form: `--format json` or `--format pretty-json`.
-- Standardized format aliases to use hyphens: `awesome-print` (short: `-f ap`), YAML short flag `-f y`.
-- Updated docs and examples to reflect the new format usage; legacy deprecated flags are no longer documented.
-- MCP tool argument names aligned with `CoverageModel` API parameter names for consistency.
-- Success predicate error messages clarified (more actionable output when validation fails).
-
-
-#### Command Line Interface
-
-1. The `--success-predicate` option has been **removed** and replaced with the `validate` subcommand.
-
-   **Migration:**
-   ```bash
-   # Before
-   simplecov-mcp --success-predicate policy.rb
-
-   # After
-   simplecov-mcp validate policy.rb
-   ```
-
-2. The `--stale` option has been **renamed** to `--staleness`. The short flag `-S` has been preserved as an alias for `--staleness`.
-
-   **Migration:**
-   ```bash
-   # Before
-   simplecov-mcp --stale error
-
-   # After
-   simplecov-mcp --staleness error
-   # OR
-   simplecov-mcp -S error
-   ```
-
-3. Error handling modes were renamed for clarity: `on` → `log`, `trace` → `debug`. The old names are **no longer supported**.
-
-4. The `total` subcommand has been **renamed** to `totals` for consistency with what it returns (multiple aggregated totals). The old name `total` still works as an alias for backward compatibility.
-
-   **Migration:**
-   ```bash
-   # Before
-   simplecov-mcp total
-
-   # After
-   simplecov-mcp totals
-
-   # Old syntax still works (backward compatible)
-   simplecov-mcp total
-   ```
-
-5. The `--source` option now **requires** an explicit mode argument (`full` or `uncovered`).
-
-   **Migration:**
-   ```bash
-   # Before (implied full)
-   simplecov-mcp --source summary lib/foo.rb
-
-   # After
-   simplecov-mcp --source full summary lib/foo.rb
-   ```
-
-6. The `--source-context` option has been **renamed** to `--context-lines` for brevity.
-
-   **Migration:**
-   ```bash
-   # Before
-   simplecov-mcp --source uncovered --source-context 3 lib/foo.rb
-
-   # After
-   simplecov-mcp --source uncovered --context-lines 3 lib/foo.rb
-   ```
+**📖 For complete migration guide with examples, see [docs/user/V2-BREAKING-CHANGES.md](docs/user/V2-BREAKING-CHANGES.md)**
 
 ### ✨ New Features
 
