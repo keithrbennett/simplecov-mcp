@@ -21,7 +21,6 @@ module SimpleCovMcp
         define_subcommands_help(parser)
         define_options(parser)
         define_examples(parser)
-        add_help_handler(parser)
       end
     end
 
@@ -39,15 +38,15 @@ module SimpleCovMcp
     private def define_subcommands_help(parser)
       parser.separator <<~SUBCOMMANDS
         Subcommands:
-          list                    Show files coverage (default: table, or use --format)
-          summary <path>          Show covered/total/% for a file
-          raw <path>              Show the SimpleCov 'lines' array
-          uncovered <path>        Show uncovered lines and a summary
-          detailed <path>         Show per-line rows with hits/covered
-          totals                  Show aggregated line totals and average %
-          validate <file>         Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
-          validate -e <code>      Evaluate coverage policy from code string
-          version                 Show version information
+          list                     Show files coverage (default: table, or use --format)
+          summary <path>           Show covered/total/% for a file
+          raw <path>               Show the SimpleCov 'lines' array
+          uncovered <path>         Show uncovered lines and a summary
+          detailed <path>          Show per-line rows with hits/covered
+          totals                   Show aggregated line totals and average %
+          validate <file>          Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
+          validate -e <code>       Evaluate coverage policy from code string
+          version                  Show version information
 
         SUBCOMMANDS
     end
@@ -90,6 +89,13 @@ module SimpleCovMcp
         'Globs for filtering files (list/totals subcommands)') do |value|
         config.tracked_globs = value
       end
+      parser.on('-h', '--help', 'Show help') do
+        puts parser
+        gem_root = File.expand_path('../..', __dir__)
+        puts "\nFor more detailed help, consult README.md and docs/user/**/*.md"
+        puts "in the installed gem at: #{gem_root}"
+        exit 0
+      end
       parser.on('-l', '--log-file PATH', String,
         'Log file path (default ./simplecov_mcp.log, use stdout/stderr for streams)') do |value|
         config.log_file = value
@@ -116,16 +122,6 @@ module SimpleCovMcp
           simplecov-mcp --source uncovered --context-lines 2 uncovered lib/foo.rb
           simplecov-mcp totals --format json
         EXAMPLES
-    end
-
-    private def add_help_handler(parser)
-      parser.on('-h', '--help', 'Show help') do
-        puts parser
-        gem_root = File.expand_path('../..', __dir__)
-        puts "\nFor more detailed help, consult README.md and docs/user/**/*.md"
-        puts "in the installed gem at: #{gem_root}"
-        exit 0
-      end
     end
 
     private def normalize_sort_order(value)
