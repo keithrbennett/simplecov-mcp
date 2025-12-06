@@ -43,49 +43,49 @@ This document provides a checklist for releasing new versions of simplecov-mcp.
 ### 4. Build Verification
 
 - [ ] **Build gem**: Verify gem builds without errors
-  ```bash
-  gem build simplecov-mcp.gemspec
-  ```
+```bash
+gem build simplecov-mcp.gemspec
+```
 
 - [ ] **Test installation**: Install and test locally
-  ```bash
-  gem install simplecov-mcp-*.gem
-  simplecov-mcp --version
-  simplecov-mcp --help
-  # Test on actual project
-  cd /path/to/test/project
-  simplecov-mcp list
-  ```
+```bash
+gem install simplecov-mcp-*.gem
+simplecov-mcp --version
+simplecov-mcp --help
+# Test on actual project
+cd /path/to/test/project
+simplecov-mcp list
+```
 
 ### 5. Git Release
 
 - [ ] **Commit changes**: Commit version bump and RELEASE_NOTES.md updates
-  ```bash
-  git add lib/simplecov_mcp/version.rb RELEASE_NOTES.md
-  git commit -m "Release version #{version}"
-  ```
+```bash
+git add lib/simplecov_mcp/version.rb RELEASE_NOTES.md
+git commit -m "Release version #{version}"
+```
 
 - [ ] **Create tag**: Tag the release
-  ```bash
-  git tag -a v#{version} -m "Version #{version}"
-  ```
+```bash
+git tag -a v#{version} -m "Version #{version}"
+```
 
 - [ ] **Push**: Push commits and tags
-  ```bash
-  git push origin main --follow-tags
-  ```
+```bash
+git push origin main --follow-tags
+```
 
 ### 6. Publish Gem
 
 - [ ] **Build final gem**: Build from tagged version
-  ```bash
-  gem build simplecov-mcp.gemspec
-  ```
+```bash
+gem build simplecov-mcp.gemspec
+```
 
 - [ ] **Push to RubyGems**: Publish the gem
-  ```bash
-  gem push simplecov-mcp-#{version}.gem
-  ```
+```bash
+gem push simplecov-mcp-#{version}.gem
+```
 
 - [ ] **Verify publication**: Check gem appears on RubyGems.org
   - Visit https://rubygems.org/gems/simplecov-mcp
@@ -130,9 +130,9 @@ Follow [Semantic Versioning](https://semver.org/):
 If a critical issue is discovered after release:
 
 1. **Yank the gem** (removes from RubyGems but preserves install history):
-   ```bash
-   gem yank simplecov-mcp -v #{version}
-   ```
+```bash
+gem yank simplecov-mcp -v #{version}
+```
 
 2. **Fix the issue** in a new patch version
 
