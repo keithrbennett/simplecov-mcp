@@ -28,4 +28,23 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'mcp', '~> 0.3'
   spec.add_dependency 'simplecov', '>= 0.21', '< 1.0'
   spec.metadata['rubygems_mfa_required'] = 'true'
+
+  spec.post_install_message = <<~MESSAGE
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ V2.0.0 BREAKING CHANGES                                                 ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃                                                                         ┃
+    ┃ V2.0.0 brings several breaking changes to this gem:                    ┃
+    ┃                                                                         ┃
+    ┃ • Options must now come BEFORE subcommands                             ┃
+    ┃ • --stale renamed to --staleness (-S still works)                      ┃
+    ┃ • --json replaced with --format json                                   ┃
+    ┃ • Error modes renamed: 'on' → 'log', 'trace' → 'debug'                 ┃
+    ┃ • --success-predicate moved to 'validate' subcommand                   ┃
+    ┃ • Default sort order changed from ascending to descending              ┃
+    ┃                                                                         ┃
+    ┃ See docs/user/V2-BREAKING-CHANGES.md for complete migration guide.     ┃
+    ┃                                                                         ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+  MESSAGE
 end
