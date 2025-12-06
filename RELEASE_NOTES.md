@@ -1,6 +1,6 @@
 # Release Notes
 
-## v2.0.0.pre.1 (Unreleased)
+## v2.0.0
 
 ### 🚨 BREAKING CHANGES
 
