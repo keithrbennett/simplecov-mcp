@@ -27,7 +27,7 @@ module SimpleCovMcp
     private def configure_banner(parser)
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
-        Usage:      simplecov-mcp [options] [subcommand] [args]
+        Usage:      simplecov-mcp [options] [subcommand] [args]  (default subcommand: list)
         Repository: https://github.com/keithrbennett/simplecov-mcp
         Version:    #{SimpleCovMcp::VERSION}
         #{HORIZONTAL_RULE}
@@ -38,12 +38,12 @@ module SimpleCovMcp
     private def define_subcommands_help(parser)
       parser.separator <<~SUBCOMMANDS
         Subcommands:
-          list                     Show files coverage (default: table, or use --format)
-          summary <path>           Show covered/total/% for a file
-          raw <path>               Show the SimpleCov 'lines' array
-          uncovered <path>         Show uncovered lines and a summary
           detailed <path>          Show per-line rows with hits/covered
+          list                     Show files coverage (default: table, or use --format)
+          raw <path>               Show the SimpleCov 'lines' array
+          summary <path>           Show covered/total/% for a file
           totals                   Show aggregated line totals and average %
+          uncovered <path>         Show uncovered lines and a summary
           validate <file>          Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
           validate -e <code>       Evaluate coverage policy from code string
           version                  Show version information
