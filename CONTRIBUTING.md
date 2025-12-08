@@ -1,4 +1,4 @@
-# Contributing to simplecov-mcp
+# Contributing to cov-loupe
 
 Thank you for your interest in contributing! 
 This project welcomes bug reports, improvements, and suggestions that make it more useful and reliable for the Ruby community.
@@ -46,21 +46,21 @@ PRs should:
 This project requires Ruby >= 3.2 (due to the `mcp` gem dependency). Typical workflow:
 
 ```bash
-git clone https://github.com/keithrbennett/simplecov-mcp.git
-cd simplecov-mcp
+git clone https://github.com/keithrbennett/cov-loupe.git
+cd cov-loupe
 bundle install
 rspec
 ```
 
 Optional tools:
 - `rake` as an alternate way to run `rspec` and `rubocop`
-- `exe/simplecov-mcp` the CLI and MCP entry point, use for end-to-end runs
+- `exe/cov-loupe` the CLI and MCP entry point, use for end-to-end runs
 
 ---
 
 ## Release Process (maintainer only)
 
-1. Update version in `lib/simplecov_mcp/version.rb`
+1. Update version in `lib/cov_loupe/version.rb`
 2. Update `RELEASE_NOTES.md`
 3. Commit, tag, and push:
    ```bash
@@ -71,8 +71,8 @@ Optional tools:
    ```
 4. Build and publish:
    ```bash
-   gem build simplecov-mcp.gemspec
-   gem push simplecov-mcp-#{version-string}.gem
+   gem build cov-loupe.gemspec
+   gem push cov-loupe-#{version-string}.gem
    ```
 ---
 
@@ -83,4 +83,4 @@ Instances of unacceptable behavior may be reported through GitHub’s [Report Ab
 
 ---
 
-Thank you for helping improve **simplecov-mcp**!
+Thank you for helping improve **cov-loupe**!

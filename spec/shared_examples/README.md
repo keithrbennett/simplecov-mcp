@@ -18,7 +18,7 @@ Instead of creating separate spec files for each similar tool, add your tool to 
 ```ruby
 # In spec/shared_examples/file_based_mcp_tools.rb
 your_tool: {
-  tool_class: SimpleCovMcp::Tools::YourTool,
+  tool_class: CovLoupe::Tools::YourTool,
   model_method: :your_method,
   expected_keys: ['file', 'your_data'],
   output_filename: 'your_tool.json',
@@ -46,13 +46,13 @@ The parameterized test will automatically:
 #### Before (Individual Files)
 ```ruby
 # spec/your_tool_spec.rb - 25+ lines
-RSpec.describe SimpleCovMcp::Tools::YourTool do
+RSpec.describe CovLoupe::Tools::YourTool do
   let(:server_context) { instance_double('ServerContext').as_null_object }
   
   before do
     setup_mcp_response_stub
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+    model = instance_double(CovLoupe::CoverageModel)
+    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
     allow(model).to receive(:your_method).with('lib/foo.rb').and_return({
       'file' => '/abs/path/lib/foo.rb',
       'your_data' => { 'key' => 'value' }
@@ -77,7 +77,7 @@ end
 ```ruby
 # Just add to FILE_BASED_TOOL_CONFIGS - 8 lines
 your_tool: {
-  tool_class: SimpleCovMcp::Tools::YourTool,
+  tool_class: CovLoupe::Tools::YourTool,
   model_method: :your_method,
   expected_keys: ['file', 'your_data'], 
   output_filename: 'your_tool.json',

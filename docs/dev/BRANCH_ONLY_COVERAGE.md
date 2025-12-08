@@ -111,7 +111,7 @@ knowing branch coverage was involved.
 If you need to modify or debug the branch coverage conversion, here's where everything lives:
 
 ### Implementation
-**`lib/simplecov_mcp/resolvers/coverage_line_resolver.rb`**
+**`lib/cov_loupe/resolvers/coverage_line_resolver.rb`**
 - Line 59-66: `lines_from_entry` - Detects when to synthesize line data
 - Line 68-103: `synthesize_lines_from_branches` - The main conversion logic
 - Line 105-123: `extract_line_number` - Parses line numbers from branch tuples
@@ -122,7 +122,7 @@ This file is referenced in the code comments at line 79.
 **`spec/resolvers/coverage_line_resolver_spec.rb`**
 - Contains tests specifically for the resolver and branch synthesis
 
-**`spec/simplecov_mcp_model_spec.rb`**
+**`spec/cov_loupe_model_spec.rb`**
 - Integration tests showing how the model uses synthesized line data
 
 ### Test Data

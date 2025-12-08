@@ -52,7 +52,7 @@ We chose to **evaluate Ruby files using `instance_eval`** with prominent securit
 
 ### Implementation
 
-The implementation is in `lib/simplecov_mcp/cli.rb:191-214`:
+The implementation is in `lib/cov_loupe/cli.rb:191-214`:
 
 ```ruby
 def load_success_predicate(path)
@@ -195,9 +195,9 @@ However, for the primary use case (CI/CD policy enforcement), the current approa
 
 ## References
 
-- Implementation: `lib/simplecov_mcp/cli.rb:191-214` (load predicate), `lib/simplecov_mcp/cli.rb:179-189` (execute)
+- Implementation: `lib/cov_loupe/cli.rb:191-214` (load predicate), `lib/cov_loupe/cli.rb:179-189` (execute)
 - Security warnings: `examples/success_predicates/README.md:5-17`
 - Example predicates: `examples/success_predicates/*.rb`
-- CoverageModel API: `lib/simplecov_mcp/model.rb`
-- CLI config: `lib/simplecov_mcp/cli_config.rb:18` (success_predicate field)
-- Option parsing: `lib/simplecov_mcp/option_parser_builder.rb` (--success-predicate flag)
+- CoverageModel API: `lib/cov_loupe/model.rb`
+- CLI config: `lib/cov_loupe/cli_config.rb:18` (success_predicate field)
+- Option parsing: `lib/cov_loupe/option_parser_builder.rb` (--success-predicate flag)

@@ -2,16 +2,16 @@
 
 [Back to main README](../README.md)
 
-> **Note:** Commands like `simplecov-mcp` assume the gem is installed globally. If not, substitute `bundle exec exe/simplecov-mcp`.
+> **Note:** Commands like `cov-loupe` assume the gem is installed globally. If not, substitute `bundle exec exe/cov-loupe`.
 
 ## Setup
 
 ```sh
-git clone https://github.com/keithrbennett/simplecov-mcp.git
-cd simplecov-mcp
+git clone https://github.com/keithrbennett/cov-loupe.git
+cd cov-loupe
 bundle install
-gem build simplecov-mcp.gemspec && gem install simplecov-mcp-*.gem  # optional
-simplecov-mcp version  # verify it works
+gem build cov-loupe.gemspec && gem install cov-loupe-*.gem  # optional
+cov-loupe version  # verify it works
 ```
 
 ## Running Tests
@@ -37,7 +37,7 @@ rescue JSON::ParserError => e
 
 **MCP tools extend `BaseTool` and follow this pattern:**
 ```ruby
-module SimpleCovMcp::Tools
+module CovLoupe::Tools
   class MyTool < BaseTool
     def self.name = 'my_tool'
     def self.description = 'What this tool does'
@@ -69,7 +69,7 @@ before { setup_mcp_response_stub }
 
 **CLI commands:** Add to `SUBCOMMANDS` in `cli.rb`, implement handler, add tests
 
-**MCP tools:** Create `*_tool.rb` in `lib/simplecov_mcp/tools/`, register in `mcp_server.rb`
+**MCP tools:** Create `*_tool.rb` in `lib/cov_loupe/tools/`, register in `mcp_server.rb`
 
 **Coverage features:** Add to `CoverageModel` in `model.rb` or `CovUtil` in `util.rb`
 
@@ -79,5 +79,5 @@ before { setup_mcp_response_stub }
 
 **MCP server testing:**
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
 ```

@@ -59,7 +59,7 @@ This code base requires a Ruby version >= 3.2.0, because this is required by the
 
 ```bash
 # Test the MCP server manually
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}' | simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | cov-loupe
 ```
 
 **What AI agents can do:**
@@ -73,15 +73,15 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 | Tool                      | Purpose                    | Example CLI Command                                  |
 |---------------------------|----------------------------|------------------------------------------------------|
-| `all_files_coverage_tool` | Project-wide coverage data | `simplecov-mcp list`                                 |
-| `coverage_detailed_tool`  | Per-line hit counts        | `simplecov-mcp detailed lib/simplecov_mcp/model.rb`  |
-| `coverage_raw_tool`       | Raw SimpleCov lines array  | `simplecov-mcp raw lib/simplecov_mcp/model.rb`       |
-| `coverage_summary_tool`   | Get coverage % for a file  | `simplecov-mcp summary lib/simplecov_mcp/model.rb`   |
-| `coverage_table_tool`     | Formatted coverage table   | `simplecov-mcp list`                                 |
-| `coverage_totals_tool`    | Aggregated line totals     | `simplecov-mcp totals`                               |
-| `help_tool`               | Tool usage guidance        | `simplecov-mcp --help`                               |
-| `uncovered_lines_tool`    | Find missing test coverage | `simplecov-mcp uncovered lib/simplecov_mcp/cli.rb`   |
-| `version_tool`            | Display version info       | `simplecov-mcp version`                              |
+| `all_files_coverage_tool` | Project-wide coverage data | `cov-loupe list`                                 |
+| `coverage_detailed_tool`  | Per-line hit counts        | `cov-loupe detailed lib/cov_loupe/model.rb`  |
+| `coverage_raw_tool`       | Raw SimpleCov lines array  | `cov-loupe raw lib/cov_loupe/model.rb`       |
+| `coverage_summary_tool`   | Get coverage % for a file  | `cov-loupe summary lib/cov_loupe/model.rb`   |
+| `coverage_table_tool`     | Formatted coverage table   | `cov-loupe list`                                 |
+| `coverage_totals_tool`    | Aggregated line totals     | `cov-loupe totals`                               |
+| `help_tool`               | Tool usage guidance        | `cov-loupe --help`                               |
+| `uncovered_lines_tool`    | Find missing test coverage | `cov-loupe uncovered lib/cov_loupe/cli.rb`   |
+| `version_tool`            | Display version info       | `cov-loupe version`                              |
 
 ---
 
@@ -90,26 +90,26 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 ```bash
 # Show all files, worst coverage first
-simplecov-mcp
+cov-loupe
 
 # Focus on a specific file
-simplecov-mcp summary lib/simplecov_mcp/cli.rb
+cov-loupe summary lib/cov_loupe/cli.rb
 
 # Find untested lines with source context
-simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=uncovered --source-context 3
+cov-loupe uncovered lib/cov_loupe/cli.rb --source=uncovered --source-context 3
 
 # JSON for scripts
-simplecov-mcp -fJ | jq '.files[] | select(.percentage < 80)'
+cov-loupe -fJ | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-simplecov-mcp -fJ | ruby -r json -e '
+cov-loupe -fJ | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-simplecov-mcp -fJ | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+cov-loupe -fJ | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 ```
 
 ---
@@ -118,16 +118,16 @@ simplecov-mcp -fJ | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"]
 
 ```bash
 # Custom resultset location
-simplecov-mcp --resultset coverage-all/
+cov-loupe --resultset coverage-all/
 
 # Sort by highest coverage
-simplecov-mcp --sort-order d
+cov-loupe --sort-order d
 
 # Staleness checking (file newer than coverage?)
-simplecov-mcp --staleness error
+cov-loupe --staleness error
 
 # Track new files missing from coverage
-simplecov-mcp --tracked-globs "lib/**/tools/*.rb"
+cov-loupe --tracked-globs "lib/**/tools/*.rb"
 ```
 
 ---
@@ -136,9 +136,9 @@ simplecov-mcp --tracked-globs "lib/**/tools/*.rb"
 ### Programmatic Integration
 
 ```ruby
-require 'simplecov_mcp'
+require 'cov_loupe'
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Get project overview
 files = model.all_files
@@ -160,9 +160,9 @@ puts "Missing lines: #{uncovered['uncovered'].inspect}"
 ## Custom Threshold Git Pre-Commit Hook
 
 ```ruby
-require 'simplecov_mcp'
+require 'cov_loupe'
 
-files = SimpleCovMcp::CoverageModel.new.all_files
+files = CovLoupe::CoverageModel.new.all_files
 critical, other = files.partition { |f| f['file'].include?('/lib/critical/') }
 
 fails = critical.select { |f| f['percentage'] < 100.0 } + 
@@ -182,7 +182,7 @@ end
 ## Architecture Overview
 
 ```
-lib/simplecov_mcp
+lib/cov_loupe
 ├── base_tool.rb
 ├── cli.rb
 ├── error_handler_factory.rb
@@ -219,8 +219,8 @@ class BaseTool < ::MCP::Tool
 end
 ```
 
-* [BaseTool source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simplecov_mcp/base_tool.rb)
-* [BaseTool subclass source](https://github.com/keithrbennett/simplecov-mcp/blob/main/lib/simplecov_mcp/tools/coverage_detailed_tool.rb)
+* [BaseTool source](https://github.com/keithrbennett/cov-loupe/blob/main/lib/cov_loupe/base_tool.rb)
+* [BaseTool subclass source](https://github.com/keithrbennett/cov-loupe/blob/main/lib/cov_loupe/tools/coverage_detailed_tool.rb)
 
 The MCP tools available to the model subclass BaseTool and implement their respective tasks.
 
@@ -228,8 +228,8 @@ The MCP tools available to the model subclass BaseTool and implement their respe
 
 ```ruby
 server = ::MCP::Server.new(
-  name:    'simplecov-mcp',
-  version: SimpleCovMcp::VERSION,
+  name:    'cov-loupe',
+  version: CovLoupe::VERSION,
   tools:   tools
 )
 ::MCP::Server::Transports::StdioTransport.new(server).open

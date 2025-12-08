@@ -1,6 +1,6 @@
 # V2.0 Breaking Changes Guide
 
-This document describes all breaking changes introduced in version 2.0.0 of simplecov-mcp. These changes improve consistency, clarity, and alignment with Ruby conventions.
+This document describes all breaking changes introduced in version 2.0.0 of cov-loupe. These changes improve consistency, clarity, and alignment with Ruby conventions.
 
 ---
 
@@ -38,14 +38,14 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp list --resultset coverage --format json
-simplecov-mcp summary lib/foo.rb --json
+cov-loupe list --resultset coverage --format json
+cov-loupe summary lib/foo.rb --json
 ```
 
 **After (v2.x):**
 ```bash
-simplecov-mcp --resultset coverage --format json list
-simplecov-mcp --format json summary lib/foo.rb
+cov-loupe --resultset coverage --format json list
+cov-loupe --format json summary lib/foo.rb
 ```
 
 **Migration:** Move all global options (flags like `-r`, `-f`, `-S`, etc.) before the subcommand name.
@@ -60,14 +60,14 @@ simplecov-mcp --format json summary lib/foo.rb
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp --stale error list
+cov-loupe --stale error list
 ```
 
 **After (v2.x):**
 ```bash
-simplecov-mcp --staleness error list
+cov-loupe --staleness error list
 # OR use the short form:
-simplecov-mcp -S error list
+cov-loupe -S error list
 ```
 
 **Migration:** Replace `--stale` with `--staleness` (or continue using `-S`).
@@ -82,14 +82,14 @@ simplecov-mcp -S error list
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp --source uncovered --source-context 3 uncovered lib/foo.rb
+cov-loupe --source uncovered --source-context 3 uncovered lib/foo.rb
 ```
 
 **After (v2.x):**
 ```bash
-simplecov-mcp --source uncovered --context-lines 3 uncovered lib/foo.rb
+cov-loupe --source uncovered --context-lines 3 uncovered lib/foo.rb
 # OR use the short form:
-simplecov-mcp -s uncovered -c 3 uncovered lib/foo.rb
+cov-loupe -s uncovered -c 3 uncovered lib/foo.rb
 ```
 
 **Migration:** Replace `--source-context` with `--context-lines` (or use `-c`).
@@ -105,15 +105,15 @@ simplecov-mcp -s uncovered -c 3 uncovered lib/foo.rb
 **Before (v1.x):**
 ```bash
 # Implied 'full' mode
-simplecov-mcp --source summary lib/foo.rb
+cov-loupe --source summary lib/foo.rb
 ```
 
 **After (v2.x):**
 ```bash
 # Must specify mode explicitly
-simplecov-mcp --source full summary lib/foo.rb
+cov-loupe --source full summary lib/foo.rb
 # OR
-simplecov-mcp --source uncovered summary lib/foo.rb
+cov-loupe --source uncovered summary lib/foo.rb
 ```
 
 **Migration:** Add an explicit mode (`full` or `uncovered`) after `--source`.
@@ -128,17 +128,17 @@ simplecov-mcp --source uncovered summary lib/foo.rb
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp --json list
-simplecov-mcp -j summary lib/foo.rb
-simplecov-mcp --pretty-json list
+cov-loupe --json list
+cov-loupe -j summary lib/foo.rb
+cov-loupe --pretty-json list
 ```
 
 **After (v2.x):**
 ```bash
-simplecov-mcp --format json list
-simplecov-mcp -f j summary lib/foo.rb        # Short form
-simplecov-mcp --format pretty-json list
-simplecov-mcp -f J list                       # Short form for pretty-json
+cov-loupe --format json list
+cov-loupe -f j summary lib/foo.rb        # Short form
+cov-loupe --format pretty-json list
+cov-loupe -f J list                       # Short form for pretty-json
 ```
 
 **Available formats:**
@@ -164,17 +164,17 @@ The old values are **no longer supported**.
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp --error-mode on list
-simplecov-mcp --error-mode trace list
+cov-loupe --error-mode on list
+cov-loupe --error-mode trace list
 ```
 
 **After (v2.x):**
 ```bash
-simplecov-mcp --error-mode log list
-simplecov-mcp --error-mode debug list
+cov-loupe --error-mode log list
+cov-loupe --error-mode debug list
 # OR use short forms:
-simplecov-mcp --error-mode l list
-simplecov-mcp --error-mode d list
+cov-loupe --error-mode l list
+cov-loupe --error-mode d list
 ```
 
 **Error modes:**
@@ -194,16 +194,16 @@ simplecov-mcp --error-mode d list
 
 **Before (v1.x):**
 ```bash
-simplecov-mcp --success-predicate policy.rb
+cov-loupe --success-predicate policy.rb
 ```
 
 **After (v2.x):**
 ```bash
 # File-based policy
-simplecov-mcp validate policy.rb
+cov-loupe validate policy.rb
 
 # Inline policy (new feature)
-simplecov-mcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+cov-loupe validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Migration:** Replace `--success-predicate FILE` with `validate FILE`.
@@ -219,17 +219,17 @@ simplecov-mcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 
 **Before (v1.x):**
 ```bash
 # Shows worst coverage first by default
-simplecov-mcp list
+cov-loupe list
 ```
 
 **After (v2.x):**
 ```bash
 # Shows best coverage first by default
-simplecov-mcp list
+cov-loupe list
 
 # To get old behavior (worst first):
-simplecov-mcp --sort-order ascending list
-simplecov-mcp -o a list  # Short form
+cov-loupe --sort-order ascending list
+cov-loupe -o a list  # Short form
 ```
 
 **Migration:** If you relied on ascending order (worst coverage first), explicitly specify `--sort-order ascending` or `-o a`.
@@ -324,17 +324,17 @@ simplecov-mcp -o a list  # Short form
 
 **Before (v1.x):**
 ```ruby
-require 'simplecov_mcp/cli_config'
-config = SimpleCovMcp::CLIConfig.new(root: '.', json: true)
+require 'cov_loupe/cli_config'
+config = CovLoupe::CLIConfig.new(root: '.', json: true)
 ```
 
 **After (v2.x):**
 ```ruby
-require 'simplecov_mcp/app_config'
-config = SimpleCovMcp::AppConfig.new(root: '.', format: :json)
+require 'cov_loupe/app_config'
+config = CovLoupe::AppConfig.new(root: '.', format: :json)
 ```
 
-**Migration:** Replace `CLIConfig` with `AppConfig` in your code. Update require statements from `'simplecov_mcp/cli_config'` to `'simplecov_mcp/app_config'`.
+**Migration:** Replace `CLIConfig` with `AppConfig` in your code. Update require statements from `'cov_loupe/cli_config'` to `'cov_loupe/app_config'`.
 
 ---
 
@@ -355,7 +355,7 @@ config = SimpleCovMcp::AppConfig.new(root: '.', format: :json)
 
 **Before (v1.x):**
 ```ruby
-config = SimpleCovMcp::CLIConfig.new(
+config = CovLoupe::CLIConfig.new(
   json: true,
   stale_mode: :error,
   error_mode: :on,
@@ -365,7 +365,7 @@ config = SimpleCovMcp::CLIConfig.new(
 
 **After (v2.x):**
 ```ruby
-config = SimpleCovMcp::AppConfig.new(
+config = CovLoupe::AppConfig.new(
   format: :json,
   staleness: :error,
   error_mode: :log,
@@ -388,13 +388,13 @@ config = SimpleCovMcp::AppConfig.new(
 **Before (v1.x):**
 ```bash
 # Silently clamped to 0
-simplecov-mcp --source-context -5 uncovered lib/foo.rb
+cov-loupe --source-context -5 uncovered lib/foo.rb
 ```
 
 **After (v2.x):**
 ```bash
 # Raises ArgumentError
-simplecov-mcp --context-lines -5 uncovered lib/foo.rb
+cov-loupe --context-lines -5 uncovered lib/foo.rb
 # Error: Context lines must be non-negative (got: -5)
 ```
 
@@ -426,31 +426,31 @@ simplecov-mcp --context-lines -5 uncovered lib/foo.rb
 **Before (v1.x):**
 ```bash
 #!/bin/bash
-simplecov-mcp list --json --stale error --sort-order ascending
-simplecov-mcp summary lib/foo.rb --json
-simplecov-mcp uncovered lib/bar.rb --source=uncovered --source-context 3
-simplecov-mcp --success-predicate policy.rb
+cov-loupe list --json --stale error --sort-order ascending
+cov-loupe summary lib/foo.rb --json
+cov-loupe uncovered lib/bar.rb --source=uncovered --source-context 3
+cov-loupe --success-predicate policy.rb
 ```
 
 **After (v2.x):**
 ```bash
 #!/bin/bash
-simplecov-mcp --format json --staleness error --sort-order ascending list
-simplecov-mcp --format json summary lib/foo.rb
-simplecov-mcp --source uncovered --context-lines 3 uncovered lib/bar.rb
-simplecov-mcp validate policy.rb
+cov-loupe --format json --staleness error --sort-order ascending list
+cov-loupe --format json summary lib/foo.rb
+cov-loupe --source uncovered --context-lines 3 uncovered lib/bar.rb
+cov-loupe validate policy.rb
 ```
 
 ### Environment Variable Migration
 
 **Before (v1.x):**
 ```bash
-export SIMPLECOV_MCP_OPTS="--stale error --json"
+export COV_LOUPE_OPTS="--stale error --json"
 ```
 
 **After (v2.x):**
 ```bash
-export SIMPLECOV_MCP_OPTS="--staleness error --format json"
+export COV_LOUPE_OPTS="--staleness error --format json"
 ```
 
 ---
@@ -462,7 +462,7 @@ If you encounter issues migrating to v2.0:
 1. Check the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide
 2. Review the [CLI_USAGE.md](CLI_USAGE.md) for complete CLI reference
 3. See [MCP_INTEGRATION.md](MCP_INTEGRATION.md) for MCP tool documentation
-4. Open an issue at https://github.com/keithrbennett/simplecov-mcp/issues
+4. Open an issue at https://github.com/keithrbennett/cov-loupe/issues
 
 ---
 

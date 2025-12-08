@@ -16,7 +16,7 @@
 
 Version 2.0 introduces several breaking changes to improve consistency and align with Ruby conventions. Key changes include:
 
-- **CLI**: Global options must now precede subcommands (e.g., `simplecov-mcp --format json list` instead of `simplecov-mcp list --format json`)
+- **CLI**: Global options must now precede subcommands (e.g., `cov-loupe --format json list` instead of `cov-loupe list --format json`)
 - **Options renamed**: `--stale` → `--staleness`, `--source-context` → `--context-lines`, `--json` → `--format`
 - **Error modes**: `on` → `log`, `trace` → `debug`
 - **Subcommands**: `--success-predicate` flag replaced with `validate` subcommand
@@ -47,7 +47,7 @@ Version 2.0 introduces several breaking changes to improve consistency and align
 
 🎉 **Major Release: Production-Ready Coverage Analysis Tool**
 
-This release represents a complete maturation of simplecov-mcp from experimental proof-of-concept to production-ready tool. The v1.0.0 milestone brings comprehensive documentation, robust error handling, extensive test coverage, architectural improvements, and a polished user experience across all three interfaces (MCP server, CLI, and Ruby library).
+This release represents a complete maturation of cov-loupe from experimental proof-of-concept to production-ready tool. The v1.0.0 milestone brings comprehensive documentation, robust error handling, extensive test coverage, architectural improvements, and a polished user experience across all three interfaces (MCP server, CLI, and Ruby library).
 
 ### 🌟 Major Features
 
@@ -84,27 +84,27 @@ This release represents a complete maturation of simplecov-mcp from experimental
 - See `docs/user/ADVANCED_USAGE.md#success-predicates` for usage and security considerations
 
 #### Comprehensive CLI Enhancements
-- **Default command improved** - `simplecov-mcp` shows sorted coverage table (no subcommand needed)
+- **Default command improved** - `cov-loupe` shows sorted coverage table (no subcommand needed)
 - **Flexible sorting** - `--sort-order a|d` or `--sort-order ascending|descending`
 - **Annotated source code** - `--source=full|uncovered` with `--source-context N` for context lines
 - **Optional colorization** - `--color/--no-color` for source code output
 - **Tracked globs** - `--tracked-globs PATTERN` to filter files or detect new untested files
-- **User-specified defaults via environment variable** - `SIMPLECOV_MCP_OPTS` environment variable value is prepended to ARGV for option parsing
-- **Configurable logging** - `--log-file PATH` or `stdout`/`stderr` (default: `./simplecov_mcp.log`)
+- **User-specified defaults via environment variable** - `COV_LOUPE_OPTS` environment variable value is prepended to ARGV for option parsing
+- **Configurable logging** - `--log-file PATH` or `stdout`/`stderr` (default: `./cov_loupe.log`)
 
 ### 🏗️ Architecture & Code Quality
 
 #### Major Refactoring
-- **Command pattern** - CLI subcommands extracted to individual command classes (`lib/simplecov_mcp/commands/`)
-- **Presenter pattern** - Shared presentation logic for all output formats (`lib/simplecov_mcp/presenters/`)
-- **Resolver pattern** - Path and coverage line resolution extracted to dedicated classes (`lib/simplecov_mcp/resolvers/`)
+- **Command pattern** - CLI subcommands extracted to individual command classes (`lib/cov_loupe/commands/`)
+- **Presenter pattern** - Shared presentation logic for all output formats (`lib/cov_loupe/presenters/`)
+- **Resolver pattern** - Path and coverage line resolution extracted to dedicated classes (`lib/cov_loupe/resolvers/`)
 - **Factory pattern** - Error handlers and command instantiation centralized
 - **Shared test examples** - DRY test suite with shared behaviors documented in `spec/shared_examples/README.md`
 
 #### Error Handling Overhaul
 - **Context-aware errors** - Different error strategies for CLI, library, and MCP server modes
-- **Three error modes**: `off`, `log`, `debug` (configurable via `--error-mode` or `SIMPLECOV_MCP_OPTS`)
-- **Custom exception hierarchy** - `SimpleCovMcp::Error` base class with specific subtypes
+- **Three error modes**: `off`, `log`, `debug` (configurable via `--error-mode` or `COV_LOUPE_OPTS`)
+- **Custom exception hierarchy** - `CovLoupe::Error` base class with specific subtypes
 - **Logging fallback** - Graceful degradation to stderr when log file is unavailable (CLI/library modes only)
 - **Structured MCP errors** - JSON-RPC compliant error responses with proper error codes
 - See `docs/user/ERROR_HANDLING.md` for complete reference
@@ -152,12 +152,12 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 - `docs/dev/arch-decisions/README.md` - Index and overview
 
 **Additional Resources:**
-- `docs/dev/presentations/simplecov-mcp-presentation.md` - Slide deck for talks/demos
+- `docs/dev/presentations/cov-loupe-presentation.md` - Slide deck for talks/demos
 - `examples/success_predicates/README.md` - Success predicate examples and patterns
 - `prompts/*.md` - AI prompt templates for coverage analysis
 
 #### Improved README
-- **Value proposition first** - Clear explanation of what simplecov-mcp does and why it matters
+- **Value proposition first** - Clear explanation of what cov-loupe does and why it matters
 - **Quick Start section** - Get running in 3 steps
 - **Audience-based organization** - Documentation grouped by user journey (Getting Started, Advanced, Reference)
 - **Next Steps section** - Clear calls-to-action at end
@@ -166,14 +166,14 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 ### 🔧 Developer Experience
 
 #### Configuration Improvements
-- **Environment variable options** - `SIMPLECOV_MCP_OPTS` prepended to ARGV for option parsing
+- **Environment variable options** - `COV_LOUPE_OPTS` prepended to ARGV for option parsing
 - **Force CLI mode** - `--force-cli` flag to disable MCP server mode detection
 - **Flexible resultset location** - Multiple resolution strategies with sensible defaults
 - **Normalized options** - Consistent internal representation of enumerated options (symbols)
 
 #### Logging Enhancements
 - **Configurable log file** - `--log-file PATH` (or `-l`) command-line option
-- **Programmatic control** - `SimpleCovMcp.default_log_file=` and `SimpleCovMcp.active_log_file=` for runtime changes
+- **Programmatic control** - `CovLoupe.default_log_file=` and `CovLoupe.active_log_file=` for runtime changes
 - **Mode-aware logging** - MCP mode prohibits `stdout` logging (would corrupt JSON-RPC protocol), allows `stderr` or file
 - **Timestamped log entries** - All log messages include ISO 8601 timestamps
 
@@ -181,12 +181,12 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 - **Dependabot integration** - Automated dependency updates (`.github/dependabot.yml`)
 - **License added** - MIT License (`LICENSE` file)
 - **Gemspec improvements** - Tighter version constraints, correct file list
-- **Version command** - `simplecov-mcp version` for easy version checking
+- **Version command** - `cov-loupe version` for easy version checking
 
 ### 🐛 Bug Fixes
 
 #### CLI Fixes
-- **Subcommand extraction** - Fixed `--source` flag incorrectly treated as subcommand (lib/simplecov_mcp/constants.rb:9-19)
+- **Subcommand extraction** - Fixed `--source` flag incorrectly treated as subcommand (lib/cov_loupe/constants.rb:9-19)
 - **Option argument parsing** - Centralized list of options expecting arguments to prevent similar bugs
 - **Invalid option handling** - Clean error messages for unrecognized CLI flags
 - **Help text formatting** - Improved readability and consistency
@@ -203,7 +203,7 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 - **Line count mismatches** - Accurate staleness detection handles trailing newline differences between source and coverage data
 
 #### Error Handling Fixes
-- **Library mode exceptions** - Consistent `SimpleCovMcp::Error` exceptions (not bare `RuntimeError`)
+- **Library mode exceptions** - Consistent `CovLoupe::Error` exceptions (not bare `RuntimeError`)
 - **MCP error format** - JSON-RPC compliant error responses
 - **Missing resultset** - Clear error messages with actionable suggestions
 - **Fallback logging** - stderr logging when primary log destination is unavailable (not in MCP mode)
@@ -211,14 +211,14 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 ### 🔄 Breaking Changes
 
 #### Naming Consistency
-- **Module name** - Now consistently `SimpleCovMcp` (matching SimpleCov's single-word style)
+- **Module name** - Now consistently `CovLoupe` (matching SimpleCov's single-word style)
 - **Legacy shim removed** - `SimpleCov::Mcp` entry point no longer supported
-- **Require path** - Changed from `simple_cov/mcp` to `simplecov_mcp`
-- **File paths** - All files moved from `lib/simple_cov_mcp/` to `lib/simplecov_mcp/`
+- **Require path** - Changed from `simple_cov/mcp` to `cov_loupe`
+- **File paths** - All files moved from `lib/simple_cov_mcp/` to `lib/cov_loupe/`
 
 #### Option Changes
 - **Removed environment variables**: `SIMPLECOV_RESULTSET`, `SIMPLECOV_MCP_CLI`, `SIMPLECOV_MCP_DEBUG`, `SIMPLECOV_MCP_LOG`
-- **New environment variable**: `SIMPLECOV_MCP_OPTS` - use this instead (supports all CLI options including `--log-file`)
+- **New environment variable**: `COV_LOUPE_OPTS` - use this instead (supports all CLI options including `--log-file`)
 - **CLI flag removed**: `--cli` (replaced by `--force-cli`)
 - **Error mode enum**: Changed from `--debug` to `--error-mode trace|on|off`
 - **Subcommand changes**: `table` and `all-files` subcommands merged into `list`
@@ -233,7 +233,7 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 - **175 files changed** with 15,712 insertions and 2,142 deletions
 - **152 commits** since v0.3.0
 - **Comprehensive documentation** - 12 major documentation files in `docs/`, 5 ADRs, 7 example scripts
-- **Test coverage** - Self-reported coverage via SimpleCov (view with `simplecov-mcp list`)
+- **Test coverage** - Self-reported coverage via SimpleCov (view with `cov-loupe list`)
 
 ### 🙏 Acknowledgments
 
@@ -251,7 +251,7 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
    require 'simple_cov/mcp'
 
    # New
-   require 'simplecov_mcp'
+   require 'cov_loupe'
    ```
 
 2. **Update environment variables:**
@@ -261,23 +261,23 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
    export SIMPLECOV_MCP_DEBUG=1
 
    # New
-   export SIMPLECOV_MCP_OPTS="--resultset /path/to/coverage --error-mode trace"
+   export COV_LOUPE_OPTS="--resultset /path/to/coverage --error-mode trace"
    ```
 
 3. **Update CLI commands:**
    ```sh
    # Old
-   simplecov-mcp table
-   simplecov-mcp all-files
+   cov-loupe table
+   cov-loupe all-files
 
    # New (merged into 'list')
-   simplecov-mcp list
-   simplecov-mcp        # default command is 'list'
+   cov-loupe list
+   cov-loupe        # default command is 'list'
    ```
 
 4. **Update MCP configurations:**
    - Review `docs/user/MCP_INTEGRATION.md` for updated setup instructions
-   - Log file now defaults to `./simplecov_mcp.log` (was `~/simplecov_mcp.log`)
+   - Log file now defaults to `./cov_loupe.log` (was `~/cov_loupe.log`)
 
 5. **Handle new error types in library code:**
    ```ruby
@@ -285,9 +285,9 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
    rescue RuntimeError => e
 
    # New
-   rescue SimpleCovMcp::FileError => e
-   rescue SimpleCovMcp::ConfigurationError => e
-   rescue SimpleCovMcp::Error => e  # catch-all
+   rescue CovLoupe::FileError => e
+   rescue CovLoupe::ConfigurationError => e
+   rescue CovLoupe::Error => e  # catch-all
    ```
 
 ### 🔮 Possible Future Improvements
@@ -301,9 +301,9 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
 ### 🔗 Links
 
 - **Changelog:** [RELEASE_NOTES.md](RELEASE_NOTES.md)
-- **GitHub:** https://github.com/keithrbennett/simplecov-mcp
-- **RubyGems:** https://rubygems.org/gems/simplecov-mcp
-- **Issues:** https://github.com/keithrbennett/simplecov-mcp/issues
+- **GitHub:** https://github.com/keithrbennett/cov-loupe
+- **RubyGems:** https://rubygems.org/gems/cov-loupe
+- **Issues:** https://github.com/keithrbennett/cov-loupe/issues
 
 ---
 

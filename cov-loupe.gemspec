@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
                        'SimpleCov coverage, including per-file summaries and uncovered lines.'
   spec.license       = 'MIT'
 
-  spec.homepage      = 'https://github.com/keithrbennett/simplecov-mcp'
+  spec.homepage      = 'https://github.com/keithrbennett/cov-loupe'
   spec.required_ruby_version = '>= 3.2'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do

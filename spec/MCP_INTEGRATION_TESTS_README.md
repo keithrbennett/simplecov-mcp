@@ -27,7 +27,7 @@ The integration tests spawn the actual MCP server as a subprocess and communicat
 
 ### Issue #1 from Analysis: Missing `require 'optparse'`
 
-The critical bug (missing `require 'optparse'` in `lib/simplecov_mcp.rb:110`) was not caught by existing tests because:
+The critical bug (missing `require 'optparse'` in `lib/cov_loupe.rb:110`) was not caught by existing tests because:
 
 - Unit tests loaded the full gem which transitively required optparse through the CLI
 - MCP tools were tested in-process without spawning the server
@@ -101,8 +101,8 @@ Potential additions:
 ## Related Files
 
 - `spec/integration_spec.rb` - Main integration test file (lines 308-683)
-- `lib/simplecov_mcp.rb` - Entry point with mode detection
-- `lib/simplecov_mcp/mcp_server.rb` - MCP server implementation
+- `lib/cov_loupe.rb` - Entry point with mode detection
+- `lib/cov_loupe/mcp_server.rb` - MCP server implementation
 - `exe/cov-loupe` - Executable entry point
 
 ## References

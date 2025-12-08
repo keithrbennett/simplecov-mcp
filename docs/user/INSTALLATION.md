@@ -12,7 +12,7 @@
 ### Via RubyGems
 
 ```sh
-gem install simplecov-mcp
+gem install cov-loupe
 ```
 
 ### Via Bundler
@@ -20,7 +20,7 @@ gem install simplecov-mcp
 Add to your `Gemfile`:
 
 ```ruby
-gem 'simplecov-mcp'
+gem 'cov-loupe'
 ```
 
 Then run:
@@ -32,11 +32,11 @@ bundle install
 ### From Source
 
 ```sh
-git clone https://github.com/keithrbennett/simplecov-mcp.git
-cd simplecov-mcp
+git clone https://github.com/keithrbennett/cov-loupe.git
+cd cov-loupe
 bundle install
-gem build simplecov-mcp.gemspec
-gem install simplecov-mcp-*.gem
+gem build cov-loupe.gemspec
+gem install cov-loupe-*.gem
 ```
 
 ## Require Path
@@ -44,10 +44,10 @@ gem install simplecov-mcp-*.gem
 The gem uses a single require path:
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 ```
 
-The executable is `simplecov-mcp` (with hyphen).
+The executable is `cov-loupe` (with hyphen).
 
 ## PATH Configuration
 
@@ -61,7 +61,7 @@ rbenv rehash      # rbenv
 asdf reshim ruby  # asdf
 
 # Verify executable is accessible
-which simplecov-mcp
+which cov-loupe
 ```
 
 **Important:** When changing Ruby versions, reinstall the gem and update any MCP configurations that use absolute paths.
@@ -71,10 +71,10 @@ which simplecov-mcp
 If PATH setup is problematic, use bundler:
 
 ```sh
-bundle exec simplecov-mcp
+bundle exec cov-loupe
 ```
 
-This works from any project directory that has simplecov-mcp in its Gemfile.
+This works from any project directory that has cov-loupe in its Gemfile.
 
 ## Verification
 
@@ -82,13 +82,13 @@ This works from any project directory that has simplecov-mcp in its Gemfile.
 
 ```sh
 # Check version
-simplecov-mcp version
+cov-loupe version
 
 # Show help
-simplecov-mcp --help
+cov-loupe --help
 
 # Run on current project (requires coverage data)
-simplecov-mcp
+cov-loupe
 ```
 
 ### Generate Test Coverage
@@ -102,8 +102,8 @@ bundle exec rspec  # or your test command
 # Verify coverage file exists
 ls -l coverage/.resultset.json
 
-# Now test simplecov-mcp
-simplecov-mcp
+# Now test cov-loupe
+cov-loupe
 ```
 
 ## Platform-Specific Notes

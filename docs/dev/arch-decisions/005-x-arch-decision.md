@@ -4,7 +4,7 @@
 
 ## Status
 
-Replaced – simplecov-mcp now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov’s combine helpers.
+Replaced – cov-loupe now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov’s combine helpers.
 
 ## Context
 
@@ -44,14 +44,14 @@ We chose to **make SimpleCov a development dependency only** and read `.resultse
 
 ### Implementation
 
-The gem only depends on `mcp` at runtime (simplecov-mcp.gemspec:26):
+The gem only depends on `mcp` at runtime (cov-loupe.gemspec:26):
 ```ruby
 # Runtime deps (stdlib: json, time, pathname)
 spec.add_runtime_dependency 'mcp', '~> 0.3'
 spec.add_development_dependency 'simplecov', '~> 0.21'
 ```
 
-Coverage data is read directly from JSON files (lib/simplecov_mcp/model.rb:34-42):
+Coverage data is read directly from JSON files (lib/cov_loupe/model.rb:34-42):
 ```ruby
 rs = CovUtil.find_resultset(@root, resultset: resultset)
 raw = JSON.parse(File.read(rs))
@@ -64,7 +64,7 @@ cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs
 @cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
 ```
 
-Coverage calculations use simple algorithms (lib/simplecov_mcp/util.rb:42-71):
+Coverage calculations use simple algorithms (lib/cov_loupe/util.rb:42-71):
 ```ruby
 def summary(arr)
   total = 0
@@ -121,7 +121,7 @@ Where:
 
 ### Resultset Discovery
 
-We implement flexible discovery of `.resultset.json` files (lib/simplecov_mcp/util.rb:6-10):
+We implement flexible discovery of `.resultset.json` files (lib/cov_loupe/util.rb:6-10):
 ```ruby
 RESULTSET_CANDIDATES = [
   '.resultset.json',
@@ -181,9 +181,9 @@ If SimpleCov's format changes:
 
 ## References
 
-- Gemspec dependencies: `simplecov-mcp.gemspec:26-28`
-- JSON parsing: `lib/simplecov_mcp/model.rb:34-57`
-- Coverage calculations: `lib/simplecov_mcp/util.rb:42-71`
-- Resultset discovery: `lib/simplecov_mcp/util.rb:6-10`, `lib/simplecov_mcp/util.rb:34-36`
+- Gemspec dependencies: `cov-loupe.gemspec:26-28`
+- JSON parsing: `lib/cov_loupe/model.rb:34-57`
+- Coverage calculations: `lib/cov_loupe/util.rb:42-71`
+- Resultset discovery: `lib/cov_loupe/util.rb:6-10`, `lib/cov_loupe/util.rb:34-36`
 - SimpleCov format documentation: https://github.com/simplecov-ruby/simplecov
 - Development usage: Uses SimpleCov in `spec/spec_helper.rb` to test itself

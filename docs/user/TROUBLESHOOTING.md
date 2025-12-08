@@ -21,9 +21,9 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
 - Run outside the macOS sandbox (Codex on Ubuntu, Gemini, Claude Code, local shells) or use a version manager that does not invoke `ps`.
 - Or execute RSpec with explicit RVM paths:
   ```bash
-  PATH="$HOME/.rvm/gems/ruby-3.4.5@simplecov-mcp/bin:$HOME/.rvm/rubies/ruby-3.4.5/bin:$PATH" \
-    GEM_HOME="$HOME/.rvm/gems/ruby-3.4.5@simplecov-mcp" \
-    GEM_PATH="$HOME/.rvm/gems/ruby-3.4.5@simplecov-mcp:$HOME/.rvm/gems/ruby-3.4.5@global" \
+  PATH="$HOME/.rvm/gems/ruby-3.4.5@cov-loupe/bin:$HOME/.rvm/rubies/ruby-3.4.5/bin:$PATH" \
+    GEM_HOME="$HOME/.rvm/gems/ruby-3.4.5@cov-loupe" \
+    GEM_PATH="$HOME/.rvm/gems/ruby-3.4.5@cov-loupe:$HOME/.rvm/gems/ruby-3.4.5@global" \
     $HOME/.rvm/rubies/ruby-3.4.5/bin/bundle exec rspec
   ```
 - Use a different AI coding agent and/or operating system.
@@ -32,7 +32,7 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
 
 ### Missing `coverage/.resultset.json`
 
-`simplecov-mcp` only reads coverage data; it never generates it. If you see "Could not find .resultset.json":
+`cov-loupe` only reads coverage data; it never generates it. If you see "Could not find .resultset.json":
 
 1. Run the test suite with SimpleCov enabled (default project setup already enables it).
    ```bash
@@ -41,9 +41,9 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
    ```
 2. If your coverage lives elsewhere, point the tools at it:
    ```bash
-   simplecov-mcp --resultset build/coverage/.resultset.json
+   cov-loupe --resultset build/coverage/.resultset.json
    # or
-   export SIMPLECOV_MCP_OPTS="--resultset build/coverage"
+   export COV_LOUPE_OPTS="--resultset build/coverage"
    ```
 
 ### Stale Coverage Errors
@@ -59,7 +59,7 @@ If you only care about a subset of files, supply `--tracked-globs` (CLI) or `tra
 
 The model looks up files by absolute path, then cwd-relative path, then basename. If you still hit this error:
 
-1. Verify the file is listed in the coverage table (`simplecov-mcp list | grep model.rb`).
+1. Verify the file is listed in the coverage table (`cov-loupe list | grep model.rb`).
 2. Use the exact project-relative path that SimpleCov recorded (case-sensitive, no symlinks).
 3. If the file truly never executes under tests, add coverage or exclude it from your workflow.
 
@@ -69,19 +69,19 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 
 **Symptoms:**
 - AI assistant reports "Could not connect to MCP server"
-- AI says "I don't have access to simplecov-mcp tools"
+- AI says "I don't have access to cov-loupe tools"
 
 **Diagnostic steps:**
 
 1. **Verify executable exists and works:**
    ```bash
-   which simplecov-mcp
-   simplecov-mcp version
+   which cov-loupe
+   cov-loupe version
    ```
 
 2. **Test MCP server mode manually:**
    ```bash
-   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp
+   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
    ```
    Should return JSON-RPC response.
 
@@ -89,7 +89,7 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    ```bash
    claude mcp list  # For Claude Code
    codex mcp list   # For Codex
-   tail -f simplecov_mcp.log  # Check logs
+   tail -f cov_loupe.log  # Check logs
    ```
 
 4. **Restart AI assistant** - Config changes often require restart
@@ -97,7 +97,7 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 5. **Use absolute path in MCP config:**
    ```bash
    # Find absolute path
-   which simplecov-mcp
+   which cov-loupe
 
    # Update your MCP client config to use this path
    ```
@@ -117,12 +117,12 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 
 ```bash
 # For rbenv/asdf
-which simplecov-mcp
+which cov-loupe
 # Use this path in MCP config
 
 # For RVM, create wrapper
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-# Use: ~/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
+# Use: ~/.rvm/wrappers/ruby-3.3.8/cov-loupe
 ```
 
 ## Development Issues
@@ -147,21 +147,21 @@ ruby -v
 gem -v
 bundle -v
 
-# simplecov-mcp info
-gem list simplecov-mcp
-which simplecov-mcp
-simplecov-mcp version
+# cov-loupe info
+gem list cov-loupe
+which cov-loupe
+cov-loupe version
 
 # Test basic functionality
-simplecov-mcp --help
-simplecov-mcp list 2>&1
+cov-loupe --help
+cov-loupe list 2>&1
 
 # Check coverage data
 ls -la coverage/.resultset.json
 head -20 coverage/.resultset.json
 
 # Test MCP mode
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | simplecov-mcp 2>&1
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe 2>&1
 ```
 
 ## Getting More Help
@@ -170,20 +170,20 @@ If the above doesn't solve your problem:
 
 1. **Check error mode** - Run with `--error-mode debug` for full stack traces:
    ```bash
-   simplecov-mcp --error-mode debug summary lib/simplecov_mcp/cli.rb
+   cov-loupe --error-mode debug summary lib/cov_loupe/cli.rb
    ```
 
 2. **Check logs:**
    ```bash
    # MCP server logs
-   tail -50 simplecov_mcp.log
+   tail -50 cov_loupe.log
 
    # Or specify custom log location
-   simplecov-mcp --log-file /tmp/debug.log summary lib/simplecov_mcp/cli.rb
+   cov-loupe --log-file /tmp/debug.log summary lib/cov_loupe/cli.rb
    ```
 
 3. **Search existing issues:**
-   https://github.com/keithrbennett/simplecov-mcp/issues
+   https://github.com/keithrbennett/cov-loupe/issues
 
 4. **Report a bug:**
    Include output from [Diagnostic Commands](#diagnostic-commands) above

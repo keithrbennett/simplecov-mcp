@@ -14,7 +14,7 @@
 
 ## What is MCP?
 
-The Model Context Protocol (MCP) is a standard for integrating tools and data sources with AI assistants. By running simplecov-mcp as an MCP server, you enable AI coding assistants to:
+The Model Context Protocol (MCP) is a standard for integrating tools and data sources with AI assistants. By running cov-loupe as an MCP server, you enable AI coding assistants to:
 
 - Query coverage data for files
 - Identify uncovered code
@@ -32,27 +32,27 @@ AI assistants can help you:
 ## Prerequisites
 
 - **Ruby >= 3.2** (required by MCP gem dependency)
-- **simplecov-mcp installed** - See [Installation Guide](INSTALLATION.md)
+- **cov-loupe installed** - See [Installation Guide](INSTALLATION.md)
 - **simplecov gem >= 0.21** - Needed when a resultset contains multiple suites (loaded lazily)
 - **Coverage data** - Run tests to generate `coverage/.resultset.json`
 - **MCP-compatible client** - Claude Code, Cursor, Codex, etc.
 
 ## Quick Start
 
-### 1. Install simplecov-mcp
+### 1. Install cov-loupe
 
 ```sh
-gem install simplecov-mcp
+gem install cov-loupe
 ```
 
 ### 2. Verify Installation
 
 ```sh
 # Find the executable path (needed for MCP configuration)
-which simplecov-mcp
+which cov-loupe
 
 # Test it works
-simplecov-mcp version
+cov-loupe version
 ```
 
 ### 3. Configure Your AI Assistant
@@ -69,9 +69,9 @@ bundle exec rspec  # or your test command
 ls coverage/.resultset.json
 ```
 
-> **Multi-suite note:** If the resultset contains several suites (e.g., `RSpec` and `Cucumber`), simplecov-mcp lazily loads the `simplecov` gem and merges them before answering coverage queries. Staleness checks currently use the newest suite’s timestamp, so treat multi-suite freshness warnings as advisory until per-file timestamps are introduced.
+> **Multi-suite note:** If the resultset contains several suites (e.g., `RSpec` and `Cucumber`), cov-loupe lazily loads the `simplecov` gem and merges them before answering coverage queries. Staleness checks currently use the newest suite’s timestamp, so treat multi-suite freshness warnings as advisory until per-file timestamps are introduced.
 >
-> Only suites stored in a *single* `.resultset.json` are merged automatically. If your test runs produce multiple resultset files, merge them (e.g., via `SimpleCov::ResultMerger.merge_and_store`) and point simplecov-mcp at the combined file.
+> Only suites stored in a *single* `.resultset.json` are merged automatically. If your test runs produce multiple resultset files, merge them (e.g., via `SimpleCov::ResultMerger.merge_and_store`) and point cov-loupe at the combined file.
 
 > Multifile support may be added in a future version (post an issue if you want this).
 
@@ -79,7 +79,7 @@ ls coverage/.resultset.json
 
 ```sh
 # Test manually
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | cov-loupe
 ```
 
 You should see a JSON-RPC response with version information.
@@ -88,15 +88,15 @@ You should see a JSON-RPC response with version information.
 
 ### Claude Code
 
-**Current Status:** Claude Code has a bug in its MCP client that prevents it from working with spec-compliant MCP servers like simplecov-mcp. Claude Code will automatically fall back to using the CLI interface.
+**Current Status:** Claude Code has a bug in its MCP client that prevents it from working with spec-compliant MCP servers like cov-loupe. Claude Code will automatically fall back to using the CLI interface.
 
 **Bug Report:** [Claude Code Issue #8239](https://github.com/anthropics/claude-code/issues/8239)
 
 **Workaround:** Use the CLI interface, which provides the same functionality:
 ```sh
 # Instead of MCP tools, use CLI
-simplecov-mcp list
-simplecov-mcp summary lib/simplecov_mcp/cli.rb
+cov-loupe list
+cov-loupe summary lib/cov_loupe/cli.rb
 ```
 
 **Configuration (for when bug is fixed):**
@@ -104,21 +104,21 @@ simplecov-mcp summary lib/simplecov_mcp/cli.rb
 Using the Claude CLI tool:
 
 ```sh
-# Basic setup (if simplecov-mcp is in default PATH)
-claude mcp add simplecov-mcp simplecov-mcp
+# Basic setup (if cov-loupe is in default PATH)
+claude mcp add cov-loupe cov-loupe
 
 # With rbenv/asdf (use absolute path)
-claude mcp add simplecov-mcp /Users/yourname/.rbenv/shims/simplecov-mcp
+claude mcp add cov-loupe /Users/yourname/.rbenv/shims/cov-loupe
 
 # With RVM wrapper (recommended for stability)
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-claude mcp add simplecov-mcp /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
+claude mcp add cov-loupe /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
 
 # For user-wide configuration (default is local)
-claude mcp add --scope user simplecov-mcp simplecov-mcp
+claude mcp add --scope user cov-loupe cov-loupe
 
 # For project-specific configuration
-claude mcp add --scope project simplecov-mcp simplecov-mcp
+claude mcp add --scope project cov-loupe cov-loupe
 ```
 
 **Verify configuration:**
@@ -127,10 +127,10 @@ claude mcp add --scope project simplecov-mcp simplecov-mcp
 claude mcp list
 
 # Get server details
-claude mcp get simplecov-mcp
+claude mcp get cov-loupe
 
 # Remove if needed
-claude mcp remove simplecov-mcp
+claude mcp remove cov-loupe
 ```
 
 **Important Notes:**
@@ -144,29 +144,29 @@ claude mcp remove simplecov-mcp
 Using the Codex CLI:
 
 ```sh
-# Basic setup (if simplecov-mcp is in default PATH)
-codex mcp add simplecov-mcp --command simplecov-mcp
+# Basic setup (if cov-loupe is in default PATH)
+codex mcp add cov-loupe --command cov-loupe
 
 # With rbenv/asdf (use absolute path)
-codex mcp add simplecov-mcp --command /Users/yourname/.rbenv/shims/simplecov-mcp
+codex mcp add cov-loupe --command /Users/yourname/.rbenv/shims/cov-loupe
 
 # With RVM wrapper (recommended for stability)
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
-codex mcp add simplecov-mcp --command /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
+codex mcp add cov-loupe --command /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
 
 # List configured servers
 codex mcp list
 
 # Show server details
-codex mcp get simplecov-mcp
+codex mcp get cov-loupe
 
 # Remove if needed
-codex mcp remove simplecov-mcp
+codex mcp remove cov-loupe
 ```
 
 **Find your executable path:**
 ```sh
-which simplecov-mcp
+which cov-loupe
 ```
 
 ### Gemini
@@ -175,16 +175,16 @@ Using the Gemini CLI:
 
 ```sh
 # Add MCP server
-gemini mcp add simplecov-mcp /Users/yourname/.rbenv/shims/simplecov-mcp
+gemini mcp add cov-loupe /Users/yourname/.rbenv/shims/cov-loupe
 
 # Or with RVM
-gemini mcp add simplecov-mcp /Users/yourname/.rvm/wrappers/ruby-3.3.8/simplecov-mcp
+gemini mcp add cov-loupe /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
 
 # List configured servers
 gemini mcp list
 
 # Remove if needed
-gemini mcp remove simplecov-mcp
+gemini mcp remove cov-loupe
 ```
 
 ### Generic MCP Client
@@ -194,11 +194,11 @@ For any MCP client that uses JSON configuration:
 ```json
 {
   "mcpServers": {
-    "simplecov-mcp": {
-      "command": "/path/to/simplecov-mcp",
+    "cov-loupe": {
+      "command": "/path/to/cov-loupe",
       "args": [],
       "env": {
-        "SIMPLECOV_MCP_OPTS": "--resultset coverage"
+        "COV_LOUPE_OPTS": "--resultset coverage"
       }
     }
   }
@@ -207,13 +207,13 @@ For any MCP client that uses JSON configuration:
 
 **Environment variables you can set:**
 
-- `SIMPLECOV_MCP_OPTS` - Default CLI options (though less useful for MCP mode)
+- `COV_LOUPE_OPTS` - Default CLI options (though less useful for MCP mode)
 
 ## Available MCP Tools
 
 ### Tool Catalog
 
-simplecov-mcp exposes 10 MCP tools:
+cov-loupe exposes 10 MCP tools:
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
@@ -230,7 +230,7 @@ simplecov-mcp exposes 10 MCP tools:
 
 ### JSON Response Format
 
-For tools that return structured data, `simplecov-mcp` serializes the data as a JSON string and returns it inside a `text` part of the MCP response.
+For tools that return structured data, `cov-loupe` serializes the data as a JSON string and returns it inside a `text` part of the MCP response.
 
 **Example:**
 ```json
@@ -320,41 +320,41 @@ These tools analyze individual files. All require `path` parameter.
 ### Coverage Analysis
 
 ```
-Using simplecov-mcp, show me a table of all files and their coverage percentages.
+Using cov-loupe, show me a table of all files and their coverage percentages.
 ```
 
 ```
-Using simplecov-mcp, find files with less than 80% coverage and tell me which ones to prioritize.
+Using cov-loupe, find files with less than 80% coverage and tell me which ones to prioritize.
 ```
 
 ```
-Using simplecov-mcp, analyze the coverage for lib/simplecov_mcp/tools/ and suggest improvements.
+Using cov-loupe, analyze the coverage for lib/cov_loupe/tools/ and suggest improvements.
 ```
 
 ### Finding Coverage Gaps
 
 ```
-Using simplecov-mcp, show me the uncovered lines in lib/simplecov_mcp/base_tool.rb and explain what they do.
+Using cov-loupe, show me the uncovered lines in lib/cov_loupe/base_tool.rb and explain what they do.
 ```
 
 ```
-Using simplecov-mcp, find the most important uncovered code in lib/simplecov_mcp/tools/coverage_detailed_tool.rb.
+Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/coverage_detailed_tool.rb.
 ```
 
 ### Test Generation
 
 ```
-Using simplecov-mcp, find uncovered lines in lib/simplecov_mcp/staleness_checker.rb and write RSpec tests for them.
+Using cov-loupe, find uncovered lines in lib/cov_loupe/staleness_checker.rb and write RSpec tests for them.
 ```
 
 ```
-Using simplecov-mcp, analyze coverage gaps in lib/simplecov_mcp/tools/ and generate test cases.
+Using cov-loupe, analyze coverage gaps in lib/cov_loupe/tools/ and generate test cases.
 ```
 
 ### Coverage Reporting
 
 ```
-Using simplecov-mcp, create a markdown report of:
+Using cov-loupe, create a markdown report of:
 - Files with worst coverage
 - Most critical coverage gaps
 - Recommended action items
@@ -368,13 +368,13 @@ Test the MCP server responds to JSON-RPC:
 
 ```sh
 # Test version tool (simplest)
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | cov-loupe
 
 # Test summary tool
-echo '''{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simplecov_mcp/model.rb"}}}''' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}''' | cov-loupe
 
 # Test help tool
-echo '''{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}''' | simplecov-mcp
+echo '''{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}''' | cov-loupe
 ```
 
 **Important:** JSON-RPC messages must be on a single line. Multi-line JSON will cause parse errors.
@@ -385,31 +385,31 @@ Once configured, try these prompts in your AI assistant:
 
 1. **Basic connectivity:**
    ```
-   Using simplecov-mcp, show me the version.
+   Using cov-loupe, show me the version.
    ```
 
 2. **List tools:**
    ```
-   Using simplecov-mcp, what tools are available?
+   Using cov-loupe, what tools are available?
    ```
 
 3. **Simple query:**
    ```
-   Using simplecov-mcp, show me all files with coverage.
+   Using cov-loupe, show me all files with coverage.
    ```
 
 If these work, your setup is correct!
 
 ### Checking Logs
 
-The MCP server logs to `simplecov_mcp.log` in the current directory by default.
+The MCP server logs to `cov_loupe.log` in the current directory by default.
 
 ```sh
 # Watch logs in real-time
-tail -f simplecov_mcp.log
+tail -f cov_loupe.log
 
 # View recent errors
-grep ERROR simplecov_mcp.log | tail -20
+grep ERROR cov_loupe.log | tail -20
 ```
 
 To override the default log file location, specify the `--log-file` argument wherever and however you configure your MCP server. For example, to log to a different file path, include `--log-file /path/to/logfile.log` in your server configuration. To log to standard error, use `--log-file stderr`.
@@ -432,27 +432,27 @@ See the **[CLI Fallback for LLMs Guide](CLI_FALLBACK_FOR_LLMS.md)** for:
 
 **Server Won't Start**
 ```sh
-which simplecov-mcp                            # Verify executable exists
+which cov-loupe                            # Verify executable exists
 ruby -v                                         # Check Ruby >= 3.2
-simplecov-mcp version                          # Test basic functionality
+cov-loupe version                          # Test basic functionality
 ```
 
 **Path Issues with Version Managers**
 ```sh
-which simplecov-mcp                            # Use this absolute path in MCP config
+which cov-loupe                            # Use this absolute path in MCP config
 # RVM: Create wrapper for stability
-rvm wrapper ruby-3.3.8 simplecov-mcp simplecov-mcp
+rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
 ```
 
 **Tools Not Appearing**
 1. Restart AI assistant after config changes
-2. Check logs: `tail -f simplecov_mcp.log`
+2. Check logs: `tail -f cov_loupe.log`
 3. Try explicit tool names in prompts
 4. Verify MCP server status in assistant
 
 **JSON-RPC Parse Errors**
 - Ensure JSON is on a single line (no newlines)
-- Test manually: `echo '{"jsonrpc":"2.0",...}' | simplecov-mcp`
+- Test manually: `echo '{"jsonrpc":"2.0",...}' | cov-loupe`
 
 ## Advanced Configuration
 
@@ -462,24 +462,24 @@ For troubleshooting, add error mode when configuring the server:
 
 ```sh
 # Claude Code
-claude mcp add simplecov-mcp simplecov-mcp --error-mode debug
+claude mcp add cov-loupe cov-loupe --error-mode debug
 
 # Codex
-codex mcp add simplecov-mcp --command simplecov-mcp --args "--error-mode" --args "debug"
+codex mcp add cov-loupe --command cov-loupe --args "--error-mode" --args "debug"
 
 # Gemini
-gemini mcp add simplecov-mcp "$(which simplecov-mcp) --error-mode debug"
+gemini mcp add cov-loupe "$(which cov-loupe) --error-mode debug"
 ```
 
 ### Project-Specific vs. Global Configuration
 
 **Global configuration** (all projects):
-- Claude: `claude mcp add --scope user simplecov-mcp ...`
+- Claude: `claude mcp add --scope user cov-loupe ...`
 - Codex: `codex mcp add` (uses global config by default)
 - Gemini: `gemini mcp add` (uses global config)
 
 **Project-specific** (one project):
-- Claude: `claude mcp add --scope project simplecov-mcp ...` (default is `local`)
+- Claude: `claude mcp add --scope project cov-loupe ...` (default is `local`)
 - Codex/Gemini: Create `.codex/config.toml` or `.gemini/config.toml` in project root (manual)
 
 ## Next Steps

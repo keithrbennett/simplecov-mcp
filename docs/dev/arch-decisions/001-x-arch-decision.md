@@ -15,7 +15,7 @@ SimpleCov MCP needed to serve two distinct use cases:
 
 We considered three approaches:
 
-1. **Separate binaries/gems**: Create `simplecov-cli` and `simplecov-mcp` as separate projects
+1. **Separate binaries/gems**: Create `simplecov-cli` and `cov-loupe` as separate projects
 2. **Single binary with explicit mode flags**: Require users to pass `--mcp` or `--cli` to select mode
 3. **Automatic mode detection**: Single binary that automatically detects the operating mode based on input
 
@@ -28,17 +28,17 @@ We considered three approaches:
 
 ## Decision
 
-We implemented **automatic mode detection** via a single entry point (`SimpleCovMcp.run`) that routes to either CLI or MCP server mode based on the execution context.
+We implemented **automatic mode detection** via a single entry point (`CovLoupe.run`) that routes to either CLI or MCP server mode based on the execution context.
 
 ### Mode Detection Algorithm
 
-The `ModeDetector` class (lib/simplecov_mcp/mode_detector.rb:6) implements a priority-based detection strategy:
+The `ModeDetector` class (lib/cov_loupe/mode_detector.rb:6) implements a priority-based detection strategy:
 
 1. **Explicit CLI flags** (`--force-cli`, `-h`, `--help`, `--version`) → CLI mode
 2. **Presence of subcommands** (non-option arguments like `summary`, `list`) → CLI mode
 3. **TTY detection** fallback: `stdin.tty?` returns true → CLI mode, false → MCP server mode
 
-The implementation is in `lib/simplecov_mcp.rb:34-52`:
+The implementation is in `lib/cov_loupe.rb:34-52`:
 
 ```ruby
 def run(argv)
@@ -48,7 +48,7 @@ def run(argv)
   if ModeDetector.cli_mode?(full_argv)
     CoverageCLI.new.run(argv)
   else
-    SimpleCovMcp.default_log_file = parse_log_file(full_argv)
+    CovLoupe.default_log_file = parse_log_file(full_argv)
     MCPServer.new.run
   end
 end
@@ -64,7 +64,7 @@ end
 
 ### Positive
 
-1. **User convenience**: Single gem to install (`gem install simplecov-mcp`), single executable (`simplecov-mcp`)
+1. **User convenience**: Single gem to install (`gem install cov-loupe`), single executable (`cov-loupe`)
 2. **No ceremony**: Users don't need to remember mode flags or understand the MCP/CLI distinction
 3. **Testable**: The `ModeDetector` class is a pure function that can be tested in isolation
 4. **Clear separation**: CLI and MCP server implementations remain completely separate after routing
@@ -88,8 +88,8 @@ end
 
 ## References
 
-- Implementation: `lib/simplecov_mcp.rb:34-52`
-- Mode detection: `lib/simplecov_mcp/mode_detector.rb:6-63`
-- CLI implementation: `lib/simplecov_mcp/cli.rb`
-- MCP server implementation: `lib/simplecov_mcp/mcp_server.rb`
+- Implementation: `lib/cov_loupe.rb:34-52`
+- Mode detection: `lib/cov_loupe/mode_detector.rb:6-63`
+- CLI implementation: `lib/cov_loupe/cli.rb`
+- MCP server implementation: `lib/cov_loupe/mcp_server.rb`
 - Related ADR: [002: Context-Aware Error Handling](002-x-arch-decision.md)

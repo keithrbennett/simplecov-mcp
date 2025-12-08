@@ -1,4 +1,4 @@
-# simplecov-mcp Library Usage Examples
+# cov-loupe Library Usage Examples
 =============================================
 
 ## 1. Full Coverage Table
@@ -6,8 +6,8 @@
 ┌────────────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                           │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ /home/kbennett/code/simplecov-mcp/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
-│ /home/kbennett/code/simplecov-mcp/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
 └────────────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 2, ok 0, stale 2
 ```
@@ -26,8 +26,8 @@ Result:
 ┌────────────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                           │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ /home/kbennett/code/simplecov-mcp/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
-│ /home/kbennett/code/simplecov-mcp/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
 └────────────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 2, ok 0, stale 2
 ```
@@ -46,7 +46,7 @@ Result:
 ┌────────────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                           │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ /home/kbennett/code/simplecov-mcp/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
 └────────────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 1, ok 0, stale 1
 ```
@@ -64,7 +64,7 @@ Result:
 ┌────────────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                           │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ /home/kbennett/code/simplecov-mcp/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
 └────────────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 1, ok 0, stale 1
 ```
@@ -87,8 +87,8 @@ Result:
 ┌────────────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                           │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ /home/kbennett/code/simplecov-mcp/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
-│ /home/kbennett/code/simplecov-mcp/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/foo.rb   │   66.67% │         2 │       3 │   !   │
+│ /home/kbennett/code/cov-loupe/lib/bar.rb   │   33.33% │         1 │       3 │   !   │
 └────────────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 2, ok 0, stale 2
 
@@ -103,7 +103,7 @@ try modifying file timestamps:
 Then run this script again to see partition results change.
 
 ## Summary
-This example demonstrates how simplecov-mcp can be used as a library to:
+This example demonstrates how cov-loupe can be used as a library to:
 - Load and query coverage data
 - Filter files by various criteria (directory, filename, coverage threshold)
 - Perform staleness analysis to identify potentially problematic files

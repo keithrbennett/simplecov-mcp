@@ -1,4 +1,4 @@
-# State of the Code Base Report: simplecov-mcp
+# State of the Code Base Report: cov-loupe
 
 **Date:** 2025-11-23
 **Reviewer:** Claude (Sonnet 4.5)
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The **simplecov-mcp** codebase is a well-architected, mature Ruby gem that provides three interfaces (MCP server, CLI, and Ruby API) for inspecting SimpleCov coverage data. The code demonstrates thoughtful design decisions, excellent separation of concerns, and strong test coverage at 98.44% line coverage.
+The **cov-loupe** codebase is a well-architected, mature Ruby gem that provides three interfaces (MCP server, CLI, and Ruby API) for inspecting SimpleCov coverage data. The code demonstrates thoughtful design decisions, excellent separation of concerns, and strong test coverage at 98.44% line coverage.
 
 **Strongest Areas:**
 - Excellent test coverage (98.44% line coverage, 89.85% branch coverage)
@@ -51,7 +51,7 @@ stripped = line.encode('UTF-8', invalid: :replace).strip
 The architecture follows a **layered, interface-agnostic design**:
 
 ```
-Entry Point (exe/simplecov-mcp)
+Entry Point (exe/cov-loupe)
     ↓
 Mode Detection (ModeDetector)
     ↓
@@ -174,7 +174,7 @@ Mode Detection (ModeDetector)
 
 ## Test Coverage
 
-### Coverage Summary (via simplecov-mcp CLI)
+### Coverage Summary (via cov-loupe CLI)
 ```
 Lines: total 1606     covered 1581     uncovered 25
 Average coverage:  98.44% across 51 files (ok: 51, stale: 0)
@@ -195,7 +195,7 @@ Average coverage:  98.44% across 51 files (ok: 51, stale: 0)
 | `path_relativizer.rb` | 96.88% | 31/32 | Low |
 | `error_handler.rb` | 96.97% | 64/66 | High |
 | `model.rb` | 97.95% | 143/146 | High |
-| `simplecov_mcp.rb` | 98.78% | 81/82 | Medium |
+| `cov_loupe.rb` | 98.78% | 81/82 | Medium |
 | `cli.rb` | 99.17% | 119/120 | Medium |
 | All other files | 100.00% | — | — |
 
@@ -346,7 +346,7 @@ Average coverage:  98.44% across 51 files (ok: 51, stale: 0)
 3. **Dependency Injection:** Error handlers, context passed as parameters
 4. **Guard Clauses:** Early returns reduce nesting
 5. **Named Parameters:** Used throughout for clarity
-6. **Module Namespacing:** Clear `SimpleCovMcp` namespace
+6. **Module Namespacing:** Clear `CovLoupe` namespace
 
 ### Verbosity Assessment
 - **Code is Concise:** Methods generally under 20 lines
@@ -466,7 +466,7 @@ code quality over time.
 
 ### Fix Useless Rescue
 ```
-In lib/simplecov_mcp/config_parser.rb line 30, there's a Lint/UselessRescue warning.
+In lib/cov_loupe/config_parser.rb line 30, there's a Lint/UselessRescue warning.
 Review the rescue block and either remove it if unnecessary or refactor to handle
 the exception appropriately.
 ```

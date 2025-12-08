@@ -3,8 +3,8 @@
 [Back to main README](../README.md)
 
 > Examples use `smcp`, an alias pointed at the demo fixture with partial coverage:
-> `alias smcp='simplecov-mcp --root docs/fixtures/demo_project'`
-> Swap `smcp` with `simplecov-mcp` if you want to target your own project/resultset.
+> `alias smcp='cov-loupe --root docs/fixtures/demo_project'`
+> Swap `smcp` with `cov-loupe` if you want to target your own project/resultset.
 
 ## Table of Contents
 
@@ -43,7 +43,7 @@ The MCP server uses structured error responses:
 
 ### MCP Server Logging
 
-The MCP server logs to `simplecov_mcp.log` in the current directory by default.
+The MCP server logs to `cov_loupe.log` in the current directory by default.
 
 To override the default log file location, specify the `--log-file` argument wherever and however you configure your MCP server. For example, to log to a different file path, include `--log-file /path/to/logfile.log` in your server configuration. To log to standard error, use `--log-file stderr`.
 
@@ -100,13 +100,13 @@ smcp --staleness error summary app/models/order.rb
 
 **Ruby API:**
 ```ruby
-model = SimpleCovMcp::CoverageModel.new(
+model = CovLoupe::CoverageModel.new(
   staleness: 'error'
 )
 
 begin
   summary = model.summary_for('app/models/order.rb')
-rescue SimpleCovMcp::CoverageDataStaleError => e
+rescue CovLoupe::CoverageDataStaleError => e
   puts "File modified after coverage: #{e.file_path}"
   puts "Coverage timestamp: #{e.cov_timestamp}"
   puts "File mtime: #{e.file_mtime}"
@@ -136,14 +136,14 @@ smcp --staleness error -fJ list > stale-check.json
 
 **Ruby API:**
 ```ruby
-model = SimpleCovMcp::CoverageModel.new(
+model = CovLoupe::CoverageModel.new(
   staleness: 'error',
   tracked_globs: ['lib/payments/**/*.rb', 'lib/ops/jobs/**/*.rb']
 )
 
 begin
   files = model.all_files(check_stale: true)
-rescue SimpleCovMcp::CoverageDataProjectStaleError => e
+rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Newer files: #{e.newer_files.join(', ')}"
   puts "Missing from coverage: #{e.missing_files.join(', ')}"
   puts "Deleted but in coverage: #{e.deleted_files.join(', ')}"
@@ -179,7 +179,7 @@ Path resolution order:
 2. **Relative path resolution from root**
 
 ```ruby
-model = SimpleCovMcp::CoverageModel.new(root: '/project')
+model = CovLoupe::CoverageModel.new(root: '/project')
 
 model.summary_for('/project/app/models/order.rb')  # Absolute
 model.summary_for('app/models/order.rb')           # Relative
@@ -189,13 +189,13 @@ model.summary_for('app/models/order.rb')           # Relative
 
 ```ruby
 # Project A
-model_a = SimpleCovMcp::CoverageModel.new(
+model_a = CovLoupe::CoverageModel.new(
   root: '/projects/service-a',
   resultset: '/projects/service-a/coverage/.resultset.json'
 )
 
 # Project B
-model_b = SimpleCovMcp::CoverageModel.new(
+model_b = CovLoupe::CoverageModel.new(
   root: '/projects/service-b',
   resultset: '/projects/service-b/tmp/coverage/.resultset.json'
 )
@@ -236,17 +236,17 @@ smcp --error-mode debug summary app/models/order.rb
 
 **Ruby API Error Handling:**
 ```ruby
-require 'simplecov_mcp'
+require 'cov_loupe'
 
 begin
-  model = SimpleCovMcp::CoverageModel.new(
+  model = CovLoupe::CoverageModel.new(
     root: '/project',
     resultset: '/nonexistent/.resultset.json'
   )
-rescue SimpleCovMcp::FileError => e
+rescue CovLoupe::FileError => e
   # Handle missing resultset
   puts "Coverage file not found: #{e.message}"
-rescue SimpleCovMcp::CoverageDataError => e
+rescue CovLoupe::CoverageDataError => e
   # Handle corrupt/invalid coverage data
   puts "Invalid coverage data: #{e.message}"
 end
@@ -267,7 +267,7 @@ class CustomErrorHandler
   end
 end
 
-cli = SimpleCovMcp::CoverageCLI.new(error_handler: CustomErrorHandler.new)
+cli = CovLoupe::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 ```
 
 ---
@@ -351,7 +351,7 @@ See [examples/success_predicates/README.md](../../examples/success_predicates/RE
 Convert absolute paths to relative for cleaner output:
 
 ```ruby
-model = SimpleCovMcp::CoverageModel.new(root: '/project')
+model = CovLoupe::CoverageModel.new(root: '/project')
 
 # Get data with absolute paths
 data = model.summary_for('app/models/order.rb')
@@ -411,7 +411,7 @@ Exit codes:
 
 ### Platform-Specific Examples
 
-For platform-specific integration examples (GitHub Actions, GitLab CI, Jenkins, CircleCI, etc.), see community contributions in the [GitHub Discussions](https://github.com/simplecov-ruby/simplecov-mcp/discussions).
+For platform-specific integration examples (GitHub Actions, GitLab CI, Jenkins, CircleCI, etc.), see community contributions in the [GitHub Discussions](https://github.com/keithrbennett/cov-loupe/discussions).
 
 ---
 
@@ -480,7 +480,7 @@ done
 ### Ruby API with Globs
 
 ```ruby
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Filter files in output
 api_files = model.all_files(
@@ -501,7 +501,7 @@ begin
     check_stale: true,
     tracked_globs: ['lib/critical/**/*.rb']
   )
-rescue SimpleCovMcp::CoverageDataProjectStaleError => e
+rescue CovLoupe::CoverageDataProjectStaleError => e
   # Handle missing coverage for critical files
   puts "Critical files missing coverage:"
   e.missing_files.each { |f| puts "  - #{f}" }
@@ -518,16 +518,16 @@ The `CoverageModel` reads `.resultset.json` once at initialization:
 
 ```ruby
 # Good: Single model for multiple queries
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 files = model.all_files
 file1 = model.summary_for('lib/a.rb')
 file2 = model.summary_for('lib/b.rb')
 
 # Bad: Re-reads coverage for each operation
-model1 = SimpleCovMcp::CoverageModel.new
+model1 = CovLoupe::CoverageModel.new
 files = model1.all_files
 
-model2 = SimpleCovMcp::CoverageModel.new
+model2 = CovLoupe::CoverageModel.new
 file1 = model2.summary_for('lib/a.rb')
 ```
 
@@ -536,14 +536,14 @@ file1 = model2.summary_for('lib/a.rb')
 ```ruby
 # Process multiple files in one pass
 files_to_analyze = ['lib/a.rb', 'lib/b.rb', 'lib/c.rb']
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 results = files_to_analyze.each_with_object({}) do |file, hash|
   hash[file] = {
     summary: model.summary_for(file),
     uncovered: model.uncovered_for(file)
   }
-rescue SimpleCovMcp::FileError
+rescue CovLoupe::FileError
   hash[file] = { error: 'No coverage' }
 end
 ```
@@ -582,7 +582,7 @@ class CoverageCache
       @cache[key][:model]
     else
       @cache[key] = {
-        model: SimpleCovMcp::CoverageModel.new(root: root),
+        model: CovLoupe::CoverageModel.new(root: root),
         time: now
       }
       @cache[key][:model]
@@ -604,7 +604,7 @@ model = cache.model_for('/project')
 ```ruby
 require 'csv'
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 files = model.all_files
 
 CSV.open('coverage.csv', 'w') do |csv|
@@ -647,7 +647,7 @@ template = ERB.new(<<~HTML)
   </html>
 HTML
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 files = model.relativize(model.all_files)
 File.write('coverage.html', template.result(binding))
 ```
@@ -671,7 +671,7 @@ smcp uncovered app/models/order.rb \
 **Programmatic Source Annotation:**
 ```ruby
 def annotate_source(file_path)
-  model = SimpleCovMcp::CoverageModel.new
+  model = CovLoupe::CoverageModel.new
   details = model.detailed_for(file_path)
   source_lines = File.readlines(file_path)
 
@@ -743,11 +743,11 @@ rexe -f coverage.json -oJ '
 
 **Send to Coveralls:**
 ```ruby
-require 'simplecov_mcp'
+require 'cov_loupe'
 require 'net/http'
 require 'json'
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 files = model.all_files
 
 coveralls_data = {

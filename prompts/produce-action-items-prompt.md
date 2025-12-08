@@ -2,7 +2,7 @@
 - Your task is to analyze this code base thoroughly and report on any issues you find.
 - Focus on identifying errors, weaknesses, risks, and areas for improvement.
 - For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it, including a prompt that can be given to an AI agent.
-- Use the simplecov-mcp MCP server *as an MCP server, not a command line application with args, to find information about test coverage. Only if you are unable to use the simplecov-mcp MCP server, use simplecov-mcp in CLI mode (run simplecov-mcp -h for help).
+- Use the cov-loupe MCP server *as an MCP server, not a command line application with args, to find information about test coverage. Only if you are unable to use the cov-loupe MCP server, use cov-loupe in CLI mode (run cov-loupe -h for help).
 - Write your analysis in a Markdown file whose name is:
 
 today's date in YYYY-MM-DD format +

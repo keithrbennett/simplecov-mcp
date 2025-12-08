@@ -11,14 +11,14 @@ Each file contains a single line of JSON (NDJSON-ready), so you can pipe it dire
 From the repository root:
 
 ```sh
-exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json
-exe/simplecov-mcp < examples/mcp-inputs/uncovered_lines.json
+exe/cov-loupe < examples/mcp-inputs/coverage_summary.json
+exe/cov-loupe < examples/mcp-inputs/uncovered_lines.json
 ```
 
-If `simplecov-mcp` is installed globally and available on your `PATH`:
+If `cov-loupe` is installed globally and available on your `PATH`:
 
 ```sh
-simplecov-mcp < examples/mcp-inputs/coverage_summary.json
+cov-loupe < examples/mcp-inputs/coverage_summary.json
 ```
 
 ### Formatting Tips (jq and rexe)
@@ -48,17 +48,17 @@ rexe -f examples/mcp-inputs/coverage_summary.json -oJ
 
 Using `jq`:
 ```sh
-exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json | jq .
+exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | jq .
 ```
 
 Using Ruby:
 ```sh
-exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json | ruby -r json -e '
+exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | ruby -r json -e '
   puts JSON.pretty_generate(JSON.parse($stdin.read))
 '
 ```
 
 Using `rexe`:
 ```sh
-exe/simplecov-mcp < examples/mcp-inputs/coverage_summary.json | rexe -ml -ij -oJ
+exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | rexe -ml -ij -oJ
 ```

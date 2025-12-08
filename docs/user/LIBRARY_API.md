@@ -2,7 +2,7 @@
 
 [Back to main README](../README.md)
 
-Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `SimpleCovMcp::CoverageModel`.
+Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `CovLoupe::CoverageModel`.
 
 ## Table of Contents
 
@@ -16,17 +16,17 @@ Use this gem programmatically to inspect coverage without running the CLI or MCP
 ## Quick Start
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 # Defaults (omit args; shown here with comments):
 # - root: "."
 # - resultset: resolved from common paths under root
 # - staleness: "off" (no stale checks)
 # - tracked_globs: nil (no project-level file-set checks)
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Custom configuration (non-default values):
-model = SimpleCovMcp::CoverageModel.new(
+model = CovLoupe::CoverageModel.new(
   root: "/path/to/project",        # non-default project root
   resultset: "build/coverage",      # file or directory containing .resultset.json
   staleness: "error",               # enable stale checks (raise on stale)
@@ -71,7 +71,7 @@ Returns coverage summary for a specific file.
 
 **Returns:** `Hash` - See [summary_for return type](#summary_for)
 
-**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+**Raises:** `CovLoupe::FileError` if file not in coverage data
 
 **Example:**
 ```ruby
@@ -88,7 +88,7 @@ Returns list of uncovered line numbers for a specific file.
 
 **Returns:** `Hash` - See [uncovered_for return type](#uncovered_for)
 
-**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+**Raises:** `CovLoupe::FileError` if file not in coverage data
 
 **Example:**
 ```ruby
@@ -105,7 +105,7 @@ Returns per-line coverage details with hit counts.
 
 **Returns:** `Hash` - See [detailed_for return type](#detailed_for)
 
-**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+**Raises:** `CovLoupe::FileError` if file not in coverage data
 
 **Example:**
 ```ruby
@@ -122,7 +122,7 @@ Returns raw SimpleCov lines array for a specific file.
 
 **Returns:** `Hash` - See [raw_for return type](#raw_for)
 
-**Raises:** `SimpleCovMcp::FileError` if file not in coverage data
+**Raises:** `CovLoupe::FileError` if file not in coverage data
 
 **Example:**
 ```ruby
@@ -181,11 +181,11 @@ Converts absolute file paths in coverage data to relative paths from project roo
 
 **Example:**
 ```ruby
-summary = model.summary_for('lib/simplecov_mcp/model.rb')
-# => { 'file' => '/home/user/project/lib/simplecov_mcp/model.rb', ... }
+summary = model.summary_for('lib/cov_loupe/model.rb')
+# => { 'file' => '/home/user/project/lib/cov_loupe/model.rb', ... }
 
 relative_summary = model.relativize(summary)
-# => { 'file' => 'lib/simplecov_mcp/model.rb', ... }
+# => { 'file' => 'lib/cov_loupe/model.rb', ... }
 
 # Works with arrays too
 files = model.all_files
@@ -301,28 +301,28 @@ Returns `Hash`:
 
 The library raises these custom exceptions:
 
-- **`SimpleCovMcp::ResultsetNotFoundError`** - Coverage data file not found
-- **`SimpleCovMcp::FileError`** - Requested file not in coverage data
-- **`SimpleCovMcp::CoverageDataStaleError`** - Coverage data is stale (only when `staleness: 'error'`)
-- **`SimpleCovMcp::CoverageDataError`** - Invalid coverage data format or structure
+- **`CovLoupe::ResultsetNotFoundError`** - Coverage data file not found
+- **`CovLoupe::FileError`** - Requested file not in coverage data
+- **`CovLoupe::CoverageDataStaleError`** - Coverage data is stale (only when `staleness: 'error'`)
+- **`CovLoupe::CoverageDataError`** - Invalid coverage data format or structure
 
-All exceptions inherit from `SimpleCovMcp::Error`.
+All exceptions inherit from `CovLoupe::Error`.
 
 ### Basic Error Handling
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 begin
-  model = SimpleCovMcp::CoverageModel.new
+  model = CovLoupe::CoverageModel.new
   summary = model.summary_for("lib/foo.rb")
   puts "Coverage: #{summary['summary']['percentage']}%"
-rescue SimpleCovMcp::FileError => e
+rescue CovLoupe::FileError => e
   puts "File not in coverage data: #{e.message}"
-rescue SimpleCovMcp::ResultsetNotFoundError => e
+rescue CovLoupe::ResultsetNotFoundError => e
   puts "Coverage data not found: #{e.message}"
   puts "Run your tests first: bundle exec rspec"
-rescue SimpleCovMcp::Error => e
+rescue CovLoupe::Error => e
   puts "Coverage error: #{e.message}"
 end
 ```
@@ -331,7 +331,7 @@ end
 
 ```ruby
 # Option 1: Check staleness without raising
-model = SimpleCovMcp::CoverageModel.new(staleness: "off")
+model = CovLoupe::CoverageModel.new(staleness: "off")
 files = model.all_files
 
 stale_files = files.select { |f| f['stale'] }
@@ -344,9 +344,9 @@ end
 
 # Option 2: Raise on staleness
 begin
-  model = SimpleCovMcp::CoverageModel.new(staleness: "error")
+  model = CovLoupe::CoverageModel.new(staleness: "error")
   files = model.all_files
-rescue SimpleCovMcp::CoverageDataStaleError => e
+rescue CovLoupe::CoverageDataStaleError => e
   puts "Stale coverage detected: #{e.message}"
   puts "Re-run tests: bundle exec rspec"
   exit 1
@@ -361,7 +361,7 @@ def find_coverage(model, possible_paths)
   possible_paths.each do |path|
     begin
       return model.summary_for(path)
-    rescue SimpleCovMcp::FileError
+    rescue CovLoupe::FileError
       next
     end
   end
@@ -386,9 +386,9 @@ end
 ### Batch File Analysis
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Analyze multiple files efficiently
 files_to_check = [
@@ -405,7 +405,7 @@ results = files_to_check.map do |path|
       coverage: summary['summary']['percentage'],
       status: summary['summary']['percentage'] >= 80 ? :ok : :low
     }
-  rescue SimpleCovMcp::FileError
+  rescue CovLoupe::FileError
     {
       file: path,
       coverage: nil,
@@ -424,7 +424,7 @@ end
 ### Coverage Threshold Validation
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 class CoverageValidator
   THRESHOLDS = {
@@ -476,7 +476,7 @@ class CoverageValidator
   end
 end
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 validator = CoverageValidator.new(model)
 validator.validate!
 ```
@@ -484,12 +484,12 @@ validator.validate!
 ### Directory-Level Aggregation
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Calculate coverage by directory using the totals API
-patterns = %w[lib/simplecov_mcp/tools/**/*.rb lib/simplecov_mcp/commands/**/*.rb lib/simplecov_mcp/presenters/**/*.rb]
+patterns = %w[lib/cov_loupe/tools/**/*.rb lib/cov_loupe/commands/**/*.rb lib/cov_loupe/presenters/**/*.rb]
 
 directory_stats = patterns.map do |pattern|
   totals = model.project_totals(tracked_globs: pattern)
@@ -512,13 +512,13 @@ end
 ### Coverage Delta Tracking
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 require "json"
 
 class CoverageDeltaTracker
   def initialize(baseline_path: "coverage_baseline.json")
     @baseline_path = baseline_path
-    @model = SimpleCovMcp::CoverageModel.new
+    @model = CovLoupe::CoverageModel.new
   end
 
   def save_baseline
@@ -592,7 +592,7 @@ tracker.compare        # See what changed
 ### Custom Reporting
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 class CoverageReporter
   def initialize(model)
@@ -655,7 +655,7 @@ class CoverageReporter
   end
 end
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 reporter = CoverageReporter.new(model)
 reporter.generate_markdown_report("coverage_report.md")
 ```
@@ -671,19 +671,19 @@ The `all_files` method returns a `'stale'` field for each file with one of these
 
 **Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `all_files` and filter the results.
 
-When `staleness: 'error'` mode is enabled in `CoverageModel.new`, the model will raise `SimpleCovMcp::CoverageDataStaleError` exceptions when stale files are detected during method calls.
+When `staleness: 'error'` mode is enabled in `CoverageModel.new`, the model will raise `CovLoupe::CoverageDataStaleError` exceptions when stale files are detected during method calls.
 
 ## API Stability
 
 Consider the following public and stable under SemVer:
-- `SimpleCovMcp::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
+- `CovLoupe::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
 - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`, `#format_table(rows: nil, sort_order:, check_stale:, tracked_globs:)`
 - Return shapes shown in the [Return Types](#return-types) section
 - Exception types documented in [Error Handling](#error-handling)
 
 **Note:**
-- CLI (`SimpleCovMcp.run(argv)`) and MCP tools remain stable but are separate surfaces
-- Internal helpers under `SimpleCovMcp::CovUtil` may change; prefer `CoverageModel` unless you need low-level access
+- CLI (`CovLoupe.run(argv)`) and MCP tools remain stable but are separate surfaces
+- Internal helpers under `CovLoupe::CovUtil` may change; prefer `CoverageModel` unless you need low-level access
 
 ## Related Documentation
 

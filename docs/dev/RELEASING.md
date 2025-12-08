@@ -1,6 +1,6 @@
 # Release Process
 
-This document provides a checklist for releasing new versions of simplecov-mcp.
+This document provides a checklist for releasing new versions of cov-loupe.
 
 ## Pre-Release Checklist
 
@@ -24,7 +24,7 @@ This document provides a checklist for releasing new versions of simplecov-mcp.
 - [ ] **Linting**: No Rubocop violations (`bundle exec rubocop`)
   - Verify via git hooks or run manually
 
-- [ ] **Version**: Update `lib/simplecov_mcp/version.rb` to release version
+- [ ] **Version**: Update `lib/cov_loupe/version.rb` to release version
   - Remove `.pre.X` suffix for stable releases
 
 ### 3. Cleanup
@@ -44,24 +44,24 @@ This document provides a checklist for releasing new versions of simplecov-mcp.
 
 - [ ] **Build gem**: Verify gem builds without errors
 ```bash
-gem build simplecov-mcp.gemspec
+gem build cov-loupe.gemspec
 ```
 
 - [ ] **Test installation**: Install and test locally
 ```bash
-gem install simplecov-mcp-*.gem
-simplecov-mcp --version
-simplecov-mcp --help
+gem install cov-loupe-*.gem
+cov-loupe --version
+cov-loupe --help
 # Test on actual project
 cd /path/to/test/project
-simplecov-mcp list
+cov-loupe list
 ```
 
 ### 5. Git Release
 
 - [ ] **Commit changes**: Commit version bump and RELEASE_NOTES.md updates
 ```bash
-git add lib/simplecov_mcp/version.rb RELEASE_NOTES.md
+git add lib/cov_loupe/version.rb RELEASE_NOTES.md
 git commit -m "Release version #{version}"
 ```
 
@@ -79,22 +79,22 @@ git push origin main --follow-tags
 
 - [ ] **Build final gem**: Build from tagged version
 ```bash
-gem build simplecov-mcp.gemspec
+gem build cov-loupe.gemspec
 ```
 
 - [ ] **Push to RubyGems**: Publish the gem
 ```bash
-gem push simplecov-mcp-#{version}.gem
+gem push cov-loupe-#{version}.gem
 ```
 
 - [ ] **Verify publication**: Check gem appears on RubyGems.org
-  - Visit https://rubygems.org/gems/simplecov-mcp
+  - Visit https://rubygems.org/gems/cov-loupe
   - Verify new version is listed
   - Check that documentation links work
 
 ### 7. GitHub Release
 
-- [ ] **Create GitHub release**: Go to https://github.com/keithrbennett/simplecov-mcp/releases/new
+- [ ] **Create GitHub release**: Go to https://github.com/keithrbennett/cov-loupe/releases/new
   - Select the tag you just pushed
   - Title: `Version #{version}`
   - Description: Copy relevant sections from RELEASE_NOTES.md
@@ -131,7 +131,7 @@ If a critical issue is discovered after release:
 
 1. **Yank the gem** (removes from RubyGems but preserves install history):
 ```bash
-gem yank simplecov-mcp -v #{version}
+gem yank cov-loupe -v #{version}
 ```
 
 2. **Fix the issue** in a new patch version

@@ -7,4 +7,4 @@ engineering.
 - [Development Guide](DEVELOPMENT.md) – setup, testing, release workflow
 - [Branch Coverage Support](BRANCH_ONLY_COVERAGE.md) – implementation notes and limitations
 - [Architecture Decision Records](arch-decisions/README.md) – design history
-- [Presentations](presentations/simplecov-mcp-presentation.md) – slide deck for talks/demos
+- [Presentations](presentations/cov-loupe-presentation.md) – slide deck for talks/demos

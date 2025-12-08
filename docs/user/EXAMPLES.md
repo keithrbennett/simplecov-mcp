@@ -2,11 +2,11 @@
 
 [Back to main README](../README.md)
 
-Practical examples for common tasks with simplecov-mcp. Examples are organized by skill level and use case.
+Practical examples for common tasks with cov-loupe. Examples are organized by skill level and use case.
 
 > For brevity, these examples use `smcp`, an alias to the demo fixture with partial coverage:
-> `alias smcp='simplecov-mcp --root docs/fixtures/demo_project'`
-> Swap `smcp` for `simplecov-mcp` to run against your own project and resultset.
+> `alias smcp='cov-loupe --root docs/fixtures/demo_project'`
+> Swap `smcp` for `cov-loupe` to run against your own project and resultset.
 
 ## Table of Contents
 
@@ -191,10 +191,10 @@ smcp -fJ list | rexe -r csv -ij -mb '
 ### Basic Usage
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
-model = SimpleCovMcp::CoverageModel.new(root: root)
+model = CovLoupe::CoverageModel.new(root: root)
 
 # Project totals
 totals = model.project_totals
@@ -213,10 +213,10 @@ puts "Uncovered lines: #{uncovered['uncovered'].join(', ')}"
 ### Filtering and Analysis
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
-model = SimpleCovMcp::CoverageModel.new(root: root)
+model = CovLoupe::CoverageModel.new(root: root)
 all_files = model.all_files
 
 # Find files below threshold
@@ -242,11 +242,11 @@ end
 ### Custom Formatting
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 require "pathname"
 
 root = "docs/fixtures/demo_project"
-model = SimpleCovMcp::CoverageModel.new(root: root)
+model = CovLoupe::CoverageModel.new(root: root)
 all_files = model.all_files
 
 # Filter to lib/payments (coverage data stores absolute paths)
@@ -270,38 +270,38 @@ end
 ### Coverage Analysis
 
 ```
-Using simplecov-mcp, show me a table of all files sorted by coverage percentage.
+Using cov-loupe, show me a table of all files sorted by coverage percentage.
 ```
 
 ```
-Using simplecov-mcp, find the 10 files with the lowest coverage and create a markdown report with:
+Using cov-loupe, find the 10 files with the lowest coverage and create a markdown report with:
 1. File path
 2. Current coverage %
 3. Number of uncovered lines
 ```
 
 ```
-Using simplecov-mcp, analyze the lib/payments/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
+Using cov-loupe, analyze the lib/payments/ directory and identify which files should be prioritized for additional testing based on coverage gaps and file complexity.
 ```
 
 ### Finding Specific Issues
 
 ```
-Using simplecov-mcp, show me the uncovered lines in app/controllers/orders_controller.rb with 5 lines of context around each uncovered block.
+Using cov-loupe, show me the uncovered lines in app/controllers/orders_controller.rb with 5 lines of context around each uncovered block.
 ```
 
 ```
-Using simplecov-mcp, find all files in lib/payments/ with less than 80% coverage and list the specific uncovered line numbers for each.
+Using cov-loupe, find all files in lib/payments/ with less than 80% coverage and list the specific uncovered line numbers for each.
 ```
 
 ### Test Generation
 
 ```
-Using simplecov-mcp, identify the uncovered lines in lib/ops/jobs/report_job.rb and write RSpec tests to cover them.
+Using cov-loupe, identify the uncovered lines in lib/ops/jobs/report_job.rb and write RSpec tests to cover them.
 ```
 
 ```
-Using simplecov-mcp, analyze coverage gaps in the app/controllers/ directory and generate a test plan prioritizing:
+Using cov-loupe, analyze coverage gaps in the app/controllers/ directory and generate a test plan prioritizing:
 1. Public API methods
 2. Error handling paths
 3. Edge cases
@@ -310,7 +310,7 @@ Using simplecov-mcp, analyze coverage gaps in the app/controllers/ directory and
 ### Reporting
 
 ```
-Using simplecov-mcp, create a coverage report showing:
+Using cov-loupe, create a coverage report showing:
 - Overall project coverage percentage
 - Top 5 files with worst coverage
 - Recommended next steps to improve coverage
@@ -335,8 +335,8 @@ end
 # Report lowest coverage files at the end of the test run
 SimpleCov.at_exit do
   SimpleCov.result.format!
-  require 'simplecov_mcp'
-  report = SimpleCovMcp::CoverageReporter.report(threshold: 80, count: 5)
+  require 'cov_loupe'
+  report = CovLoupe::CoverageReporter.report(threshold: 80, count: 5)
   puts report if report
 end
 ```
@@ -383,8 +383,8 @@ jobs:
       - name: Run tests
         run: bundle exec rspec
 
-      - name: Install simplecov-mcp
-        run: gem install simplecov-mcp
+      - name: Install cov-loupe
+        run: gem install cov-loupe
 
       - name: Check coverage threshold
         run: |
@@ -431,7 +431,7 @@ jobs:
 **Check for stale coverage:**
 ```yaml
       - name: Verify coverage is fresh
-        run: simplecov-mcp --staleness error || exit 1
+        run: cov-loupe --staleness error || exit 1
 ```
 
 ### GitLab CI
@@ -440,10 +440,10 @@ jobs:
 test:
   image: ruby:3.3
   before_script:
-    - gem install simplecov-mcp
+    - gem install cov-loupe
   script:
     - bundle exec rspec
-    - simplecov-mcp --staleness error
+    - cov-loupe --staleness error
   artifacts:
     paths:
       - coverage/
@@ -485,13 +485,13 @@ smcp validate coverage_policy.rb
 ### Directory-Level Analysis
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
-model = SimpleCovMcp::CoverageModel.new(root: root)
+model = CovLoupe::CoverageModel.new(root: root)
 all_files = model.all_files
 
-# Calculate coverage by directory (uses the same data as `simplecov-mcp totals`)
+# Calculate coverage by directory (uses the same data as `cov-loupe totals`)
 patterns = %w[
   app/**/*.rb
   lib/payments/**/*.rb
@@ -519,12 +519,12 @@ end
 ### Coverage Delta Tracking
 
 ```ruby
-require "simplecov_mcp"
+require "cov_loupe"
 require "json"
 
 # Save current coverage
 root = "docs/fixtures/demo_project"
-model = SimpleCovMcp::CoverageModel.new(root: root)
+model = CovLoupe::CoverageModel.new(root: root)
 current = model.all_files
 
 File.write("coverage_baseline.json", JSON.pretty_generate(current))
@@ -548,10 +548,10 @@ end
 
 ```ruby
 # pr_coverage_check.rb
-require "simplecov_mcp"
+require "cov_loupe"
 require "json"
 
-model = SimpleCovMcp::CoverageModel.new
+model = CovLoupe::CoverageModel.new
 
 # Get changed files from PR (example using git)
 changed_files = `git diff --name-only origin/main`.split("\n")

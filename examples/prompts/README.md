@@ -1,6 +1,6 @@
 ## Example Prompts for MCP-Aware Assistants
 
-This directory contains example natural-language prompts that you can use with an MCP-enabled AI assistant to interact with the `simplecov-mcp` server and analyze your project's test coverage.
+This directory contains example natural-language prompts that you can use with an MCP-enabled AI assistant to interact with the `cov-loupe` server and analyze your project's test coverage.
 
 These prompts demonstrate how to request different types of coverage information. You can adapt them to your specific project and needs.
 

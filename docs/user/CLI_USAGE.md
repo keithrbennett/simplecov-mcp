@@ -2,11 +2,11 @@
 
 [Back to main README](../README.md)
 
-Complete reference for using simplecov-mcp from the command line.
+Complete reference for using cov-loupe from the command line.
 
 > Docs use `smcp` as a shortcut pointing at the demo fixture with partial coverage:
-> `alias smcp='simplecov-mcp --root docs/fixtures/demo_project'`
-> Replace `smcp` with `simplecov-mcp` to run commands against your own project.
+> `alias smcp='cov-loupe --root docs/fixtures/demo_project'`
+> Replace `smcp` with `cov-loupe` to run commands against your own project.
 
 ## Table of Contents
 
@@ -318,7 +318,7 @@ smcp -fJ version
 
 **Output:**
 ```
-SimpleCovMcp version 1.0.0
+CovLoupe version 1.0.0
 ```
 
 ## Global Options
@@ -449,7 +449,7 @@ smcp -l stdout                   # Log to standard output
 smcp -l stderr                   # Log to standard error
 ```
 
-**Default:** `./simplecov_mcp.log`
+**Default:** `./cov_loupe.log`
 
 ### `--error-mode MODE`
 
@@ -500,7 +500,7 @@ The predicate must be a callable (lambda, proc, or object with `#call` method) t
 smcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
-bundle exec simplecov-mcp validate coverage_policy.rb
+bundle exec cov-loupe validate coverage_policy.rb
 ```
 
 **String mode (inline code):**
@@ -572,14 +572,14 @@ With `--source` flag, shows annotated source code:
 
 ## Environment Variables
 
-### `SIMPLECOV_MCP_OPTS`
+### `COV_LOUPE_OPTS`
 
 Default command-line options applied to all invocations.
 
 **Format:** Shell-style string containing any valid CLI options
 
 ```sh
-export SIMPLECOV_MCP_OPTS="--resultset coverage -fJ"
+export COV_LOUPE_OPTS="--resultset coverage -fJ"
 smcp summary lib/api/client.rb  # Automatically uses options above
 ```
 
@@ -587,7 +587,7 @@ smcp summary lib/api/client.rb  # Automatically uses options above
 
 ```sh
 # Environment sets -fJ; explicit CLI options still take precedence
-export SIMPLECOV_MCP_OPTS="-fJ"
+export COV_LOUPE_OPTS="-fJ"
 smcp summary lib/api/client.rb  # Uses JSON (from env)
 smcp summary lib/api/client.rb -fJ  # Explicit, same result
 ```
@@ -595,16 +595,16 @@ smcp summary lib/api/client.rb -fJ  # Explicit, same result
 **Examples:**
 ```sh
 # Default resultset location
-export SIMPLECOV_MCP_OPTS="--resultset build/coverage"
+export COV_LOUPE_OPTS="--resultset build/coverage"
 
 # Enable detailed error logging
-export SIMPLECOV_MCP_OPTS="--error-mode debug"
+export COV_LOUPE_OPTS="--error-mode debug"
 
 # Paths with spaces
-export SIMPLECOV_MCP_OPTS='--resultset "/path with spaces/coverage"'
+export COV_LOUPE_OPTS='--resultset "/path with spaces/coverage"'
 
 # Multiple options
-export SIMPLECOV_MCP_OPTS="--resultset coverage --staleness error -fJ"
+export COV_LOUPE_OPTS="--resultset coverage --staleness error -fJ"
 ```
 
 

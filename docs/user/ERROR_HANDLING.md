@@ -9,46 +9,46 @@ Error handling differs by usage mode:
 Errors are displayed as user-friendly messages without stack traces:
 
 ```bash
-$ simplecov-mcp summary nonexistent.rb
+$ cov-loupe summary nonexistent.rb
 File error: No coverage data found for the specified file
 ```
 
 For debugging, use the `--error-mode debug` flag to include stack traces in log output and display the first 5 lines of the backtrace in CLI output:
 
 ```bash
-$ simplecov-mcp --error-mode debug summary nonexistent.rb
+$ cov-loupe --error-mode debug summary nonexistent.rb
 ```
 
 ## Library Mode
 
-Calls to `SimpleCovMcp::CoverageModel` raise custom exceptions you can handle programmatically:
+Calls to `CovLoupe::CoverageModel` raise custom exceptions you can handle programmatically:
 
 ```ruby
-handler = SimpleCovMcp::ErrorHandlerFactory.for_library  # disables CLI-style logging
-context = SimpleCovMcp.create_context(error_handler: handler)
+handler = CovLoupe::ErrorHandlerFactory.for_library  # disables CLI-style logging
+context = CovLoupe.create_context(error_handler: handler)
 
-SimpleCovMcp.with_context(context) do
-  model = SimpleCovMcp::CoverageModel.new
+CovLoupe.with_context(context) do
+  model = CovLoupe::CoverageModel.new
   begin
     model.summary_for('missing.rb')
-  rescue SimpleCovMcp::FileError => e
+  rescue CovLoupe::FileError => e
     puts "Handled gracefully: #{e.user_friendly_message}"
   end
 end
 ```
 
 Available exception classes:
-- `SimpleCovMcp::Error` - Base error class
-- `SimpleCovMcp::FileError` - File not found or access issues
-- `SimpleCovMcp::CoverageDataError` - Invalid or missing coverage data
-- `SimpleCovMcp::ConfigurationError` - Configuration problems
-- `SimpleCovMcp::UsageError` - Command usage errors
+- `CovLoupe::Error` - Base error class
+- `CovLoupe::FileError` - File not found or access issues
+- `CovLoupe::CoverageDataError` - Invalid or missing coverage data
+- `CovLoupe::ConfigurationError` - Configuration problems
+- `CovLoupe::UsageError` - Command usage errors
 
 ## MCP Server Mode
 
 Errors are returned as structured responses to the MCP client:
 
-- **Logging enabled** - Errors go to `simplecov_mcp.log` in the current directory by default
+- **Logging enabled** - Errors go to `cov_loupe.log` in the current directory by default
 - **Clean error messages** - User-friendly messages, no stack traces by default
 - **Structured responses** - Tool responses instead of exceptions
 
@@ -57,16 +57,16 @@ Errors are returned as structured responses to the MCP client:
 Library usage can opt into different logging behavior by installing a custom handler on the active context:
 
 ```ruby
-handler = SimpleCovMcp::ErrorHandler.new(
+handler = CovLoupe::ErrorHandler.new(
   log_errors: true,         # Enable logging when embedding
   show_stack_traces: false  # Keep error messages clean
 )
 
-context = SimpleCovMcp.create_context(error_handler: handler)
+context = CovLoupe.create_context(error_handler: handler)
 
-SimpleCovMcp.with_context(context) do
-  model = SimpleCovMcp::CoverageModel.new
-  model.summary_for('lib/simplecov_mcp/model.rb')
+CovLoupe.with_context(context) do
+  model = CovLoupe::CoverageModel.new
+  model.summary_for('lib/cov_loupe/model.rb')
 end
 ```
 
@@ -74,7 +74,7 @@ end
 
 When strict staleness checking is enabled (`--staleness error`), the model (and CLI) raise a `CoverageDataStaleError` if a source file appears newer than the coverage data or the line counts differ.
 
-- Enable per instance: `SimpleCovMcp::CoverageModel.new(staleness: 'error')`
+- Enable per instance: `CovLoupe::CoverageModel.new(staleness: 'error')`
 
 The error message is detailed and includes:
 

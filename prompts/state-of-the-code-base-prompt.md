@@ -4,7 +4,7 @@
 * Your task is to analyze this code base thoroughly and report on its state.  
 * Focus on identifying weaknesses, risks, and areas for improvement.  
 * For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
-* If you are unable to use the simplecov-mcp MCP server, use `simplecov-mcp` in CLI mode (run `simplecov-mcp -h` for help).
+* If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
 
 Write your analysis in a Markdown file whose name is:
 * today's date in YYYY-MM-DD format +
@@ -65,7 +65,7 @@ List issues so severe that they must be resolved before meaningful progress can 
 ---
 
 ### Test Coverage
-- Using the **simplecov-mcp MCP server**, analyze the test coverage:
+- Using the **cov-loupe MCP server**, analyze the test coverage:
     - Include a summary table of coverage by file/module.
     - Report coverage at a high and general level.
     - Rank risks of lacking coverage in **descending order of magnitude**.

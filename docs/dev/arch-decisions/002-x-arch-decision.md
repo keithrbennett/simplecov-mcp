@@ -33,7 +33,7 @@ We implemented a **context-aware error handling strategy** using three component
 
 ### 1. Custom Exception Hierarchy
 
-All errors inherit from `SimpleCovMcp::Error` (lib/simplecov_mcp/errors.rb) with a `user_friendly_message` method:
+All errors inherit from `CovLoupe::Error` (lib/cov_loupe/errors.rb) with a `user_friendly_message` method:
 
 ```ruby
 class Error < StandardError
@@ -52,7 +52,7 @@ This provides a unified interface for presenting errors to users while preservin
 
 ### 2. ErrorHandler Class
 
-The `ErrorHandler` class (lib/simplecov_mcp/error_handler.rb:7) provides configurable error handling behavior:
+The `ErrorHandler` class (lib/cov_loupe/error_handler.rb:7) provides configurable error handling behavior:
 
 ```ruby
 class ErrorHandler
@@ -68,13 +68,13 @@ class ErrorHandler
   def handle_error(error, context: nil, reraise: true)
     log_error(error, context)
     if reraise
-      raise error.is_a?(SimpleCovMcp::Error) ? error : convert_standard_error(error)
+      raise error.is_a?(CovLoupe::Error) ? error : convert_standard_error(error)
     end
   end
 end
 ```
 
-The `convert_standard_error` method (lib/simplecov_mcp/error_handler.rb:37) transforms Ruby's standard errors into user-friendly custom exceptions:
+The `convert_standard_error` method (lib/cov_loupe/error_handler.rb:37) transforms Ruby's standard errors into user-friendly custom exceptions:
 
 - `Errno::ENOENT` → `FileNotFoundError`
 - `JSON::ParserError` → `CoverageDataError`
@@ -82,7 +82,7 @@ The `convert_standard_error` method (lib/simplecov_mcp/error_handler.rb:37) tran
 
 ### 3. ErrorHandlerFactory
 
-The `ErrorHandlerFactory` (lib/simplecov_mcp/error_handler_factory.rb:4) creates mode-specific handlers:
+The `ErrorHandlerFactory` (lib/cov_loupe/error_handler_factory.rb:4) creates mode-specific handlers:
 
 ```ruby
 module ErrorHandlerFactory
@@ -102,22 +102,22 @@ end
 
 ### Error Flow by Mode
 
-**CLI Mode** (lib/simplecov_mcp/cli.rb):
+**CLI Mode** (lib/cov_loupe/cli.rb):
 1. Catches all exceptions in the main run loop
 2. Uses `for_cli` handler to log errors if debug mode is enabled
 3. Displays `user_friendly_message` to the user
 4. Exits with appropriate code (1 for errors, 2 for usage errors)
 
-**MCP Server Mode** (lib/simplecov_mcp/base_tool.rb:46):
+**MCP Server Mode** (lib/cov_loupe/base_tool.rb:46):
 1. Each tool wraps execution in a rescue block
-2. Uses `for_mcp_server` handler to log errors to `~/simplecov_mcp.log`
+2. Uses `for_mcp_server` handler to log errors to `~/cov_loupe.log`
 3. Returns structured JSON-RPC error response
 4. Server continues running (no crashes)
 
-**Library Mode** (lib/simplecov_mcp.rb:75):
+**Library Mode** (lib/cov_loupe.rb:75):
 1. Uses `for_library` handler with `error_mode: :off` (no logging)
 2. Raises custom exceptions directly
-3. Consumers catch and handle `SimpleCovMcp::Error` subclasses
+3. Consumers catch and handle `CovLoupe::Error` subclasses
 
 ## Consequences
 
@@ -142,7 +142,7 @@ end
 
 ### Implementation Notes
 
-The `ErrorHandler.convert_standard_error` method (lib/simplecov_mcp/error_handler.rb:37) uses pattern matching on exception types and error messages to provide helpful, context-aware error messages. This includes:
+The `ErrorHandler.convert_standard_error` method (lib/cov_loupe/error_handler.rb:37) uses pattern matching on exception types and error messages to provide helpful, context-aware error messages. This includes:
 
 - Extracting filenames from system error messages
 - Detecting SimpleCov-specific error patterns
@@ -150,10 +150,10 @@ The `ErrorHandler.convert_standard_error` method (lib/simplecov_mcp/error_handle
 
 ## References
 
-- Custom exceptions: `lib/simplecov_mcp/errors.rb`
-- ErrorHandler implementation: `lib/simplecov_mcp/error_handler.rb:7-124`
-- ErrorHandlerFactory: `lib/simplecov_mcp/error_handler_factory.rb:4-29`
-- CLI error handling: `lib/simplecov_mcp/cli.rb` (rescue block in run method)
-- MCP tool error handling: `lib/simplecov_mcp/base_tool.rb:46-54`
-- Library mode: `lib/simplecov_mcp.rb:75-86`
+- Custom exceptions: `lib/cov_loupe/errors.rb`
+- ErrorHandler implementation: `lib/cov_loupe/error_handler.rb:7-124`
+- ErrorHandlerFactory: `lib/cov_loupe/error_handler_factory.rb:4-29`
+- CLI error handling: `lib/cov_loupe/cli.rb` (rescue block in run method)
+- MCP tool error handling: `lib/cov_loupe/base_tool.rb:46-54`
+- Library mode: `lib/cov_loupe.rb:75-86`
 - Related ADR: [001: Dual-Mode Operation](001-x-arch-decision.md)

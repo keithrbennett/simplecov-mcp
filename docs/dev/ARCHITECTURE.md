@@ -2,13 +2,13 @@
 
 [Back to main README](../README.md)
 
-simplecov-mcp is organized around a single coverage data model that feeds three delivery channels: a command-line interface, an MCP server for LLM agents, and a light-weight Ruby API. The codebase is intentionally modular—shared logic for loading, normalizing, and validating SimpleCov data lives in `lib/simplecov_mcp/`, while adapters wrap that core for each runtime mode.
+cov-loupe is organized around a single coverage data model that feeds three delivery channels: a command-line interface, an MCP server for LLM agents, and a light-weight Ruby API. The codebase is intentionally modular—shared logic for loading, normalizing, and validating SimpleCov data lives in `lib/cov_loupe/`, while adapters wrap that core for each runtime mode.
 
 ## Runtime Entry Points
 
-- **Executable** – `exe/simplecov-mcp` bootstraps the gem, enforces Ruby >= 3.2, and delegates to `SimpleCovMcp.run(ARGV)`.
-- **Mode Negotiation** – `SimpleCovMcp.run` inspects environment defaults from `SIMPLECOV_MCP_OPTS`, checks for CLI subcommands, and defaults to CLI mode when STDIN is a TTY. Otherwise it instantiates `SimpleCovMcp::MCPServer` for MCP protocol communication over STDIO.
-- **Embedded Usage** – Applications embed the gem by instantiating `SimpleCovMcp::CoverageModel` directly, optionally wrapping work in `SimpleCovMcp.with_context` to install a library-oriented error handler.
+- **Executable** – `exe/cov-loupe` bootstraps the gem, enforces Ruby >= 3.2, and delegates to `CovLoupe.run(ARGV)`.
+- **Mode Negotiation** – `CovLoupe.run` inspects environment defaults from `COV_LOUPE_OPTS`, checks for CLI subcommands, and defaults to CLI mode when STDIN is a TTY. Otherwise it instantiates `CovLoupe::MCPServer` for MCP protocol communication over STDIO.
+- **Embedded Usage** – Applications embed the gem by instantiating `CovLoupe::CoverageModel` directly, optionally wrapping work in `CovLoupe.with_context` to install a library-oriented error handler.
 
 ## Coverage Data Pipeline
 
@@ -20,14 +20,14 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 
 ## Interfaces
 
-### CLI (`SimpleCovMcp::CoverageCLI`)
+### CLI (`CovLoupe::CoverageCLI`)
 
 - Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--staleness`, `-fJ`, and `--source` modes.
 - Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `version`) translate to calls on `CoverageModel`.
 - Uses `ErrorHandlerFactory.for_cli` to convert unexpected exceptions into friendly user messages while honoring `--error-mode`.
 - Formatting logic (tables, JSON) lives in the model to keep presentation consistent with MCP responses.
 
-### MCP Server (`SimpleCovMcp::MCPServer`)
+### MCP Server (`CovLoupe::MCPServer`)
 
 - Assembles a list of tool classes and mounts them in `MCP::Server` using STDIO transport.
 - Relies on the same core model; each tool instance recreates `CoverageModel` with the arguments provided by the MCP client, keeping the server stateless between requests.
@@ -36,36 +36,36 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 ### Library API
 
 - Consuming code instantiates `CoverageModel` directly for fine-grained control over coverage queries.
-- Use `SimpleCovMcp::ErrorHandlerFactory.for_library` together with `SimpleCovMcp.with_context` when an embedded caller wants to suppress CLI-friendly error logging.
+- Use `CovLoupe::ErrorHandlerFactory.for_library` together with `CovLoupe.with_context` when an embedded caller wants to suppress CLI-friendly error logging.
 
 ## MCP Tool Stack
 
-- `SimpleCovMcp::BaseTool` centralizes JSON schema definitions, error conversion, and response serialization for the MCP protocol.
-- Individual tools reside in `lib/simplecov_mcp/tools/` and follow a consistent shape: define an input schema, call into `CoverageModel`, then serialize via `respond_json`. Examples include `AllFilesCoverageTool`, `CoverageSummaryTool`, and `UncoveredLinesTool`.
-- Tools are registered in `SimpleCovMcp::MCPServer#run`. Adding a new tool only requires creating a subclass and appending it to that list.
+- `CovLoupe::BaseTool` centralizes JSON schema definitions, error conversion, and response serialization for the MCP protocol.
+- Individual tools reside in `lib/cov_loupe/tools/` and follow a consistent shape: define an input schema, call into `CoverageModel`, then serialize via `respond_json`. Examples include `AllFilesCoverageTool`, `CoverageSummaryTool`, and `UncoveredLinesTool`.
+- Tools are registered in `CovLoupe::MCPServer#run`. Adding a new tool only requires creating a subclass and appending it to that list.
 
 ## Error Handling & Logging
 
-- Custom exceptions under `lib/simplecov_mcp/errors.rb` capture context for configuration issues, missing files, stale coverage, and general runtime errors. Each implements `#user_friendly_message` for consistent UX.
-- `SimpleCovMcp::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:log`, `:debug`) control whether errors are recorded and whether stack traces are included.
-- Runtime configuration (error handlers, log destinations) flows through `SimpleCovMcp::AppContext`. Entry points push a context with `SimpleCovMcp.with_context`, which stores the active configuration in a thread-local slot (`SimpleCovMcp.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
+- Custom exceptions under `lib/cov_loupe/errors.rb` capture context for configuration issues, missing files, stale coverage, and general runtime errors. Each implements `#user_friendly_message` for consistent UX.
+- `CovLoupe::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:log`, `:debug`) control whether errors are recorded and whether stack traces are included.
+- Runtime configuration (error handlers, log destinations) flows through `CovLoupe::AppContext`. Entry points push a context with `CovLoupe.with_context`, which stores the active configuration in a thread-local slot (`CovLoupe.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
 - Two helper accessors clarify intent:
-  - `SimpleCovMcp.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
-  - `SimpleCovMcp.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
+  - `CovLoupe.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
+  - `CovLoupe.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
 - `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library, each of which installs its handler inside a fresh `AppContext` before executing user work.
-- Diagnostics are written via `CovUtil.log` to `simplecov_mcp.log` in the current directory by default; override with CLI `--log-file`, set `SimpleCovMcp.default_log_file` for future contexts, or temporarily tweak `SimpleCovMcp.active_log_file` when a caller needs a different destination mid-run.
+- Diagnostics are written via `CovUtil.log` to `cov_loupe.log` in the current directory by default; override with CLI `--log-file`, set `CovLoupe.default_log_file` for future contexts, or temporarily tweak `CovLoupe.active_log_file` when a caller needs a different destination mid-run.
 
 ## Configuration Surface
 
-- **Environment defaults** – `SIMPLECOV_MCP_OPTS` applies baseline CLI flags before parsing the actual command line.
+- **Environment defaults** – `COV_LOUPE_OPTS` applies baseline CLI flags before parsing the actual command line.
 - **Resultset overrides** – The location of the `.resultset.json` file can be specified via CLI options or in the MCP configuration. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
 - **Tracked globs** – Glob patterns (e.g., `lib/**/*.rb`) that specify which files should have coverage. When provided, SimpleCov MCP alerts you if any matching files are missing from the coverage data, helping catch untested files that were added to the project but never executed during test runs.
 - **Colorized source** – CLI-only flags (`--source`, `--source-context`, `--color`) enhance human-readable reports when working locally.
 
 ## Repository Layout Highlights
 
-- `lib/simplecov_mcp/` – Core runtime (model, utilities, error handling, CLI, MCP server, tools).
-- `lib/simplecov_mcp.rb` – Primary public entry point required by gem consumers.
+- `lib/cov_loupe/` – Core runtime (model, utilities, error handling, CLI, MCP server, tools).
+- `lib/cov_loupe.rb` – Primary public entry point required by gem consumers.
 - `docs/` – Audience-specific guides (`docs/user` for usage, `docs/dev` for contributors).
 - `spec/` – RSpec suite with fixtures under `spec/fixtures/` for deterministic coverage data.
 
@@ -74,7 +74,7 @@ simplecov-mcp is organized around a single coverage data model that feeds three 
 1. Add or update data processing inside `CoverageModel` or `CovUtil` when a new metric is needed.
 2. Surface that metric through all interfaces: add a CLI option/subcommand, create an MCP tool, and expose a library helper method.
 3. Register the new tool in `MCPServer` and update CLI option parsing in `CoverageCLI`.
-4. Provide tests under `spec/` mirroring the lib path (`spec/lib/simplecov_mcp/..._spec.rb`).
+4. Provide tests under `spec/` mirroring the lib path (`spec/lib/cov_loupe/..._spec.rb`).
 5. Update documentation to reflect the new capability.
 
-By funnelling every interface through the shared `CoverageModel`, simplecov-mcp guarantees that CLI users, MCP clients, and embedding libraries all observe identical coverage semantics and staleness rules, while still allowing each adapter to tailor presentation and error handling to its audience.
+By funnelling every interface through the shared `CoverageModel`, cov-loupe guarantees that CLI users, MCP clients, and embedding libraries all observe identical coverage semantics and staleness rules, while still allowing each adapter to tailor presentation and error handling to its audience.

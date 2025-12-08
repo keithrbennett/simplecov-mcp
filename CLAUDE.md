@@ -11,15 +11,15 @@ This is a Ruby gem that provides an MCP (Model Context Protocol) server and CLI 
 ## Key Architecture
 
 ### Dual Mode Operation
-The main entry point (`SimpleCovMcp.run`) automatically detects whether to run as:
+The main entry point (`CovLoupe.run`) automatically detects whether to run as:
 - **CLI mode**: When TTY input or explicit subcommands are provided
 - **MCP server mode**: When piped input (JSON-RPC from MCP clients)
 
 ### Core Components
-- **`CoverageModel`** (`lib/simplecov_mcp/model.rb`): Core API for querying coverage data
-- **`CoverageCLI`** (`lib/simplecov_mcp/cli.rb`): CLI interface with subcommands
-- **`MCPServer`** (`lib/simplecov_mcp/mcp_server.rb`): MCP protocol server
-- **Tools** (`lib/simplecov_mcp/tools/`): Individual MCP tools for different coverage queries
+- **`CoverageModel`** (`lib/cov_loupe/model.rb`): Core API for querying coverage data
+- **`CoverageCLI`** (`lib/cov_loupe/cli.rb`): CLI interface with subcommands
+- **`MCPServer`** (`lib/cov_loupe/mcp_server.rb`): MCP protocol server
+- **Tools** (`lib/cov_loupe/tools/`): Individual MCP tools for different coverage queries
 - **Error Handling**: Context-aware error handling for CLI vs library vs MCP server usage
 
 ### Coverage Data Flow
@@ -44,19 +44,19 @@ Tests generate coverage data to `coverage/.resultset.json` which the tool can th
 ### Manual Testing
 ```bash
 # Test CLI locally during development
-bundle exec exe/simplecov-mcp
+bundle exec exe/cov-loupe
 
 # Test MCP server (JSON-RPC on a single line; pipe to jq for pretty output)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | bundle exec exe/simplecov-mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | bundle exec exe/cov-loupe
  
 # Discover available tools before issuing a request
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/simplecov-mcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/cov-loupe
 ```
 
 ### Building
 ```bash
-gem build simplecov-mcp.gemspec     # Build gem
-gem install simplecov-mcp-*.gem     # Install locally
+gem build cov-loupe.gemspec     # Build gem
+gem install cov-loupe-*.gem     # Install locally
 ```
 
 ## Key Patterns
@@ -65,7 +65,7 @@ gem install simplecov-mcp-*.gem     # Install locally
 The codebase uses context-aware error handling via `ErrorHandlerFactory`:
 - **CLI**: User-friendly messages, exit codes, optional debug mode
 - **Library**: Raises custom exceptions for programmatic handling
-- **MCP Server**: Structured error responses, logging to `./simplecov_mcp.log`
+- **MCP Server**: Structured error responses, logging to `./cov_loupe.log`
 
 ### Path Resolution
 Uses a multi-strategy approach for finding files in coverage data:
@@ -92,7 +92,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 
 ### Prompt & Response Examples
 - All responses are returned as `type: "text"` with content in `text`. JSON responses contain a JSON string that should be parsed. This format ensures maximum compatibility with MCP clients.
-- **Prompt:** "What's the coverage for `lib/simplecov_mcp/model.rb`?" → call `coverage_summary_tool` with `{ "path": "lib/simplecov_mcp/model.rb" }` and parse JSON from `content[0].text`.
+- **Prompt:** "What's the coverage for `lib/cov_loupe/model.rb`?" → call `coverage_summary_tool` with `{ "path": "lib/cov_loupe/model.rb" }` and parse JSON from `content[0].text`.
 - **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
 - **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
 - **Uncertain?** Call `help_tool` before proceeding.
@@ -112,7 +112,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 
 ## Important Conventions
 
-- Use `simplecov_mcp` as the require path (matches the gem name SimpleCov)
+- Use `cov_loupe` as the require path (matches the gem name SimpleCov)
 - All paths in the API should work with both absolute and relative forms
-- The executable is `simplecov-mcp` (with hyphen)
+- The executable is `cov-loupe` (with hyphen)
 - Error messages should be user-friendly in CLI mode, structured in MCP mode
