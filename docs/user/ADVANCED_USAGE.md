@@ -2,9 +2,9 @@
 
 [Back to main README](../README.md)
 
-> Examples use `smcp`, an alias pointed at the demo fixture with partial coverage:
-> `alias smcp='cov-loupe --root docs/fixtures/demo_project'`
-> Swap `smcp` with `cov-loupe` if you want to target your own project/resultset.
+> Examples use `clp`, an alias pointed at the demo fixture with partial coverage:
+> `alias clp='cov-loupe --root docs/fixtures/demo_project'`
+> Swap `clp` with `cov-loupe` if you want to target your own project/resultset.
 
 ## Table of Contents
 
@@ -55,16 +55,16 @@ Use JSON-RPC over stdin to test the MCP server:
 
 ```sh
 # Get version
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | smcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | clp
 
 # Get file summary
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb"}}}' | smcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb"}}}' | clp
 
 # List all files with sorting
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending"}}}' | smcp
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending"}}}' | clp
 
 # Get uncovered lines
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb"}}}' | smcp
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb"}}}' | clp
 ```
 
 ---
@@ -95,7 +95,7 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if any file is stale (option before subcommand)
-smcp --staleness error summary app/models/order.rb
+clp --staleness error summary app/models/order.rb
 ```
 
 **Ruby API:**
@@ -126,12 +126,12 @@ Detects system-wide staleness issues:
 **CLI Usage:**
 ```sh
 # Track specific patterns
-smcp --staleness error \
+clp --staleness error \
   -g "lib/payments/**/*.rb" \
   -g "lib/ops/jobs/**/*.rb"  # -g = --tracked-globs
 
 # Combine with JSON output for parsing
-smcp --staleness error -fJ list > stale-check.json
+clp --staleness error -fJ list > stale-check.json
 ```
 
 **Ruby API:**
@@ -159,10 +159,10 @@ Staleness checking is particularly useful in CI/CD pipelines to ensure coverage 
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-smcp --staleness error -g "lib/**/*.rb"
+clp --staleness error -g "lib/**/*.rb"
 
 # Export validated data for CI artifacts
-smcp -fJ list > coverage.json
+clp -fJ list > coverage.json
 ```
 
 The `--staleness error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
@@ -225,13 +225,13 @@ coverage_b = model_b.all_files
 **CLI Error Modes:**
 ```sh
 # Silent mode - minimal output
-smcp --error-mode off summary app/models/order.rb
+clp --error-mode off summary app/models/order.rb
 
 # Standard mode - user-friendly errors (default)
-smcp --error-mode log summary app/models/order.rb
+clp --error-mode log summary app/models/order.rb
 
 # Verbose mode - full stack traces
-smcp --error-mode debug summary app/models/order.rb
+clp --error-mode debug summary app/models/order.rb
 ```
 
 **Ruby API Error Handling:**
@@ -295,16 +295,16 @@ Use the `validate` subcommand to enforce custom coverage policies in CI/CD. Exam
 **Quick Usage:**
 ```sh
 # All files must be >= 80%
-smcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
+clp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # Total project coverage >= 85%
-smcp validate examples/success_predicates/project_coverage_minimum_predicate.rb
+clp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 
 # Custom predicate from file
-smcp validate coverage_policy.rb
+clp validate coverage_policy.rb
 
 # Inline string mode
-smcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Creating a predicate:**
@@ -386,10 +386,10 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-smcp --staleness error -g "lib/**/*.rb"
+clp --staleness error -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
-smcp -fJ list > coverage.json
+clp -fJ list > coverage.json
 ```
 
 ### Using Coverage Validation
@@ -401,7 +401,7 @@ Enforce custom coverage policies with the `validate` subcommand:
 bundle exec rspec
 
 # Apply coverage policy (fails with exit code 1 if predicate returns false)
-smcp validate coverage_policy.rb
+clp validate coverage_policy.rb
 ```
 
 Exit codes:
@@ -435,17 +435,17 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 --tracked-globs "lib/payments/**/*.rb" --tracked-globs "lib/ops/jobs/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
-smcp -fJ list | jq '.files[] | select(.file | test("spec") | not)'
+clp -fJ list | jq '.files[] | select(.file | test("spec") | not)'
 
 # Ruby alternative:
-smcp -fJ list | ruby -r json -e '
+clp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("spec") }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
+clp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
 
 # Complex patterns
 --tracked-globs "lib/{models,controllers}/**/*.rb"
@@ -457,23 +457,23 @@ smcp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?(
 **1. Monitor Subsystem Coverage:**
 ```sh
 # API layer only
-smcp -g "lib/api/**/*.rb" list
+clp -g "lib/api/**/*.rb" list
 
 # Core business logic
-smcp -g "lib/domain/**/*.rb" list
+clp -g "lib/domain/**/*.rb" list
 ```
 
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-smcp --staleness error -g "lib/features/**/*.rb"
+clp --staleness error -g "lib/features/**/*.rb"
 ```
 
 **3. Multi-tier Reporting:**
 ```sh
 # Generate separate reports per layer
 for layer in models views controllers; do
-  smcp -g "app/${layer}/**/*.rb" -fJ list > "coverage-${layer}.json"
+  clp -g "app/${layer}/**/*.rb" -fJ list > "coverage-${layer}.json"
 done
 ```
 
@@ -658,12 +658,12 @@ The CLI supports annotated source viewing:
 
 ```sh
 # Show uncovered lines with context
-smcp uncovered app/models/order.rb \
+clp uncovered app/models/order.rb \
   --source uncovered \
   --source-context 3
 
 # Show full file with coverage annotations
-smcp uncovered app/models/order.rb \
+clp uncovered app/models/order.rb \
   --source full \
   --source-context 0
 ```
@@ -702,7 +702,7 @@ puts annotate_source('app/models/order.rb')
 ```sh
 #!/bin/bash
 bundle exec rspec
-smcp -fJ list > coverage.json
+clp -fJ list > coverage.json
 
 # Transform to Codecov format (example)
 jq '{

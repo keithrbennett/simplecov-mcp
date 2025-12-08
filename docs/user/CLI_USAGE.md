@@ -4,9 +4,9 @@
 
 Complete reference for using cov-loupe from the command line.
 
-> Docs use `smcp` as a shortcut pointing at the demo fixture with partial coverage:
-> `alias smcp='cov-loupe --root docs/fixtures/demo_project'`
-> Replace `smcp` with `cov-loupe` to run commands against your own project.
+> Docs use `clp` as a shortcut pointing at the demo fixture with partial coverage:
+> `alias clp='cov-loupe --root docs/fixtures/demo_project'`
+> Replace `clp` with `cov-loupe` to run commands against your own project.
 
 ## Table of Contents
 
@@ -21,30 +21,30 @@ Complete reference for using cov-loupe from the command line.
 
 ```sh
 # Show coverage table for all files
-smcp
-smcp list
+clp
+clp list
 
 # Check specific file
-smcp summary app/models/order.rb
+clp summary app/models/order.rb
 
 # Find uncovered lines
-smcp uncovered app/models/order.rb
+clp uncovered app/models/order.rb
 
 # Get detailed per-line coverage
-smcp detailed app/models/order.rb
+clp detailed app/models/order.rb
 
 # Get raw SimpleCov data
-smcp raw app/models/order.rb
+clp raw app/models/order.rb
 
 # Get project totals
-smcp totals
-smcp -fJ totals
+clp totals
+clp -fJ totals
 
 # Show version
-smcp version
+clp version
 
 # Get help
-smcp -h  # -h = --help
+clp -h  # -h = --help
 ```
 
 ## Subcommands
@@ -54,9 +54,9 @@ smcp -h  # -h = --help
 Show coverage summary for all files (default subcommand).
 
 ```sh
-smcp list
-smcp -o d list  # -o = --sort-order, d = descending
-smcp -fJ list           
+clp list
+clp -o d list  # -o = --sort-order, d = descending
+clp -fJ list           
 ```
 
 Default sort order is descending (highest coverage first) so the lowest-coverage files stay visible at the bottom of the scrollback.
@@ -96,9 +96,9 @@ Files: total 7, ok 7, stale 0
 Show covered/total/percentage for a specific file.
 
 ```sh
-smcp summary app/models/order.rb
-smcp summary app/models/order.rb -fJ
-smcp summary app/models/order.rb --source full
+clp summary app/models/order.rb
+clp summary app/models/order.rb -fJ
+clp summary app/models/order.rb --source full
 ```
 
 **Arguments:**
@@ -137,9 +137,9 @@ smcp summary app/models/order.rb --source full
 Show uncovered line numbers for a specific file.
 
 ```sh
-smcp uncovered app/controllers/orders_controller.rb
-smcp uncovered app/controllers/orders_controller.rb --source uncovered
-smcp uncovered app/controllers/orders_controller.rb --source uncovered --context-lines 3
+clp uncovered app/controllers/orders_controller.rb
+clp uncovered app/controllers/orders_controller.rb --source uncovered
+clp uncovered app/controllers/orders_controller.rb --source uncovered --context-lines 3
 ```
 
 **Arguments:**
@@ -192,9 +192,9 @@ Summary:         70.0%      7/10
 Show per-line coverage with hit counts.
 
 ```sh
-smcp detailed app/models/order.rb
-smcp detailed app/models/order.rb -fJ
-smcp detailed app/models/order.rb --source full
+clp detailed app/models/order.rb
+clp detailed app/models/order.rb -fJ
+clp detailed app/models/order.rb --source full
 ```
 
 **Arguments:**
@@ -251,8 +251,8 @@ File: app/models/order.rb
 Show the raw SimpleCov lines array.
 
 ```sh
-smcp raw app/models/order.rb
-smcp raw app/models/order.rb -fJ
+clp raw app/models/order.rb
+clp raw app/models/order.rb -fJ
 ```
 
 **Arguments:**
@@ -283,9 +283,9 @@ File: app/models/order.rb
 Show aggregated totals for all tracked files.
 
 ```sh
-smcp totals
-smcp -fJ totals
-smcp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
+clp totals
+clp -fJ totals
+clp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 ```
 
 **Output (default format):**
@@ -312,8 +312,8 @@ Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
 Show version information.
 
 ```sh
-smcp version
-smcp -fJ version
+clp version
+clp -fJ version
 ```
 
 **Output:**
@@ -336,7 +336,7 @@ For a detailed explanation of how to configure the resultset location, including
 Project root directory (default: current directory).
 
 ```sh
-smcp --root /path/to/project
+clp --root /path/to/project
 ```
 
 ### `-fJ`
@@ -344,7 +344,7 @@ smcp --root /path/to/project
 Output as pretty-printed JSON instead of human-readable format.
 
 ```sh
-smcp summary lib/api/client.rb -fJ
+clp summary lib/api/client.rb -fJ
 ```
 
 Useful for:
@@ -361,8 +361,8 @@ Sort order for `list` subcommand.
 - `ascending`, `a` - Lowest coverage first
 
 ```sh
-smcp -o d list  # d = descending (default)
-smcp -o a list  # a = ascending
+clp -o d list  # d = descending (default)
+clp -o a list  # a = ascending
 ```
 
 ### `-s, --source MODE`
@@ -378,11 +378,11 @@ Include source code in output.
 
 ```sh
 # Show full source
-smcp -s full summary lib/api/client.rb      # -s = --source
-smcp -s f summary lib/api/client.rb         # f = full
+clp -s full summary lib/api/client.rb      # -s = --source
+clp -s f summary lib/api/client.rb         # f = full
 
 # Show only uncovered lines
-smcp -s u uncovered lib/api/client.rb       # u = uncovered
+clp -s u uncovered lib/api/client.rb       # u = uncovered
 ```
 
 ### `-c, --context-lines N`
@@ -390,7 +390,7 @@ smcp -s u uncovered lib/api/client.rb       # u = uncovered
 Number of context lines around uncovered code (for `--source uncovered`). Must be a non-negative integer.
 
 ```sh
-smcp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-lines
+clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-lines
 ```
 
 **Default:** 2 lines
@@ -400,8 +400,8 @@ smcp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-l
 Enable or disable ANSI color codes in source output.
 
 ```sh
-smcp uncovered lib/api/client.rb --source --color
-smcp uncovered lib/api/client.rb --source --no-color
+clp uncovered lib/api/client.rb --source --color
+clp uncovered lib/api/client.rb --source --no-color
 ```
 
 **Default:** Colors enabled if output is a TTY
@@ -419,8 +419,8 @@ Staleness checking mode.
 
 ```sh
 # Exit with error if coverage is stale
-smcp --staleness error
-smcp -S e  # Short form
+clp --staleness error
+clp -S e  # Short form
 ```
 
 **Staleness conditions:**
@@ -434,7 +434,7 @@ smcp -S e  # Short form
 Comma-separated glob patterns for files that should be tracked.
 
 ```sh
-smcp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
+clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
 Used with `--staleness error` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
@@ -444,9 +444,9 @@ Used with `--staleness error` to detect new files not yet in coverage and to fil
 Log file location. Use 'stdout' or 'stderr' to log to standard streams.
 
 ```sh
-smcp -l /var/log/simplecov.log  # -l = --log-file
-smcp -l stdout                   # Log to standard output
-smcp -l stderr                   # Log to standard error
+clp -l /var/log/simplecov.log  # -l = --log-file
+clp -l stdout                   # Log to standard output
+clp -l stderr                   # Log to standard error
 ```
 
 **Default:** `./cov_loupe.log`
@@ -464,7 +464,7 @@ Error handling verbosity.
 | `d`   | `debug` | Log errors with full stack traces                  |
 
 ```sh
-smcp --error-mode debug summary lib/api/client.rb
+clp --error-mode debug summary lib/api/client.rb
 ```
 
 ### `--force-cli`
@@ -472,7 +472,7 @@ smcp --error-mode debug summary lib/api/client.rb
 Force CLI mode even when stdin is piped or when the process is running in a non-interactive shell (CI, Codex, etc.). Without it, the executable may fall back to MCP server mode.
 
 ```sh
-smcp --force-cli list
+clp --force-cli list
 ```
 
 ### `validate` Subcommand
@@ -497,7 +497,7 @@ The predicate must be a callable (lambda, proc, or object with `#call` method) t
 **File mode (most common):**
 ```sh
 # Use example predicate
-smcp validate examples/success_predicates/all_files_above_threshold_predicate.rb
+clp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
 bundle exec cov-loupe validate coverage_policy.rb
@@ -506,10 +506,10 @@ bundle exec cov-loupe validate coverage_policy.rb
 **String mode (inline code):**
 ```sh
 # Simple inline validation
-smcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 
 # With global options
-smcp --resultset coverage validate -i '->(m) { m.all_files.size > 0 }'
+clp --resultset coverage validate -i '->(m) { m.all_files.size > 0 }'
 ```
 
 **Example predicate file:**
@@ -580,7 +580,7 @@ Default command-line options applied to all invocations.
 
 ```sh
 export COV_LOUPE_OPTS="--resultset coverage -fJ"
-smcp summary lib/api/client.rb  # Automatically uses options above
+clp summary lib/api/client.rb  # Automatically uses options above
 ```
 
 **Precedence:** Command-line arguments override environment options
@@ -588,8 +588,8 @@ smcp summary lib/api/client.rb  # Automatically uses options above
 ```sh
 # Environment sets -fJ; explicit CLI options still take precedence
 export COV_LOUPE_OPTS="-fJ"
-smcp summary lib/api/client.rb  # Uses JSON (from env)
-smcp summary lib/api/client.rb -fJ  # Explicit, same result
+clp summary lib/api/client.rb  # Uses JSON (from env)
+clp summary lib/api/client.rb -fJ  # Explicit, same result
 ```
 
 **Examples:**
@@ -615,70 +615,70 @@ export COV_LOUPE_OPTS="--resultset coverage --staleness error -fJ"
 
 ```sh
 # Show all files sorted by lowest coverage first
-smcp
+clp
 
 # Find the 5 files with worst coverage
-smcp list | head -10
+clp list | head -10
 ```
 
 ### Detailed File Investigation
 
 ```sh
 # Check a specific file
-smcp summary lib/payments/refund_service.rb
+clp summary lib/payments/refund_service.rb
 
 # See which lines aren't covered
-smcp uncovered lib/payments/refund_service.rb
+clp uncovered lib/payments/refund_service.rb
 
 # View uncovered code in context
-smcp uncovered lib/payments/refund_service.rb --source uncovered --context-lines 3
+clp uncovered lib/payments/refund_service.rb --source uncovered --context-lines 3
 
 # Get detailed hit counts
-smcp detailed lib/payments/refund_service.rb
+clp detailed lib/payments/refund_service.rb
 ```
 
 ### JSON Output for Scripts
 
 ```sh
 # Get JSON for parsing
-smcp -fJ list > coverage.json
+clp -fJ list > coverage.json
 
 # Extract files below threshold
-smcp -fJ list | jq '.files[] | select(.percentage < 80)'
+clp -fJ list | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-smcp -fJ list | ruby -r json -e '
+clp -fJ list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-smcp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+clp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below 80% coverage
-smcp -fJ list | jq '[.files[] | select(.percentage < 80)] | length'
+clp -fJ list | jq '[.files[] | select(.percentage < 80)] | length'
 
 # Ruby alternative:
-smcp -fJ list | ruby -r json -e '
+clp -fJ list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 
 # Rexe alternative:
-smcp -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+clp -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 ```
 
 ### Filtering and Sorting
 
 ```sh
 # Show only lib/ files
-smcp -g "lib/**/*.rb" list
+clp -g "lib/**/*.rb" list
 
 # Show files sorted by highest coverage
-smcp -o d list
+clp -o d list
 
 # Check specific directory
-smcp -g "lib/payments/**/*.rb" list
+clp -g "lib/payments/**/*.rb" list
 ```
 
 
@@ -687,55 +687,55 @@ smcp -g "lib/payments/**/*.rb" list
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-smcp --staleness error
+clp --staleness error
 
 # Check with specific file patterns
-smcp --staleness error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+clp --staleness error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
-smcp list  # Stale files marked with !
+clp list  # Stale files marked with !
 ```
 
 ### Source Code Display
 
 ```sh
 # Show full source with coverage markers
-smcp summary lib/api/client.rb --source full
+clp summary lib/api/client.rb --source full
 
 # Show only uncovered lines with context
-smcp uncovered lib/api/client.rb --source uncovered
+clp uncovered lib/api/client.rb --source uncovered
 
 # More context around uncovered code
-smcp uncovered lib/api/client.rb --source uncovered --context-lines 5
+clp uncovered lib/api/client.rb --source uncovered --context-lines 5
 
 # Without colors (for logging)
-smcp uncovered lib/api/client.rb --source full --no-color
+clp uncovered lib/api/client.rb --source full --no-color
 ```
 
 ### CI/CD Integration
 
 ```sh
 # Fail build if coverage is stale
-smcp --staleness error || exit 1
+clp --staleness error || exit 1
 
 # Generate JSON report for artifact
-smcp -fJ list > artifacts/coverage-report.json
+clp -fJ list > artifacts/coverage-report.json
 
 # Check specific directory in monorepo
-smcp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
+clp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
 ```
 
 ### Debugging
 
 ```sh
 # Verbose error output
-smcp --error-mode debug summary lib/api/client.rb
+clp --error-mode debug summary lib/api/client.rb
 
 # Custom log file
-smcp --log-file /tmp/simplecov-debug.log summary lib/api/client.rb
+clp --log-file /tmp/simplecov-debug.log summary lib/api/client.rb
 
 # Check what resultset is being used
-smcp --error-mode debug 2>&1 | grep resultset
+clp --error-mode debug 2>&1 | grep resultset
 ```
 
 ## Exit Codes
