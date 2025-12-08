@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Demo script for simplecov-mcp CLI subcommands and options
+# Demo script for cov-loupe CLI subcommands and options
 # Runs against the included fixture project at spec/fixtures/project1.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
-CLI=("exe/simplecov-mcp")
+CLI=("exe/cov-loupe")
 PROJ="examples/fixtures/demo_project"
 RESULTSET_DIR="coverage" # directory containing .resultset.json under PROJ
 
@@ -25,7 +25,7 @@ BANNER
 }
 
 cat <<INTRO
-== simplecov-mcp CLI demo ==
+== cov-loupe CLI demo ==
 
 Note: Project root and resultset JSON file normally do not need to be specified.
 We set --root here to use the examples/fixtures/demo_project nondefault location,

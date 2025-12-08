@@ -97,7 +97,7 @@ RSpec.describe CovLoupe::CovUtil do
     end
 
     it 'log writes to file when path is configured' do
-      tmp = Tempfile.new('simplecov_mcp-log')
+      tmp = Tempfile.new('cov_loupe-log')
       log_path = tmp.path
       tmp.close
 
@@ -114,7 +114,7 @@ RSpec.describe CovLoupe::CovUtil do
     end
 
     it 'log respects runtime changes disabling logging mid-run' do
-      tmp = Tempfile.new('simplecov_mcp-log')
+      tmp = Tempfile.new('cov_loupe-log')
       log_path = tmp.path
       tmp.close
 

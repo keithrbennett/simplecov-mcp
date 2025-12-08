@@ -87,7 +87,7 @@ RSpec.describe CovLoupe::MCPServer do
 
     it 'registers all tool classes defined in CovLoupe::Tools module' do
       # This test catches the bug where a tool file is created, required in
-      # simplecov_mcp.rb, but not added to MCPServer::TOOLSET.
+      # cov_loupe.rb, but not added to MCPServer::TOOLSET.
       #
       # Get all classes in the Tools module that inherit from BaseTool
       tool_classes = CovLoupe::Tools.constants

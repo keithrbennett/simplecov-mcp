@@ -24,7 +24,7 @@ RSpec.describe CovLoupe do
   # from the default context rather than modifying an existing one.
   describe '.active_log_file=' do
     it 'creates context from default when no current context exists' do
-      Thread.current[:simplecov_mcp_context] = nil
+      Thread.current[:cov_loupe_context] = nil
 
       described_class.active_log_file = '/tmp/test.log'
 

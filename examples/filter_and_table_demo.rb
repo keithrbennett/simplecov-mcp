@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-# Example: Using simplecov-mcp as a library to filter and format coverage tables
+# Example: Using cov-loupe as a library to filter and format coverage tables
 # This demonstrates filtering files by directory and other criteria, then generating tables
 
-require_relative '../lib/simplecov_mcp'
+require_relative '../lib/cov_loupe'
 
 def check_coverage_data
   unless File.exist?('spec/fixtures/project1/coverage/.resultset.json')
@@ -25,14 +25,14 @@ end
 
 def output_examples
   puts <<~DOC
-    # simplecov-mcp Library Usage Examples
+    # cov-loupe Library Usage Examples
     =============================================
 
   DOC
 
   # Initialize coverage model
   # Using the built-in coverage data from running specs
-  model = SimpleCovMcp::CoverageModel.new(
+  model = CovLoupe::CoverageModel.new(
     root: '.',
     resultset: 'spec/fixtures/project1/coverage'
   )
@@ -151,7 +151,7 @@ def output_examples
 
   puts <<~DOC
     ## Summary
-    This example demonstrates how simplecov-mcp can be used as a library to:
+    This example demonstrates how cov-loupe can be used as a library to:
     - Load and query coverage data
     - Filter files by various criteria (directory, filename, coverage threshold)
     - Perform staleness analysis to identify potentially problematic files
