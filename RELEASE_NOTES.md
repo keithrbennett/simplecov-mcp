@@ -1,5 +1,11 @@
 # Release Notes
 
+## v2.0.1
+
+- Improve help text
+- Add a prompt
+
+
 ## v2.0.0
 
 ### 🚨 BREAKING CHANGES
