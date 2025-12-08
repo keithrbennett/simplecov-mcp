@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageCLI, 'table format for all commands' do
+RSpec.describe CovLoupe::CoverageCLI, 'table format for all commands' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli(*argv)
-    cli = SimpleCovMcp::CoverageCLI.new
+    cli = CovLoupe::CoverageCLI.new
     output = nil
     silence_output do |stdout, _stderr|
       cli.send(:run, argv)

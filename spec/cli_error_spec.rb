@@ -2,18 +2,18 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageCLI do
+RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'shows help and exits 0' do
     out, err, status = run_cli_with_status('--help')
     expect(status).to eq(0)
-    expect(out).to match(/Usage:.*simplecov-mcp/)
+    expect(out).to match(/Usage:.*cov-loupe/)
     expect(out).to include(
-      'Repository: https://github.com/keithrbennett/simplecov-mcp',
+      'Repository: https://github.com/keithrbennett/cov-loupe',
       'Subcommands:'
     )
-    expect(out).to match(/Version:.*#{SimpleCovMcp::VERSION}/)
+    expect(out).to match(/Version:.*#{CovLoupe::VERSION}/)
     expect(err).to eq('')
   end
 
@@ -26,7 +26,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       end
       error_to_raise = raised_error
       fake_model.define_method(model_method) { |*| raise error_to_raise }
-      stub_const('SimpleCovMcp::CoverageModel', fake_model)
+      stub_const('CovLoupe::CoverageModel', fake_model)
     end
 
     it 'exits with status 1 and friendly message' do
@@ -142,7 +142,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       expect(err).to include(
         "Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?"
       )
-      expect(err).to include('Try: simplecov-mcp summary [args]')
+      expect(err).to include('Try: cov-loupe summary [args]')
     end
 
     it 'reports invalid enum value for --opt=value' do
@@ -172,7 +172,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
         def execute(_args) = raise(StandardError, 'Unexpected error in subcommand')
       end
 
-      allow(SimpleCovMcp::Commands::CommandFactory).to receive(:create)
+      allow(CovLoupe::Commands::CommandFactory).to receive(:create)
         .and_return(fake_command.new(nil))
 
       _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'summary',

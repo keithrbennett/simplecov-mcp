@@ -12,8 +12,8 @@ begin
   # Report lowest coverage files at the end of the test run
   SimpleCov.at_exit do
     SimpleCov.result.format!
-    require 'simplecov_mcp'
-    report = SimpleCovMcp::CoverageReporter.report(threshold: 80, count: 5)
+    require 'cov_loupe'
+    report = CovLoupe::CoverageReporter.report(threshold: 80, count: 5)
     puts report if report
   end
 rescue LoadError
@@ -25,7 +25,7 @@ require 'rspec'
 require 'pathname'
 require 'json'
 
-require 'simplecov_mcp'
+require 'cov_loupe'
 
 FIXTURES_DIR = Pathname.new(File.expand_path('fixtures', __dir__))
 
@@ -75,7 +75,7 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
 
   allow(JSON).to receive(:load_file).with(end_with('.resultset.json'))
     .and_return(fake_resultset_hash)
-  allow(SimpleCovMcp::CovUtil).to receive(:find_resultset)
+  allow(CovLoupe::CovUtil).to receive(:find_resultset)
     .and_wrap_original do |method, search_root, resultset: nil|
     if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
       File.join(abs_root, 'coverage', '.resultset.json')
@@ -97,12 +97,12 @@ RSpec.configure do |config|
 
   # Suppress logging during tests by redirecting to /dev/null
   # This is cheap and doesn't break tests that verify logging behavior
-  SimpleCovMcp.default_log_file = 'stderr'
-  SimpleCovMcp.active_log_file = 'stderr'
+  CovLoupe.default_log_file = 'stderr'
+  CovLoupe.active_log_file = 'stderr'
 
   # Reset log file after each test to ensure tests that change it don't pollute others
   config.after do
-    SimpleCovMcp.active_log_file = File::NULL
+    CovLoupe.active_log_file = File::NULL
   end
 
   config.include TestIOHelpers

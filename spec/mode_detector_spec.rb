@@ -41,7 +41,7 @@ MCP_SCENARIOS = [
   [['list'], false, false, 'subcommand'],
 ].freeze
 
-RSpec.describe SimpleCovMcp::ModeDetector do
+RSpec.describe CovLoupe::ModeDetector do
   describe '.cli_mode?' do
     CLI_MODE_SCENARIOS.each do |argv, is_tty, expected, description|
       it "#{expected ? 'CLI' : 'MCP'}: #{description}" do
@@ -54,7 +54,7 @@ RSpec.describe SimpleCovMcp::ModeDetector do
 
     # Test all subcommands dynamically
     context 'with all valid subcommands' do
-      SimpleCovMcp::ModeDetector::SUBCOMMANDS.each do |subcommand|
+      CovLoupe::ModeDetector::SUBCOMMANDS.each do |subcommand|
         it "CLI mode for '#{subcommand}' (no TTY)" do
           stdin = double('stdin', tty?: false)
           expect(described_class.cli_mode?([subcommand], stdin: stdin)).to be true
@@ -112,11 +112,11 @@ RSpec.describe SimpleCovMcp::ModeDetector do
 
   describe 'consistency checks' do
     it 'SUBCOMMANDS matches CoverageCLI' do
-      expect(SimpleCovMcp::ModeDetector::SUBCOMMANDS).to eq(SimpleCovMcp::CoverageCLI::SUBCOMMANDS)
+      expect(CovLoupe::ModeDetector::SUBCOMMANDS).to eq(CovLoupe::CoverageCLI::SUBCOMMANDS)
     end
 
     it 'all SUBCOMMANDS are lowercase without dashes' do
-      SimpleCovMcp::ModeDetector::SUBCOMMANDS.each do |cmd|
+      CovLoupe::ModeDetector::SUBCOMMANDS.each do |cmd|
         expect(cmd).to eq(cmd.downcase)
         expect(cmd).not_to start_with('-')
       end

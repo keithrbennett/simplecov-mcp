@@ -25,7 +25,7 @@ OPTION_TESTS = {
   }
 }.freeze
 
-RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
+RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
   subject(:helper) { described_class.new }
 
   # Helper method to capture stderr output
@@ -136,7 +136,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         end
 
         expect(stderr_output).to match(/Error:.*invalid option.*--unknown/)
-        expect(stderr_output).to match(/Run 'simplecov-mcp --help'/)
+        expect(stderr_output).to match(/Run 'cov-loupe --help'/)
         expect(stderr_output).not_to match(/Valid values/)
       end
     end
@@ -152,7 +152,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
         # NOTE: The subcommand detection logic isn't fully working as expected
         # because extract_invalid_option doesn't properly parse the error message
         expect(stderr_output).to match(/Error:.*--summary/)
-        expect(stderr_output).to match(/Run 'simplecov-mcp --help'/)
+        expect(stderr_output).to match(/Run 'cov-loupe --help'/)
       end
     end
 
@@ -205,7 +205,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::ErrorHelper do
       end
 
       expect(stderr_output).to match(/Error: invalid argument: some error/)
-      expect(stderr_output).to match(/Run 'simplecov-mcp --help'/)
+      expect(stderr_output).to match(/Run 'cov-loupe --help'/)
     end
 
     it 'does not show enum hint when all enum values are valid' do

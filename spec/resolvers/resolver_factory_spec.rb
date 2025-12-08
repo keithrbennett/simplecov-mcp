@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tmpdir'
 
-RSpec.describe SimpleCovMcp::Resolvers::ResolverFactory do
+RSpec.describe CovLoupe::Resolvers::ResolverFactory do
   describe '.create_resultset_resolver' do
     it 'uses provided candidates when present' do
       custom_candidates = ['alt/.resultset.json']
@@ -12,7 +12,7 @@ RSpec.describe SimpleCovMcp::Resolvers::ResolverFactory do
         candidates: custom_candidates
       )
 
-      expect(resolver).to be_a(SimpleCovMcp::Resolvers::ResultsetPathResolver)
+      expect(resolver).to be_a(CovLoupe::Resolvers::ResultsetPathResolver)
       expect(resolver.instance_variable_get(:@root)).to eq('/tmp/sample')
       expect(resolver.instance_variable_get(:@candidates)).to eq(custom_candidates)
     end
@@ -21,7 +21,7 @@ RSpec.describe SimpleCovMcp::Resolvers::ResolverFactory do
       resolver = described_class.create_resultset_resolver(root: '/tmp/sample')
 
       expect(resolver.instance_variable_get(:@candidates)).to eq(
-        SimpleCovMcp::Resolvers::ResultsetPathResolver::DEFAULT_CANDIDATES
+        CovLoupe::Resolvers::ResultsetPathResolver::DEFAULT_CANDIDATES
       )
     end
   end
@@ -31,7 +31,7 @@ RSpec.describe SimpleCovMcp::Resolvers::ResolverFactory do
       cov = { '/tmp/foo.rb' => { 'lines' => [1, 0] } }
       resolver = described_class.create_coverage_resolver(cov)
 
-      expect(resolver).to be_a(SimpleCovMcp::Resolvers::CoverageLineResolver)
+      expect(resolver).to be_a(CovLoupe::Resolvers::CoverageLineResolver)
       expect(resolver.lookup_lines('/tmp/foo.rb')).to eq([1, 0])
     end
   end

@@ -2,24 +2,24 @@
 
 require 'spec_helper'
 
-RSpec.describe 'SimpleCovMcp::VERSION' do
+RSpec.describe 'CovLoupe::VERSION' do
   describe 'constant existence' do
     it 'defines a VERSION constant' do
-      expect(SimpleCovMcp.const_defined?(:VERSION)).to be true
+      expect(CovLoupe.const_defined?(:VERSION)).to be true
     end
 
     it 'exposes VERSION as a non-empty string' do
-      expect(SimpleCovMcp::VERSION).to be_a(String)
-      expect(SimpleCovMcp::VERSION).not_to be_empty
+      expect(CovLoupe::VERSION).to be_a(String)
+      expect(CovLoupe::VERSION).not_to be_empty
     end
 
     it 'is frozen (immutable)' do
-      expect(SimpleCovMcp::VERSION).to be_frozen
+      expect(CovLoupe::VERSION).to be_frozen
     end
   end
 
   describe 'semantic versioning compliance' do
-    let(:version) { SimpleCovMcp::VERSION }
+    let(:version) { CovLoupe::VERSION }
     # Simplified semantic versioning regex
     # Preserves key semver rules: no leading zeros on numeric parts, optional prerelease/build metadata
     let(:semver_regex) do
@@ -53,7 +53,7 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
       let(:prerelease_version) { '9.9.9-rc.1' }
 
       before do
-        stub_const('SimpleCovMcp::VERSION', prerelease_version)
+        stub_const('CovLoupe::VERSION', prerelease_version)
       end
 
       it 'has valid prerelease format' do
@@ -69,7 +69,7 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
       let(:build_metadata_version) { '9.9.9+build.42' }
 
       before do
-        stub_const('SimpleCovMcp::VERSION', build_metadata_version)
+        stub_const('CovLoupe::VERSION', build_metadata_version)
       end
 
       it 'has valid build metadata format' do
@@ -83,41 +83,41 @@ RSpec.describe 'SimpleCovMcp::VERSION' do
 
   describe 'version consistency' do
     it 'is accessible via require path' do
-      expect { SimpleCovMcp::VERSION }.not_to raise_error
+      expect { CovLoupe::VERSION }.not_to raise_error
     end
 
     it 'matches the version referenced in gemspec' do
-      gemspec_path = File.expand_path('../simplecov-mcp.gemspec', __dir__)
+      gemspec_path = File.expand_path('../cov-loupe.gemspec', __dir__)
       gemspec_content = File.read(gemspec_path)
 
       version_line = gemspec_content.lines.find { |line| line.include?('spec.version') }
       expect(version_line).not_to be_nil, 'Could not find version line in gemspec'
-      expect(version_line).to include('SimpleCovMcp::VERSION')
+      expect(version_line).to include('CovLoupe::VERSION')
     end
   end
 
   describe 'current version sanity check' do
     it 'is not the initial 0.0.0 version' do
       # Ensure this is a real release, not an uninitialized version
-      expect(SimpleCovMcp::VERSION).not_to eq('0.0.0')
+      expect(CovLoupe::VERSION).not_to eq('0.0.0')
     end
   end
 
   describe 'standalone version file load' do
     it 'defines the module and VERSION constant when only version.rb is loaded' do
-      original_version = SimpleCovMcp::VERSION
+      original_version = CovLoupe::VERSION
 
-      stub_const('SimpleCovMcp', Module.new do
+      stub_const('CovLoupe', Module.new do
         class << self
           attr_accessor :default_log_file, :active_log_file
         end
       end)
 
-      version_path = File.expand_path('../lib/simplecov_mcp/version.rb', __dir__)
+      version_path = File.expand_path('../lib/cov_loupe/version.rb', __dir__)
       load version_path
 
-      expect(Object.const_defined?(:SimpleCovMcp)).to be true
-      expect(SimpleCovMcp::VERSION).to eq(original_version)
+      expect(Object.const_defined?(:CovLoupe)).to be true
+      expect(CovLoupe::VERSION).to eq(original_version)
     end
   end
 end

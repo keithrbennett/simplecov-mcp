@@ -2,11 +2,11 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageCLI, 'json format options' do
+RSpec.describe CovLoupe::CoverageCLI, 'json format options' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli_output(*argv)
-    cli = SimpleCovMcp::CoverageCLI.new
+    cli = CovLoupe::CoverageCLI.new
     output = nil
     silence_output do |stdout, _stderr|
       cli.send(:run, argv)

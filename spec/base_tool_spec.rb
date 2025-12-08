@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::BaseTool do
-  let(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :log, logger: test_logger) }
+RSpec.describe CovLoupe::BaseTool do
+  let(:handler) { CovLoupe::ErrorHandler.new(error_mode: :log, logger: test_logger) }
   let(:test_logger) do
     Class.new do
       attr_reader :messages
@@ -14,18 +14,18 @@ RSpec.describe SimpleCovMcp::BaseTool do
   end
 
   let(:orig_handler) do
-    SimpleCovMcp.error_handler
+    CovLoupe.error_handler
   rescue
     nil
   end
 
   before do
-    SimpleCovMcp.error_handler = handler
+    CovLoupe.error_handler = handler
     setup_mcp_response_stub
   end
 
   after do
-    SimpleCovMcp.error_handler = orig_handler if orig_handler
+    CovLoupe.error_handler = orig_handler if orig_handler
   end
 
   shared_examples 'friendly response and logged' do
@@ -42,8 +42,8 @@ RSpec.describe SimpleCovMcp::BaseTool do
     end
   end
 
-  context 'with SimpleCovMcp::Error' do
-    let(:error) { SimpleCovMcp::UsageError.new('invalid args') }
+  context 'with CovLoupe::Error' do
+    let(:error) { CovLoupe::UsageError.new('invalid args') }
     let(:tool) { 'coverage_summary' }
     let(:expected_pattern) { /Error: invalid args/ }
     let(:log_fragment) { 'invalid args' }

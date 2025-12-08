@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
+RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   subject(:presenter) do
     described_class.new(
       model: model,
@@ -12,7 +12,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
     )
   end
 
-  let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
+  let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:sort_order) { :ascending }
   let(:check_stale) { true }
   let(:tracked_globs) { ['lib/**/*.rb'] }
@@ -40,7 +40,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectCoveragePresenter do
     allow(model).to receive(:all_files).with(sort_order: sort_order, check_stale: check_stale,
       tracked_globs: tracked_globs).and_return(files)
     allow(model).to receive(:relativize) do |payload|
-      relativizer = SimpleCovMcp::PathRelativizer.new(
+      relativizer = CovLoupe::PathRelativizer.new(
         root: '/abs/path',
         scalar_keys: %w[file file_path],
         array_keys: %w[newer_files missing_files deleted_files]

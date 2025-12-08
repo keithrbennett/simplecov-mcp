@@ -3,9 +3,9 @@
 require 'spec_helper'
 require 'pathname'
 require 'tempfile'
-require 'simplecov_mcp/tools/validate_tool'
+require 'cov_loupe/tools/validate_tool'
 
-RSpec.describe SimpleCovMcp::Tools::ValidateTool do
+RSpec.describe CovLoupe::Tools::ValidateTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset) { 'coverage' }
   let(:server_context) { instance_double('ServerContext').as_null_object }
@@ -63,7 +63,7 @@ RSpec.describe SimpleCovMcp::Tools::ValidateTool do
       end
 
       it 'evaluates the predicate against the coverage model' do
-        expect(SimpleCovMcp::CoverageModel).to receive(:new).and_call_original
+        expect(CovLoupe::CoverageModel).to receive(:new).and_call_original
 
         # Realistic coverage policy: foo.rb must have at least 50% coverage
         response = call_with_predicate(
@@ -102,15 +102,15 @@ RSpec.describe SimpleCovMcp::Tools::ValidateTool do
       it 'expands relative paths from the provided root before evaluation' do
         with_predicate_file('->(_m) { true }', dir: root) do |file|
           relative_path = Pathname.new(file.path).relative_path_from(Pathname.new(root)).to_s
-          allow(SimpleCovMcp::PredicateEvaluator)
+          allow(CovLoupe::PredicateEvaluator)
             .to receive(:evaluate_file)
             .and_return(true)
 
           response = call_tool(file: relative_path)
 
-          expect(SimpleCovMcp::PredicateEvaluator)
+          expect(CovLoupe::PredicateEvaluator)
             .to have_received(:evaluate_file)
-            .with(file.path, kind_of(SimpleCovMcp::CoverageModel))
+            .with(file.path, kind_of(CovLoupe::CoverageModel))
           data, = expect_mcp_text_json(response, expected_keys: ['result'])
           expect(data['result']).to be(true)
         end

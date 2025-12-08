@@ -15,7 +15,7 @@ module TestIOHelpers
   end
 
   # Capture the output of a command execution
-  # @param command [SimpleCovMcp::Commands::BaseCommand] The command instance to execute
+  # @param command [CovLoupe::Commands::BaseCommand] The command instance to execute
   # @param args [Array] The arguments to pass to execute
   # @return [String] The captured output
   def capture_command_output(command, args)

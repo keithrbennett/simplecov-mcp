@@ -4,7 +4,7 @@ inherit_mode:
   merge:
     - Exclude
 
-# RuboCop configuration for simplecov-mcp
+# RuboCop configuration for cov-loupe
 # Generated to match existing code style
 
 plugins:
@@ -159,7 +159,7 @@ RSpec/NestedGroups:
   Enabled: false
 
 RSpec/SpecFilePathFormat:
-  Enabled: false  # Gem uses SimpleCovMcp but paths use simplecov_mcp per gem naming convention
+  Enabled: false  # Gem uses CovLoupe but paths use cov_loupe per gem naming convention
 
 RSpec/VerifiedDoubleReference:
   Enabled: false  # Allow string references when class may not be loaded
@@ -219,7 +219,7 @@ Style/IfUnlessModifier:
 Style/KeywordParametersOrder:
   Enabled: true
   Exclude:
-    - 'lib/simplecov_mcp/tools/**/*.rb'  # Tools keep kwarg order to match CLI/docs
+    - 'lib/cov_loupe/tools/**/*.rb'  # Tools keep kwarg order to match CLI/docs
     - 'spec/support/mcp_runner.rb'
 
 Style/Lambda:

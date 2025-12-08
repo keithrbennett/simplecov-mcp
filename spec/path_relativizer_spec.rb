@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::PathRelativizer do
+RSpec.describe CovLoupe::PathRelativizer do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:relativizer) do
     described_class.new(

@@ -3,13 +3,13 @@
 require 'spec_helper'
 require 'tempfile'
 
-RSpec.describe SimpleCovMcp::CoverageCLI do
+RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'errors with usage when summary path is missing' do
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage', 'summary')
     expect(status).to eq(1)
-    expect(err).to include('Usage: simplecov-mcp summary <path>')
+    expect(err).to include('Usage: cov-loupe summary <path>')
   end
 
   it 'errors with meaningful message for unknown subcommand' do

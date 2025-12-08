@@ -3,7 +3,7 @@
 RSpec.shared_examples 'a coverage presenter' do |config|
   subject(:presenter) { described_class.new(model: model, path: config.fetch(:path, 'lib/foo.rb')) }
 
-  let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
+  let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:raw_payload) { config.fetch(:payload) }
   let(:stale_value) { config.fetch(:stale) }
   let(:relative_path) { config.fetch(:relative_path, 'lib/foo.rb') }

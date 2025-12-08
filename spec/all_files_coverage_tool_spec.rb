@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'simplecov_mcp/tools/all_files_coverage_tool'
+require 'cov_loupe/tools/all_files_coverage_tool'
 
-RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
+RSpec.describe CovLoupe::Tools::AllFilesCoverageTool do
   subject(:call_tool) { described_class.call(root: root, server_context: server_context) }
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -11,8 +11,8 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
 
   before do
     setup_mcp_response_stub
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+    model = instance_double(CovLoupe::CoverageModel)
+    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
     payload = {
       'files' => [
@@ -24,8 +24,8 @@ RSpec.describe SimpleCovMcp::Tools::AllFilesCoverageTool do
       'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 }
     }
 
-    presenter = instance_double(SimpleCovMcp::Presenters::ProjectCoveragePresenter)
-    allow(SimpleCovMcp::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+    presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
+    allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
     allow(presenter).to receive(:relativized_payload).and_return(payload)
   end
 

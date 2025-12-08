@@ -3,7 +3,7 @@
 require 'tmpdir'
 require 'fileutils'
 
-RSpec.describe SimpleCovMcp::StalenessChecker do
+RSpec.describe CovLoupe::StalenessChecker do
   let(:tmpdir) { Dir.mktmpdir('scmcp-stale') }
 
   after { FileUtils.remove_entry(tmpdir) if tmpdir && File.directory?(tmpdir) }
@@ -74,7 +74,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
         coverage_timestamp: :any
       },
       expected_stale_char: 'T',
-      expected_error: SimpleCovMcp::CoverageDataStaleError
+      expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
       description: 'detects length mismatch between source and coverage',
@@ -91,7 +91,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
         coverage_timestamp: :any
       },
       expected_stale_char: 'L',
-      expected_error: SimpleCovMcp::CoverageDataStaleError
+      expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
       description: 'treats missing file as stale',
@@ -106,7 +106,7 @@ RSpec.describe SimpleCovMcp::StalenessChecker do
         coverage_timestamp: :any
       },
       expected_stale_char: 'M',
-      expected_error: SimpleCovMcp::CoverageDataStaleError
+      expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
       description: 'is not stale when timestamps and lengths match',

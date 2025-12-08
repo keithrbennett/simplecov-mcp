@@ -103,7 +103,7 @@ Potential additions:
 - `spec/integration_spec.rb` - Main integration test file (lines 308-683)
 - `lib/simplecov_mcp.rb` - Entry point with mode detection
 - `lib/simplecov_mcp/mcp_server.rb` - MCP server implementation
-- `exe/simplecov-mcp` - Executable entry point
+- `exe/cov-loupe` - Executable entry point
 
 ## References
 

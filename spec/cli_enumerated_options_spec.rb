@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'CLI enumerated option parsing' do
   def parse!(argv)
-    cli = SimpleCovMcp::CoverageCLI.new
+    cli = CovLoupe::CoverageCLI.new
     cli.send(:parse_options!, argv.dup)
     cli
   end

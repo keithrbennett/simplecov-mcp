@@ -3,9 +3,9 @@
 require 'spec_helper'
 require_relative '../shared_examples/formatted_command_examples'
 
-RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
+RSpec.describe CovLoupe::Commands::UncoveredCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
 
   before do
@@ -27,7 +27,7 @@ RSpec.describe SimpleCovMcp::Commands::UncoveredCommand do
     context 'when the file is fully covered' do
       before do
         mock_presenter(
-          SimpleCovMcp::Presenters::CoverageUncoveredPresenter,
+          CovLoupe::Presenters::CoverageUncoveredPresenter,
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'uncovered' => [],

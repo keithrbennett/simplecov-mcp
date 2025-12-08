@@ -8,7 +8,7 @@ module Spec
   module Support
     module McpRunner
       # Thin wrapper around `Open3.popen3` that standardizes how the integration
-      # specs talk to the `simplecov-mcp` executable. It accepts either a single
+      # specs talk to the `cov-loupe` executable. It accepts either a single
       # JSON-RPC request hash, a sequence of requests, or raw string input,
       # writes them to the subprocess stdin (ensuring a trailing newline), then
       # collects stdout, stderr, and the exit status with a timeout. The helper

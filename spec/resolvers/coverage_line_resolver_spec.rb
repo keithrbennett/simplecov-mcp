@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
+RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
   describe '#lookup_lines' do
     context 'with direct path matching' do
       it 'returns lines array for exact path match' do
@@ -52,7 +52,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines('/other/directory/lib/baz.rb')
-        end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
     end
 
@@ -66,7 +66,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines('/project/lib/missing.rb')
-        end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
       it 'raises FileError when coverage data is empty' do
@@ -74,7 +74,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines('/any/path.rb')
-        end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
       it 'raises FileError when entry exists but has no lines or branches' do
@@ -86,7 +86,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines('/project/lib/foo.rb')
-        end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
     end
 
@@ -173,7 +173,7 @@ RSpec.describe SimpleCovMcp::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines(path)
-        end.to raise_error(SimpleCovMcp::FileError)
+        end.to raise_error(CovLoupe::FileError)
       end
 
       it 'skips malformed branch entries' do

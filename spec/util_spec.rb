@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-RSpec.describe SimpleCovMcp::CovUtil do
+RSpec.describe CovLoupe::CovUtil do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset_file) { File.join(root, 'coverage', '.resultset.json') }
 
@@ -25,13 +25,13 @@ RSpec.describe SimpleCovMcp::CovUtil do
     cov = { '/some/where/else/foo.rb' => { 'lines' => lines } }
     expect do
       described_class.lookup_lines(cov, '/another/place/foo.rb')
-    end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+    end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
 
     # Missing raises a FileError
     cov = {}
     expect do
       described_class.lookup_lines(cov, '/nowhere/foo.rb')
-    end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+    end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
   end
 
   it 'summary handles edge cases and coercion' do
@@ -58,8 +58,8 @@ RSpec.describe SimpleCovMcp::CovUtil do
       bad = File.join(dir, '.resultset.json')
       File.write(bad, '{not-json')
       expect do
-        SimpleCovMcp::CoverageModel.new(root: root, resultset: dir)
-      end.to raise_error(SimpleCovMcp::CoverageDataError, /Invalid coverage data format/)
+        CovLoupe::CoverageModel.new(root: root, resultset: dir)
+      end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage data format/)
     end
   end
 
@@ -68,29 +68,29 @@ RSpec.describe SimpleCovMcp::CovUtil do
 
     around do |example|
       # Reset logging settings so each example starts clean.
-      old_default = SimpleCovMcp.default_log_file
-      old_active = SimpleCovMcp.active_log_file
-      SimpleCovMcp.default_log_file = nil
-      SimpleCovMcp.active_log_file = nil
+      old_default = CovLoupe.default_log_file
+      old_active = CovLoupe.active_log_file
+      CovLoupe.default_log_file = nil
+      CovLoupe.active_log_file = nil
 
       example.run
 
       # Restore state
-      SimpleCovMcp.default_log_file = old_default
-      SimpleCovMcp.active_log_file = old_active
+      CovLoupe.default_log_file = old_default
+      CovLoupe.active_log_file = old_active
     end
 
 
 
     it "logs to stdout when active_log_file is 'stdout'" do
-      SimpleCovMcp.active_log_file = 'stdout'
+      CovLoupe.active_log_file = 'stdout'
       expect(File).not_to receive(:open)
       expect { described_class.log(test_message) }
         .to output(/#{Regexp.escape(test_message)}/).to_stdout
     end
 
     it "logs to stderr when active_log_file is 'stderr'" do
-      SimpleCovMcp.active_log_file = 'stderr'
+      CovLoupe.active_log_file = 'stderr'
       expect(File).not_to receive(:open)
       expect { described_class.log(test_message) }
         .to output(/#{Regexp.escape(test_message)}/).to_stderr
@@ -101,7 +101,7 @@ RSpec.describe SimpleCovMcp::CovUtil do
       log_path = tmp.path
       tmp.close
 
-      SimpleCovMcp.active_log_file = log_path
+      CovLoupe.active_log_file = log_path
 
       described_class.log(test_message)
 
@@ -118,14 +118,14 @@ RSpec.describe SimpleCovMcp::CovUtil do
       log_path = tmp.path
       tmp.close
 
-      SimpleCovMcp.active_log_file = log_path
+      CovLoupe.active_log_file = log_path
 
       described_class.log('first entry')
       expect(File.exist?(log_path)).to be true
       first_content = File.read(log_path)
       expect(first_content).to include('first entry')
 
-      SimpleCovMcp.active_log_file = 'stderr'
+      CovLoupe.active_log_file = 'stderr'
 
       expect { described_class.log('second entry') }
         .to output(/second entry/).to_stderr
@@ -136,19 +136,19 @@ RSpec.describe SimpleCovMcp::CovUtil do
     end
 
     it 'exposes default log file configuration separately' do
-      original_default = SimpleCovMcp.default_log_file
-      SimpleCovMcp.default_log_file = 'stderr'
-      expect(SimpleCovMcp.default_log_file).to eq('stderr')
-      expect(SimpleCovMcp.active_log_file).to eq('stderr')
+      original_default = CovLoupe.default_log_file
+      CovLoupe.default_log_file = 'stderr'
+      expect(CovLoupe.default_log_file).to eq('stderr')
+      expect(CovLoupe.active_log_file).to eq('stderr')
     ensure
-      SimpleCovMcp.default_log_file = original_default
+      CovLoupe.default_log_file = original_default
     end
 
     it 'allows adjusting the active log target without touching the default' do
-      original_default = SimpleCovMcp.default_log_file
-      SimpleCovMcp.active_log_file = 'stdout'
-      expect(SimpleCovMcp.active_log_file).to eq('stdout')
-      expect(SimpleCovMcp.default_log_file).to eq(original_default)
+      original_default = CovLoupe.default_log_file
+      CovLoupe.active_log_file = 'stdout'
+      expect(CovLoupe.active_log_file).to eq('stdout')
+      expect(CovLoupe.default_log_file).to eq(original_default)
     end
   end
 end

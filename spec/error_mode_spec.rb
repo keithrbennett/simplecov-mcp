@@ -16,7 +16,7 @@ RSpec.describe 'Error Mode System' do
 
   describe 'ErrorHandler error modes' do
     context 'with error_mode: :off' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :off, logger: test_logger) }
+      subject(:handler) { CovLoupe::ErrorHandler.new(error_mode: :off, logger: test_logger) }
 
       it 'does not log errors' do
         expect(handler.log_errors?).to be false
@@ -28,7 +28,7 @@ RSpec.describe 'Error Mode System' do
     end
 
     context 'with error_mode: :log' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :log, logger: test_logger) }
+      subject(:handler) { CovLoupe::ErrorHandler.new(error_mode: :log, logger: test_logger) }
 
       it 'logs errors but not stack traces' do
         expect(handler.log_errors?).to be true
@@ -42,7 +42,7 @@ RSpec.describe 'Error Mode System' do
     end
 
     context 'with error_mode: :debug' do
-      subject(:handler) { SimpleCovMcp::ErrorHandler.new(error_mode: :debug, logger: test_logger) }
+      subject(:handler) { CovLoupe::ErrorHandler.new(error_mode: :debug, logger: test_logger) }
 
       it 'logs errors with stack traces' do
         expect(handler.log_errors?).to be true
@@ -64,13 +64,13 @@ RSpec.describe 'Error Mode System' do
 
   describe 'ErrorHandlerFactory' do
     it 'creates handlers with correct modes' do
-      cli_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli(error_mode: :debug)
+      cli_handler = CovLoupe::ErrorHandlerFactory.for_cli(error_mode: :debug)
       expect(cli_handler.error_mode).to eq(:debug)
 
-      lib_handler = SimpleCovMcp::ErrorHandlerFactory.for_library(error_mode: :off)
+      lib_handler = CovLoupe::ErrorHandlerFactory.for_library(error_mode: :off)
       expect(lib_handler.error_mode).to eq(:off)
 
-      mcp_handler = SimpleCovMcp::ErrorHandlerFactory.for_mcp_server(error_mode: :log)
+      mcp_handler = CovLoupe::ErrorHandlerFactory.for_mcp_server(error_mode: :log)
       expect(mcp_handler.error_mode).to eq(:log)
     end
   end
@@ -83,10 +83,10 @@ RSpec.describe 'Error Mode System' do
 
       # Test different error modes
       [:off, :log, :debug].each do |mode|
-        expect(SimpleCovMcp::ErrorHandlerFactory)
+        expect(CovLoupe::ErrorHandlerFactory)
           .to receive(:for_mcp_server).with(error_mode: mode).and_call_original
 
-        response = SimpleCovMcp::BaseTool.handle_mcp_error(test_error, 'TestTool', error_mode: mode)
+        response = CovLoupe::BaseTool.handle_mcp_error(test_error, 'TestTool', error_mode: mode)
         expect(response).to be_a(MCP::Tool::Response)
         expect(response.payload.first['text']).to include('Error:')
       end
@@ -97,7 +97,7 @@ RSpec.describe 'Error Mode System' do
     let(:project_dir) { File.join(__dir__, 'fixtures', 'project1') }
 
     it 'accepts --error-mode flag' do
-      cli = SimpleCovMcp::CoverageCLI.new
+      cli = CovLoupe::CoverageCLI.new
 
       # Test that the option parser accepts the flag
       expect do
@@ -108,14 +108,14 @@ RSpec.describe 'Error Mode System' do
     end
 
     it 'creates error handler with specified mode' do
-      cli = SimpleCovMcp::CoverageCLI.new
+      cli = CovLoupe::CoverageCLI.new
       cli.send(:parse_options!, ['--error-mode', 'off', 'summary', 'lib/foo.rb'])
 
       expect(cli.send(:error_handler).error_mode).to eq(:off)
     end
 
     it 'validates error mode values' do
-      cli = SimpleCovMcp::CoverageCLI.new
+      cli = CovLoupe::CoverageCLI.new
 
       expect do
         cli.send(:parse_options!, ['--error-mode', 'invalid', 'summary', 'lib/foo.rb'])
@@ -126,14 +126,14 @@ RSpec.describe 'Error Mode System' do
   describe 'Error mode validation' do
     it 'raises ArgumentError for invalid error modes' do
       expect do
-        SimpleCovMcp::ErrorHandler.new(error_mode: :invalid)
+        CovLoupe::ErrorHandler.new(error_mode: :invalid)
       end.to raise_error(ArgumentError, /Invalid error_mode: :invalid/)
     end
 
     it 'accepts all valid error modes' do
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :off) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :log) }.not_to raise_error
-      expect { SimpleCovMcp::ErrorHandler.new(error_mode: :debug) }.not_to raise_error
+      expect { CovLoupe::ErrorHandler.new(error_mode: :off) }.not_to raise_error
+      expect { CovLoupe::ErrorHandler.new(error_mode: :log) }.not_to raise_error
+      expect { CovLoupe::ErrorHandler.new(error_mode: :debug) }.not_to raise_error
     end
   end
 end

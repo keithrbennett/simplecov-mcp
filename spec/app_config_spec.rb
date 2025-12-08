@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::AppConfig do
+RSpec.describe CovLoupe::AppConfig do
   describe '#initialize' do
     it 'creates a config with default values' do
       config = described_class.new

@@ -3,9 +3,9 @@
 require 'spec_helper'
 require_relative '../shared_examples/formatted_command_examples'
 
-RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
+RSpec.describe CovLoupe::Commands::TotalsCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
 
   before do
@@ -28,7 +28,7 @@ RSpec.describe SimpleCovMcp::Commands::TotalsCommand do
     it 'raises when unexpected arguments are provided' do
       expect do
         command.execute(['extra'])
-      end.to raise_error(SimpleCovMcp::UsageError, include('totals'))
+      end.to raise_error(CovLoupe::UsageError, include('totals'))
     end
   end
 end

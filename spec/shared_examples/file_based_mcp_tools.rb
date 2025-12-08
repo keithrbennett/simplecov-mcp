@@ -21,10 +21,10 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
 
   before do
     setup_mcp_response_stub
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+    model = instance_double(CovLoupe::CoverageModel)
+    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
     allow(model).to receive(model_method).with('lib/foo.rb').and_return(mock_data)
-    relativizer = SimpleCovMcp::PathRelativizer.new(
+    relativizer = CovLoupe::PathRelativizer.new(
       root: '/abs/path',
       scalar_keys: %w[file file_path],
       array_keys: %w[newer_files missing_files deleted_files]
@@ -65,7 +65,7 @@ end
 # Configuration data for each file-based MCP tool
 FILE_BASED_TOOL_CONFIGS = {
   summary: {
-    tool_class: SimpleCovMcp::Tools::CoverageSummaryTool,
+    tool_class: CovLoupe::Tools::CoverageSummaryTool,
     model_method: :summary_for,
     expected_keys: ['file', 'summary', 'stale'],
     output_filename: 'coverage_summary.json',
@@ -79,13 +79,13 @@ FILE_BASED_TOOL_CONFIGS = {
     },
     tool_specific_examples: {
       'includes percentage in summary data' => ->(config) {
-        model = instance_double(SimpleCovMcp::CoverageModel)
-        allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive_messages(
           summary_for: config[:mock_data],
           staleness_for: false
         )
-        relativizer = SimpleCovMcp::PathRelativizer.new(
+        relativizer = CovLoupe::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],
           array_keys: %w[newer_files missing_files deleted_files]
@@ -103,7 +103,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   raw: {
-    tool_class: SimpleCovMcp::Tools::CoverageRawTool,
+    tool_class: CovLoupe::Tools::CoverageRawTool,
     model_method: :raw_for,
     expected_keys: ['file', 'lines', 'stale'],
     output_filename: 'coverage_raw.json',
@@ -118,7 +118,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   uncovered: {
-    tool_class: SimpleCovMcp::Tools::UncoveredLinesTool,
+    tool_class: CovLoupe::Tools::UncoveredLinesTool,
     model_method: :uncovered_for,
     expected_keys: ['file', 'uncovered', 'summary', 'stale'],
     output_filename: 'uncovered_lines.json',
@@ -133,13 +133,13 @@ FILE_BASED_TOOL_CONFIGS = {
     },
     tool_specific_examples: {
       'includes both uncovered lines and summary' => ->(config) {
-        model = instance_double(SimpleCovMcp::CoverageModel)
-        allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive_messages(
           uncovered_for: config[:mock_data],
           staleness_for: false
         )
-        relativizer = SimpleCovMcp::PathRelativizer.new(
+        relativizer = CovLoupe::PathRelativizer.new(
           root: '/abs/path',
           scalar_keys: %w[file file_path],
           array_keys: %w[newer_files missing_files deleted_files]
@@ -158,7 +158,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   detailed: {
-    tool_class: SimpleCovMcp::Tools::CoverageDetailedTool,
+    tool_class: CovLoupe::Tools::CoverageDetailedTool,
     model_method: :detailed_for,
     expected_keys: ['file', 'lines', 'summary', 'stale'],
     output_filename: 'coverage_detailed.json',

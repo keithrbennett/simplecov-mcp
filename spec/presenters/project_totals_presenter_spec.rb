@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
+RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   subject(:presenter) do
     described_class.new(
       model: model,
@@ -11,7 +11,7 @@ RSpec.describe SimpleCovMcp::Presenters::ProjectTotalsPresenter do
     )
   end
 
-  let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
+  let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:raw_totals) do
     {
       'lines' => { 'total' => 100, 'covered' => 80, 'uncovered' => 20 },

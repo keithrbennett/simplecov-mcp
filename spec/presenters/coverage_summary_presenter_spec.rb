@@ -3,7 +3,7 @@
 require 'spec_helper'
 require_relative '../shared_examples/coverage_presenter_examples'
 
-RSpec.describe SimpleCovMcp::Presenters::CoverageSummaryPresenter do
+RSpec.describe CovLoupe::Presenters::CoverageSummaryPresenter do
   it_behaves_like 'a coverage presenter',
     model_method: :summary_for,
     payload: {

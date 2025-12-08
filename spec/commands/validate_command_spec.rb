@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-RSpec.describe SimpleCovMcp::Commands::ValidateCommand do
+RSpec.describe CovLoupe::Commands::ValidateCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def with_temp_predicate(content)

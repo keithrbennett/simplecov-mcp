@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
+RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:malformed_resultset) do
     {
@@ -38,7 +38,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data format')
         expect(error.message).to include('unexpected token')
       end
@@ -52,7 +52,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+      end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied reading coverage data')
         expect(error.message).to include('Permission denied')
       end
@@ -64,7 +64,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
     end
@@ -86,14 +86,14 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       broken_map = instance_double('CoverageMap')
       allow(broken_map).to receive(:transform_keys)
         .and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
-      allow(SimpleCovMcp::ResultsetLoader).to receive(:load).and_return(
-        SimpleCovMcp::ResultsetLoader::Result.new(coverage_map: broken_map,
+      allow(CovLoupe::ResultsetLoader).to receive(:load).and_return(
+        CovLoupe::ResultsetLoader::Result.new(coverage_map: broken_map,
           timestamp: 0, suite_names: ['RSpec'])
       )
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
     end
@@ -114,7 +114,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid path in coverage data')
         expect(error.message).to include('null byte')
       end
@@ -127,7 +127,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         # Verify the original error message details are preserved
         expect(error.message).to include('765')
         expect(error.message).to include('line 3')
@@ -143,7 +143,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+      end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied')
         expect(error.message).to match(/\.resultset\.json/)
       end
@@ -157,7 +157,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('unexpected character at byte 42')
       end
     end
@@ -168,7 +168,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::FilePermissionError) do |error|
+      end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include(resultset_path)
       end
     end
@@ -179,7 +179,7 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
         expect(error.message).to include('suite "RSpec"')
       end
@@ -189,26 +189,26 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
   describe 'RuntimeError handling from find_resultset' do
     it 'converts RuntimeError to CoverageDataError with helpful message' do
       # Mock find_resultset to raise RuntimeError (simulating missing resultset)
-      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
         RuntimeError.new('Specified resultset not found: /nonexistent/path/.resultset.json')
       )
 
       expect do
         described_class.new(root: root, resultset: '/nonexistent/path')
-      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
+      end.to raise_error(CovLoupe::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Specified resultset not found')
       end
     end
 
     it 'handles RuntimeError with generic messages' do
       # Test RuntimeError with any generic message that includes 'resultset'
-      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
         RuntimeError.new('Something went wrong during resultset lookup')
       )
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError) do |error|
+      end.to raise_error(CovLoupe::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Something went wrong during resultset lookup')
       end
     end
@@ -216,13 +216,13 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
     it 'converts RuntimeError without "resultset" in message to CoverageDataError' do
       # Test RuntimeError that does NOT contain 'resultset' in its message
       # This exercises the else branch in the RuntimeError rescue clause
-      allow(SimpleCovMcp::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
         RuntimeError.new('Some completely unrelated runtime error')
       )
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
-      end.to raise_error(SimpleCovMcp::CoverageDataError) do |error|
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Failed to load coverage data')
         expect(error.message).to include('Some completely unrelated runtime error')
       end
@@ -235,10 +235,10 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise FileError for one specific file
-      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines).and_call_original
-      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
-        .and_raise(SimpleCovMcp::FileError.new('Corrupted coverage entry'))
+        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
       # Should not raise, just skip the problematic file
       result = model.all_files(check_stale: false)
@@ -256,12 +256,12 @@ RSpec.describe SimpleCovMcp::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise RuntimeError for a specific file
-      allow(SimpleCovMcp::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
         .and_raise(RuntimeError.new('Unexpected runtime error during lookup'))
 
       expect do
         model.summary_for('nonexistent_file.rb')
-      end.to raise_error(SimpleCovMcp::FileError) do |error|
+      end.to raise_error(CovLoupe::FileError) do |error|
         expect(error.message).to include('No coverage data found for file')
       end
     end

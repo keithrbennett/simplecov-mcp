@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Constants do
+RSpec.describe CovLoupe::Constants do
   describe 'OPTIONS_EXPECTING_ARGUMENT' do
     subject(:options) { described_class::OPTIONS_EXPECTING_ARGUMENT }
 
@@ -42,18 +42,18 @@ RSpec.describe SimpleCovMcp::Constants do
 
   describe 'usage by other classes' do
     it 'is used by ModeDetector' do
-      expect(SimpleCovMcp::ModeDetector::OPTIONS_EXPECTING_ARGUMENT)
-        .to equal(SimpleCovMcp::Constants::OPTIONS_EXPECTING_ARGUMENT)
+      expect(CovLoupe::ModeDetector::OPTIONS_EXPECTING_ARGUMENT)
+        .to equal(CovLoupe::Constants::OPTIONS_EXPECTING_ARGUMENT)
     end
 
     it 'is used by CoverageCLI' do
-      expect(SimpleCovMcp::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT)
-        .to equal(SimpleCovMcp::Constants::OPTIONS_EXPECTING_ARGUMENT)
+      expect(CovLoupe::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT)
+        .to equal(CovLoupe::Constants::OPTIONS_EXPECTING_ARGUMENT)
     end
 
     it 'ensures both classes reference the same object' do
-      cli_options = SimpleCovMcp::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT
-      detector_options = SimpleCovMcp::ModeDetector::OPTIONS_EXPECTING_ARGUMENT
+      cli_options = CovLoupe::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT
+      detector_options = CovLoupe::ModeDetector::OPTIONS_EXPECTING_ARGUMENT
 
       expect(cli_options).to equal(detector_options)
     end

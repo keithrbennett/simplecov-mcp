@@ -2,13 +2,13 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Commands::BaseCommand do
+RSpec.describe CovLoupe::Commands::BaseCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
 
   # Create a test command class that exposes protected methods for testing
   let(:test_command_class) do
-    Class.new(SimpleCovMcp::Commands::BaseCommand) do
+    Class.new(CovLoupe::Commands::BaseCommand) do
       def execute(args)
         # Not needed for these tests
       end
@@ -32,7 +32,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::ENOENT, 'No such file or directory'
           end
-        end.to raise_error(SimpleCovMcp::FileNotFoundError, 'File not found: lib/missing.rb')
+        end.to raise_error(CovLoupe::FileNotFoundError, 'File not found: lib/missing.rb')
       end
 
       it 'includes the path from the args in the error message' do
@@ -42,7 +42,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::ENOENT, 'No such file or directory'
           end
-        end.to raise_error(SimpleCovMcp::FileNotFoundError, /some\/other\/path\.rb/)
+        end.to raise_error(CovLoupe::FileNotFoundError, /some\/other\/path\.rb/)
       end
     end
 
@@ -55,7 +55,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::EACCES, 'Permission denied'
           end
-        end.to raise_error(SimpleCovMcp::FilePermissionError, 'Permission denied: lib/secret.rb')
+        end.to raise_error(CovLoupe::FilePermissionError, 'Permission denied: lib/secret.rb')
       end
 
       it 'includes the path from the args in the error message' do
@@ -65,7 +65,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::EACCES, 'Permission denied'
           end
-        end.to raise_error(SimpleCovMcp::FilePermissionError, /\/root\/protected\.rb/)
+        end.to raise_error(CovLoupe::FilePermissionError, /\/root\/protected\.rb/)
       end
     end
 
@@ -77,7 +77,7 @@ RSpec.describe SimpleCovMcp::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'summary') do |_path|
             # Should not reach here
           end
-        end.to raise_error(SimpleCovMcp::UsageError, /summary <path>/)
+        end.to raise_error(CovLoupe::UsageError, /summary <path>/)
       end
     end
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageCLI do
+RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   it 'renders uncovered source without error for fixture file' do

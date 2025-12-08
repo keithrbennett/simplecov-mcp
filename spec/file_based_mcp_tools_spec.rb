@@ -4,10 +4,10 @@ require 'spec_helper'
 require_relative 'shared_examples/file_based_mcp_tools'
 
 # Load all the tool classes that will be tested
-require 'simplecov_mcp/tools/coverage_summary_tool'
-require 'simplecov_mcp/tools/coverage_raw_tool'
-require 'simplecov_mcp/tools/uncovered_lines_tool'
-require 'simplecov_mcp/tools/coverage_detailed_tool'
+require 'cov_loupe/tools/coverage_summary_tool'
+require 'cov_loupe/tools/coverage_raw_tool'
+require 'cov_loupe/tools/uncovered_lines_tool'
+require 'cov_loupe/tools/coverage_detailed_tool'
 
 RSpec.describe 'File-based MCP Tools' do
   # Test each file-based tool using the shared example with its specific configuration
@@ -28,8 +28,8 @@ RSpec.describe 'File-based MCP Tools' do
     it 'all file-based tools accept the same basic parameters' do
       # Test that all tools can be called with the same parameter signature
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
-        model = instance_double(SimpleCovMcp::CoverageModel)
-        allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
@@ -47,8 +47,8 @@ RSpec.describe 'File-based MCP Tools' do
 
     it 'all file-based tools return JSON resources with consistent structure' do
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
-        model = instance_double(SimpleCovMcp::CoverageModel)
-        allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)
@@ -80,8 +80,8 @@ RSpec.describe 'File-based MCP Tools' do
       end
 
       summary_tools.each_value do |config|
-        model = instance_double(SimpleCovMcp::CoverageModel)
-        allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
         allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
         allow(model).to receive(:relativize) { |payload| payload }
         allow(model).to receive(:staleness_for).and_return(false)

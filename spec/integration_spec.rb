@@ -12,7 +12,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
   describe 'End-to-End Coverage Model Functionality' do
     it 'loads fixture coverage and surfaces core stats across APIs' do
-      model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
+      model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
       files = model.all_files
       expect(files.length).to eq(2)
@@ -101,7 +101,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'executes all MCP tools with real coverage data' do
       # Test coverage summary tool
-      summary_response = SimpleCovMcp::Tools::CoverageSummaryTool.call(
+      summary_response = CovLoupe::Tools::CoverageSummaryTool.call(
         path: 'lib/foo.rb',
         root: project_root,
         resultset: coverage_dir,
@@ -112,7 +112,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(data['summary']).to include('covered' => 2, 'total' => 3)
 
       # Test raw coverage tool
-      raw_response = SimpleCovMcp::Tools::CoverageRawTool.call(
+      raw_response = CovLoupe::Tools::CoverageRawTool.call(
         path: 'lib/foo.rb',
         root: project_root,
         resultset: coverage_dir,
@@ -123,7 +123,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
 
       # Test all files tool
-      all_files_response = SimpleCovMcp::Tools::AllFilesCoverageTool.call(
+      all_files_response = CovLoupe::Tools::AllFilesCoverageTool.call(
         root: project_root,
         resultset: coverage_dir,
         server_context: server_context
@@ -136,7 +136,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'provides consistent data across different tools' do
       # Get data from summary tool
-      summary_response = SimpleCovMcp::Tools::CoverageSummaryTool.call(
+      summary_response = CovLoupe::Tools::CoverageSummaryTool.call(
         path: 'lib/foo.rb',
         root: project_root,
         resultset: coverage_dir,
@@ -145,7 +145,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       summary_data, = expect_mcp_text_json(summary_response)
 
       # Get data from detailed tool
-      detailed_response = SimpleCovMcp::Tools::CoverageDetailedTool.call(
+      detailed_response = CovLoupe::Tools::CoverageDetailedTool.call(
         path: 'lib/foo.rb',
         root: project_root,
         resultset: coverage_dir,
@@ -167,17 +167,17 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
   describe 'Error Handling Integration' do
     it 'handles missing files gracefully' do
-      model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
+      model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
       expect do
         model.summary_for('lib/nonexistent.rb')
-      end.to raise_error(SimpleCovMcp::FileError, /No coverage entry found/)
+      end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
     end
 
     it 'handles invalid resultset paths gracefully' do
       expect do
-        SimpleCovMcp::CoverageModel.new(root: project_root, resultset: '/nonexistent/path')
-      end.to raise_error(SimpleCovMcp::ResultsetNotFoundError, /Specified resultset not found/)
+        CovLoupe::CoverageModel.new(root: project_root, resultset: '/nonexistent/path')
+      end.to raise_error(CovLoupe::ResultsetNotFoundError, /Specified resultset not found/)
     end
 
     it 'provides helpful CLI error messages' do
@@ -192,7 +192,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
   describe 'Multi-File Scenarios' do
     it 'handles projects with mixed coverage levels' do
-      model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
+      model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
       # Get all files and verify range of coverage
       files = model.all_files
@@ -205,7 +205,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     it 'generates comprehensive project reports' do
-      model = SimpleCovMcp::CoverageModel.new(root: project_root, resultset: coverage_dir)
+      model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
       table = model.format_table
 
@@ -221,13 +221,13 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   describe 'MCP Server Protocol Integration', :slow do
     # spec/ is one level deep, so ../.. goes up to repo root
     let(:repo_root) { File.expand_path('..', __dir__) }
-    let(:exe_path) { File.join(repo_root, 'exe', 'simplecov-mcp') }
+    let(:exe_path) { File.join(repo_root, 'exe', 'cov-loupe') }
     let(:lib_path) { File.join(repo_root, 'lib') }
 
     let(:default_env) do
       {
         'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => "--root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
+        'COV_LOUPE_OPTS' => "--root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
       }
     end
 
@@ -466,8 +466,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(content.first['type']).to eq('text')
 
       version_text = content.first['text']
-      # Version format is "SimpleCovMcp version: X.Y.Z"
-      expect(version_text).to match(/SimpleCovMcp version: \d+\.\d+/)
+      # Version format is "CovLoupe version: X.Y.Z"
+      expect(version_text).to match(/CovLoupe version: \d+\.\d+/)
     end
 
     it 'executes validate_tool via JSON-RPC' do
@@ -557,7 +557,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
       result = run_mcp_json(
         request,
-        env: default_env.merge('SIMPLECOV_MCP_OPTS' => '--log-file stderr')
+        env: default_env.merge('COV_LOUPE_OPTS' => '--log-file stderr')
       )
 
       response = parse_jsonrpc_response(result[:stdout])
@@ -569,7 +569,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       # Attempt to start MCP server with --log-file stdout should fail
       env = {
         'RUBY_LIB' => lib_path,
-        'SIMPLECOV_MCP_OPTS' => '--log-file stdout'
+        'COV_LOUPE_OPTS' => '--log-file stdout'
       }
 
       result = run_mcp_input(nil, env: env)

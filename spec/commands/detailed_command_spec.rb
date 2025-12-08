@@ -3,9 +3,9 @@
 require 'spec_helper'
 require_relative '../shared_examples/formatted_command_examples'
 
-RSpec.describe SimpleCovMcp::Commands::DetailedCommand do
+RSpec.describe CovLoupe::Commands::DetailedCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
 
   before do

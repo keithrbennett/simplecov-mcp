@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp do
-  describe SimpleCovMcp::ConfigurationError do
+RSpec.describe CovLoupe do
+  describe CovLoupe::ConfigurationError do
     describe '#user_friendly_message' do
       it 'prefixes message with "Configuration error:"' do
         error = described_class.new('Invalid option value')
@@ -21,19 +21,19 @@ RSpec.describe SimpleCovMcp do
         # When nil is passed to StandardError, it uses the class name as the message
         error = described_class.new(nil)
 
-        expect(error.user_friendly_message).to eq('Configuration error: SimpleCovMcp::ConfigurationError')
+        expect(error.user_friendly_message).to eq('Configuration error: CovLoupe::ConfigurationError')
       end
     end
   end
 
 
-  describe SimpleCovMcp::ResultsetNotFoundError do
+  describe CovLoupe::ResultsetNotFoundError do
     describe '#user_friendly_message' do
       it 'includes helpful tips in CLI mode' do
         # Create a CLI context (not MCP mode)
-        error_handler = SimpleCovMcp::ErrorHandlerFactory.for_cli
-        context = SimpleCovMcp.create_context(error_handler: error_handler, mode: :cli)
-        SimpleCovMcp.with_context(context) do
+        error_handler = CovLoupe::ErrorHandlerFactory.for_cli
+        context = CovLoupe.create_context(error_handler: error_handler, mode: :cli)
+        CovLoupe.with_context(context) do
           error = described_class.new('Coverage data not found')
           message = error.user_friendly_message
 
@@ -41,17 +41,17 @@ RSpec.describe SimpleCovMcp do
             'File error: Coverage data not found',
             'Try one of the following:',
             'cd to a directory containing coverage/.resultset.json',
-            'Specify a resultset: simplecov-mcp -r PATH',
-            'Use -h for help: simplecov-mcp -h'
+            'Specify a resultset: cov-loupe -r PATH',
+            'Use -h for help: cov-loupe -h'
           )
         end
       end
 
       it 'does not include helpful tips in MCP mode' do
         # Create an MCP context
-        error_handler = SimpleCovMcp::ErrorHandlerFactory.for_mcp_server
-        context = SimpleCovMcp.create_context(error_handler: error_handler, mode: :mcp)
-        SimpleCovMcp.with_context(context) do
+        error_handler = CovLoupe::ErrorHandlerFactory.for_mcp_server
+        context = CovLoupe.create_context(error_handler: error_handler, mode: :mcp)
+        CovLoupe.with_context(context) do
           error = described_class.new('Coverage data not found')
           message = error.user_friendly_message
 
@@ -62,7 +62,7 @@ RSpec.describe SimpleCovMcp do
     end
   end
 
-  describe SimpleCovMcp::CoverageDataStaleError do
+  describe CovLoupe::CoverageDataStaleError do
     describe 'time formatting edge cases' do
       it 'handles invalid epoch seconds gracefully in rescue path' do
         # Create an object that responds to to_i but breaks Time.at
@@ -173,7 +173,7 @@ RSpec.describe SimpleCovMcp do
     end
   end
 
-  describe SimpleCovMcp::CoverageDataProjectStaleError do
+  describe CovLoupe::CoverageDataProjectStaleError do
     describe 'default message generation' do
       # These tests exercise the private default_message method
       it 'includes project stale info when message is nil' do

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'simplecov_mcp/tools/coverage_totals_tool'
+require 'cov_loupe/tools/coverage_totals_tool'
 
-RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
+RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
   subject(:tool_response) { described_class.call(root: root, server_context: server_context) }
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -11,8 +11,8 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
 
   before do
     setup_mcp_response_stub
-    model = instance_double(SimpleCovMcp::CoverageModel)
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).and_return(model)
+    model = instance_double(CovLoupe::CoverageModel)
+    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
     payload = {
       'lines' => { 'total' => 42, 'covered' => 40, 'uncovered' => 2 },
@@ -20,8 +20,8 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTotalsTool do
       'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 }
     }
 
-    presenter = instance_double(SimpleCovMcp::Presenters::ProjectTotalsPresenter)
-    allow(SimpleCovMcp::Presenters::ProjectTotalsPresenter).to receive(:new).and_return(presenter)
+    presenter = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
+    allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new).and_return(presenter)
     allow(presenter).to receive(:relativized_payload).and_return(payload)
   end
 

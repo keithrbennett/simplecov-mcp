@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-RSpec.describe SimpleCovMcp::CoverageCLI do
+RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def run_cli(*argv)
@@ -122,30 +122,30 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'passes --log-file path into the CLI execution context' do
       Dir.mktmpdir do |dir|
         log_path = File.join(dir, 'custom.log')
-        expect(SimpleCovMcp).to receive(:create_context)
+        expect(CovLoupe).to receive(:create_context)
           .and_wrap_original do |m, error_handler:, log_target:, mode:|
           # Ensure CLI forwards the requested log path into the context without changing other fields.
           expect(log_target).to eq(log_path)
           m.call(error_handler: error_handler, log_target: log_target, mode: mode)
         end
-        original_target = SimpleCovMcp.active_log_file
+        original_target = CovLoupe.active_log_file
         run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
           '--log-file', log_path, 'summary', 'lib/foo.rb')
-        expect(SimpleCovMcp.active_log_file).to eq(original_target)
+        expect(CovLoupe.active_log_file).to eq(original_target)
       end
     end
 
     it 'supports stdout logging within the CLI context' do
-      expect(SimpleCovMcp).to receive(:create_context)
+      expect(CovLoupe).to receive(:create_context)
         .and_wrap_original do |m, error_handler:, log_target:, mode:|
         # For stdout logging, verify the context is still constructed with the expected value.
         expect(log_target).to eq('stdout')
         m.call(error_handler: error_handler, log_target: log_target, mode: mode)
       end
-      original_target = SimpleCovMcp.active_log_file
+      original_target = CovLoupe.active_log_file
       run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
         '--log-file', 'stdout', 'summary', 'lib/foo.rb')
-      expect(SimpleCovMcp.active_log_file).to eq(original_target)
+      expect(CovLoupe.active_log_file).to eq(original_target)
     end
   end
 
@@ -157,7 +157,7 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'prints version as plain text by default' do
       output = run_cli('version')
       expect(output).to include('│')  # Table format
-      expect(output).to include(SimpleCovMcp::VERSION)
+      expect(output).to include(CovLoupe::VERSION)
       expect(output).not_to include('{')
       expect(output).not_to include('}')
     end
@@ -166,13 +166,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
       output = run_cli('--format', 'json', 'version')
       data = JSON.parse(output)
       expect(data).to have_key('version')
-      expect(data['version']).to eq(SimpleCovMcp::VERSION)
+      expect(data['version']).to eq(CovLoupe::VERSION)
     end
 
     it 'works with version command and other flags' do
       output = run_cli('--root', root, 'version')
       expect(output).to include('│')  # Table format
-      expect(output).to include(SimpleCovMcp::VERSION)
+      expect(output).to include(CovLoupe::VERSION)
     end
   end
 
@@ -180,13 +180,13 @@ RSpec.describe SimpleCovMcp::CoverageCLI do
     it 'prints the same version info as the version subcommand' do
       output = run_cli('-v')
       expect(output).to include('│')  # Table format
-      expect(output).to include(SimpleCovMcp::VERSION)
+      expect(output).to include(CovLoupe::VERSION)
     end
 
     it 'respects --json when -v is used' do
       output = run_cli('-v', '--format', 'json')
       data = JSON.parse(output)
-      expect(data['version']).to eq(SimpleCovMcp::VERSION)
+      expect(data['version']).to eq(CovLoupe::VERSION)
     end
   end
 end

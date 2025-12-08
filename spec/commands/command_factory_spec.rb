@@ -2,20 +2,20 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::Commands::CommandFactory do
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+RSpec.describe CovLoupe::Commands::CommandFactory do
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
 
   describe '.create' do
     context 'with valid command names' do
       [
-        ['list', SimpleCovMcp::Commands::ListCommand],
-        ['version', SimpleCovMcp::Commands::VersionCommand],
-        ['summary', SimpleCovMcp::Commands::SummaryCommand],
-        ['raw', SimpleCovMcp::Commands::RawCommand],
-        ['uncovered', SimpleCovMcp::Commands::UncoveredCommand],
-        ['detailed', SimpleCovMcp::Commands::DetailedCommand],
-        ['totals', SimpleCovMcp::Commands::TotalsCommand],
-        ['total', SimpleCovMcp::Commands::TotalsCommand] # Alias
+        ['list', CovLoupe::Commands::ListCommand],
+        ['version', CovLoupe::Commands::VersionCommand],
+        ['summary', CovLoupe::Commands::SummaryCommand],
+        ['raw', CovLoupe::Commands::RawCommand],
+        ['uncovered', CovLoupe::Commands::UncoveredCommand],
+        ['detailed', CovLoupe::Commands::DetailedCommand],
+        ['totals', CovLoupe::Commands::TotalsCommand],
+        ['total', CovLoupe::Commands::TotalsCommand] # Alias
       ].each do |command_name, command_class|
         it "creates a #{command_class.name.split('::').last} for \"#{command_name}\"" do
           command = described_class.create(command_name, cli_context)
@@ -38,7 +38,7 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
         it "raises UsageError for #{description}" do
           expect do
             described_class.create(command_name, cli_context)
-          end.to raise_error(SimpleCovMcp::UsageError, pattern)
+          end.to raise_error(CovLoupe::UsageError, pattern)
         end
       end
     end
@@ -63,14 +63,14 @@ RSpec.describe SimpleCovMcp::Commands::CommandFactory do
     end
 
     it 'maps command names to command classes' do
-      expect(described_class::COMMAND_MAP['list']).to eq(SimpleCovMcp::Commands::ListCommand)
-      expect(described_class::COMMAND_MAP['version']).to eq(SimpleCovMcp::Commands::VersionCommand)
-      expect(described_class::COMMAND_MAP['summary']).to eq(SimpleCovMcp::Commands::SummaryCommand)
-      expect(described_class::COMMAND_MAP['raw']).to eq(SimpleCovMcp::Commands::RawCommand)
-      expect(described_class::COMMAND_MAP['uncovered']).to eq(SimpleCovMcp::Commands::UncoveredCommand)
-      expect(described_class::COMMAND_MAP['detailed']).to eq(SimpleCovMcp::Commands::DetailedCommand)
-      expect(described_class::COMMAND_MAP['totals']).to eq(SimpleCovMcp::Commands::TotalsCommand)
-      expect(described_class::COMMAND_MAP['total']).to eq(SimpleCovMcp::Commands::TotalsCommand)
+      expect(described_class::COMMAND_MAP['list']).to eq(CovLoupe::Commands::ListCommand)
+      expect(described_class::COMMAND_MAP['version']).to eq(CovLoupe::Commands::VersionCommand)
+      expect(described_class::COMMAND_MAP['summary']).to eq(CovLoupe::Commands::SummaryCommand)
+      expect(described_class::COMMAND_MAP['raw']).to eq(CovLoupe::Commands::RawCommand)
+      expect(described_class::COMMAND_MAP['uncovered']).to eq(CovLoupe::Commands::UncoveredCommand)
+      expect(described_class::COMMAND_MAP['detailed']).to eq(CovLoupe::Commands::DetailedCommand)
+      expect(described_class::COMMAND_MAP['totals']).to eq(CovLoupe::Commands::TotalsCommand)
+      expect(described_class::COMMAND_MAP['total']).to eq(CovLoupe::Commands::TotalsCommand)
     end
   end
 end

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'simplecov_mcp/tools/coverage_table_tool'
+require 'cov_loupe/tools/coverage_table_tool'
 
-RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
+RSpec.describe CovLoupe::Tools::CoverageTableTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:server_context) { instance_double('ServerContext').as_null_object }
 
@@ -30,7 +30,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
   end
 
   it 'configures CLI to enforce stale checking when requested' do
-    model = instance_double(SimpleCovMcp::CoverageModel,
+    model = instance_double(CovLoupe::CoverageModel,
       all_files: [
         { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
           'stale' => false }
@@ -38,7 +38,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
       relativize: ->(payload) { payload },
       format_table: 'Mock table output'
     )
-    allow(SimpleCovMcp::CoverageModel).to receive(:new).with(
+    allow(CovLoupe::CoverageModel).to receive(:new).with(
       root: root,
       resultset: nil,
       staleness: :error,
@@ -48,7 +48,7 @@ RSpec.describe SimpleCovMcp::Tools::CoverageTableTool do
 
     described_class.call(root: root, staleness: :error, server_context: server_context)
 
-    expect(SimpleCovMcp::CoverageModel).to have_received(:new).with(
+    expect(CovLoupe::CoverageModel).to have_received(:new).with(
       root: root,
       resultset: nil,
       staleness: :error,

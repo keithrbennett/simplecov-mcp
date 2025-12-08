@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'tmpdir'
 require 'fileutils'
 
-RSpec.describe SimpleCovMcp::Resolvers::ResultsetPathResolver do
+RSpec.describe CovLoupe::Resolvers::ResultsetPathResolver do
   describe '#find_resultset' do
     let(:root) { Dir.mktmpdir }
     let(:resolver) { described_class.new(root: root) }

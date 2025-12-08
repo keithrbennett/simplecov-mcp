@@ -5,17 +5,17 @@ module MockingHelpers
   # Stub staleness checking to return a specific value
   # @param value [String, false] The staleness value to return ('L', 'T', 'M', or false)
   def stub_staleness_check(value)
-    checker_double = instance_double(SimpleCovMcp::StalenessChecker)
+    checker_double = instance_double(CovLoupe::StalenessChecker)
     allow(checker_double).to receive_messages(
       stale_for_file?: value,
       off?: false
     )
     allow(checker_double).to receive(:check_file!)
-    allow(SimpleCovMcp::StalenessChecker).to receive(:new).and_return(checker_double)
+    allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker_double)
   end
 
   # Stub a presenter with specific payload data
-  # @param presenter_class [Class] The presenter class to stub (e.g., SimpleCovMcp::Presenters::CoverageRawPresenter)
+  # @param presenter_class [Class] The presenter class to stub (e.g., CovLoupe::Presenters::CoverageRawPresenter)
   # @param absolute_payload [Hash] The data hash to return from #absolute_payload
   # @param relative_path [String] The path to return from #relative_path
   def mock_presenter(presenter_class, absolute_payload:, relative_path:)

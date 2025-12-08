@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::ErrorHandler do
+RSpec.describe CovLoupe::ErrorHandler do
   subject(:handler) { described_class.new(error_mode: :log, logger: logger) }
 
   let(:logger) do
@@ -17,20 +17,20 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
 
   it 'maps filesystem errors to friendly custom errors' do
     e = handler.convert_standard_error(Errno::EISDIR.new('Is a directory @ rb_sysopen - a_dir'))
-    expect(e).to be_a(SimpleCovMcp::NotAFileError)
+    expect(e).to be_a(CovLoupe::NotAFileError)
 
     e = handler.convert_standard_error(
       Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.txt')
     )
-    expect(e).to be_a(SimpleCovMcp::FileNotFoundError)
+    expect(e).to be_a(CovLoupe::FileNotFoundError)
 
     e = handler.convert_standard_error(Errno::EACCES.new('Permission denied @ rb_sysopen - secret'))
-    expect(e).to be_a(SimpleCovMcp::FilePermissionError)
+    expect(e).to be_a(CovLoupe::FilePermissionError)
   end
 
   it 'maps JSON::ParserError to CoverageDataError' do
     e = handler.convert_standard_error(JSON::ParserError.new('unexpected token'))
-    expect(e).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(e).to be_a(CovLoupe::CoverageDataError)
     expect(e.user_friendly_message).to include('Invalid coverage data format')
   end
 
@@ -38,17 +38,17 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     e = handler.convert_standard_error(
       ArgumentError.new('wrong number of arguments (given 1, expected 2)')
     )
-    expect(e).to be_a(SimpleCovMcp::UsageError)
+    expect(e).to be_a(CovLoupe::UsageError)
 
     e = handler.convert_standard_error(ArgumentError.new('invalid option'))
-    expect(e).to be_a(SimpleCovMcp::ConfigurationError)
+    expect(e).to be_a(CovLoupe::ConfigurationError)
   end
 
   it 'maps NoMethodError to CoverageDataError with helpful info' do
     e = handler.convert_standard_error(
       NoMethodError.new("undefined method `fetch' for #<Hash:0x123>")
     )
-    expect(e).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(e).to be_a(CovLoupe::CoverageDataError)
     expect(e.user_friendly_message).to include('Invalid coverage data structure')
   end
 
@@ -56,18 +56,18 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     e = handler.convert_standard_error(
       RuntimeError.new('Could not find .resultset.json under /path; run tests')
     )
-    expect(e).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(e).to be_a(CovLoupe::CoverageDataError)
     expect(e.user_friendly_message).to include('run your tests first')
 
     e = handler.convert_standard_error(
       RuntimeError.new('No .resultset.json found in directory: /path')
     )
-    expect(e).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(e).to be_a(CovLoupe::CoverageDataError)
 
     e = handler.convert_standard_error(
       RuntimeError.new('Specified resultset not found: /nowhere/file.json')
     )
-    expect(e).to be_a(SimpleCovMcp::ResultsetNotFoundError)
+    expect(e).to be_a(CovLoupe::ResultsetNotFoundError)
   end
 
   it 'logs via provided logger' do
@@ -84,7 +84,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     error = TypeError.new('wrong argument type')
     result = handler.convert_standard_error(error)
 
-    expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(result).to be_a(CovLoupe::CoverageDataError)
     expect(result.user_friendly_message).to include('Invalid coverage data structure')
   end
 
@@ -92,7 +92,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     error = Errno::EEXIST.new('File exists')
     result = handler.convert_standard_error(error)
 
-    expect(result).to be_a(SimpleCovMcp::Error)
+    expect(result).to be_a(CovLoupe::Error)
     expect(result.user_friendly_message).to include('An unexpected error occurred')
   end
 
@@ -100,7 +100,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
     error = NoMethodError.new('some weird error message without the expected pattern')
     result = handler.convert_standard_error(error)
 
-    expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+    expect(result).to be_a(CovLoupe::CoverageDataError)
     expect(result.user_friendly_message).to include('some weird error message')
   end
 
@@ -118,7 +118,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
       error = custom_exception_class.new
       result = handler.convert_standard_error(error)
 
-      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result).to be_a(CovLoupe::Error)
       expect(result.user_friendly_message).to include('An unexpected error occurred')
       expect(result.user_friendly_message).to include('Custom non-standard exception')
     end
@@ -128,7 +128,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
       error = NotImplementedError.new('This feature is not implemented')
       result = handler.convert_standard_error(error)
 
-      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result).to be_a(CovLoupe::Error)
       expect(result.user_friendly_message).to include('An unexpected error occurred')
     end
   end
@@ -149,7 +149,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
         error = NoMethodError.new(msg)
         result = handler.convert_standard_error(error)
 
-        expect(result).to be_a(SimpleCovMcp::CoverageDataError)
+        expect(result).to be_a(CovLoupe::CoverageDataError)
         # The original message should be preserved
         expect(result.message).to include(msg) unless msg.empty?
       end
@@ -167,18 +167,18 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
 
       result = handler.convert_standard_error(error, context: :general)
 
-      expect(result).to be_a(SimpleCovMcp::Error)
+      expect(result).to be_a(CovLoupe::Error)
       expect(result.user_friendly_message)
         .to include('An unexpected error occurred', 'unexpected runtime error')
     end
   end
 
   describe '#handle_error with reraise' do
-    it 're-raises SimpleCovMcp::Error when reraise is true' do
-      error = SimpleCovMcp::FileNotFoundError.new('Test file not found')
+    it 're-raises CovLoupe::Error when reraise is true' do
+      error = CovLoupe::FileNotFoundError.new('Test file not found')
 
       expect { handler.handle_error(error, context: 'test', reraise: true) }
-        .to raise_error(SimpleCovMcp::FileNotFoundError, 'Test file not found')
+        .to raise_error(CovLoupe::FileNotFoundError, 'Test file not found')
 
       # Verify it was logged
       expect(logger.messages.join).to include('Error in test')
@@ -188,7 +188,7 @@ RSpec.describe SimpleCovMcp::ErrorHandler do
       error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
 
       expect { handler.handle_error(error, context: 'test', reraise: true) }
-        .to raise_error(SimpleCovMcp::FileNotFoundError)
+        .to raise_error(CovLoupe::FileNotFoundError)
 
       # Verify it was logged
       expect(logger.messages.join).to include('Error in test')

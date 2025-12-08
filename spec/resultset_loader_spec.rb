@@ -3,7 +3,7 @@
 require 'json'
 require 'tmpdir'
 
-RSpec.describe SimpleCovMcp::ResultsetLoader do
+RSpec.describe CovLoupe::ResultsetLoader do
   describe '.load' do
     it 'parses a single suite and returns coverage map and timestamp' do
       Dir.mktmpdir do |dir|
@@ -84,7 +84,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
 
         expect do
           described_class.load(resultset_path: resultset_path)
-        end.to raise_error(SimpleCovMcp::CoverageDataError, /No test suite/)
+        end.to raise_error(CovLoupe::CoverageDataError, /No test suite/)
       end
     end
   end
@@ -100,7 +100,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
 
       expect do
         described_class.send(:require_simplecov_for_merge!, '/tmp/resultset.json')
-      end.to raise_error(SimpleCovMcp::CoverageDataError, /Install simplecov/)
+      end.to raise_error(CovLoupe::CoverageDataError, /Install simplecov/)
     ensure
       if singleton.method_defined?(:require)
         singleton.send(:remove_method, :require)
@@ -114,7 +114,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
         described_class::SuiteEntry.new(name: 'Cucumber', coverage: {}, timestamp: 0)
       ]
 
-      expect(SimpleCovMcp::CovUtil).to receive(:log)
+      expect(CovLoupe::CovUtil).to receive(:log)
         .with(include('Merging duplicate coverage suites for RSpec'))
       described_class.send(:log_duplicate_suite_names, suites)
     end
@@ -144,7 +144,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
 
     it 'logs warning and returns zero for invalid timestamp strings' do
       messages = []
-      allow(SimpleCovMcp::CovUtil).to receive(:log) { |msg| messages << msg }
+      allow(CovLoupe::CovUtil).to receive(:log) { |msg| messages << msg }
 
       value = described_class.send(:normalize_coverage_timestamp, 'not-a-timestamp', nil)
 
@@ -155,7 +155,7 @@ RSpec.describe SimpleCovMcp::ResultsetLoader do
 
     it 'logs warning and returns zero for unsupported types' do
       messages = []
-      allow(SimpleCovMcp::CovUtil).to receive(:log) { |msg| messages << msg }
+      allow(CovLoupe::CovUtil).to receive(:log) { |msg| messages << msg }
 
       value = described_class.send(:normalize_coverage_timestamp, [:invalid], nil)
 

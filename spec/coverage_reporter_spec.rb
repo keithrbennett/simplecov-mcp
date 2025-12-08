@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::CoverageReporter do
-  let(:model) { instance_double(SimpleCovMcp::CoverageModel) }
+RSpec.describe CovLoupe::CoverageReporter do
+  let(:model) { instance_double(CovLoupe::CoverageModel) }
   # Data is pre-sorted by percentage ascending (as model.all_files returns)
   let(:all_files_data) do
     [
@@ -95,7 +95,7 @@ RSpec.describe SimpleCovMcp::CoverageReporter do
     end
 
     it 'report is available as a private instance method when included' do
-      klass = Class.new { include SimpleCovMcp::CoverageReporter }
+      klass = Class.new { include CovLoupe::CoverageReporter }
       expect(klass.private_instance_methods).to include(:report)
     end
   end

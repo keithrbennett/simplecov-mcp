@@ -2,7 +2,7 @@
 
 module FakeMCP
   # Fake server captures the last created instance so we can assert on the
-  # name/version/tools passed in by SimpleCovMcp::MCPServer.
+  # name/version/tools passed in by CovLoupe::MCPServer.
   class Server
     class << self
       attr_accessor :last_instance

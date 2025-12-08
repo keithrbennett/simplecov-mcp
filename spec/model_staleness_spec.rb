@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-RSpec.describe SimpleCovMcp::CoverageModel do
+RSpec.describe CovLoupe::CoverageModel do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def with_stubbed_coverage_timestamp(timestamp)
@@ -16,7 +16,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       model = described_class.new(root: root, staleness: :error)
       expect do
         model.summary_for('lib/foo.rb')
-      end.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
+      end.to raise_error(CovLoupe::CoverageDataStaleError, /stale/i)
     end
   end
 
@@ -30,7 +30,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
   it 'all_files raises project-level stale when any source file is newer than coverage' do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, staleness: :error)
-      expect { model.all_files }.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+      expect { model.all_files }.to raise_error(CovLoupe::CoverageDataProjectStaleError)
     end
   end
 
@@ -42,7 +42,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
         model = described_class.new(root: root, staleness: :error)
         expect do
           model.all_files(tracked_globs: ['lib/**/*.rb'])
-        end.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+        end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
       end
     end
   end
@@ -71,7 +71,7 @@ RSpec.describe SimpleCovMcp::CoverageModel do
       expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at_time.to_i)
       expect do
         model.summary_for('lib/foo.rb')
-      end.to raise_error(SimpleCovMcp::CoverageDataStaleError) { |error|
+      end.to raise_error(CovLoupe::CoverageDataStaleError) { |error|
         expect(error.cov_timestamp).to eq(created_at_time.to_i)
       }
     end

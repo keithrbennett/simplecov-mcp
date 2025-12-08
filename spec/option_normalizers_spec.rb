@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::OptionNormalizers do
+RSpec.describe CovLoupe::OptionNormalizers do
   describe '.normalize_sort_order' do
     context 'with strict mode (default)' do
       [

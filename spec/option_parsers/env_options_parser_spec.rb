@@ -2,61 +2,61 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
+RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
   let(:parser) { described_class.new }
 
   around do |example|
-    original_value = ENV['SIMPLECOV_MCP_OPTS']
+    original_value = ENV['COV_LOUPE_OPTS']
     example.run
   ensure
-    ENV['SIMPLECOV_MCP_OPTS'] = original_value
+    ENV['COV_LOUPE_OPTS'] = original_value
   end
 
   describe '#parse_env_opts' do
     context 'with valid inputs' do
       it 'returns empty array when environment variable is not set' do
-        ENV.delete('SIMPLECOV_MCP_OPTS')
+        ENV.delete('COV_LOUPE_OPTS')
         expect(parser.parse_env_opts).to eq([])
       end
 
       it 'returns empty array when environment variable is empty string' do
-        ENV['SIMPLECOV_MCP_OPTS'] = ''
+        ENV['COV_LOUPE_OPTS'] = ''
         expect(parser.parse_env_opts).to eq([])
       end
 
       it 'returns empty array when environment variable contains only whitespace' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '   '
+        ENV['COV_LOUPE_OPTS'] = '   '
         expect(parser.parse_env_opts).to eq([])
       end
 
       it 'parses simple options correctly' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--error-mode off --format json'
+        ENV['COV_LOUPE_OPTS'] = '--error-mode off --format json'
         expect(parser.parse_env_opts).to eq(['--error-mode', 'off', '--format', 'json'])
       end
 
       it 'handles quoted strings with spaces' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--resultset "/path/to/my file.json"'
+        ENV['COV_LOUPE_OPTS'] = '--resultset "/path/to/my file.json"'
         expect(parser.parse_env_opts).to eq(['--resultset', '/path/to/my file.json'])
       end
 
       it 'handles complex shell escaping scenarios' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--resultset "/path/with spaces/file.json" --error-mode on'
+        ENV['COV_LOUPE_OPTS'] = '--resultset "/path/with spaces/file.json" --error-mode on'
         expect(parser.parse_env_opts)
           .to eq(['--resultset', '/path/with spaces/file.json', '--error-mode', 'on'])
       end
 
       it 'handles single quotes' do
-        ENV['SIMPLECOV_MCP_OPTS'] = "--resultset '/path/with spaces/file.json'"
+        ENV['COV_LOUPE_OPTS'] = "--resultset '/path/with spaces/file.json'"
         expect(parser.parse_env_opts).to eq(['--resultset', '/path/with spaces/file.json'])
       end
 
       it 'handles escaped characters' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--resultset /path/with\\ spaces/file.json'
+        ENV['COV_LOUPE_OPTS'] = '--resultset /path/with\\ spaces/file.json'
         expect(parser.parse_env_opts).to eq(['--resultset', '/path/with spaces/file.json'])
       end
 
       it 'handles mixed quoting styles' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--option1 "value with spaces" --option2 \'another value\''
+        ENV['COV_LOUPE_OPTS'] = '--option1 "value with spaces" --option2 \'another value\''
         expect(parser.parse_env_opts).to eq(
           ['--option1', 'value with spaces', '--option2', 'another value']
         )
@@ -65,38 +65,38 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
     context 'with malformed inputs' do
       it 'raises ConfigurationError for unmatched double quotes' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--resultset "unterminated string'
+        ENV['COV_LOUPE_OPTS'] = '--resultset "unterminated string'
 
         expect do
           parser.parse_env_opts
-        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(CovLoupe::ConfigurationError, /Invalid COV_LOUPE_OPTS format/)
       end
 
       it 'raises ConfigurationError for unmatched single quotes' do
-        ENV['SIMPLECOV_MCP_OPTS'] = "--resultset 'unterminated string"
+        ENV['COV_LOUPE_OPTS'] = "--resultset 'unterminated string"
 
         expect do
           parser.parse_env_opts
-        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(CovLoupe::ConfigurationError, /Invalid COV_LOUPE_OPTS format/)
       end
 
       it 'raises ConfigurationError with descriptive message' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '--option "bad quote'
+        ENV['COV_LOUPE_OPTS'] = '--option "bad quote'
 
         expect do
           parser.parse_env_opts
-        end.to raise_error(SimpleCovMcp::ConfigurationError) do |error|
-          expect(error.message).to include('Invalid SIMPLECOV_MCP_OPTS format')
+        end.to raise_error(CovLoupe::ConfigurationError) do |error|
+          expect(error.message).to include('Invalid COV_LOUPE_OPTS format')
           expect(error.message).to include('Unmatched') # from Shellwords error
         end
       end
 
       it 'handles multiple quoting errors' do
-        ENV['SIMPLECOV_MCP_OPTS'] = '"first "second "third'
+        ENV['COV_LOUPE_OPTS'] = '"first "second "third'
 
         expect do
           parser.parse_env_opts
-        end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid SIMPLECOV_MCP_OPTS format/)
+        end.to raise_error(CovLoupe::ConfigurationError, /Invalid COV_LOUPE_OPTS format/)
       end
     end
   end
@@ -215,7 +215,7 @@ RSpec.describe SimpleCovMcp::OptionParsers::EnvOptionsParser do
 
       expect do
         custom_parser.parse_env_opts
-      end.to raise_error(SimpleCovMcp::ConfigurationError, /Invalid MY_CUSTOM_VAR format/)
+      end.to raise_error(CovLoupe::ConfigurationError, /Invalid MY_CUSTOM_VAR format/)
     end
   end
 end

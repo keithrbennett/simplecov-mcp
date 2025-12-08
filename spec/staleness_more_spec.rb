@@ -2,10 +2,10 @@
 
 require 'spec_helper'
 
-RSpec.describe SimpleCovMcp do
+RSpec.describe CovLoupe do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
-  describe SimpleCovMcp::CoverageModel do
+  describe CovLoupe::CoverageModel do
     it 'raises file-level stale when source and coverage lengths differ' do
       # Ensure time is not the triggering factor - use current timestamp
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
@@ -15,11 +15,11 @@ RSpec.describe SimpleCovMcp do
       # bar.rb has 2 coverage entries but 3 source lines in fixtures
       expect do
         model.summary_for('lib/bar.rb')
-      end.to raise_error(SimpleCovMcp::CoverageDataStaleError, /stale/i)
+      end.to raise_error(CovLoupe::CoverageDataStaleError, /stale/i)
     end
   end
 
-  describe SimpleCovMcp::StalenessChecker do
+  describe CovLoupe::StalenessChecker do
     it 'flags deleted files present only in coverage' do
       checker = described_class.new(root: root, resultset: 'coverage', mode: :error,
         timestamp: Time.now.to_i)
@@ -28,7 +28,7 @@ RSpec.describe SimpleCovMcp do
       }
       expect do
         checker.check_project!(coverage_map)
-      end.to raise_error(SimpleCovMcp::CoverageDataProjectStaleError)
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
     end
 
     it 'does not raise for empty tracked_globs when nothing else is stale' do

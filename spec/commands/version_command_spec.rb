@@ -3,8 +3,8 @@
 require 'spec_helper'
 require_relative '../shared_examples/formatted_command_examples'
 
-RSpec.describe SimpleCovMcp::Commands::VersionCommand do
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+RSpec.describe CovLoupe::Commands::VersionCommand do
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
 
   before do
@@ -16,7 +16,7 @@ RSpec.describe SimpleCovMcp::Commands::VersionCommand do
       it 'prints version, gem root, and documentation info in text mode' do
         output = capture_command_output(command, [])
 
-        expect(output).to include('│', SimpleCovMcp::VERSION, 'Gem Root', 'Documentation',
+        expect(output).to include('│', CovLoupe::VERSION, 'Gem Root', 'Documentation',
           'README.md')
       end
 

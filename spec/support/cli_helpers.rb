@@ -4,7 +4,7 @@
 module CLITestHelpers
   # Run CLI with the given arguments and return [stdout, stderr, exit_status]
   def run_cli_with_status(*argv)
-    cli = SimpleCovMcp::CoverageCLI.new
+    cli = CovLoupe::CoverageCLI.new
     status = nil
     out_str = err_str = nil
     silence_output do |out, err|

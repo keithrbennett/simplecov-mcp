@@ -3,9 +3,9 @@
 require 'spec_helper'
 require_relative '../shared_examples/formatted_command_examples'
 
-RSpec.describe SimpleCovMcp::Commands::RawCommand do
+RSpec.describe CovLoupe::Commands::RawCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:cli_context) { SimpleCovMcp::CoverageCLI.new }
+  let(:cli_context) { CovLoupe::CoverageCLI.new }
   let(:command) { described_class.new(cli_context) }
 
   before do
@@ -26,7 +26,7 @@ RSpec.describe SimpleCovMcp::Commands::RawCommand do
     context 'when the file is fully covered' do
       it 'still prints the raw table' do
         mock_presenter(
-          SimpleCovMcp::Presenters::CoverageRawPresenter,
+          CovLoupe::Presenters::CoverageRawPresenter,
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'lines' => [1, 1, 1],
