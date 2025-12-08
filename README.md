@@ -1,6 +1,15 @@
-# simplecov-mcp
+<!-- Invisible SEO-friendly H1 -->
+<h1 style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;">
+  CovLoupe
+</h1>
 
-> MCP server + CLI + Ruby library for inspecting SimpleCov coverage data
+<p style="text-align:center; margin-bottom:-36px;">
+  <img src="dev/images/cov-loupe-logo.png" alt="CovLoupe logo" width="560">
+</p>
+
+<p style="text-align:center;">
+  An MCP server, command line utility, and library for Ruby SimpleCov test coverage analysis.
+
 
 [![Gem Version](https://badge.fury.io/rb/simplecov-mcp.svg)](https://badge.fury.io/rb/simplecov-mcp)
 

@@ -1,5 +1,9 @@
 # Release Notes
 
+## v2.1.0
+
+- Add logo and avatar images, display in readme
+
 ## v2.0.1
 
 - Improve help text
