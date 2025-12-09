@@ -26,6 +26,8 @@ This is a **major version bump** because the gem has been completely renamed fro
 4. Update Ruby code: Rename `SimpleCovMcp` to `CovLoupe` and update requires.
 5. Update env vars: Rename `SIMPLECOV_MCP_OPTS` to `COV_LOUPE_OPTS`
 
+**📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V3.md](docs/user/migrations/MIGRATING_TO_V3.md)**
+
 **Note**: The old `simplecov-mcp` gem (v2.0.1) will remain available on RubyGems but will not receive further updates.
 
 ### ✨ Other Changes
@@ -52,7 +54,7 @@ Version 2.0 introduces several breaking changes to improve consistency and align
 - **MCP tools**: Parameter `stale` renamed to `staleness`, error modes updated
 - **Ruby API**: `CLIConfig` renamed to `AppConfig`, field changes (`json` → `format`, `stale_mode` → `staleness`)
 
-**📖 For complete migration guide with examples, see [docs/user/V2-BREAKING-CHANGES.md](docs/user/V2-BREAKING-CHANGES.md)**
+**📖 For complete migration guide with examples, see [docs/user/migrations/MIGRATING_TO_V2.md](docs/user/migrations/MIGRATING_TO_V2.md)**
 
 ### ✨ New Features
 

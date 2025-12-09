@@ -30,34 +30,34 @@ Gem::Specification.new do |spec|
   spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.post_install_message = <<~MESSAGE
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃ V3.0.0 - GEM RENAMED: simplecov-mcp → cov-loupe                         ┃
-    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-    ┃                                                                         ┃
-    ┃ This gem has been renamed! If upgrading from simplecov-mcp:             ┃
-    ┃                                                                         ┃
-    ┃  • Executable: simplecov-mcp → cov-loupe                                ┃
-    ┃  • Environment: SIMPLECOV_MCP_OPTS → COV_LOUPE_OPTS                     ┃
-    ┃  • Log file: simplecov_mcp.log → cov_loupe.log                          ┃
-    ┃  • Alias: smcp → clp (in documentation)                                 ┃
-    ┃                                                                         ┃
-    ┃ Module name (CovLoupe) and require path (cov_loupe) unchanged.          ┃
-    ┃                                                                         ┃
-    ┃ Uninstall old gem: gem uninstall simplecov-mcp                          ┃
-    ┃                                                                         ┃
-    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-    ┃ V2.0.0 BREAKING CHANGES (if upgrading from v1.x)                        ┃
-    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-    ┃                                                                         ┃
-    ┃  • Options must now come BEFORE subcommands                             ┃
-    ┃  • --stale renamed to --staleness (-S still works)                      ┃
-    ┃  • --json replaced with --format json                                   ┃
-    ┃  • Error modes renamed: 'on' → 'log', 'trace' → 'debug'                 ┃
-    ┃  • --success-predicate moved to 'validate' subcommand                   ┃
-    ┃  • Default sort order changed from ascending to descending              ┃
-    ┃                                                                         ┃
-    ┃ See docs/user/V2-BREAKING-CHANGES.md for complete migration guide.      ┃
-    ┃                                                                         ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ V3.0.0 - GEM RENAMED: simplecov-mcp → cov-loupe                           ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃                                                                           ┃
+    ┃ This gem has been renamed! If upgrading from simplecov-mcp:               ┃
+    ┃                                                                           ┃
+    ┃  • Executable: simplecov-mcp → cov-loupe                                  ┃
+    ┃  • Environment: SIMPLECOV_MCP_OPTS → COV_LOUPE_OPTS                       ┃
+    ┃  • Log file: simplecov_mcp.log → cov_loupe.log                            ┃
+    ┃  • Alias: smcp → clp (in documentation)                                   ┃
+    ┃                                                                           ┃
+    ┃ Module name (CovLoupe) and require path (cov_loupe) unchanged.            ┃
+    ┃                                                                           ┃
+    ┃ Uninstall old gem: gem uninstall simplecov-mcp                            ┃
+    ┃                                                                           ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃ V2.0.0 BREAKING CHANGES (if upgrading from v1.x)                          ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃                                                                           ┃
+    ┃  • Options must now come BEFORE subcommands                               ┃
+    ┃  • --stale renamed to --staleness (-S still works)                        ┃
+    ┃  • --json replaced with --format json                                     ┃
+    ┃  • Error modes renamed: 'on' → 'log', 'trace' → 'debug'                   ┃
+    ┃  • --success-predicate moved to 'validate' subcommand                     ┃
+    ┃  • Default sort order changed from ascending to descending                ┃
+    ┃                                                                           ┃
+    ┃ See docs/user/migrations/MIGRATING_TO_V2.md for complete migration guide. ┃
+    ┃                                                                           ┃
+    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
   MESSAGE
 end
