@@ -47,7 +47,7 @@ Tests generate coverage data to `coverage/.resultset.json` which the tool can th
 bundle exec exe/cov-loupe
 
 # Test MCP server (JSON-RPC on a single line; pipe to jq for pretty output)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/simple_cov_mcp.rb"}}}' | bundle exec exe/cov-loupe
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | bundle exec exe/cov-loupe
  
 # Discover available tools before issuing a request
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/cov-loupe
@@ -112,7 +112,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 
 ## Important Conventions
 
-- Use `cov_loupe` as the require path (matches the gem name SimpleCov)
+- Use `cov_loupe` as the require path
 - All paths in the API should work with both absolute and relative forms
 - The executable is `cov-loupe` (with hyphen)
 - Error messages should be user-friendly in CLI mode, structured in MCP mode

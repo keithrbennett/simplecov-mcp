@@ -46,7 +46,7 @@ module CovLoupe
     PATH_PROPERTY = {
       type: 'string',
       description: 'Repo-relative or absolute path to the file whose coverage data you need.',
-      examples: ['lib/simple_cov_mcp/model.rb']
+      examples: ['lib/cov_loupe/model.rb']
     }.freeze
 
     def self.coverage_schema(additional_properties: {}, required: [])

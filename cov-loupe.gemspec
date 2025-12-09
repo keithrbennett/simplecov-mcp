@@ -31,10 +31,23 @@ Gem::Specification.new do |spec|
 
   spec.post_install_message = <<~MESSAGE
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃ V2.0.0 BREAKING CHANGES                                                 ┃
+    ┃ V3.0.0 - GEM RENAMED: simplecov-mcp → cov-loupe                         ┃
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃                                                                         ┃
-    ┃ V2.0.0 brings several breaking changes to this gem:                     ┃
+    ┃ This gem has been renamed! If upgrading from simplecov-mcp:             ┃
+    ┃                                                                         ┃
+    ┃  • Executable: simplecov-mcp → cov-loupe                                ┃
+    ┃  • Environment: SIMPLECOV_MCP_OPTS → COV_LOUPE_OPTS                     ┃
+    ┃  • Log file: simplecov_mcp.log → cov_loupe.log                          ┃
+    ┃  • Alias: smcp → clp (in documentation)                                 ┃
+    ┃                                                                         ┃
+    ┃ Module name (CovLoupe) and require path (cov_loupe) unchanged.          ┃
+    ┃                                                                         ┃
+    ┃ Uninstall old gem: gem uninstall simplecov-mcp                          ┃
+    ┃                                                                         ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃ V2.0.0 BREAKING CHANGES (if upgrading from v1.x)                        ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃                                                                         ┃
     ┃  • Options must now come BEFORE subcommands                             ┃
     ┃  • --stale renamed to --staleness (-S still works)                      ┃

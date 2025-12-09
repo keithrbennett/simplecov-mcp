@@ -1,10 +1,10 @@
 # Release Notes
 
-## v2.1.0
+## v3.0.0
 
-### 🚨 GEM RENAMED: simplecov-mcp → cov-loupe
+### 🚨 BREAKING CHANGE: GEM RENAMED simplecov-mcp → cov-loupe
 
-This gem has been renamed from **simplecov-mcp** to **cov-loupe**. This is a complete rebrand with a new gem name on RubyGems.
+This is a **major version bump** because the gem has been completely renamed from **simplecov-mcp** to **cov-loupe**. This requires manual intervention to migrate.
 
 #### What Changed
 - **Gem name**: `simplecov-mcp` → `cov-loupe`
