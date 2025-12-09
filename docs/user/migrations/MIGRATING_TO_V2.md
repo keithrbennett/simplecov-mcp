@@ -1,4 +1,4 @@
-# V2.0 Breaking Changes Guide
+# V2.0 Breaking Changes and Migration Guide
 
 This document describes all breaking changes introduced in version 2.0.0 of simplecov-mcp. These changes improve consistency, clarity, and alignment with Ruby conventions.
 
