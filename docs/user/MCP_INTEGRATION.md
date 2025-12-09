@@ -4,125 +4,32 @@
 
 ## Table of Contents
 
-- [What is MCP?](#what-is-mcp)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
 - [Setup by Client](#setup-by-client)
 - [Available MCP Tools](#available-mcp-tools)
 - [Testing Your Setup](#testing-your-setup)
 - [Troubleshooting](#troubleshooting)
 
-## What is MCP?
-
-The Model Context Protocol (MCP) is a standard for integrating tools and data sources with AI assistants. By running cov-loupe as an MCP server, you enable AI coding assistants to:
-
-- Query coverage data for files
-- Identify uncovered code
-- Analyze coverage gaps
-- Suggest improvements based on coverage data
-
-### Why Use MCP with Coverage Tools?
-
-AI assistants can help you:
-- **Prioritize testing** - "Which files need coverage most urgently?"
-- **Understand gaps** - "Why is this file's coverage low?"
-- **Generate tests** - "Write tests for uncovered lines in this file"
-- **Track progress** - "Has coverage improved since last commit?"
-
-## Prerequisites
-
-- **Ruby >= 3.2** (required by MCP gem dependency)
-- **cov-loupe installed** - See [Installation Guide](INSTALLATION.md)
-- **simplecov gem >= 0.21** - Needed when a resultset contains multiple suites (loaded lazily)
-- **Coverage data** - Run tests to generate `coverage/.resultset.json`
-- **MCP-compatible client** - Claude Code, Cursor, Codex, etc.
-
-## Quick Start
-
-### 1. Install cov-loupe
-
-```sh
-gem install cov-loupe
-```
-
-### 2. Verify Installation
-
-```sh
-# Find the executable path (needed for MCP configuration)
-which cov-loupe
-
-# Test it works
-cov-loupe version
-```
-
-### 3. Configure Your AI Assistant
-
-See [Setup by Client](#setup-by-client) below for specific instructions.
-
-### 4. Generate Coverage Data
-
-```sh
-# Run your test suite
-bundle exec rspec  # or your test command
-
-# Verify coverage file exists
-ls coverage/.resultset.json
-```
-
-> **Multi-suite note:** If the resultset contains several suites (e.g., `RSpec` and `Cucumber`), cov-loupe lazily loads the `simplecov` gem and merges them before answering coverage queries. Staleness checks currently use the newest suite’s timestamp, so treat multi-suite freshness warnings as advisory until per-file timestamps are introduced.
->
-> Only suites stored in a *single* `.resultset.json` are merged automatically. If your test runs produce multiple resultset files, merge them (e.g., via `SimpleCov::ResultMerger.merge_and_store`) and point cov-loupe at the combined file.
-
-> Multifile support may be added in a future version (post an issue if you want this).
-
-### 5. Test the MCP Server
-
-```sh
-# Test manually
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | cov-loupe
-```
-
-You should see a JSON-RPC response with version information.
-
 ## Setup by Client
+
+For the `mcp add` commands, the last argument is the executable path.
+If the executable cannot be correctly found in the path, then you can specify the full path.
+
+Ruby version managers may modify the path to include the current version's executable directory.
+If you change Ruby versions, you may need to restart your AI agent to inherit the new path.
+Alternatively, remove and re-add the MCP server with an absolute path to the executable.
 
 ### Claude Code
 
-**Current Status:** Claude Code has a bug in its MCP client that prevents it from working with spec-compliant MCP servers like cov-loupe. Claude Code will automatically fall back to using the CLI interface.
-
-**Bug Report:** [Claude Code Issue #8239](https://github.com/anthropics/claude-code/issues/8239)
-
-**Workaround:** Use the CLI interface, which provides the same functionality:
 ```sh
-# Instead of MCP tools, use CLI
-cov-loupe list
-cov-loupe summary lib/cov_loupe/cli.rb
-```
-
-**Configuration (for when bug is fixed):**
-
-Using the Claude CLI tool:
-
-```sh
-# Basic setup (if cov-loupe is in default PATH)
+# Add the MCP server; equivalent to ...--scope local...
 claude mcp add cov-loupe cov-loupe
 
-# With rbenv/asdf (use absolute path)
-claude mcp add cov-loupe /Users/yourname/.rbenv/shims/cov-loupe
-
-# With RVM wrapper (recommended for stability)
-rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
-claude mcp add cov-loupe /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
-
-# For user-wide configuration (default is local)
+# For user-wide configuration
 claude mcp add --scope user cov-loupe cov-loupe
 
-# For project-specific configuration
+# For project-specific configuration.
 claude mcp add --scope project cov-loupe cov-loupe
-```
 
-**Verify configuration:**
-```sh
 # List configured MCP servers
 claude mcp list
 
@@ -133,26 +40,13 @@ claude mcp get cov-loupe
 claude mcp remove cov-loupe
 ```
 
-**Important Notes:**
-- Default scope is `local` (current project)
-- Use `--scope user` for global config, `--scope project` for project-specific
-- The executable path is tied to Ruby version with version managers
-- If you change Ruby versions, remove and re-add the configuration
-
-### Cursor / Codex
+### Codex
 
 Using the Codex CLI:
 
 ```sh
-# Basic setup (if cov-loupe is in default PATH)
-codex mcp add cov-loupe --command cov-loupe
-
-# With rbenv/asdf (use absolute path)
-codex mcp add cov-loupe --command /Users/yourname/.rbenv/shims/cov-loupe
-
-# With RVM wrapper (recommended for stability)
-rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
-codex mcp add cov-loupe --command /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
+# Add the MCP server
+codex mcp add cov-loupe cov-loupe
 
 # List configured servers
 codex mcp list
@@ -164,21 +58,13 @@ codex mcp get cov-loupe
 codex mcp remove cov-loupe
 ```
 
-**Find your executable path:**
-```sh
-which cov-loupe
-```
-
 ### Gemini
 
 Using the Gemini CLI:
 
 ```sh
-# Add MCP server
-gemini mcp add cov-loupe /Users/yourname/.rbenv/shims/cov-loupe
-
-# Or with RVM
-gemini mcp add cov-loupe /Users/yourname/.rvm/wrappers/ruby-3.3.8/cov-loupe
+# Add the MCP server
+gemini mcp add cov-loupe cov-loupe
 
 # List configured servers
 gemini mcp list
@@ -187,29 +73,12 @@ gemini mcp list
 gemini mcp remove cov-loupe
 ```
 
-### Generic MCP Client
-
-For any MCP client that uses JSON configuration:
-
-```json
-{
-  "mcpServers": {
-    "cov-loupe": {
-      "command": "/path/to/cov-loupe",
-      "args": [],
-      "env": {
-        "COV_LOUPE_OPTS": "--resultset coverage"
-      }
-    }
-  }
-}
-```
 
 **Environment variables you can set:**
 
 - `COV_LOUPE_OPTS` - Default CLI options (though less useful for MCP mode)
 
-## Available MCP Tools
+## Available MCP Tools (Functions)
 
 ### Tool Catalog
 
@@ -317,6 +186,8 @@ These tools analyze individual files. All require `path` parameter.
 
 ## Example Prompts for AI Assistants
 
+(Hopefully, your AI agent will not need you to explicilty specify "Using cov-loupe",
+but this is included here because we have seen cases where it does not know to use cov-loupe.)
 ### Coverage Analysis
 
 ```
@@ -344,7 +215,7 @@ Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/c
 ### Test Generation
 
 ```
-Using cov-loupe, find uncovered lines in lib/cov_loupe/staleness_checker.rb and write RSpec tests for them.
+Using cov-loupe, find uncovered lines in lib/cov_loupe/staleness_checker.rb and write *meaningful* RSpec tests for them.
 ```
 
 ```
@@ -420,7 +291,7 @@ To override the default log file location, specify the `--log-file` argument whe
 
 ### CLI Fallback
 
-**Important:** If the MCP server doesn't work, you can use the CLI directly with the `-fJ` flag.
+**Important:** If the MCP server doesn't work, you can use the CLI directly with the `-fJ` (output in JSON format) flag.
 
 See the **[CLI Fallback for LLMs Guide](CLI_FALLBACK_FOR_LLMS.md)** for:
 - Complete command reference and MCP tool mappings
@@ -432,17 +303,11 @@ See the **[CLI Fallback for LLMs Guide](CLI_FALLBACK_FOR_LLMS.md)** for:
 
 **Server Won't Start**
 ```sh
-which cov-loupe                            # Verify executable exists
-ruby -v                                         # Check Ruby >= 3.2
-cov-loupe version                          # Test basic functionality
+which cov-loupe     # Verify executable exists
+ruby -v             # Check Ruby >= 3.2
+cov-loupe version   # Test basic functionality
 ```
 
-**Path Issues with Version Managers**
-```sh
-which cov-loupe                            # Use this absolute path in MCP config
-# RVM: Create wrapper for stability
-rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
-```
 
 **Tools Not Appearing**
 1. Restart AI assistant after config changes
@@ -462,25 +327,14 @@ For troubleshooting, add error mode when configuring the server:
 
 ```sh
 # Claude Code
-claude mcp add cov-loupe cov-loupe --error-mode debug
+claude mcp add cov-loupe cov-loupe -- --error-mode debug
 
 # Codex
-codex mcp add cov-loupe --command cov-loupe --args "--error-mode" --args "debug"
+codex mcp add cov-loupe cov-loupe --error-mode debug  
 
 # Gemini
-gemini mcp add cov-loupe "$(which cov-loupe) --error-mode debug"
+gemini mcp add cov-loupe cov-loupe --error-mode debug
 ```
-
-### Project-Specific vs. Global Configuration
-
-**Global configuration** (all projects):
-- Claude: `claude mcp add --scope user cov-loupe ...`
-- Codex: `codex mcp add` (uses global config by default)
-- Gemini: `gemini mcp add` (uses global config)
-
-**Project-specific** (one project):
-- Claude: `claude mcp add --scope project cov-loupe ...` (default is `local`)
-- Codex/Gemini: Create `.codex/config.toml` or `.gemini/config.toml` in project root (manual)
 
 ## Next Steps
 
