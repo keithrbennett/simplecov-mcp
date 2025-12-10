@@ -121,14 +121,14 @@ This decision was informed by discussions with multiple AI models. For more deta
 
 ### CLI Options in MCP Mode
 
-When the MCP server starts, you can pass CLI options via the startup command. However, **most CLI options do NOT affect MCP tool calls**—they must be passed as JSON parameters in each tool request.
+When the MCP server starts, you can pass CLI options via the startup command. These options become the default config for MCP tools. **Per-request JSON parameters still win over CLI defaults.**
 
 | CLI Option | Affects MCP Server? | JSON Parameter | Notes |
 |------------|-------------------|----------------|-------|
-| `-R`, `--root` | ❌ No | `root` | Must pass in each tool call |
-| `-r`, `--resultset` | ❌ No | `resultset` | Must pass in each tool call |
-| `-S`, `--staleness` | ❌ No | `staleness` | Must pass in each tool call (`"off"` or `"error"`) |
-| `-g`, `--tracked-globs` | ❌ No | `tracked_globs` | Must pass as array in tool calls |
+| `-R`, `--root` | ✅ Default | `root` | Request param overrides; CLI sets default |
+| `-r`, `--resultset` | ✅ Default | `resultset` | Request param overrides; CLI sets default |
+| `-S`, `--staleness` | ✅ Default | `staleness` | Request param overrides; CLI sets default (`"off"` or `"error"`) |
+| `-g`, `--tracked-globs` | ✅ Default | `tracked_globs` | Request param overrides; CLI sets default (array) |
 | `--error-mode` | ✅ Yes | `error_mode` | Sets server-wide error handling; can override per tool |
 | `-l`, `--log-file` | ✅ Yes | N/A | Sets server log location (cannot override per tool) |
 | `-f`, `--format` | ❌ No | N/A | Not applicable to MCP (JSON-RPC only) |
@@ -140,8 +140,10 @@ When the MCP server starts, you can pass CLI options via the startup command. Ho
 
 **Key Takeaways:**
 - **Server-level options** (`--error-mode`, `--log-file`): Set once when server starts, apply to all tool calls
-- **Tool-level options** (`root`, `resultset`, `staleness`, etc.): Must be passed in each JSON tool request
+- **Tool-level options** (`root`, `resultset`, `staleness`, `tracked_globs`): CLI args provide defaults; per-tool JSON params override when provided
 - **CLI-only options** (`--format`, `--source`, etc.): Not applicable to MCP mode
+
+**Precedence for MCP tool config:** `JSON request param` > `CLI args used to start MCP` (including `COV_LOUPE_OPTS`) > built-in defaults (`root: '.'`, `staleness: off`, `resultset: nil`, `tracked_globs: nil`).
 
 ### Common Parameters
 

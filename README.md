@@ -148,9 +148,11 @@ cov-loupe -r /path/to/your/coverage
 export COV_LOUPE_OPTS="-r /path/to/your/coverage"
 
 # MCP server configuration
-# Add to your MCP client config:
+# Add to your MCP client config (used as defaults for MCP tools):
 # "args": ["-r", "/path/to/your/coverage"]
 ```
+
+**MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `staleness: off`, etc.).
 
 See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
 
