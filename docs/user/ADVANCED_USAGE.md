@@ -428,24 +428,24 @@ Tracked globs serve two purposes:
 Uses Ruby's `File.fnmatch` with extended glob support:
 
 ```sh
-# Single directory
+# Single directory, recursive
 -g "lib/**/*.rb"
 
 # Multiple patterns
 -g "lib/payments/**/*.rb" -g "lib/ops/jobs/**/*.rb"
 
-# Exclude patterns (use CLI filtering)
-clp -fJ list | jq '.files[] | select(.file | test("spec") | not)'
+# Exclude patterns (use CLI filtering to exclude ops jobs)
+clp -fJ list | jq '.files[] | select(.file | test("ops") | not)'
 
 # Ruby alternative:
 clp -fJ list | ruby -r json -e '
-  JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("spec") }.each do |f|
+  JSON.parse($stdin.read)["files"].reject { |f| f["file"].include?("ops") }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-clp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
+clp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("ops") }'
 
 # Complex patterns
 -g "lib/{models,controllers}/**/*.rb"

@@ -428,9 +428,9 @@ require "cov_loupe"
 
 class CoverageValidator
   THRESHOLDS = {
-    'lib/' => 90.0,      # Core library needs 90%+
-    'app/' => 80.0,      # Application code needs 80%+
-    'spec/' => 70.0,     # Test helpers need 70%+
+    'lib/api/' => 90.0,         # API layer needs 90%+
+    'app/models/' => 85.0,      # Models need 85%+
+    'app/controllers/' => 75.0, # Controllers need 75%+
   }
 
   def initialize(model)
