@@ -2,6 +2,10 @@
 
 # MCP Tool shared examples and helpers
 module MCPToolTestHelpers
+  def null_server_context
+    instance_double('ServerContext', app_config: nil).as_null_object
+  end
+
   def setup_mcp_response_stub
     # Standardized MCP::Tool::Response stub that works for all tools
     response_class = Class.new do

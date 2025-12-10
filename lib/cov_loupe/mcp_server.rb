@@ -11,7 +11,8 @@ module CovLoupe
         server = ::MCP::Server.new(
           name: 'cov-loupe',
           version: CovLoupe::VERSION,
-          tools: toolset
+          tools: toolset,
+          server_context: context
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
       end

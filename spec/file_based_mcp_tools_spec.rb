@@ -19,7 +19,7 @@ RSpec.describe 'File-based MCP Tools' do
 
   # Test that all file-based tools handle the same parameters consistently
   describe 'parameter consistency' do
-    let(:server_context) { instance_double('ServerContext').as_null_object }
+    let(:server_context) { null_server_context }
 
     before do
       setup_mcp_response_stub
@@ -68,7 +68,7 @@ RSpec.describe 'File-based MCP Tools' do
 
   # Performance/behavior comparison tests
   describe 'cross-tool consistency' do
-    let(:server_context) { instance_double('ServerContext').as_null_object }
+    let(:server_context) { null_server_context }
 
     before do
       setup_mcp_response_stub

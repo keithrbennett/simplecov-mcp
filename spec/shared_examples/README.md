@@ -47,7 +47,7 @@ The parameterized test will automatically:
 ```ruby
 # spec/your_tool_spec.rb - 25+ lines
 RSpec.describe CovLoupe::Tools::YourTool do
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
   
   before do
     setup_mcp_response_stub

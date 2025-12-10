@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'cov_loupe/tools/version_tool'
 
 RSpec.describe CovLoupe::Tools::VersionTool do
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub

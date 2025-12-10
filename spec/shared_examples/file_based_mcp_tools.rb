@@ -11,7 +11,7 @@ require 'spec_helper'
 RSpec.shared_examples 'a file-based MCP tool' do |config|
   subject { tool_class.call(path: 'lib/foo.rb', server_context: server_context) }
 
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
   let(:tool_class) { config[:tool_class] }
   let(:model_method) { config[:model_method] }
   let(:expected_keys) { config[:expected_keys] }
@@ -94,7 +94,7 @@ FILE_BASED_TOOL_CONFIGS = {
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb',
-          server_context: instance_double('ServerContext').as_null_object)
+          server_context: null_server_context)
         data, = expect_mcp_text_json(response)
 
         expect(data['summary']['percentage']).to be_a(Float)
@@ -148,7 +148,7 @@ FILE_BASED_TOOL_CONFIGS = {
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb',
-          server_context: instance_double('ServerContext').as_null_object)
+          server_context: null_server_context)
         data, = expect_mcp_text_json(response)
 
         expect(data['uncovered']).to be_an(Array)

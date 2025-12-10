@@ -16,14 +16,16 @@ module CovLoupe
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: '.', resultset: nil, staleness: :off, error_mode: 'log',
+        def call(path:, root: nil, resultset: nil, staleness: nil, error_mode: 'log',
           server_context:)
           with_error_handling('CoverageSummaryTool', error_mode: error_mode) do
-            model = CoverageModel.new(
+            config = model_config_for(
+              server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness.to_sym
+              staleness: staleness&.to_sym
             )
+            model = CoverageModel.new(**config)
             presenter = Presenters::CoverageSummaryPresenter.new(model: model, path: path)
             respond_json(presenter.relativized_payload, name: 'coverage_summary.json', pretty: true)
           end

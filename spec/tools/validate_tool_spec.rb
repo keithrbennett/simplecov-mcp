@@ -8,7 +8,7 @@ require 'cov_loupe/tools/validate_tool'
 RSpec.describe CovLoupe::Tools::ValidateTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset) { 'coverage' }
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub

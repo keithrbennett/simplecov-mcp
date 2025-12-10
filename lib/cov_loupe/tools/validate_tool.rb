@@ -34,30 +34,22 @@ module CovLoupe
         }
       ))
       class << self
-        def call(code: nil, file: nil, root: '.', resultset: nil, staleness: :off,
+        def call(code: nil, file: nil, root: nil, resultset: nil, staleness: nil,
           error_mode: 'log', server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
-            # Re-use logic from ValidateCommand, but adapt for MCP return format
-            require_relative '../cli'
-
-            # Create a minimal CLI shim to reuse command logic
-            cli = CoverageCLI.new
-            cli.config.root = root
-            cli.config.resultset = resultset
-            cli.config.staleness = staleness.to_sym
-            cli.config.error_mode = error_mode.to_sym
-
-            # We need to capture the boolean result instead of letting it exit
-            # Commands::ValidateCommand is designed to exit, so we'll use the model and evaluator directly
-            # This duplicates some logic from ValidateCommand#execute but avoids the exit(status) call
-
-            model = CoverageModel.new(**cli.config.model_options)
+            config = model_config_for(
+              server_context: server_context,
+              root: root,
+              resultset: resultset,
+              staleness: staleness&.to_sym
+            )
+            model = CoverageModel.new(**config)
 
             result = if code
               PredicateEvaluator.evaluate_code(code, model)
             elsif file
               # Resolve file path relative to root if needed
-              predicate_path = File.expand_path(file, root)
+              predicate_path = File.expand_path(file, config[:root])
               PredicateEvaluator.evaluate_file(predicate_path, model)
             else
               raise UsageError, "Either 'code' or 'file' must be provided"

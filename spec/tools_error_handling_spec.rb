@@ -10,7 +10,7 @@ require 'cov_loupe/tools/coverage_detailed_tool'
 require 'cov_loupe/tools/coverage_totals_tool'
 
 RSpec.describe CovLoupe::Tools do
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub

@@ -57,7 +57,7 @@ module CovLoupe
 
         handler = ErrorHandlerFactory.for_mcp_server(error_mode: config.error_mode)
         context = create_context(error_handler: handler, log_target: config.log_file,
-          mode: :mcp)
+          mode: :mcp, app_config: config)
         with_context(context) { MCPServer.new(context: context).run }
       end
     end
@@ -74,11 +74,12 @@ module CovLoupe
       Thread.current[THREAD_CONTEXT_KEY] || default_context
     end
 
-    def create_context(error_handler:, log_target: nil, mode: :library)
+    def create_context(error_handler:, log_target: nil, mode: :library, app_config: nil)
       AppContext.new(
         error_handler: error_handler,
         log_target: log_target.nil? ? default_context.log_target : log_target,
-        mode: mode
+        mode: mode,
+        app_config: app_config
       )
     end
 

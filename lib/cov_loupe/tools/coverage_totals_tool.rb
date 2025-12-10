@@ -22,18 +22,23 @@ module CovLoupe
       ))
 
       class << self
-        def call(root: '.', resultset: nil, staleness: :off, tracked_globs: nil,
+        def call(root: nil, resultset: nil, staleness: nil, tracked_globs: nil,
           error_mode: 'log', server_context:)
           with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
-            # Convert string inputs from MCP to symbols for internal use
-            staleness_sym = staleness.to_sym
+            config = model_config_for(
+              server_context: server_context,
+              root: root,
+              resultset: resultset,
+              staleness: staleness&.to_sym,
+              tracked_globs: tracked_globs
+            )
+            model = CoverageModel.new(**config)
 
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: staleness_sym,
-              tracked_globs: tracked_globs)
+            staleness_sym = config[:staleness]
             presenter = Presenters::ProjectTotalsPresenter.new(
               model: model,
               check_stale: (staleness_sym == :error),
-              tracked_globs: tracked_globs
+              tracked_globs: config[:tracked_globs]
             )
             respond_json(presenter.relativized_payload, name: 'coverage_totals.json', pretty: true)
           end

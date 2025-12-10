@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.shared_examples 'an MCP tool that returns text JSON' do
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub

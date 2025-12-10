@@ -7,7 +7,7 @@ RSpec.describe CovLoupe::Tools::AllFilesCoverageTool do
   subject(:call_tool) { described_class.call(root: root, server_context: server_context) }
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub

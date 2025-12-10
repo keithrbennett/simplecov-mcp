@@ -93,7 +93,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   end
 
   describe 'MCP Tool Integration with Real Data' do
-    let(:server_context) { instance_double('ServerContext').as_null_object }
+    let(:server_context) { null_server_context }
 
     before do
       setup_mcp_response_stub

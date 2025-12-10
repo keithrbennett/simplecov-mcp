@@ -27,20 +27,27 @@ module CovLoupe
         }
       ))
       class << self
-        def call(root: '.', resultset: nil, sort_order: 'ascending', staleness: :off,
+        def call(root: nil, resultset: nil, sort_order: nil, staleness: nil,
           tracked_globs: nil, error_mode: 'log', server_context:)
           with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
-            # Convert string inputs from MCP to symbols for internal use
-            sort_order_sym = sort_order.to_sym
-            staleness_sym = staleness.to_sym
+            config = model_config_for(
+              server_context: server_context,
+              root: root,
+              resultset: resultset,
+              staleness: staleness&.to_sym,
+              tracked_globs: tracked_globs
+            )
+            model = CoverageModel.new(**config)
 
-            model = CoverageModel.new(root: root, resultset: resultset, staleness: staleness_sym,
-              tracked_globs: tracked_globs)
+            # Convert string inputs from MCP to symbols for internal use
+            sort_order_sym = (sort_order || 'ascending').to_sym
+            staleness_sym = config[:staleness]
+
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,
               sort_order: sort_order_sym,
               check_stale: (staleness_sym == :error),
-              tracked_globs: tracked_globs
+              tracked_globs: config[:tracked_globs]
             )
             respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')
           end

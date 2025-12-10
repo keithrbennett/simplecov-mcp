@@ -98,5 +98,24 @@ module CovLoupe
       error_handler.send(:log_error, error, tool_name)
     end
     private_class_method :log_mcp_error
+
+    # Merges configuration from server context (CLI flags) with explicit tool parameters (JSON).
+    # Explicit parameters take precedence over context config, which takes precedence over defaults.
+    # @param server_context [AppContext] The server context containing app_config from CLI
+    # @param explicit_params [Hash] Parameters explicitly passed in the JSON tool call
+    # @return [Hash] Merged configuration for CoverageModel initialization
+    def self.model_config_for(server_context:, **explicit_params)
+      # Start with config from context (CLI flags) or hardcoded defaults
+      base = server_context.app_config&.model_options || default_model_options
+
+      # Merge explicit params from JSON, removing nils
+      # (nil means "not provided", so use base config)
+      base.merge(explicit_params.compact)
+    end
+
+    # Default configuration when no context or explicit params are provided
+    def self.default_model_options
+      { root: '.', resultset: nil, staleness: :off, tracked_globs: nil }
+    end
   end
 end

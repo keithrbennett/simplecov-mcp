@@ -5,7 +5,7 @@ require 'cov_loupe/tools/coverage_table_tool'
 
 RSpec.describe CovLoupe::Tools::CoverageTableTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:server_context) { instance_double('ServerContext').as_null_object }
+  let(:server_context) { null_server_context }
 
   before do
     setup_mcp_response_stub
