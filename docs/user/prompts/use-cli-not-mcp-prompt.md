@@ -43,10 +43,10 @@ Options:
     -v, --version                    Show version information and exit
 
 Examples:
-  cov-loupe --resultset coverage list
-  cov-loupe --format json --resultset coverage summary lib/foo.rb
-  cov-loupe --source uncovered --context-lines 2 uncovered lib/foo.rb
-  cov-loupe totals --format json
+  cov-loupe -r coverage list
+  cov-loupe -f json -r coverage summary lib/foo.rb
+  cov-loupe -s uncovered -c 2 uncovered lib/foo.rb
+  cov-loupe totals -f json
 
 For more detailed help, consult README.md and docs/user/**/*.md
 in the installed gem at: /home/kbennett/code/cov-loupe

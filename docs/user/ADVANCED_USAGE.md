@@ -3,7 +3,7 @@
 [Back to main README](../README.md)
 
 > Examples use `clp`, an alias pointed at the demo fixture with partial coverage:
-> `alias clp='cov-loupe --root docs/fixtures/demo_project'`
+> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
 > Swap `clp` with `cov-loupe` if you want to target your own project/resultset.
 
 ## Table of Contents
@@ -45,7 +45,7 @@ The MCP server uses structured error responses:
 
 The MCP server logs to `cov_loupe.log` in the current directory by default.
 
-To override the default log file location, specify the `--log-file` argument wherever and however you configure your MCP server. For example, to log to a different file path, include `--log-file /path/to/logfile.log` in your server configuration. To log to standard error, use `--log-file stderr`.
+To override the default log file location, specify the `--log-file` (or `-l`) argument wherever and however you configure your MCP server. For example, to log to a different file path, include `-l /path/to/logfile.log` in your server configuration. To log to standard error, use `-l stderr`.
 
 **Note:** Logging to `stdout` is not permitted in MCP mode.
 
@@ -95,7 +95,7 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if any file is stale (option before subcommand)
-clp --staleness error summary app/models/order.rb
+clp -S error summary app/models/order.rb  # -S = --staleness
 ```
 
 **Ruby API:**
@@ -126,12 +126,12 @@ Detects system-wide staleness issues:
 **CLI Usage:**
 ```sh
 # Track specific patterns
-clp --staleness error \
+clp -S error \
   -g "lib/payments/**/*.rb" \
-  -g "lib/ops/jobs/**/*.rb"  # -g = --tracked-globs
+  -g "lib/ops/jobs/**/*.rb"  # -S = --staleness, -g = --tracked-globs
 
 # Combine with JSON output for parsing
-clp --staleness error -fJ list > stale-check.json
+clp -S error -fJ list > stale-check.json
 ```
 
 **Ruby API:**
@@ -159,13 +159,13 @@ Staleness checking is particularly useful in CI/CD pipelines to ensure coverage 
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-clp --staleness error -g "lib/**/*.rb"
+clp -S error -g "lib/**/*.rb"
 
 # Export validated data for CI artifacts
 clp -fJ list > coverage.json
 ```
 
-The `--staleness error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
+The `-S error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
 
 ---
 
@@ -386,7 +386,7 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-clp --staleness error -g "lib/**/*.rb"
+clp -S error -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
 clp -fJ list > coverage.json
@@ -429,10 +429,10 @@ Uses Ruby's `File.fnmatch` with extended glob support:
 
 ```sh
 # Single directory
---tracked-globs "lib/**/*.rb"
+-g "lib/**/*.rb"
 
 # Multiple patterns
---tracked-globs "lib/payments/**/*.rb" --tracked-globs "lib/ops/jobs/**/*.rb"
+-g "lib/payments/**/*.rb" -g "lib/ops/jobs/**/*.rb"
 
 # Exclude patterns (use CLI filtering)
 clp -fJ list | jq '.files[] | select(.file | test("spec") | not)'
@@ -448,8 +448,8 @@ clp -fJ list | ruby -r json -e '
 clp -fJ list | rexe -ij -mb -oJ 'self["files"].reject { |f| f["file"].include?("spec") }'
 
 # Complex patterns
---tracked-globs "lib/{models,controllers}/**/*.rb"
---tracked-globs "app/**/concerns/*.rb"
+-g "lib/{models,controllers}/**/*.rb"
+-g "app/**/concerns/*.rb"
 ```
 
 ### Use Cases
@@ -466,7 +466,7 @@ clp -g "lib/domain/**/*.rb" list
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-clp --staleness error -g "lib/features/**/*.rb"
+clp -S error -g "lib/features/**/*.rb"
 ```
 
 **3. Multi-tier Reporting:**
@@ -659,13 +659,13 @@ The CLI supports annotated source viewing:
 ```sh
 # Show uncovered lines with context
 clp uncovered app/models/order.rb \
-  --source uncovered \
-  --source-context 3
+  -s uncovered \
+  -c 3  # -s = --source, -c = --context-lines
 
 # Show full file with coverage annotations
 clp uncovered app/models/order.rb \
-  --source full \
-  --source-context 0
+  -s full \
+  -c 0
 ```
 
 **Programmatic Source Annotation:**

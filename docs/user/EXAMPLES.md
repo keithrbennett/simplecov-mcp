@@ -5,7 +5,7 @@
 Practical examples for common tasks with cov-loupe. Examples are organized by skill level and use case.
 
 > For brevity, these examples use `clp`, an alias to the demo fixture with partial coverage:
-> `alias clp='cov-loupe --root docs/fixtures/demo_project'`
+> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
 > Swap `clp` for `cov-loupe` to run against your own project and resultset.
 
 ## Table of Contents

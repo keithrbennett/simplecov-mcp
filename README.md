@@ -26,7 +26,7 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 ### Key Features
 
 - ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
-- **Annotated source code** - `--source full|uncovered` with `--context-lines N` for context lines
+- **Annotated source code** - `-s full|uncovered` / `--source full|uncovered` with `-c N` / `--context-lines N` for context lines
 - ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
 - ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
@@ -141,15 +141,15 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 `cov-loupe` automatically searches for `.resultset.json` in standard locations (`coverage/.resultset.json`, `.resultset.json`, `tmp/.resultset.json`). For non-standard locations:
 
 ```sh
-# Command-line option (highest priority)
-cov-loupe --resultset /path/to/your/coverage
+# Command-line option (highest priority) - use -r or --resultset
+cov-loupe -r /path/to/your/coverage
 
 # Environment variable (project-wide default)
-export COV_LOUPE_OPTS="--resultset /path/to/your/coverage"
+export COV_LOUPE_OPTS="-r /path/to/your/coverage"
 
 # MCP server configuration
 # Add to your MCP client config:
-# "args": ["--resultset", "/path/to/your/coverage"]
+# "args": ["-r", "/path/to/your/coverage"]
 ```
 
 See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
@@ -217,8 +217,8 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 ### CI/CD Integration
 
 ```sh
-# Fail build if coverage is stale
-cov-loupe --staleness error || exit 1
+# Fail build if coverage is stale (--staleness or -S)
+cov-loupe -S error || exit 1
 
 # Generate coverage report artifact
 cov-loupe -fJ list > artifacts/coverage.json

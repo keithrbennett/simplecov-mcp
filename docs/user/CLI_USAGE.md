@@ -5,7 +5,7 @@
 Complete reference for using cov-loupe from the command line.
 
 > Docs use `clp` as a shortcut pointing at the demo fixture with partial coverage:
-> `alias clp='cov-loupe --root docs/fixtures/demo_project'`
+> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
 > Replace `clp` with `cov-loupe` to run commands against your own project.
 
 ## Table of Contents
@@ -98,7 +98,7 @@ Show covered/total/percentage for a specific file.
 ```sh
 clp summary app/models/order.rb
 clp summary app/models/order.rb -fJ
-clp summary app/models/order.rb --source full
+clp summary app/models/order.rb -s full  # -s = --source
 ```
 
 **Arguments:**
@@ -138,8 +138,8 @@ Show uncovered line numbers for a specific file.
 
 ```sh
 clp uncovered app/controllers/orders_controller.rb
-clp uncovered app/controllers/orders_controller.rb --source uncovered
-clp uncovered app/controllers/orders_controller.rb --source uncovered --context-lines 3
+clp uncovered app/controllers/orders_controller.rb -s uncovered  # -s = --source
+clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --context-lines
 ```
 
 **Arguments:**
@@ -194,7 +194,7 @@ Show per-line coverage with hit counts.
 ```sh
 clp detailed app/models/order.rb
 clp detailed app/models/order.rb -fJ
-clp detailed app/models/order.rb --source full
+clp detailed app/models/order.rb -s full  # -s = --source
 ```
 
 **Arguments:**
@@ -304,8 +304,8 @@ Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
 ```
 
 **Notes:**
-- Respects `--tracked-globs` when you only want to aggregate a subset of files.
-- Honors `--staleness error` to raise if coverage data is out of date.
+- Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
+- Honors `-S error` / `--staleness error` to raise if coverage data is out of date.
 
 ### `version`
 
@@ -336,7 +336,7 @@ For a detailed explanation of how to configure the resultset location, including
 Project root directory (default: current directory).
 
 ```sh
-clp --root /path/to/project
+clp -R /path/to/project  # -R = --root
 ```
 
 ### `-fJ`
@@ -387,7 +387,7 @@ clp -s u uncovered lib/api/client.rb       # u = uncovered
 
 ### `-c, --context-lines N`
 
-Number of context lines around uncovered code (for `--source uncovered`). Must be a non-negative integer.
+Number of context lines around uncovered code (for `-s uncovered` / `--source uncovered`). Must be a non-negative integer.
 
 ```sh
 clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-lines
@@ -400,8 +400,8 @@ clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-li
 Enable or disable ANSI color codes in source output.
 
 ```sh
-clp uncovered lib/api/client.rb --source --color
-clp uncovered lib/api/client.rb --source --no-color
+clp uncovered lib/api/client.rb -s uncovered --color
+clp uncovered lib/api/client.rb -s uncovered --no-color
 ```
 
 **Default:** Colors enabled if output is a TTY
@@ -419,8 +419,8 @@ Staleness checking mode.
 
 ```sh
 # Exit with error if coverage is stale
-clp --staleness error
-clp -S e  # Short form
+clp -S error  # -S = --staleness
+clp -S e  # Short form with abbreviation
 ```
 
 **Staleness conditions:**
@@ -437,7 +437,7 @@ Comma-separated glob patterns for files that should be tracked.
 clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
-Used with `--staleness error` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
+Used with `-S error` / `--staleness error` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
 
 ### `-l, --log-file PATH`
 
@@ -509,7 +509,7 @@ bundle exec cov-loupe validate coverage_policy.rb
 clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 
 # With global options
-clp --resultset coverage validate -i '->(m) { m.all_files.size > 0 }'
+clp -r coverage validate -i '->(m) { m.all_files.size > 0 }'
 ```
 
 **Example predicate file:**
@@ -589,22 +589,22 @@ clp summary lib/api/client.rb  # Automatically uses options above
 # Environment sets -fJ; explicit CLI options still take precedence
 export COV_LOUPE_OPTS="-fJ"
 clp summary lib/api/client.rb  # Uses JSON (from env)
-clp summary lib/api/client.rb -fJ  # Explicit, same result
+clp summary lib/api/client.rb -f table  # Explicit override to table format
 ```
 
 **Examples:**
 ```sh
 # Default resultset location
-export COV_LOUPE_OPTS="--resultset build/coverage"
+export COV_LOUPE_OPTS="-r build/coverage"
 
 # Enable detailed error logging
 export COV_LOUPE_OPTS="--error-mode debug"
 
 # Paths with spaces
-export COV_LOUPE_OPTS='--resultset "/path with spaces/coverage"'
+export COV_LOUPE_OPTS='-r "/path with spaces/coverage"'
 
 # Multiple options
-export COV_LOUPE_OPTS="--resultset coverage --staleness error -fJ"
+export COV_LOUPE_OPTS="-r coverage -S error -fJ"
 ```
 
 
@@ -631,7 +631,7 @@ clp summary lib/payments/refund_service.rb
 clp uncovered lib/payments/refund_service.rb
 
 # View uncovered code in context
-clp uncovered lib/payments/refund_service.rb --source uncovered --context-lines 3
+clp uncovered lib/payments/refund_service.rb -s uncovered -c 3
 
 # Get detailed hit counts
 clp detailed lib/payments/refund_service.rb
@@ -687,10 +687,10 @@ clp -g "lib/payments/**/*.rb" list
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-clp --staleness error
+clp -S error
 
 # Check with specific file patterns
-clp --staleness error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+clp -S error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
 clp list  # Stale files marked with !
@@ -700,23 +700,23 @@ clp list  # Stale files marked with !
 
 ```sh
 # Show full source with coverage markers
-clp summary lib/api/client.rb --source full
+clp summary lib/api/client.rb -s full
 
 # Show only uncovered lines with context
-clp uncovered lib/api/client.rb --source uncovered
+clp uncovered lib/api/client.rb -s uncovered
 
 # More context around uncovered code
-clp uncovered lib/api/client.rb --source uncovered --context-lines 5
+clp uncovered lib/api/client.rb -s uncovered -c 5
 
 # Without colors (for logging)
-clp uncovered lib/api/client.rb --source full --no-color
+clp uncovered lib/api/client.rb -s full --no-color
 ```
 
 ### CI/CD Integration
 
 ```sh
 # Fail build if coverage is stale
-clp --staleness error || exit 1
+clp -S error || exit 1
 
 # Generate JSON report for artifact
 clp -fJ list > artifacts/coverage-report.json
@@ -731,8 +731,8 @@ clp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset
 # Verbose error output
 clp --error-mode debug summary lib/api/client.rb
 
-# Custom log file
-clp --log-file /tmp/simplecov-debug.log summary lib/api/client.rb
+# Custom log file (--log-file or -l)
+clp -l /tmp/simplecov-debug.log summary lib/api/client.rb
 
 # Check what resultset is being used
 clp --error-mode debug 2>&1 | grep resultset
@@ -741,7 +741,7 @@ clp --error-mode debug 2>&1 | grep resultset
 ## Exit Codes
 
 - `0` - Success
-- `1` - Error (file not found, coverage data missing, stale coverage with `--staleness error`, etc.)
+- `1` - Error (file not found, coverage data missing, stale coverage with `-S error` / `--staleness error`, etc.)
 
 ## Next Steps
 

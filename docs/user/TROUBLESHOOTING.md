@@ -41,19 +41,19 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
    ```
 2. If your coverage lives elsewhere, point the tools at it:
    ```bash
-   cov-loupe --resultset build/coverage/.resultset.json
+   cov-loupe -r build/coverage/.resultset.json  # -r = --resultset
    # or
-   export COV_LOUPE_OPTS="--resultset build/coverage"
+   export COV_LOUPE_OPTS="-r build/coverage"
    ```
 
 ### Stale Coverage Errors
 
-`--staleness error` (or `staleness: 'error'`) compares file mtimes and line counts to the coverage snapshot. When it fails:
+`--staleness error` (or `-S error`, or `staleness: 'error'`) compares file mtimes and line counts to the coverage snapshot. When it fails:
 
 - Regenerate coverage (`bundle exec rspec`) so the snapshot matches current sources.
-- Or drop back to warning-only behaviour using `--staleness off` / `staleness: 'off'`.
+- Or drop back to warning-only behaviour using `-S off` / `staleness: 'off'`.
 
-If you only care about a subset of files, supply `--tracked-globs` (CLI) or `tracked_globs:` (API) so new files outside those globs do not trigger staleness.
+If you only care about a subset of files, supply `-g` / `--tracked-globs` (CLI) or `tracked_globs:` (API) so new files outside those globs do not trigger staleness.
 
 ### "No coverage data found for file"
 
@@ -178,8 +178,8 @@ If the above doesn't solve your problem:
    # MCP server logs
    tail -50 cov_loupe.log
 
-   # Or specify custom log location
-   cov-loupe --log-file /tmp/debug.log summary lib/cov_loupe/cli.rb
+   # Or specify custom log location (--log-file or -l)
+   cov-loupe -l /tmp/debug.log summary lib/cov_loupe/cli.rb
    ```
 
 3. **Search existing issues:**
