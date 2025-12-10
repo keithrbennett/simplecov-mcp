@@ -3,8 +3,10 @@
 [Back to main README](../README.md)
 
 > Examples use `clp`, an alias pointed at the demo fixture with partial coverage:
-> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
-> Swap `clp` with `cov-loupe` if you want to target your own project/resultset.
+> 
+> `alias clp='cov-loupe -R docs/fixtures/demo_project' # (-R = --root_dir)`
+> 
+> Replace `clp` with `cov-loupe` if you want to target your own project/resultset.
 
 ## Table of Contents
 
@@ -47,25 +49,27 @@ The MCP server logs to `cov_loupe.log` in the current directory by default.
 
 To override the default log file location, specify the `--log-file` (or `-l`) argument wherever and however you configure your MCP server. For example, to log to a different file path, include `-l /path/to/logfile.log` in your server configuration. To log to standard error, use `-l stderr`.
 
-**Note:** Logging to `stdout` is not permitted in MCP mode.
+**Note:** Logging to `stdout` is not permitted in MCP mode since it would interfere with the request processing.
 
 ### Testing MCP Server Manually
 
-Use JSON-RPC over stdin to test the MCP server:
+Use JSON-RPC over stdin to test the MCP server. **Note:** CLI flags like `-R` do NOT affect MCP tool calls—you must pass configuration parameters (like `root`) in each JSON request.
 
 ```sh
-# Get version
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | clp
+# Get version (no parameters needed)
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
 
-# Get file summary
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb"}}}' | clp
+# Get file summary (include root parameter in JSON)
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 
-# List all files with sorting
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending"}}}' | clp
+# List all files with sorting (include root parameter)
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 
-# Get uncovered lines
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb"}}}' | clp
+# Get uncovered lines (include root parameter)
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 ```
+
+**Why not use `clp` alias here?** The `clp` alias (`cov-loupe -R docs/fixtures/demo_project`) sets the root for CLI subcommands, but the `-R` flag is ignored in MCP mode. Instead, pass `root` explicitly in the JSON arguments for each tool call.
 
 ---
 

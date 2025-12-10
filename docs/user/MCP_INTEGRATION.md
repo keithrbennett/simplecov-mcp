@@ -119,15 +119,39 @@ This decision was informed by discussions with multiple AI models. For more deta
 - [Perplexity AI Discussion](https://www.perplexity.ai/search/title-resolving-a-model-contex-IfpFWU1FR5WQXQ8HcQctyg#0)
 - [ChatGPT Discussion](https://chatgpt.com/share/68e4d7e1-cad4-800f-80c2-58b33bfc31cb)
 
+### CLI Options in MCP Mode
+
+When the MCP server starts, you can pass CLI options via the startup command. However, **most CLI options do NOT affect MCP tool calls**—they must be passed as JSON parameters in each tool request.
+
+| CLI Option | Affects MCP Server? | JSON Parameter | Notes |
+|------------|-------------------|----------------|-------|
+| `-R`, `--root` | ❌ No | `root` | Must pass in each tool call |
+| `-r`, `--resultset` | ❌ No | `resultset` | Must pass in each tool call |
+| `-S`, `--staleness` | ❌ No | `staleness` | Must pass in each tool call (`"off"` or `"error"`) |
+| `-g`, `--tracked-globs` | ❌ No | `tracked_globs` | Must pass as array in tool calls |
+| `--error-mode` | ✅ Yes | `error_mode` | Sets server-wide error handling; can override per tool |
+| `-l`, `--log-file` | ✅ Yes | N/A | Sets server log location (cannot override per tool) |
+| `-f`, `--format` | ❌ No | N/A | Not applicable to MCP (JSON-RPC only) |
+| `-o`, `--sort-order` | ❌ No | `sort_order` | Pass in tool calls (`"ascending"` or `"descending"`) |
+| `-s`, `--source` | ❌ No | N/A | Not applicable to MCP |
+| `-c`, `--context-lines` | ❌ No | N/A | Not applicable to MCP |
+| `--color`, `--no-color` | ❌ No | N/A | Not applicable to MCP |
+| `--force-cli` | N/A | N/A | Forces CLI mode (prevents MCP mode) |
+
+**Key Takeaways:**
+- **Server-level options** (`--error-mode`, `--log-file`): Set once when server starts, apply to all tool calls
+- **Tool-level options** (`root`, `resultset`, `staleness`, etc.): Must be passed in each JSON tool request
+- **CLI-only options** (`--format`, `--source`, etc.): Not applicable to MCP mode
+
 ### Common Parameters
 
-All file-specific tools accept these parameters:
+All file-specific tools accept these parameters in the JSON request:
 
 - `path` (required for file tools) - File path (relative or absolute)
 - `root` (optional) - Project root directory (default: `.`)
 - `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
 - `staleness` (optional) - Staleness mode: `"off"` (default) or `"error"`
-- `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"`
+- `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"` (overrides server-level setting)
 
 ### Tool Details
 
@@ -238,17 +262,23 @@ Using cov-loupe, create a markdown report of:
 Test the MCP server responds to JSON-RPC:
 
 ```sh
-# Test version tool (simplest)
-echo '''{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}''' | cov-loupe
+# Test version tool (simplest, no parameters needed)
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
 
-# Test summary tool
-echo '''{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}''' | cov-loupe
+# Test help tool (no parameters needed)
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | cov-loupe
 
-# Test help tool
-echo '''{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}''' | cov-loupe
+# Test summary tool (requires root parameter since -R flag doesn't work in MCP mode)
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb","root":"."}}}' | cov-loupe
+
+# Test with a project-specific root
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 ```
 
-**Important:** JSON-RPC messages must be on a single line. Multi-line JSON will cause parse errors.
+**Important Notes:**
+- JSON-RPC messages must be on a single line. Multi-line JSON will cause parse errors.
+- CLI flags like `-R` do NOT affect MCP tool calls—you must pass `root` in the JSON `arguments` object.
+- The `root` parameter is optional and defaults to `.` (current directory).
 
 ### Testing in AI Assistant
 
