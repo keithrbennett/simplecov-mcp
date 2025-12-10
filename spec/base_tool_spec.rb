@@ -59,4 +59,73 @@ RSpec.describe CovLoupe::BaseTool do
 
     it_behaves_like 'friendly response and logged'
   end
+
+  describe '.model_config_for' do
+    let(:defaults) do
+      { root: '.', resultset: nil, staleness: :off, tracked_globs: nil }
+    end
+
+    # Helper to mock AppContext with a specific config
+    def context_with_config(config_hash)
+      app_config = instance_double('AppConfig', model_options: config_hash)
+      instance_double('AppContext', app_config: app_config)
+    end
+
+    it 'uses defaults when no context or params are provided' do
+      config = described_class.model_config_for(server_context:
+        instance_double('AppContext', app_config: nil))
+      expect(config).to eq(defaults)
+    end
+
+    it 'uses app_config over defaults' do
+      cli_config = { root: '/cli/root', staleness: :error }
+      context = context_with_config(cli_config)
+
+      config = described_class.model_config_for(server_context: context)
+
+      expect(config[:root]).to eq('/cli/root')
+      expect(config[:staleness]).to eq(:error)
+      # resultset remains nil (default) if not in cli_config
+      expect(config[:resultset]).to be_nil
+    end
+
+    it 'uses explicit params over app_config' do
+      cli_config = { root: '/cli/root', staleness: :error }
+      context = context_with_config(cli_config)
+
+      # Pass explicit staleness: :off
+      config = described_class.model_config_for(
+        server_context: context,
+        staleness: :off
+      )
+
+      expect(config[:root]).to eq('/cli/root') # inherited from CLI
+      expect(config[:staleness]).to eq(:off)   # overridden by explicit
+    end
+
+    it 'uses explicit params over defaults when app_config is nil' do
+      context = instance_double('AppContext', app_config: nil)
+
+      config = described_class.model_config_for(
+        server_context: context,
+        root: '/explicit/root'
+      )
+
+      expect(config[:root]).to eq('/explicit/root')
+      expect(config[:staleness]).to eq(:off) # default
+    end
+
+    it 'ignores nil values in explicit params allowing fallbacks' do
+      cli_config = { root: '/cli/root' }
+      context = context_with_config(cli_config)
+
+      # explicit root is nil, should fallback to cli_config
+      config = described_class.model_config_for(
+        server_context: context,
+        root: nil
+      )
+
+      expect(config[:root]).to eq('/cli/root')
+    end
+  end
 end
