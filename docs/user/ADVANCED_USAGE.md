@@ -128,25 +128,26 @@ Detects system-wide staleness issues:
 3. **Deleted files** - Coverage exists for non-existent files
 
 **CLI Usage:**
-```sh
-# Track specific patterns
-clp -S error \
-  -g "lib/payments/**/*.rb" \
-  -g "lib/ops/jobs/**/*.rb"  # -S = --staleness, -g = --tracked-globs
 
-# Combine with JSON output for parsing
-clp -S error -fJ list > stale-check.json
+You can see if _any_ files in the project are stale by running the (implicit here) `list` command 
+in `-S error` mode and checking the exit code:
+
+```sh
+$ cov-loupe -S error 
+Coverage data stale (project): CovLoupe::CoverageDataProjectStaleError
+Coverage  - time: 2025-12-10T18:23:00Z (local 2025-12-11T02:23:00+08:00)
+Newer files (1):  - lib/cov_loupe/version.rb
+Resultset - /home/kbennett/code/cov-loupe/coverage/.resultset.json
+$ echo $?
+1
 ```
 
 **Ruby API:**
 ```ruby
-model = CovLoupe::CoverageModel.new(
-  staleness: 'error',
-  tracked_globs: ['lib/payments/**/*.rb', 'lib/ops/jobs/**/*.rb']
-)
+model = CovLoupe::CoverageModel.new(staleness: 'error')
 
 begin
-  files = model.all_files(check_stale: true)
+  model.all_files(check_stale: true)
 rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Newer files: #{e.newer_files.join(', ')}"
   puts "Missing from coverage: #{e.missing_files.join(', ')}"
@@ -156,20 +157,16 @@ end
 
 ### Staleness in CI/CD
 
-Staleness checking is particularly useful in CI/CD pipelines to ensure coverage data is fresh:
+The `-S error` flag causes the command to exit with a non-zero status when coverage is outdated,
+making it particularly useful in CI/CD pipelines to ensure coverage data is fresh:
 
 ```sh
 # Run tests to generate coverage
 bundle exec rspec
 
 # Validate coverage freshness (fails with exit code 1 if stale)
-clp -S error -g "lib/**/*.rb"
-
-# Export validated data for CI artifacts
-clp -fJ list > coverage.json
+clp -S error -g
 ```
-
-The `-S error` flag causes the command to exit with a non-zero status when coverage is outdated, making it suitable for pipeline failure conditions.
 
 ---
 
