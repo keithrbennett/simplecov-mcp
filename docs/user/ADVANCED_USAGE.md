@@ -15,7 +15,7 @@
 - [Advanced Path Resolution](#advanced-path-resolution)
 - [Error Handling Strategies](#error-handling-strategies)
 - [Custom Ruby Integration](#custom-ruby-integration)
-- [CI/CD Integration Patterns](#cicd-integration-patterns)
+- [CI/CD Integration](#cicd-integration)
 - [Advanced Filtering & Glob Patterns](#advanced-filtering--glob-patterns)
 - [Performance Optimization](#performance-optimization)
 - [Custom Output Processing](#custom-output-processing)
@@ -98,7 +98,7 @@ A file is considered stale when any of the following are true:
 
 **CLI Usage:**
 ```sh
-# Fail if any file is stale (option before subcommand)
+# Fail if the file is stale
 clp -S error summary app/models/order.rb  # -S = --staleness
 ```
 
@@ -153,19 +153,6 @@ rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Missing from coverage: #{e.missing_files.join(', ')}"
   puts "Deleted but in coverage: #{e.deleted_files.join(', ')}"
 end
-```
-
-### Staleness in CI/CD
-
-The `-S error` flag causes the command to exit with a non-zero status when coverage is outdated,
-making it particularly useful in CI/CD pipelines to ensure coverage data is fresh:
-
-```sh
-# Run tests to generate coverage
-bundle exec rspec
-
-# Validate coverage freshness (fails with exit code 1 if stale)
-clp -S error -g
 ```
 
 ---
@@ -277,7 +264,13 @@ cli = CovLoupe::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 
 ### Building Custom Coverage Policies
 
-Use the `validate` subcommand to enforce custom coverage policies in CI/CD. Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
+Use the `validate` subcommand to enforce custom coverage policies in CI/CD. 
+Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
+
+The predicate can be any Ruby object that responds to `call` and accepts a `CoverageModel`
+as its argument. This is usually a lambda (proc), but it can also be a nonlambda proc, a class,
+or an instance with a `call` method. The predicate should return a truthy value for success 
+or `false`/`nil` for failure.
 
 > **⚠️ SECURITY WARNING**
 >
