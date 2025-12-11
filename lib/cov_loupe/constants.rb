@@ -13,7 +13,6 @@ module CovLoupe
       -o --sort-order
       -s --source
       -c --context-lines
-      -S --staleness
       -g --tracked-globs
       -l --log-file
       --error-mode

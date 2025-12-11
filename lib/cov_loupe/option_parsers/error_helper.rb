@@ -92,7 +92,6 @@ module CovLoupe
 
       private def enumerated_option_rules
         [
-          { switches: ['-S', '--staleness'], values: %w[off o error e], display: 'o[ff]|e[rror]' },
           { switches: ['-s', '--source'], values: %w[full f uncovered u],
             display: 'f[ull]|u[ncovered]' },
           { switches: ['--error-mode'], values: %w[off o log l debug d],

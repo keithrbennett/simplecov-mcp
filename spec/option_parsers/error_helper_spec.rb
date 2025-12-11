@@ -3,11 +3,6 @@
 require 'spec_helper'
 
 OPTION_TESTS = {
-  staleness: {
-    long: '--staleness',
-    short: '-S',
-    pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
-  },
   source: {
     long: '--source',
     short: '-s',
@@ -86,13 +81,13 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         end
       end
 
-      context 'when handling --staleness option edge cases' do
+      context 'when handling --source option edge cases' do
         it 'suggests valid values when value is missing' do
-          error = OptionParser::InvalidArgument.new('missing argument: --staleness')
+          error = OptionParser::InvalidArgument.new('missing argument: --source')
           expect_error_output(
             error: error,
-            argv: ['--staleness'],
-            pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
+            argv: ['--source'],
+            pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
           )
         end
 
@@ -100,9 +95,22 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('invalid argument: --other')
           expect_error_output(
             error: error,
-            argv: ['--staleness', '--other-option'],
-            pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
+            argv: ['--source', '--other-option'],
+            pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
           )
+        end
+      end
+
+      context 'when handling raise-on-stale (boolean) option edge cases' do
+        let(:boolean_error) { OptionParser::InvalidOption.new('invalid option: --raise-on-stale=maybe') }
+
+        it 'does not suggest enum values for invalid boolean value' do
+          stderr_output = capture_stderr do
+            helper.handle_option_parser_error(boolean_error, argv: ['--raise-on-stale=maybe'])
+          end
+
+          expect(stderr_output).to include('invalid option')
+          expect(stderr_output).not_to match(/Valid values/)
         end
       end
     end
@@ -112,8 +120,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: bad')
         expect_error_output(
           error: error,
-          argv: ['--resultset', 'coverage', '--staleness', 'bad', '--format', 'json'],
-          pattern: /Valid values for --staleness: o\[ff\]|e\[rror\]/
+          argv: ['--resultset', 'coverage', '--source', 'bad', '--format', 'json'],
+          pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
         )
       end
 
@@ -162,7 +170,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
 
         stderr_output = capture_stderr do
           expect do
-            helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'])
+            helper.handle_option_parser_error(error, argv: ['--source', 'xyz'])
           end.to raise_error(SystemExit) do |e|
             expect(e.status).to eq(1)
           end
@@ -177,7 +185,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
         expect do
-          helper.handle_option_parser_error(error, argv: ['--staleness', 'xyz'],
+          helper.handle_option_parser_error(error, argv: ['--source', 'xyz'],
             usage_hint: 'Custom hint message')
         rescue SystemExit
           # Ignore exit call
@@ -212,7 +220,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
       error = OptionParser::MissingArgument.new('missing argument: --resultset')
 
       stderr_output = capture_stderr do
-        helper.handle_option_parser_error(error, argv: ['--staleness', 'off', '--resultset'])
+        helper.handle_option_parser_error(error, argv: ['--source', 'full', '--resultset'])
       end
 
       expect(stderr_output).to match(/Error:.*missing argument.*--resultset/)

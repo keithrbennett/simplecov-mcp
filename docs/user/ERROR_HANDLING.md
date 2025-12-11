@@ -72,9 +72,9 @@ end
 
 ## Stale Coverage Errors
 
-When strict staleness checking is enabled (`--staleness error`), the model (and CLI) raise a `CoverageDataStaleError` if a source file appears newer than the coverage data or the line counts differ.
+When strict staleness checking is enabled (`--raise-on-stale`), the model (and CLI) raise a `CoverageDataStaleError` if a source file appears newer than the coverage data or the line counts differ.
 
-- Enable per instance: `CovLoupe::CoverageModel.new(staleness: 'error')`
+- Enable per instance: `CovLoupe::CoverageModel.new(raise_on_stale: true)`
 
 The error message is detailed and includes:
 

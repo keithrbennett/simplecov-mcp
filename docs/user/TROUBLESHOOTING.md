@@ -48,10 +48,10 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
 
 ### Stale Coverage Errors
 
-`--staleness error` (or `-S error`, or `staleness: 'error'`) compares file mtimes and line counts to the coverage snapshot. When it fails:
+`--raise-on-stale` (or `-S`, or `raise_on_stale: true`) compares file mtimes and line counts to the coverage snapshot and raises if stale. When it fails:
 
 - Regenerate coverage (`bundle exec rspec`) so the snapshot matches current sources.
-- Or drop back to warning-only behaviour using `-S off` / `staleness: 'off'`.
+- Or drop back to warning-only behaviour using `--no-raise-on-stale` / `raise_on_stale: false`.
 
 If you only care about a subset of files, supply `-g` / `--tracked-globs` (CLI) or `tracked_globs:` (API) so new files outside those globs do not trigger staleness.
 

@@ -679,7 +679,7 @@ The `all_files` method returns a `'stale'` field for each file with one of these
 
 **Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `all_files` and filter the results.
 
-When `staleness: 'error'` mode is enabled in `CoverageModel.new`, the model will raise `CovLoupe::CoverageDataStaleError` exceptions when stale files are detected during method calls.
+When `raise_on_stale: true` is enabled in `CoverageModel.new`, the model will raise `CovLoupe::CoverageDataStaleError` exceptions when stale files are detected during method calls.
 
 ## API Stability
 

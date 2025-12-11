@@ -451,4 +451,35 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(lines_desc.index(foo_line_desc)).to be < lines_desc.index(bar_line_desc)
     end
   end
+
+  describe 'default tracked_globs' do
+    let(:tracked_globs) { ['lib/foo.rb'] }
+
+    it 'uses constructor tracked_globs when none are passed to all_files' do
+      model = described_class.new(root: root, tracked_globs: tracked_globs)
+      allow(model).to receive(:filter_rows_by_globs).and_call_original
+      stub_checker = instance_double(CovLoupe::StalenessChecker,
+        stale_for_file?: false, check_project!: true, off?: true)
+      allow(model).to receive(:build_staleness_checker).and_return(stub_checker)
+
+      model.all_files
+      expect(model).to have_received(:filter_rows_by_globs).with(anything, tracked_globs)
+    end
+
+    it 'uses constructor tracked_globs when none are passed to project_totals' do
+      model = described_class.new(root: root, tracked_globs: tracked_globs)
+      expect(model).to receive(:all_files).with(sort_order: :ascending,
+        raise_on_stale: false, tracked_globs: tracked_globs).and_call_original
+
+      model.project_totals
+    end
+
+    it 'uses constructor tracked_globs when none are passed to format_table' do
+      model = described_class.new(root: root, tracked_globs: tracked_globs)
+      allow(model).to receive(:prepare_rows).and_return([])
+      model.format_table
+      expect(model).to have_received(:prepare_rows).with(nil, sort_order: :descending,
+        raise_on_stale: false, tracked_globs: tracked_globs)
+    end
+  end
 end

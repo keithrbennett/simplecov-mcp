@@ -431,7 +431,7 @@ jobs:
 **Check for stale coverage:**
 ```yaml
       - name: Verify coverage is fresh
-        run: cov-loupe --staleness error || exit 1
+        run: cov-loupe --raise-on-stale list || exit 1
 ```
 
 ### GitLab CI
@@ -443,7 +443,7 @@ test:
     - gem install cov-loupe
   script:
     - bundle exec rspec
-    - cov-loupe --staleness error
+    - cov-loupe --raise-on-stale list
   artifacts:
     paths:
       - coverage/

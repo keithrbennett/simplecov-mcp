@@ -14,7 +14,7 @@ RSpec.describe CovLoupe::Constants do
       expect(options).to be_frozen
     end
 
-    it 'contains expected CLI options' do
+    it 'contains expected CLI options (no stale/raise-on-stale argument value)' do
       expected_options = %w[
         -r --resultset
         -R --root
@@ -22,7 +22,6 @@ RSpec.describe CovLoupe::Constants do
         -o --sort-order
         -s --source
         -c --context-lines
-        -S --staleness
         -g --tracked-globs
         -l --log-file
         --error-mode

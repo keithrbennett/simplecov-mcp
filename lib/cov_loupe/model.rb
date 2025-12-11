@@ -28,13 +28,14 @@ module CovLoupe
     def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
+      @default_tracked_globs = tracked_globs
       @relativizer = PathRelativizer.new(
         root: @root,
         scalar_keys: RELATIVIZER_SCALAR_KEYS,
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
 
-      load_coverage_data(resultset, raise_on_stale, tracked_globs)
+      load_coverage_data(resultset, raise_on_stale)
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -75,7 +76,7 @@ module CovLoupe
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
     def all_files(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
-      tracked_globs: nil)
+      tracked_globs: @default_tracked_globs)
       stale_checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
 
       rows = @cov.map do |abs_path, _data|
@@ -106,7 +107,9 @@ module CovLoupe
       sort_rows(rows, sort_order: sort_order)
     end
 
-    def project_totals(tracked_globs: nil, raise_on_stale: @default_raise_on_stale)
+    def project_totals(
+      tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
+    )
       rows = all_files(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       totals_from_rows(rows)
@@ -124,7 +127,7 @@ module CovLoupe
 
     # Returns formatted table string for all files coverage data
     def format_table(rows = nil, sort_order: :descending, raise_on_stale: @default_raise_on_stale,
-      tracked_globs: nil)
+      tracked_globs: @default_tracked_globs)
       rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       return 'No coverage data found' if rows.empty?
@@ -144,7 +147,7 @@ module CovLoupe
       lines.join("\n")
     end
 
-    private def load_coverage_data(resultset, raise_on_stale, _tracked_globs)
+    private def load_coverage_data(resultset, raise_on_stale)
       rs = CovUtil.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs)
       coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")

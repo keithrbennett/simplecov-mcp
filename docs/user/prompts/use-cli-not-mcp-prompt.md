@@ -34,7 +34,7 @@ Options:
     -c, --context-lines N            Context lines around uncovered lines (non-negative, default: 2)
         --color                      Enable ANSI colors for source output
         --no-color                   Disable ANSI colors
-    -S, --staleness MODE             Staleness detection: o[ff]|e[rror] (default off)
+    -S, --[no-]raise-on-stale        Raise an error when coverage is stale (default: false)
     -g, --tracked-globs x,y,z        Globs for filtering files (list/totals subcommands)
     -h, --help                       Show help
     -l, --log-file PATH              Log file path (default ./cov_loupe.log, use stdout/stderr for streams)

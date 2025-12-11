@@ -129,7 +129,7 @@ For more complex scenarios, you may prefer writing a standalone Ruby script that
 
 **Predicate approach is better when:**
 - Policy is simple and self-contained (most common use case)
-- You want the tool to handle option parsing (--resultset, --stale, etc.)
+- You want the tool to handle option parsing (--resultset, --raise-on-stale, etc.)
 - Consistent error handling and exit codes are desired
 - Less boilerplate is preferred
 
@@ -142,7 +142,7 @@ require 'httparty'  # External gem
 # Custom initialization
 model = CovLoupe::CoverageModel.new(
   resultset: ENV['COVERAGE_PATH'],
-  staleness: 'error'
+  raise_on_stale: true
 )
 
 # Complex logic with external API

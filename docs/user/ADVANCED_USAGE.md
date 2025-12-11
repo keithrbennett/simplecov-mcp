@@ -99,13 +99,13 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if the file is stale
-clp -S error summary app/models/order.rb  # -S = --staleness
+clp -S summary app/models/order.rb  # -S = --raise-on-stale
 ```
 
 **Ruby API:**
 ```ruby
 model = CovLoupe::CoverageModel.new(
-  staleness: 'error'
+  raise_on_stale: true
 )
 
 begin
@@ -129,11 +129,11 @@ Detects system-wide staleness issues:
 
 **CLI Usage:**
 
-You can see if _any_ files in the project are stale by running the (implicit here) `list` command 
-in `-S error` mode and checking the exit code:
+You can see if _any_ files in the project are stale by running the (implicit here) `list` command
+with `--raise-on-stale` and checking the exit code:
 
 ```sh
-$ cov-loupe -S error 
+$ cov-loupe -S list
 Coverage data stale (project): CovLoupe::CoverageDataProjectStaleError
 Coverage  - time: 2025-12-10T18:23:00Z (local 2025-12-11T02:23:00+08:00)
 Newer files (1):  - lib/cov_loupe/version.rb
@@ -144,10 +144,10 @@ $ echo $?
 
 **Ruby API:**
 ```ruby
-model = CovLoupe::CoverageModel.new(staleness: 'error')
+model = CovLoupe::CoverageModel.new(raise_on_stale: true)
 
 begin
-  model.all_files(check_stale: true)
+  model.all_files(raise_on_stale: true)
 rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Newer files: #{e.newer_files.join(', ')}"
   puts "Missing from coverage: #{e.missing_files.join(', ')}"

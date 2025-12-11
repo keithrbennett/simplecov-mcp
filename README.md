@@ -152,7 +152,7 @@ export COV_LOUPE_OPTS="-r /path/to/your/coverage"
 # "args": ["-r", "/path/to/your/coverage"]
 ```
 
-**MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `staleness: off`, etc.).
+**MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `raise_on_stale: false`, etc.).
 
 See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
 
@@ -219,8 +219,8 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 ### CI/CD Integration
 
 ```sh
-# Fail build if coverage is stale (--staleness or -S)
-cov-loupe -S error || exit 1
+# Fail build if coverage is stale (--raise-on-stale or -S)
+cov-loupe --raise-on-stale list || exit 1
 
 # Generate coverage report artifact
 cov-loupe -fJ list > artifacts/coverage.json
