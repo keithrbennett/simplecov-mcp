@@ -10,7 +10,7 @@ module CovLoupe
       description <<~DESC
         Validates coverage data against a predicate (Ruby code that evaluates to true/false).
         Use this to enforce coverage policies programmatically.
-        Inputs: Either 'code' (Ruby string) OR 'file' (path to Ruby file), plus optional root/resultset/staleness/error_mode.
+        Inputs: Either 'code' (Ruby string) OR 'file' (path to Ruby file), plus optional root/resultset/raise_on_stale/error_mode.
         Output: JSON object {"result": Boolean} where true means policy passed, false means failed.
         On error (syntax error, file not found, etc.), returns an MCP error response.
         Security Warning: Predicates execute as arbitrary Ruby code with full system privileges.
@@ -34,14 +34,14 @@ module CovLoupe
         }
       ))
       class << self
-        def call(code: nil, file: nil, root: nil, resultset: nil, staleness: nil,
+        def call(code: nil, file: nil, root: nil, resultset: nil, raise_on_stale: nil,
           error_mode: 'log', server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym
+              raise_on_stale: raise_on_stale
             )
             model = CoverageModel.new(**config)
 

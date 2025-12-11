@@ -9,7 +9,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   before do
     cli.config.root = root
     cli.config.resultset = 'coverage'
-    cli.config.staleness = :off
+    cli.config.raise_on_stale = false
     cli.config.tracked_globs = nil
   end
 

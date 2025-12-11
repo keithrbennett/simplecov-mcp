@@ -22,10 +22,10 @@ module CovLoupe
     # Params:
     # - root: project root directory (default '.')
     # - resultset: path or directory to .resultset.json
-    # - staleness: :off or :error (default :off). When :error, raises
+    # - raise_on_stale: boolean (default false). When true, raises
     #   stale errors if sources are newer than coverage or line counts mismatch.
     # - tracked_globs: only used for all_files project-level staleness.
-    def initialize(root: '.', resultset: nil, staleness: :off, tracked_globs: nil)
+    def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
       @relativizer = PathRelativizer.new(
@@ -34,12 +34,12 @@ module CovLoupe
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
 
-      load_coverage_data(resultset, staleness, tracked_globs)
+      load_coverage_data(resultset, raise_on_stale, tracked_globs)
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
-    def raw_for(path)
-      file_abs, coverage_lines = coverage_data_for(path)
+    def raw_for(path, raise_on_stale: @default_raise_on_stale)
+      file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       { 'file' => file_abs, 'lines' => coverage_lines }
     end
 
@@ -48,14 +48,14 @@ module CovLoupe
     end
 
     # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'percentage'=>} }
-    def summary_for(path)
-      file_abs, coverage_lines = coverage_data_for(path)
+    def summary_for(path, raise_on_stale: @default_raise_on_stale)
+      file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       { 'file' => file_abs, 'summary' => CovUtil.summary(coverage_lines) }
     end
 
     # Returns { 'file' => <absolute_path>, 'uncovered' => [line,...], 'summary' => {...} }
-    def uncovered_for(path)
-      file_abs, coverage_lines = coverage_data_for(path)
+    def uncovered_for(path, raise_on_stale: @default_raise_on_stale)
+      file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
         'file' => file_abs,
         'uncovered' => CovUtil.uncovered(coverage_lines),
@@ -64,8 +64,8 @@ module CovLoupe
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [{'line'=>,'hits'=>,'covered'=>},...], 'summary' => {...} }
-    def detailed_for(path)
-      file_abs, coverage_lines = coverage_data_for(path)
+    def detailed_for(path, raise_on_stale: @default_raise_on_stale)
+      file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
         'file' => file_abs,
         'lines' => CovUtil.detailed(coverage_lines),
@@ -74,8 +74,9 @@ module CovLoupe
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-    def all_files(sort_order: :descending, check_stale: !@checker.off?, tracked_globs: nil)
-      stale_checker = build_staleness_checker(mode: :off, tracked_globs: tracked_globs)
+    def all_files(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
+      tracked_globs: nil)
+      stale_checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
 
       rows = @cov.map do |abs_path, _data|
         begin
@@ -97,15 +98,16 @@ module CovLoupe
 
       rows = filter_rows_by_globs(rows, tracked_globs)
 
-      if check_stale
-        build_staleness_checker(mode: :error, tracked_globs: tracked_globs).check_project!(@cov)
+      if raise_on_stale
+        build_staleness_checker(raise_on_stale: true,
+          tracked_globs: tracked_globs).check_project!(@cov)
       end
 
       sort_rows(rows, sort_order: sort_order)
     end
 
-    def project_totals(tracked_globs: nil, check_stale: !@checker.off?)
-      rows = all_files(sort_order: :ascending, check_stale: check_stale,
+    def project_totals(tracked_globs: nil, raise_on_stale: @default_raise_on_stale)
+      rows = all_files(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       totals_from_rows(rows)
     end
@@ -113,16 +115,17 @@ module CovLoupe
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
       coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
-      @checker.stale_for_file?(file_abs, coverage_lines)
+      build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
+        .stale_for_file?(file_abs, coverage_lines)
     rescue => e
       CovUtil.safe_log("Failed to check staleness for #{path}: #{e.message}")
       false
     end
 
     # Returns formatted table string for all files coverage data
-    def format_table(rows = nil, sort_order: :descending, check_stale: !@checker.off?,
+    def format_table(rows = nil, sort_order: :descending, raise_on_stale: @default_raise_on_stale,
       tracked_globs: nil)
-      rows = prepare_rows(rows, sort_order: sort_order, check_stale: check_stale,
+      rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       return 'No coverage data found' if rows.empty?
 
@@ -141,40 +144,38 @@ module CovLoupe
       lines.join("\n")
     end
 
-    private def load_coverage_data(resultset, staleness, tracked_globs)
+    private def load_coverage_data(resultset, raise_on_stale, _tracked_globs)
       rs = CovUtil.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs)
       coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 
       @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
       @cov_timestamp = loaded.timestamp
+      @default_raise_on_stale = raise_on_stale
 
-      @checker = StalenessChecker.new(
-        root: @root,
-        resultset: @resultset,
-        mode: staleness,
-        tracked_globs: tracked_globs,
-        timestamp: @cov_timestamp
-      )
+      # We don't keep a persistent checker anymore, but we validate the
+      # params by building one once (or we could just rely on lazy creation).
+      # For now, we just store the default preference.
     rescue CovLoupe::Error
       raise # Re-raise our own errors as-is
     rescue => e
       raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
     end
 
-    private def build_staleness_checker(mode:, tracked_globs:)
+    private def build_staleness_checker(raise_on_stale:, tracked_globs:)
       StalenessChecker.new(
         root: @root,
         resultset: @resultset,
-        mode: mode,
+        mode: raise_on_stale ? :error : :off,
         tracked_globs: tracked_globs,
         timestamp: @cov_timestamp
       )
     end
 
-    private def prepare_rows(rows, sort_order:, check_stale:, tracked_globs:)
+    private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
       if rows.nil?
-        all_files(sort_order: sort_order, check_stale: check_stale, tracked_globs: tracked_globs)
+        all_files(sort_order: sort_order, raise_on_stale: raise_on_stale,
+          tracked_globs: tracked_globs)
       else
         rows = sort_rows(rows.dup, sort_order: sort_order)
         filter_rows_by_globs(rows, tracked_globs)
@@ -296,14 +297,17 @@ module CovLoupe
     # @raise [FileError] if no coverage data exists for the file
     # @raise [FileNotFoundError] if the file does not exist
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
-    private def coverage_data_for(path)
+    private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.absolute_path(path, @root)
       begin
         coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
       rescue RuntimeError
         raise FileError, "No coverage data found for file: #{path}"
       end
-      @checker.check_file!(file_abs, coverage_lines) unless @checker.off?
+
+      checker = build_staleness_checker(raise_on_stale: raise_on_stale, tracked_globs: nil)
+      checker.check_file!(file_abs, coverage_lines) unless checker.off?
+
       if coverage_lines.nil?
         raise FileError, "No coverage data found for file: #{path}"
       end

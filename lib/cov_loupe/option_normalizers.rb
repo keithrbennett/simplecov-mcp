@@ -18,13 +18,6 @@ module CovLoupe
       'uncovered' => :uncovered
     }.freeze
 
-    STALENESS_MAP = {
-      'o' => :off,
-      'off' => :off,
-      'e' => :error,
-      'error' => :error
-    }.freeze
-
     ERROR_MODE_MAP = {
       'off' => :off,
       'o' => :off,
@@ -64,19 +57,6 @@ module CovLoupe
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     module_function def normalize_source_mode(value, strict: true)
       normalized = SOURCE_MODE_MAP[value.to_s.downcase]
-      return normalized if normalized
-      raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
-
-      nil
-    end
-
-    # Normalize stale mode value.
-    # @param value [String, Symbol] The value to normalize
-    # @param strict [Boolean] If true, raises on invalid value; if false, returns nil
-    # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
-    # @raise [OptionParser::InvalidArgument] If strict and value is invalid
-    module_function def normalize_staleness(value, strict: true)
-      normalized = STALENESS_MAP[value.to_s.downcase]
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 

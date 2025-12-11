@@ -201,7 +201,7 @@ RSpec.describe CovLoupe::CoverageModel do
         .and_raise(Errno::ENOENT, 'No such file or directory')
 
       # Create a model with staleness checking enabled to trigger the check_file! call
-      stale_model = described_class.new(root: root, staleness: :error)
+      stale_model = described_class.new(root: root, raise_on_stale: true)
 
       expect do
         stale_model.summary_for('lib/foo.rb')

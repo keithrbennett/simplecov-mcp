@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
   it "raises stale error when staleness mode is 'error' and file is newer" do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
-      model = described_class.new(root: root, staleness: :error)
+      model = described_class.new(root: root, raise_on_stale: true)
       expect do
         model.summary_for('lib/foo.rb')
       end.to raise_error(CovLoupe::CoverageDataStaleError, /stale/i)
@@ -22,14 +22,14 @@ RSpec.describe CovLoupe::CoverageModel do
 
   it "does not check staleness when mode is 'off'" do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
-      model = described_class.new(root: root, staleness: :off)
+      model = described_class.new(root: root, raise_on_stale: false)
       expect { model.summary_for('lib/foo.rb') }.not_to raise_error
     end
   end
 
   it 'all_files raises project-level stale when any source file is newer than coverage' do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
-      model = described_class.new(root: root, staleness: :error)
+      model = described_class.new(root: root, raise_on_stale: true)
       expect { model.all_files }.to raise_error(CovLoupe::CoverageDataProjectStaleError)
     end
   end
@@ -39,7 +39,7 @@ RSpec.describe CovLoupe::CoverageModel do
       Tempfile.create(['brand_new_file', '.rb'], File.join(root, 'lib')) do |f|
         f.write("# new file\n")
         f.flush
-        model = described_class.new(root: root, staleness: :error)
+        model = described_class.new(root: root, raise_on_stale: true)
         expect do
           model.all_files(tracked_globs: ['lib/**/*.rb'])
         end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
@@ -52,7 +52,7 @@ RSpec.describe CovLoupe::CoverageModel do
       created_at = Time.new(2024, 7, 3, 16, 26, 40, '-07:00')
       mock_resultset_with_created_at(root, created_at.strftime('%Y-%m-%d %H:%M:%S %z'))
 
-      model = described_class.new(root: root, staleness: :off)
+      model = described_class.new(root: root, raise_on_stale: false)
 
       expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at.to_i)
     end
@@ -66,7 +66,7 @@ RSpec.describe CovLoupe::CoverageModel do
       }
       mock_resultset_with_created_at(root, created_at_time.iso8601, coverage: mismatched_coverage)
 
-      model = described_class.new(root: root, staleness: :error)
+      model = described_class.new(root: root, raise_on_stale: true)
 
       expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at_time.to_i)
       expect do

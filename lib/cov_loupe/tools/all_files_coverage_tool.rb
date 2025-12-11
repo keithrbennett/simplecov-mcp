@@ -10,7 +10,7 @@ module CovLoupe
       description <<~DESC
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
-        Inputs: optional project root, alternate .resultset path, sort order, staleness mode, and tracked_globs to alert on new files.
+        Inputs: optional project root, alternate .resultset path, sort order, raise_on_stale flag, and tracked_globs to alert on new files.
         Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}} sorted as requested. "stale" is a string ('M', 'T', 'L') or false.
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
@@ -27,26 +27,25 @@ module CovLoupe
         }
       ))
       class << self
-        def call(root: nil, resultset: nil, sort_order: nil, staleness: nil,
+        def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', server_context:)
           with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym,
+              raise_on_stale: raise_on_stale,
               tracked_globs: tracked_globs
             )
             model = CoverageModel.new(**config)
 
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = (sort_order || 'ascending').to_sym
-            staleness_sym = config[:staleness]
 
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,
               sort_order: sort_order_sym,
-              check_stale: (staleness_sym == :error),
+              raise_on_stale: config[:raise_on_stale],
               tracked_globs: config[:tracked_globs]
             )
             respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')

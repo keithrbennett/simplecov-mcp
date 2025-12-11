@@ -10,20 +10,20 @@ module CovLoupe
       description <<~DESC
         Use this when the user needs per-line coverage data for a single file.
         Do not use this for high-level counts; coverage.summary is cheaper for aggregate numbers.
-        Inputs: file path (required) plus optional root/resultset/staleness mode inherited from BaseTool.
+        Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
         Output: JSON object with "file", "lines" => [{"line": 12, "hits": 0, "covered": false}], plus "summary" with totals and "stale" status.
         Example: "Show detailed coverage for lib/cov_loupe/model.rb".
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: nil, resultset: nil, staleness: nil, error_mode: 'log',
+        def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
           with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym
+              raise_on_stale: raise_on_stale
             )
             model = CoverageModel.new(**config)
             presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)

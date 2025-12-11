@@ -4,12 +4,12 @@ module CovLoupe
   module Presenters
     # Provides repository-wide coverage summaries shared by CLI and MCP surfaces.
     class ProjectCoveragePresenter
-      attr_reader :model, :sort_order, :check_stale, :tracked_globs
+      attr_reader :model, :sort_order, :raise_on_stale, :tracked_globs
 
-      def initialize(model:, sort_order:, check_stale:, tracked_globs:)
+      def initialize(model:, sort_order:, raise_on_stale:, tracked_globs:)
         @model = model
         @sort_order = sort_order
-        @check_stale = check_stale
+        @raise_on_stale = raise_on_stale
         @tracked_globs = tracked_globs
       end
 
@@ -18,7 +18,7 @@ module CovLoupe
         @absolute_payload ||= begin
           files = model.all_files(
             sort_order: sort_order,
-            check_stale: check_stale,
+            raise_on_stale: raise_on_stale,
             tracked_globs: tracked_globs
           )
           { 'files' => files, 'counts' => build_counts(files) }

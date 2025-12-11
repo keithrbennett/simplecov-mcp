@@ -4,18 +4,18 @@ module CovLoupe
   module Presenters
     # Provides aggregated line totals and average coverage across the project.
     class ProjectTotalsPresenter
-      attr_reader :model, :check_stale, :tracked_globs
+      attr_reader :model, :raise_on_stale, :tracked_globs
 
-      def initialize(model:, check_stale:, tracked_globs:)
+      def initialize(model:, raise_on_stale:, tracked_globs:)
         @model = model
-        @check_stale = check_stale
+        @raise_on_stale = raise_on_stale
         @tracked_globs = tracked_globs
       end
 
       def absolute_payload
         @absolute_payload ||= model.project_totals(
           tracked_globs: tracked_globs,
-          check_stale: check_stale
+          raise_on_stale: raise_on_stale
         )
       end
 

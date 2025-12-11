@@ -62,7 +62,7 @@ RSpec.describe CovLoupe::BaseTool do
 
   describe '.model_config_for' do
     let(:defaults) do
-      { root: '.', resultset: nil, staleness: :off, tracked_globs: nil }
+      { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }
     end
 
     # Helper to mock AppContext with a specific config
@@ -78,29 +78,29 @@ RSpec.describe CovLoupe::BaseTool do
     end
 
     it 'uses app_config over defaults' do
-      cli_config = { root: '/cli/root', staleness: :error }
+      cli_config = { root: '/cli/root', raise_on_stale: true }
       context = context_with_config(cli_config)
 
       config = described_class.model_config_for(server_context: context)
 
       expect(config[:root]).to eq('/cli/root')
-      expect(config[:staleness]).to eq(:error)
+      expect(config[:raise_on_stale]).to be(true)
       # resultset remains nil (default) if not in cli_config
       expect(config[:resultset]).to be_nil
     end
 
     it 'uses explicit params over app_config' do
-      cli_config = { root: '/cli/root', staleness: :error }
+      cli_config = { root: '/cli/root', raise_on_stale: true }
       context = context_with_config(cli_config)
 
-      # Pass explicit staleness: :off
+      # Pass explicit raise_on_stale: false
       config = described_class.model_config_for(
         server_context: context,
-        staleness: :off
+        raise_on_stale: false
       )
 
       expect(config[:root]).to eq('/cli/root') # inherited from CLI
-      expect(config[:staleness]).to eq(:off)   # overridden by explicit
+      expect(config[:raise_on_stale]).to be(false)   # overridden by explicit
     end
 
     it 'uses explicit params over defaults when app_config is nil' do
@@ -112,7 +112,7 @@ RSpec.describe CovLoupe::BaseTool do
       )
 
       expect(config[:root]).to eq('/explicit/root')
-      expect(config[:staleness]).to eq(:off) # default
+      expect(config[:raise_on_stale]).to be(false) # default
     end
 
     it 'ignores nil values in explicit params allowing fallbacks' do

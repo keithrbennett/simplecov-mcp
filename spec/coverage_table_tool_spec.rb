@@ -11,9 +11,9 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     setup_mcp_response_stub
   end
 
-  def run_tool(staleness: :off)
+  def run_tool(raise_on_stale: false)
     # Let real CoverageModel work to test actual format_table behavior
-    described_class.call(root: root, staleness: staleness,
+    described_class.call(root: root, raise_on_stale: raise_on_stale,
       server_context: server_context).payload.first['text']
   end
 
@@ -41,17 +41,17 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     allow(CovLoupe::CoverageModel).to receive(:new).with(
       root: root,
       resultset: nil,
-      staleness: :error,
+      raise_on_stale: true,
       tracked_globs: nil
     ).and_return(model)
     allow(model).to receive(:format_table).and_return('Mock table output')
 
-    described_class.call(root: root, staleness: :error, server_context: server_context)
+    described_class.call(root: root, raise_on_stale: true, server_context: server_context)
 
     expect(CovLoupe::CoverageModel).to have_received(:new).with(
       root: root,
       resultset: nil,
-      staleness: :error,
+      raise_on_stale: true,
       tracked_globs: nil
     )
     expect(model).to have_received(:format_table)

@@ -127,7 +127,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 |------------|-------------------|----------------|-------|
 | `-R`, `--root` | ✅ Default | `root` | Request param overrides; CLI sets default |
 | `-r`, `--resultset` | ✅ Default | `resultset` | Request param overrides; CLI sets default |
-| `-S`, `--staleness` | ✅ Default | `staleness` | Request param overrides; CLI sets default (`"off"` or `"error"`) |
+| `-S`, `--raise-on-stale` | ✅ Default | `raise_on_stale` | Request param overrides; CLI sets default (`false` or `true`) |
 | `-g`, `--tracked-globs` | ✅ Default | `tracked_globs` | Request param overrides; CLI sets default (array) |
 | `--error-mode` | ✅ Yes | `error_mode` | Sets server-wide error handling; can override per tool |
 | `-l`, `--log-file` | ✅ Yes | N/A | Sets server log location (cannot override per tool) |
@@ -143,7 +143,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 - **Tool-level options** (`root`, `resultset`, `staleness`, `tracked_globs`): CLI args provide defaults; per-tool JSON params override when provided
 - **CLI-only options** (`--format`, `--source`, etc.): Not applicable to MCP mode
 
-**Precedence for MCP tool config:** `JSON request param` > `CLI args used to start MCP` (including `COV_LOUPE_OPTS`) > built-in defaults (`root: '.'`, `staleness: off`, `resultset: nil`, `tracked_globs: nil`).
+**Precedence for MCP tool config:** `JSON request param` > `CLI args used to start MCP` (including `COV_LOUPE_OPTS`) > built-in defaults (`root: '.'`, `raise_on_stale: false`, `resultset: nil`, `tracked_globs: nil`).
 
 CLI-only presentation flags (`-f/--format`, `-s/--source`, `-c/--context-lines`, `--color/--no-color`, and CLI `-o/--sort-order` defaults) never flow into MCP. Pass `sort_order` explicitly in each tool request when you need non-default ordering.
 
@@ -154,7 +154,7 @@ All file-specific tools accept these parameters in the JSON request:
 - `path` (required for file tools) - File path (relative or absolute)
 - `root` (optional) - Project root directory (default: `.`)
 - `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
-- `staleness` (optional) - Staleness mode: `"off"` (default) or `"error"`
+- `raise_on_stale` (optional) - Raise error on staleness: `false` (default) or `true`
 - `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"` (overrides server-level setting)
 
 ### Tool Details
@@ -190,7 +190,7 @@ These tools analyze individual files. All require `path` parameter.
 - Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
 
 **`coverage_totals_tool`** - Aggregated line totals
-- Parameters: `tracked_globs` (array), `staleness`
+- Parameters: `tracked_globs` (array), `raise_on_stale`
 - Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N}}`
 
 **`coverage_table_tool`** - Formatted ASCII table
@@ -200,7 +200,7 @@ These tools analyze individual files. All require `path` parameter.
 #### Policy Validation Tools
 
 **`validate_tool`** - Validate coverage against custom policies
-- Parameters: Either `code` (Ruby string) OR `file` (path to Ruby file), plus optional `root`, `resultset`, `staleness`, `error_mode`
+- Parameters: Either `code` (Ruby string) OR `file` (path to Ruby file), plus optional `root`, `resultset`, `raise_on_stale`, `error_mode`
 - Returns: `{"result": Boolean}` where `true` means policy passed, `false` means failed
 - Security Warning: Predicates execute as arbitrary Ruby code with full system privileges. Only use predicate files from trusted sources.
 - Examples:

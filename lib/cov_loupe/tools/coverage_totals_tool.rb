@@ -10,7 +10,7 @@ module CovLoupe
       description <<~DESC
         Use this when you want aggregated coverage counts for the entire project.
         It reports covered/total lines, uncovered line counts, and the overall average percentage.
-        Inputs: optional project root, alternate .resultset path, staleness mode, tracked_globs, and error mode.
+        Inputs: optional project root, alternate .resultset path, raise_on_stale flag, tracked_globs, and error mode.
         Output: JSON {"lines":{"total","covered","uncovered"},"percentage":Float,"files":{"total","ok","stale"}}.
         Example: "Give me total/covered/uncovered line counts and the overall coverage percent."
       DESC
@@ -22,22 +22,21 @@ module CovLoupe
       ))
 
       class << self
-        def call(root: nil, resultset: nil, staleness: nil, tracked_globs: nil,
+        def call(root: nil, resultset: nil, raise_on_stale: nil, tracked_globs: nil,
           error_mode: 'log', server_context:)
           with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym,
+              raise_on_stale: raise_on_stale,
               tracked_globs: tracked_globs
             )
             model = CoverageModel.new(**config)
 
-            staleness_sym = config[:staleness]
             presenter = Presenters::ProjectTotalsPresenter.new(
               model: model,
-              check_stale: (staleness_sym == :error),
+              raise_on_stale: config[:raise_on_stale],
               tracked_globs: config[:tracked_globs]
             )
             respond_json(presenter.relativized_payload, name: 'coverage_totals.json', pretty: true)

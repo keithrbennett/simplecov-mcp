@@ -67,7 +67,7 @@ Default sort order is descending (highest coverage first) so the lowest-coverage
 |---------|--------------------------|-------------------------------------------------------|
 | `-o`    | `--sort-order`           | Sort by coverage percentage (ascending or descending) |
 | `-g`    | `--tracked-globs`        | Filter to specific file patterns                      |
-| `-S`    | `--staleness`            | Staleness checking mode (off or error)                |
+| `-S`    | `--raise-on-stale`       | Raise error if coverage is stale (default false)      |
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                         |
 | `-fj`   | `--format json`          | Output as single-line JSON                            |
 | `-f y`  | `--format yaml`          | Output as YAML                                        |
@@ -305,7 +305,7 @@ Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
 
 **Notes:**
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
-- Honors `-S error` / `--staleness error` to raise if coverage data is out of date.
+- Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
 
 ### `version`
 
@@ -406,21 +406,20 @@ clp uncovered lib/api/client.rb -s uncovered --no-color
 
 **Default:** Colors enabled if output is a TTY
 
-### `-S, --staleness MODE`
+### `-S, --[no-]raise-on-stale`
 
-Staleness checking mode.
+Raise error if coverage is stale. Default is `false` (only report staleness in output).
 
-**Modes:**
-
-| Short | Long    | Description                                              |
-|-------|---------|----------------------------------------------------------|
-| `o`   | `off`   | Detect and mark stale files, but don't raise error (default) |
-| `e`   | `error` | Detect stale files and raise error                       |
+*   Use `--raise-on-stale` or `-S` to enable (set to `true`).
+*   Use `--no-raise-on-stale` to explicitly disable (set to `false`).
 
 ```sh
-# Exit with error if coverage is stale
-clp -S error  # -S = --staleness
-clp -S e  # Short form with abbreviation
+# Enable raising an error if coverage is stale
+clp -S              # Short form
+clp --raise-on-stale
+
+# Explicitly disable raising an error (useful to override COV_LOUPE_OPTS)
+clp --no-raise-on-stale
 ```
 
 **Staleness conditions:**
@@ -437,7 +436,7 @@ Comma-separated glob patterns for files that should be tracked.
 clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
 ```
 
-Used with `-S error` / `--staleness error` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
+Used with `-S` / `--raise-on-stale` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
 
 ### `-l, --log-file PATH`
 
@@ -604,7 +603,7 @@ export COV_LOUPE_OPTS="--error-mode debug"
 export COV_LOUPE_OPTS='-r "/path with spaces/coverage"'
 
 # Multiple options
-export COV_LOUPE_OPTS="-r coverage -S error -fJ"
+export COV_LOUPE_OPTS="-r coverage -S -fJ"
 ```
 
 
@@ -687,10 +686,10 @@ clp -g "lib/payments/**/*.rb" list
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-clp -S error
+clp -S
 
 # Check with specific file patterns
-clp -S error -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+clp -S -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
 clp list  # Stale files marked with !
@@ -716,7 +715,7 @@ clp uncovered lib/api/client.rb -s full --no-color
 
 ```sh
 # Fail build if coverage is stale
-clp -S error || exit 1
+clp -S || exit 1
 
 # Generate JSON report for artifact
 clp -fJ list > artifacts/coverage-report.json
@@ -741,7 +740,7 @@ clp --error-mode debug 2>&1 | grep resultset
 ## Exit Codes
 
 - `0` - Success
-- `1` - Error (file not found, coverage data missing, stale coverage with `-S error` / `--staleness error`, etc.)
+- `1` - Error (file not found, coverage data missing, stale coverage with `-S` / `--raise-on-stale`, etc.)
 
 ## Next Steps
 

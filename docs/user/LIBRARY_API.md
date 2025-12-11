@@ -21,7 +21,7 @@ require "cov_loupe"
 # Defaults (omit args; shown here with comments):
 # - root: "."
 # - resultset: resolved from common paths under root
-# - staleness: "off" (no stale checks)
+# - raise_on_stale: false (don't raise on stale data)
 # - tracked_globs: nil (no project-level file-set checks)
 model = CovLoupe::CoverageModel.new
 
@@ -29,7 +29,7 @@ model = CovLoupe::CoverageModel.new
 model = CovLoupe::CoverageModel.new(
   root: File.join(Dir.home, 'project'),    # non-default project root
   resultset: "build/coverage",             # file or directory containing .resultset.json
-  staleness: "error",                      # enable stale checks (raise on stale)
+  raise_on_stale: true,                    # enable strict staleness checks (raise on stale)
   tracked_globs: ["lib/**/*.rb"]           # for 'all_files' staleness: flag new/missing files
 )
 
@@ -44,12 +44,14 @@ raw = model.raw_for("lib/foo.rb")
 
 ## Method Reference
 
-### `all_files(sort_order: :descending)`
+### `all_files(sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
 
 Returns coverage summary for all files in the resultset.
 
 **Parameters:**
 - `sort_order` (Symbol, optional): `:descending` (default) or `:ascending` by coverage percentage
+- `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
+- `tracked_globs` (Array<String>, optional): Patterns to filter files (also used for staleness checks)
 
 **Returns:** `Array<Hash>` - See [all_files return type](#all_files)
 
@@ -60,6 +62,9 @@ files = model.all_files
 
 # Get worst coverage first
 worst_files = model.all_files(sort_order: :ascending).first(10)
+
+# Force staleness check
+model.all_files(raise_on_stale: true)
 ```
 
 ### `summary_for(path)`
@@ -130,13 +135,15 @@ raw = model.raw_for("lib/foo.rb")
 # => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
 ```
 
-### `format_table(rows = nil, sort_order: :descending)`
+### `format_table(rows = nil, sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
 
 Generates formatted ASCII table string.
 
 **Parameters:**
 - `rows` (Array<Hash>, optional): Custom row data; defaults to `all_files`
 - `sort_order` (Symbol, optional): `:descending` (default) or `:ascending`
+- `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
+- `tracked_globs` (Array<String>, optional): Patterns to filter files.
 
 **Returns:** `String` - Formatted table with Unicode borders
 
@@ -152,12 +159,13 @@ lib_table = model.format_table(lib_files, sort_order: :descending)
 puts lib_table
 ```
 
-### `project_totals(tracked_globs: nil)`
+### `project_totals(tracked_globs: nil, raise_on_stale: nil)`
 
 Returns aggregated coverage totals across all files.
 
 **Parameters:**
 - `tracked_globs` (Array<String> or String, optional): Glob patterns to filter files
+- `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
 
 **Returns:** `Hash` - See [project_totals return type](#project_totals)
 
@@ -303,7 +311,7 @@ The library raises these custom exceptions:
 
 - **`CovLoupe::ResultsetNotFoundError`** - Coverage data file not found
 - **`CovLoupe::FileError`** - Requested file not in coverage data
-- **`CovLoupe::CoverageDataStaleError`** - Coverage data is stale (only when `staleness: 'error'`)
+- **`CovLoupe::CoverageDataStaleError`** - Coverage data is stale (only when `raise_on_stale: true`)
 - **`CovLoupe::CoverageDataError`** - Invalid coverage data format or structure
 
 All exceptions inherit from `CovLoupe::Error`.
@@ -331,7 +339,7 @@ end
 
 ```ruby
 # Option 1: Check staleness without raising
-model = CovLoupe::CoverageModel.new(staleness: "off")
+model = CovLoupe::CoverageModel.new(raise_on_stale: false)
 files = model.all_files
 
 stale_files = files.select { |f| f['stale'] }
@@ -344,7 +352,7 @@ end
 
 # Option 2: Raise on staleness
 begin
-  model = CovLoupe::CoverageModel.new(staleness: "error")
+  model = CovLoupe::CoverageModel.new(raise_on_stale: true)
   files = model.all_files
 rescue CovLoupe::CoverageDataStaleError => e
   puts "Stale coverage detected: #{e.message}"
@@ -676,8 +684,11 @@ When `staleness: 'error'` mode is enabled in `CoverageModel.new`, the model will
 ## API Stability
 
 Consider the following public and stable under SemVer:
-- `CovLoupe::CoverageModel.new(root:, resultset:, staleness: 'off', tracked_globs: nil)`
-- `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`, `#all_files(sort_order:)`, `#format_table(rows: nil, sort_order:, check_stale:, tracked_globs:)`
+- `CovLoupe::CoverageModel.new(root:, resultset:, raise_on_stale: false, tracked_globs: nil)`
+- `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`
+- `#all_files(sort_order:, raise_on_stale:, tracked_globs:)`
+- `#format_table(rows: nil, sort_order:, raise_on_stale:, tracked_globs:)`
+- `#project_totals(tracked_globs:, raise_on_stale:)`
 - Return shapes shown in the [Return Types](#return-types) section
 - Exception types documented in [Error Handling](#error-handling)
 

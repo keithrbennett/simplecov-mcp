@@ -74,38 +74,6 @@ RSpec.describe CovLoupe::OptionNormalizers do
     end
   end
 
-  describe '.normalize_staleness' do
-    context 'with strict mode (default)' do
-      [
-        ['o', :off],
-        ['off', :off],
-        ['e', :error],
-        ['error', :error],
-        ['OFF', :off],
-        ['Error', :error]
-      ].each do |input, expected|
-        it "normalizes '#{input}' to #{expected}" do
-          expect(described_class.normalize_staleness(input)).to eq(expected)
-        end
-      end
-
-      it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_staleness('invalid') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
-      end
-    end
-
-    context 'with strict: false' do
-      it 'returns nil for invalid values' do
-        expect(described_class.normalize_staleness('invalid', strict: false)).to be_nil
-      end
-
-      it 'still normalizes valid values' do
-        expect(described_class.normalize_staleness('e', strict: false)).to eq(:error)
-      end
-    end
-  end
-
   describe '.normalize_error_mode' do
     context 'with strict mode (default)' do
       [
@@ -193,7 +161,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
   end
 
   describe 'constant maps' do
-    [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :STALENESS_MAP, :ERROR_MODE_MAP,
+    [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :ERROR_MODE_MAP,
      :FORMAT_MAP].each do |const|
       it "has frozen #{const}" do
         expect(described_class.const_get(const)).to be_frozen

@@ -14,7 +14,7 @@ module CovLoupe
 
         presenter = Presenters::ProjectTotalsPresenter.new(
           model: model,
-          check_stale: (config.staleness == :error),
+          raise_on_stale: config.raise_on_stale,
           tracked_globs: config.tracked_globs
         )
         payload = presenter.absolute_payload

@@ -7,14 +7,14 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
     described_class.new(
       model: model,
       sort_order: sort_order,
-      check_stale: check_stale,
+      raise_on_stale: raise_on_stale,
       tracked_globs: tracked_globs
     )
   end
 
   let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:sort_order) { :ascending }
-  let(:check_stale) { true }
+  let(:raise_on_stale) { true }
   let(:tracked_globs) { ['lib/**/*.rb'] }
   let(:files) do
     [
@@ -37,7 +37,7 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
 
 
   before do
-    allow(model).to receive(:all_files).with(sort_order: sort_order, check_stale: check_stale,
+    allow(model).to receive(:all_files).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
       tracked_globs: tracked_globs).and_return(files)
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(

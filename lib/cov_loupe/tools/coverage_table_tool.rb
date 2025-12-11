@@ -10,7 +10,7 @@ module CovLoupe
       description <<~DESC
         Use this when a user wants the plain text coverage table exactly like `cov-loupe --table` would print (no ANSI colors).
         Do not use this for machine-readable data; coverage.all_files returns structured JSON.
-        Inputs: optional project root/resultset path/sort order/staleness mode matching the CLI flags.
+        Inputs: optional project root/resultset path/sort order/raise_on_stale flag matching the CLI flags.
         Output: text block containing the formatted coverage table with headers and percentages.
         Example: "Show me the CLI coverage table sorted descending".
       DESC
@@ -26,25 +26,24 @@ module CovLoupe
         }
       ))
       class << self
-        def call(root: nil, resultset: nil, sort_order: nil, staleness: nil,
+        def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', server_context:)
           with_error_handling('CoverageTableTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym,
+              raise_on_stale: raise_on_stale,
               tracked_globs: tracked_globs
             )
             model = CoverageModel.new(**config)
 
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = (sort_order || 'ascending').to_sym
-            staleness_sym = config[:staleness]
 
             table = model.format_table(
               sort_order: sort_order_sym,
-              check_stale: (staleness_sym == :error),
+              raise_on_stale: config[:raise_on_stale],
               tracked_globs: config[:tracked_globs]
             )
             # Return text response

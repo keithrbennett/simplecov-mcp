@@ -6,7 +6,7 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   subject(:presenter) do
     described_class.new(
       model: model,
-      check_stale: true,
+      raise_on_stale: true,
       tracked_globs: ['lib/**/*.rb']
     )
   end
@@ -22,15 +22,15 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
 
   before do
     allow(model).to receive(:project_totals)
-      .with(tracked_globs: ['lib/**/*.rb'], check_stale: true)
+      .with(tracked_globs: ['lib/**/*.rb'], raise_on_stale: true)
       .and_return(raw_totals)
     allow(model).to receive(:relativize) { |payload| payload }
   end
 
   describe '#initialize' do
-    it 'stores the model, check_stale, and tracked_globs options' do
+    it 'stores the model, raise_on_stale, and tracked_globs options' do
       expect(presenter.model).to eq(model)
-      expect(presenter.check_stale).to be(true)
+      expect(presenter.raise_on_stale).to be(true)
       expect(presenter.tracked_globs).to eq(['lib/**/*.rb'])
     end
   end
@@ -56,7 +56,7 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
       presenter.absolute_payload
 
       expect(model).to have_received(:project_totals)
-        .with(tracked_globs: ['lib/**/*.rb'], check_stale: true)
+        .with(tracked_globs: ['lib/**/*.rb'], raise_on_stale: true)
     end
   end
 
@@ -81,26 +81,26 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
     end
   end
 
-  context 'with check_stale: false' do
+  context 'with raise_on_stale: false' do
     subject(:presenter) do
       described_class.new(
         model: model,
-        check_stale: false,
+        raise_on_stale: false,
         tracked_globs: nil
       )
     end
 
     before do
       allow(model).to receive(:project_totals)
-        .with(tracked_globs: nil, check_stale: false)
+        .with(tracked_globs: nil, raise_on_stale: false)
         .and_return(raw_totals)
     end
 
-    it 'passes check_stale: false to the model' do
+    it 'passes raise_on_stale: false to the model' do
       presenter.absolute_payload
 
       expect(model).to have_received(:project_totals)
-        .with(tracked_globs: nil, check_stale: false)
+        .with(tracked_globs: nil, raise_on_stale: false)
     end
   end
 
@@ -108,14 +108,14 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
     subject(:presenter) do
       described_class.new(
         model: model,
-        check_stale: true,
+        raise_on_stale: true,
         tracked_globs: []
       )
     end
 
     before do
       allow(model).to receive(:project_totals)
-        .with(tracked_globs: [], check_stale: true)
+        .with(tracked_globs: [], raise_on_stale: true)
         .and_return(raw_totals)
     end
 
@@ -123,7 +123,7 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
       presenter.absolute_payload
 
       expect(model).to have_received(:project_totals)
-        .with(tracked_globs: [], check_stale: true)
+        .with(tracked_globs: [], raise_on_stale: true)
     end
   end
 

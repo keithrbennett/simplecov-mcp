@@ -81,9 +81,10 @@ module CovLoupe
       end
       parser.on('--color', 'Enable ANSI colors for source output') { config.color = true }
       parser.on('--no-color', 'Disable ANSI colors') { config.color = false }
-      parser.on('-S', '--staleness MODE', String,
-        'Staleness detection: o[ff]|e[rror] (default off)') do |value|
-        config.staleness = normalize_staleness(value)
+      parser.on('-S', '--[no-]raise-on-stale',
+        'Raise error if coverage is stale (default false). Use --raise-on-stale for true, ' \
+        '--no-raise-on-stale for false.') do |value|
+        config.raise_on_stale = value
       end
       parser.on('-g', '--tracked-globs x,y,z', Array,
         'Globs for filtering files (list/totals subcommands)') do |value|
@@ -130,10 +131,6 @@ module CovLoupe
 
     private def normalize_source_mode(value)
       OptionNormalizers.normalize_source_mode(value, strict: true)
-    end
-
-    private def normalize_staleness(value)
-      OptionNormalizers.normalize_staleness(value, strict: true)
     end
 
     private def normalize_error_mode(value)

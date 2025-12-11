@@ -10,20 +10,20 @@ module CovLoupe
       description <<~DESC
         Use this when the user wants to know which lines in a file still lack coverage.
         Do not use this for overall percentages; coverage.summary is faster when counts are enough.
-        Inputs: file path (required) plus optional root/resultset/staleness mode inherited from BaseTool.
+        Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
         Output: JSON object with keys "file", "uncovered" (array of integers), "summary" {"covered","total","percentage"}, and "stale" status.
         Example: "List uncovered lines for lib/cov_loupe/tools/coverage_summary_tool.rb".
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: nil, resultset: nil, staleness: nil, error_mode: 'log',
+        def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
           with_error_handling('UncoveredLinesTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym
+              raise_on_stale: raise_on_stale
             )
             model = CoverageModel.new(**config)
             presenter = Presenters::CoverageUncoveredPresenter.new(model: model, path: path)

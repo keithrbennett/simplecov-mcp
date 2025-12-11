@@ -10,20 +10,20 @@ module CovLoupe
       description <<~DESC
         Use this when the user asks for the covered/total line counts and percentage for a specific file.
         Do not use this for multi-file reports; coverage.all_files or coverage.table handle those.
-        Inputs: file path (required) plus optional root/resultset/staleness mode inherited from BaseTool.
+        Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
         Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "percentage": Float}, "stale": String|False}.
         Examples: "What is the coverage for lib/cov_loupe/tools/all_files_coverage_tool.rb?".
       DESC
       input_schema(**input_schema_def)
       class << self
-        def call(path:, root: nil, resultset: nil, staleness: nil, error_mode: 'log',
+        def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
           with_error_handling('CoverageSummaryTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
               resultset: resultset,
-              staleness: staleness&.to_sym
+              raise_on_stale: raise_on_stale
             )
             model = CoverageModel.new(**config)
             presenter = Presenters::CoverageSummaryPresenter.new(model: model, path: path)

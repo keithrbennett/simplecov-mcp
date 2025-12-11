@@ -11,7 +11,7 @@ RSpec.describe CovLoupe do
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
         File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] } # 2 entries vs 3 lines in source
       })
-      model = described_class.new(root: root, resultset: 'coverage', staleness: :error)
+      model = described_class.new(root: root, resultset: 'coverage', raise_on_stale: true)
       # bar.rb has 2 coverage entries but 3 source lines in fixtures
       expect do
         model.summary_for('lib/bar.rb')

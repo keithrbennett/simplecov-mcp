@@ -23,7 +23,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       f.write("# new file\n")
       f.flush
       _out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', '--staleness', 'error', '--tracked-globs',
+        '--root', root, '--resultset', 'coverage', '--raise-on-stale', '--tracked-globs',
         'lib/**/*.rb', 'list'
       )
       expect(status).to eq(1)
@@ -33,7 +33,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'list with stale=off prints table and exits 0' do
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--staleness', 'off', 'list'
+      '--root', root, '--resultset', 'coverage', '--no-raise-on-stale', 'list'
     )
     expect(status).to eq(0)
     expect(err).to eq('')

@@ -11,7 +11,7 @@ RSpec.describe CovLoupe::AppConfig do
       expect(config.sort_order).to eq(:descending)
       expect(config.source_context).to eq(2)
       expect(config.error_mode).to eq(:log)
-      expect(config.staleness).to eq(:off)
+      expect(config.raise_on_stale).to be(false)
       expect(config.resultset).to be_nil
       expect(config.source_mode).to be_nil
       expect(config.tracked_globs).to be_nil
@@ -23,12 +23,12 @@ RSpec.describe CovLoupe::AppConfig do
         root: '/custom',
         format: :json,
         sort_order: :descending,
-        staleness: :error
+        raise_on_stale: true
       )
       expect(config.root).to eq('/custom')
       expect(config.format).to eq(:json)
       expect(config.sort_order).to eq(:descending)
-      expect(config.staleness).to eq(:error)
+      expect(config.raise_on_stale).to be(true)
     end
 
     it 'is mutable (struct fields can be changed)' do
@@ -45,7 +45,7 @@ RSpec.describe CovLoupe::AppConfig do
       config = described_class.new(
         root: '/custom/root',
         resultset: '/custom/.resultset.json',
-        staleness: :error,
+        raise_on_stale: true,
         tracked_globs: ['lib/**/*.rb']
       )
 
@@ -53,7 +53,7 @@ RSpec.describe CovLoupe::AppConfig do
       expect(options).to eq({
         root: '/custom/root',
         resultset: '/custom/.resultset.json',
-        staleness: :error,
+        raise_on_stale: true,
         tracked_globs: ['lib/**/*.rb']
       })
     end
@@ -63,7 +63,7 @@ RSpec.describe CovLoupe::AppConfig do
       options = config.model_options
       expect(options[:root]).to eq('.')
       expect(options[:resultset]).to be_nil
-      expect(options[:staleness]).to eq(:off)
+      expect(options[:raise_on_stale]).to be(false)
       expect(options[:tracked_globs]).to be_nil
     end
   end
@@ -119,12 +119,6 @@ RSpec.describe CovLoupe::AppConfig do
       config = described_class.new(sort_order: :descending)
       expect(config.sort_order).to eq(:descending)
       expect(config.sort_order).to be_a(Symbol)
-    end
-
-    it 'uses symbols for staleness' do
-      config = described_class.new(staleness: :error)
-      expect(config.staleness).to eq(:error)
-      expect(config.staleness).to be_a(Symbol)
     end
 
     it 'uses symbols for error_mode' do

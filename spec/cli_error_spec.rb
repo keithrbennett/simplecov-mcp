@@ -60,7 +60,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--staleness', 'error', 'summary', 'lib/foo.rb')
+      '--raise-on-stale', 'summary', 'lib/foo.rb')
     expect(status).to eq(1)
     expect(err).to include('Coverage data stale:')
     expect(err).to match(/File\s+- time:/)
@@ -69,13 +69,13 @@ RSpec.describe CovLoupe::CoverageCLI do
     expect(err).to match('Resultset\s+-')
   end
 
-  it 'honors --no-strict-staleness to disable checks' do
+  it 'honors --no-raise-on-stale to disable checks' do
     mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--staleness', 'off', 'summary', 'lib/foo.rb')
+      '--no-raise-on-stale', 'summary', 'lib/foo.rb')
     expect(status).to eq(0)
     expect(err).to eq('')
   end
@@ -146,13 +146,13 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
 
     it 'reports invalid enum value for --opt=value' do
-      _out, err, status = run_cli_with_status('--staleness=bogus', 'list')
+      _out, err, status = run_cli_with_status('--error-mode=bogus', 'list')
       expect(status).to eq(1)
-      expect(err).to include('invalid argument: --staleness=bogus')
+      expect(err).to include('invalid argument: --error-mode=bogus')
     end
 
     it 'reports invalid enum value for --opt value' do
-      _out, err, status = run_cli_with_status('--staleness', 'bogus', 'list')
+      _out, err, status = run_cli_with_status('--error-mode', 'bogus', 'list')
       expect(status).to eq(1)
       expect(err).to include('invalid argument: bogus')
     end

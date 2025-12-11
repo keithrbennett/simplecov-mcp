@@ -241,7 +241,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
       # Should not raise, just skip the problematic file
-      result = model.all_files(check_stale: false)
+      result = model.all_files(raise_on_stale: false)
 
       # The result should contain bar.rb but not foo.rb
       file_names = result.map { |r| File.basename(r['file']) }

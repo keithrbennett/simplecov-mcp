@@ -12,7 +12,7 @@ module CovLoupe
     :source_context,
     :color,
     :error_mode,
-    :staleness,
+    :raise_on_stale,
     :tracked_globs,
     :log_file,
     :show_version,
@@ -28,7 +28,7 @@ module CovLoupe
       source_context: 2,
       color: $stdout.tty?,
       error_mode: :log,
-      staleness: :off,
+      raise_on_stale: false,
       tracked_globs: nil,
       log_file: nil,
       show_version: false
@@ -41,7 +41,7 @@ module CovLoupe
       {
         root: root,
         resultset: resultset,
-        staleness: staleness,
+        raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs
       }
     end

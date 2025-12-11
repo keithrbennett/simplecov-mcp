@@ -18,17 +18,16 @@ module CovLoupe
         type: 'string',
         description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
       },
-      staleness: {
-        type: 'string',
-        description: 'How to handle missing/outdated coverage data. ' \
-                     "'off' skips checks; 'error' raises.",
-        enum: [:off, :error],
-        default: :off
+      raise_on_stale: {
+        type: 'boolean',
+        description: 'If true, raise error if coverage data is stale (missing files, ' \
+          'timestamp mismatch). Defaults to false.',
+        default: false
       },
       error_mode: {
         type: 'string',
         description: "Error handling mode: 'off' (silent), 'log' (log errors), " \
-            "'debug' (verbose with backtraces).",
+                     "'debug' (verbose with backtraces).",
         enum: %w[off log debug],
         default: 'log'
       }
@@ -115,7 +114,7 @@ module CovLoupe
 
     # Default configuration when no context or explicit params are provided
     def self.default_model_options
-      { root: '.', resultset: nil, staleness: :off, tracked_globs: nil }
+      { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }
     end
   end
 end
