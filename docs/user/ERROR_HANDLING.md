@@ -89,5 +89,5 @@ Coverage data stale: Coverage data appears stale for lib/foo.rb
 File      - time: 2025-09-16T14:03:22Z (local 2025-09-16T07:03:22-07:00), lines: 226
 Coverage  - time: 2025-09-15T21:11:09Z (local 2025-09-15T14:11:09-07:00), lines: 220
 Delta     - file is +123s newer than coverage
-Resultset - /path/to/your/project/coverage/.resultset.json
+Resultset - /path/to/project/coverage/.resultset.json
 ```

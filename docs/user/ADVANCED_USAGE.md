@@ -137,7 +137,7 @@ $ cov-loupe -S error
 Coverage data stale (project): CovLoupe::CoverageDataProjectStaleError
 Coverage  - time: 2025-12-10T18:23:00Z (local 2025-12-11T02:23:00+08:00)
 Newer files (1):  - lib/cov_loupe/version.rb
-Resultset - /home/kbennett/code/cov-loupe/coverage/.resultset.json
+Resultset - /path/to/project/coverage/.resultset.json
 $ echo $?
 1
 ```
@@ -180,10 +180,10 @@ Path resolution order:
 2. **Relative path resolution from root**
 
 ```ruby
-model = CovLoupe::CoverageModel.new(root: '/project')
+model = CovLoupe::CoverageModel.new(root: '/path/to/project')
 
-model.summary_for('/project/app/models/order.rb')  # Absolute
-model.summary_for('app/models/order.rb')           # Relative
+model.summary_for('/path/to/project/app/models/order.rb')  # Absolute
+model.summary_for('app/models/order.rb')                   # Relative
 ```
 
 ### Working with Multiple Projects
@@ -191,14 +191,14 @@ model.summary_for('app/models/order.rb')           # Relative
 ```ruby
 # Project A
 model_a = CovLoupe::CoverageModel.new(
-  root: '/projects/service-a',
-  resultset: '/projects/service-a/coverage/.resultset.json'
+  root: '/path/to/projects/service-a',
+  resultset: '/path/to/projects/service-a/coverage/.resultset.json'
 )
 
 # Project B
 model_b = CovLoupe::CoverageModel.new(
-  root: '/projects/service-b',
-  resultset: '/projects/service-b/tmp/coverage/.resultset.json'
+  root: '/path/to/projects/service-b',
+  resultset: '/path/to/projects/service-b/tmp/coverage/.resultset.json'
 )
 
 # Compare coverage
@@ -241,7 +241,7 @@ require 'cov_loupe'
 
 begin
   model = CovLoupe::CoverageModel.new(
-    root: '/project',
+    root: '/path/to/project',
     resultset: '/nonexistent/.resultset.json'
   )
 rescue CovLoupe::FileError => e
@@ -352,11 +352,11 @@ See [examples/success_predicates/README.md](../../examples/success_predicates/RE
 Convert absolute paths to relative for cleaner output:
 
 ```ruby
-model = CovLoupe::CoverageModel.new(root: '/project')
+model = CovLoupe::CoverageModel.new(root: '/path/to/project')
 
 # Get data with absolute paths
 data = model.summary_for('app/models/order.rb')
-# => { 'file' => '/project/app/models/order.rb', ... }
+# => { 'file' => '/path/to/project/app/models/order.rb', ... }
 
 # Relativize paths
 relative_data = model.relativize(data)
@@ -592,7 +592,7 @@ class CoverageCache
 end
 
 cache = CoverageCache.new
-model = cache.model_for('/project')
+model = cache.model_for('/path/to/project')
 ```
 
 ---

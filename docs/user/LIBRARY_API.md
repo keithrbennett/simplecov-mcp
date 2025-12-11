@@ -27,10 +27,10 @@ model = CovLoupe::CoverageModel.new
 
 # Custom configuration (non-default values):
 model = CovLoupe::CoverageModel.new(
-  root: "/path/to/project",        # non-default project root
-  resultset: "build/coverage",      # file or directory containing .resultset.json
-  staleness: "error",               # enable stale checks (raise on stale)
-  tracked_globs: ["lib/**/*.rb"]    # for 'all_files' staleness: flag new/missing files
+  root: File.join(Dir.home, 'project'),    # non-default project root
+  resultset: "build/coverage",             # file or directory containing .resultset.json
+  staleness: "error",                      # enable stale checks (raise on stale)
+  tracked_globs: ["lib/**/*.rb"]           # for 'all_files' staleness: flag new/missing files
 )
 
 # List all files with coverage summary
@@ -182,7 +182,7 @@ Converts absolute file paths in coverage data to relative paths from project roo
 **Example:**
 ```ruby
 summary = model.summary_for('lib/cov_loupe/model.rb')
-# => { 'file' => '/home/user/project/lib/cov_loupe/model.rb', ... }
+# => { 'file' => '/path/to/project/lib/cov_loupe/model.rb', ... }
 
 relative_summary = model.relativize(summary)
 # => { 'file' => 'lib/cov_loupe/model.rb', ... }
