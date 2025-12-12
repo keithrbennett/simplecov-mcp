@@ -107,6 +107,9 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    If MCP still isn't working, you can use the CLI with `-fJ` flag instead.
    See **[CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md)** for complete guidance.
 
+7. **Check for Codex environment variable issues:**
+   If you are using Codex and the server fails to start due to missing gems, see [Codex MCP env var passthrough workaround](CODEX_ENV_VAR_WORKAROUND.md).
+
 ### Path Issues with Version Managers
 
 **Symptom:** Works in terminal but not in MCP client.

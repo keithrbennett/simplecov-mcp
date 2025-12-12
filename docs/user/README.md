@@ -9,6 +9,7 @@ workflows.
 - [Advanced Usage](ADVANCED_USAGE.md) – resultset paths, staleness, predicates
 - [Error Handling](ERROR_HANDLING.md) – modes, exceptions, logging
 - [MCP Integration](MCP_INTEGRATION.md) – configuring AI assistants
+- [Codex Workaround](CODEX_ENV_VAR_WORKAROUND.md) – fixing Codex env var issues
 - [CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md) – when MCP isn't available
 - [Library API](LIBRARY_API.md) – embedding the gem in Ruby code
 - [Troubleshooting](TROUBLESHOOTING.md) – diagnostics for common issues
