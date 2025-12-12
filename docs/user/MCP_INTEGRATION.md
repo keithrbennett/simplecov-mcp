@@ -58,6 +58,8 @@ codex mcp get cov-loupe
 codex mcp remove cov-loupe
 ```
 
+**Note:** Codex may not pass environment variables like `GEM_HOME` to MCP servers. If `cov-loupe` fails to start, see [Codex MCP env var passthrough workaround](CODEX_ENV_VAR_WORKAROUND.md).
+
 ### Gemini
 
 Using the Gemini CLI:
@@ -136,7 +138,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 | `-s`, `--source` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-c`, `--context-lines` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `--color`, `--no-color` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
-| `--force-cli` | N/A | N/A | Forces CLI mode (prevents MCP mode) |
+| `-F`, `--force-mode` | N/A | N/A | Force mode: `cli` or `mcp` (`auto` = default detection). |
 
 **Key Takeaways:**
 - **Server-level options** (`--error-mode`, `--log-file`): Set once when server starts, apply to all tool calls

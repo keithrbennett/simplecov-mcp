@@ -154,7 +154,7 @@ simplecov-mcp uncovered lib/simplecov_mcp/cli.rb --source=full --source=uncovere
 **Action:** Add to Method Reference section.
 
 ### 21. No CLI Help for `--force-cli` in README Quick Reference
-**Issue:** README troubleshooting mentions MCP issues but doesn't mention `--force-cli` as a solution.
+**Issue:** README troubleshooting used to mention `--force-cli`. Flag removed in 4.0.0; use `-F/--force-mode cli|mcp|auto` instead.
 **Action:** Add to troubleshooting section.
 
 ---

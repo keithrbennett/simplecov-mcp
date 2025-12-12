@@ -42,6 +42,15 @@ module CovLoupe
       'ap' => :awesome_print
     }.freeze
 
+    FORCE_MODE_MAP = {
+      'cli' => :cli,
+      'c' => :cli,
+      'mcp' => :mcp,
+      'm' => :mcp,
+      'auto' => :auto,
+      'a' => :auto
+    }.freeze
+
     module_function def normalize_sort_order(value, strict: true)
       normalized = SORT_ORDER_MAP[value.to_s.downcase]
       return normalized if normalized
@@ -72,6 +81,7 @@ module CovLoupe
     module_function def normalize_error_mode(value, strict: true, default: :log)
       normalized = ERROR_MODE_MAP[value.to_s.downcase]
       return normalized if normalized
+
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 
       default
@@ -85,9 +95,23 @@ module CovLoupe
     module_function def normalize_format(value, strict: true)
       normalized = FORMAT_MAP[value.to_s.downcase]
       return normalized if normalized
+
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 
       nil
+    end
+
+    # Normalize force mode value used for mode detection.
+    # Returns nil for auto to signal "no force".
+    module_function def normalize_force_mode(value, strict: true, default: nil)
+      normalized = FORCE_MODE_MAP[value.to_s.downcase]
+      return nil if normalized == :auto
+
+      return normalized if normalized
+
+      raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
+      default
     end
   end
 end

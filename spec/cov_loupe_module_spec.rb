@@ -7,14 +7,15 @@ RSpec.describe CovLoupe do
   # These tests verify the integration with ModeDetector
   describe 'mode detection integration' do
     it 'uses ModeDetector for CLI mode detection' do
-      allow(described_class::ModeDetector).to receive(:cli_mode?).with(['--force-cli'])
+      allow(described_class::ModeDetector).to receive(:cli_mode?).with(['--force-mode', 'cli'])
         .and_return(true)
       cli = instance_double(described_class::CoverageCLI, run: nil)
       allow(described_class::CoverageCLI).to receive(:new).and_return(cli)
 
-      described_class.run(['--force-cli'])
+      described_class.run(['--force-mode', 'cli'])
 
-      expect(described_class::ModeDetector).to have_received(:cli_mode?).with(['--force-cli'])
+      expect(described_class::ModeDetector).to have_received(:cli_mode?).with(['--force-mode',
+                                                                               'cli'])
       expect(described_class::CoverageCLI).to have_received(:new)
       expect(cli).to have_received(:run)
     end

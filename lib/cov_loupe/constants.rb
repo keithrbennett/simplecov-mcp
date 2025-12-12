@@ -16,6 +16,7 @@ module CovLoupe
       -g --tracked-globs
       -l --log-file
       --error-mode
+      -F --force-mode
     ].freeze
   end
 end

@@ -106,7 +106,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 
 ### Current Limitations
 
-**Staleness checks:** When suites are merged, we keep a single "latest suite" timestamp. This matches prior behavior but may under-report stale files if only some suites were re-run after a change. A per-file timestamp refinement is planned. Until then, consider multi-suite staleness checks advisory rather than definitive.
+**Staleness checks:** When suites are merged, we keep a single "latest suite" timestamp. This matches prior behavior but may under-report stale files if only some suites were re-run after a change. Use `--raise-on-stale` (or `-S`) on the CLI, `raise_on_stale: true` via the Ruby API, or the MCP tool parameter to turn these warnings into hard failures. See [raise_on_stale_feature.md](raise_on_stale_feature.md) for the detailed behavior and rollout notes. A per-file timestamp refinement is planned; until then, treat multi-suite staleness flags as advisory rather than definitive.
 
 **Multiple resultset files:** Only suites stored inside a *single* `.resultset.json` are merged automatically. If your project produces separate resultset files (e.g., different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`), you must merge them yourself before pointing `cov-loupe` at the combined file.
 

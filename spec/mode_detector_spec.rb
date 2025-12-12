@@ -5,9 +5,11 @@ require 'spec_helper'
 # Array-driven test cases for comprehensive coverage
 # Format: [argv, tty?, expected_result, description]
 CLI_MODE_SCENARIOS = [
-  # Priority 1: --force-cli flag (highest priority)
-  [['--force-cli'], false, true, '--force-cli with piped input'],
-  [['--force-cli', '--format', 'json'], false, true, '--force-cli with other flags'],
+  # Priority 1: force-mode flags (highest priority)
+  [['--force-mode', 'cli'], false, true, '--force-mode cli'],
+  [['-F', 'cli'], false, true, '-F cli'],
+  [['--force-mode', 'mcp'], true, false, '--force-mode mcp on TTY'],
+  [['-F', 'mcp'], true, false, '-F mcp on TTY'],
 
   # Priority 2: Valid subcommands (must be first arg)
   [['list'], false, true, 'list subcommand'],
@@ -20,7 +22,7 @@ CLI_MODE_SCENARIOS = [
   [['invalid-command'], false, true, 'invalid subcommand (shows error)'],
   [['lib/foo.rb'], false, true, 'file path (shows error)'],
 
-  # Priority 4: TTY determines mode when no subcommand/force-cli
+  # Priority 4: TTY determines mode when no subcommand/force-mode
   [[], true, true, 'empty args with TTY'],
   [[], false, false, 'empty args with piped input'],
   [['--format', 'json'], true, true, 'flags only with TTY'],
@@ -37,7 +39,7 @@ MCP_SCENARIOS = [
   [[], false, true, 'piped input, no args'],
   [['--format', 'json'], false, true, 'piped input with flags'],
   [[], true, false, 'TTY, no args'],
-  [['--force-cli'], false, false, '--force-cli flag'],
+  [['--force-mode', 'mcp'], true, true, '--force-mode mcp'],
   [['list'], false, false, 'subcommand'],
 ].freeze
 
@@ -89,8 +91,9 @@ RSpec.describe CovLoupe::ModeDetector do
   describe 'priority order' do
     let(:stdin) { double('stdin', tty?: false) }
 
-    it '1. --force-cli overrides everything' do
-      expect(described_class.cli_mode?(['--force-cli'], stdin: stdin)).to be true
+    it '1. force mode overrides everything' do
+      expect(described_class.cli_mode?(['--force-mode', 'mcp'], stdin: stdin)).to be false
+      expect(described_class.cli_mode?(['--force-mode', 'cli'], stdin: stdin)).to be true
     end
 
     it '2. subcommand (first arg) overrides TTY' do

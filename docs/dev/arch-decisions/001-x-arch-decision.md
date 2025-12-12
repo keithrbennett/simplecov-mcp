@@ -34,7 +34,10 @@ We implemented **automatic mode detection** via a single entry point (`CovLoupe.
 
 The `ModeDetector` class (lib/cov_loupe/mode_detector.rb:6) implements a priority-based detection strategy:
 
-1. **Explicit CLI flags** (`--force-cli`, `-h`, `--help`, `--version`) → CLI mode
+1. 
+2. 
+3. **Force mode flag** (`-F/--force-mode cli|mcp`) overrides detection
+2. **Explicit CLI flags** (`-h`, `--help`, `--version`) → CLI mode
 2. **Presence of subcommands** (non-option arguments like `summary`, `list`) → CLI mode
 3. **TTY detection** fallback: `stdin.tty?` returns true → CLI mode, false → MCP server mode
 
@@ -58,7 +61,7 @@ end
 
 - **MCP clients** pipe JSON-RPC to stdin (not a TTY) and don't pass subcommands → routes to MCP server
 - **CLI users** run from an interactive terminal (TTY) or pass explicit subcommands → routes to CLI
-- **Edge cases** are covered by explicit flags (`--force-cli` for testing MCP mode from a TTY)
+- **Edge cases** are covered by explicit flags (`--force-mode mcp` for testing MCP mode from a TTY)
 
 ## Consequences
 
@@ -72,7 +75,7 @@ end
 ### Negative
 
 1. **Complexity**: Requires maintaining the mode detection logic and keeping it accurate
-2. **Potential ambiguity**: In unusual environments (non-TTY CLI execution without subcommands), users must understand `--force-cli`
+2. **Potential ambiguity**: In unusual environments (non-TTY CLI execution without subcommands), users must understand `--force-mode`
 3. **Shared dependencies**: Some components (error handling, coverage model) must work correctly in both modes
 
 ### Trade-offs

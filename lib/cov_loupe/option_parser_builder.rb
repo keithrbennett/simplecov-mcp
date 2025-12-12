@@ -101,13 +101,14 @@ module CovLoupe
         'Log file path (default ./cov_loupe.log, use stdout/stderr for streams)') do |value|
         config.log_file = value
       end
+      parser.on('-F', '--force-mode MODE', String,
+        'Force execution mode: cli|mcp|auto (auto = default detection)') do |value|
+        config.force_mode = normalize_force_mode(value)
+      end
       parser.on('--error-mode MODE', String,
         'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
         config.error_mode = normalize_error_mode(value)
-      end
-      parser.on('--force-cli', 'Force CLI mode (useful in scripts where auto-detection fails)') do
-        # This flag is mainly for mode detection - no action needed here
       end
       parser.on('-v', '--version', 'Show version information and exit') do
         config.show_version = true
@@ -139,6 +140,10 @@ module CovLoupe
 
     private def normalize_format(value)
       OptionNormalizers.normalize_format(value, strict: true)
+    end
+
+    private def normalize_force_mode(value)
+      OptionNormalizers.normalize_force_mode(value, strict: true)
     end
   end
 end

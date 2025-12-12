@@ -52,4 +52,4 @@
 ## Troubleshooting Notes
 - Coverage lookup order: The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
 - `COV_LOUPE_OPTS` can set default CLI flags (command-line arguments still win).
-- CLI vs MCP mode auto-detects based on TTY; use `--force-cli` if you need to bypass MCP auto start during manual runs.
+- CLI vs MCP mode auto-detects based on TTY; use `-F mcp`/`--force-mode mcp` if you need to bypass MCP auto start during manual runs.

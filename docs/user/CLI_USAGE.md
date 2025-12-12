@@ -466,12 +466,13 @@ Error handling verbosity.
 clp --error-mode debug summary lib/api/client.rb
 ```
 
-### `--force-cli`
+### `-F, --force-mode MODE`
 
-Force CLI mode even when stdin is piped or when the process is running in a non-interactive shell (CI, Codex, etc.). Without it, the executable may fall back to MCP server mode.
+Force execution mode explicitly: `cli`, `mcp`, or `auto` (default detection). Use `cli` when you want table/JSON output even if stdin is non-TTY; use `mcp` when your client allocates a TTY but you need the MCP server. The old `--force-cli` flag was removed in 4.0.0; use `--force-mode cli` instead.
 
 ```sh
-clp --force-cli list
+clp -F cli list          # force CLI output
+clp --force-mode mcp      # force MCP server even on a TTY client
 ```
 
 ### `validate` Subcommand

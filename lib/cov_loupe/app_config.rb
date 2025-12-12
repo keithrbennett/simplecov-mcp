@@ -16,6 +16,7 @@ module CovLoupe
     :tracked_globs,
     :log_file,
     :show_version,
+    :force_mode,
     keyword_init: true
   ) do
     # Set sensible defaults - ALL SYMBOLS FOR ENUMS
@@ -31,7 +32,8 @@ module CovLoupe
       raise_on_stale: false,
       tracked_globs: nil,
       log_file: nil,
-      show_version: false
+      show_version: false,
+      force_mode: nil
     )
       super
     end

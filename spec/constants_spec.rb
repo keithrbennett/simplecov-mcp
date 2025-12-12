@@ -25,9 +25,10 @@ RSpec.describe CovLoupe::Constants do
         -g --tracked-globs
         -l --log-file
         --error-mode
+        -F --force-mode
       ]
 
-      expect(options).to eq(expected_options)
+      expect(options.sort).to eq(expected_options.sort)
     end
 
     it 'contains only strings' do

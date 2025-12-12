@@ -95,8 +95,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
   end
 
   describe 'CLI mode detection with COV_LOUPE_OPTS' do
-    it 'respects --force-cli from environment variable' do
-      ENV['COV_LOUPE_OPTS'] = '--force-cli'
+    it 'respects --force-mode cli from environment variable' do
+      ENV['COV_LOUPE_OPTS'] = '--force-mode cli'
 
       # This would normally be MCP mode (no TTY, no subcommand)
       stdin = double('stdin', tty?: false)
@@ -115,8 +115,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       expect(opts).to eq([])
     end
 
-    it 'actually runs CLI when --force-cli is in COV_LOUPE_OPTS' do
-      ENV['COV_LOUPE_OPTS'] = '--force-cli'
+    it 'actually runs CLI when --force-mode cli is in COV_LOUPE_OPTS' do
+      ENV['COV_LOUPE_OPTS'] = '--force-mode cli'
 
       # Mock STDIN to not be a TTY (would normally trigger MCP server mode)
       allow($stdin).to receive(:tty?).and_return(false)
