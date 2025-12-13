@@ -27,10 +27,18 @@ module CovLoupe
     FALSE_VALUES = %w[no n false f off - 0].freeze
 
     # All valid boolean string values
-    VALID_VALUES = (TRUE_VALUES + FALSE_VALUES).freeze
+    VALID_VALUES = TRUE_VALUES.zip(FALSE_VALUES).flatten.freeze # %w{yes no y n true false t f on off + - 1 0 }
 
-    # String representation for help messages
-    BOOLEAN_VALUES_DISPLAY_STRING = 'yes/no/true/false/t/f/on/off/y/n/+/-/1/0'
+    # String representation for help messages ('yes/no/true/false/t/f/on/off/y/n/+/-/1/0')
+    BOOLEAN_VALUES_DISPLAY_STRING = VALID_VALUES.join('/').freeze
+
+    # Pattern object for OptionParser.
+    # Proc objects get treated as blocks, and Module instances are rejected outright,
+    # so we expose a singleton that only responds to #match like a regex.
+    IS_BOOLEAN_STRING_VALUE = Object.new
+    IS_BOOLEAN_STRING_VALUE.define_singleton_method(:match) do |value|
+      BooleanType.valid?(value) ? value : nil
+    end
 
     class << self
       # Parse a string value into a boolean.

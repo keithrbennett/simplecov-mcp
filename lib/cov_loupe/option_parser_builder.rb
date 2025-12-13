@@ -52,7 +52,6 @@ module CovLoupe
         SUBCOMMANDS
     end
 
-    BOOLEAN_OPTION_REGEXP = /^(?:yes|y|true|t|on|\+|1|no|n|false|f|off|-|0)$/i
     private def define_options(parser)
       parser.separator 'Options:'
       parser.on('-r', '--resultset PATH', String,
@@ -81,14 +80,14 @@ module CovLoupe
         'Context lines around uncovered lines (non-negative, default: 2)') do |value|
         config.source_context = value
       end
-      parser.on('--color [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+      parser.on('--color [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
         'Enable/disable ANSI colors for source output (default: true). ' \
-"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare --color for true") do |value|
+          "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare --color for true") do |value|
         config.color = BooleanType.parse(value)
       end
-      parser.on('-S', '--raise-on-stale [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+      parser.on('-S', '--raise-on-stale [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
         'Raise error if coverage is stale (default: false). ' \
-"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -S/--raise-on-stale for true") do |value|
+          "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -S/--raise-on-stale for true") do |value|
         config.raise_on_stale = BooleanType.parse(value)
       end
       parser.on('-g', '--tracked-globs x,y,z', Array,
@@ -115,9 +114,9 @@ module CovLoupe
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
         config.error_mode = normalize_error_mode(value)
       end
-      parser.on('-v', '--version [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+      parser.on('-v', '--version [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
         'Show version information and exit. ' \
-"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -v/--version for true") do |value|
+           "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -v/--version for true") do |value|
         config.show_version = BooleanType.parse(value)
       end
     end
