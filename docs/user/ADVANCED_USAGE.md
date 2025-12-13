@@ -147,7 +147,7 @@ $ echo $?
 model = CovLoupe::CoverageModel.new(raise_on_stale: true)
 
 begin
-  model.all_files(raise_on_stale: true)
+  model.list(raise_on_stale: true)
 rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Newer files: #{e.newer_files.join(', ')}"
   puts "Missing from coverage: #{e.missing_files.join(', ')}"
@@ -189,8 +189,8 @@ model_b = CovLoupe::CoverageModel.new(
 )
 
 # Compare coverage
-coverage_a = model_a.all_files
-coverage_b = model_b.all_files
+coverage_a = model_a.list
+coverage_b = model_b.list
 ```
 
 
@@ -289,7 +289,7 @@ or `false`/`nil` for failure.
 **Quick Usage:**
 ```sh
 # All files must be >= 80%
-clp validate examples/success_predicates/all_files_above_threshold_predicate.rb
+clp validate examples/success_predicates/list_above_threshold_predicate.rb
 
 # Total project coverage >= 85%
 clp validate examples/success_predicates/project_coverage_minimum_predicate.rb
@@ -298,7 +298,7 @@ clp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 clp validate coverage_policy.rb
 
 # Inline string mode
-clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+clp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Creating a predicate:**
@@ -306,7 +306,7 @@ clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
 # coverage_policy.rb
 ->(model) do
   # All files must have >= 80% coverage
-  model.all_files.all? { |f| f['percentage'] >= 80 }
+  model.list.all? { |f| f['percentage'] >= 80 }
 end
 ```
 
@@ -317,7 +317,7 @@ end
 class CoveragePolicy
   def call(model)
     threshold = 80
-    low_files = model.all_files.select { |f| f['percentage'] < threshold }
+    low_files = model.list.select { |f| f['percentage'] < threshold }
 
     if low_files.empty?
       puts "✓ All files have >= #{threshold}% coverage"
@@ -356,7 +356,7 @@ relative_data = model.relativize(data)
 # => { 'file' => 'app/models/order.rb', ... }
 
 # Works with arrays too
-files = model.all_files
+files = model.list
 relative_files = model.relativize(files)
 ```
 
@@ -477,12 +477,12 @@ done
 model = CovLoupe::CoverageModel.new
 
 # Filter files in output
-api_files = model.all_files(
+api_files = model.list(
   tracked_globs: ['lib/api/**/*.rb']
 )
 
 # Multi-pattern filtering
-core_files = model.all_files(
+core_files = model.list(
   tracked_globs: [
     'lib/core/**/*.rb',
     'lib/domain/**/*.rb'
@@ -491,7 +491,7 @@ core_files = model.all_files(
 
 # Validate specific subsystems
 begin
-  model.all_files(
+  model.list(
     check_stale: true,
     tracked_globs: ['lib/critical/**/*.rb']
   )
@@ -513,13 +513,13 @@ The `CoverageModel` reads `.resultset.json` once at initialization:
 ```ruby
 # Good: Single model for multiple queries
 model = CovLoupe::CoverageModel.new
-files = model.all_files
+files = model.list
 file1 = model.summary_for('lib/a.rb')
 file2 = model.summary_for('lib/b.rb')
 
 # Bad: Re-reads coverage for each operation
 model1 = CovLoupe::CoverageModel.new
-files = model1.all_files
+files = model1.list
 
 model2 = CovLoupe::CoverageModel.new
 file1 = model2.summary_for('lib/a.rb')
@@ -548,11 +548,11 @@ Use `tracked_globs` to reduce data processing:
 
 ```ruby
 # Bad: Filter after loading all data
-all_files = model.all_files
-api_files = all_files.select { |f| f['file'].include?('api') }
+list = model.list
+api_files = list.select { |f| f['file'].include?('api') }
 
 # Good: Filter during query
-api_files = model.all_files(
+api_files = model.list(
   tracked_globs: ['lib/api/**/*.rb']
 )
 ```
@@ -599,7 +599,7 @@ model = cache.model_for('/path/to/project')
 require 'csv'
 
 model = CovLoupe::CoverageModel.new
-files = model.all_files
+files = model.list
 
 CSV.open('coverage.csv', 'w') do |csv|
   csv << ['File', 'Coverage %', 'Lines Covered', 'Total Lines', 'Stale']
@@ -642,7 +642,7 @@ template = ERB.new(<<~HTML)
 HTML
 
 model = CovLoupe::CoverageModel.new
-files = model.relativize(model.all_files)
+files = model.relativize(model.list)
 File.write('coverage.html', template.result(binding))
 ```
 
@@ -742,7 +742,7 @@ require 'net/http'
 require 'json'
 
 model = CovLoupe::CoverageModel.new
-files = model.all_files
+files = model.list
 
 coveralls_data = {
   repo_token: ENV['COVERALLS_REPO_TOKEN'],

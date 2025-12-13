@@ -24,7 +24,7 @@ module CovLoupe
     # - resultset: path or directory to .resultset.json
     # - raise_on_stale: boolean (default false). When true, raises
     #   stale errors if sources are newer than coverage or line counts mismatch.
-    # - tracked_globs: only used for all_files project-level staleness.
+    # - tracked_globs: only used for list project-level staleness.
     def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
@@ -75,7 +75,7 @@ module CovLoupe
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-    def all_files(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
+    def list(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       stale_checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
 
@@ -110,7 +110,7 @@ module CovLoupe
     def project_totals(
       tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
     )
-      rows = all_files(sort_order: :ascending, raise_on_stale: raise_on_stale,
+      rows = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       totals_from_rows(rows)
     end
@@ -177,7 +177,7 @@ module CovLoupe
 
     private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
       if rows.nil?
-        all_files(sort_order: sort_order, raise_on_stale: raise_on_stale,
+        list(sort_order: sort_order, raise_on_stale: raise_on_stale,
           tracked_globs: tracked_globs)
       else
         rows = sort_rows(rows.dup, sort_order: sort_order)

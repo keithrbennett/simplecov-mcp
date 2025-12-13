@@ -30,11 +30,11 @@ model = CovLoupe::CoverageModel.new(
   root: File.join(Dir.home, 'project'),    # non-default project root
   resultset: "build/coverage",             # file or directory containing .resultset.json
   raise_on_stale: true,                    # enable strict staleness checks (raise on stale)
-  tracked_globs: ["lib/**/*.rb"]           # for 'all_files' staleness: flag new/missing files
+  tracked_globs: ["lib/**/*.rb"]           # for 'list' staleness: flag new/missing files
 )
 
 # List all files with coverage summary
-files = model.all_files
+files = model.list
 # Per-file queries
 summary = model.summary_for("lib/foo.rb")
 uncovered = model.uncovered_for("lib/foo.rb")
@@ -44,7 +44,7 @@ raw = model.raw_for("lib/foo.rb")
 
 ## Method Reference
 
-### `all_files(sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
+### `list(sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
 
 Returns coverage summary for all files in the resultset.
 
@@ -53,18 +53,18 @@ Returns coverage summary for all files in the resultset.
 - `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
 - `tracked_globs` (Array<String>, optional): Patterns to filter files (also used for staleness checks)
 
-**Returns:** `Array<Hash>` - See [all_files return type](#all_files)
+**Returns:** `Array<Hash>` - See [list return type](#list)
 
 **Example:**
 ```ruby
-files = model.all_files
+files = model.list
 # => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false }, ... ]
 
 # Get worst coverage first
-worst_files = model.all_files(sort_order: :ascending).first(10)
+worst_files = model.list(sort_order: :ascending).first(10)
 
 # Force staleness check
-model.all_files(raise_on_stale: true)
+model.list(raise_on_stale: true)
 ```
 
 ### `summary_for(path)`
@@ -140,7 +140,7 @@ raw = model.raw_for("lib/foo.rb")
 Generates formatted ASCII table string.
 
 **Parameters:**
-- `rows` (Array<Hash>, optional): Custom row data; defaults to `all_files`
+- `rows` (Array<Hash>, optional): Custom row data; defaults to `list`
 - `sort_order` (Symbol, optional): `:descending` (default) or `:ascending`
 - `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
 - `tracked_globs` (Array<String>, optional): Patterns to filter files.
@@ -154,7 +154,7 @@ table = model.format_table
 puts table
 
 # Custom rows
-lib_files = model.all_files.select { |f| f['file'].include?('/lib/') }
+lib_files = model.list.select { |f| f['file'].include?('/lib/') }
 lib_table = model.format_table(lib_files, sort_order: :descending)
 puts lib_table
 ```
@@ -196,13 +196,13 @@ relative_summary = model.relativize(summary)
 # => { 'file' => 'lib/cov_loupe/model.rb', ... }
 
 # Works with arrays too
-files = model.all_files
+files = model.list
 relative_files = model.relativize(files)
 ```
 
 ## Return Types
 
-### `all_files`
+### `list`
 
 Returns `Array<Hash>` where each hash contains:
 
@@ -340,7 +340,7 @@ end
 ```ruby
 # Option 1: Check staleness without raising
 model = CovLoupe::CoverageModel.new(raise_on_stale: false)
-files = model.all_files
+files = model.list
 
 stale_files = files.select { |f| f['stale'] }
 if stale_files.any?
@@ -353,7 +353,7 @@ end
 # Option 2: Raise on staleness
 begin
   model = CovLoupe::CoverageModel.new(raise_on_stale: true)
-  files = model.all_files
+  files = model.list
 rescue CovLoupe::CoverageDataStaleError => e
   puts "Stale coverage detected: #{e.message}"
   puts "Re-run tests: bundle exec rspec"
@@ -446,7 +446,7 @@ class CoverageValidator
   end
 
   def validate!
-    files = @model.all_files
+    files = @model.list
     failures = []
 
     files.each do |file|
@@ -530,7 +530,7 @@ class CoverageDeltaTracker
   end
 
   def save_baseline
-    current = @model.all_files
+    current = @model.list
     File.write(@baseline_path, JSON.pretty_generate(current))
     puts "Saved coverage baseline (#{current.length} files)"
   end
@@ -542,7 +542,7 @@ class CoverageDeltaTracker
     end
 
     baseline = JSON.parse(File.read(@baseline_path))
-    current = @model.all_files
+    current = @model.list
 
     improved = []
     regressed = []
@@ -608,7 +608,7 @@ class CoverageReporter
   end
 
   def generate_markdown_report(output_path)
-    files = @model.all_files
+    files = @model.list
     totals = @model.project_totals
 
     File.open(output_path, 'w') do |f|
@@ -670,14 +670,14 @@ reporter.generate_markdown_report("coverage_report.md")
 
 ## Staleness Detection
 
-The `all_files` method returns a `'stale'` field for each file with one of these values:
+The `list` method returns a `'stale'` field for each file with one of these values:
 
 - `false` - Coverage data is current
 - `'M'` - **Missing**: File no longer exists on disk
 - `'T'` - **Timestamp**: File modified more recently than coverage data
 - `'L'` - **Length**: Source file line count differs from coverage data
 
-**Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `all_files` and filter the results.
+**Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `list` and filter the results.
 
 When `raise_on_stale: true` is enabled in `CoverageModel.new`, the model will raise `CovLoupe::CoverageDataStaleError` exceptions when stale files are detected during method calls.
 
@@ -686,7 +686,7 @@ When `raise_on_stale: true` is enabled in `CoverageModel.new`, the model will ra
 Consider the following public and stable under SemVer:
 - `CovLoupe::CoverageModel.new(root:, resultset:, raise_on_stale: false, tracked_globs: nil)`
 - `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`
-- `#all_files(sort_order:, raise_on_stale:, tracked_globs:)`
+- `#list(sort_order:, raise_on_stale:, tracked_globs:)`
 - `#format_table(rows: nil, sort_order:, raise_on_stale:, tracked_globs:)`
 - `#project_totals(tracked_globs:, raise_on_stale:)`
 - Return shapes shown in the [Return Types](#return-types) section

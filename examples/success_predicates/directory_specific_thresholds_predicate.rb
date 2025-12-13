@@ -9,7 +9,7 @@ class DirectorySpecificThresholds
   end
 
   def initialize(model)
-    @files = model.relativize(model.all_files)
+    @files = model.relativize(model.list)
   end
 
   def files_ok?(filemask, threshold_percentage)

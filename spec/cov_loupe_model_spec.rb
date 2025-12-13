@@ -108,9 +108,9 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
-  describe 'all_files' do
+  describe 'list' do
     it 'sorts descending (default) by percentage then by file path' do
-      files = model.all_files
+      files = model.list
       # lib/foo.rb has 66.67%, lib/bar.rb has 33.33%
       expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
       expect(files.first['percentage']).to be_within(0.01).of(66.67)
@@ -118,14 +118,14 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'sorts ascending by percentage then by file path' do
-      files = model.all_files(sort_order: :ascending)
+      files = model.list(sort_order: :ascending)
       expect(files.first['file']).to eq(File.expand_path('lib/bar.rb', root))
       expect(files.first['percentage']).to be_within(0.01).of(33.33)
       expect(files.last['file']).to eq(File.expand_path('lib/foo.rb', root))
     end
 
     it 'filters rows when tracked_globs are provided' do
-      files = model.all_files(tracked_globs: ['lib/foo.rb'])
+      files = model.list(tracked_globs: ['lib/foo.rb'])
 
       expect(files.length).to eq(1)
       expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
@@ -134,7 +134,7 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'combines results from multiple tracked_globs patterns' do
       abs_bar = File.expand_path('lib/bar.rb', root)
 
-      files = model.all_files(tracked_globs: ['lib/foo.rb', abs_bar])
+      files = model.list(tracked_globs: ['lib/foo.rb', abs_bar])
 
       expect(files.map { |f| f['file'] }).to contain_exactly(
         File.expand_path('lib/foo.rb', root),
@@ -257,8 +257,8 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(data['uncovered']).to eq([7, 13])
     end
 
-    it 'includes branch-only files in all_files results' do
-      files = branch_model.all_files(sort_order: :ascending)
+    it 'includes branch-only files in list results' do
+      files = branch_model.list(sort_order: :ascending)
       branch_path = File.expand_path('lib/branch_only.rb', branch_root)
       another_path = File.expand_path('lib/another.rb', branch_root)
 
@@ -329,7 +329,7 @@ RSpec.describe CovLoupe::CoverageModel do
       allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset)
 
       model = described_class.new(root: root)
-      files = model.all_files(sort_order: :ascending)
+      files = model.list(sort_order: :ascending)
 
       expect(files.map { |f| File.basename(f['file']) }).to include('foo.rb', 'bar.rb')
 
@@ -430,10 +430,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
     it 'sorts table output correctly when provided with custom rows' do
       # Get all files data to use as custom rows
-      all_files_data = model.all_files
+      list_data = model.list
 
       # Test ascending sort with custom rows
-      output_asc = model.format_table(all_files_data, sort_order: :ascending)
+      output_asc = model.format_table(list_data, sort_order: :ascending)
       lines_asc = output_asc.split("\n")
       bar_line_asc = lines_asc.find { |line| line.include?('bar.rb') }
       foo_line_asc = lines_asc.find { |line| line.include?('foo.rb') }
@@ -442,7 +442,7 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(lines_asc.index(bar_line_asc)).to be < lines_asc.index(foo_line_asc)
 
       # Test descending sort with custom rows
-      output_desc = model.format_table(all_files_data, sort_order: :descending)
+      output_desc = model.format_table(list_data, sort_order: :descending)
       lines_desc = output_desc.split("\n")
       bar_line_desc = lines_desc.find { |line| line.include?('bar.rb') }
       foo_line_desc = lines_desc.find { |line| line.include?('foo.rb') }
@@ -455,20 +455,20 @@ RSpec.describe CovLoupe::CoverageModel do
   describe 'default tracked_globs' do
     let(:tracked_globs) { ['lib/foo.rb'] }
 
-    it 'uses constructor tracked_globs when none are passed to all_files' do
+    it 'uses constructor tracked_globs when none are passed to list' do
       model = described_class.new(root: root, tracked_globs: tracked_globs)
       allow(model).to receive(:filter_rows_by_globs).and_call_original
       stub_checker = instance_double(CovLoupe::StalenessChecker,
         stale_for_file?: false, check_project!: true, off?: true)
       allow(model).to receive(:build_staleness_checker).and_return(stub_checker)
 
-      model.all_files
+      model.list
       expect(model).to have_received(:filter_rows_by_globs).with(anything, tracked_globs)
     end
 
     it 'uses constructor tracked_globs when none are passed to project_totals' do
       model = described_class.new(root: root, tracked_globs: tracked_globs)
-      expect(model).to receive(:all_files).with(sort_order: :ascending,
+      expect(model).to receive(:list).with(sort_order: :ascending,
         raise_on_stale: false, tracked_globs: tracked_globs).and_call_original
 
       model.project_totals

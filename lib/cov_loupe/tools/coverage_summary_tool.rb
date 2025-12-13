@@ -9,7 +9,7 @@ module CovLoupe
     class CoverageSummaryTool < BaseTool
       description <<~DESC
         Use this when the user asks for the covered/total line counts and percentage for a specific file.
-        Do not use this for multi-file reports; coverage.all_files or coverage.table handle those.
+        Do not use this for multi-file reports; coverage.list or coverage.table handle those.
         Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
         Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "percentage": Float}, "stale": String|False}.
         Examples: "What is the coverage for lib/cov_loupe/tools/all_files_coverage_tool.rb?".

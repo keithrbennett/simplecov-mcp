@@ -73,7 +73,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 | Tool                      | Purpose                    | Example CLI Command                                  |
 |---------------------------|----------------------------|------------------------------------------------------|
-| `all_files_coverage_tool` | Project-wide coverage data | `cov-loupe list`                                 |
+| `list_coverage_tool` | Project-wide coverage data | `cov-loupe list`                                 |
 | `coverage_detailed_tool`  | Per-line hit counts        | `cov-loupe detailed lib/cov_loupe/model.rb`  |
 | `coverage_raw_tool`       | Raw SimpleCov lines array  | `cov-loupe raw lib/cov_loupe/model.rb`       |
 | `coverage_summary_tool`   | Get coverage % for a file  | `cov-loupe summary lib/cov_loupe/model.rb`   |
@@ -141,7 +141,7 @@ require 'cov_loupe'
 model = CovLoupe::CoverageModel.new
 
 # Get project overview
-files = model.all_files
+files = model.list
 puts "Lowest coverage: #{files.first['percentage']}%"
 
 # Focus on specific concerns
@@ -162,7 +162,7 @@ puts "Missing lines: #{uncovered['uncovered'].inspect}"
 ```ruby
 require 'cov_loupe'
 
-files = CovLoupe::CoverageModel.new.all_files
+files = CovLoupe::CoverageModel.new.list
 critical, other = files.partition { |f| f['file'].include?('/lib/critical/') }
 
 fails = critical.select { |f| f['percentage'] < 100.0 } + 
@@ -193,7 +193,7 @@ lib/cov_loupe
 ├── path_relativizer.rb
 ├── staleness_checker.rb
 ├── tools
-│ ├── all_files_coverage_tool.rb
+│ ├── list_coverage_tool.rb
 │ ├── coverage_detailed_tool.rb
 │ ├── coverage_raw_tool.rb
 │ ├── coverage_summary_tool.rb

@@ -4,8 +4,8 @@ require 'spec_helper'
 
 RSpec.describe CovLoupe::CoverageReporter do
   let(:model) { instance_double(CovLoupe::CoverageModel) }
-  # Data is pre-sorted by percentage ascending (as model.all_files returns)
-  let(:all_files_data) do
+  # Data is pre-sorted by percentage ascending (as model.list returns)
+  let(:files_data) do
     [
       { 'file' => '/project/lib/zero.rb',   'percentage' =>  0.0, 'covered' =>  0, 'total' => 10 },
       { 'file' => '/project/lib/low.rb',    'percentage' => 25.0, 'covered' =>  5, 'total' => 20 },
@@ -15,7 +15,7 @@ RSpec.describe CovLoupe::CoverageReporter do
   end
 
   before do
-    allow(model).to receive(:all_files).with(sort_order: :ascending).and_return(all_files_data)
+    allow(model).to receive(:list).with(sort_order: :ascending).and_return(files_data)
     allow(model).to receive(:relativize) do |files|
       files.map { |f| f.merge('file' => f['file'].sub('/project/', '')) }
     end

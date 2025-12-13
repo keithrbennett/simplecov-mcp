@@ -123,7 +123,7 @@ Success predicates must be callable (lambda, proc, or object with `#call` method
 **Lambda example:**
 ```ruby
 ->(model) do
-  model.all_files.all? { |f| f['percentage'] >= 80 }
+  model.list.all? { |f| f['percentage'] >= 80 }
 end
 ```
 
@@ -133,7 +133,7 @@ end
 
 class CoveragePolicy
   def call(model)
-    api_files = model.all_files.select { |f| f['file'].start_with?('lib/api/') }
+    api_files = model.list.select { |f| f['file'].start_with?('lib/api/') }
     api_files.all? { |f| f['percentage'] >= 90 }
   end
 end
@@ -142,7 +142,7 @@ AllFilesAboveThreshold.new
 ```
 
 The predicate receives a full `CoverageModel` instance with access to:
-- `all_files(tracked_globs:, sort_order:)` - All file coverage data
+- `list(tracked_globs:, sort_order:)` - All file coverage data
 - `summary_for(path)` - Coverage summary for a specific file
 - `uncovered_for(path)` - Uncovered lines for a specific file
 - `detailed_for(path)` - Per-line coverage data

@@ -67,7 +67,7 @@ RSpec.describe CovLoupe::Tools::ValidateTool do
 
         # Realistic coverage policy: foo.rb must have at least 50% coverage
         response = call_with_predicate(
-          '->(m) { m.all_files.detect { |f| f["file"].include?("foo.rb") }["percentage"] >= 50.0 }'
+          '->(m) { m.list.detect { |f| f["file"].include?("foo.rb") }["percentage"] >= 50.0 }'
         )
 
         data, = expect_mcp_text_json(response, expected_keys: ['result'])

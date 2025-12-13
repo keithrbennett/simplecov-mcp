@@ -14,7 +14,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'loads fixture coverage and surfaces core stats across APIs' do
       model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
-      files = model.all_files
+      files = model.list
       expect(files.length).to eq(2)
       files_by_name = files.to_h { |f| [File.basename(f['file']), f] }
 
@@ -123,13 +123,13 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
 
       # Test all files tool
-      all_files_response = CovLoupe::Tools::AllFilesCoverageTool.call(
+      list_response = CovLoupe::Tools::AllFilesCoverageTool.call(
         root: project_root,
         resultset: coverage_dir,
         server_context: server_context
       )
 
-      all_data, = expect_mcp_text_json(all_files_response, expected_keys: ['files', 'counts'])
+      all_data, = expect_mcp_text_json(list_response, expected_keys: ['files', 'counts'])
       expect(all_data['files'].length).to eq(2)
       expect(all_data['counts']['total']).to eq(2)
     end
@@ -195,7 +195,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       model = CovLoupe::CoverageModel.new(root: project_root, resultset: coverage_dir)
 
       # Get all files and verify range of coverage
-      files = model.all_files
+      files = model.list
       coverages = files.map { |f| f['percentage'] }
 
       expect(coverages.min).to be < 50  # bar.rb at ~33%

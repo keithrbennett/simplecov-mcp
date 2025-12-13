@@ -229,9 +229,9 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
   end
 
-  describe 'all_files error handling' do
+  describe 'list error handling' do
     it 'skips files that raise FileError during coverage lookup' do
-      # This exercises the `next` statement in the all_files loop when FileError is raised
+      # This exercises the `next` statement in the list loop when FileError is raised
       model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise FileError for one specific file
@@ -241,7 +241,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
       # Should not raise, just skip the problematic file
-      result = model.all_files(raise_on_stale: false)
+      result = model.list(raise_on_stale: false)
 
       # The result should contain bar.rb but not foo.rb
       file_names = result.map { |r| File.basename(r['file']) }

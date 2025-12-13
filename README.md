@@ -86,7 +86,7 @@ Repository: https://github.com/keithrbennett/cov-loupe  # <--- Project URL ---
 require "cov_loupe"
 
 model = CovLoupe::CoverageModel.new
-files = model.all_files
+files = model.list
 # => [{ "file" => "lib/cov_loupe/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
 
 summary = model.summary_for("lib/cov_loupe/model.rb")

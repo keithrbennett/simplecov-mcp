@@ -31,7 +31,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
 
   it 'configures CLI to enforce stale checking when requested' do
     model = instance_double(CovLoupe::CoverageModel,
-      all_files: [
+      list: [
         { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
           'stale' => false }
       ],

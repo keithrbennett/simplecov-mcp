@@ -206,7 +206,7 @@ These tools analyze individual files. All require `path` parameter.
 - Returns: `{"result": Boolean}` where `true` means policy passed, `false` means failed
 - Security Warning: Predicates execute as arbitrary Ruby code with full system privileges. Only use predicate files from trusted sources.
 - Examples:
-  - Check if all files have at least 80% coverage: `{"code": "->(m) { m.all_files.all? { |f| f['percentage'] >= 80 } }"}`
+  - Check if all files have at least 80% coverage: `{"code": "->(m) { m.list.all? { |f| f['percentage'] >= 80 } }"}`
   - Run coverage policy from file: `{"file": "coverage_policy.rb"}`
 
 #### Utility Tools

@@ -217,11 +217,11 @@ require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-all_files = model.all_files
+list = model.list
 
 # Find files below threshold
 THRESHOLD = 80.0
-low_coverage = all_files.select { |f| f['percentage'] < THRESHOLD }
+low_coverage = list.select { |f| f['percentage'] < THRESHOLD }
 
 if low_coverage.any?
   puts "Files below #{THRESHOLD}%:"
@@ -247,11 +247,11 @@ require "pathname"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-all_files = model.all_files
+list = model.list
 
 # Filter to lib/payments (coverage data stores absolute paths)
 lib_root = File.expand_path("lib/payments", File.expand_path(root, Dir.pwd))
-lib_files = all_files.select { |f| f['file'].start_with?(lib_root) }
+lib_files = list.select { |f| f['file'].start_with?(lib_root) }
 
 # Generate custom table
 table = model.format_table(lib_files, sort_order: :ascending)
@@ -458,14 +458,14 @@ test:
 ```ruby
 # coverage_policy.rb
 ->(model) do
-  all_files = model.all_files
+  list = model.list
 
   # Must have at least 80% average coverage
   totals = model.project_totals
   return false if totals['percentage'] < 80.0
 
   # No files below 60%
-  return false if all_files.any? { |f| f['percentage'] < 60.0 }
+  return false if list.any? { |f| f['percentage'] < 60.0 }
 
   # lib/ files must average 90%
   lib_totals = model.project_totals(tracked_globs: ['lib/**/*.rb'])
@@ -489,7 +489,7 @@ require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-all_files = model.all_files
+list = model.list
 
 # Calculate coverage by directory (uses the same data as `cov-loupe totals`)
 patterns = %w[
@@ -525,7 +525,7 @@ require "json"
 # Save current coverage
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-current = model.all_files
+current = model.list
 
 File.write("coverage_baseline.json", JSON.pretty_generate(current))
 

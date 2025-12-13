@@ -16,7 +16,7 @@ module CovLoupe
       # Returns the absolute-path payload including counts.
       def absolute_payload
         @absolute_payload ||= begin
-          files = model.all_files(
+          files = model.list(
             sort_order: sort_order,
             raise_on_stale: raise_on_stale,
             tracked_globs: tracked_globs

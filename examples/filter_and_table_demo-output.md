@@ -15,8 +15,8 @@ Files: total 2, ok 0, stale 2
 ## 2. Filter by Directory (lib/ only)
 ```ruby
 # Filter files by directory (e.g., only show files in lib/)
-all_files_data = model.all_files
-lib_files = all_files_data.select { |file| file["file"].include?("/lib/") }
+files_data = model.list
+lib_files = files_data.select { |file| file["file"].include?("/lib/") }
 lib_files_table = model.format_table(lib_files)
 # => formatted table showing only files from lib/ directory
 ```
@@ -35,7 +35,7 @@ Files: total 2, ok 0, stale 2
   ## 3. Filter by Pattern (files with specific naming)
   ```ruby
   # Filter by pattern (e.g., only show files with "foo" in name)
-  foo_files = all_files_data.select { |file| file["file"].include?("foo") }
+  foo_files = files_data.select { |file| file["file"].include?("foo") }
   foo_table = model.format_table(foo_files)
   # => formatted table showing only files with 'foo' in filename
   ```
@@ -54,7 +54,7 @@ Files: total 1, ok 0, stale 1
 ## 4. Filter by Coverage Threshold (only high-coverage files)
 ```ruby
 # Filter by coverage percentage (e.g., only files >= 50% coverage)
-high_coverage_files = all_files_data.select { |file| file["percentage"] >= 50.0 }
+high_coverage_files = files_data.select { |file| file["percentage"] >= 50.0 }
 high_coverage_table = model.format_table(high_coverage_files)
 # => formatted table showing only well-covered files
 ```
@@ -72,7 +72,7 @@ Files: total 1, ok 0, stale 1
 ## 5. Staleness Analysis
 ```ruby
 # Analyze coverage staleness to find potentially problematic files
-stale_files, healthy_files = all_files_data.partition { |file| file["stale"] }
+stale_files, healthy_files = files_data.partition { |file| file["stale"] }
 
 puts "## Potentially Stale Coverage Files"
 puts model.format_table(stale_files, sort_order: :descending)

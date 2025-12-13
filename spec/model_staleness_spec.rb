@@ -27,21 +27,21 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
-  it 'all_files raises project-level stale when any source file is newer than coverage' do
+  it 'list raises project-level stale when any source file is newer than coverage' do
     with_stubbed_coverage_timestamp(VERY_OLD_TIMESTAMP) do
       model = described_class.new(root: root, raise_on_stale: true)
-      expect { model.all_files }.to raise_error(CovLoupe::CoverageDataProjectStaleError)
+      expect { model.list }.to raise_error(CovLoupe::CoverageDataProjectStaleError)
     end
   end
 
-  it 'all_files detects new files via tracked_globs' do
+  it 'list detects new files via tracked_globs' do
     with_stubbed_coverage_timestamp(Time.now.to_i) do
       Tempfile.create(['brand_new_file', '.rb'], File.join(root, 'lib')) do |f|
         f.write("# new file\n")
         f.flush
         model = described_class.new(root: root, raise_on_stale: true)
         expect do
-          model.all_files(tracked_globs: ['lib/**/*.rb'])
+          model.list(tracked_globs: ['lib/**/*.rb'])
         end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
       end
     end

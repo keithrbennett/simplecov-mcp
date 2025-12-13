@@ -49,8 +49,8 @@ def output_examples
     ## 2. Filter by Directory (lib/ only)
     ```ruby
     # Filter files by directory (e.g., only show files in lib/)
-    all_files_data = model.all_files
-    lib_files = all_files_data.select { |file| file["file"].include?("/lib/") }
+    files_data = model.list
+    lib_files = files_data.select { |file| file["file"].include?("/lib/") }
     lib_files_table = model.format_table(lib_files)
     # => formatted table showing only files from lib/ directory
     ```
@@ -58,8 +58,8 @@ def output_examples
   DOC
 
   # Execute the code
-  all_files_data = model.all_files
-  lib_files = all_files_data.select { |file| file['file'].include?('/lib/') }
+  files_data = model.list
+  lib_files = files_data.select { |file| file['file'].include?('/lib/') }
   lib_files_table = model.format_table(lib_files)
   puts <<~DOC
     Result:
@@ -73,7 +73,7 @@ def output_examples
     ## 3. Filter by Pattern (files with specific naming)
     ```ruby
     # Filter by pattern (e.g., only show files with "foo" in name)
-    foo_files = all_files_data.select { |file| file["file"].include?("foo") }
+    foo_files = files_data.select { |file| file["file"].include?("foo") }
     foo_table = model.format_table(foo_files)
     # => formatted table showing only files with 'foo' in filename
     ```
@@ -81,7 +81,7 @@ def output_examples
   DOC
 
   # Execute the code
-  foo_files = all_files_data.select { |file| file['file'].include?('foo') }
+  foo_files = files_data.select { |file| file['file'].include?('foo') }
   foo_table = model.format_table(foo_files)
   puts <<~DOC
     Result:
@@ -95,7 +95,7 @@ def output_examples
     ## 4. Filter by Coverage Threshold (only high-coverage files)
     ```ruby
     # Filter by coverage percentage (e.g., only files >= 50% coverage)
-    high_coverage_files = all_files_data.select { |file| file["percentage"] >= 50.0 }
+    high_coverage_files = files_data.select { |file| file["percentage"] >= 50.0 }
     high_coverage_table = model.format_table(high_coverage_files)
     # => formatted table showing only well-covered files
     ```
@@ -103,7 +103,7 @@ def output_examples
   DOC
 
   # Execute the code
-  high_coverage_files = all_files_data.select { |file| file['percentage'] >= 50.0 }
+  high_coverage_files = files_data.select { |file| file['percentage'] >= 50.0 }
   high_coverage_table = model.format_table(high_coverage_files)
   puts <<~DOC
     Result:
@@ -117,7 +117,7 @@ def output_examples
     ## 5. Staleness Analysis
     ```ruby
     # Analyze coverage staleness to find potentially problematic files
-    stale_files, healthy_files = all_files_data.partition { |file| file["stale"] }
+    stale_files, healthy_files = files_data.partition { |file| file["stale"] }
 
     puts "## Potentially Stale Coverage Files"
     puts model.format_table(stale_files, sort_order: :descending)
@@ -129,7 +129,7 @@ def output_examples
   DOC
 
   # Execute the stale analysis
-  stale_files, healthy_files = all_files_data.partition { |file| file['stale'] }
+  stale_files, healthy_files = files_data.partition { |file| file['stale'] }
 
   puts 'Result:'
   puts '```'

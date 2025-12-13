@@ -506,17 +506,17 @@ bundle exec cov-loupe validate coverage_policy.rb
 **String mode (inline code):**
 ```sh
 # Simple inline validation
-clp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+clp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 
 # With global options
-clp -r coverage validate -i '->(m) { m.all_files.size > 0 }'
+clp -r coverage validate -i '->(m) { m.list.size > 0 }'
 ```
 
 **Example predicate file:**
 ```ruby
 # coverage_policy.rb
 ->(model) do
-  model.all_files.all? { |f| f['percentage'] >= 80 }
+  model.list.all? { |f| f['percentage'] >= 80 }
 end
 ```
 

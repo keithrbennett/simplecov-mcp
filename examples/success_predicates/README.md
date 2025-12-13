@@ -25,7 +25,7 @@ cov-loupe validate examples/success_predicates/<filename>.rb
 
 **String mode:**
 ```sh
-cov-loupe validate -i '->(model) { model.all_files.all? { |f| f["percentage"] >= 80 } }'
+cov-loupe validate -i '->(model) { model.list.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 The predicate receives a `CoverageModel` instance and returns:
@@ -66,7 +66,7 @@ A predicate must be a callable object (lambda, proc, or class with `#call` metho
 **Lambda example:**
 ```ruby
 ->(model) do
-  model.all_files.all? { |f| f['percentage'] >= 80 }
+  model.list.all? { |f| f['percentage'] >= 80 }
 end
 ```
 
@@ -74,7 +74,7 @@ end
 ```ruby
 class MyPolicy
   def self.call(model)
-    model.all_files.all? { |f| f['percentage'] >= @threshold }
+    model.list.all? { |f| f['percentage'] >= @threshold }
   end
 end
 
@@ -89,7 +89,7 @@ class MyPolicy
   end
 
   def call(model)
-    model.all_files.all? { |f| f['percentage'] >= @threshold }
+    model.list.all? { |f| f['percentage'] >= @threshold }
   end
 end
 
@@ -103,11 +103,11 @@ The `model` parameter provides:
 
 ```ruby
 # Get all files
-files = model.all_files
+files = model.list
 # => [{ "file" => "...", "covered" => 12, "total" => 14, "percentage" => 85.71, "stale" => false }, ...]
 
 # Filter by globs
-api_files = model.all_files(tracked_globs: ['lib/api/**/*.rb'])
+api_files = model.list(tracked_globs: ['lib/api/**/*.rb'])
 
 # Get specific file data
 summary = model.summary_for('lib/model.rb')
@@ -146,7 +146,7 @@ model = CovLoupe::CoverageModel.new(
 )
 
 # Complex logic with external API
-files = model.all_files
+files = model.list
 low_coverage_files = files.select { |f| f['percentage'] < 80 }
 
 # Post to Slack

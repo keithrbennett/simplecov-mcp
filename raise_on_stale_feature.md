@@ -20,7 +20,7 @@ Specifically, the following subtasks have been finished:
 
 1.  **Update CoverageModel API:**
     *   The `CoverageModel` constructor now accepts `raise_on_stale: false` (default) instead of `staleness: :off`.
-    *   Methods like `raw_for`, `summary_for`, `uncovered_for`, `detailed_for`, `all_files`, `project_totals`, and `format_table` now accept an optional `raise_on_stale` boolean parameter.
+    *   Methods like `raw_for`, `summary_for`, `uncovered_for`, `detailed_for`, `list`, `project_totals`, and `format_table` now accept an optional `raise_on_stale` boolean parameter.
     *   The internal `StalenessChecker` instances are now created on-demand per call, mapping the `raise_on_stale` boolean to the `StalenessChecker`'s internal `:error` or `:off` mode as needed. The persistent `@checker` instance has been removed from the model.
 
 2.  **Update CLI Layer:**

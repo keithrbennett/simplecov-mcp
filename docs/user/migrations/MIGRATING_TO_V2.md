@@ -205,7 +205,7 @@ simplecov-mcp --success-predicate policy.rb
 simplecov-mcp validate policy.rb
 
 # Inline policy (new feature)
-simplecov-mcp validate -i '->(m) { m.all_files.all? { |f| f["percentage"] >= 80 } }'
+simplecov-mcp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Migration:** Replace `--success-predicate FILE` with `validate FILE`.
