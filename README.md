@@ -248,7 +248,7 @@ cov-loupe -fJ totals
 
 ### Boolean CLI Options
 
-Flags such as `--color` and `--raise-on-stale` now use explicit boolean arguments. A bare flag (e.g., `--color`) sets the value to `true`. Recognized literals:
+Flags such as `--color` (short: `-C`) and `--raise-on-stale` (short: `-S`) now use explicit boolean arguments. A bare flag (e.g., `--color`) sets the value to `true`. Recognized literals:
 
 |        |        |
 |--------|--------|
@@ -264,6 +264,7 @@ Each row lists the equivalent `true` token (left) and `false` token (right).
 
 ```sh
 cov-loupe --color false        # disable ANSI colors explicitly
+cov-loupe -C false             # short form
 cov-loupe --raise-on-stale yes # enforce stale coverage failures
 ```
 

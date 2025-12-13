@@ -32,14 +32,13 @@ Options:
     -o, --sort-order ORDER           Sort order for list: a[scending]|d[escending] (default descending)
     -s, --source MODE                Source display: f[ull]|u[ncovered]
     -c, --context-lines N            Context lines around uncovered lines (non-negative, default: 2)
-        --color                      Enable ANSI colors for source output
-        --no-color                   Disable ANSI colors
-    -S, --[no-]raise-on-stale        Raise an error when coverage is stale (default: false)
+    -C, --color [BOOLEAN]            Enable/disable ANSI colors for source output (default: true). Accepts: yes/no/y/n/true/false/t/f/on/off/+/-/1/0, or bare -C/--color for true
+    -S, --raise-on-stale [BOOLEAN]   Raise error if coverage is stale (default: false). Accepts: yes/no/y/n/true/false/t/f/on/off/+/-/1/0, or bare -S/--raise-on-stale for true
     -g, --tracked-globs x,y,z        Globs for filtering files (list/totals subcommands)
     -h, --help                       Show help
     -l, --log-file PATH              Log file path (default ./cov_loupe.log, use stdout/stderr for streams)
-        --error-mode MODE            Error handling mode: o[ff]|l[og]|d[ebug] (default log). off (silent), log (log errors to file), debug (verbose with backtraces)
     -F, --force-mode MODE            Force execution mode: cli|mcp|auto (auto = default detection)
+        --error-mode MODE            Error handling mode: o[ff]|l[og]|d[ebug] (default log). off (silent), log (log errors to file), debug (verbose with backtraces)
     -v, --version                    Show version information and exit
 
 Examples:

@@ -137,7 +137,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 | `-o`, `--sort-order` | ❌ No | `sort_order` | CLI flag ignored in MCP; pass per tool call (`\"ascending\"` or `\"descending\"`) |
 | `-s`, `--source` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-c`, `--context-lines` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
-| `--color`, `--no-color` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
+| `-C`, `--color [BOOLEAN]` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-F`, `--force-mode` | N/A | N/A | Force mode: `cli` or `mcp` (`auto` = default detection). |
 
 **Key Takeaways:**
@@ -147,7 +147,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 
 **Precedence for MCP tool config:** `JSON request param` > `CLI args used to start MCP` (including `COV_LOUPE_OPTS`) > built-in defaults (`root: '.'`, `raise_on_stale: false`, `resultset: nil`, `tracked_globs: nil`).
 
-CLI-only presentation flags (`-f/--format`, `-s/--source`, `-c/--context-lines`, `--color/--no-color`, and CLI `-o/--sort-order` defaults) never flow into MCP. Pass `sort_order` explicitly in each tool request when you need non-default ordering.
+CLI-only presentation flags (`-f/--format`, `-s/--source`, `-c/--context-lines`, `-C/--color`, and CLI `-o/--sort-order` defaults) never flow into MCP. Pass `sort_order` explicitly in each tool request when you need non-default ordering.
 
 ### Common Parameters
 

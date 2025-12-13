@@ -151,7 +151,7 @@ clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --c
 |---------|--------------------------|------------------------------------------------------|
 | `-s`    | `--source uncovered`     | Show uncovered lines with context                    |
 | `-c`    | `--context-lines N`      | Lines of context around uncovered lines (default: 2) |
-|         | `--color [BOOLEAN]`      | Enable (`true`)/disable (`false`) syntax coloring    |
+| `-C`    | `--color [BOOLEAN]`      | Enable (`true`)/disable (`false`) syntax coloring    |
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
 | `-fj`   | `--format json`          | Output as single-line JSON                           |
 | `-f y`  | `--format yaml`          | Output as YAML                                       |
@@ -394,7 +394,7 @@ clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-li
 
 **Default:** 2 lines
 
-### Boolean Flags (`--color`, `--raise-on-stale`)
+### Boolean Flags (`--color` / `-C`, `--raise-on-stale`)
 
 These options accept explicit `[BOOLEAN]` values. A bare flag sets the value to `true`. Recognized literals:
 
@@ -413,13 +413,13 @@ clp --color false           # disable color
 clp --raise-on-stale yes    # enforce stale coverage failures
 ```
 
-### `--color [BOOLEAN]`
+### `-C, --color [BOOLEAN]`
 
 Enable or disable ANSI color codes in source output.
 
 ```sh
 clp uncovered lib/api/client.rb -s uncovered --color
-clp uncovered lib/api/client.rb -s uncovered --color false
+clp uncovered lib/api/client.rb -s uncovered -C false
 ```
 
 **Default:** Colors enabled if output is a TTY

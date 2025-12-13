@@ -73,6 +73,11 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--color', 'on', 'list'], accessor: :color, expected: true },
       { argv: ['--color', 'off', 'list'], accessor: :color, expected: false },
 
+      # -C short flag for --color
+      { argv: ['-C', 'no', 'list'], accessor: :color, expected: false },
+      { argv: ['-C', 'false', 'list'], accessor: :color, expected: false },
+      { argv: ['-C', 'list'], accessor: :color, expected: true }, # bare flag
+
     ]
 
     boolean_cases.each do |c|

@@ -121,7 +121,7 @@ This release represents a complete maturation of simplecov-mcp from experimental
 - **Default command improved** - `simplecov-mcp` shows sorted coverage table (no subcommand needed)
 - **Flexible sorting** - `--sort-order a|d` or `--sort-order ascending|descending`
 - **Annotated source code** - `--source=full|uncovered` with `--source-context N` for context lines
-- **Optional colorization** - `--color/--no-color` for source code output
+- **Optional colorization** - `-C/--color [BOOLEAN]` for source code output
 - **Tracked globs** - `--tracked-globs PATTERN` to filter files or detect new untested files
 - **User-specified defaults via environment variable** - `SIMPLECOV_MCP_OPTS` environment variable value is prepended to ARGV for option parsing
 - **Configurable logging** - `--log-file PATH` or `stdout`/`stderr` (default: `./simplecov_mcp.log`)

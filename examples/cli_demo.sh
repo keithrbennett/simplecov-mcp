@@ -55,7 +55,7 @@ run uncovered lib/foo.rb --root "$PROJ" --source=uncovered --source-context 2
 run uncovered lib/foo.rb --root "$PROJ" --json
 
 # 6) Detailed per-line data (text and JSON), with source
-run detailed lib/foo.rb --root "$PROJ" --source --no-color
+run detailed lib/foo.rb --root "$PROJ" --source -C false
 run detailed lib/foo.rb --root "$PROJ" --json
 
 # 7) Raw lines array (JSON)

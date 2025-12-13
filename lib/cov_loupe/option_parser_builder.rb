@@ -80,9 +80,9 @@ module CovLoupe
         'Context lines around uncovered lines (non-negative, default: 2)') do |value|
         config.source_context = value
       end
-      parser.on('--color [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
+      parser.on('-C', '--color [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
         'Enable/disable ANSI colors for source output (default: true). ' \
-          "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare --color for true") do |value|
+          "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -C/--color for true") do |value|
         config.color = BooleanType.parse(value)
       end
       parser.on('-S', '--raise-on-stale [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
