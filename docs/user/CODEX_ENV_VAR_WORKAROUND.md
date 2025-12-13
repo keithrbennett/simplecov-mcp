@@ -1,7 +1,7 @@
 # Codex MCP env var passthrough workaround
 
 ## Issue
-- Codex do not forward `GEM_HOME`/`GEM_PATH` to MCP servers by default. When they are missing, `cov-loupe` cannot locate installed gems and fails to start.
+- Codex does not forward `GEM_HOME`/`GEM_PATH` to MCP servers by default. When they are missing, `cov-loupe` cannot locate installed gems and fails to start.
 
 ## Workaround (Codex config)
 1) Ensure the helper script below exists at `/home/kbennett/.local/bin/codex-cov-loupe` and is executable.
@@ -12,6 +12,11 @@
    env_vars = ["GEM_HOME", "GEM_PATH"]
    ```
 3) Restart the Codex session so the new env var whitelist is applied.
+
+**IMPORTANT NOTE**: If you `codex mcp remove` this entry,
+the `env_vars` line will be gone along with the rest of that section.
+Restoring the entry with `codex mcp add` will _not_ restore the `env_vars` line;
+you will need to do that yourself, again.
 
 ## Helper script (`/home/kbennett/.local/bin/codex-cov-loupe`)
 ```bash
