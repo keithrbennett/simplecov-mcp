@@ -1,7 +1,16 @@
 # Codex MCP env var passthrough workaround
 
 ## Issue
-- Codex does not forward `GEM_HOME`/`GEM_PATH` to MCP servers by default. When they are missing, `cov-loupe` cannot locate installed gems and fails to start.
+
+At the time of this writing (December 2025), Codex on Linux does not forward 
+`GEM_HOME`/`GEM_PATH` to MCP servers by default. When they are missing, `cov-loupe`
+cannot locate installed gems and fails to start, displaying this error:
+
+```bash
+⚠ MCP client for `cov-loupe` failed to start: MCP startup failed: handshaking with MCP server failed: connection closed: initialize response
+
+⚠ MCP startup incomplete (failed: cov-loupe)
+```
 
 ## Workaround (Codex config)
 1) Ensure the helper script below exists at `/home/kbennett/.local/bin/codex-cov-loupe` and is executable.
