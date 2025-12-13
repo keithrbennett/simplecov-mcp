@@ -73,11 +73,6 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--color', 'on', 'list'], accessor: :color, expected: true },
       { argv: ['--color', 'off', 'list'], accessor: :color, expected: false },
 
-      # --version with various values
-      { argv: ['--version=yes'], accessor: :show_version, expected: true },
-      { argv: ['--version=no'], accessor: :show_version, expected: false },
-      { argv: ['--version', 'true'], accessor: :show_version, expected: true },
-      { argv: ['--version', 'false'], accessor: :show_version, expected: false }
     ]
 
     boolean_cases.each do |c|

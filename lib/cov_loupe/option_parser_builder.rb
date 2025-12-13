@@ -114,10 +114,8 @@ module CovLoupe
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
         config.error_mode = normalize_error_mode(value)
       end
-      parser.on('-v', '--version [BOOLEAN]', BooleanType::IS_BOOLEAN_STRING_VALUE,
-        'Show version information and exit. ' \
-           "Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -v/--version for true") do |value|
-        config.show_version = BooleanType.parse(value)
+      parser.on('-v', '--version', 'Show version information and exit.') do
+        config.show_version = true
       end
     end
 

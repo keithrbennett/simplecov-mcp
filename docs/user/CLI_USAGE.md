@@ -147,16 +147,15 @@ clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --c
 
 **Options:**
 
-| Short | Long                  | Description                                           |
-|-------|-----------------------|-------------------------------------------------------|
-| `-s`  | `--source uncovered`  | Show uncovered lines with context                     |
-| `-c`  | `--context-lines N`   | Lines of context around uncovered lines (default: 2)  |
-|       | `--color`             | Enable syntax coloring                                |
-|       | `--no-color`          | Disable syntax coloring                               |
-| `-fJ` | `--format pretty-json` | Output as pretty-printed JSON                        |
-| `-fj` | `--format json`        | Output as single-line JSON                          |
-| `-f y` | `--format yaml`        | Output as YAML                                      |
-| `-f ap` | `--format awesome_print` | Output using AwesomePrint                         |
+| Short   | Long                     | Description                                          |
+|---------|--------------------------|------------------------------------------------------|
+| `-s`    | `--source uncovered`     | Show uncovered lines with context                    |
+| `-c`    | `--context-lines N`      | Lines of context around uncovered lines (default: 2) |
+|         | `--color [BOOLEAN]`      | Enable (`true`)/disable (`false`) syntax coloring    |
+| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
+| `-fj`   | `--format json`          | Output as single-line JSON                           |
+| `-f y`  | `--format yaml`          | Output as YAML                                       |
+| `-f ap` | `--format awesome_print` | Output using AwesomePrint                            |
 
 **Output (default format):**
 ```
@@ -395,23 +394,42 @@ clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-li
 
 **Default:** 2 lines
 
-### `--color` / `--no-color`
+### Boolean Flags (`--color`, `--raise-on-stale`)
+
+These options accept explicit `[BOOLEAN]` values. A bare flag sets the value to `true`. Recognized literals:
+
+| true   | false   |
+|--------|---------|
+| `yes`  | `no`    |
+| `y`    | `n`     |
+| `true` | `false` |
+| `t`    | `f`     |
+| `on`   | `off`   |
+| `+`    | `-`     |
+| `1`    | `0`     |
+
+```sh
+clp --color false           # disable color
+clp --raise-on-stale yes    # enforce stale coverage failures
+```
+
+### `--color [BOOLEAN]`
 
 Enable or disable ANSI color codes in source output.
 
 ```sh
 clp uncovered lib/api/client.rb -s uncovered --color
-clp uncovered lib/api/client.rb -s uncovered --no-color
+clp uncovered lib/api/client.rb -s uncovered --color false
 ```
 
 **Default:** Colors enabled if output is a TTY
 
-### `-S, --[no-]raise-on-stale`
+### `-S, --raise-on-stale [BOOLEAN]`
 
 Raise error if coverage is stale. Default is `false` (only report staleness in output).
 
 *   Use `--raise-on-stale` or `-S` to enable (set to `true`).
-*   Use `--no-raise-on-stale` to explicitly disable (set to `false`).
+*   Use `--raise-on-stale false` to explicitly disable (set to `false`).
 
 ```sh
 # Enable raising an error if coverage is stale
@@ -419,7 +437,7 @@ clp -S              # Short form
 clp --raise-on-stale
 
 # Explicitly disable raising an error (useful to override COV_LOUPE_OPTS)
-clp --no-raise-on-stale
+clp --raise-on-stale false
 ```
 
 **Staleness conditions:**
@@ -709,7 +727,7 @@ clp uncovered lib/api/client.rb -s uncovered
 clp uncovered lib/api/client.rb -s uncovered -c 5
 
 # Without colors (for logging)
-clp uncovered lib/api/client.rb -s full --no-color
+clp uncovered lib/api/client.rb -s full --color false
 ```
 
 ### CI/CD Integration
