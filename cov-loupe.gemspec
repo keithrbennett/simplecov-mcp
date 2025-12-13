@@ -31,6 +31,17 @@ Gem::Specification.new do |spec|
 
   spec.post_install_message = <<~MESSAGE
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ V4.0.0 BREAKING CHANGES                                                   ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃                                                                           ┃
+    ┃  • --force-cli removed → use -F/--force-mode cli|mcp|auto instead         ┃
+    ┃  • --staleness removed → use --raise-on-stale (boolean) instead           ┃
+    ┃  • Ruby API: check_stale removed → use raise_on_stale (boolean) instead   ┃
+    ┃  • Model #all_files_coverage method renamed to #list                      ┃
+    ┃                                                                           ┃
+    ┃ See RELEASE_NOTES.md for migration details.                               ┃
+    ┃                                                                           ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃ V3.0.0 - GEM RENAMED: simplecov-mcp → cov-loupe                           ┃
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃                                                                           ┃
