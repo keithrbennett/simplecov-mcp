@@ -2,6 +2,7 @@
 
 require_relative 'option_normalizers'
 require_relative 'version'
+require_relative 'boolean_type'
 
 module CovLoupe
   class OptionParserBuilder
@@ -51,6 +52,7 @@ module CovLoupe
         SUBCOMMANDS
     end
 
+    BOOLEAN_OPTION_REGEXP = /^(?:yes|y|true|t|on|\+|1|no|n|false|f|off|-|0)$/i
     private def define_options(parser)
       parser.separator 'Options:'
       parser.on('-r', '--resultset PATH', String,
@@ -79,12 +81,15 @@ module CovLoupe
         'Context lines around uncovered lines (non-negative, default: 2)') do |value|
         config.source_context = value
       end
-      parser.on('--color', 'Enable ANSI colors for source output') { config.color = true }
-      parser.on('--no-color', 'Disable ANSI colors') { config.color = false }
-      parser.on('-S', '--[no-]raise-on-stale',
-        'Raise error if coverage is stale (default false). Use --raise-on-stale for true, ' \
-        '--no-raise-on-stale for false.') do |value|
-        config.raise_on_stale = value
+      parser.on('--color [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+        'Enable/disable ANSI colors for source output (default: true). ' \
+"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare --color for true") do |value|
+        config.color = BooleanType.parse(value)
+      end
+      parser.on('-S', '--raise-on-stale [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+        'Raise error if coverage is stale (default: false). ' \
+"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -S/--raise-on-stale for true") do |value|
+        config.raise_on_stale = BooleanType.parse(value)
       end
       parser.on('-g', '--tracked-globs x,y,z', Array,
         'Globs for filtering files (list/totals subcommands)') do |value|
@@ -110,8 +115,10 @@ module CovLoupe
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
         config.error_mode = normalize_error_mode(value)
       end
-      parser.on('-v', '--version', 'Show version information and exit') do
-        config.show_version = true
+      parser.on('-v', '--version [BOOLEAN]', BOOLEAN_OPTION_REGEXP,
+        'Show version information and exit. ' \
+"Accepts: #{BooleanType::BOOLEAN_VALUES_DISPLAY_STRING}, or bare -v/--version for true") do |value|
+        config.show_version = BooleanType.parse(value)
       end
     end
 

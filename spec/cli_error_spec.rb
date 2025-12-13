@@ -60,7 +60,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--raise-on-stale', 'summary', 'lib/foo.rb')
+      '--raise-on-stale=yes', 'summary', 'lib/foo.rb')
     expect(status).to eq(1)
     expect(err).to include('Coverage data stale:')
     expect(err).to match(/File\s+- time:/)
@@ -69,13 +69,13 @@ RSpec.describe CovLoupe::CoverageCLI do
     expect(err).to match('Resultset\s+-')
   end
 
-  it 'honors --no-raise-on-stale to disable checks' do
+  it 'honors --raise-on-stale=false to disable checks' do
     mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
       File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
     })
 
     _out, err, status = run_cli_with_status('--root', root, '--resultset', 'coverage',
-      '--no-raise-on-stale', 'summary', 'lib/foo.rb')
+      '--raise-on-stale=false', 'summary', 'lib/foo.rb')
     expect(status).to eq(0)
     expect(err).to eq('')
   end
@@ -86,7 +86,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     # that was previously mentioned in comments
     out, err, status = run_cli_with_status(
       '--root', root, '--resultset', 'coverage', '--source', 'uncovered', '--context-lines', '2',
-      '--no-color', 'uncovered', 'lib/foo.rb'
+      '--color=false', 'uncovered', 'lib/foo.rb'
     )
 
     expect(status).to eq(0)
@@ -99,7 +99,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   it 'renders source with full mode without crashing' do
     # Additional regression test for source rendering with full mode
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--source', 'full', '--no-color',
+      '--root', root, '--resultset', 'coverage', '--source', 'full', '--color=false',
       'summary', 'lib/foo.rb'
     )
 
@@ -120,7 +120,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
 
       out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', '--source', 'full', '--no-color',
+        '--root', root, '--resultset', 'coverage', '--source', 'full', '--color=false',
         'summary', 'lib/foo.rb'
       )
 

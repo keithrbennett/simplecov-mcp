@@ -102,7 +102,6 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       ['--source after list', ['list', '--source', 'full'], '--source'],
       ['--raise-on-stale after totals', ['totals', '--raise-on-stale'], '--raise-on-stale'],
       ['--color after list', ['list', '--color'], '--color'],
-      ['--no-color after list', ['list', '--no-color'], '--no-color'],
       ['--log-file after list', ['list', '--log-file', '/tmp/test.log'], '--log-file'],
 
       # Different subcommands

@@ -8,7 +8,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   it 'renders uncovered source without error for fixture file' do
     out, err, status = run_cli_with_status(
       '--root', root, '--resultset', 'coverage', '--source', 'uncovered', '--context-lines', '1',
-      '--no-color', 'uncovered', 'lib/foo.rb'
+      '--color=false', 'uncovered', 'lib/foo.rb'
     )
     expect(status).to eq(0)
     expect(err).to eq('')
@@ -19,7 +19,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'renders full source for uncovered command without brittle spacing' do
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--source', 'full', '--no-color',
+      '--root', root, '--resultset', 'coverage', '--source', 'full', '--color=false',
       'uncovered', 'lib/foo.rb'
     )
     expect(status).to eq(0)
@@ -32,7 +32,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   it 'renders source for summary with uncovered mode without crashing' do
     out, err, status = run_cli_with_status(
       '--root', root, '--resultset', 'coverage', '--source', 'uncovered', '--context-lines', '1',
-      '--no-color', 'summary', 'lib/foo.rb'
+      '--color=false', 'summary', 'lib/foo.rb'
     )
     expect(status).to eq(0)
     expect(err).to eq('')

@@ -25,9 +25,11 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: ['--source', 'uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode,
         expected: :uncovered },
 
-      { argv: ['-S', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--no-raise-on-stale', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['-S', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=false', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=yes', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale', 'no', 'list'], accessor: :raise_on_stale, expected: false },
 
       { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
       { argv: ['--error-mode', 'o', 'list'], accessor: :error_mode, expected: :off },
@@ -36,6 +38,49 @@ RSpec.describe 'CLI enumerated option parsing' do
     ]
 
     cases.each do |c|
+      it "parses #{c[:argv].join(' ')}" do
+        cli = parse!(c[:argv])
+        expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])
+      end
+    end
+  end
+
+  describe 'boolean options with BooleanType accept various values' do
+    boolean_cases = [
+      # --raise-on-stale with = syntax
+      { argv: ['--raise-on-stale=yes', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=no', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=true', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=false', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=on', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=off', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=y', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=n', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=+', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=-', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: ['--raise-on-stale=1', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale=0', 'list'], accessor: :raise_on_stale, expected: false },
+
+      # --raise-on-stale with space syntax
+      { argv: ['--raise-on-stale', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
+      { argv: ['--raise-on-stale', 'no', 'list'], accessor: :raise_on_stale, expected: false },
+
+      # --color with various values
+      { argv: ['--color=yes', 'list'], accessor: :color, expected: true },
+      { argv: ['--color=no', 'list'], accessor: :color, expected: false },
+      { argv: ['--color=true', 'list'], accessor: :color, expected: true },
+      { argv: ['--color=false', 'list'], accessor: :color, expected: false },
+      { argv: ['--color', 'on', 'list'], accessor: :color, expected: true },
+      { argv: ['--color', 'off', 'list'], accessor: :color, expected: false },
+
+      # --version with various values
+      { argv: ['--version=yes'], accessor: :show_version, expected: true },
+      { argv: ['--version=no'], accessor: :show_version, expected: false },
+      { argv: ['--version', 'true'], accessor: :show_version, expected: true },
+      { argv: ['--version', 'false'], accessor: :show_version, expected: false }
+    ]
+
+    boolean_cases.each do |c|
       it "parses #{c[:argv].join(' ')}" do
         cli = parse!(c[:argv])
         expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])

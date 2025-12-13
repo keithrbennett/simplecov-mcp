@@ -33,7 +33,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'list with stale=off prints table and exits 0' do
     out, err, status = run_cli_with_status(
-      '--root', root, '--resultset', 'coverage', '--no-raise-on-stale', 'list'
+      '--root', root, '--resultset', 'coverage', '--raise-on-stale=false', 'list'
     )
     expect(status).to eq(0)
     expect(err).to eq('')
