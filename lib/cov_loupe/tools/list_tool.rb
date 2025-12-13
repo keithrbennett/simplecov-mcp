@@ -6,7 +6,7 @@ require_relative '../presenters/project_coverage_presenter'
 
 module CovLoupe
   module Tools
-    class AllFilesCoverageTool < BaseTool
+    class ListTool < BaseTool
       description <<~DESC
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
@@ -29,7 +29,7 @@ module CovLoupe
       class << self
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', server_context:)
-          with_error_handling('AllFilesCoverageTool', error_mode: error_mode) do
+          with_error_handling('ListTool', error_mode: error_mode) do
             config = model_config_for(
               server_context: server_context,
               root: root,
@@ -48,7 +48,7 @@ module CovLoupe
               raise_on_stale: config[:raise_on_stale],
               tracked_globs: config[:tracked_globs]
             )
-            respond_json(presenter.relativized_payload, name: 'all_files_coverage.json')
+            respond_json(presenter.relativized_payload, name: 'list_coverage.json')
           end
         end
       end

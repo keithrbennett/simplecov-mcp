@@ -276,7 +276,7 @@ simplecov-mcp -o a list  # Short form
 }
 ```
 
-**Affected tools:** All file-based tools (`coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`) and aggregate tools (`all_files_coverage_tool`, `coverage_totals_tool`).
+**Affected tools:** All file-based tools (`coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`) and aggregate tools (`list_tool`, `coverage_totals_tool`).
 
 **Migration:** Replace `"stale"` with `"staleness"` in all MCP tool calls.
 

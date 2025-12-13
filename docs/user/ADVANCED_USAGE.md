@@ -63,7 +63,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_to
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 
 # List all files with sorting (include root parameter)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"all_files_coverage_tool","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_tool","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe
 
 # Get uncovered lines (include root parameter)
 echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe

@@ -22,7 +22,7 @@ Previous concerns regarding test coverage and large resultset handling have been
 - **Structure:** The project follows a standard Ruby gem structure. The core logic resides in `SimpleCovMcp::CoverageModel`, acting as the single source of truth. This separates data processing from presentation layers (`CLI`, `MCPServer`, `Formatters`).
 - **Strengths:**
     - **Separation of Concerns:** The distinct boundaries between the Model, CLI, and MCP Server make the code easy to navigate and modify.
-    - **Modularity:** Tools are implemented as standalone classes (e.g., `AllFilesCoverageTool`, `ValidateTool`), making it easy to add new capabilities.
+    - **Modularity:** Tools are implemented as standalone classes (e.g., `ListTool`, `ValidateTool`), making it easy to add new capabilities.
     - **Design Patterns:** Effective use of Facade/Adapter patterns to interface with SimpleCov data.
 - **Weaknesses:** None observed.
 - **Score:** 10/10

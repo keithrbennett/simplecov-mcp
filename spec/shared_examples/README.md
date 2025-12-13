@@ -98,7 +98,7 @@ your_tool: {
 ### When NOT to Use This
 
 Don't use the parameterized approach for tools that:
-- Don't follow the file-based pattern (e.g., `AllFilesCoverageTool`, `VersionTool`)
+- Don't follow the file-based pattern (e.g., `ListTool`, `VersionTool`)
 - Have significantly different parameter signatures
 - Need extensive tool-specific testing that doesn't fit the pattern
 - Are prototypes or experimental tools

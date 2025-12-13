@@ -20,7 +20,7 @@ RSpec.describe CovLoupe::Tools::HelpTool do
     tool_names = data['tools'].map { |entry| entry['tool'] }
 
     expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool',
-      'all_files_coverage_tool', 'coverage_totals_tool', 'coverage_table_tool', 'version_tool')
+      'list_tool', 'coverage_totals_tool', 'coverage_table_tool', 'version_tool')
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
 end

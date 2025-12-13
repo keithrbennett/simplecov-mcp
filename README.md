@@ -250,7 +250,7 @@ cov-loupe -fJ totals
 
 **CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `totals`, `validate`, `version`
 
-**MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `all_files_coverage_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, `version_tool`
+**MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `list_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, `version_tool`
 
 📖 **See also:**
 - [CLI Usage Guide](docs/user/CLI_USAGE.md) - Complete command-line reference

@@ -38,7 +38,7 @@
   - Per-line detail → `coverage_detailed_tool`
   - Uncovered lines → `uncovered_lines_tool`
   - Raw SimpleCov array → `coverage_raw_tool`
-  - Repository list/table → `all_files_coverage_tool` (use `sort_order` / `tracked_globs` as needed)
+  - Repository list/table → `list_tool` (use `sort_order` / `tracked_globs` as needed)
   - Human-readable table text → `coverage_table_tool`
   - Version check → `version_tool`
 - Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation.

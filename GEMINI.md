@@ -80,7 +80,7 @@ You can query it manually using JSON-RPC over stdio, for example:
 
 - **“What’s the coverage percentage for `lib/cov_loupe/model.rb`?”** → call `coverage_summary_tool` with the file path.
 - **“Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?”** → call `uncovered_lines_tool`.
-- **“Show the repo coverage table sorted worst-first.”** → call `all_files_coverage_tool` (default `sort_order` already surfaces lowest percentages first).
+- **“Show the repo coverage table sorted worst-first.”** → call `list_tool` (default `sort_order` already surfaces lowest percentages first).
 - **"I'm not sure which tool applies."** → call `help_tool`.
 
 Always prefer these tools over free-form reasoning so responses stay grounded in actual coverage data.

@@ -29,7 +29,7 @@ Specifically, the following subtasks have been finished:
     *   The translation logic (`config.staleness == :error`) has been removed in favor of directly using `config.raise_on_stale`.
 
 3.  **Update MCP Tools:**
-    *   All relevant MCP tools (`AllFilesCoverageTool`, `CoverageTotalsTool`, `CoverageTableTool`, `CoverageSummaryTool`, `CoverageRawTool`, `CoverageDetailedTool`, `UncoveredLinesTool`, `ValidateTool`) have had their input schemas and internal logic updated to accept and utilize the `raise_on_stale` boolean parameter.
+    *   All relevant MCP tools (`ListTool`, `CoverageTotalsTool`, `CoverageTableTool`, `CoverageSummaryTool`, `CoverageRawTool`, `CoverageDetailedTool`, `UncoveredLinesTool`, `ValidateTool`) have had their input schemas and internal logic updated to accept and utilize the `raise_on_stale` boolean parameter.
 
 4.  **Update Presenters:**
     *   `ProjectCoveragePresenter` and `ProjectTotalsPresenter` have been updated to accept and store `raise_on_stale` instead of `check_stale`, and pass this flag correctly to the `CoverageModel` methods.

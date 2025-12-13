@@ -92,7 +92,7 @@ cov-loupe exposes 10 MCP tools:
 | `coverage_detailed_tool` | Per-line coverage | `path` |
 | `coverage_raw_tool` | Raw SimpleCov array | `path` |
 | `uncovered_lines_tool` | List uncovered lines | `path` |
-| `all_files_coverage_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
+| `list_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
 | `coverage_totals_tool` | Aggregated line totals | `tracked_globs` |
 | `coverage_table_tool` | Formatted coverage table | `sort_order` |
 | `validate_tool` | Validate coverage policies | `code` or `file` |
@@ -187,7 +187,7 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Project-Wide Tools
 
-**`all_files_coverage_tool`** - Coverage for all files
+**`list_tool`** - Coverage for all files
 - Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
 - Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
 

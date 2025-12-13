@@ -38,7 +38,7 @@ RSpec.describe CovLoupe::MCPServer do
     # Ensure expected tools are registered
     tool_names = fake_server.params[:tools].map { |t| t.name.split('::').last }
     expect(tool_names).to include(
-      'AllFilesCoverageTool',
+      'ListTool',
       'CoverageDetailedTool',
       'CoverageRawTool',
       'CoverageSummaryTool',

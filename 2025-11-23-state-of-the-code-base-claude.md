@@ -187,7 +187,7 @@ Average coverage:  98.44% across 51 files (ok: 51, stale: 0)
 | `presenters/project_totals_presenter.rb` | 91.67% | 11/12 | Low |
 | `config_parser.rb` | 93.33% | 14/15 | Medium |
 | `resolvers/coverage_line_resolver.rb` | 94.12% | 48/51 | Medium |
-| `tools/all_files_coverage_tool.rb` | 94.12% | 16/17 | Low |
+| `tools/list_tool.rb` | 94.12% | 16/17 | Low |
 | `formatters/source_formatter.rb` | 94.32% | 83/88 | Low |
 | `tools/coverage_table_tool.rb` | 94.44% | 17/18 | Low |
 | `presenters/base_coverage_presenter.rb` | 95.00% | 19/20 | Low |

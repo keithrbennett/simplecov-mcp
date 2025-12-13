@@ -42,7 +42,7 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 ## MCP Tool Stack
 
 - `CovLoupe::BaseTool` centralizes JSON schema definitions, error conversion, and response serialization for the MCP protocol.
-- Individual tools reside in `lib/cov_loupe/tools/` and follow a consistent shape: define an input schema, call into `CoverageModel`, then serialize via `respond_json`. Examples include `AllFilesCoverageTool`, `CoverageSummaryTool`, and `UncoveredLinesTool`.
+- Individual tools reside in `lib/cov_loupe/tools/` and follow a consistent shape: define an input schema, call into `CoverageModel`, then serialize via `respond_json`. Examples include `ListTool`, `CoverageSummaryTool`, and `UncoveredLinesTool`.
 - Tools are registered in `CovLoupe::MCPServer#run`. Adding a new tool only requires creating a subclass and appending it to that list.
 
 ## Error Handling & Logging

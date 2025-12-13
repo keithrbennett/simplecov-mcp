@@ -47,7 +47,7 @@ module CovLoupe
           inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
         },
         {
-          tool: AllFilesCoverageTool,
+          tool: ListTool,
           label: 'Repo-wide file coverage',
           use_when: 'User wants coverage percentages for every tracked file.',
           avoid_when: 'User asks about a single file.',

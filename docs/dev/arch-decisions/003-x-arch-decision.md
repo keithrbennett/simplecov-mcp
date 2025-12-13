@@ -112,7 +112,7 @@ This allows:
   - Files deleted since coverage was collected
   - Tracked files missing from coverage (newly added files)
 - Raises `CoverageDataProjectStaleError` with lists of problematic files
-- Used by `all_files_coverage_tool` and `coverage_table_tool`
+- Used by `list_tool` and `coverage_table_tool`
 
 ### Tracked Globs Feature
 
@@ -162,4 +162,4 @@ This helps teams ensure new files are included in test runs.
 - Project-level checking: `lib/cov_loupe/staleness_checker.rb:59-95`
 - Staleness detail computation: `lib/cov_loupe/staleness_checker.rb:137-166`
 - Error types: `lib/cov_loupe/errors.rb` (CoverageDataStaleError, CoverageDataProjectStaleError)
-- Usage in tools: `lib/cov_loupe/tools/all_files_coverage_tool.rb`, `lib/cov_loupe/model.rb`
+- Usage in tools: `lib/cov_loupe/tools/list_tool.rb`, `lib/cov_loupe/model.rb`

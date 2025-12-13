@@ -83,7 +83,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - `coverage_summary_tool` - Covered/total/percentage summary
 - `uncovered_lines_tool` - List of uncovered line numbers
 - `coverage_detailed_tool` - Per-line coverage with hit counts
-- `all_files_coverage_tool` - Project-wide coverage table
+- `list_tool` - Project-wide coverage table
 - `coverage_totals_tool` - Aggregated line totals across project
 - `coverage_table_tool` - Formatted coverage table
 - `validate_tool` - Validate coverage against custom policies (Ruby predicates)
@@ -94,7 +94,7 @@ The tool locates the `.resultset.json` file by checking a series of default path
 - All responses are returned as `type: "text"` with content in `text`. JSON responses contain a JSON string that should be parsed. This format ensures maximum compatibility with MCP clients.
 - **Prompt:** "What's the coverage for `lib/cov_loupe/model.rb`?" → call `coverage_summary_tool` with `{ "path": "lib/cov_loupe/model.rb" }` and parse JSON from `content[0].text`.
 - **Prompt:** “Show uncovered lines for `spec/fixtures/project1/lib/bar.rb`.” → call `uncovered_lines_tool` with the same path.
-- **Prompt:** “List files with the worst coverage.” → call `all_files_coverage_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
+- **Prompt:** “List files with the worst coverage.” → call `list_tool` (leave defaults or set `{ "sort_order": "ascending" }`).
 - **Uncertain?** Call `help_tool` before proceeding.
 
 ## Testing Notes

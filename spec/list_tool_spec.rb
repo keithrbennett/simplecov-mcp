@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/tools/all_files_coverage_tool'
+require 'cov_loupe/tools/list_tool'
 
-RSpec.describe CovLoupe::Tools::AllFilesCoverageTool do
+RSpec.describe CovLoupe::Tools::ListTool do
   subject(:call_tool) { described_class.call(root: root, server_context: server_context) }
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }

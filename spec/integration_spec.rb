@@ -123,7 +123,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
 
       # Test all files tool
-      list_response = CovLoupe::Tools::AllFilesCoverageTool.call(
+      list_response = CovLoupe::Tools::ListTool.call(
         root: project_root,
         resultset: coverage_dir,
         server_context: server_context
@@ -326,7 +326,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       # Verify expected tools are registered
       tool_names = tools.map { |t| t['name'] }
       expect(tool_names).to include(
-        'all_files_coverage_tool',
+        'list_tool',
         'coverage_summary_tool',
         'coverage_raw_tool',
         'uncovered_lines_tool',
@@ -368,13 +368,13 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(coverage_data['summary']).to include('covered' => 2, 'total' => 3)
     end
 
-    it 'executes all_files_coverage_tool via JSON-RPC' do
+    it 'executes list_tool via JSON-RPC' do
       request = {
         jsonrpc: '2.0',
         id: 4,
         method: 'tools/call',
         params: {
-          name: 'all_files_coverage_tool',
+          name: 'list_tool',
           arguments: {
             root: project_root,
             resultset: coverage_dir

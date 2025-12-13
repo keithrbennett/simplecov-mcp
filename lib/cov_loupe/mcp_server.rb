@@ -19,7 +19,7 @@ module CovLoupe
     end
 
     TOOLSET = [
-      Tools::AllFilesCoverageTool,
+      Tools::ListTool,
       Tools::CoverageDetailedTool,
       Tools::CoverageRawTool,
       Tools::CoverageSummaryTool,
