@@ -468,7 +468,7 @@ clp -l stderr                   # Log to standard error
 
 **Default:** `./cov_loupe.log`
 
-### `--error-mode MODE`
+### `-e, --error-mode MODE`
 
 Error handling verbosity.
 
@@ -482,6 +482,7 @@ Error handling verbosity.
 
 ```sh
 clp --error-mode debug summary lib/api/client.rb
+clp -e debug summary lib/api/client.rb  # -e = --error-mode
 ```
 
 ### `-F, --force-mode MODE`

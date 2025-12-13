@@ -46,7 +46,7 @@ module CovLoupe
           totals                   Show aggregated line totals and average %
           uncovered <path>         Show uncovered lines and a summary
           validate <file>          Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
-          validate -e <code>       Evaluate coverage policy from code string
+          validate -i <code>       Evaluate coverage policy from code string
           version                  Show version information
 
         SUBCOMMANDS
@@ -109,7 +109,7 @@ module CovLoupe
         'Force execution mode: cli|mcp|auto (auto = default detection)') do |value|
         config.force_mode = normalize_force_mode(value)
       end
-      parser.on('--error-mode MODE', String,
+      parser.on('-e', '--error-mode MODE', String,
         'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
         'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
         config.error_mode = normalize_error_mode(value)
