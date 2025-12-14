@@ -342,8 +342,8 @@ RSpec.describe CovLoupe::StalenessChecker do
     end
 
     it 'handles files outside project root gracefully (returns relative path with ..)' do
-      # Test that normal "outside but compatible" paths still work
-      file_outside = '/tmp/external_file.rb'
+      # Use a sibling path to ensure both live on the same drive/volume
+      file_outside = File.expand_path('../external_file.rb', tmpdir)
 
       # This should return a relative path with .. (not trigger ArgumentError)
       result = checker.send(:rel, file_outside)
