@@ -174,12 +174,18 @@ module CovLoupe
     end
 
     private def sort_rows(rows, sort_order: :descending)
-      rows.sort do |a, b|
-        pct_cmp = (sort_order == :descending) \
-                    ? (b['percentage'] <=> a['percentage'])
-                    : (a['percentage'] <=> b['percentage'])
-        pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
+      percent_comparator = sort_order == :descending \
+        ? ->(a, b) { b['percentage'] <=> a['percentage'] }
+        : ->(a, b) { a['percentage'] <=> b['percentage'] }
+
+      comparator = ->(a, b) do
+        percent_comp_result = percent_comparator.(a, b)
+        return percent_comp_result if percent_comp_result != 0
+
+        a['file'] <=> b['file']
       end
+
+      rows.sort { |a, b| comparator.(a, b) }
     end
 
     # Filters coverage rows to only include files matching the given glob patterns.
