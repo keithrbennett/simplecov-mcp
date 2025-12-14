@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-SimpleCov MCP needed a mechanism for users to define custom coverage policies beyond simple percentage thresholds. Different projects have different requirements:
+cov-loupe needed a mechanism for users to define custom coverage policies beyond simple percentage thresholds. Different projects have different requirements:
 
 - Some want all files above 80%, others allow a few files below threshold
 - Some need different thresholds for different directories (e.g., 90% for API code, 60% for legacy)

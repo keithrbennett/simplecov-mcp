@@ -1,5 +1,7 @@
 # Release Process
 
+[Back to main README](../README.md)
+
 This document provides a checklist for releasing new versions of cov-loupe.
 
 ## Pre-Release Checklist

@@ -17,7 +17,7 @@ color: #333
 
 ---
 
-## What is SimpleCov MCP?
+## What is cov-loupe?
 
 A **three-in-one** gem that makes SimpleCov coverage data accessible to:
 

@@ -112,23 +112,30 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 
 ## Documentation
 
-**Getting Started:**
+**User Guides:**
+- [User Docs Overview](docs/user/README.md) - Map of all end-user guides
 - [Installation](docs/user/INSTALLATION.md) - Setup for different environments
 - [CLI Usage](docs/user/CLI_USAGE.md) - Command-line reference
 - [Examples](docs/user/EXAMPLES.md) - Common use cases
-
-**Advanced Usage:**
-- [MCP Integration](docs/user/MCP_INTEGRATION.md) - AI assistant configuration
-- [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - Using CLI when MCP isn't available
-- [Library API](docs/user/LIBRARY_API.md) - Ruby API documentation
 - [Advanced Usage](docs/user/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
+- [Library API](docs/user/LIBRARY_API.md) - Ruby API documentation
 - [Error Handling](docs/user/ERROR_HANDLING.md) - Error modes and exceptions
+- [MCP Integration](docs/user/MCP_INTEGRATION.md) - AI assistant configuration
+- [Troubleshooting](docs/user/TROUBLESHOOTING.md) - Common issues
 
-**Reference:**
+**Special Topics & Prompts:**
+- [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
+- [Codex Env Var Workaround](docs/user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
+- [Sample MCP Prompts](docs/user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
+- [Migration Guides](docs/user/migrations) - [Migrate to v3](docs/user/migrations/MIGRATING_TO_V3.md) | [Migrate to v2](docs/user/migrations/MIGRATING_TO_V2.md)
+
+**Developer Docs:**
+- [Developer Docs Overview](docs/dev/README.md) - Entry point for contributors
 - [Architecture](docs/dev/ARCHITECTURE.md) - Design and internals
 - [Branch Coverage](docs/dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
-- [Troubleshooting](docs/user/TROUBLESHOOTING.md) - Common issues
-- [Development](docs/dev/DEVELOPMENT.md) - Contributing guide
+- [Development Guide](docs/dev/DEVELOPMENT.md) - Local dev workflow
+- [Releasing](docs/dev/RELEASING.md) - Release checklist
+- [Architecture Decision Records](docs/dev/arch-decisions/README.md) - Design history
 
 ## Requirements
 

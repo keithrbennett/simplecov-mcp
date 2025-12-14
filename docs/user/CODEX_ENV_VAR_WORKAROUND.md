@@ -1,5 +1,7 @@
 # Codex MCP env var passthrough workaround
 
+[Back to main README](../README.md)
+
 ## Issue
 
 At the time of this writing (December 2025), Codex on Linux does not forward 

@@ -1,5 +1,7 @@
 # Release Notes
 
+[Back to main README](README.md)
+
 ## v4.0.0 (Breaking)
 
 - **Mode flag renamed/expanded**: New `-F/--force-mode cli|mcp|auto` replaces `--force-cli` (removed). Use this to force MCP even when the client allocates a TTY (e.g., Codex) or to force CLI when stdin is not a TTY.

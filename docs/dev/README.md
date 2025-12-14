@@ -1,6 +1,8 @@
 # Developer Documentation
 
-Resources for contributors working on SimpleCov MCP internals and release
+[Back to main README](../README.md)
+
+Resources for contributors working on cov-loupe internals and release
 engineering.
 
 - [Architecture Overview](ARCHITECTURE.md) – subsystem layout and data flow

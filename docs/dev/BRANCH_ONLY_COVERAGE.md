@@ -2,11 +2,11 @@
 
 [Back to main README](../README.md)
 
-> **Note:** This document is for **developers working on SimpleCov MCP**, not for users of the gem.
+> **Note:** This document is for **developers working on cov-loupe**, not for users of the gem.
 > If you're a user, you don't need to read this - branch-only coverage "just works" automatically.
 > This explains the internal implementation for contributors who need to maintain or modify the code.
 
-## The Problem This Solves for SimpleCov MCP
+## The Problem This Solves for cov-loupe
 
 SimpleCov can be configured to track different types of coverage:
 - **Line coverage**: Which lines of code were executed
@@ -17,12 +17,12 @@ When users configure SimpleCov to track **only branch coverage** (without line c
 the `.resultset.json` file has a different structure: the `lines` array is `null`,
 and only the `branches` data exists.
 
-**This breaks SimpleCov MCP** because our entire tool is designed around the `lines` array:
+**This breaks cov-loupe** because our entire tool is designed around the `lines` array:
 - Our MCP tools (`coverage_summary_tool`, `uncovered_lines_tool`, etc.) expect line data
 - Our CLI commands expect line data
 - Our `CoverageModel` API expects line data
 
-Rather than failing with "no coverage data found" errors, SimpleCov MCP **automatically
+Rather than failing with "no coverage data found" errors, cov-loupe **automatically
 converts branch coverage into line coverage** so all our tools continue to work seamlessly
 for projects using branch-only configuration.
 
@@ -73,9 +73,9 @@ The `branches` hash uses a nested structure:
 - We sum up all the execution counts for branches on the same line
 - This gives us enough information to build a line coverage array
 
-## How SimpleCov MCP Converts Branch Coverage to Line Coverage
+## How cov-loupe Converts Branch Coverage to Line Coverage
 
-Since all of SimpleCov MCP's tools expect a `lines` array, we need to build one from
+Since all of cov-loupe's tools expect a `lines` array, we need to build one from
 the `branches` data. This happens automatically in the `CoverageLineResolver` whenever
 it detects that `lines` is `null` but `branches` exists.
 
@@ -155,4 +155,4 @@ SimpleCov's branch tuple format could change in future versions. If that happens
 3. Update this documentation with the new structure
 4. Keep backward compatibility with the old format if possible
 
-This way, SimpleCov MCP continues working even when SimpleCov evolves.
+This way, cov-loupe continues working even when SimpleCov evolves.

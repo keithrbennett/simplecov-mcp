@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-SimpleCov MCP needed to serve two distinct use cases:
+cov-loupe needed to serve two distinct use cases:
 
 1. **Human users** wanting a command-line tool to inspect coverage reports in their terminal
 2. **AI agents and MCP clients** needing programmatic access to coverage data via the Model Context Protocol (MCP) over JSON-RPC

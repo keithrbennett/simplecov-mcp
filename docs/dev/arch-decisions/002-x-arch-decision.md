@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-SimpleCov MCP operates in three distinct contexts, each with different error handling requirements:
+cov-loupe operates in three distinct contexts, each with different error handling requirements:
 
 1. **CLI mode**: Human users expect friendly error messages, exit codes, and optional debug traces
 2. **MCP server mode**: AI agents/clients need structured error responses that don't crash the server

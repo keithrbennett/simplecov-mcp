@@ -1,7 +1,9 @@
 # AGENTS.md – Codex Cloud Guide
 
+[Project overview in README](README.md)
+
 ## Mission
-- Pull accurate coverage data and project facts for users by driving SimpleCov MCP tools instead of free-form guesses.
+- Pull accurate coverage data and project facts for users by driving cov-loupe tools instead of free-form guesses.
 - Keep workflow transparent: explain what you did, why it matters, and what the user should consider next.
 - Leave the repository tidy; only touch files that advance the request.
 

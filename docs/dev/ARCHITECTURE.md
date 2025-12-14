@@ -60,7 +60,7 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 
 - **Environment defaults** – `COV_LOUPE_OPTS` applies baseline CLI flags before parsing the actual command line.
 - **Resultset overrides** – The location of the `.resultset.json` file can be specified via CLI options or in the MCP configuration. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
-- **Tracked globs** – Glob patterns (e.g., `lib/**/*.rb`) that specify which files should have coverage. When provided, SimpleCov MCP alerts you if any matching files are missing from the coverage data, helping catch untested files that were added to the project but never executed during test runs.
+- **Tracked globs** – Glob patterns (e.g., `lib/**/*.rb`) that specify which files should have coverage. When provided, cov-loupe alerts you if any matching files are missing from the coverage data, helping catch untested files that were added to the project but never executed during test runs.
 - **Colorized source** – CLI-only flags (`--source`, `--source-context`, `--color`) enhance human-readable reports when working locally.
 
 ## Repository Layout Highlights

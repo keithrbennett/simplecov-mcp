@@ -1,5 +1,7 @@
 # V2.0 Breaking Changes and Migration Guide
 
+[Back to main README](../../README.md)
+
 This document describes all breaking changes introduced in version 2.0.0 of simplecov-mcp. These changes improve consistency, clarity, and alignment with Ruby conventions.
 
 > Note: Current versions use the boolean `--raise-on-stale` / `raise_on_stale` flag (short form `-S`) for staleness enforcement. The `--staleness` and `stale` names referenced below are kept for historical context about the v1→v2 transition.

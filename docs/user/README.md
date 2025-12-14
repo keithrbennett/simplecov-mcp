@@ -1,6 +1,8 @@
 # User Documentation
 
-Guides for installing, configuring, and using SimpleCov MCP in day-to-day
+[Back to main README](../README.md)
+
+Guides for installing, configuring, and using cov-loupe in day-to-day
 workflows.
 
 - [Installation](INSTALLATION.md) – environment setup across platforms
@@ -13,3 +15,5 @@ workflows.
 - [CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md) – when MCP isn't available
 - [Library API](LIBRARY_API.md) – embedding the gem in Ruby code
 - [Troubleshooting](TROUBLESHOOTING.md) – diagnostics for common issues
+- [Migration Guides](migrations) – breaking change notes for v2 and v3
+- [Prompt Library](prompts/README.md) – copy/paste instructions for MCP clients when you need coverage analyses fast

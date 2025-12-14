@@ -8,7 +8,7 @@ Replaced – cov-loupe now requires SimpleCov at runtime so that multi-suite res
 
 ## Context
 
-SimpleCov MCP provides tooling for inspecting SimpleCov coverage reports. When designing the gem, we had to decide whether to depend on SimpleCov as a runtime dependency.
+cov-loupe provides tooling for inspecting SimpleCov coverage reports. When designing the gem, we had to decide whether to depend on SimpleCov as a runtime dependency.
 
 ### Alternative Approaches
 
@@ -25,7 +25,7 @@ SimpleCov MCP provides tooling for inspecting SimpleCov coverage reports. When d
 
 **Use case separation**:
 - SimpleCov is needed when **running tests** to collect coverage
-- SimpleCov MCP is needed when **inspecting coverage** after tests complete
+- cov-loupe is needed when **inspecting coverage** after tests complete
 - These are temporally separated activities
 
 **Deployment contexts**:
