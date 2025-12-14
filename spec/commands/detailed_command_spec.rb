@@ -22,6 +22,30 @@ RSpec.describe CovLoupe::Commands::DetailedCommand do
 
         expect(output).to include('File: lib/foo.rb', 'Line', 'Covered')
       end
+
+      it 'prints annotated source when source_mode is enabled' do
+        cli_context.config.source_mode = :full
+
+        output = capture_command_output(command, ['lib/foo.rb'])
+
+        expect(output).to show_source_table_or_fallback
+      end
+    end
+
+    context 'with structured format and source output' do
+      before do
+        cli_context.config.format = :json
+        cli_context.config.source_mode = :full
+      end
+
+      it 'embeds the source payload in structured output' do
+        output = capture_command_output(command, ['lib/foo.rb'])
+        payload = JSON.parse(output)
+
+        expect(payload).to include('source')
+        expect(payload['source']).to be_an(Array)
+        expect(payload['source'].map { |row| row['line'] }).to include(1, 6)
+      end
     end
 
     context 'with stale data' do

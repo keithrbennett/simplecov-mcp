@@ -129,6 +129,12 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:log)
       end
+
+      it 'returns nil when a standalone --error-mode lacks a value' do
+        argv = ['--error-mode']
+        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+        expect(result).to be_nil
+      end
     end
 
     context 'when error-mode is not found' do

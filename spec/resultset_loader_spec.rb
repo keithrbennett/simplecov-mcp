@@ -87,6 +87,23 @@ RSpec.describe CovLoupe::ResultsetLoader do
         end.to raise_error(CovLoupe::CoverageDataError, /No test suite/)
       end
     end
+
+    it 'raises CoverageDataError when coverage data is not a hash' do
+      Dir.mktmpdir do |dir|
+        resultset_path = File.join(dir, '.resultset.json')
+        data = {
+          'SuiteA' => {
+            'timestamp' => 10,
+            'coverage' => []
+          }
+        }
+        File.write(resultset_path, JSON.generate(data))
+
+        expect do
+          described_class.load(resultset_path: resultset_path)
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage data structure/)
+      end
+    end
   end
 
   describe 'SimpleCov loading and logging' do
@@ -162,6 +179,11 @@ RSpec.describe CovLoupe::ResultsetLoader do
       expect(value).to eq(0)
       expect(messages.join).to include('Coverage resultset timestamp could not be parsed')
       expect(messages.join).to include('[:invalid]')
+    end
+
+    it 'returns zero for blank string timestamps' do
+      value = described_class.send(:normalize_coverage_timestamp, '   ', nil)
+      expect(value).to eq(0)
     end
   end
 end

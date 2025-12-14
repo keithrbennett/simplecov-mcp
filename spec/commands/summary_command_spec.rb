@@ -22,6 +22,38 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
 
         expect(output).to include('│', '66.67%', 'lib/foo.rb')
       end
+
+      it 'marks stale files with a Yes indicator' do
+        stub_staleness_check('L')
+
+        output = capture_command_output(command, ['lib/foo.rb'])
+
+        expect(output).to include('Yes')
+      end
+
+      it 'prints source when source_mode is enabled' do
+        cli_context.config.source_mode = :full
+
+        output = capture_command_output(command, ['lib/foo.rb'])
+
+        expect(output).to show_source_table_or_fallback
+      end
+    end
+
+    context 'with structured format and source data' do
+      before do
+        cli_context.config.format = :json
+        cli_context.config.source_mode = :full
+      end
+
+      it 'embeds source payload in structured output' do
+        output = capture_command_output(command, ['lib/foo.rb'])
+        payload = JSON.parse(output)
+
+        expect(payload).to include('source')
+        expect(payload['source']).to be_an(Array)
+        expect(payload['source'].map { |row| row['line'] }).to include(1, 6)
+      end
     end
 
     context 'with stale data' do

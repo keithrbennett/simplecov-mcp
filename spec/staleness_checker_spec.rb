@@ -371,4 +371,26 @@ RSpec.describe CovLoupe::StalenessChecker do
       end
     end
   end
+
+  context 'when checking project-level missing tracked files' do
+    it 'raises error listing tracked files missing from coverage' do
+      tracked_root = Dir.mktmpdir('tracked')
+      begin
+        file = File.join(tracked_root, 'lib', 'uncovered.rb')
+        FileUtils.mkdir_p(File.dirname(file))
+        File.write(file, "puts 'hello'\n")
+
+        checker = described_class.new(root: tracked_root, resultset: nil, mode: :error,
+          tracked_globs: ['lib/**/*.rb'], timestamp: Time.now.to_i)
+
+        expect do
+          checker.check_project!({})
+        end.to raise_error(CovLoupe::CoverageDataProjectStaleError) { |error|
+          expect(error.missing_files).to include('lib/uncovered.rb')
+        }
+      ensure
+        FileUtils.remove_entry(tracked_root)
+      end
+    end
+  end
 end

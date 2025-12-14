@@ -113,6 +113,9 @@ RSpec.configure do |config|
 end
 
 # Custom matchers
+# Matcher used across CLI tests to assert that source output was produced.
+# Commands either print a formatted table (with a "Line | Source" header) or a
+# fallback message when the source cannot be shown. This matcher accepts either.
 RSpec::Matchers.define :show_source_table_or_fallback do
   match do |output|
     has_table_header = output.match?(/(^|\n)\s*Line\s*\|\s+Source/)

@@ -13,6 +13,17 @@ RSpec.describe CovLoupe::BooleanType do
     end
   end
 
+  describe '.parse' do
+    it 'raises a helpful error for invalid values' do
+      expect do
+        described_class.parse('maybe')
+      end.to raise_error(ArgumentError) do |error|
+        expect(error.message).to include('invalid boolean value: "maybe"')
+        expect(error.message).to include(described_class::VALID_VALUES.join(', '))
+      end
+    end
+  end
+
   describe '.===' do
     it 'returns true for "true" values' do
       expect(described_class === 'yes').to be(true)

@@ -94,5 +94,10 @@ RSpec.describe CovLoupe::PathRelativizer do
 
       expect(result).to eq(File.join(root, 'lib/foo.rb'))
     end
+
+    it 'returns the project root as dot when relativizing the root path' do
+      relativizer = described_class.new(root: root, scalar_keys: ['file'])
+      expect(relativizer.relativize_path(root)).to eq('.')
+    end
   end
 end

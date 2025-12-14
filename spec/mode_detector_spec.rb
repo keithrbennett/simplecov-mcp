@@ -96,6 +96,14 @@ RSpec.describe CovLoupe::ModeDetector do
       expect(described_class.cli_mode?(['--force-mode', 'cli'], stdin: stdin)).to be true
     end
 
+    it 'treats --force-mode=cli as CLI mode' do
+      expect(described_class.cli_mode?(['--force-mode=cli'], stdin: stdin)).to be true
+    end
+
+    it 'ignores force-mode flag without a value' do
+      expect(described_class.cli_mode?(['--force-mode'], stdin: stdin)).to be false
+    end
+
     it '2. subcommand (first arg) overrides TTY' do
       expect(described_class.cli_mode?(['list'], stdin: stdin)).to be true
     end

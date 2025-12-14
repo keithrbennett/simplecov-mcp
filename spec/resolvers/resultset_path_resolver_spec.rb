@@ -35,6 +35,18 @@ RSpec.describe CovLoupe::Resolvers::ResultsetPathResolver do
       expect(resolver.find_resultset(resultset: file)).to eq(file)
     end
 
+    it 'locates .resultset.json inside a provided directory' do
+      Dir.mktmpdir do |dir|
+        nested = File.join(dir, 'coverage')
+        FileUtils.mkdir_p(nested)
+        File.write(File.join(nested, '.resultset.json'), '{}')
+
+        resolver = described_class.new(root: dir)
+        expect(resolver.find_resultset(resultset: nested))
+          .to eq(File.join(nested, '.resultset.json'))
+      end
+    end
+
     it 'raises a helpful error when no fallback candidates are found' do
       expect do
         resolver.find_resultset
