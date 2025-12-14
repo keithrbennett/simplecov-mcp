@@ -9,6 +9,7 @@ require_relative 'error_handler'
 require_relative 'staleness_checker'
 require_relative 'path_relativizer'
 require_relative 'resultset_loader'
+require_relative 'coverage_table_formatter'
 
 module CovLoupe
   class CoverageModel
@@ -126,25 +127,12 @@ module CovLoupe
     end
 
     # Returns formatted table string for all files coverage data
+    # Delegates to CoverageTableFormatter for presentation logic
     def format_table(rows = nil, sort_order: :descending, raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
-      return 'No coverage data found' if rows.empty?
-
-      widths = compute_table_widths(rows)
-      lines = []
-      lines << border_line(widths, '┌', '┬', '┐')
-      lines << header_row(widths)
-      lines << border_line(widths, '├', '┼', '┤')
-      rows.each { |file_data| lines << data_row(file_data, widths) }
-      lines << border_line(widths, '└', '┴', '┘')
-      lines << summary_counts(rows)
-      if rows.any? { |f| f['stale'] }
-        lines <<
-          'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
-      end
-      lines.join("\n")
+      CoverageTableFormatter.format(rows)
     end
 
     private def load_coverage_data(resultset, raise_on_stale)
@@ -192,61 +180,6 @@ module CovLoupe
                     : (a['percentage'] <=> b['percentage'])
         pct_cmp == 0 ? (a['file'] <=> b['file']) : pct_cmp
       end
-    end
-
-    private def compute_table_widths(rows)
-      max_file_length = rows.map { |f| f['file'].length }.max.to_i
-      file_width = [max_file_length, 'File'.length].max + 2
-      pct_width = 8
-      max_covered = rows.map { |f| f['covered'].to_s.length }.max
-      max_total = rows.map { |f| f['total'].to_s.length }.max
-      covered_width = [max_covered, 'Covered'.length].max + 2
-      total_width = [max_total, 'Total'.length].max + 2
-      stale_width = 'Stale'.length
-      {
-        file: file_width,
-        pct: pct_width,
-        covered: covered_width,
-        total: total_width,
-        stale: stale_width
-      }
-    end
-
-    private def border_line(widths, left, middle, right)
-      h_line = ->(col_width) { '─' * (col_width + 2) }
-      left +
-        h_line.call(widths[:file]) +
-        middle + h_line.call(widths[:pct]) +
-        middle + h_line.call(widths[:covered]) +
-        middle + h_line.call(widths[:total]) +
-        middle + h_line.call(widths[:stale]) +
-        right
-    end
-
-    private def header_row(widths)
-      format(
-        "│ %-#{widths[:file]}s │ %#{widths[:pct]}s │ %#{widths[:covered]}s │ %#{widths[:total]}s │ %#{widths[:stale]}s │",
-        'File', ' %', 'Covered', 'Total', 'Stale'.center(widths[:stale])
-      )
-    end
-
-    private def data_row(file_data, widths)
-      stale_text_str = file_data['stale'] ? file_data['stale'].to_s : ''
-      format(
-        "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
-        file_data['file'],
-        file_data['percentage'],
-        file_data['covered'],
-        file_data['total'],
-        stale_text_str.center(widths[:stale])
-      )
-    end
-
-    private def summary_counts(rows)
-      total = rows.length
-      stale_count = rows.count { |f| f['stale'] }
-      ok_count = total - stale_count
-      "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
     end
 
     # Filters coverage rows to only include files matching the given glob patterns.

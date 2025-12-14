@@ -353,20 +353,24 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'format_table' do
+    # Integration tests - detailed formatting is tested in coverage_table_formatter_spec.rb
+    # These tests verify that CoverageModel correctly prepares rows and delegates to the formatter
+
     it 'returns a formatted table string with all files coverage data' do
       output = model.format_table
 
-      # Should contain table structure
-      expect(output).to include('┌', '┬', '┐', '│', '├', '┼', '┤', '└', '┴', '┘')
+      # Should be a non-empty string (formatting details tested in CoverageTableFormatter)
+      expect(output).to be_a(String)
+      expect(output).not_to be_empty
 
-      # Should contain headers
-      expect(output).to include('File', '%', 'Covered', 'Total', 'Stale')
-
-      # Should contain file data
+      # Should contain file data from the model
       expect(output).to include('lib/foo.rb', 'lib/bar.rb')
+    end
 
-      # Should contain summary
-      expect(output).to include('Files: total', ', ok ', ', stale ')
+    it 'delegates to CoverageTableFormatter for formatting' do
+      expect(CovLoupe::CoverageTableFormatter).to receive(:format).and_call_original
+
+      model.format_table
     end
 
     it 'returns "No coverage data found" when rows is empty' do
@@ -383,52 +387,15 @@ RSpec.describe CovLoupe::CoverageModel do
           'covered' => 10,
           'total' => 10,
           'stale' => false
-        },
-        {
-          'file' => '/path/to/file2.rb',
-          'percentage' => 50.0,
-          'covered' => 5,
-          'total' => 10,
-          'stale' => 'M'
-        },
-        {
-          'file' => '/path/to/file3.rb',
-          'percentage' => 75.0,
-          'covered' => 15,
-          'total' => 20,
-          'stale' => 'T'
         }
       ]
 
       output = model.format_table(custom_rows)
 
       expect(output).to include('file1.rb')
-      expect(output).to include('file2.rb')
-      expect(output).to include('file3.rb')
-      expect(output).to include('100.00')
-      expect(output).to include('50.00')
-      expect(output).to include('75.00')
-      expect(output).to include('M')
-      expect(output).to include('T')
-      expect(output).not_to include('!')
-      staleness_msg = 'Staleness: M = Missing file, T = Timestamp (source newer), ' \
-                      'L = Line count mismatch'
-      expect(output).to include(staleness_msg)
     end
 
-    it 'accepts sort_order parameter' do
-      # Test that sort_order parameter is passed through correctly
-      output_asc = model.format_table(sort_order: :ascending)
-      output_desc = model.format_table(sort_order: :descending)
-
-      # Both should be valid table outputs
-      expect(output_asc).to include('┌')
-      expect(output_desc).to include('┌')
-      expect(output_asc).to include('Files: total')
-      expect(output_desc).to include('Files: total')
-    end
-
-    it 'sorts table output correctly when provided with custom rows' do
+    it 'sorts rows by sort_order parameter before formatting' do
       # Get all files data to use as custom rows
       list_data = model.list
 
