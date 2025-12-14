@@ -78,12 +78,19 @@ module CovLoupe
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
     def list(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
-      stale_checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
+      # Build a staleness checker that *doesn't* raise errors, as we want to collect
+      # staleness status per file without interrupting the row generation.
+      stale_checker = build_staleness_checker(raise_on_stale: false,
+        tracked_globs: tracked_globs)
 
       rows = @cov.map do |abs_path, _data|
         begin
           coverage_lines = CovUtil.lookup_lines(@cov, abs_path)
         rescue FileError
+          # If a FileError occurs (e.g., the file is in the resultset but cannot
+          # be resolved to a source file, perhaps it was deleted or moved),
+          # skip this entry and continue processing other files. This allows
+          # the application to report on other valid coverage entries.
           next
         end
 
@@ -100,9 +107,12 @@ module CovLoupe
 
       rows = filter_rows_by_globs(rows, tracked_globs)
 
+      # If global raise_on_stale is true, perform a project-level staleness check.
+      # This will raise an error if any tracked file is stale, overriding
+      # the per-file `stale` flag set above if a full project failure is desired.
       if raise_on_stale
-        build_staleness_checker(raise_on_stale: true,
-          tracked_globs: tracked_globs).check_project!(@cov)
+        build_staleness_checker(raise_on_stale: true, tracked_globs: tracked_globs)
+          .check_project!(@cov)
       end
 
       sort_rows(rows, sort_order: sort_order)

@@ -71,6 +71,12 @@ module CovLoupe
       # We care about the third tuple element (line number). We sum branch-leg
       # hits per line so the synthetic array still behaves like legacy line
       # coverage (any positive value counts as executed).
+      #
+      # The synthesis process:
+      # 1. Flatten the branch hash into [metadata, hits] pairs.
+      # 2. Extract the line number from the metadata (handling both Array and String formats).
+      # 3. Sum hits for each line.
+      # 4. Construct a dense array matching SimpleCov's line-based format.
       private def synthesize_lines_from_branches(branch_data)
         # Detailed shape and rationale documented in docs/BRANCH_ONLY_COVERAGE.md
         return unless branch_data.is_a?(Hash) && branch_data.any?
