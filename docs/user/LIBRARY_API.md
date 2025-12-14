@@ -27,19 +27,21 @@ model = CovLoupe::CoverageModel.new
 
 # Custom configuration (non-default values):
 model = CovLoupe::CoverageModel.new(
-  root: File.join(Dir.home, 'project'),    # non-default project root
-  resultset: "build/coverage",             # file or directory containing .resultset.json
-  raise_on_stale: true,                    # enable strict staleness checks (raise on stale)
-  tracked_globs: ["lib/**/*.rb"]           # for 'list' staleness: flag new/missing files
+  root: File.join(Dir.home, 'project'),          # non-default project root
+  resultset: "build/coverage",                   # file or directory containing .resultset.json
+  raise_on_stale: true,                          # enable strict staleness checks (raise on stale)
+  tracked_globs: ["lib/cov_loupe/tools/**/*.rb"] # for 'list' staleness: flag new/missing files
 )
 
 # List all files with coverage summary
 files = model.list
 # Per-file queries
-summary = model.summary_for("lib/foo.rb")
-uncovered = model.uncovered_for("lib/foo.rb")
-detailed = model.detailed_for("lib/foo.rb")
-raw = model.raw_for("lib/foo.rb")
+
+target = 'lib/cov_loupe/base_tool.rb'
+summary = model.summary_for(target)
+uncovered = model.uncovered_for(target)
+detailed = model.detailed_for(target)
+raw = model.raw_for(target)
 ```
 
 ## Method Reference
@@ -80,7 +82,7 @@ Returns coverage summary for a specific file.
 
 **Example:**
 ```ruby
-summary = model.summary_for("lib/foo.rb")
+summary = model.summary_for(target)
 # => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'percentage'=>85.71}, 'stale' => false }
 ```
 
@@ -611,54 +613,61 @@ class CoverageReporter
     files = @model.list
     totals = @model.project_totals
 
-    File.open(output_path, 'w') do |f|
-      f.puts "# Coverage Report"
-      f.puts
-      f.puts "Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}"
-      f.puts
+    # Overall stats
+    overall_percentage = totals['percentage']
+    total_lines = totals['lines']['total']
+    covered_lines = totals['lines']['covered']
+    total_files = totals['files']['total']
 
-      # Overall stats
-      overall_percentage = totals['percentage']
-      total_lines = totals['lines']['total']
-      covered_lines = totals['lines']['covered']
-      total_files = totals['files']['total']
+    # Files below threshold
+    threshold = 80.0
+    low_coverage = files.select { |file| file['percentage'] < threshold }
 
-      f.puts "## Overall Coverage: #{overall_percentage}%"
-      f.puts
-      f.puts "- Total Files: #{total_files}"
-      f.puts "- Total Lines: #{total_lines}"
-      f.puts "- Covered Lines: #{covered_lines}"
-      f.puts
+    # Build low coverage table
+    low_coverage_section = if low_coverage.any?
+      rows = low_coverage.sort_by { |file| file['percentage'] }.map do |file|
+        uncovered = @model.uncovered_for(file['file'])
+        missing_count = uncovered['uncovered'].length
+        "| #{file['file']} | #{file['percentage']}% | #{missing_count} |"
+      end.join("\n")
 
-      # Files below threshold
-      threshold = 80.0
-      low_coverage = files.select { |file| file['percentage'] < threshold }
+      <<~LOW_COVERAGE_TABLE
 
-      if low_coverage.any?
-        f.puts "## Files Below #{threshold}% Coverage"
-        f.puts
-        f.puts "| File | Coverage | Missing Lines |"
-        f.puts "|------|----------|---------------|"
+        ## Files Below #{threshold}% Coverage
 
-        low_coverage.sort_by { |file| file['percentage'] }.each do |file|
-          uncovered = @model.uncovered_for(file['file'])
-          missing_count = uncovered['uncovered'].length
-          f.puts "| #{file['file']} | #{file['percentage']}% | #{missing_count} |"
-        end
-        f.puts
-      end
-
-      # Top performers
-      f.puts "## Top 10 Best Covered Files"
-      f.puts
-      f.puts "| File | Coverage |"
-      f.puts "|------|----------|"
-
-      files.sort_by { |file| -file['percentage'] }.take(10).each do |file|
-        f.puts "| #{file['file']} | #{file['percentage']}% |"
-      end
+        | File | Coverage | Missing Lines |
+        |------|----------|---------------|
+        #{rows}
+      LOW_COVERAGE_TABLE
+    else
+      ""
     end
 
+    # Build top performers table
+    top_rows = files.sort_by { |file| -file['percentage'] }.take(10).map do |file|
+      "| #{file['file']} | #{file['percentage']}% |"
+    end.join("\n")
+
+    # Generate report
+    report = <<~COVERAGE_REPORT
+      # Coverage Report
+
+      Generated: #{Time.now.strftime('%Y-%m-%d %H:%M:%S')}
+
+      ## Overall Coverage: #{overall_percentage}%
+
+      - Total Files: #{total_files}
+      - Total Lines: #{total_lines}
+      - Covered Lines: #{covered_lines}
+      #{low_coverage_section}
+      ## Top 10 Best Covered Files
+
+      | File | Coverage |
+      |------|----------|
+      #{top_rows}
+    COVERAGE_REPORT
+
+    File.write(output_path, report)
     puts "Report saved to #{output_path}"
   end
 end
@@ -680,21 +689,6 @@ The `list` method returns a `'stale'` field for each file with one of these valu
 **Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `list` and filter the results.
 
 When `raise_on_stale: true` is enabled in `CoverageModel.new`, the model will raise `CovLoupe::CoverageDataStaleError` exceptions when stale files are detected during method calls.
-
-## API Stability
-
-Consider the following public and stable under SemVer:
-- `CovLoupe::CoverageModel.new(root:, resultset:, raise_on_stale: false, tracked_globs: nil)`
-- `#raw_for(path)`, `#summary_for(path)`, `#uncovered_for(path)`, `#detailed_for(path)`
-- `#list(sort_order:, raise_on_stale:, tracked_globs:)`
-- `#format_table(rows: nil, sort_order:, raise_on_stale:, tracked_globs:)`
-- `#project_totals(tracked_globs:, raise_on_stale:)`
-- Return shapes shown in the [Return Types](#return-types) section
-- Exception types documented in [Error Handling](#error-handling)
-
-**Note:**
-- CLI (`CovLoupe.run(argv)`) and MCP tools remain stable but are separate surfaces
-- Internal helpers under `CovLoupe::CovUtil` may change; prefer `CoverageModel` unless you need low-level access
 
 ## Related Documentation
 

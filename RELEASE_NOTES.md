@@ -5,8 +5,10 @@
 ## v4.0.0 (Breaking)
 
 - **Mode flag renamed/expanded**: New `-F/--force-mode cli|mcp|auto` replaces `--force-cli` (removed). Use this to force MCP even when the client allocates a TTY (e.g., Codex) or to force CLI when stdin is not a TTY.
-- **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues. See [raise_on_stale_feature.md](raise_on_stale_feature.md) for rollout details and migration guidance.
+- **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues.
 - **Ruby API method renamed**: `CoverageModel#all_files_coverage` renamed to `CoverageModel#list` for consistency with CLI subcommand naming.
+
+**📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V4.md](docs/user/migrations/MIGRATING_TO_V4.md)**
 
 ## v3.0.0
 

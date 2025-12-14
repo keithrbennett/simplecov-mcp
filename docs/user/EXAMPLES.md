@@ -5,7 +5,9 @@
 Practical examples for common tasks with cov-loupe. Examples are organized by skill level and use case.
 
 > For brevity, these examples use `clp`, an alias to the demo fixture with partial coverage:
-> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
+> 
+> `alias clp='cov-loupe -R docs/fixtures/demo_project'  # -R = --root`
+> 
 > Swap `clp` for `cov-loupe` to run against your own project and resultset.
 
 ## Table of Contents
@@ -22,11 +24,11 @@ Practical examples for common tasks with cov-loupe. Examples are organized by sk
 ### View All Coverage
 
 ```bash
-# Default: show all files, worst coverage first
+# Default: show all files, best coverage first
 clp
 
-# Show files with best coverage first
-clp -o d list  # -o = --sort-order, d = descending
+# Show files with worst coverage first
+clp -o a list  # -o = --sort-order, a = ascending
 
 # Export to JSON for processing
 clp -fJ list > coverage-report.json
@@ -49,7 +51,7 @@ clp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u
 
 ```bash
 # Files with worst coverage
-clp list | head -10
+clp list | tail -10
 
 # Only show files below 80%
 clp -fJ list | jq '.files[] | select(.percentage < 95)'
@@ -297,7 +299,7 @@ Using cov-loupe, find all files in lib/payments/ with less than 80% coverage and
 ### Test Generation
 
 ```
-Using cov-loupe, identify the uncovered lines in lib/ops/jobs/report_job.rb and write RSpec tests to cover them.
+Using cov-loupe, identify the uncovered lines in lib/ops/jobs/report_job.rb and write *meaningful* RSpec tests to cover them.
 ```
 
 ```
@@ -320,7 +322,7 @@ Format as markdown.
 
 ## Test Run Integration
 
-### Display Low Coverage Files After RSpec
+### Display Low Coverage Files
 
 Add this to your `spec/spec_helper.rb` to automatically report files below a coverage threshold after each test run:
 
@@ -362,22 +364,28 @@ Lowest coverage files (< 80%):
 
 ### GitHub Actions
 
-**Fail on low coverage:**
+**Fail on low coverage (Cross-Platform):**
 ```yaml
 name: Coverage Check
 
 on: [push, pull_request]
 
 jobs:
-  coverage:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        ruby-version: ['3.4']
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.3
+          ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true
 
       - name: Run tests
@@ -387,50 +395,42 @@ jobs:
         run: gem install cov-loupe
 
       - name: Check coverage threshold
+        shell: bash
         run: |
-          clp -fJ list > coverage.json
-          BELOW_THRESHOLD=$(jq '[.files[] | select(.percentage < 80)] | length' coverage.json)
+          # Generate JSON report using the full command (aliases like 'clp' are not available here)
+          cov-loupe -fJ list > coverage.json
 
-          # Ruby alternative:
-          # BELOW_THRESHOLD=$(ruby -r json -e '
-          #   puts JSON.parse(File.read("coverage.json"))["files"].count { |f| f["percentage"] < 80 }
-          # ')
+          # Verify coverage using Ruby for cross-platform compatibility
+          # (Tools like jq and rexe are not guaranteed to be installed on all runners)
+          ruby -r json -e '
+            data = JSON.parse(File.read("coverage.json"))
+            files = data["files"]
+            low_cov_files = files.select { |f| f["percentage"] < 80 }
 
-          # Rexe alternative:
-          # BELOW_THRESHOLD=$(rexe -f coverage.json -op 'self["files"].count { |f| f["percentage"] < 80 }')
-
-          if [ "$BELOW_THRESHOLD" -gt 0 ]; then
-            echo "❌ $BELOW_THRESHOLD files below 80% coverage"
-            jq -r '.files[] | select(.percentage < 80) | "\(.file): \(.percentage)%"' coverage.json
-
-            # Ruby alternative:
-            # ruby -r json -e '
-            #   JSON.parse(File.read("coverage.json"))["files"].select { |f| f["percentage"] < 80 }.each do |f|
-            #     puts "#{f["file"]}: #{f["percentage"]}%"
-            #   end
-            # '
-
-            # Rexe alternative:
-            # rexe -f coverage.json '
-            #   self["files"].select { |f| f["percentage"] < 80 }.each do |f|
-            #     puts "#{f["file"]}: #{f["percentage"]}%"
-            #   end
-            # '
-
-            exit 1
-          fi
-          echo "✓ All files meet coverage threshold"
+            if low_cov_files.any?
+              puts "❌ #{low_cov_files.count} files below 80% coverage:"
+              low_cov_files.each do |f|
+                puts "  #{f["percentage"]}% #{f["file"]}"
+              end
+              exit 1
+            end
+            puts "✓ All files meet coverage threshold"
+          '
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v3
+        # Saves the coverage file as an artifact so you can download/inspect it 
+        # from the GitHub Actions run summary page.
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coverage-report
+          name: coverage-report-${{ matrix.os }}
           path: coverage.json
 ```
 
 **Check for stale coverage:**
 ```yaml
       - name: Verify coverage is fresh
+        shell: bash
         run: cov-loupe --raise-on-stale list || exit 1
 ```
 
@@ -438,7 +438,7 @@ jobs:
 
 ```yaml
 test:
-  image: ruby:3.3
+  image: ruby:3.4
   before_script:
     - gem install cov-loupe
   script:
@@ -477,7 +477,7 @@ end
 
 ```bash
 # Use in CI
-clp validate coverage_policy.rb
+cov-loupe validate coverage_policy.rb
 ```
 
 ## Advanced Usage
@@ -516,34 +516,6 @@ results.sort_by { |r| r[:coverage] }.each do |r|
 end
 ```
 
-### Coverage Delta Tracking
-
-```ruby
-require "cov_loupe"
-require "json"
-
-# Save current coverage
-root = "docs/fixtures/demo_project"
-model = CovLoupe::CoverageModel.new(root: root)
-current = model.list
-
-File.write("coverage_baseline.json", JSON.pretty_generate(current))
-
-# Later, compare with baseline
-baseline = JSON.parse(File.read("coverage_baseline.json"))
-
-current.each do |file|
-  baseline_file = baseline.find { |f| f['file'] == file['file'] }
-  next unless baseline_file
-
-  delta = file['percentage'] - baseline_file['percentage']
-  if delta.abs > 0.1  # Changed by more than 0.1%
-    symbol = delta > 0 ? '↑' : '↓'
-    puts "#{symbol} #{file['file']}: #{baseline_file['percentage']}% → #{file['percentage']}%"
-  end
-end
-```
-
 ### Integration with Code Review
 
 ```ruby
@@ -579,6 +551,7 @@ The [`/examples`](/examples) directory contains runnable scripts:
 
 - **[filter_and_table_demo.rb](../examples/filter_and_table_demo.rb)** - Filter and format coverage data
 - **[success_predicates/](/examples/success_predicates/)** - Custom coverage policy examples
+- **[Coverage Delta Tracking recipe in the Library API Guide](LIBRARY_API.md#coverage-delta-tracking)**
 
 ## Related Documentation
 

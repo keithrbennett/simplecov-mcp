@@ -11,7 +11,7 @@
 
 ## Setup by Client
 
-For the `mcp add` commands, the last argument is the executable path.
+For the `mcp add` commands, the executable path comes after the server name. You can optionally pass arguments to the executable after that (e.g., `-- --error-mode debug`).
 If the executable cannot be correctly found in the path, then you can specify the full path.
 
 Ruby version managers may modify the path to include the current version's executable directory.
