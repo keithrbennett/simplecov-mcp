@@ -89,6 +89,7 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    ```bash
    claude mcp list  # For Claude Code
    codex mcp list   # For Codex
+   gemini mcp list  # For Gemini
    tail -f cov_loupe.log  # Check logs
    ```
 
@@ -112,33 +113,30 @@ The model looks up files by absolute path, then cwd-relative path, then basename
 
 ### Path Issues with Version Managers
 
-**Symptom:** Works in terminal but not in MCP client.
+**Symptom:** `cov-loupe` works in terminal but not in MCP client.
 
 **Cause:** MCP client doesn't have your shell environment (PATH, RVM, etc.).
 
 **Solution:** Use absolute paths in MCP configuration:
 
 ```bash
-# For rbenv/asdf
+# For rbenv/asdf - get the full absolute path
 which cov-loupe
-# Use this path in MCP config
+# Example output: /home/username/.rbenv/shims/cov-loupe
+# Use this exact path in your MCP config
 
-# For RVM, create wrapper
+# For RVM you may need to create a wrapper and specify its absolute path
+# (Replace ruby-3.3.8 with your rvm Ruby label) 
 rvm wrapper ruby-3.3.8 cov-loupe cov-loupe
-# Use: ~/.rvm/wrappers/ruby-3.3.8/cov-loupe
+
+# Get the full path (expands ~ to your home directory)
+realpath ~/.rvm/wrappers/ruby-3.3.8/cov-loupe
+# Example output: /home/username/.rvm/wrappers/ruby-3.3.8/cov-loupe
+
+# Use the FULL path in MCP config (NOT the ~ version):
+# Good: /home/username/.rvm/wrappers/ruby-3.3.8/cov-loupe
+# Bad:  ~/.rvm/wrappers/ruby-3.3.8/cov-loupe  (~ may not expand)
 ```
-
-## Development Issues
-
-### Test Suite Failures
-
-**Symptom:** `bundle exec rspec` fails with coverage errors.
-
-**Common causes:**
-
-1. **Stale coverage data** - Delete `coverage/` directory and re-run
-2. **SimpleCov not loaded** - Check `spec/spec_helper.rb` requires SimpleCov
-3. **Wrong Ruby version** - Verify Ruby >= 3.2
 
 ## Diagnostic Commands
 
