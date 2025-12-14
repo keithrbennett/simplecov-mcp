@@ -148,7 +148,7 @@ Suggest prompts to a coding AI tool that would be helpful in addressing the majo
 | Formatting & Style        | ?%         |
 | Best Practices & Conciseness | ?%      |
 
-- **Weighted Score Calculation:** Multiply each section’s score by its chosen weight, then sum to compute the **Overall Weighted Score (1–10)**.
-- Report the final **Overall Weighted Score** with justification.  
+- **Weighted Score Calculation:** Multiply each section's score by its chosen weight, then sum to compute the **Overall Weighted Score (1–10)**.
+- Report the final **Overall Weighted Score** with justification.
 
 ### Summarize suggested changes
