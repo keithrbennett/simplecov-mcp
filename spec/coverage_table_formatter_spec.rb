@@ -35,26 +35,41 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'returns a formatted table with box-drawing characters' do
         output = described_class.format(rows)
 
-        # Should contain table structure
-        expect(output).to include('┌', '┬', '┐', '│', '├', '┼', '┤', '└', '┴', '┘')
+        aggregate_failures do
+          %w[┌ ┬ ┐ │ ├ ┼ ┤ └ ┴ ┘].each do |char|
+            expect(output).to include(char)
+          end
+        end
       end
 
       it 'includes column headers' do
         output = described_class.format(rows)
 
-        expect(output).to include('File', '%', 'Covered', 'Total', 'Stale')
+        aggregate_failures do
+          %w[File % Covered Total Stale].each do |header|
+            expect(output).to include(header)
+          end
+        end
       end
 
       it 'includes file paths' do
         output = described_class.format(rows)
 
-        expect(output).to include('lib/foo.rb', 'lib/bar.rb', 'lib/baz.rb')
+        aggregate_failures do
+          %w[lib/foo.rb lib/bar.rb lib/baz.rb].each do |path|
+            expect(output).to include(path)
+          end
+        end
       end
 
       it 'includes coverage percentages with 2 decimal places' do
         output = described_class.format(rows)
 
-        expect(output).to include('100.00%', '50.00%', '75.00%')
+        aggregate_failures do
+          %w[100.00% 50.00% 75.00%].each do |percentage|
+            expect(output).to include(percentage)
+          end
+        end
       end
 
       it 'includes covered and total line counts' do

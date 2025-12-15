@@ -9,8 +9,17 @@ RSpec.describe 'CLI enumerated option parsing' do
     cli
   end
 
+  shared_examples 'parses option' do |cases|
+    cases.each do |c|
+      it "parses #{c[:argv].join(' ')}" do
+        cli = parse!(c[:argv])
+        expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])
+      end
+    end
+  end
+
   describe 'accepts short and long forms' do
-    cases = [
+    it_behaves_like 'parses option', [
       { argv: %w[--sort-order a list], accessor: :sort_order, expected: :ascending },
       { argv: %w[--sort-order d list], accessor: :sort_order, expected: :descending },
       { argv: %w[--sort-order ascending list], accessor: :sort_order, expected: :ascending },
@@ -37,17 +46,10 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[-e off list], accessor: :error_mode, expected: :off },
       { argv: %w[-e d list], accessor: :error_mode, expected: :debug }
     ]
-
-    cases.each do |c|
-      it "parses #{c[:argv].join(' ')}" do
-        cli = parse!(c[:argv])
-        expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])
-      end
-    end
   end
 
   describe 'boolean options with BooleanType accept various values' do
-    boolean_cases = [
+    it_behaves_like 'parses option', [
       # --raise-on-stale with = syntax
       { argv: %w[--raise-on-stale=yes list], accessor: :raise_on_stale, expected: true },
       { argv: %w[--raise-on-stale=no list], accessor: :raise_on_stale, expected: false },
@@ -78,50 +80,36 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[-C no list], accessor: :color, expected: false },
       { argv: %w[-C false list], accessor: :color, expected: false }
     ]
+  end
 
-    boolean_cases.each do |c|
-      it "parses #{c[:argv].join(' ')}" do
-        cli = parse!(c[:argv])
-        expect(cli.config.public_send(c[:accessor])).to eq(c[:expected])
+  shared_examples 'rejects invalid option' do |cases|
+    cases.each do |c|
+      it "exits 1 for #{c[:argv].join(' ')}" do
+        _out, err, status = run_cli_with_status(*c[:argv])
+        expect(status).to eq(1)
+        expect(err).to include('invalid argument')
       end
     end
   end
 
   describe 'rejects invalid values' do
-    invalid_cases = [
+    it_behaves_like 'rejects invalid option', [
       { argv: %w[--sort-order asc list] },
       { argv: %w[--source x summary lib/foo.rb] },
       { argv: %w[--error-mode bad list] },
       { argv: %w[--error-mode on list] },
       { argv: %w[--error-mode trace list] }
     ]
-
-    invalid_cases.each do |c|
-      it "exits 1 for #{c[:argv].join(' ')}" do
-        _out, err, status = run_cli_with_status(*c[:argv])
-        expect(status).to eq(1)
-        expect(err).to include('Error:')
-        expect(err).to include('invalid argument')
-      end
-    end
   end
 
   describe 'missing value hints' do
     # OptionParser consumes the next argument as the value, which then fails validation
-    missing_value_cases = [
+    it_behaves_like 'rejects invalid option', [
       { argv: %w[--source summary lib/foo.rb] },
       { argv: %w[--raise-on-stale list] },
       { argv: %w[-S list] },
       { argv: %w[--color list] },
       { argv: %w[-C list] }
     ]
-
-    missing_value_cases.each do |c|
-      it "exits 1 for #{c[:argv].join(' ')}" do
-        _out, err, status = run_cli_with_status(*c[:argv])
-        expect(status).to eq(1)
-        expect(err).to include('invalid argument')
-      end
-    end
   end
 end

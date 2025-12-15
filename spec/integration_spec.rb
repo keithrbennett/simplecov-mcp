@@ -44,11 +44,16 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   end
 
   describe 'CLI Integration with Real Coverage Data' do
+    def run_cli_command(*args)
+      output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
+        coverage_dir, *args)
+      expect(status).to eq(0)
+      output
+    end
+
     it 'executes all major CLI commands without errors' do
       # Test list command
-      list_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
-        coverage_dir, 'list')
-      expect(status).to eq(0)
+      list_output = run_cli_command('list')
       expect(list_output).to include('lib/foo.rb', 'lib/bar.rb')
       expect(list_output).to include('66.67', '33.33')
       data_lines = list_output.lines.select { |line| line.include?('lib/') }
@@ -56,20 +61,14 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       expect(data_lines.last).to include('lib/bar.rb')
 
       # Test summary command
-      summary_output, _err, status = run_cli_with_status('--root', project_root, '--resultset',
-        coverage_dir, 'summary', 'lib/foo.rb')
-      expect(status).to eq(0)
+      summary_output = run_cli_command('summary', 'lib/foo.rb')
       expect(summary_output).to include('│')  # Table format
       expect(summary_output).to include('66.67%')
       expect(summary_output).to include('2')
       expect(summary_output).to include('3')
 
       # Test JSON output
-      json_output, _err, status = run_cli_with_status(
-        '--format', 'json', '--root', project_root, '--resultset', coverage_dir,
-        'summary', 'lib/foo.rb'
-      )
-      expect(status).to eq(0)
+      json_output = run_cli_command('--format', 'json', 'summary', 'lib/foo.rb')
       json_data = JSON.parse(json_output)
       expect(json_data).to include('file', 'summary')
       expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
@@ -77,17 +76,11 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'handles different output formats correctly' do
       # Test uncovered command with different outputs
-      uncovered_output, _err, status = run_cli_with_status(
-        '--root', project_root, '--resultset', coverage_dir, 'uncovered', 'lib/foo.rb'
-      )
-      expect(status).to eq(0)
+      uncovered_output = run_cli_command('uncovered', 'lib/foo.rb')
       expect(uncovered_output).to include('│')  # Table format
 
       # Test detailed command
-      detailed_output, _err, status = run_cli_with_status(
-        '--root', project_root, '--resultset', coverage_dir, 'detailed', 'lib/foo.rb'
-      )
-      expect(status).to eq(0)
+      detailed_output = run_cli_command('detailed', 'lib/foo.rb')
       expect(detailed_output).to include('Line', 'Hits', 'Covered')
     end
   end

@@ -16,6 +16,28 @@ RSpec.describe CovLoupe::Tools do
     setup_mcp_response_stub
   end
 
+  shared_examples 'handles tool error' do |tool_class, method, error_msg, call_args = {}|
+    it "handles errors during #{method} execution" do
+      # If we're mocking CoverageModel.new directly (for tools that fail early)
+      if method == :new
+        allow(CovLoupe::CoverageModel).to receive(:new).and_raise(StandardError, error_msg)
+      else
+        # For tools that fail on a model method
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+        allow(model).to receive(method).and_raise(StandardError, error_msg)
+      end
+
+      default_args = { error_mode: 'log', server_context: server_context }
+      response = tool_class.call(**default_args, **call_args)
+
+      expect(response).to be_a(MCP::Tool::Response)
+      item = response.payload.first
+      expect(item[:type] || item['type']).to eq('text')
+      expect(item['text']).to include('Error')
+    end
+  end
+
   # NOTE: VersionTool error handling is difficult to test because the tool is so simple
   # and doesn't have any complex logic that could fail. The rescue clause in the tool
   # exists for consistency with other tools but is unlikely to be triggered in practice.
@@ -35,96 +57,25 @@ RSpec.describe CovLoupe::Tools do
   end
 
   describe CovLoupe::Tools::CoverageSummaryTool do
-    it 'handles errors during model creation' do
-      allow(CovLoupe::CoverageModel).to receive(:new).and_raise(StandardError, 'Model error')
-
-      response = described_class.call(
-        path: 'lib/foo.rb',
-        error_mode: 'log',
-        server_context: server_context
-      )
-
-      # Should return error response
-      expect(response).to be_a(MCP::Tool::Response)
-      item = response.payload.first
-      expect(item[:type] || item['type']).to eq('text')
-      expect(item['text']).to include('Error')
-    end
+    it_behaves_like 'handles tool error', described_class, :new, 'Model error', path: 'lib/foo.rb'
   end
 
   describe CovLoupe::Tools::CoverageRawTool do
-    it 'handles errors during raw data retrieval' do
-      model = instance_double(CovLoupe::CoverageModel)
-      allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-      allow(model).to receive(:raw_for).and_raise(StandardError, 'Raw data error')
-
-      response = described_class.call(
-        path: 'lib/foo.rb',
-        error_mode: 'log',
-        server_context: server_context
-      )
-
-      # Should return error response
-      expect(response).to be_a(MCP::Tool::Response)
-      item = response.payload.first
-      expect(item[:type] || item['type']).to eq('text')
-      expect(item['text']).to include('Error')
-    end
+    it_behaves_like 'handles tool error', described_class, :raw_for, 'Raw data error',
+      path: 'lib/foo.rb'
   end
 
   describe CovLoupe::Tools::UncoveredLinesTool do
-    it 'handles errors during uncovered lines retrieval' do
-      model = instance_double(CovLoupe::CoverageModel)
-      allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-      allow(model).to receive(:uncovered_for).and_raise(StandardError, 'Uncovered error')
-
-      response = described_class.call(
-        path: 'lib/foo.rb',
-        error_mode: 'log',
-        server_context: server_context
-      )
-
-      # Should return error response
-      expect(response).to be_a(MCP::Tool::Response)
-      item = response.payload.first
-      expect(item[:type] || item['type']).to eq('text')
-      expect(item['text']).to include('Error')
-    end
+    it_behaves_like 'handles tool error', described_class, :uncovered_for, 'Uncovered error',
+      path: 'lib/foo.rb'
   end
 
   describe CovLoupe::Tools::CoverageDetailedTool do
-    it 'handles errors during detailed data retrieval' do
-      model = instance_double(CovLoupe::CoverageModel)
-      allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-      allow(model).to receive(:detailed_for).and_raise(StandardError, 'Detailed error')
-
-      response = described_class.call(
-        path: 'lib/foo.rb',
-        error_mode: 'log',
-        server_context: server_context
-      )
-
-      # Should return error response
-      expect(response).to be_a(MCP::Tool::Response)
-      item = response.payload.first
-      expect(item[:type] || item['type']).to eq('text')
-      expect(item['text']).to include('Error')
-    end
+    it_behaves_like 'handles tool error', described_class, :detailed_for, 'Detailed error',
+      path: 'lib/foo.rb'
   end
 
   describe CovLoupe::Tools::CoverageTotalsTool do
-    it 'handles errors during totals calculation' do
-      allow(CovLoupe::CoverageModel).to receive(:new).and_raise(StandardError, 'Model error')
-
-      response = described_class.call(
-        error_mode: 'log',
-        server_context: server_context
-      )
-
-      expect(response).to be_a(MCP::Tool::Response)
-      item = response.payload.first
-      expect(item[:type] || item['type']).to eq('text')
-      expect(item['text']).to include('Error')
-    end
+    it_behaves_like 'handles tool error', described_class, :new, 'Model error'
   end
 end

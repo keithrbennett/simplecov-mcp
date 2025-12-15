@@ -137,24 +137,16 @@ RSpec.describe CovLoupe::ModeDetector do
   describe 'regression tests for non-TTY environment' do
     let(:stdin) { double('stdin', tty?: false) }
 
-    it 'chooses CLI mode for --help' do
-      expect(described_class.cli_mode?(['--help'], stdin: stdin)).to be true
-    end
-
-    it 'chooses CLI mode for -h' do
-      expect(described_class.cli_mode?(['-h'], stdin: stdin)).to be true
-    end
-
-    it 'chooses CLI mode for --version' do
-      expect(described_class.cli_mode?(['--version'], stdin: stdin)).to be true
-    end
-
-    it 'chooses CLI mode for -v' do
-      expect(described_class.cli_mode?(['-v'], stdin: stdin)).to be true
-    end
-
-    it 'chooses CLI mode for --json list' do
-      expect(described_class.cli_mode?(['--format', 'json', 'list'], stdin: stdin)).to be true
+    [
+      { argv: ['--help'], desc: '--help' },
+      { argv: ['-h'], desc: '-h' },
+      { argv: ['--version'], desc: '--version' },
+      { argv: ['-v'], desc: '-v' },
+      { argv: ['--format', 'json', 'list'], desc: '--json list' }
+    ].each do |tc|
+      it "chooses CLI mode for #{tc[:desc]}" do
+        expect(described_class.cli_mode?(tc[:argv], stdin: stdin)).to be true
+      end
     end
 
     it 'chooses MCP mode for flags without a subcommand' do
