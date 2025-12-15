@@ -3,8 +3,36 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe::OptionNormalizers do
-  describe '.normalize_sort_order' do
+  shared_examples 'a normalizer' do |method_name, valid_cases, invalid_cases, invalid_return: nil|
     context 'with strict mode (default)' do
+      valid_cases.each do |input, expected|
+        it "normalizes '#{input}' to #{expected}" do
+          expect(described_class.send(method_name, input)).to eq(expected)
+        end
+      end
+
+      invalid_cases.each do |input|
+        it "raises OptionParser::InvalidArgument for #{input.inspect}" do
+          expect { described_class.send(method_name, input) }
+            .to raise_error(OptionParser::InvalidArgument)
+        end
+      end
+    end
+
+    context 'with strict: false' do
+      it "returns #{invalid_return.inspect} for invalid values" do
+        expect(described_class.send(method_name, 'invalid', strict: false)).to eq(invalid_return)
+      end
+
+      it 'still normalizes valid values' do
+        input, expected = valid_cases.first
+        expect(described_class.send(method_name, input, strict: false)).to eq(expected)
+      end
+    end
+  end
+
+  describe '.normalize_sort_order' do
+    it_behaves_like 'a normalizer', :normalize_sort_order,
       [
         ['a', :ascending],
         ['ascending', :ascending],
@@ -12,38 +40,12 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['descending', :descending],
         ['ASCENDING', :ascending],
         ['Descending', :descending]
-      ].each do |input, expected|
-        it "normalizes '#{input}' to #{expected}" do
-          expect(described_class.normalize_sort_order(input)).to eq(expected)
-        end
-      end
-
-      it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_sort_order('invalid') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
-      end
-    end
-
-    context 'with strict: false' do
-      it 'returns nil for invalid values' do
-        expect(described_class.normalize_sort_order('invalid', strict: false)).to be_nil
-      end
-
-      it 'still normalizes valid values' do
-        expect(described_class.normalize_sort_order('a', strict: false)).to eq(:ascending)
-      end
-    end
+      ],
+      ['invalid']
   end
 
   describe '.normalize_source_mode' do
-    context 'with strict mode (default)' do
-      [nil, ''].each do |input|
-        it "raises OptionParser::InvalidArgument for #{input.inspect}" do
-          expect { described_class.normalize_source_mode(input) }
-            .to raise_error(OptionParser::InvalidArgument, /invalid argument/)
-        end
-      end
-
+    it_behaves_like 'a normalizer', :normalize_source_mode,
       [
         ['f', :full],
         ['full', :full],
@@ -51,31 +53,12 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['uncovered', :uncovered],
         ['FULL', :full],
         ['Uncovered', :uncovered]
-      ].each do |input, expected|
-        it "normalizes '#{input}' to #{expected}" do
-          expect(described_class.normalize_source_mode(input)).to eq(expected)
-        end
-      end
-
-      it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_source_mode('invalid') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
-      end
-    end
-
-    context 'with strict: false' do
-      it 'returns nil for invalid values' do
-        expect(described_class.normalize_source_mode('invalid', strict: false)).to be_nil
-      end
-
-      it 'still normalizes valid values' do
-        expect(described_class.normalize_source_mode('u', strict: false)).to eq(:uncovered)
-      end
-    end
+      ],
+      [nil, '', 'invalid']
   end
 
   describe '.normalize_error_mode' do
-    context 'with strict mode (default)' do
+    it_behaves_like 'a normalizer', :normalize_error_mode,
       [
         ['off', :off],
         ['o', :off],
@@ -86,19 +69,9 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['OFF', :off],
         ['Log', :log],
         ['DEBUG', :debug]
-      ].each do |input, expected|
-        it "normalizes '#{input}' to #{expected}" do
-          expect(described_class.normalize_error_mode(input)).to eq(expected)
-        end
-      end
-
-      ['invalid', 'on', 'trace'].each do |input|
-        it "raises OptionParser::InvalidArgument for '#{input}'" do
-          expect { described_class.normalize_error_mode(input) }
-            .to raise_error(OptionParser::InvalidArgument, /invalid argument: #{input}/)
-        end
-      end
-    end
+      ],
+      ['invalid', 'on', 'trace'],
+      invalid_return: :log
 
     context 'with strict: false and default: :log' do
       [['invalid', :log], [nil, :log]].each do |input, expected|
@@ -106,10 +79,6 @@ RSpec.describe CovLoupe::OptionNormalizers do
           expect(described_class.normalize_error_mode(input, strict: false,
             default: :log)).to eq(expected)
         end
-      end
-
-      it 'still normalizes valid values' do
-        expect(described_class.normalize_error_mode('off', strict: false)).to eq(:off)
       end
     end
 
@@ -122,7 +91,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
   end
 
   describe '.normalize_format' do
-    context 'with strict mode (default)' do
+    it_behaves_like 'a normalizer', :normalize_format,
       [
         ['t', :table],
         ['table', :table],
@@ -137,27 +106,8 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['ap', :awesome_print],
         ['TABLE', :table],
         ['Json', :json]
-      ].each do |input, expected|
-        it "normalizes '#{input}' to #{expected}" do
-          expect(described_class.normalize_format(input)).to eq(expected)
-        end
-      end
-
-      it 'raises OptionParser::InvalidArgument for invalid values' do
-        expect { described_class.normalize_format('invalid') }
-          .to raise_error(OptionParser::InvalidArgument, /invalid argument: invalid/)
-      end
-    end
-
-    context 'with strict: false' do
-      it 'returns nil for invalid values' do
-        expect(described_class.normalize_format('invalid', strict: false)).to be_nil
-      end
-
-      it 'still normalizes valid values' do
-        expect(described_class.normalize_format('json', strict: false)).to eq(:json)
-      end
-    end
+      ],
+      ['invalid']
   end
 
   describe 'constant maps' do

@@ -25,27 +25,24 @@ RSpec.describe CovLoupe::CoverageCLI do
       yield JSON.parse(output)
     end
 
-    it 'prints summary as JSON' do
-      with_json_output('summary', 'lib/foo.rb') do |data|
-        expect(data['summary']).to include('covered' => 2)
-      end
-    end
-
-    it 'prints raw as JSON' do
-      with_json_output('raw', 'lib/foo.rb') do |data|
-        expect(data['lines']).to eq([1, 0, nil, 2])
-      end
-    end
-
-    it 'prints uncovered as JSON' do
-      with_json_output('uncovered', 'lib/foo.rb') do |data|
-        expect(data['uncovered']).to eq([2])
-      end
-    end
-
-    it 'prints detailed as JSON' do
-      with_json_output('detailed', 'lib/foo.rb') do |data|
-        expect(data['lines']).to be_an(Array)
+    [
+      { cmd: 'summary', args: ['lib/foo.rb'], key: 'summary', check: ->(d) {
+        d['summary']['covered'] == 2
+      } },
+      { cmd: 'raw', args: ['lib/foo.rb'], key: 'lines', check: ->(d) {
+        d['lines'] == [1, 0, nil, 2]
+      } },
+      { cmd: 'uncovered', args: ['lib/foo.rb'], key: 'uncovered', check: ->(d) {
+        d['uncovered'] == [2]
+      } },
+      { cmd: 'detailed', args: ['lib/foo.rb'], key: 'lines', check: ->(d) {
+        d['lines'].is_a?(Array)
+      } }
+    ].each do |tc|
+      it "prints #{tc[:cmd]} as JSON" do
+        with_json_output(tc[:cmd], *tc[:args]) do |data|
+          expect(tc[:check].call(data)).to be true
+        end
       end
     end
 
