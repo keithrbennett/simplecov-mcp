@@ -87,8 +87,8 @@ RSpec.describe CovLoupe::Tools::VersionTool do
           expect(response).to be_a(MCP::Tool::Response)
           item = response.payload.first
           expect(item[:type] || item['type']).to eq('text')
-          # Even in 'off' mode, the tool returns a friendly error message in the payload
-          # The 'off' mode primarily affects logging to stderr/file
+          expect(item['text']).to include('Error:')
+          expect(item['text']).to include('Version error')
         end
       end
     end

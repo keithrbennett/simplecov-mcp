@@ -87,6 +87,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       it "exits 1 for #{c[:argv].join(' ')}" do
         _out, err, status = run_cli_with_status(*c[:argv])
         expect(status).to eq(1)
+        expect(err).to include('Error:') if c.fetch(:check_error_prefix, true)
         expect(err).to include('invalid argument')
       end
     end
@@ -105,11 +106,11 @@ RSpec.describe 'CLI enumerated option parsing' do
   describe 'missing value hints' do
     # OptionParser consumes the next argument as the value, which then fails validation
     it_behaves_like 'rejects invalid option', [
-      { argv: %w[--source summary lib/foo.rb] },
-      { argv: %w[--raise-on-stale list] },
-      { argv: %w[-S list] },
-      { argv: %w[--color list] },
-      { argv: %w[-C list] }
+      { argv: %w[--source summary lib/foo.rb], check_error_prefix: false },
+      { argv: %w[--raise-on-stale list], check_error_prefix: false },
+      { argv: %w[-S list], check_error_prefix: false },
+      { argv: %w[--color list], check_error_prefix: false },
+      { argv: %w[-C list], check_error_prefix: false }
     ]
   end
 end

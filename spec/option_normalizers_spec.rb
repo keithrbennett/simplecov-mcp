@@ -11,10 +11,22 @@ RSpec.describe CovLoupe::OptionNormalizers do
         end
       end
 
-      invalid_cases.each do |input|
+      invalid_cases.each do |case_data|
+        input, fragment = if case_data.is_a?(Hash)
+          [case_data.fetch(:input), case_data[:error_fragment]]
+        else
+          [case_data, case_data]
+        end
+
         it "raises OptionParser::InvalidArgument for #{input.inspect}" do
           expect { described_class.send(method_name, input) }
-            .to raise_error(OptionParser::InvalidArgument)
+            .to raise_error(OptionParser::InvalidArgument) { |error|
+              expect(error.message).to include('invalid argument')
+              fragment_str = fragment.to_s
+              unless fragment_str.empty?
+                expect(error.message).to include(fragment_str)
+              end
+            }
         end
       end
     end
