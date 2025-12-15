@@ -3,10 +3,12 @@
 # Enable SimpleCov for this project (coverage output in ./coverage)
 begin
   require 'simplecov'
+  require 'simplecov-cobertura'
   SimpleCov.start do
     enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
     add_filter(/^\/spec\//)
     track_files 'lib/**/*.rb'
+    formatter SimpleCov::Formatter::CoberturaFormatter
   end
 
   # Report lowest coverage files at the end of the test run
