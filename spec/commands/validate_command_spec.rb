@@ -7,7 +7,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
   def with_temp_predicate(content)
-    Tempfile.create(['predicate', '.rb']) do |file|
+    Tempfile.create(%w[predicate .rb]) do |file|
       file.write(content)
       file.flush
       yield file.path

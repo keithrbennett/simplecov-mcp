@@ -181,7 +181,7 @@ RSpec.describe CovLoupe do
           nil, # StandardError sets message to class name when nil
           nil,
           cov_timestamp: 1000,
-          newer_files: ['file1.rb', 'file2.rb']
+          newer_files: %w[file1.rb file2.rb]
         )
 
         message = error.user_friendly_message

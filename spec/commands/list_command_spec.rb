@@ -23,6 +23,6 @@ RSpec.describe CovLoupe::Commands::ListCommand do
       end
     end
 
-    it_behaves_like 'a command with formatted output', [], ['files', 'counts']
+    it_behaves_like 'a command with formatted output', [], %w[files counts]
   end
 end

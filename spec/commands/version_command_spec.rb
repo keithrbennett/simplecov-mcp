@@ -33,6 +33,6 @@ RSpec.describe CovLoupe::Commands::VersionCommand do
       end
     end
 
-    it_behaves_like 'a command with formatted output', [], ['version', 'gem_root']
+    it_behaves_like 'a command with formatted output', [], %w[version gem_root]
   end
 end

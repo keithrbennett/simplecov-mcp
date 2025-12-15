@@ -24,7 +24,7 @@ RSpec.describe CovLoupe::Tools::ValidateTool do
   end
 
   def with_predicate_file(content, dir: nil)
-    Tempfile.create(['predicate', '.rb'], dir) do |file|
+    Tempfile.create(%w[predicate .rb], dir) do |file|
       file.write(content)
       file.flush
       yield file
@@ -51,7 +51,7 @@ RSpec.describe CovLoupe::Tools::ValidateTool do
     it 'returns false when the predicate evaluates to false' do
       response = call_with_predicate('->(_m) { false }')
 
-      data, = expect_mcp_text_json(response, expected_keys: ['result'])
+      data, = expect_mcp_text_json(response, expected_keys: %w[result])
       expect(data['result']).to be(false)
     end
   end
@@ -70,7 +70,7 @@ RSpec.describe CovLoupe::Tools::ValidateTool do
           '->(m) { m.list.detect { |f| f["file"].include?("foo.rb") }["percentage"] >= 50.0 }'
         )
 
-        data, = expect_mcp_text_json(response, expected_keys: ['result'])
+        data, = expect_mcp_text_json(response, expected_keys: %w[result])
         expect(data['result']).to be(true)
       end
 

@@ -28,7 +28,7 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
   it_behaves_like 'an MCP tool that returns text JSON'
 
   it 'returns aggregated totals' do
-    data, = expect_mcp_text_json(tool_response, expected_keys: ['lines', 'percentage', 'files'])
+    data, = expect_mcp_text_json(tool_response, expected_keys: %w[lines percentage files])
 
     expect(data['lines']).to include('total' => 42, 'covered' => 40, 'uncovered' => 2)
     expect(data['files']).to include('total' => 4, 'stale' => 0)

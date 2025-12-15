@@ -82,7 +82,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['Log', :log],
         ['DEBUG', :debug]
       ],
-      ['invalid', 'on', 'trace'],
+      %w[invalid on trace],
       invalid_return: :log
 
     context 'with strict: false and default: :log' do

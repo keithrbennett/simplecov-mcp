@@ -61,7 +61,7 @@ RSpec.describe CovLoupe::StalenessChecker do
   context 'when computing file staleness details' do
     it_behaves_like 'a staleness check',
       description: 'detects newer file vs coverage timestamp',
-      file_lines: ['a', 'b'],
+      file_lines: %w[a b],
       coverage_lines: [1, 1],
       timestamp: Time.at(Time.now.to_i - 3600),
       expected_details: {
@@ -78,7 +78,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
     it_behaves_like 'a staleness check',
       description: 'detects length mismatch between source and coverage',
-      file_lines: ['a', 'b', 'c', 'd'],
+      file_lines: %w[a b c d],
       coverage_lines: [1, 1],
       timestamp: Time.now,
       expected_details: {
@@ -110,7 +110,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
     it_behaves_like 'a staleness check',
       description: 'is not stale when timestamps and lengths match',
-      file_lines: ['a', 'b', 'c'],
+      file_lines: %w[a b c],
       coverage_lines: [1, 0, nil],
       timestamp: :past,
       expected_details: {

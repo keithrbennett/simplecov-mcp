@@ -101,7 +101,7 @@ RSpec.describe 'Error Mode System' do
 
       # Test that the option parser accepts the flag
       expect do
-        cli.send(:parse_options!, ['--error-mode', 'debug', 'summary', 'lib/foo.rb'])
+        cli.send(:parse_options!, %w[--error-mode debug summary lib/foo.rb])
       end.not_to raise_error
 
       expect(cli.config.error_mode).to eq(:debug)
@@ -109,7 +109,7 @@ RSpec.describe 'Error Mode System' do
 
     it 'creates error handler with specified mode' do
       cli = CovLoupe::CoverageCLI.new
-      cli.send(:parse_options!, ['--error-mode', 'off', 'summary', 'lib/foo.rb'])
+      cli.send(:parse_options!, %w[--error-mode off summary lib/foo.rb])
 
       expect(cli.send(:error_handler).error_mode).to eq(:off)
     end
@@ -118,7 +118,7 @@ RSpec.describe 'Error Mode System' do
       cli = CovLoupe::CoverageCLI.new
 
       expect do
-        cli.send(:parse_options!, ['--error-mode', 'invalid', 'summary', 'lib/foo.rb'])
+        cli.send(:parse_options!, %w[--error-mode invalid summary lib/foo.rb])
       end.to raise_error(OptionParser::InvalidArgument)
     end
   end

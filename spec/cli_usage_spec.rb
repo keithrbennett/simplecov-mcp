@@ -19,7 +19,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   it 'list honors stale=error and tracked_globs by exiting 1 when project is stale' do
-    Tempfile.create(['brand_new_file_for_cli_usage_spec', '.rb'], File.join(root, 'lib')) do |f|
+    Tempfile.create(%w[brand_new_file_for_cli_usage_spec .rb], File.join(root, 'lib')) do |f|
       f.write("# new file\n")
       f.flush
       _out, err, status = run_cli_with_status(

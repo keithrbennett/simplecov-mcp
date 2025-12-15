@@ -101,7 +101,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      data, _item = expect_mcp_text_json(summary_response, expected_keys: ['file', 'summary'])
+      data, _item = expect_mcp_text_json(summary_response, expected_keys: %w[file summary])
       expect(data['summary']).to include('covered' => 2, 'total' => 3)
 
       # Test raw coverage tool
@@ -112,7 +112,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      raw_data, _raw_item = expect_mcp_text_json(raw_response, expected_keys: ['file', 'lines'])
+      raw_data, _raw_item = expect_mcp_text_json(raw_response, expected_keys: %w[file lines])
       expect(raw_data['lines']).to eq([1, 0, nil, 2])
 
       # Test all files tool
@@ -122,7 +122,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         server_context: server_context
       )
 
-      all_data, = expect_mcp_text_json(list_response, expected_keys: ['files', 'counts'])
+      all_data, = expect_mcp_text_json(list_response, expected_keys: %w[files counts])
       expect(all_data['files'].length).to eq(2)
       expect(all_data['counts']['total']).to eq(2)
     end

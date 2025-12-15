@@ -31,7 +31,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
 
       it 'parses simple options correctly' do
         ENV['COV_LOUPE_OPTS'] = '--error-mode off --format json'
-        expect(parser.parse_env_opts).to eq(['--error-mode', 'off', '--format', 'json'])
+        expect(parser.parse_env_opts).to eq(%w[--error-mode off --format json])
       end
 
       it 'handles quoted strings with spaces' do
@@ -106,32 +106,32 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
 
     context 'when error-mode is found' do
       it 'extracts error-mode with space separator' do
-        argv = ['--error-mode', 'debug', '--other-option']
+        argv = %w[--error-mode debug --other-option]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:debug)
       end
 
       it 'extracts error-mode with equals separator' do
-        argv = ['--error-mode=off', '--other-option']
+        argv = %w[--error-mode=off --other-option]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:off)
       end
 
       it 'handles error-mode with equals but empty value' do
-        argv = ['--error-mode=', '--other-option']
+        argv = %w[--error-mode= --other-option]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         # Empty value after = explicitly returns nil (line 32)
         expect(result).to be_nil
       end
 
       it 'returns first error-mode when multiple are present' do
-        argv = ['--error-mode', 'log', '--error-mode', 'off']
+        argv = %w[--error-mode log --error-mode off]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:log)
       end
 
       it 'returns nil when a standalone --error-mode lacks a value' do
-        argv = ['--error-mode']
+        argv = %w[--error-mode]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to be_nil
       end
@@ -139,7 +139,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
 
     context 'when error-mode is not found' do
       it 'returns nil when no error-mode is present' do
-        argv = ['--other-option', 'value']
+        argv = %w[--other-option value]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to be_nil
       end
@@ -154,7 +154,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
     context 'when handling errors during pre-scan' do
       it 'returns nil when normalizer raises an error' do
         faulty_normalizer = ->(_) { raise StandardError, 'Intentional error' }
-        argv = ['--error-mode', 'log']
+        argv = %w[--error-mode log]
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
         expect(result).to be_nil
@@ -162,7 +162,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
 
       it 'returns nil when normalizer raises ArgumentError' do
         faulty_normalizer = ->(_) { raise ArgumentError, 'Bad argument' }
-        argv = ['--error-mode', 'log']
+        argv = %w[--error-mode log]
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
         expect(result).to be_nil
@@ -170,7 +170,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
 
       it 'returns nil when normalizer raises RuntimeError' do
         faulty_normalizer = ->(_) { raise 'Runtime problem' }
-        argv = ['--error-mode=off']
+        argv = %w[--error-mode=off]
 
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: faulty_normalizer)
         expect(result).to be_nil
@@ -212,7 +212,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
       custom_parser = described_class.new(env_var: 'CUSTOM_OPTS')
       ENV['CUSTOM_OPTS'] = '--error-mode off'
 
-      expect(custom_parser.parse_env_opts).to eq(['--error-mode', 'off'])
+      expect(custom_parser.parse_env_opts).to eq(%w[--error-mode off])
     end
 
     it 'includes custom env var name in error messages' do

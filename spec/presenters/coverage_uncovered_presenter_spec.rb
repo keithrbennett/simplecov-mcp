@@ -12,5 +12,5 @@ RSpec.describe CovLoupe::Presenters::CoverageUncoveredPresenter do
       'summary' => { 'covered' => 2, 'total' => 4, 'percentage' => 50.0 }
     },
     stale: 'M',
-    expected_keys: ['uncovered', 'summary']
+    expected_keys: %w[uncovered summary]
 end

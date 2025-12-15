@@ -15,5 +15,5 @@ RSpec.describe CovLoupe::Presenters::CoverageDetailedPresenter do
       'summary' => { 'covered' => 1, 'total' => 2, 'percentage' => 50.0 }
     },
     stale: 'L',
-    expected_keys: ['lines', 'summary']
+    expected_keys: %w[lines summary]
 end

@@ -86,7 +86,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('missing argument: --source')
           expect_error_output(
             error: error,
-            argv: ['--source'],
+            argv: %w[--source],
             pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
           )
         end
@@ -95,7 +95,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('invalid argument: --other')
           expect_error_output(
             error: error,
-            argv: ['--source', '--other-option'],
+            argv: %w[--source --other-option],
             pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
           )
         end
@@ -106,7 +106,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
 
         it 'does not suggest enum values for invalid boolean value' do
           stderr_output = capture_stderr do
-            helper.handle_option_parser_error(boolean_error, argv: ['--raise-on-stale=maybe'])
+            helper.handle_option_parser_error(boolean_error, argv: %w[--raise-on-stale=maybe])
           end
 
           expect(stderr_output).to include('invalid option')
@@ -120,7 +120,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: bad')
         expect_error_output(
           error: error,
-          argv: ['--resultset', 'coverage', '--source', 'bad', '--format', 'json'],
+          argv: %w[--resultset coverage --source bad --format json],
           pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
         )
       end
@@ -129,7 +129,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: invalid')
         expect_error_output(
           error: error,
-          argv: ['--format', 'json', '--sort-order=invalid', '--resultset', 'coverage'],
+          argv: %w[--format json --sort-order=invalid --resultset coverage],
           pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
         )
       end
@@ -140,7 +140,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid option: --unknown')
 
         stderr_output = capture_stderr do
-          helper.handle_option_parser_error(error, argv: ['--unknown'])
+          helper.handle_option_parser_error(error, argv: %w[--unknown])
         end
 
         expect(stderr_output).to match(/Error:.*invalid option.*--unknown/)
@@ -154,7 +154,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidOption.new('invalid option: --summary')
 
         stderr_output = capture_stderr do
-          helper.handle_option_parser_error(error, argv: ['--summary'])
+          helper.handle_option_parser_error(error, argv: %w[--summary])
         end
 
         expect(stderr_output).to match(/Error:.*--summary/)
@@ -168,7 +168,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
 
         stderr_output = capture_stderr do
           expect do
-            helper.handle_option_parser_error(error, argv: ['--source', 'xyz'])
+            helper.handle_option_parser_error(error, argv: %w[--source xyz])
           end.to raise_error(SystemExit) do |e|
             expect(e.status).to eq(1)
           end
@@ -183,7 +183,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: xyz')
 
         expect do
-          helper.handle_option_parser_error(error, argv: ['--source', 'xyz'],
+          helper.handle_option_parser_error(error, argv: %w[--source xyz],
             usage_hint: 'Custom hint message')
         rescue SystemExit
           # Ignore exit call
@@ -207,7 +207,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
 
       stderr_output = capture_stderr do
         helper.handle_option_parser_error(error,
-          argv: ['--format', 'json', '--resultset', 'coverage'])
+          argv: %w[--format json --resultset coverage])
       end
 
       expect(stderr_output).to match(/Error: invalid argument: some error/)
@@ -218,7 +218,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
       error = OptionParser::MissingArgument.new('missing argument: --resultset')
 
       stderr_output = capture_stderr do
-        helper.handle_option_parser_error(error, argv: ['--source', 'full', '--resultset'])
+        helper.handle_option_parser_error(error, argv: %w[--source full --resultset])
       end
 
       expect(stderr_output).to match(/Error:.*missing argument.*--resultset/)

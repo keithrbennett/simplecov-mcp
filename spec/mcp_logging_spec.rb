@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe 'MCP Mode Logging' do
   it 'raises a configuration error when --log-file is stdout' do
-    argv = ['--log-file', 'stdout']
+    argv = %w[--log-file stdout]
 
     # Mock ModeDetector to force MCP mode
     allow(CovLoupe::ModeDetector).to receive(:cli_mode?).and_return(false)
@@ -16,7 +16,7 @@ RSpec.describe 'MCP Mode Logging' do
   end
 
   it 'allows stderr logging in MCP mode' do
-    argv = ['--log-file', 'stderr']
+    argv = %w[--log-file stderr]
     original_target = CovLoupe.active_log_file
 
     # Mock ModeDetector to force MCP mode

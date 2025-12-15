@@ -5,13 +5,13 @@ require 'spec_helper'
 RSpec.describe CovLoupe::TableFormatter do
   describe '.format' do
     it 'returns a friendly message when no rows are provided' do
-      result = described_class.format(headers: ['Column'], rows: [])
+      result = described_class.format(headers: %w[Column], rows: [])
       expect(result).to eq('No data to display')
     end
 
     it 'aligns each column according to the provided alignments' do
-      headers = ['Left', 'Right', 'Center']
-      rows = [['x', '1', 'ok']]
+      headers = %w[Left Right Center]
+      rows = [%w[x 1 ok]]
 
       output = described_class.format(
         headers: headers,

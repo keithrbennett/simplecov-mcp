@@ -69,13 +69,13 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
     it 'relativizes the files list' do
       relativized = presenter.relativized_payload
 
-      expect(relativized['files'].map { |f| f['file'] }).to eq(['lib/foo.rb', 'lib/bar.rb'])
+      expect(relativized['files'].map { |f| f['file'] }).to eq(%w[lib/foo.rb lib/bar.rb])
     end
   end
 
   describe '#relative_files' do
     it 'returns the relativized file list' do
-      expect(presenter.relative_files.map { |f| f['file'] }).to eq(['lib/foo.rb', 'lib/bar.rb'])
+      expect(presenter.relative_files.map { |f| f['file'] }).to eq(%w[lib/foo.rb lib/bar.rb])
     end
   end
 

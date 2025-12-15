@@ -23,11 +23,11 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       end
     end
 
-    it_behaves_like 'a command with formatted output', [], ['lines', 'files', 'percentage']
+    it_behaves_like 'a command with formatted output', [], %w[lines files percentage]
 
     it 'raises when unexpected arguments are provided' do
       expect do
-        command.execute(['extra'])
+        command.execute(%w[extra])
       end.to raise_error(CovLoupe::UsageError, include('totals'))
     end
   end

@@ -83,7 +83,7 @@ RSpec.describe CovLoupe::Commands::BaseCommand do
 
     context 'when successful' do
       it 'yields the path to the block' do
-        args = ['lib/foo.rb']
+        args = %w[lib/foo.rb]
         yielded_path = nil
 
         test_command.public_handle_with_path(args, 'test') do |path|
@@ -94,13 +94,13 @@ RSpec.describe CovLoupe::Commands::BaseCommand do
       end
 
       it 'shifts the path from args' do
-        args = ['lib/foo.rb', 'extra', 'args']
+        args = %w[lib/foo.rb extra args]
 
         test_command.public_handle_with_path(args, 'test') do |_path|
           # Block execution
         end
 
-        expect(args).to eq(['extra', 'args'])
+        expect(args).to eq(%w[extra args])
       end
     end
   end

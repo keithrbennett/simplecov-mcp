@@ -6,41 +6,41 @@ require 'spec_helper'
 # Format: [argv, tty?, expected_result, description]
 CLI_MODE_SCENARIOS = [
   # Priority 1: force-mode flags (highest priority)
-  [['--force-mode', 'cli'], false, true, '--force-mode cli'],
-  [['-F', 'cli'], false, true, '-F cli'],
-  [['--force-mode', 'mcp'], true, false, '--force-mode mcp on TTY'],
-  [['-F', 'mcp'], true, false, '-F mcp on TTY'],
+  [%w[--force-mode cli], false, true, '--force-mode cli'],
+  [%w[-F cli], false, true, '-F cli'],
+  [%w[--force-mode mcp], true, false, '--force-mode mcp on TTY'],
+  [%w[-F mcp], true, false, '-F mcp on TTY'],
 
   # Priority 2: Valid subcommands (must be first arg)
-  [['list'], false, true, 'list subcommand'],
-  [['summary', 'lib/foo.rb'], false, true, 'summary with path'],
-  [['version'], false, true, 'version subcommand'],
-  [['total'], false, true, 'total subcommand'],
-  [['list', '--format', 'json'], false, true, 'subcommand with trailing flags'],
+  [%w[list], false, true, 'list subcommand'],
+  [%w[summary lib/foo.rb], false, true, 'summary with path'],
+  [%w[version], false, true, 'version subcommand'],
+  [%w[total], false, true, 'total subcommand'],
+  [%w[list --format json], false, true, 'subcommand with trailing flags'],
 
   # Priority 3: Invalid subcommand attempts (must be first non-flag arg)
-  [['invalid-command'], false, true, 'invalid subcommand (shows error)'],
-  [['lib/foo.rb'], false, true, 'file path (shows error)'],
+  [%w[invalid-command], false, true, 'invalid subcommand (shows error)'],
+  [%w[lib/foo.rb], false, true, 'file path (shows error)'],
 
   # Priority 4: TTY determines mode when no subcommand/force-mode
   [[], true, true, 'empty args with TTY'],
   [[], false, false, 'empty args with piped input'],
-  [['--format', 'json'], true, true, 'flags only with TTY'],
-  [['--format', 'json'], false, false, 'flags only with piped input'],
-  [['-r', 'foo', '--format', 'json'], false, false, 'multiple flags with piped input'],
+  [%w[--format json], true, true, 'flags only with TTY'],
+  [%w[--format json], false, false, 'flags only with piped input'],
+  [%w[-r foo --format json], false, false, 'multiple flags with piped input'],
 
   # Edge cases: flags before subcommands should now be detected as CLI mode
-  [['--format', 'json', 'list'], false, true, 'flag first = CLI mode'],
-  [['-r', 'foo', 'summary'], false, true, 'option first = CLI mode'],
+  [%w[--format json list], false, true, 'flag first = CLI mode'],
+  [%w[-r foo summary], false, true, 'option first = CLI mode'],
 ].freeze
 
 # Simpler test cases for the inverse method
 MCP_SCENARIOS = [
   [[], false, true, 'piped input, no args'],
-  [['--format', 'json'], false, true, 'piped input with flags'],
+  [%w[--format json], false, true, 'piped input with flags'],
   [[], true, false, 'TTY, no args'],
-  [['--force-mode', 'mcp'], true, true, '--force-mode mcp'],
-  [['list'], false, false, 'subcommand'],
+  [%w[--force-mode mcp], true, true, '--force-mode mcp'],
+  [%w[list], false, false, 'subcommand'],
 ].freeze
 
 RSpec.describe CovLoupe::ModeDetector do
@@ -79,7 +79,7 @@ RSpec.describe CovLoupe::ModeDetector do
     end
 
     it 'is the logical inverse of cli_mode?' do
-      [[[], true], [[], false], [['list'], false]].each do |argv, is_tty|
+      [[[], true], [[], false], [%w[list], false]].each do |argv, is_tty|
         stdin = double('stdin', tty?: is_tty)
         cli = described_class.cli_mode?(argv, stdin: stdin)
         mcp = described_class.mcp_server_mode?(argv, stdin: stdin)
@@ -92,24 +92,24 @@ RSpec.describe CovLoupe::ModeDetector do
     let(:stdin) { double('stdin', tty?: false) }
 
     it '1. force mode overrides everything' do
-      expect(described_class.cli_mode?(['--force-mode', 'mcp'], stdin: stdin)).to be false
-      expect(described_class.cli_mode?(['--force-mode', 'cli'], stdin: stdin)).to be true
+      expect(described_class.cli_mode?(%w[--force-mode mcp], stdin: stdin)).to be false
+      expect(described_class.cli_mode?(%w[--force-mode cli], stdin: stdin)).to be true
     end
 
     it 'treats --force-mode=cli as CLI mode' do
-      expect(described_class.cli_mode?(['--force-mode=cli'], stdin: stdin)).to be true
+      expect(described_class.cli_mode?(%w[--force-mode=cli], stdin: stdin)).to be true
     end
 
     it 'ignores force-mode flag without a value' do
-      expect(described_class.cli_mode?(['--force-mode'], stdin: stdin)).to be false
+      expect(described_class.cli_mode?(%w[--force-mode], stdin: stdin)).to be false
     end
 
     it '2. subcommand (first arg) overrides TTY' do
-      expect(described_class.cli_mode?(['list'], stdin: stdin)).to be true
+      expect(described_class.cli_mode?(%w[list], stdin: stdin)).to be true
     end
 
     it '3. invalid first arg (not flag) triggers CLI' do
-      expect(described_class.cli_mode?(['invalid'], stdin: stdin)).to be true
+      expect(described_class.cli_mode?(%w[invalid], stdin: stdin)).to be true
     end
 
     it '4. TTY is checked last (when first arg is flag or empty)' do
@@ -138,11 +138,11 @@ RSpec.describe CovLoupe::ModeDetector do
     let(:stdin) { double('stdin', tty?: false) }
 
     [
-      { argv: ['--help'], desc: '--help' },
-      { argv: ['-h'], desc: '-h' },
-      { argv: ['--version'], desc: '--version' },
-      { argv: ['-v'], desc: '-v' },
-      { argv: ['--format', 'json', 'list'], desc: '--json list' }
+      { argv: %w[--help], desc: '--help' },
+      { argv: %w[-h], desc: '-h' },
+      { argv: %w[--version], desc: '--version' },
+      { argv: %w[-v], desc: '-v' },
+      { argv: %w[--format json list], desc: '--json list' }
     ].each do |tc|
       it "chooses CLI mode for #{tc[:desc]}" do
         expect(described_class.cli_mode?(tc[:argv], stdin: stdin)).to be true
@@ -150,7 +150,7 @@ RSpec.describe CovLoupe::ModeDetector do
     end
 
     it 'chooses MCP mode for flags without a subcommand' do
-      expect(described_class.cli_mode?(['--format', 'json'], stdin: stdin)).to be false
+      expect(described_class.cli_mode?(%w[--format json], stdin: stdin)).to be false
     end
   end
 end

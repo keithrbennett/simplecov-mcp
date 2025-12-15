@@ -36,12 +36,12 @@ RSpec.describe CovLoupe::CoverageModel do
 
   it 'list detects new files via tracked_globs' do
     with_stubbed_coverage_timestamp(Time.now.to_i) do
-      Tempfile.create(['brand_new_file', '.rb'], File.join(root, 'lib')) do |f|
+      Tempfile.create(%w[brand_new_file .rb], File.join(root, 'lib')) do |f|
         f.write("# new file\n")
         f.flush
         model = described_class.new(root: root, raise_on_stale: true)
         expect do
-          model.list(tracked_globs: ['lib/**/*.rb'])
+          model.list(tracked_globs: %w[lib/**/*.rb])
         end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
       end
     end

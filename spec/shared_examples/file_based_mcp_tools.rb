@@ -67,7 +67,7 @@ FILE_BASED_TOOL_CONFIGS = {
   summary: {
     tool_class: CovLoupe::Tools::CoverageSummaryTool,
     model_method: :summary_for,
-    expected_keys: ['file', 'summary', 'stale'],
+    expected_keys: %w[file summary stale],
     output_filename: 'coverage_summary.json',
     description: 'coverage summary data',
     mock_data: {
@@ -105,7 +105,7 @@ FILE_BASED_TOOL_CONFIGS = {
   raw: {
     tool_class: CovLoupe::Tools::CoverageRawTool,
     model_method: :raw_for,
-    expected_keys: ['file', 'lines', 'stale'],
+    expected_keys: %w[file lines stale],
     output_filename: 'coverage_raw.json',
     description: 'raw coverage data',
     mock_data: {
@@ -120,7 +120,7 @@ FILE_BASED_TOOL_CONFIGS = {
   uncovered: {
     tool_class: CovLoupe::Tools::UncoveredLinesTool,
     model_method: :uncovered_for,
-    expected_keys: ['file', 'uncovered', 'summary', 'stale'],
+    expected_keys: %w[file uncovered summary stale],
     output_filename: 'uncovered_lines.json',
     description: 'uncovered lines data',
     mock_data: {
@@ -160,7 +160,7 @@ FILE_BASED_TOOL_CONFIGS = {
   detailed: {
     tool_class: CovLoupe::Tools::CoverageDetailedTool,
     model_method: :detailed_for,
-    expected_keys: ['file', 'lines', 'summary', 'stale'],
+    expected_keys: %w[file lines summary stale],
     output_filename: 'coverage_detailed.json',
     description: 'detailed coverage data',
     mock_data: {

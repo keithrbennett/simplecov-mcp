@@ -19,7 +19,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       swallow_system_exit do
         silence_output do
-          cli.send(:run, env_opts + ['summary', 'lib/foo.rb'])
+          cli.send(:run, env_opts + %w[summary lib/foo.rb])
         end
       end
     rescue CovLoupe::Error => e
@@ -37,7 +37,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       exit_status = swallow_system_exit do
         silence_output do
-          cli.send(:run, env_opts + ['--help'])
+          cli.send(:run, env_opts + %w[--help])
         end
       end
 
@@ -51,7 +51,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       swallow_system_exit do
         silence_output do
-          cli.send(:run, env_opts + ['--help'])
+          cli.send(:run, env_opts + %w[--help])
         end
       end
 
@@ -63,7 +63,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       env_opts = CovLoupe.send(:extract_env_opts)
 
       begin
-        args = env_opts + ['--error-mode', 'debug', 'summary', 'lib/foo.rb']
+        args = env_opts + %w[--error-mode debug summary lib/foo.rb]
         silence_output { cli.send(:run, args) }
       rescue SystemExit, CovLoupe::Error
         # Expected to fail, but options should be parsed

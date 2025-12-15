@@ -90,26 +90,26 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
     # Array of test cases: [description, args_array, expected_option_in_error]
     [
       # Short-form options
-      ['short -f after list', ['list', '-f', 'json'], '-f'],
-      ['short -r after totals', ['totals', '-r', '.resultset.json'], '-r'],
-      ['short -R after list', ['list', '-R', '/tmp'], '-R'],
-      ['short -o after list', ['list', '-o', 'a'], '-o'],
-      ['short -s after list', ['list', '-s', 'full'], '-s'],
-      ['short -S after list', ['list', '-S', 'error'], '-S'],
+      ['short -f after list', %w[list -f json], '-f'],
+      ['short -r after totals', %w[totals -r .resultset.json], '-r'],
+      ['short -R after list', %w[list -R /tmp], '-R'],
+      ['short -o after list', %w[list -o a], '-o'],
+      ['short -s after list', %w[list -s full], '-s'],
+      ['short -S after list', %w[list -S error], '-S'],
 
       # Long-form options
-      ['--sort-order after list', ['list', '--sort-order', 'ascending'], '--sort-order'],
-      ['--source after list', ['list', '--source', 'full'], '--source'],
-      ['--raise-on-stale after totals', ['totals', '--raise-on-stale'], '--raise-on-stale'],
-      ['--color after list', ['list', '--color'], '--color'],
-      ['--log-file after list', ['list', '--log-file', '/tmp/test.log'], '--log-file'],
+      ['--sort-order after list', %w[list --sort-order ascending], '--sort-order'],
+      ['--source after list', %w[list --source full], '--source'],
+      ['--raise-on-stale after totals', %w[totals --raise-on-stale], '--raise-on-stale'],
+      ['--color after list', %w[list --color], '--color'],
+      ['--log-file after list', %w[list --log-file /tmp/test.log], '--log-file'],
 
       # Different subcommands
-      ['option after version', ['version', '--format', 'json'], '--format'],
-      ['option after summary', ['summary', 'lib/foo.rb', '--format', 'json'], '--format'],
-      ['option after raw', ['raw', 'lib/foo.rb', '-f', 'json'], '-f'],
-      ['option after detailed', ['detailed', 'lib/foo.rb', '-f', 'json'], '-f'],
-      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', '/tmp'], '--root']
+      ['option after version', %w[version --format json], '--format'],
+      ['option after summary', %w[summary lib/foo.rb --format json], '--format'],
+      ['option after raw', %w[raw lib/foo.rb -f json], '-f'],
+      ['option after detailed', %w[detailed lib/foo.rb -f json], '-f'],
+      ['option after uncovered', %w[uncovered lib/foo.rb --root /tmp], '--root']
     ].each do |desc, args, option|
       it "detects #{desc}" do
         _out, err, status = run_cli_with_status(*args)
