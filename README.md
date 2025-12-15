@@ -227,7 +227,7 @@ For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/use
 
 ```sh
 # Fail build if coverage is stale (--raise-on-stale or -S)
-cov-loupe --raise-on-stale list || exit 1
+cov-loupe --raise-on-stale true list || exit 1
 
 # Generate coverage report artifact
 cov-loupe -fJ list > artifacts/coverage.json
@@ -255,7 +255,7 @@ cov-loupe -fJ totals
 
 ### Boolean CLI Options
 
-Flags such as `--color` (short: `-C`) and `--raise-on-stale` (short: `-S`) now use explicit boolean arguments. A bare flag (e.g., `--color`) sets the value to `true`. Recognized literals:
+Boolean flags such as `--color` (short: `-C`) and `--raise-on-stale` (short: `-S`) require explicit boolean arguments. Recognized literals:
 
 |        |        |
 |--------|--------|

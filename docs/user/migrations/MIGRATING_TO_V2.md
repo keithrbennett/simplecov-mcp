@@ -34,25 +34,17 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 
 ## Command Line Interface Changes
 
-### Options Must Precede Subcommands
 
-**Change:** Global options must now appear *before* the subcommand, not after.
 
-**Rationale:** This aligns with standard Unix command conventions (e.g., `git`, `docker`) and simplifies argument parsing.
+**Migration:** Move all global options before the subcommand name. These options are:
 
-**Before (v1.x):**
+`-r`, `-R`, `-f`, `-o`, `-s`, `-c`, `-C`, `-S`, `-g`, `-l`, `-F`, and `-e`
+
+**Exception:** The `validate` subcommand has its own subcommand-specific option `-i/--inline` that must appear *after* the subcommand:
 ```bash
-simplecov-mcp list --resultset coverage --format json
-simplecov-mcp summary lib/foo.rb --json
+cov-loupe validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 ```
 
-**After (v2.x):**
-```bash
-simplecov-mcp --resultset coverage --format json list
-simplecov-mcp --format json summary lib/foo.rb
-```
-
-**Migration:** Move all global options (flags like `-r`, `-f`, `-S`, etc.) before the subcommand name.
 
 ---
 
@@ -126,7 +118,7 @@ simplecov-mcp --source uncovered summary lib/foo.rb
 
 ### --json Replaced with --format
 
-**Change:** The `--json` flag (and related `-j`, `-J`, `--pretty-json` flags) have been removed. Use `--format` instead.
+**Change:** The `--json` flag (and related `-j`, `-J`, `--pretty-json` flags) have been removed. Use `-f/--format` instead.
 
 **Rationale:** Supports multiple output formats beyond JSON (YAML, awesome_print, etc.) with a consistent interface.
 
@@ -140,9 +132,9 @@ simplecov-mcp --pretty-json list
 **After (v2.x):**
 ```bash
 simplecov-mcp --format json list
-simplecov-mcp -f j summary lib/foo.rb        # Short form
+simplecov-mcp -f j summary lib/foo.rb    # Short form
 simplecov-mcp --format pretty-json list
-simplecov-mcp -f J list                       # Short form for pretty-json
+simplecov-mcp -f J list                  # Short form for pretty-json
 ```
 
 **Available formats:**
@@ -218,7 +210,8 @@ simplecov-mcp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 
 **Change:** The default sort order for the `list` command changed from `ascending` to `descending`.
 
-**Rationale:** Most users want to see best-covered files first, not worst-covered files first.
+**Rationale:** Most users want to see worst-covered files last so that when scrolling is finished
+the worst-covered files are displayed on the screen.
 
 **Before (v1.x):**
 ```bash

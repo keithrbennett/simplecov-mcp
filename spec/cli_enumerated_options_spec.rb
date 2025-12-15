@@ -11,34 +11,31 @@ RSpec.describe 'CLI enumerated option parsing' do
 
   describe 'accepts short and long forms' do
     cases = [
-      { argv: ['--sort-order', 'a', 'list'], accessor: :sort_order, expected: :ascending },
-      { argv: ['--sort-order', 'd', 'list'], accessor: :sort_order, expected: :descending },
-      { argv: ['--sort-order', 'ascending', 'list'], accessor: :sort_order, expected: :ascending },
-      { argv: ['--sort-order', 'descending', 'list'], accessor: :sort_order,
-        expected: :descending },
+      { argv: %w[--sort-order a list], accessor: :sort_order, expected: :ascending },
+      { argv: %w[--sort-order d list], accessor: :sort_order, expected: :descending },
+      { argv: %w[--sort-order ascending list], accessor: :sort_order, expected: :ascending },
+      { argv: %w[--sort-order descending list], accessor: :sort_order, expected: :descending },
 
-      { argv: ['--source', 'f', 'summary', 'lib/foo.rb'], accessor: :source_mode, expected: :full },
-      { argv: ['--source', 'u', 'summary', 'lib/foo.rb'], accessor: :source_mode,
-        expected: :uncovered },
-      { argv: ['--source', 'full', 'summary', 'lib/foo.rb'], accessor: :source_mode,
-        expected: :full },
-      { argv: ['--source', 'uncovered', 'summary', 'lib/foo.rb'], accessor: :source_mode,
+      { argv: %w[--source f summary lib/foo.rb], accessor: :source_mode, expected: :full },
+      { argv: %w[--source u summary lib/foo.rb], accessor: :source_mode, expected: :uncovered },
+      { argv: %w[--source full summary lib/foo.rb], accessor: :source_mode, expected: :full },
+      { argv: %w[--source uncovered summary lib/foo.rb], accessor: :source_mode,
         expected: :uncovered },
 
-      { argv: ['-S', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=false', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=yes', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale', 'no', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: %w[-S yes list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale yes list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=false list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=yes list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale no list], accessor: :raise_on_stale, expected: false },
 
-      { argv: ['--error-mode', 'off', 'list'], accessor: :error_mode, expected: :off },
-      { argv: ['--error-mode', 'o', 'list'], accessor: :error_mode, expected: :off },
-      { argv: ['--error-mode', 'log', 'list'], accessor: :error_mode, expected: :log },
-      { argv: ['--error-mode', 'debug', 'list'], accessor: :error_mode, expected: :debug },
+      { argv: %w[--error-mode off list], accessor: :error_mode, expected: :off },
+      { argv: %w[--error-mode o list], accessor: :error_mode, expected: :off },
+      { argv: %w[--error-mode log list], accessor: :error_mode, expected: :log },
+      { argv: %w[--error-mode debug list], accessor: :error_mode, expected: :debug },
 
       # -e short flag for --error-mode
-      { argv: ['-e', 'off', 'list'], accessor: :error_mode, expected: :off },
-      { argv: ['-e', 'd', 'list'], accessor: :error_mode, expected: :debug }
+      { argv: %w[-e off list], accessor: :error_mode, expected: :off },
+      { argv: %w[-e d list], accessor: :error_mode, expected: :debug }
     ]
 
     cases.each do |c|
@@ -52,36 +49,34 @@ RSpec.describe 'CLI enumerated option parsing' do
   describe 'boolean options with BooleanType accept various values' do
     boolean_cases = [
       # --raise-on-stale with = syntax
-      { argv: ['--raise-on-stale=yes', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=no', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=true', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=false', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=on', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=off', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=y', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=n', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=+', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=-', 'list'], accessor: :raise_on_stale, expected: false },
-      { argv: ['--raise-on-stale=1', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale=0', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=yes list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=no list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=true list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=false list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=on list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=off list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=y list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=n list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=+ list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=- list], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale=1 list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale=0 list], accessor: :raise_on_stale, expected: false },
 
       # --raise-on-stale with space syntax
-      { argv: ['--raise-on-stale', 'yes', 'list'], accessor: :raise_on_stale, expected: true },
-      { argv: ['--raise-on-stale', 'no', 'list'], accessor: :raise_on_stale, expected: false },
+      { argv: %w[--raise-on-stale yes list], accessor: :raise_on_stale, expected: true },
+      { argv: %w[--raise-on-stale no list], accessor: :raise_on_stale, expected: false },
 
       # --color with various values
-      { argv: ['--color=yes', 'list'], accessor: :color, expected: true },
-      { argv: ['--color=no', 'list'], accessor: :color, expected: false },
-      { argv: ['--color=true', 'list'], accessor: :color, expected: true },
-      { argv: ['--color=false', 'list'], accessor: :color, expected: false },
-      { argv: ['--color', 'on', 'list'], accessor: :color, expected: true },
-      { argv: ['--color', 'off', 'list'], accessor: :color, expected: false },
+      { argv: %w[--color=yes list], accessor: :color, expected: true },
+      { argv: %w[--color=no list], accessor: :color, expected: false },
+      { argv: %w[--color=true list], accessor: :color, expected: true },
+      { argv: %w[--color=false list], accessor: :color, expected: false },
+      { argv: %w[--color on list], accessor: :color, expected: true },
+      { argv: %w[--color off list], accessor: :color, expected: false },
 
       # -C short flag for --color
-      { argv: ['-C', 'no', 'list'], accessor: :color, expected: false },
-      { argv: ['-C', 'false', 'list'], accessor: :color, expected: false },
-      { argv: ['-C', 'list'], accessor: :color, expected: true }, # bare flag
-
+      { argv: %w[-C no list], accessor: :color, expected: false },
+      { argv: %w[-C false list], accessor: :color, expected: false }
     ]
 
     boolean_cases.each do |c|
@@ -94,11 +89,11 @@ RSpec.describe 'CLI enumerated option parsing' do
 
   describe 'rejects invalid values' do
     invalid_cases = [
-      { argv: ['--sort-order', 'asc', 'list'] },
-      { argv: ['--source', 'x', 'summary', 'lib/foo.rb'] },
-      { argv: ['--error-mode', 'bad', 'list'] },
-      { argv: ['--error-mode', 'on', 'list'] },
-      { argv: ['--error-mode', 'trace', 'list'] }
+      { argv: %w[--sort-order asc list] },
+      { argv: %w[--source x summary lib/foo.rb] },
+      { argv: %w[--error-mode bad list] },
+      { argv: %w[--error-mode on list] },
+      { argv: %w[--error-mode trace list] }
     ]
 
     invalid_cases.each do |c|
@@ -112,13 +107,21 @@ RSpec.describe 'CLI enumerated option parsing' do
   end
 
   describe 'missing value hints' do
-    it 'exits 1 when --source is provided without a value' do
-      _out, err, status = run_cli_with_status('--source', 'summary', 'lib/foo.rb')
-      expect(status).to eq(1)
-      # Depending on OptParse implementation for required argument, it might say "missing argument"
-      # But usually it consumes next arg. If 'summary' is consumed as argument for source:
-      # normalize_source_mode('summary') -> raises InvalidArgument.
-      expect(err).to include('invalid argument')
+    # OptionParser consumes the next argument as the value, which then fails validation
+    missing_value_cases = [
+      { argv: %w[--source summary lib/foo.rb] },
+      { argv: %w[--raise-on-stale list] },
+      { argv: %w[-S list] },
+      { argv: %w[--color list] },
+      { argv: %w[-C list] }
+    ]
+
+    missing_value_cases.each do |c|
+      it "exits 1 for #{c[:argv].join(' ')}" do
+        _out, err, status = run_cli_with_status(*c[:argv])
+        expect(status).to eq(1)
+        expect(err).to include('invalid argument')
+      end
     end
   end
 end

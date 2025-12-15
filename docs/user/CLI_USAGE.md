@@ -151,7 +151,7 @@ clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --c
 |---------|--------------------------|------------------------------------------------------|
 | `-s`    | `--source uncovered`     | Show uncovered lines with context                    |
 | `-c`    | `--context-lines N`      | Lines of context around uncovered lines (default: 2) |
-| `-C`    | `--color [BOOLEAN]`      | Enable (`true`)/disable (`false`) syntax coloring    |
+| `-C`    | `--color BOOLEAN`        | Enable (`true`)/disable (`false`) syntax coloring    |
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
 | `-fj`   | `--format json`          | Output as single-line JSON                           |
 | `-f y`  | `--format yaml`          | Output as YAML                                       |
@@ -396,7 +396,7 @@ clp -s u -c 3 uncovered lib/api/client.rb  # -s u = uncovered, -c = --context-li
 
 ### Boolean Flags (`--color` / `-C`, `--raise-on-stale`)
 
-These options accept explicit `[BOOLEAN]` values. A bare flag sets the value to `true`. Recognized literals:
+These options require explicit boolean values. Recognized literals:
 
 | true   | false   |
 |--------|---------|
@@ -413,28 +413,25 @@ clp --color false           # disable color
 clp --raise-on-stale yes    # enforce stale coverage failures
 ```
 
-### `-C, --color [BOOLEAN]`
+### `-C, --color BOOLEAN`
 
-Enable or disable ANSI color codes in source output.
+Enable or disable ANSI color codes in source output. Requires an explicit boolean value.
 
 ```sh
-clp uncovered lib/api/client.rb -s uncovered --color
+clp uncovered lib/api/client.rb -s uncovered --color true
 clp uncovered lib/api/client.rb -s uncovered -C false
 ```
 
 **Default:** Colors enabled if output is a TTY
 
-### `-S, --raise-on-stale [BOOLEAN]`
+### `-S, --raise-on-stale BOOLEAN`
 
-Raise error if coverage is stale. Default is `false` (only report staleness in output).
-
-*   Use `--raise-on-stale` or `-S` to enable (set to `true`).
-*   Use `--raise-on-stale false` to explicitly disable (set to `false`).
+Raise error if coverage is stale. Requires an explicit boolean value. Default is `false` (only report staleness in output).
 
 ```sh
 # Enable raising an error if coverage is stale
-clp -S              # Short form
-clp --raise-on-stale
+clp -S true
+clp --raise-on-stale yes
 
 # Explicitly disable raising an error (useful to override COV_LOUPE_OPTS)
 clp --raise-on-stale false
@@ -706,10 +703,10 @@ clp -g "lib/payments/**/*.rb" list
 
 ```sh
 # Check if coverage is stale (for CI/CD)
-clp -S
+clp -S true
 
 # Check with specific file patterns
-clp -S -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+clp -S true -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
 clp list  # Stale files marked with !
@@ -735,7 +732,7 @@ clp uncovered lib/api/client.rb -s full --color false
 
 ```sh
 # Fail build if coverage is stale
-clp -S || exit 1
+clp -S true || exit 1
 
 # Generate JSON report for artifact
 clp -fJ list > artifacts/coverage-report.json

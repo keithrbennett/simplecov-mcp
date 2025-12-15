@@ -23,7 +23,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       f.write("# new file\n")
       f.flush
       _out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', '--raise-on-stale', '--tracked-globs',
+        '--root', root, '--resultset', 'coverage', '--raise-on-stale', 'true', '--tracked-globs',
         'lib/**/*.rb', 'list'
       )
       expect(status).to eq(1)

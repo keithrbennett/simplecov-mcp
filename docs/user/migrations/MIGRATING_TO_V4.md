@@ -27,11 +27,23 @@ The staleness checking logic has been unified into a single flag that raises an 
 *   **New**: `--raise-on-stale` (boolean)
 
 #### Behavior
-*   **`--raise-on-stale` (or `raise_on_stale: true`)**: The command will exit with an error code if any file in the result set is stale or if the project totals are stale.
+*   **`--raise-on-stale true` (or `raise_on_stale: true`)**: The command will exit with an error code if any file in the result set is stale or if the project totals are stale.
 *   **Default (false)**: Staleness is reported in the output (e.g., status `M`, `T`, `L`), but the command returns success (unless other errors occur).
 
 #### Migration
-*   If you relied on previous flags to enforce staleness checks, switch to `--raise-on-stale`.
+*   If you relied on previous flags to enforce staleness checks, switch to `--raise-on-stale true` or `-S true`.
+
+**IMPORTANT:** As of v4.0.0, boolean flags now require explicit values for consistency.
+
+### `--raise-on-stale` / `-S` - Explicit Value Required
+*   **Old (no longer works)**: `--raise-on-stale`, `-S`
+*   **New (required)**: `--raise-on-stale true`, `-S true`, `--raise-on-stale=yes`, etc.
+
+### `--color` / `-C` - Explicit Value Required
+*   **Old (no longer works)**: `--color`, `-C`
+*   **New (required)**: `--color true`, `-C true`, `--color=on`, etc.
+
+These changes improve consistency between short and long flag forms and eliminate ambiguous behavior where long-form bare flags would fail but short-form bare flags would succeed.
 
 ## Ruby API Changes
 

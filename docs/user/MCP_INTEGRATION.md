@@ -134,7 +134,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 | `-o`, `--sort-order` | ❌ No | `sort_order` | CLI flag ignored in MCP; pass per tool call (`\"ascending\"` or `\"descending\"`) |
 | `-s`, `--source` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-c`, `--context-lines` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
-| `-C`, `--color [BOOLEAN]` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
+| `-C`, `--color BOOLEAN` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-F`, `--force-mode` | N/A | N/A | Force mode: `cli` or `mcp` (`auto` = default detection). |
 
 **Key Takeaways:**

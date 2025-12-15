@@ -99,7 +99,7 @@ A file is considered stale when any of the following are true:
 **CLI Usage:**
 ```sh
 # Fail if the file is stale
-clp -S summary app/models/order.rb  # -S = --raise-on-stale
+clp -S true summary app/models/order.rb  # -S = --raise-on-stale
 ```
 
 **Ruby API:**
@@ -133,7 +133,7 @@ You can see if _any_ files in the project are stale by running the (implicit her
 with `--raise-on-stale` and checking the exit code:
 
 ```sh
-$ cov-loupe -S list
+$ cov-loupe -S true list
 Coverage data stale (project): CovLoupe::CoverageDataProjectStaleError
 Coverage  - time: 2025-12-10T18:23:00Z (local 2025-12-11T02:23:00+08:00)
 Newer files (1):  - lib/cov_loupe/version.rb
@@ -380,7 +380,7 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 bundle exec rspec
 
 # 2. Validate coverage freshness (fails with exit code 1 if stale)
-clp -S error -g "lib/**/*.rb"
+clp -S true -g "lib/**/*.rb"
 
 # 3. Export data for CI artifacts or further processing
 clp -fJ list > coverage.json
@@ -460,7 +460,7 @@ clp -g "lib/domain/**/*.rb" list
 **2. Ensure New Files Have Coverage:**
 ```sh
 # Fail if any tracked file lacks coverage
-clp -S error -g "lib/features/**/*.rb"
+clp -S true -g "lib/features/**/*.rb"
 ```
 
 **3. Multi-tier Reporting:**

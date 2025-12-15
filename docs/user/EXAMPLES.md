@@ -415,7 +415,7 @@ jobs:
 ```yaml
       - name: Verify coverage is fresh
         shell: bash
-        run: cov-loupe --raise-on-stale list || exit 1
+        run: cov-loupe --raise-on-stale true list || exit 1
 ```
 
 ### GitLab CI
@@ -427,7 +427,7 @@ test:
     - gem install cov-loupe
   script:
     - bundle exec rspec
-    - cov-loupe --raise-on-stale list
+    - cov-loupe --raise-on-stale true list
   artifacts:
     paths:
       - coverage/
