@@ -49,33 +49,6 @@ require "cov_loupe"
 
 The executable is `cov-loupe` (with hyphen).
 
-## PATH Configuration
-
-### With Version Managers
-
-Most version managers (rbenv, asdf, RVM, chruby) automatically configure PATH. After installation:
-
-```sh
-# Refresh shims if needed
-rbenv rehash      # rbenv
-asdf reshim ruby  # asdf
-
-# Verify executable is accessible
-which cov-loupe
-```
-
-**Important:** When changing Ruby versions, reinstall the gem and update any MCP configurations that use absolute paths.
-
-### Bundler Execution
-
-If PATH setup is problematic, use bundler:
-
-```sh
-bundle exec cov-loupe
-```
-
-This works from any project directory that has cov-loupe in its Gemfile.
-
 ## Verification
 
 ### Test Installation

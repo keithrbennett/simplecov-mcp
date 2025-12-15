@@ -12,11 +12,8 @@
 ## Setup by Client
 
 For the `mcp add` commands, the executable path comes after the server name. You can optionally pass arguments to the executable after that (e.g., `-- --error-mode debug`).
-If the executable cannot be correctly found in the path, then you can specify the full path.
 
-Ruby version managers may modify the path to include the current version's executable directory.
-If you change Ruby versions, you may need to restart your AI agent to inherit the new path.
-Alternatively, remove and re-add the MCP server with an absolute path to the executable.
+**Note:** If you change which Ruby version you use, you will need to `bundle install` or `gem install cov-loupe` again with the new version active. Additionally, if your MCP server configuration uses an absolute path, that configuration will need to be updated as well.
 
 ### Claude Code
 
