@@ -240,6 +240,10 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
+      # Expect the error to be logged
+      expect(CovLoupe::CovUtil).to receive(:safe_log)
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry'))
+
       # Should not raise, just skip the problematic file
       result = model.list(raise_on_stale: false)
 
