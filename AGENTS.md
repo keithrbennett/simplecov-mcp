@@ -167,7 +167,7 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 1. **Run Tests:** Always run Rubocop and the test suite to verify your changes before considering them complete:
     ```bash
    bundle exec rubocop # and then `rubocop -A` if necessary
-    bundle exec rspec
+   bundle exec rspec
     ```
 2. **Do Not Commit:** Never execute `git commit` directly. Instead, stage changes with `git add` and propose a clear, concise commit message for the user to use.
 3. **Selective Staging:** Never assume that all uncommitted files are intended to be committed. Do not use `git add .` or similar catch-all commands. Explicitly stage only the files relevant to the current task.
@@ -180,14 +180,20 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 
 ## Testing Notes
 - Run `bundle exec rspec` to generate the `coverage/.resultset.json` analyzed by the tools.
-- The gem requires Ruby >= 3.2 due to the `mcp` dependency.
 - SimpleCov loads lazily only when merging multi-suite resultsets.
 - Test files live in `spec/` and follow standard RSpec conventions.
+- Where possible, make tests more DRY (concise) by iterating over arrays of test setups.
 
 ## Troubleshooting Notes
 - Coverage lookup order: The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
 - `COV_LOUPE_OPTS` can set default CLI flags (command-line arguments still win).
 - CLI vs MCP mode auto-detects based on TTY; use `-F mcp`/`--force-mode mcp` if you need to bypass MCP auto-start during manual runs.
+
+## Rucocop Linting
+
+Rubocop is used to enforce consistent code styling and best programming practices. 
+Write code consistent with Rubocop configured rules, e.g. indentation and use of 
+`it_behaves_like` instead of `include_examples` in RSpec.
 
 ## Documentation
 - `README.md` – primary documentation for installation, CLI usage, MCP integration, troubleshooting, and resultset configuration.
