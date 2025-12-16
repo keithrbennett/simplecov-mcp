@@ -28,6 +28,7 @@ The security model assumes the developer controls their workspace and the code t
   **Impact:** Multi-suite projects get false positives/negatives on freshness, and large repositories pay O(total lines) per query, making results unreliable and slow for larger code bases.  
   **Urgency:** Medium.  
   **Estimated Cost-to-Fix:** High (store per-suite/file metadata and cache line counts/mtimes).
+  **Rationale for Status Quo:** Fixing this requires a significant architectural overhaul to track per-file/per-suite metadata. Simple caching of file stats is insufficient because the primary use case involves active development where source files change frequently, invalidating caches. Given the high cost of a proper fix and the tool's focus on small-to-medium projects, the current O(N) check is an acceptable tradeoff.
 
 ## Performance & Scalability
 
