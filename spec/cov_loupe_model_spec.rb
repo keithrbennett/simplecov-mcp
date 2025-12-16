@@ -142,6 +142,30 @@ RSpec.describe CovLoupe::CoverageModel do
       )
     end
 
+    it 'records skipped rows when coverage data errors occur' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_wrap_original do
+      |method, coverage_map, absolute|
+        if absolute == abs_foo
+          raise CovLoupe::CoverageDataError, 'corrupt data'
+        end
+
+        method.call(coverage_map, absolute)
+      end
+
+      files = model.list
+
+      expect(files.map { |row| row['file'] }).not_to include(abs_foo)
+      expect(model.skipped_rows).to contain_exactly(
+        hash_including(
+          'file' => abs_foo,
+          'error' => 'corrupt data',
+          'error_class' => 'CovLoupe::CoverageDataError'
+        )
+      )
+    end
+
     it 'handles files with paths that cannot be relativized' do
       # Create a custom row with a path from a Windows-style drive (C:/) that will cause ArgumentError
       # when trying to make it relative to a Unix-style root
@@ -156,7 +180,8 @@ RSpec.describe CovLoupe::CoverageModel do
       ]
 
       # This should trigger the ArgumentError rescue in filter_rows_by_globs
-      # When the path cannot be made relative (different path types), it falls back to using the absolute path
+      # When the path cannot be made relative (different path types),
+      # it falls back to using the absolute path
       output = model.format_table(custom_rows, tracked_globs: ['C:/Windows/**/*.rb'])
 
       # The file should be included because the absolute path fallback matches the glob

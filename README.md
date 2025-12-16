@@ -219,6 +219,43 @@ cov-loupe -fJ list | rexe -ij -mb -oa 'self["files"].first(3)'
 
 With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AwesomePrint output (`-oa`) for human consumption.
 
+### When Coverage Rows Are Skipped
+
+If a file in the resultset is missing on disk or has corrupt data, the CLI now logs and *warns* after rendering the report so operators immediately see that totals may be incomplete. Example table output:
+
+```text
+$ cov-loupe list
+┌─────────────────────────────┬─────────┬─────────┬────────────┬───────┐
+│ File                        │ Covered │ Total   │ % Covered  │ Stale │
+├─────────────────────────────┼─────────┼─────────┼────────────┼───────┤
+│ lib/foo.rb                  │       2 │       3 │     66.67% │       │
+│ lib/bar.rb                  │       1 │       3 │     33.33% │       │
+└─────────────────────────────┴─────────┴─────────┴────────────┴───────┘
+
+WARNING: 1 coverage row skipped due to errors:
+  - lib/deleted.rb: No coverage data found for file: lib/deleted.rb
+Run again with --raise-on-stale to exit when rows are skipped.
+```
+
+Pretty JSON (`-fJ`) reports still emit valid JSON to `stdout`; the warning continues to be printed on `stderr`:
+
+```text
+$ cov-loupe -fJ list
+{
+  "files": [
+    { "file": "lib/foo.rb", "covered": 2, "total": 3, "percentage": 66.67, "stale": null },
+    { "file": "lib/bar.rb", "covered": 1, "total": 3, "percentage": 33.33, "stale": null }
+  ],
+  "counts": { "total": 2, "ok": 2, "stale": 0 }
+}
+
+WARNING: 1 coverage row skipped due to errors:
+  - lib/deleted.rb: No coverage data found for file: lib/deleted.rb
+Run again with --raise-on-stale to exit when rows are skipped.
+```
+
+Use `--raise-on-stale true` (or `-S true`) to turn these warnings into hard failures for CI pipelines.
+
 Run `rexe -h` to see all available options, or visit the [rexe project page](https://github.com/keithrbennett/rexe) for more examples.
 
 For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md).

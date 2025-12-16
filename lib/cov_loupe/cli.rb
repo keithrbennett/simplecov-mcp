@@ -67,19 +67,20 @@ module CovLoupe
         tracked_globs: config.tracked_globs
       )
 
-      if config.format != :table
+      if config.format == :table
+        file_summaries = presenter.relative_files
+        output.puts model.format_table(
+          file_summaries,
+          sort_order: sort_order,
+          raise_on_stale: config.raise_on_stale,
+          tracked_globs: nil
+        )
+      else
         require_relative 'formatters'
         output.puts Formatters.format(presenter.relativized_payload, config.format)
-        return
       end
 
-      file_summaries = presenter.relative_files
-      output.puts model.format_table(
-        file_summaries,
-        sort_order: sort_order,
-        raise_on_stale: config.raise_on_stale,
-        tracked_globs: nil
-      )
+      warn_skipped_rows(model)
     end
 
     private def parse_options!(argv)
@@ -173,6 +174,20 @@ module CovLoupe
       warn error.user_friendly_message
       warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace
       exit 1
+    end
+
+    private def warn_skipped_rows(model)
+      skipped = model.skipped_rows
+      return if skipped.nil? || skipped.empty?
+
+      count = skipped.length
+      warn ''
+      warn "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:"
+      skipped.each do |row|
+        relative_path = model.relativizer.relativize_path(row['file'])
+        warn "  - #{relative_path}: #{row['error']}"
+      end
+      warn 'Run again with --raise-on-stale to exit when rows are skipped.'
     end
   end
 end

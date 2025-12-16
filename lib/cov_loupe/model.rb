@@ -16,7 +16,7 @@ module CovLoupe
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
     RELATIVIZER_ARRAY_KEYS = %w[newer_files missing_files deleted_files].freeze
 
-    attr_reader :relativizer
+    attr_reader :relativizer, :skipped_rows
 
     # Create a CoverageModel
     #
@@ -30,6 +30,7 @@ module CovLoupe
       @root = File.absolute_path(root || '.')
       @resultset = resultset
       @default_tracked_globs = tracked_globs
+      @skipped_rows = []
       @relativizer = PathRelativizer.new(
         root: @root,
         scalar_keys: RELATIVIZER_SCALAR_KEYS,
@@ -80,6 +81,7 @@ module CovLoupe
       tracked_globs: @default_tracked_globs)
       # Build a staleness checker that *doesn't* raise errors, as we want to collect
       # staleness status per file without interrupting the row generation.
+      @skipped_rows = []
       stale_checker = build_staleness_checker(raise_on_stale: false,
         tracked_globs: tracked_globs)
 
@@ -94,6 +96,11 @@ module CovLoupe
           # skip this entry and continue processing other files. This allows
           # the application to report on other valid coverage entries.
           CovUtil.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
+          @skipped_rows << {
+            'file' => abs_path,
+            'error' => e.message,
+            'error_class' => e.class.name
+          }
           next
         end
 
