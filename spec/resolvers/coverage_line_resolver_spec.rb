@@ -77,7 +77,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
-      it 'raises FileError when entry exists but has no lines or branches' do
+      it 'raises CorruptCoverageDataError when entry exists but has no lines or branches' do
         cov_data = {
           '/project/lib/foo.rb' => { 'other_key' => 'value' }
         }
@@ -86,7 +86,8 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines('/project/lib/foo.rb')
-        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
+        end.to raise_error(CovLoupe::CorruptCoverageDataError,
+          /Entry for .* has no valid lines or branches/)
       end
     end
 
@@ -160,7 +161,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         expect(lines[5]).to eq(2) # line 6
       end
 
-      it 'returns nil for entries with empty branches' do
+      it 'raises CorruptCoverageDataError for entries with empty branches' do
         path = '/tmp/empty_branches.rb'
         cov_data = {
           path => {
@@ -173,7 +174,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
 
         expect do
           resolver.lookup_lines(path)
-        end.to raise_error(CovLoupe::FileError)
+        end.to raise_error(CovLoupe::CorruptCoverageDataError)
       end
 
       it 'skips malformed branch entries' do

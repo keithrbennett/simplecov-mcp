@@ -22,16 +22,24 @@ module CovLoupe
       attr_reader :cov_data
 
       private def find_direct_match(file_abs)
-        entry = cov_data[file_abs]
-        lines_from_entry(entry)
+        fetch_lines_for_path(file_abs)
       end
 
       private def find_stripped_match(file_abs)
         return unless file_abs.start_with?(cwd_with_slash)
 
         relative_path = file_abs[(cwd.length + 1)..]
-        entry = cov_data[relative_path]
-        lines_from_entry(entry)
+        fetch_lines_for_path(relative_path)
+      end
+
+      private def fetch_lines_for_path(path)
+        return unless cov_data.key?(path)
+
+        entry = cov_data[path]
+        lines = lines_from_entry(entry)
+        return lines if lines
+
+        raise CorruptCoverageDataError, "Entry for #{path} has no valid lines or branches"
       end
 
       private def cwd

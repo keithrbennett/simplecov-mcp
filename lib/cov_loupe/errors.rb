@@ -89,6 +89,12 @@ module CovLoupe
     end
   end
 
+  class CorruptCoverageDataError < CoverageDataError
+    def user_friendly_message
+      "Corrupt coverage data: #{message}"
+    end
+  end
+
   # Coverage data is present but appears stale compared to source files
   class CoverageDataStaleError < CoverageDataError
     attr_reader :file_path, :file_mtime, :cov_timestamp, :src_len, :cov_len, :resultset_path

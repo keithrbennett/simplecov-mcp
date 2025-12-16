@@ -252,6 +252,50 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect(file_names).to include('bar.rb')
       expect(file_names).not_to include('foo.rb')
     end
+
+    it 'skips files that raise CorruptCoverageDataError during coverage lookup' do
+      model = described_class.new(root: root, resultset: 'coverage')
+
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'))
+        .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
+
+      expect(CovLoupe::CovUtil).to receive(:safe_log)
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry'))
+
+      result = model.list(raise_on_stale: false)
+
+      file_names = result.map { |r| File.basename(r['file']) }
+      expect(file_names).to include('bar.rb')
+      expect(file_names).not_to include('foo.rb')
+    end
+
+    it 'raises FileError when raise_on_stale is true and file lookup fails' do
+      model = described_class.new(root: root, resultset: 'coverage')
+
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'))
+        .and_raise(CovLoupe::FileError.new('Missing file'))
+
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::FileError, 'Missing file')
+    end
+
+    it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
+      model = described_class.new(root: root, resultset: 'coverage')
+
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'))
+        .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
+
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
+    end
   end
 
   describe 'resolve method error handling' do

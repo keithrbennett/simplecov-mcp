@@ -86,9 +86,11 @@ module CovLoupe
       rows = @cov.map do |abs_path, _data|
         begin
           coverage_lines = CovUtil.lookup_lines(@cov, abs_path)
-        rescue FileError => e
-          # If a FileError occurs (e.g., the file is in the resultset but cannot
-          # be resolved to a source file, perhaps it was deleted or moved),
+        rescue FileError, CoverageDataError => e
+          raise e if raise_on_stale
+
+          # If a FileError or CoverageDataError occurs (e.g., the file is in the resultset but cannot
+          # be resolved to a source file, or the data is corrupt),
           # skip this entry and continue processing other files. This allows
           # the application to report on other valid coverage entries.
           CovUtil.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
