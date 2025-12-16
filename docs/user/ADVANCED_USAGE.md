@@ -317,7 +317,7 @@ end
 class CoveragePolicy
   def call(model)
     threshold = 80
-    low_files = model.list.select { |f| f['percentage'] < threshold }
+    low_files = model.list['files'].select { |f| f['percentage'] < threshold }
 
     if low_files.empty?
       puts "✓ All files have >= #{threshold}% coverage"

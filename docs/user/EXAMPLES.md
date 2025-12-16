@@ -219,7 +219,7 @@ require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-list = model.list
+list = model.list['files']
 
 # Find files below threshold
 THRESHOLD = 80.0
@@ -249,7 +249,7 @@ require "pathname"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-list = model.list
+list = model.list['files']
 
 # Filter to lib/payments (coverage data stores absolute paths)
 lib_root = File.expand_path("lib/payments", File.expand_path(root, Dir.pwd))
@@ -442,7 +442,7 @@ test:
 ```ruby
 # coverage_policy.rb
 ->(model) do
-  list = model.list
+  list = model.list['files']
 
   # Must have at least 80% average coverage
   totals = model.project_totals
@@ -473,7 +473,6 @@ require "cov_loupe"
 
 root = "docs/fixtures/demo_project"
 model = CovLoupe::CoverageModel.new(root: root)
-list = model.list
 
 # Calculate coverage by directory (uses the same data as `cov-loupe totals`)
 patterns = %w[

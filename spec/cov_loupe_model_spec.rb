@@ -439,7 +439,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
     it 'sorts rows by sort_order parameter before formatting' do
       # Get all files data to use as custom rows
-      list_data = model.list
+      list_data = model.list['files']
 
       # Test ascending sort with custom rows
       output_asc = model.format_table(list_data, sort_order: :ascending)

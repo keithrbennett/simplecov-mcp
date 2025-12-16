@@ -156,7 +156,7 @@ table = model.format_table
 puts table
 
 # Custom rows
-lib_files = model.list.select { |f| f['file'].include?('/lib/') }
+lib_files = model.list['files'].select { |f| f['file'].include?('/lib/') }
 lib_table = model.format_table(lib_files, sort_order: :descending)
 puts lib_table
 ```

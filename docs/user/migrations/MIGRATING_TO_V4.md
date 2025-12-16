@@ -52,8 +52,87 @@ These changes improve consistency between short and long flag forms and eliminat
 *   **Old**: `CoverageModel#all_files_coverage`
 *   **New**: `CoverageModel#list`
 
-#### Migration
-*   Update any Ruby scripts or integrations that call `all_files_coverage` to call `list` instead. The return value and behavior remain the same.
+### Return Type Changed: `list` Now Returns a Hash
+
+**Breaking Change**: `CoverageModel#list` now returns a **hash** containing comprehensive staleness information instead of just an array of file data.
+
+#### Old Behavior (v3.x)
+```ruby
+model = CovLoupe::CoverageModel.new(root: '.')
+files = model.list  # Returns array directly
+
+# Filter and use the array
+low_coverage = files.select { |f| f['percentage'] < 80 }
+model.format_table(files)
+```
+
+#### New Behavior (v4.x)
+```ruby
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.list  # Returns hash with multiple keys
+
+# Access the files array
+files = result['files']
+
+# Filter and use the array
+low_coverage = files.select { |f| f['percentage'] < 80 }
+model.format_table(files)
+
+# Access new staleness information
+result['skipped_files']          # Files that raised errors during processing
+result['missing_tracked_files']  # Files from tracked_globs not in coverage
+result['newer_files']             # Files modified after coverage was generated
+result['deleted_files']           # Files in coverage that no longer exist
+```
+
+#### Migration Steps
+
+**Option 1: Quick Fix (Extract files array)**
+```ruby
+# Old
+files = model.list
+
+# New
+files = model.list['files']
+```
+
+**Option 2: Leverage New Staleness Data**
+```ruby
+result = model.list
+
+# Use the files array as before
+files = result['files']
+low_coverage = files.select { |f| f['percentage'] < 80 }
+
+# Now you can also:
+if result['skipped_files'].any?
+  warn "Warning: #{result['skipped_files'].size} files were skipped due to errors"
+  result['skipped_files'].each do |skip|
+    warn "  #{skip['file']}: #{skip['error']}"
+  end
+end
+
+if result['newer_files'].any?
+  warn "Warning: #{result['newer_files'].size} files are newer than coverage data"
+end
+```
+
+#### Impact on `format_table`
+
+The `format_table` method still accepts an array of file hashes (not the full hash from `list`):
+
+```ruby
+# Correct
+files = model.list['files']
+table = model.format_table(files)
+
+# Also correct (passing nil gets all files)
+table = model.format_table(nil)
+
+# Incorrect - do not pass the full hash
+result = model.list
+table = model.format_table(result)  # This will fail
+```
 
 ---
 

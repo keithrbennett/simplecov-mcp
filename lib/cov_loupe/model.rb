@@ -187,18 +187,12 @@ module CovLoupe
       )
     end
 
-    private def prepare_rows(rows_or_list_result, sort_order:, raise_on_stale:, tracked_globs:)
-      files_to_process = if rows_or_list_result.nil?
-        list(sort_order: sort_order, raise_on_stale: raise_on_stale,
-          tracked_globs: tracked_globs)['files']
-      elsif rows_or_list_result.is_a?(Hash) && rows_or_list_result.key?('files')
-        rows_or_list_result['files']
-      else
-        rows_or_list_result
-      end
+    private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
+      files = rows || list(sort_order: sort_order, raise_on_stale: raise_on_stale,
+        tracked_globs: tracked_globs)['files']
 
-      files_to_process = sort_rows(files_to_process.dup, sort_order: sort_order)
-      filter_rows_by_globs(files_to_process, tracked_globs)
+      files = sort_rows(files.dup, sort_order: sort_order)
+      filter_rows_by_globs(files, tracked_globs)
     end
 
     private def sort_rows(rows, sort_order: :descending)

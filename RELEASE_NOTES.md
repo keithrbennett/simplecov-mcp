@@ -7,6 +7,7 @@
 - **Mode flag renamed/expanded**: New `-F/--force-mode cli|mcp|auto` replaces `--force-cli` (removed). Use this to force MCP even when the client allocates a TTY (e.g., Codex) or to force CLI when stdin is not a TTY.
 - **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues.
 - **Ruby API method renamed**: `CoverageModel#all_files_coverage` renamed to `CoverageModel#list` for consistency with CLI subcommand naming.
+- **Ruby API return type changed**: `CoverageModel#list` now returns a **hash** with comprehensive staleness information instead of just an array of files. The hash includes keys: `files` (array), `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files`. Update code to use `model.list['files']` when you need just the file array.
 - **Dependency update**: Replaced unmaintained `awesome_print` with `amazing_print` (`~> 2.0`).
   - CLI: `--format amazing_print` is now the preferred way to specify the pretty-print formatter. `-f ap` and `--format awesome_print` are still supported.
   - Library: `require 'awesome_print'` is replaced by `require 'amazing_print'`.

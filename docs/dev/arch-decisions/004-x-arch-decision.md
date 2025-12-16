@@ -133,7 +133,7 @@ end
 
 class CoveragePolicy
   def call(model)
-    api_files = model.list.select { |f| f['file'].start_with?('lib/api/') }
+    api_files = model.list['files'].select { |f| f['file'].start_with?('lib/api/') }
     api_files.all? { |f| f['percentage'] >= 90 }
   end
 end
