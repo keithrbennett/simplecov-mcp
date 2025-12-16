@@ -44,32 +44,32 @@ RSpec.describe CovLoupe::Formatters do
 
     context 'when a required gem is missing' do
       before do
-        error = LoadError.new('cannot load such file -- awesome_print')
-        allow(described_class).to receive(:require).with('awesome_print').and_raise(error)
+        error = LoadError.new('cannot load such file -- amazing_print')
+        allow(described_class).to receive(:require).with('amazing_print').and_raise(error)
       end
 
       it 'raises a helpful LoadError' do
-        expect { described_class.format(obj, :awesome_print) }
-          .to raise_error(LoadError, /requires the 'awesome_print' gem/)
+        expect { described_class.format(obj, :amazing_print) }
+          .to raise_error(LoadError, /requires the 'amazing_print' gem/)
       end
     end
 
-    context 'when awesome_print is available' do
+    context 'when amazing_print is available' do
       before do
         # Stub require on the module for ensure_requirements_for
-        allow(described_class).to receive(:require).with('awesome_print')
+        allow(described_class).to receive(:require).with('amazing_print')
 
         # Stub global require for the lambda's internal require
         allow(Kernel).to receive(:require).and_call_original
-        allow(Kernel).to receive(:require).with('awesome_print').and_return(true)
+        allow(Kernel).to receive(:require).with('amazing_print').and_return(true)
 
         # Mock .ai on the object
-        allow(obj).to receive(:ai).and_return('awesome output')
+        allow(obj).to receive(:ai).and_return('amazing output')
       end
 
-      it 'formats using awesome_print' do
-        result = described_class.format(obj, :awesome_print)
-        expect(result).to eq('awesome output')
+      it 'formats using amazing_print' do
+        result = described_class.format(obj, :amazing_print)
+        expect(result).to eq('amazing output')
       end
     end
   end

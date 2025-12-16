@@ -34,9 +34,9 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       expect(output).to include('---', 'files:', 'file:')
     end
 
-    it 'supports awesome_print format' do
+    it 'supports amazing_print format' do
       output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'a', 'list')
-      # AwesomePrint output contains colored/formatted structure
+      # AmazingPrint output contains colored/formatted structure
       expect(output).to match(/:files|"files"/)
     end
   end

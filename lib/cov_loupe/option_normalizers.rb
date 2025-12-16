@@ -37,9 +37,10 @@ module CovLoupe
       'pretty-json' => :pretty_json,
       'y' => :yaml,
       'yaml' => :yaml,
-      'a' => :awesome_print,
-      'awesome_print' => :awesome_print,
-      'ap' => :awesome_print
+      'a' => :amazing_print,
+      'awesome_print' => :amazing_print,
+      'ap' => :amazing_print,
+      'amazing_print' => :amazing_print
     }.freeze
 
     FORCE_MODE_MAP = {

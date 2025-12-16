@@ -71,7 +71,7 @@ Default sort order is descending (highest coverage first) so the lowest-coverage
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                         |
 | `-fj`   | `--format json`          | Output as single-line JSON                            |
 | `-f y`  | `--format yaml`          | Output as YAML                                        |
-| `-f ap` | `--format awesome_print` | Output using AwesomePrint                             |
+| `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |                             |
 
 **Output (table format):**
 ```
@@ -111,7 +111,7 @@ clp summary app/models/order.rb -s full  # -s = --source
 | `-fJ` | `--format pretty-json` | Output as pretty-printed JSON         |
 | `-fj` | `--format json`        | Output as single-line JSON            |
 | `-f y` | `--format yaml`        | Output as YAML                        |
-| `-f ap` | `--format awesome_print` | Output using AwesomePrint         |
+| `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |         |
 | `-s`  | `--source MODE`  | Include source code (full or uncovered)    |
 
 **Output (default format):**
@@ -155,7 +155,7 @@ clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --c
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
 | `-fj`   | `--format json`          | Output as single-line JSON                           |
 | `-f y`  | `--format yaml`          | Output as YAML                                       |
-| `-f ap` | `--format awesome_print` | Output using AwesomePrint                            |
+| `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |                            |
 
 **Output (default format):**
 ```
@@ -206,7 +206,7 @@ clp detailed app/models/order.rb -s full  # -s = --source
 | `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON |
 | `-fj`   | `--format json`          | Output as single-line JSON    |
 | `-f y`  | `--format yaml`          | Output as YAML                |
-| `-f ap` | `--format awesome_print` | Output using AwesomePrint     |
+| `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |     |
 | `-s`    | `--source MODE`          | Include source code           |
 
 **Output (default format):**

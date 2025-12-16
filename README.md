@@ -213,11 +213,11 @@ cov-loupe -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"
 # Count files below threshold
 cov-loupe -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 
-# Human-readable output with AwesomePrint
+# Human-readable output with AmazingPrint
 cov-loupe -fJ list | rexe -ij -mb -oa 'self["files"].first(3)'
 ```
 
-With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AwesomePrint output (`-oa`) for human consumption.
+With rexe's `-ij -mb` options, `self` automatically becomes the parsed JSON object. The same holds true for JSON output -- using `-oJ` produces pretty-printed JSON without explicit formatting calls. Rexe also supports YAML input/output (`-iy`, `-oy`) and AmazingPrint output (`-oa`) for human consumption.
 
 ### When Coverage Rows Are Skipped
 

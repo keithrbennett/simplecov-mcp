@@ -46,18 +46,18 @@ RSpec.shared_examples 'a command with formatted output' do |command_args, expect
     end
   end
 
-  context 'with awesome_print format' do
-    before { cli_context.config.format = :awesome_print }
+  context 'with amazing_print format' do
+    before { cli_context.config.format = :amazing_print }
 
-    it 'outputs awesome_print formatted string' do
+    it 'outputs amazing_print formatted string' do
       output = capture_command_output(command, command_args)
       # Strip ANSI color codes for matching
       plain_output = output.gsub(/\e\[([;\d]+)?m/, '')
 
       keys_to_check = expected_json_keys.is_a?(Hash) ? expected_json_keys.keys : expected_json_keys
       keys_to_check.each do |k|
-        # Check for string key "key" => or symbol key :key =>
-        expect(plain_output).to match(/"#{k}"\s*=>|:#{k}\s*=>/)
+        # Check for string key "key" =>, symbol key :key =>, or ruby 1.9 symbol key:
+        expect(plain_output).to match(/"#{k}"\s*=>|:#{k}\s*=>|\b#{k}:\s+/)
       end
     end
   end

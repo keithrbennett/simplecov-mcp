@@ -14,8 +14,8 @@ module CovLoupe
         require 'yaml'
         obj.to_yaml
       },
-      awesome_print: ->(obj) {
-        require 'awesome_print'
+      amazing_print: ->(obj) {
+        require 'amazing_print'
         obj.ai
       }
     }.freeze
@@ -24,7 +24,7 @@ module CovLoupe
     # Only loaded when the format is actually used
     FORMAT_REQUIRES = {
       yaml: 'yaml',
-      awesome_print: 'awesome_print'
+      amazing_print: 'amazing_print'
     }.freeze
 
     # Returns the formatter lambda for the given format

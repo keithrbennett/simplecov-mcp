@@ -7,6 +7,12 @@
 - **Mode flag renamed/expanded**: New `-F/--force-mode cli|mcp|auto` replaces `--force-cli` (removed). Use this to force MCP even when the client allocates a TTY (e.g., Codex) or to force CLI when stdin is not a TTY.
 - **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues.
 - **Ruby API method renamed**: `CoverageModel#all_files_coverage` renamed to `CoverageModel#list` for consistency with CLI subcommand naming.
+- **Dependency update**: Replaced unmaintained `awesome_print` with `amazing_print` (`~> 2.0`).
+  - CLI: `--format amazing_print` is now the preferred way to specify the pretty-print formatter. `-f ap` and `--format awesome_print` are still supported.
+  - Library: `require 'awesome_print'` is replaced by `require 'amazing_print'`.
+  - Library: Internal format symbol changed from `:awesome_print` to `:amazing_print`.
+    - `CovLoupe::AppConfig#format` now returns `:amazing_print` when configured for that output.
+    - `CovLoupe::Formatters.format(obj, :amazing_print)` is the new API method.
 
 **📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V4.md](docs/user/migrations/MIGRATING_TO_V4.md)**
 
