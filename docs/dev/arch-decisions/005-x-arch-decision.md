@@ -47,7 +47,7 @@ We chose to **make SimpleCov a development dependency only** and read `.resultse
 The gem only depends on `mcp` at runtime (cov-loupe.gemspec:26):
 ```ruby
 # Runtime deps (stdlib: json, time, pathname)
-spec.add_runtime_dependency 'mcp', '~> 0.3'
+spec.add_runtime_dependency 'mcp', '~> 0.4'
 spec.add_development_dependency 'simplecov', '~> 0.21'
 ```
 
