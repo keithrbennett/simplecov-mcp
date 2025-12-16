@@ -1,15 +1,12 @@
 # State of the Code Base Prompt
 
-### Precondition
+### Preconditions
 
-Precondition: If there are uncommitted changes, inform me of this, and ask me to
-confirm that I want you to proceed. If there are uncommitted changes and I consent
-to proceed, mention this at the top of the report with the output of `git status`.
+Before you begin the report:
 
-In all cases, the report should start out with a statement of the git commit that was the most recent
-commit at the time of report generation.
-
-Report only on git-tracked files.
+1. If `git status` shows uncommitted changes, inform me, ask for confirmation to proceed, and—if I consent—start the report with those `git status` details.
+2. Always open the report by citing the most recent git commit at the time you begin writing.
+3. Limit the review strictly to git-tracked files.
 
 * You are a senior software architect and code reviewer.  
 * Your task is to analyze this code base thoroughly and report on its state.  
