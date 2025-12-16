@@ -94,7 +94,8 @@ Dir[File.join(__dir__, 'shared_examples', '**', '*.rb')].each { |f| require f }
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'
   config.disable_monkey_patching!
-  config.order = :defined
+  # Randomize spec order to expose order dependencies; pass --seed to reproduce failures
+  config.order = :random
   Kernel.srand config.seed
 
   # Suppress logging during tests by redirecting to /dev/null
