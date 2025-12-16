@@ -199,6 +199,9 @@ Style/DoubleNegation:
 Style/EmptyMethod:
   EnforcedStyle: expanded
 
+Style/EmptyStringInsideInterpolation:
+  Enabled: false
+
 # Devs can use fetch when they deem it necessary, no need for this rule
 Style/FetchEnvVar:
   Enabled: false
