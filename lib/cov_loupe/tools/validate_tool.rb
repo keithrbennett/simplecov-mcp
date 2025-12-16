@@ -37,13 +37,12 @@ module CovLoupe
         def call(code: nil, file: nil, root: nil, resultset: nil, raise_on_stale: nil,
           error_mode: 'log', server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
-            config = model_config_for(
+            model, config = create_configured_model(
               server_context: server_context,
               root: root,
               resultset: resultset,
               raise_on_stale: raise_on_stale
             )
-            model = CoverageModel.new(**config)
 
             result = if code
               PredicateEvaluator.evaluate_code(code, model)

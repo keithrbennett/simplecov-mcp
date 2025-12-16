@@ -30,14 +30,13 @@ module CovLoupe
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', server_context:)
           with_error_handling('ListTool', error_mode: error_mode) do
-            config = model_config_for(
+            model, config = create_configured_model(
               server_context: server_context,
               root: root,
               resultset: resultset,
               raise_on_stale: raise_on_stale,
               tracked_globs: tracked_globs
             )
-            model = CoverageModel.new(**config)
 
             # Convert string inputs from MCP to symbols for internal use
             sort_order_sym = (sort_order || 'ascending').to_sym

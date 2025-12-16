@@ -25,14 +25,13 @@ module CovLoupe
         def call(root: nil, resultset: nil, raise_on_stale: nil, tracked_globs: nil,
           error_mode: 'log', server_context:)
           with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
-            config = model_config_for(
+            model, config = create_configured_model(
               server_context: server_context,
               root: root,
               resultset: resultset,
               raise_on_stale: raise_on_stale,
               tracked_globs: tracked_globs
             )
-            model = CoverageModel.new(**config)
 
             presenter = Presenters::ProjectTotalsPresenter.new(
               model: model,

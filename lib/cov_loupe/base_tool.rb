@@ -112,6 +112,26 @@ module CovLoupe
       base.merge(explicit_params.compact)
     end
 
+    # Creates and configures a CoverageModel instance.
+    # Encapsulates the common pattern of merging config and initializing the model.
+    # @param server_context [AppContext] The server context
+    # @param explicit_params [Hash] explicit tool parameters
+    # @return [CoverageModel] The configured model
+    def self.create_model(server_context:, **explicit_params)
+      model, _config = create_configured_model(server_context: server_context, **explicit_params)
+      model
+    end
+
+    # Creates and configures a CoverageModel instance, returning both the model and the configuration.
+    # Useful when the tool needs access to the resolved configuration (e.g., root, raise_on_stale).
+    # @param server_context [AppContext] The server context
+    # @param explicit_params [Hash] explicit tool parameters
+    # @return [Array<CoverageModel, Hash>] The configured model and the configuration hash
+    def self.create_configured_model(server_context:, **explicit_params)
+      config = model_config_for(server_context: server_context, **explicit_params)
+      [CoverageModel.new(**config), config]
+    end
+
     # Default configuration when no context or explicit params are provided
     def self.default_model_options
       { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }

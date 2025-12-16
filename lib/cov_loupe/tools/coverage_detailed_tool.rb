@@ -19,13 +19,12 @@ module CovLoupe
         def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
           with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
-            config = model_config_for(
+            model = create_model(
               server_context: server_context,
               root: root,
               resultset: resultset,
               raise_on_stale: raise_on_stale
             )
-            model = CoverageModel.new(**config)
             presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
             respond_json(presenter.relativized_payload, name: 'coverage_detailed.json',
               pretty: true)
