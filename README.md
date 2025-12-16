@@ -51,6 +51,10 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 gem install cov-loupe
 ```
 
+### Upgrading
+
+If you are upgrading from a previous version, please refer to the [Migration Guides](docs/user/migrations).
+
 ### Generate Coverage Data
 
 ```sh
@@ -127,7 +131,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 - [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
 - [Codex Env Var Workaround](docs/user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
 - [Sample MCP Prompts](docs/user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
-- [Migration Guides](docs/user/migrations) - [Migrate to v3](docs/user/migrations/MIGRATING_TO_V3.md) | [Migrate to v2](docs/user/migrations/MIGRATING_TO_V2.md)
+- [Migration Guides](docs/user/migrations) - [Migrate to v4](docs/user/migrations/MIGRATING_TO_V4.md) | [Migrate to v3](docs/user/migrations/MIGRATING_TO_V3.md) | [Migrate to v2](docs/user/migrations/MIGRATING_TO_V2.md)
 
 **Developer Docs:**
 - [Developer Docs Overview](docs/dev/README.md) - Entry point for contributors

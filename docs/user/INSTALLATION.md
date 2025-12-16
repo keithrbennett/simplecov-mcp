@@ -95,6 +95,14 @@ Works with system Ruby or any version manager.
 
 Should work with Ruby installed via RubyInstaller. PATH configuration may differ.
 
+## Upgrading
+
+If you are upgrading from an earlier version of `cov-loupe`, please check the migration guides:
+
+- [Migrating to v4](migrations/MIGRATING_TO_V4.md)
+- [Migrating to v3](migrations/MIGRATING_TO_V3.md)
+- [Migrating to v2](migrations/MIGRATING_TO_V2.md)
+
 ## Next Steps
 
 - **[CLI Usage](CLI_USAGE.md)** - Learn command-line options
