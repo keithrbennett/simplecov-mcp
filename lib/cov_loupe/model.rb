@@ -117,23 +117,27 @@ module CovLoupe
 
       rows = filter_rows_by_globs(rows, tracked_globs)
 
-      # If global raise_on_stale is true, perform a project-level staleness check.
-      # This will raise an error if any tracked file is stale, overriding
-      # the per-file `stale` flag set above if a full project failure is desired.
-      if raise_on_stale
-        build_staleness_checker(raise_on_stale: true, tracked_globs: tracked_globs)
-          .check_project!(@cov)
-      end
+      # Perform a project-level staleness check to identify newer, deleted, and missing files.
+      # The check_project! method now returns the details and raises an error only if in error mode.
+      project_staleness_details = build_staleness_checker(
+        raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
+      ).check_project!(@cov)
 
-      sort_rows(rows, sort_order: sort_order)
+      {
+        'files' => sort_rows(rows, sort_order: sort_order),
+        'skipped_files' => @skipped_rows,
+        'missing_tracked_files' => project_staleness_details[:missing_files],
+        'newer_files' => project_staleness_details[:newer_files],
+        'deleted_files' => project_staleness_details[:deleted_files]
+      }
     end
 
     def project_totals(
       tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
     )
-      rows = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
+      list_result = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
-      totals_from_rows(rows)
+      totals_from_rows(list_result['files'])
     end
 
     def staleness_for(path)
@@ -183,14 +187,18 @@ module CovLoupe
       )
     end
 
-    private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
-      if rows.nil?
+    private def prepare_rows(rows_or_list_result, sort_order:, raise_on_stale:, tracked_globs:)
+      files_to_process = if rows_or_list_result.nil?
         list(sort_order: sort_order, raise_on_stale: raise_on_stale,
-          tracked_globs: tracked_globs)
+          tracked_globs: tracked_globs)['files']
+      elsif rows_or_list_result.is_a?(Hash) && rows_or_list_result.key?('files')
+        rows_or_list_result['files']
       else
-        rows = sort_rows(rows.dup, sort_order: sort_order)
-        filter_rows_by_globs(rows, tracked_globs)
+        rows_or_list_result
       end
+
+      files_to_process = sort_rows(files_to_process.dup, sort_order: sort_order)
+      filter_rows_by_globs(files_to_process, tracked_globs)
     end
 
     private def sort_rows(rows, sort_order: :descending)

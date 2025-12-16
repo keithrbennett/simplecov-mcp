@@ -21,7 +21,11 @@ RSpec.describe CovLoupe::Tools::ListTool do
         { 'file' => 'lib/bar.rb', 'percentage' => 50.0,  'covered' => 5,  'total' => 10,
           'stale' => true }
       ],
-      'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 }
+      'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 },
+      'skipped_files' => [],
+      'missing_tracked_files' => [],
+      'newer_files' => [],
+      'deleted_files' => []
     }
 
     presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
@@ -34,7 +38,9 @@ RSpec.describe CovLoupe::Tools::ListTool do
 
   it 'returns all files coverage data with counts' do
     response = call_tool
-    data, _item = expect_mcp_text_json(response, expected_keys: %w[files counts])
+    data, _item = expect_mcp_text_json(response, expected_keys: %w[
+      files counts skipped_files missing_tracked_files newer_files deleted_files
+    ])
 
     files = data['files']
     counts = data['counts']
@@ -42,6 +48,10 @@ RSpec.describe CovLoupe::Tools::ListTool do
     expect(files.length).to eq(2)
     expect(counts).to include('total' => 2).or include(total: 2)
     expect(files.map { |f| f['file'] }).to eq(%w[lib/foo.rb lib/bar.rb])
+
+    %w[skipped_files missing_tracked_files newer_files deleted_files].each do |key|
+      expect(data[key]).to be_empty, "Expected data['#{key}'] to be empty"
+    end
 
     # ok + stale equals total
     ok = counts[:ok] || counts['ok']

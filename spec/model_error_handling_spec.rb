@@ -240,17 +240,25 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
-      # Expect the error to be logged
+      # Expect the error to be logged only once (per model.list call)
       expect(CovLoupe::CovUtil).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry'))
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
       # Should not raise, just skip the problematic file
-      result = model.list(raise_on_stale: false)
+      list_result = model.list(raise_on_stale: false)
+      files = list_result['files']
 
       # The result should contain bar.rb but not foo.rb
-      file_names = result.map { |r| File.basename(r['file']) }
+      file_names = files.map { |r| File.basename(r['file']) }
       expect(file_names).to include('bar.rb')
       expect(file_names).not_to include('foo.rb')
+      expect(list_result['skipped_files']).to contain_exactly(
+        hash_including(
+          'file' => File.expand_path('lib/foo.rb', root),
+          'error' => 'Corrupted coverage entry',
+          'error_class' => 'CovLoupe::FileError'
+        )
+      )
     end
 
     it 'skips files that raise CorruptCoverageDataError during coverage lookup' do
@@ -262,13 +270,21 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
 
       expect(CovLoupe::CovUtil).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry'))
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
-      result = model.list(raise_on_stale: false)
+      list_result = model.list(raise_on_stale: false)
+      files = list_result['files']
 
-      file_names = result.map { |r| File.basename(r['file']) }
+      file_names = files.map { |r| File.basename(r['file']) }
       expect(file_names).to include('bar.rb')
       expect(file_names).not_to include('foo.rb')
+      expect(list_result['skipped_files']).to contain_exactly(
+        hash_including(
+          'file' => File.expand_path('lib/foo.rb', root),
+          'error' => 'Corrupted coverage entry',
+          'error_class' => 'CovLoupe::CorruptCoverageDataError'
+        )
+      )
     end
 
     it 'raises FileError when raise_on_stale is true and file lookup fails' do

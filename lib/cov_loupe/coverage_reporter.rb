@@ -14,7 +14,8 @@ module CovLoupe
   module CoverageReporter
     module_function def report(threshold: 80, count: 5, model: nil)
       model ||= CoverageModel.new
-      file_list = model.list(sort_order: :ascending)
+      list_result = model.list(sort_order: :ascending)
+      file_list = list_result['files']
         .select { |f| f['percentage'] < threshold }
         .first(count)
       file_list = model.relativize(file_list)

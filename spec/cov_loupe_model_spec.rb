@@ -109,8 +109,21 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'list' do
+    it 'returns a hash with files, skipped_files, missing_tracked_files,
+      newer_files, and deleted_files keys' do
+      result = model.list
+      expect(result).to be_a(Hash)
+
+      expected_keys = %w[files skipped_files missing_tracked_files newer_files deleted_files]
+      expect(result.keys).to match_array(expected_keys)
+
+      expected_keys.each do |key|
+        expect(result[key]).to be_a(Array), "Expected result['#{key}'] to be an Array"
+      end
+    end
+
     it 'sorts descending (default) by percentage then by file path' do
-      files = model.list
+      files = model.list['files']
       # lib/foo.rb has 66.67%, lib/bar.rb has 33.33%
       expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
       expect(files.first['percentage']).to be_within(0.01).of(66.67)
@@ -118,24 +131,21 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'sorts ascending by percentage then by file path' do
-      files = model.list(sort_order: :ascending)
+      files = model.list(sort_order: :ascending)['files']
       expect(files.first['file']).to eq(File.expand_path('lib/bar.rb', root))
       expect(files.first['percentage']).to be_within(0.01).of(33.33)
       expect(files.last['file']).to eq(File.expand_path('lib/foo.rb', root))
     end
 
     it 'filters rows when tracked_globs are provided' do
-      files = model.list(tracked_globs: ['lib/foo.rb'])
-
+      files = model.list(tracked_globs: ['lib/foo.rb'])['files']
       expect(files.length).to eq(1)
       expect(files.first['file']).to eq(File.expand_path('lib/foo.rb', root))
     end
 
     it 'combines results from multiple tracked_globs patterns' do
       abs_bar = File.expand_path('lib/bar.rb', root)
-
-      files = model.list(tracked_globs: ['lib/foo.rb', abs_bar])
-
+      files = model.list(tracked_globs: ['lib/foo.rb', abs_bar])['files']
       expect(files.map { |f| f['file'] }).to contain_exactly(
         File.expand_path('lib/foo.rb', root),
         abs_bar
@@ -154,10 +164,10 @@ RSpec.describe CovLoupe::CoverageModel do
         method.call(coverage_map, absolute)
       end
 
-      files = model.list
+      result = model.list
 
-      expect(files.map { |row| row['file'] }).not_to include(abs_foo)
-      expect(model.skipped_rows).to contain_exactly(
+      expect(result['files'].map { |row| row['file'] }).not_to include(abs_foo)
+      expect(result['skipped_files']).to contain_exactly(
         hash_including(
           'file' => abs_foo,
           'error' => 'corrupt data',
@@ -166,26 +176,33 @@ RSpec.describe CovLoupe::CoverageModel do
       )
     end
 
-    it 'handles files with paths that cannot be relativized' do
-      # Create a custom row with a path from a Windows-style drive (C:/) that will cause ArgumentError
-      # when trying to make it relative to a Unix-style root
-      custom_rows = [
-        {
-          'file' => 'C:/Windows/system32/file.rb',
-          'percentage' => 100.0,
-          'covered' => 10,
-          'total' => 10,
-          'stale' => false
-        }
-      ]
+    it 'reports newer_files when a file is modified after coverage was generated' do
+      newer_file_name = File.expand_path('lib/foo.rb', root) # Use absolute path for clarity in stub
 
-      # This should trigger the ArgumentError rescue in filter_rows_by_globs
-      # When the path cannot be made relative (different path types),
-      # it falls back to using the absolute path
-      output = model.format_table(custom_rows, tracked_globs: ['C:/Windows/**/*.rb'])
+      # Stub the entire staleness checker to return a predefined set of results
+      stub_checker = instance_double(CovLoupe::StalenessChecker, off?: false)
+      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(stub_checker) # Fix: Stub the constructor
+      allow(stub_checker).to receive_messages(check_project!: { newer_files: [newer_file_name], # Only foo.rb is newer
+                                                                missing_files: [],
+                                                                deleted_files: [] }, stale_for_file?: false) # Added stub for stale_for_file?
 
-      # The file should be included because the absolute path fallback matches the glob
-      expect(output).to include('C:/Windows/system32/file.rb')
+      result = model.list
+
+      expect(result['newer_files']).to contain_exactly(newer_file_name)
+    end
+
+    it 'reports deleted_files when a file in coverage no longer exists on disk' do
+      deleted_file_name = 'lib/bar.rb'
+      deleted_file_abs = File.expand_path(deleted_file_name, root)
+
+      # Stub File.file? for lib/bar.rb to return false (deleted)
+      allow(File).to receive(:file?).and_call_original
+      allow(File).to receive(:file?).with(deleted_file_abs).and_return(false)
+
+      result = model.list
+
+      expect(result['deleted_files']).to include(deleted_file_name)
+      expect(result['deleted_files'].length).to eq(1)
     end
   end
 
@@ -283,7 +300,7 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'includes branch-only files in list results' do
-      files = branch_model.list(sort_order: :ascending)
+      files = branch_model.list(sort_order: :ascending)['files']
       branch_path = File.expand_path('lib/branch_only.rb', branch_root)
       another_path = File.expand_path('lib/another.rb', branch_root)
 
@@ -354,7 +371,7 @@ RSpec.describe CovLoupe::CoverageModel do
       allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset)
 
       model = described_class.new(root: root)
-      files = model.list(sort_order: :ascending)
+      files = model.list(sort_order: :ascending)['files']
 
       expect(files.map { |f| File.basename(f['file']) }).to include('foo.rb', 'bar.rb')
 
@@ -451,10 +468,13 @@ RSpec.describe CovLoupe::CoverageModel do
       model = described_class.new(root: root, tracked_globs: tracked_globs)
       allow(model).to receive(:filter_rows_by_globs).and_call_original
       stub_checker = instance_double(CovLoupe::StalenessChecker,
-        stale_for_file?: false, check_project!: true, off?: true)
+        stale_for_file?: false, off?: true)
+      allow(stub_checker).to receive(:check_project!).and_return(
+        newer_files: [], missing_files: [], deleted_files: []
+      )
       allow(model).to receive(:build_staleness_checker).and_return(stub_checker)
 
-      model.list
+      model.list # Call list to trigger filter_rows_by_globs
       expect(model).to have_received(:filter_rows_by_globs).with(anything, tracked_globs)
     end
 

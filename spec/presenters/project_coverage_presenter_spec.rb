@@ -38,7 +38,13 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
 
   before do
     allow(model).to receive(:list).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
-      tracked_globs: tracked_globs).and_return(files)
+      tracked_globs: tracked_globs).and_return({
+        'files' => files,
+        'skipped_files' => [],
+        'missing_tracked_files' => [],
+        'newer_files' => [],
+        'deleted_files' => []
+      })
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(
         root: '/abs/path',

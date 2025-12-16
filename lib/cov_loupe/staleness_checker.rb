@@ -58,28 +58,35 @@ module CovLoupe
       false
     end
 
-    # Raise CoverageDataProjectStaleError if any covered file is newer or if
-    # tracked files are missing from coverage, or coverage includes deleted files.
+    # Compute and return project staleness details (newer, missing, deleted files).
+    # If in error mode, raises CoverageDataProjectStaleError when issues are found.
+    # Returns a hash { newer_files: [], missing_files: [], deleted_files: [] }
     def check_project!(coverage_map)
-      return if off?
-
       ts = coverage_timestamp
       coverage_files = coverage_map.keys
 
       newer, deleted = compute_newer_and_deleted_files(coverage_files, ts)
       missing = compute_missing_files(coverage_files)
 
-      return if newer.empty? && missing.empty? && deleted.empty?
-
-      raise CoverageDataProjectStaleError.new(
-        nil,
-        nil,
-        cov_timestamp: ts,
+      staleness_details = {
         newer_files: newer,
         missing_files: missing,
-        deleted_files: deleted,
-        resultset_path: resultset_path
-      )
+        deleted_files: deleted
+      }
+
+      if @mode == :error && (newer.any? || missing.any? || deleted.any?)
+        raise CoverageDataProjectStaleError.new(
+          nil,
+          nil,
+          cov_timestamp: ts,
+          newer_files: newer,
+          missing_files: missing,
+          deleted_files: deleted,
+          resultset_path: resultset_path
+        )
+      end
+
+      staleness_details
     end
 
     private def compute_newer_and_deleted_files(coverage_files, timestamp)

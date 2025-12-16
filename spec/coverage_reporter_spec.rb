@@ -15,7 +15,13 @@ RSpec.describe CovLoupe::CoverageReporter do
   end
 
   before do
-    allow(model).to receive(:list).with(sort_order: :ascending).and_return(files_data)
+    allow(model).to receive(:list).with(sort_order: :ascending).and_return({
+      'files' => files_data,
+      'skipped_files' => [],
+      'missing_tracked_files' => [],
+      'newer_files' => [],
+      'deleted_files' => []
+    })
     allow(model).to receive(:relativize) do |files|
       files.map { |f| f.merge('file' => f['file'].sub('/project/', '')) }
     end
