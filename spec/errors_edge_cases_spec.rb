@@ -309,4 +309,13 @@ RSpec.describe CovLoupe do
       end
     end
   end
+
+  describe CovLoupe::CorruptCoverageDataError do
+    describe '#user_friendly_message' do
+      it 'returns the correct message for corrupt coverage data' do
+        error = described_class.new('Invalid JSON format')
+        expect(error.user_friendly_message).to eq('Corrupt coverage data: Invalid JSON format')
+      end
+    end
+  end
 end
