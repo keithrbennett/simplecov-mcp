@@ -2,7 +2,8 @@
 
 * You are a senior software architect and code reviewer.  
 * Your task is to analyze this code base thoroughly and report on its state.  
-* Focus on identifying weaknesses, risks, and areas for improvement.  
+* Focus on identifying weaknesses, risks, and areas for improvement.
+* Disregard any issues included in /docs/dev/DESIGN_RATIONALE.md, unless your objections are not covered in that document.
 * For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
 * If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
 
