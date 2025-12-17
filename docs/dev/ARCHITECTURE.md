@@ -1,6 +1,6 @@
 # Architecture
 
-[Back to main README](../README.md)
+[Back to main README](../README.md) | [Architecture Decision Records](arch-decisions/README.md)
 
 cov-loupe is organized around a single coverage data model that feeds three delivery channels: a command-line interface, an MCP server for LLM agents, and a light-weight Ruby API. The codebase is intentionally modular—shared logic for loading, normalizing, and validating SimpleCov data lives in `lib/cov_loupe/`, while adapters wrap that core for each runtime mode.
 

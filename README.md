@@ -117,6 +117,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 ## Documentation
 
 **User Guides:**
+- [Quick Start](docs/QUICKSTART.md) - Get up and running in 3 steps
 - [User Docs Overview](docs/user/README.md) - Map of all end-user guides
 - [Installation](docs/user/INSTALLATION.md) - Setup for different environments
 - [CLI Usage](docs/user/CLI_USAGE.md) - Command-line reference

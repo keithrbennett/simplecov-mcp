@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-[Back to main README](../../README.md)
+[Back to main README](../../README.md) | [Architecture Overview](../ARCHITECTURE.md)
 
 ## What is an ADR?
 
