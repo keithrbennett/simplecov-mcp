@@ -24,6 +24,9 @@
 /.yardoc/
 /yardoc/
 
+# MkDocs
+/site/
+
 # Temp files
 /tmp/
 *.swp
