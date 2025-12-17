@@ -52,7 +52,7 @@ We chose to **evaluate Ruby files using `instance_eval`** with prominent securit
 
 ### Implementation
 
-The implementation is in `lib/cov_loupe/cli.rb:191-214`:
+The implementation is in `lib/cov_loupe/cli.rb` (`CoverageCLI#load_success_predicate`):
 
 ```ruby
 def load_success_predicate(path)
@@ -101,7 +101,7 @@ end
 
 Rather than pretending to sandbox untrusted code, we treat success predicates **exactly like any other Ruby code in the project**:
 
-1. **Prominent warnings** in documentation (examples/success_predicates/README.md:5-17):
+1. **Prominent warnings** in documentation (highlighted near the top of `examples/success_predicates/README.md`):
    ```
    ⚠️ SECURITY WARNING
 
@@ -195,9 +195,9 @@ However, for the primary use case (CI/CD policy enforcement), the current approa
 
 ## References
 
-- Implementation: `lib/cov_loupe/cli.rb:191-214` (load predicate), `lib/cov_loupe/cli.rb:179-189` (execute)
-- Security warnings: `examples/success_predicates/README.md:5-17`
+- Implementation: `lib/cov_loupe/cli.rb` (`CoverageCLI#load_success_predicate` and `#run_success_predicate`)
+- Security warnings: `examples/success_predicates/README.md`
 - Example predicates: `examples/success_predicates/*.rb`
 - CoverageModel API: `lib/cov_loupe/model.rb`
-- CLI config: `lib/cov_loupe/cli_config.rb:18` (success_predicate field)
-- Option parsing: `lib/cov_loupe/option_parser_builder.rb` (--success-predicate flag)
+- CLI config: `lib/cov_loupe/cli_config.rb` (`success_predicate` field)
+- Option parsing: `lib/cov_loupe/option_parser_builder.rb` (`--success-predicate` flag)

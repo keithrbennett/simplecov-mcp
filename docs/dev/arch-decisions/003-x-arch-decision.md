@@ -35,7 +35,7 @@ We implemented a **three-type staleness detection system** with configurable err
 
 ### Three Staleness Types
 
-The `StalenessChecker` class (lib/cov_loupe/staleness_checker.rb:8) detects three distinct types of staleness:
+The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) detects three distinct types of staleness:
 
 1. **Type 'M' (Missing)**: The source file exists in coverage but is now deleted/missing
    - Returned by `stale_for_file?` when `File.file?(file_abs)` returns false
@@ -52,7 +52,7 @@ The `StalenessChecker` class (lib/cov_loupe/staleness_checker.rb:8) detects thre
 
 ### Implementation Details
 
-The core algorithm is in `compute_file_staleness_details` (lib/cov_loupe/staleness_checker.rb:137):
+The core algorithm lives in `CovLoupe::StalenessChecker#compute_file_staleness_details`:
 
 ```ruby
 def compute_file_staleness_details(file_abs, coverage_lines)
@@ -88,7 +88,7 @@ end
 
 ### Staleness Modes
 
-The checker supports two modes (lib/cov_loupe/staleness_checker.rb:9):
+The checker supports two modes, configured when instantiating `StalenessChecker`:
 
 - **`:off`** (default): Staleness is detected but only reported in responses, never raises errors
 - **`:error`**: Staleness raises `CoverageDataStaleError` or `CoverageDataProjectStaleError`
@@ -100,12 +100,12 @@ This allows:
 
 ### File-Level vs Project-Level Checks
 
-**File-level** (`check_file!` and `stale_for_file?`, lib/cov_loupe/staleness_checker.rb:25,49):
+**File-level** (`check_file!` and `stale_for_file?`):
 - Checks a single file's staleness
 - Returns `false` or staleness type character ('M', 'T', 'L')
 - Used by single-file tools (summary, detailed, uncovered)
 
-**Project-level** (`check_project!`, lib/cov_loupe/staleness_checker.rb:59):
+**Project-level** (`check_project!`):
 - Checks all covered files plus optionally tracked files
 - Detects:
   - Files newer than coverage timestamp
@@ -157,9 +157,9 @@ This helps teams ensure new files are included in test runs.
 
 ## References
 
-- Implementation: `lib/cov_loupe/staleness_checker.rb:8-168`
-- File-level checking: `lib/cov_loupe/staleness_checker.rb:25-55`
-- Project-level checking: `lib/cov_loupe/staleness_checker.rb:59-95`
-- Staleness detail computation: `lib/cov_loupe/staleness_checker.rb:137-166`
-- Error types: `lib/cov_loupe/errors.rb` (CoverageDataStaleError, CoverageDataProjectStaleError)
+- Implementation: `lib/cov_loupe/staleness_checker.rb` (`StalenessChecker` class)
+- File-level checking: `StalenessChecker#check_file!` and `#stale_for_file?`
+- Project-level checking: `StalenessChecker#check_project!`
+- Staleness detail computation: `StalenessChecker#compute_file_staleness_details`
+- Error types: `lib/cov_loupe/errors.rb` (`CoverageDataStaleError`, `CoverageDataProjectStaleError`)
 - Usage in tools: `lib/cov_loupe/tools/list_tool.rb`, `lib/cov_loupe/model.rb`

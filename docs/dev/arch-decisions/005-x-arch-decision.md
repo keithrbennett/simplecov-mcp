@@ -44,14 +44,9 @@ We chose to **make SimpleCov a development dependency only** and read `.resultse
 
 ### Implementation
 
-The gem only depends on `mcp` at runtime (cov-loupe.gemspec:26):
-```ruby
-# Runtime deps (stdlib: json, time, pathname)
-spec.add_runtime_dependency 'mcp', '~> 0.4'
-spec.add_development_dependency 'simplecov', '~> 0.21'
-```
+cov-loupe currently depends on `amazing_print`, `mcp`, and `simplecov` at runtime.
 
-Coverage data is read directly from JSON files (lib/cov_loupe/model.rb:34-42):
+Coverage data is read directly from JSON files by `CovLoupe::CoverageModel#load_coverage_data`:
 ```ruby
 rs = CovUtil.find_resultset(@root, resultset: resultset)
 raw = JSON.parse(File.read(rs))
@@ -64,7 +59,7 @@ cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs
 @cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
 ```
 
-Coverage calculations use simple algorithms (lib/cov_loupe/util.rb:42-71):
+Coverage calculations use simple algorithms in `CovLoupe::CovUtil` (`summary`, `uncovered`, `detailed`):
 ```ruby
 def summary(arr)
   total = 0
@@ -121,7 +116,7 @@ Where:
 
 ### Resultset Discovery
 
-We implement flexible discovery of `.resultset.json` files (lib/cov_loupe/util.rb:6-10):
+We implement flexible discovery of `.resultset.json` files via `CovUtil::RESULTSET_CANDIDATES`:
 ```ruby
 RESULTSET_CANDIDATES = [
   '.resultset.json',
@@ -181,9 +176,9 @@ If SimpleCov's format changes:
 
 ## References
 
-- Gemspec dependencies: `cov-loupe.gemspec:26-28`
-- JSON parsing: `lib/cov_loupe/model.rb:34-57`
-- Coverage calculations: `lib/cov_loupe/util.rb:42-71`
-- Resultset discovery: `lib/cov_loupe/util.rb:6-10`, `lib/cov_loupe/util.rb:34-36`
+- Gemspec dependencies: `cov-loupe.gemspec` (`spec.add_dependency` entries)
+- JSON parsing: `lib/cov_loupe/model.rb` (`CoverageModel#load_coverage_data`)
+- Coverage calculations: `lib/cov_loupe/util.rb` (`CovUtil.summary`, `.uncovered`, `.detailed`)
+- Resultset discovery: `lib/cov_loupe/util.rb` (`CovUtil::RESULTSET_CANDIDATES` and helpers)
 - SimpleCov format documentation: https://github.com/simplecov-ruby/simplecov
 - Development usage: Uses SimpleCov in `spec/spec_helper.rb` to test itself

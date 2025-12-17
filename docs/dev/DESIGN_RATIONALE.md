@@ -24,7 +24,7 @@ The security model assumes the developer controls their workspace and the code t
 
 ## Known Issue: Inefficient Staleness Checks and Timestamp Handling
 
-- **Description:** Coverage timestamps are collapsed to a single max value for all suites (`lib/cov_loupe/model.rb:158-183`, `lib/cov_loupe/resultset_loader.rb:15-104`), and staleness checks reread each file to count lines (`lib/cov_loupe/staleness_checker.rb:90-172`).  
+- **Description:** Coverage timestamps are collapsed to a single max value for all suites (handled when `CovLoupe::CoverageModel` loads resultsets via `ResultsetLoader`), and staleness checks reread each file to count lines (implemented in `CovLoupe::StalenessChecker`).  
   **Impact:** Multi-suite projects get false positives/negatives on freshness, and large repositories pay O(total lines) per query, making results unreliable and slow for larger code bases.  
   **Urgency:** Medium.  
   **Estimated Cost-to-Fix:** High (store per-suite/file metadata and cache line counts/mtimes).

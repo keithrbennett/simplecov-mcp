@@ -32,7 +32,7 @@ We implemented **automatic mode detection** via a single entry point (`CovLoupe.
 
 ### Mode Detection Algorithm
 
-The `ModeDetector` class (lib/cov_loupe/mode_detector.rb:6) implements a priority-based detection strategy:
+The `ModeDetector` class (defined in `lib/cov_loupe/mode_detector.rb`) implements a priority-based detection strategy:
 
 1. 
 2. 
@@ -41,7 +41,7 @@ The `ModeDetector` class (lib/cov_loupe/mode_detector.rb:6) implements a priorit
 2. **Presence of subcommands** (non-option arguments like `summary`, `list`) → CLI mode
 3. **TTY detection** fallback: `stdin.tty?` returns true → CLI mode, false → MCP server mode
 
-The implementation is in `lib/cov_loupe.rb:34-52`:
+The implementation lives in `lib/cov_loupe.rb` within `CovLoupe.run`:
 
 ```ruby
 def run(argv)
@@ -91,8 +91,8 @@ end
 
 ## References
 
-- Implementation: `lib/cov_loupe.rb:34-52`
-- Mode detection: `lib/cov_loupe/mode_detector.rb:6-63`
+- Implementation: `lib/cov_loupe.rb` (`CovLoupe.run`)
+- Mode detection: `lib/cov_loupe/mode_detector.rb`
 - CLI implementation: `lib/cov_loupe/cli.rb`
 - MCP server implementation: `lib/cov_loupe/mcp_server.rb`
 - Related ADR: [002: Context-Aware Error Handling](002-x-arch-decision.md)

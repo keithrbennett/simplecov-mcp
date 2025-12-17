@@ -27,7 +27,7 @@ The integration tests spawn the actual MCP server as a subprocess and communicat
 
 ### Issue #1 from Analysis: Missing `require 'optparse'`
 
-The critical bug (missing `require 'optparse'` in `lib/cov_loupe.rb:110`) was not caught by existing tests because:
+The critical bug (missing `require 'optparse'` in the `CovLoupe.run` entrypoint inside `lib/cov_loupe.rb`) was not caught by existing tests because:
 
 - Unit tests loaded the full gem which transitively required optparse through the CLI
 - MCP tools were tested in-process without spawning the server
@@ -64,7 +64,7 @@ Uses `spec/fixtures/project1/` with known coverage data:
 bundle exec rspec spec/integration_spec.rb --tag slow
 
 # Run specific integration test
-bundle exec rspec spec/integration_spec.rb:363
+bundle exec rspec spec/integration_spec.rb --example "executes coverage_summary_tool via JSON-RPC"
 ```
 
 ## Performance
@@ -100,7 +100,7 @@ Potential additions:
 
 ## Related Files
 
-- `spec/integration_spec.rb` - Main integration test file (lines 308-683)
+- `spec/integration_spec.rb` - Main integration test file (see the \"MCP server\" describe block)
 - `lib/cov_loupe.rb` - Entry point with mode detection
 - `lib/cov_loupe/mcp_server.rb` - MCP server implementation
 - `exe/cov-loupe` - Executable entry point

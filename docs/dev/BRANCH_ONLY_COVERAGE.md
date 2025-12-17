@@ -112,11 +112,11 @@ If you need to modify or debug the branch coverage conversion, here's where ever
 
 ### Implementation
 **`lib/cov_loupe/resolvers/coverage_line_resolver.rb`**
-- Line 59-66: `lines_from_entry` - Detects when to synthesize line data
-- Line 68-103: `synthesize_lines_from_branches` - The main conversion logic
-- Line 105-123: `extract_line_number` - Parses line numbers from branch tuples
+- `lines_from_entry` – Detects when to synthesize line data
+- `synthesize_lines_from_branches` – The main conversion logic
+- `extract_line_number` – Parses line numbers from branch tuples
 
-This file is referenced in the code comments at line 79.
+Inline comments near `synthesize_lines_from_branches` reference this document for maintainers.
 
 ### Tests
 **`spec/resolvers/coverage_line_resolver_spec.rb`**

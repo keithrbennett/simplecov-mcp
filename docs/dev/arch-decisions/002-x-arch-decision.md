@@ -52,7 +52,7 @@ This provides a unified interface for presenting errors to users while preservin
 
 ### 2. ErrorHandler Class
 
-The `ErrorHandler` class (lib/cov_loupe/error_handler.rb:7) provides configurable error handling behavior:
+The `ErrorHandler` class (see `lib/cov_loupe/error_handler.rb`) provides configurable error handling behavior:
 
 ```ruby
 class ErrorHandler
@@ -74,7 +74,7 @@ class ErrorHandler
 end
 ```
 
-The `convert_standard_error` method (lib/cov_loupe/error_handler.rb:37) transforms Ruby's standard errors into user-friendly custom exceptions:
+The `convert_standard_error` method transforms Ruby's standard errors into user-friendly custom exceptions:
 
 - `Errno::ENOENT` → `FileNotFoundError`
 - `JSON::ParserError` → `CoverageDataError`
@@ -82,7 +82,7 @@ The `convert_standard_error` method (lib/cov_loupe/error_handler.rb:37) transfor
 
 ### 3. ErrorHandlerFactory
 
-The `ErrorHandlerFactory` (lib/cov_loupe/error_handler_factory.rb:4) creates mode-specific handlers:
+The `ErrorHandlerFactory` (defined in `lib/cov_loupe/error_handler_factory.rb`) creates mode-specific handlers:
 
 ```ruby
 module ErrorHandlerFactory
@@ -108,13 +108,13 @@ end
 3. Displays `user_friendly_message` to the user
 4. Exits with appropriate code (1 for errors, 2 for usage errors)
 
-**MCP Server Mode** (lib/cov_loupe/base_tool.rb:46):
+**MCP Server Mode** (`lib/cov_loupe/base_tool.rb`):
 1. Each tool wraps execution in a rescue block
 2. Uses `for_mcp_server` handler to log errors to `~/cov_loupe.log`
 3. Returns structured JSON-RPC error response
 4. Server continues running (no crashes)
 
-**Library Mode** (lib/cov_loupe.rb:75):
+**Library Mode** (`lib/cov_loupe.rb`):
 1. Uses `for_library` handler with `error_mode: :off` (no logging)
 2. Raises custom exceptions directly
 3. Consumers catch and handle `CovLoupe::Error` subclasses
@@ -142,7 +142,7 @@ end
 
 ### Implementation Notes
 
-The `ErrorHandler.convert_standard_error` method (lib/cov_loupe/error_handler.rb:37) uses pattern matching on exception types and error messages to provide helpful, context-aware error messages. This includes:
+The `ErrorHandler.convert_standard_error` method uses pattern matching on exception types and error messages to provide helpful, context-aware error messages. This includes:
 
 - Extracting filenames from system error messages
 - Detecting SimpleCov-specific error patterns
@@ -151,9 +151,9 @@ The `ErrorHandler.convert_standard_error` method (lib/cov_loupe/error_handler.rb
 ## References
 
 - Custom exceptions: `lib/cov_loupe/errors.rb`
-- ErrorHandler implementation: `lib/cov_loupe/error_handler.rb:7-124`
-- ErrorHandlerFactory: `lib/cov_loupe/error_handler_factory.rb:4-29`
-- CLI error handling: `lib/cov_loupe/cli.rb` (rescue block in run method)
-- MCP tool error handling: `lib/cov_loupe/base_tool.rb:46-54`
-- Library mode: `lib/cov_loupe.rb:75-86`
+- ErrorHandler implementation: `lib/cov_loupe/error_handler.rb`
+- ErrorHandlerFactory: `lib/cov_loupe/error_handler_factory.rb`
+- CLI error handling: `lib/cov_loupe/cli.rb` (rescue block in `CoverageCLI#run`)
+- MCP tool error handling: `lib/cov_loupe/base_tool.rb` (`BaseTool#call`)
+- Library mode: `lib/cov_loupe.rb` (error handling within `CovLoupe.run`)
 - Related ADR: [001: Dual-Mode Operation](001-x-arch-decision.md)

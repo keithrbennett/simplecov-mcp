@@ -232,7 +232,7 @@ All documentation moved under audience-specific directories (`docs/user` for usa
 ### 🐛 Bug Fixes
 
 #### CLI Fixes
-- **Subcommand extraction** - Fixed `--source` flag incorrectly treated as subcommand (lib/simplecov_mcp/constants.rb:9-19)
+- **Subcommand extraction** - Fixed `--source` flag incorrectly treated as subcommand (see the subcommand list in `lib/simplecov_mcp/constants.rb`)
 - **Option argument parsing** - Centralized list of options expecting arguments to prevent similar bugs
 - **Invalid option handling** - Clean error messages for unrecognized CLI flags
 - **Help text formatting** - Improved readability and consistency
