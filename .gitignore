@@ -27,6 +27,11 @@
 # MkDocs
 /site/
 
+# Python virtual environments
+/.venv/
+/.venv-*/
+/venv/
+
 # Temp files
 /tmp/
 *.swp

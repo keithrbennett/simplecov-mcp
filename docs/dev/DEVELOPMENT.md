@@ -79,9 +79,32 @@ This project uses [MkDocs](https://www.mkdocs.org/) with the [Material theme](ht
 
 ### Installing MkDocs
 
+**Recommended: Using a Virtual Environment (all platforms)**
+
+Virtual environments isolate Python dependencies and don't require system-level permissions.
+
+```bash
+# Create virtual environment
+python3 -m venv .venv-docs
+
+# Activate it
+source .venv-docs/bin/activate  # macOS/Linux
+# Or on Windows: .venv-docs\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Deactivate when done (optional)
+deactivate
+```
+
+Note: Virtual environment directories (`.venv/`, `.venv-*/`, `venv/`) are already in `.gitignore`.
+
+**Alternative: System/User Installation**
+
 **macOS:**
 ```bash
-# Using Homebrew (recommended)
+# Using Homebrew
 brew install mkdocs
 pip3 install mkdocs-material mkdocs-awesome-pages-plugin pymdown-extensions
 
@@ -115,6 +138,10 @@ pip install mkdocs mkdocs-material mkdocs-awesome-pages-plugin pymdown-extension
 ### Building Documentation
 
 ```bash
+# If using virtual environment, activate it first
+source .venv-docs/bin/activate  # macOS/Linux
+# Or on Windows: .venv-docs\Scripts\activate
+
 # Build static site
 mkdocs build
 
