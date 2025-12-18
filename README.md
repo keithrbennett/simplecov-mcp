@@ -11,7 +11,16 @@
   An MCP server, command line utility, and library for Ruby SimpleCov test coverage analysis.
 </p>
 
+<p style="text-align:center;">
+  <strong><a href="https://keithrbennett.github.io/cov-loupe/">Documentation Website</a></strong>
+</p>
+
 [![Gem Version](https://badge.fury.io/rb/cov-loupe.svg)](https://badge.fury.io/rb/cov-loupe)
+[![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://keithrbennett.github.io/cov-loupe/)
+
+## Documentation
+
+Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/](https://keithrbennett.github.io/cov-loupe/)**.
 
 ## What is cov-loupe?
 
@@ -115,6 +124,8 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 **Multiple resultset files:** Only suites stored inside a *single* `.resultset.json` are merged automatically. If your project produces separate resultset files (e.g., different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`), you must merge them yourself before pointing `cov-loupe` at the combined file.
 
 ## Documentation
+
+Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/](https://keithrbennett.github.io/cov-loupe/)**.
 
 **User Guides:**
 - [Quick Start](QUICKSTART.md) - Get up and running in 3 steps
