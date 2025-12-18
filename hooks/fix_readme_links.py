@@ -18,8 +18,8 @@ def on_page_markdown(markdown, page, config, files):
     # Pattern 1: Fix relative file links (e.g. [Link](docs/user/file.md) -> [Link](user/file.md))
     # This regex looks for markdown links where the URL starts with docs/
     markdown = re.sub(
-        r'\\[^\\]+\\]\(docs/([^)]+)\\)', 
-        r'[\1](\2)', 
+        r'\[([^\]]+)\]\(docs/([^)]+)\)',
+        r'[\1](\2)',
         markdown
     )
 
@@ -30,8 +30,8 @@ def on_page_markdown(markdown, page, config, files):
     
     # Fix HTML img tags commonly used for resizing
     markdown = re.sub(
-        r'src="dev/images/([^\"]+)"',
-        f'src="{raw_url}/dev/images/\\1"', 
+        r'src="dev/images/([^"]+)"',
+        f'src="{raw_url}/dev/images/\\1"',
         markdown
     )
     
