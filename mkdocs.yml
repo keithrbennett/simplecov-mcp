@@ -36,6 +36,9 @@ theme:
 plugins:
   - search
 
+hooks:
+  - hooks/fix_readme_links.py
+
 markdown_extensions:
   - admonition
   - pymdownx.details
