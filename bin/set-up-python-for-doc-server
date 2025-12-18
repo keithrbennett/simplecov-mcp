@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Check if script is being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "Error: This script must be sourced, not executed directly." >&2
+  echo "Usage: source bin/set-up-python" >&2
+  echo "   or: . bin/set-up-python" >&2
+  exit 1
+fi
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -q -r requirements.txt
+
