@@ -1,6 +1,6 @@
 # Release Notes
 
-[Back to main README](README.md)
+[Back to main README](index.md)
 
 ## v4.0.0 (Breaking)
 

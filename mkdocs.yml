@@ -44,7 +44,10 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path:
+        - '.'
+        - 'docs'
   - pymdownx.tabbed:
       alternate_style: true
   - tables
@@ -57,7 +60,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Installation: user/INSTALLATION.md
-      - Quick Start: user/CLI_USAGE.md
+      - Quick Start: QUICKSTART.md
       - Examples: user/EXAMPLES.md
   - User Guide:
       - CLI Usage: user/CLI_USAGE.md

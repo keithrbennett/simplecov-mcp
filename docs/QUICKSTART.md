@@ -1,6 +1,6 @@
 # Quick Start
 
-[Back to main README](../README.md)
+[Back to main README](index.md)
 
 Get up and running with cov-loupe in 3 steps.
 
@@ -60,4 +60,4 @@ If you're using Claude Code, ChatGPT, or another MCP-compatible assistant:
 2. Use ready-made prompts from [Prompt Library](user/prompts/README.md)
 3. Let AI analyze your coverage and suggest improvements
 
-[Back to main README](../README.md)
+[Back to main README](index.md)

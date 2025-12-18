@@ -1,6 +1,6 @@
 # Contributing to cov-loupe
 
-[Back to main README](README.md)
+[Back to main README](index.md)
 
 Thank you for your interest in contributing! 
 This project welcomes bug reports, improvements, and suggestions that make it more useful and reliable for the Ruby community.
