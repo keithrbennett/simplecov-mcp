@@ -64,47 +64,13 @@ Optional tools:
 
 This project uses [MkDocs](https://www.mkdocs.org/) with the [Material theme](https://squidfunk.github.io/mkdocs-material/) to build and serve documentation.
 
-### Prerequisites
-
-MkDocs requires Python 3 and pip. Install the documentation dependencies:
-
+**Quick start:**
 ```bash
 pip3 install -r requirements.txt
+mkdocs serve  # View at http://127.0.0.1:8000
 ```
 
-### Building Documentation
-
-To build the static documentation site:
-
-```bash
-mkdocs build
-```
-
-The built site will be in the `site/` directory (which is git-ignored).
-
-### Local Development Server
-
-To preview the documentation locally with live reloading:
-
-```bash
-mkdocs serve
-```
-
-Then open http://127.0.0.1:8000 in your browser. Changes to documentation files will automatically reload.
-
-### Documentation Structure
-
-- `docs/index.md` - Main landing page (derived from README.md)
-- `docs/user/` - User-facing documentation (installation, usage, examples)
-- `docs/dev/` - Developer documentation (architecture, contributing)
-- `mkdocs.yml` - MkDocs configuration and navigation structure
-
-### Adding New Documentation
-
-1. Create or edit markdown files in the `docs/` directory
-2. Add new pages to the `nav` section in `mkdocs.yml`
-3. Test locally with `mkdocs serve`
-4. Commit changes along with your code changes
+For detailed platform-specific installation instructions (macOS, Linux, Windows) and troubleshooting, see the [Documentation Development](dev/DEVELOPMENT.md#documentation-development) section of the Development Guide
 
 ---
 
