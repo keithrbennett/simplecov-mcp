@@ -60,6 +60,20 @@ Optional tools:
 
 ---
 
+## Documentation
+
+This project uses [MkDocs](https://www.mkdocs.org/) with the [Material theme](https://squidfunk.github.io/mkdocs-material/) to build and serve documentation.
+
+**Quick start:**
+```bash
+pip3 install -r requirements.txt
+mkdocs serve  # View at http://127.0.0.1:8000
+```
+
+For detailed platform-specific installation instructions (macOS, Linux, Windows) and troubleshooting, see the [Documentation Development](docs/dev/DEVELOPMENT.md#documentation-development) section of the Development Guide
+
+---
+
 ## Release Process (maintainer only)
 
 1. Update version in `lib/cov_loupe/version.rb`

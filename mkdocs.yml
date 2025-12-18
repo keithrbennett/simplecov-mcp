@@ -1,0 +1,95 @@
+site_name: CovLoupe Documentation
+site_description: MCP server, command line utility, and library for Ruby SimpleCov test coverage analysis
+site_url: https://github.com/keithrbennett/cov-loupe
+repo_url: https://github.com/keithrbennett/cov-loupe
+repo_name: keithrbennett/cov-loupe
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - awesome-pages
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: user/INSTALLATION.md
+      - Quick Start: user/CLI_USAGE.md
+      - Examples: user/EXAMPLES.md
+  - User Guide:
+      - CLI Usage: user/CLI_USAGE.md
+      - MCP Integration: user/MCP_INTEGRATION.md
+      - Library API: user/LIBRARY_API.md
+      - Advanced Usage: user/ADVANCED_USAGE.md
+      - Error Handling: user/ERROR_HANDLING.md
+      - Troubleshooting: user/TROUBLESHOOTING.md
+      - CLI Fallback for LLMs: user/CLI_FALLBACK_FOR_LLMS.md
+      - Codex Workaround: user/CODEX_ENV_VAR_WORKAROUND.md
+  - Migrations:
+      - Migrating to v4: user/migrations/MIGRATING_TO_V4.md
+      - Migrating to v3: user/migrations/MIGRATING_TO_V3.md
+      - Migrating to v2: user/migrations/MIGRATING_TO_V2.md
+  - Prompt Library:
+      - Overview: user/prompts/README.md
+      - Rails Coverage Analysis: user/prompts/rails-coverage-analysis-prompt.md
+      - Non-Web Coverage Analysis: user/prompts/non-web-coverage-analysis-prompt.md
+      - Use CLI Not MCP: user/prompts/use-cli-not-mcp-prompt.md
+  - Developer Guide:
+      - Architecture: dev/ARCHITECTURE.md
+      - Development: dev/DEVELOPMENT.md
+      - Design Rationale: dev/DESIGN_RATIONALE.md
+      - Branch Coverage: dev/BRANCH_ONLY_COVERAGE.md
+      - Releasing: dev/RELEASING.md
+      - Architecture Decisions: dev/arch-decisions/README.md
+      - Presentations: dev/presentations/cov-loupe-presentation.md
+  - Contributing: CONTRIBUTING.md
+  - Code of Conduct: CODE_OF_CONDUCT.md
+  - Release Notes: RELEASE_NOTES.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/keithrbennett/cov-loupe
