@@ -1,6 +1,6 @@
 # Library API Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 Use this gem programmatically to inspect coverage without running the CLI or MCP server. The primary entry point is `CovLoupe::CoverageModel`.
 
@@ -11,7 +11,6 @@ Use this gem programmatically to inspect coverage without running the CLI or MCP
 - [Return Types](#return-types)
 - [Error Handling](#error-handling)
 - [Advanced Recipes](#advanced-recipes)
-- [API Stability](#api-stability)
 
 ## Quick Start
 

@@ -1,6 +1,6 @@
 # CLI Fallback for LLMs
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 When the MCP server integration isn't working or available, LLMs can use the `cov-loupe` CLI directly with the `-fJ` flag to get the same coverage data that the MCP tools provide.
 

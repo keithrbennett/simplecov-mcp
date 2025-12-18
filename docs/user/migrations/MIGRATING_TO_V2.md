@@ -1,6 +1,6 @@
 # V2.0 Breaking Changes and Migration Guide
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 This document describes all breaking changes introduced in version 2.0.0 of simplecov-mcp. These changes improve consistency, clarity, and alignment with Ruby conventions.
 
@@ -11,17 +11,10 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 ## Table of Contents
 
 - [Command Line Interface Changes](#command-line-interface-changes)
-  - [Options Must Precede Subcommands](#options-must-precede-subcommands)
-  - [--stale Renamed to --staleness](#--stale-renamed-to---staleness)
-  - [--source-context Renamed to --context-lines](#--source-context-renamed-to---context-lines)
-  - [--source Now Requires Explicit Mode](#--source-now-requires-explicit-mode)
-  - [--json Replaced with --format](#--json-replaced-with---format)
   - [Error Mode Values Changed](#error-mode-values-changed)
-  - [--success-predicate Replaced with validate Subcommand](#--success-predicate-replaced-with-validate-subcommand)
   - [Default Sort Order Changed](#default-sort-order-changed)
 - [MCP Tool Changes](#mcp-tool-changes)
   - [stale Parameter Renamed to staleness](#stale-parameter-renamed-to-staleness)
-  - [Error Mode Values Changed](#error-mode-values-changed-1)
   - [MCP Tool Arguments Use Symbols](#mcp-tool-arguments-use-symbols)
 - [Ruby API Changes](#ruby-api-changes)
   - [CLIConfig Renamed to AppConfig](#cliconfig-renamed-to-appconfig)
@@ -456,14 +449,14 @@ export COV_LOUPE_OPTS="--staleness error --format json"
 
 If you encounter issues migrating to v2.0:
 
-1. Check the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide
-2. Review the [CLI_USAGE.md](CLI_USAGE.md) for complete CLI reference
-3. See [MCP_INTEGRATION.md](MCP_INTEGRATION.md) for MCP tool documentation
+1. Check the [Troubleshooting](../TROUBLESHOOTING.md) guide
+2. Review the [CLI Usage](../CLI_USAGE.md) for complete CLI reference
+3. See [MCP Integration](../MCP_INTEGRATION.md) for MCP tool documentation
 4. Open an issue at https://github.com/keithrbennett/simplecov-mcp/issues
 
 ---
 
 **See also:**
-- [RELEASE_NOTES.md](../../RELEASE_NOTES.md) - Full release notes with new features
-- [CLI_USAGE.md](CLI_USAGE.md) - Complete CLI reference
-- [MCP_INTEGRATION.md](MCP_INTEGRATION.md) - MCP tool reference
+- [RELEASE_NOTES.md](../../release_notes.md) - Full release notes with new features
+- [CLI Usage](../CLI_USAGE.md) - Complete CLI reference
+- [MCP Integration](../MCP_INTEGRATION.md) - MCP tool reference

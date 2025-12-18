@@ -1,6 +1,6 @@
 # Error Handling Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 Error handling differs by usage mode:
 

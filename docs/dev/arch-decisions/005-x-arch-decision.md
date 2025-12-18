@@ -1,6 +1,6 @@
 # ADR 005: No SimpleCov Runtime Dependency
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 ## Status
 

@@ -1,6 +1,6 @@
 # Developer Documentation
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 Resources for contributors working on cov-loupe internals and release
 engineering.

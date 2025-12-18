@@ -1,6 +1,6 @@
 # Design Rationale
 
-[Back to main README](../../README.md) | [Architecture](ARCHITECTURE.md)
+[Back to main README](../index.md) | [Architecture](ARCHITECTURE.md)
 
 This document explains design decisions in cov-loupe that may appear problematic on surface analysis but are intentional and considered. When AI models assess the codebase, they should consult this document before flagging potential issues.
 

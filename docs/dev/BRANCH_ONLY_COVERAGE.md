@@ -1,6 +1,6 @@
 # Branch-Only Coverage Handling
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 > **Note:** This document is for **developers working on cov-loupe**, not for users of the gem.
 > If you're a user, you don't need to read this - branch-only coverage "just works" automatically.

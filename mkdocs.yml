@@ -4,6 +4,9 @@ site_url: https://keithrbennett.github.io/cov-loupe/
 repo_url: https://github.com/keithrbennett/cov-loupe
 repo_name: keithrbennett/cov-loupe
 
+exclude_docs: |
+  fixtures/
+
 theme:
   name: material
   palette:
@@ -36,9 +39,6 @@ theme:
 plugins:
   - search
 
-hooks:
-  - hooks/fix_readme_links.py
-
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -64,6 +64,7 @@ nav:
       - Quick Start: QUICKSTART.md
       - Examples: user/EXAMPLES.md
   - User Guide:
+      - Overview: user/README.md
       - CLI Usage: user/CLI_USAGE.md
       - MCP Integration: user/MCP_INTEGRATION.md
       - Library API: user/LIBRARY_API.md
@@ -73,6 +74,7 @@ nav:
       - CLI Fallback for LLMs: user/CLI_FALLBACK_FOR_LLMS.md
       - Codex Workaround: user/CODEX_ENV_VAR_WORKAROUND.md
   - Migrations:
+      - Overview: user/migrations/README.md
       - Migrating to v4: user/migrations/MIGRATING_TO_V4.md
       - Migrating to v3: user/migrations/MIGRATING_TO_V3.md
       - Migrating to v2: user/migrations/MIGRATING_TO_V2.md
@@ -82,16 +84,24 @@ nav:
       - Non-Web Coverage Analysis: user/prompts/non-web-coverage-analysis-prompt.md
       - Use CLI Not MCP: user/prompts/use-cli-not-mcp-prompt.md
   - Developer Guide:
+      - Overview: dev/README.md
       - Architecture: dev/ARCHITECTURE.md
       - Development: dev/DEVELOPMENT.md
       - Design Rationale: dev/DESIGN_RATIONALE.md
       - Branch Coverage: dev/BRANCH_ONLY_COVERAGE.md
       - Releasing: dev/RELEASING.md
-      - Architecture Decisions: dev/arch-decisions/README.md
+      - Architecture Decisions:
+          - Overview: dev/arch-decisions/README.md
+          - ADR 001 - Dual-Mode Operation: dev/arch-decisions/001-x-arch-decision.md
+          - ADR 002 - Direct Coverage Reading: dev/arch-decisions/002-x-arch-decision.md
+          - ADR 003 - Tool Organization: dev/arch-decisions/003-x-arch-decision.md
+          - ADR 004 - Staleness Detection: dev/arch-decisions/004-x-arch-decision.md
+          - ADR 005 - Error Handling: dev/arch-decisions/005-x-arch-decision.md
       - Presentations: dev/presentations/cov-loupe-presentation.md
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
   - Release Notes: release_notes.md
+  - License: license.md
 
 extra:
   social:

@@ -1,6 +1,6 @@
 # Release Process
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 This document provides a checklist for releasing new versions of cov-loupe.
 

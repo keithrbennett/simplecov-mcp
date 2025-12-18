@@ -1,6 +1,6 @@
 # Use the 'cov-loupe' application as a command line utility.
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 The `cov-loupe` application provides precise test coverage information for your Ruby application.
 

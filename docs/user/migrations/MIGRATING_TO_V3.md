@@ -1,6 +1,6 @@
 # V3.0 Breaking Changes Guide
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 This document describes the breaking changes introduced in version 3.0.0, which primarily involve the renaming of the gem from `simplecov-mcp` to `cov-loupe`. These changes affect the gem name, executable, Ruby API, and configuration.
 
@@ -66,7 +66,7 @@ To upgrade from `simplecov-mcp` (v2.x) to `cov-loupe` (v3.x), follow these steps
 
 If you encounter issues migrating to v3.0:
 
-1.  Check the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) guide.
-2.  Review the [CLI_USAGE.md](CLI_USAGE.md) for complete CLI reference.
-3.  See [MCP_INTEGRATION.md](MCP_INTEGRATION.md) for MCP tool documentation.
+1.  Check the [Troubleshooting](../TROUBLESHOOTING.md) guide.
+2.  Review the [CLI Usage](../CLI_USAGE.md) for complete CLI reference.
+3.  See [MCP Integration](../MCP_INTEGRATION.md) for MCP tool documentation.
 4.  Open an issue at https://github.com/keithrbennett/cov-loupe/issues.

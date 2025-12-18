@@ -1,13 +1,12 @@
 # Troubleshooting Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 ## Table of Contents
 
 - [Running Issues](#running-issues)
 - [Coverage Data Issues](#coverage-data-issues)
 - [MCP Server Issues](#mcp-server-issues)
-- [Development Issues](#development-issues)
 - [Diagnostic Commands](#diagnostic-commands)
 
 ## Running Issues

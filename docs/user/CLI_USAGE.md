@@ -1,6 +1,6 @@
 # CLI Usage Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 Complete reference for using cov-loupe from the command line.
 
@@ -328,7 +328,7 @@ These options work with all subcommands.
 
 Path to the `.resultset.json` file or a directory containing it.
 
-For a detailed explanation of how to configure the resultset location, including the default search path, environment variables, and MCP configuration, see the [Configuring the Resultset](../README.md#configuring-the-resultset) section in the main README.
+For a detailed explanation of how to configure the resultset location, including the default search path, environment variables, and MCP configuration, see the [Configuring the Resultset](../index.md#configuring-the-resultset) section in the main README.
 
 ### `-R, --root PATH`
 
@@ -536,7 +536,7 @@ clp -r coverage validate -i '->(m) { m.list.size > 0 }'
 end
 ```
 
-See [examples/success_predicates/](../../examples/success_predicates/) for more examples.
+See [examples/success_predicates/](https://github.com/keithrbennett/cov-loupe/tree/main/examples/success_predicates/) for more examples.
 
 ## Output Formats
 

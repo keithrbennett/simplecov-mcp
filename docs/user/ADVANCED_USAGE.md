@@ -1,6 +1,6 @@
 # Advanced Usage Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 > Examples use `clp`, an alias pointed at the demo fixture with partial coverage:
 > 
@@ -11,12 +11,12 @@
 ## Table of Contents
 
 - [Advanced MCP Integration](#advanced-mcp-integration)
-- [Staleness Detection & Validation](#staleness-detection--validation)
+- [Staleness Detection & Validation](#staleness-detection-validation)
 - [Advanced Path Resolution](#advanced-path-resolution)
 - [Error Handling Strategies](#error-handling-strategies)
 - [Custom Ruby Integration](#custom-ruby-integration)
 - [CI/CD Integration](#cicd-integration)
-- [Advanced Filtering & Glob Patterns](#advanced-filtering--glob-patterns)
+- [Advanced Filtering & Glob Patterns](#advanced-filtering-glob-patterns)
 - [Performance Optimization](#performance-optimization)
 - [Custom Output Processing](#custom-output-processing)
 
@@ -265,7 +265,7 @@ cli = CovLoupe::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 ### Building Custom Coverage Policies
 
 Use the `validate` subcommand to enforce custom coverage policies in CI/CD. 
-Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
+Example predicates are in [`examples/success_predicates/`](https://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/main/examples/success_predicates/).
 
 The predicate can be any Ruby object that responds to `call` and accepts a `CoverageModel`
 as its argument. This is usually a lambda (proc), but it can also be a nonlambda proc, a class,
@@ -338,7 +338,7 @@ CoveragePolicy.new
 - `1` - Predicate returned falsy (fail)
 - `2` - Predicate raised an error
 
-See [examples/success_predicates/README.md](../../examples/success_predicates/README.md) for more examples.
+See [examples/success_predicates/README.md](https://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/main/examples/success_predicates/README.md) for more examples.
 
 ### Path Relativization
 

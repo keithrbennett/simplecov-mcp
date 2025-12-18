@@ -1,11 +1,11 @@
 # MCP Integration Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 ## Table of Contents
 
 - [Setup by Client](#setup-by-client)
-- [Available MCP Tools](#available-mcp-tools)
+- [Available MCP Tools](#available-mcp-tools-functions)
 - [Testing Your Setup](#testing-your-setup)
 - [Troubleshooting](#troubleshooting)
 
@@ -152,7 +152,7 @@ All file-specific tools accept these parameters in the JSON request:
 
 - `path` (required for file tools) - File path (relative or absolute)
 - `root` (optional) - Project root directory (default: `.`)
-- `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../README.md#configuring-the-resultset) for details.
+- `resultset` (optional) - Path to the `.resultset.json` file. See [Configuring the Resultset](../index.md#configuring-the-resultset) for details.
 - `raise_on_stale` (optional) - Raise error on staleness: `false` (default) or `true`
 - `error_mode` (optional) - Error handling: `"off"`, `"log"` (default), `"debug"` (overrides server-level setting)
 

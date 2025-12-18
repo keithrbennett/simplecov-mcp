@@ -1,6 +1,6 @@
 # ADR 002: Context-Aware Error Handling Strategy
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 ## Status
 

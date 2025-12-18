@@ -1,6 +1,6 @@
 # V4.0 Breaking Changes Guide
 
-[Back to main README](../../README.md)
+[Back to main README](../../index.md)
 
 This document describes the breaking changes introduced in version 4.0.0. These changes affect the CLI flags for mode selection and staleness checks, as well as a method rename in the Ruby API.
 

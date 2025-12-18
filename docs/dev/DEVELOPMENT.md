@@ -1,6 +1,6 @@
 # Development Guide
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 > **Note:** Commands like `cov-loupe` assume the gem is installed globally. If not, substitute `bundle exec exe/cov-loupe`.
 
@@ -173,7 +173,7 @@ mkdocs serve
 
 ## Troubleshooting
 
-**RVM + Codex macOS:** Currently not possible for Codex to run rspec when running on macOS with rvm-managed rubies - see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+**RVM + Codex macOS:** Currently not possible for Codex to run rspec when running on macOS with rvm-managed rubies - see [Troubleshooting](../user/TROUBLESHOOTING.md)
 
 **MCP server testing:**
 ```sh

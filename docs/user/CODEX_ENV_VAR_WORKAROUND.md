@@ -1,6 +1,6 @@
 # Codex MCP environment variable workaround
 
-[Back to main README](../README.md)
+[Back to main README](../index.md)
 
 ## Issue
 
