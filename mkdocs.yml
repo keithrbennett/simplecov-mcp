@@ -1,6 +1,6 @@
 site_name: CovLoupe Documentation
 site_description: MCP server, command line utility, and library for Ruby SimpleCov test coverage analysis
-site_url: https://github.com/keithrbennett/cov-loupe
+site_url: https://keithrbennett.github.io/cov-loupe/
 repo_url: https://github.com/keithrbennett/cov-loupe
 repo_name: keithrbennett/cov-loupe
 
@@ -35,7 +35,6 @@ theme:
 
 plugins:
   - search
-  - awesome-pages
 
 markdown_extensions:
   - admonition
@@ -44,9 +43,11 @@ markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path:
+        - docs
+        - .  # Allow including files from root directory
   - pymdownx.tabbed:
-      alternate_style: true
   - tables
   - attr_list
   - md_in_html
@@ -57,7 +58,7 @@ nav:
   - Home: index.md
   - Getting Started:
       - Installation: user/INSTALLATION.md
-      - Quick Start: user/CLI_USAGE.md
+      - Quick Start: QUICKSTART.md
       - Examples: user/EXAMPLES.md
   - User Guide:
       - CLI Usage: user/CLI_USAGE.md
@@ -85,9 +86,9 @@ nav:
       - Releasing: dev/RELEASING.md
       - Architecture Decisions: dev/arch-decisions/README.md
       - Presentations: dev/presentations/cov-loupe-presentation.md
-  - Contributing: CONTRIBUTING.md
-  - Code of Conduct: CODE_OF_CONDUCT.md
-  - Release Notes: RELEASE_NOTES.md
+  - Contributing: contributing.md
+  - Code of Conduct: code_of_conduct.md
+  - Release Notes: release_notes.md
 
 extra:
   social:

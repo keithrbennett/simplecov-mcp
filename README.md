@@ -4,7 +4,7 @@
 </h1>
 
 <p style="text-align:center; margin-bottom:-36px;">
-  <img src="dev/images/cov-loupe-logo.png" alt="CovLoupe logo" width="560">
+  <img src="https://raw.githubusercontent.com/keithrbennett/cov-loupe/main/dev/images/cov-loupe-logo.png" alt="CovLoupe logo" width="560">
 </p>
 
 <p style="text-align:center;">
@@ -53,7 +53,7 @@ gem install cov-loupe
 
 ### Upgrading
 
-If you are upgrading from a previous version, please refer to the [Migration Guides](docs/user/migrations).
+If you are upgrading from a previous version, please refer to the [Migration Guides](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/migrations).
 
 ### Generate Coverage Data
 
@@ -98,7 +98,7 @@ summary = model.summary_for("lib/cov_loupe/model.rb")
 ```
 
 **MCP Server:**
-See [MCP Integration Guide](docs/user/MCP_INTEGRATION.md) for AI assistant setup.
+See [MCP Integration Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/MCP_INTEGRATION.md) for AI assistant setup.
 
 ## Multi-Suite Coverage Merging
 
@@ -117,30 +117,30 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 ## Documentation
 
 **User Guides:**
-- [Quick Start](docs/QUICKSTART.md) - Get up and running in 3 steps
-- [User Docs Overview](docs/user/README.md) - Map of all end-user guides
-- [Installation](docs/user/INSTALLATION.md) - Setup for different environments
-- [CLI Usage](docs/user/CLI_USAGE.md) - Command-line reference
-- [Examples](docs/user/EXAMPLES.md) - Common use cases
-- [Advanced Usage](docs/user/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
-- [Library API](docs/user/LIBRARY_API.md) - Ruby API documentation
-- [Error Handling](docs/user/ERROR_HANDLING.md) - Error modes and exceptions
-- [MCP Integration](docs/user/MCP_INTEGRATION.md) - AI assistant configuration
-- [Troubleshooting](docs/user/TROUBLESHOOTING.md) - Common issues
+- [Quick Start](https://github.com/keithrbennett/cov-loupe/blob/main/docs/QUICKSTART.md) - Get up and running in 3 steps
+- [User Docs Overview](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/README.md) - Map of all end-user guides
+- [Installation](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/INSTALLATION.md) - Setup for different environments
+- [CLI Usage](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CLI_USAGE.md) - Command-line reference
+- [Examples](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/EXAMPLES.md) - Common use cases
+- [Advanced Usage](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/ADVANCED_USAGE.md) - Staleness detection, error modes, path resolution
+- [Library API](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/LIBRARY_API.md) - Ruby API documentation
+- [Error Handling](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/ERROR_HANDLING.md) - Error modes and exceptions
+- [MCP Integration](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/MCP_INTEGRATION.md) - AI assistant configuration
+- [Troubleshooting](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/TROUBLESHOOTING.md) - Common issues
 
 **Special Topics & Prompts:**
-- [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
-- [Codex Env Var Workaround](docs/user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
-- [Sample MCP Prompts](docs/user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
-- [Migration Guides](docs/user/migrations) - [Migrate to v4](docs/user/migrations/MIGRATING_TO_V4.md) | [Migrate to v3](docs/user/migrations/MIGRATING_TO_V3.md) | [Migrate to v2](docs/user/migrations/MIGRATING_TO_V2.md)
+- [CLI Fallback for LLMs](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
+- [Codex Env Var Workaround](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
+- [Sample MCP Prompts](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
+- [Migration Guides](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/migrations) - [Migrate to v4](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/migrations/MIGRATING_TO_V4.md) | [Migrate to v3](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/migrations/MIGRATING_TO_V3.md) | [Migrate to v2](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/migrations/MIGRATING_TO_V2.md)
 
 **Developer Docs:**
-- [Developer Docs Overview](docs/dev/README.md) - Entry point for contributors
-- [Architecture](docs/dev/ARCHITECTURE.md) - Design and internals
-- [Branch Coverage](docs/dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
-- [Development Guide](docs/dev/DEVELOPMENT.md) - Local dev workflow
-- [Releasing](docs/dev/RELEASING.md) - Release checklist
-- [Architecture Decision Records](docs/dev/arch-decisions/README.md) - Design history
+- [Developer Docs Overview](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/README.md) - Entry point for contributors
+- [Architecture](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/ARCHITECTURE.md) - Design and internals
+- [Branch Coverage](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
+- [Development Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/DEVELOPMENT.md) - Local dev workflow
+- [Releasing](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/RELEASING.md) - Release checklist
+- [Architecture Decision Records](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/arch-decisions/README.md) - Design history
 
 ## Requirements
 
@@ -166,7 +166,7 @@ export COV_LOUPE_OPTS="-r /path/to/your/coverage"
 
 **MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `raise_on_stale: false`, etc.).
 
-See [CLI Usage Guide](docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
+See [CLI Usage Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CLI_USAGE.md#-r---resultset-path) for complete details.
 
 
 
@@ -263,7 +263,7 @@ Use `--raise-on-stale true` (or `-S true`) to turn these warnings into hard fail
 
 Run `rexe -h` to see all available options, or visit the [rexe project page](https://github.com/keithrbennett/rexe) for more examples.
 
-For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md).
+For comprehensive JSON processing examples, see [docs/user/EXAMPLES.md](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/EXAMPLES.md).
 
 ### CI/CD Integration
 
@@ -324,18 +324,18 @@ cov-loupe --raise-on-stale yes # enforce stale coverage failures
 **MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `list_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, `version_tool`
 
 📖 **See also:**
-- [CLI Usage Guide](docs/user/CLI_USAGE.md) - Complete command-line reference
-- [MCP Integration Guide](docs/user/MCP_INTEGRATION.md#available-mcp-tools) - MCP tools documentation
+- [CLI Usage Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CLI_USAGE.md) - Complete command-line reference
+- [MCP Integration Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/MCP_INTEGRATION.md#available-mcp-tools) - MCP tools documentation
 
 ## Troubleshooting
 
-- **"command not found"** - See [Installation Guide](docs/user/INSTALLATION.md#path-configuration)
+- **"command not found"** - See [Installation Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/INSTALLATION.md#path-configuration)
 - **"cannot load such file -- mcp"** - Requires Ruby >= 3.2. Verify: `ruby -v`
 - **"Could not find .resultset.json"** - Ensure SimpleCov is configured in your test suite, then run tests to generate coverage. See the [Configuring the Resultset](#configuring-the-resultset) section for more details.
-- **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](docs/user/MCP_INTEGRATION.md#troubleshooting)
+- **MCP server won't connect** - Check PATH and Ruby version in [MCP Troubleshooting](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/MCP_INTEGRATION.md#troubleshooting)
 - **RVM in sandboxed environments (macOS)** - RVM requires `/bin/ps` which may be blocked by sandbox restrictions. Use rbenv or chruby instead.
 
-For more detailed help, see the full [Troubleshooting Guide](docs/user/TROUBLESHOOTING.md).
+For more detailed help, see the full [Troubleshooting Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/TROUBLESHOOTING.md).
 
 ## Development
 
@@ -356,7 +356,7 @@ gem build cov-loupe.gemspec
 gem install cov-loupe-*.gem
 ```
 
-See [docs/dev/DEVELOPMENT.md](docs/dev/DEVELOPMENT.md) for more.
+See [docs/dev/DEVELOPMENT.md](https://github.com/keithrbennett/cov-loupe/blob/main/docs/dev/DEVELOPMENT.md) for more.
 
 ## SimpleCov Dependency
 
@@ -395,7 +395,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 📦 **Install:** `gem install cov-loupe`
 
-📖 **Read:** [CLI Usage Guide](docs/user/CLI_USAGE.md) | [MCP Integration](docs/user/MCP_INTEGRATION.md)
+📖 **Read:** [CLI Usage Guide](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/CLI_USAGE.md) | [MCP Integration](https://github.com/keithrbennett/cov-loupe/blob/main/docs/user/MCP_INTEGRATION.md)
 
 🐛 **Report issues:** [GitHub Issues](https://github.com/keithrbennett/cov-loupe/issues)
 
