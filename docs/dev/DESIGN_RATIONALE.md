@@ -22,6 +22,43 @@ The `validate` command accepts Ruby code (via `--inline` or from a file) and exe
 
 The security model assumes the developer controls their workspace and the code they execute. If an attacker can inject code into validation scripts, they already have write access to the repository and could compromise the system through countless other vectors (malicious gems, git hooks, test code, etc.).
 
+### File System Race Conditions
+
+Automated security analysis tools may flag potential race conditions between staleness checks (checking file modification time and line count) and subsequent file reads.
+
+**Why this is acceptable:**
+
+1. **Stateless analysis tool** - cov-loupe performs read-only analysis of SimpleCov coverage snapshots. It does not modify source files or maintain state across invocations.
+
+2. **Development tool context** - This tool runs in development and CI environments where:
+   - The coverage snapshot (`.resultset.json`) is static once generated
+   - Source files are under version control and not randomly modified during analysis
+   - Any race condition would at worst result in a stale data warning, not a security vulnerability
+
+3. **Acceptable failure mode** - If a source file is modified between the staleness check and display, the worst outcome is showing slightly stale data. This is an acceptable tradeoff for a coverage inspection tool.
+
+4. **No security impact** - The tool never writes to files, executes code from analyzed files, or makes security decisions based on coverage data.
+
+For a production system handling untrusted input or making security-critical decisions, race condition handling would be essential. For a development tool analyzing static coverage snapshots, the complexity of atomic file operations is not justified.
+
+### No Rate Limiting on MCP Server
+
+The MCP server has no request throttling or rate limiting, which automated security scanners may flag as a denial-of-service vulnerability.
+
+**Why this is acceptable:**
+
+1. **Local-only execution** - The MCP server runs as a local process, not a network service. It communicates over stdio (standard input/output) with a single trusted client (the AI coding assistant).
+
+2. **Process-level isolation** - Each MCP server instance is a separate process spawned by the client. Resource exhaustion affects only that process, not a shared service.
+
+3. **Trusted client** - The client (AI assistant) is a trusted local application, not untrusted network traffic. Rate limiting protects against malicious actors, which don't exist in this threat model.
+
+4. **No network exposure** - The MCP protocol uses stdio transport, not HTTP/TCP. There is no network socket that external attackers could abuse.
+
+5. **Development tool** - This is a coverage analysis tool for developers, not a production API serving external users.
+
+If this were a network-accessible service, rate limiting would be essential. For a local stdio-based tool with a trusted client, it adds complexity without security benefit.
+
 ## Known Issue: Inefficient Staleness Checks and Timestamp Handling
 
 - **Description:** Coverage timestamps are collapsed to a single max value for all suites (handled when `CovLoupe::CoverageModel` loads resultsets via `ResultsetLoader`), and staleness checks reread each file to count lines (implemented in `CovLoupe::StalenessChecker`).  
@@ -47,6 +84,90 @@ cov-loupe loads the entire SimpleCov resultset into memory for analysis. This me
 4. **Practical upper bound** – even large Ruby projects (Rails, GitLab) generate resultsets in the tens of megabytes. Modern machines have gigabytes of RAM. The constraint is theoretical rather than practical for the intended audience.
 
 If a project grows large enough that coverage analysis becomes a memory bottleneck, it likely has deeper problems (test suite organization, monolith vs services architecture) that should be addressed at that level rather than by adding complexity to a coverage inspection tool.
+
+## Code Quality & Style
+
+### RuboCop Metrics Cops Disabled
+
+All RuboCop Metrics cops (AbcSize, BlockLength, ClassLength, CyclomaticComplexity, MethodLength, ModuleLength, ParameterLists, PerceivedComplexity, BlockNesting) are intentionally disabled in `.rubocop.yml`.
+
+**Why this is acceptable:**
+
+1. **Arbitrary thresholds don't account for domain complexity** – Some problems are inherently complex. SimpleCov coverage analysis involves edge cases (staleness checking, path resolution, multi-suite merging) that require comprehensive logic. Artificial method splitting can scatter cohesive logic and reduce clarity.
+
+2. **Comprehensive error handling adds necessary lines** – This project prioritizes reliability through extensive error handling with context-rich messages. Error handling code is inherently verbose but critical for user experience across three modes (CLI, library, MCP).
+
+3. **Quality maintained through other means** – The codebase achieves:
+   - 100% line coverage (1815/1815 lines)
+   - 94% branch coverage
+   - 0 RuboCop violations (all non-Metrics cops)
+   - Comprehensive code review
+   - Clear inline documentation for complex logic
+   - Voluntary file size restraint (most files < 200 lines)
+
+4. **Readability over arbitrary limits** – The project values one clear 40-line method over four fragmented 10-line methods when the former better expresses intent. Key examples:
+   - `CoverageModel#list` (48 lines) coordinates filtering, sorting, and staleness checking
+   - `StalenessChecker#compute_file_staleness_details` (30 lines) handles complex edge cases with clear documentation
+
+**Evidence:** Manual review shows appropriate complexity for domain logic, with no god objects or unclear methods.
+
+### RuboCop Cache and Sandboxed Environments
+
+RuboCop may crash in sandboxed environments (such as AI coding assistants with file system restrictions) when attempting to write cache files:
+
+```
+Read-only file system @ rb_sysopen
+  → /home/user/.cache/rubocop_cache/...
+  → Parallel.work_in_processes
+```
+
+**Why this happens:**
+
+RuboCop runs in parallel mode by default, forking worker processes via the `parallel` gem. Each worker attempts to cache analysis results to `~/.cache/rubocop_cache/`. When sandbox restrictions prevent writes outside the project directory, the cache write fails and crashes the analysis.
+
+**Why this is not a code quality issue:**
+
+Running RuboCop with `--cache false` completes successfully with **0 violations**:
+```
+164 files inspected, no offenses detected
+```
+
+The codebase has perfect RuboCop compliance. The crash is purely environmental.
+
+**Workaround:**
+
+Use `bundle exec rubocop --cache false` in sandboxed environments. This adds approximately 5 seconds to execution time (3s → 8s) but ensures successful analysis. Cache performance benefits are modest for this project size, making the tradeoff acceptable.
+
+**Why caching is not disabled by default:**
+
+The 3-second speedup is valuable for frequent local development. Developers in non-sandboxed environments (the common case) benefit from faster linting. The issue only affects specific sandboxed AI tools and CI environments, which can use the `--cache false` flag when needed.
+
+## Documentation Structure
+
+### MkDocs Include-Markdown Stubs
+
+The files `docs/contributing.md` and `docs/code_of_conduct.md` appear to be minimal 46-byte stubs when examined directly. AI code analysis tools often flag these as missing or incomplete documentation.
+
+**Why this is not an issue:**
+
+These files use MkDocs' `include-markdown` plugin to pull in comprehensive documentation from the repository root:
+
+- `docs/contributing.md` → `{% include-markdown "../CONTRIBUTING.md" %}`
+- `docs/code_of_conduct.md` → `{% include-markdown "../CODE_OF_CONDUCT.md" %}`
+
+The actual comprehensive documentation exists at:
+- `CONTRIBUTING.md` (103 lines) - Full contributing guide with PR workflow, development setup, testing requirements, and release process
+- `CODE_OF_CONDUCT.md` (61 lines) - Complete Contributor Covenant v2.1
+
+**Why this pattern is used:**
+
+1. **Single source of truth** - The actual content lives in standard locations (`CONTRIBUTING.md` and `CODE_OF_CONDUCT.md` at repository root) where GitHub, developers, and tools expect to find them.
+
+2. **Documentation site integration** - MkDocs automatically includes these files in the generated documentation website without duplication or manual synchronization.
+
+3. **Standard practice** - This is the recommended approach in the MkDocs documentation for including existing project files in the documentation site.
+
+AI tools analyzing file sizes directly will see 46-byte stubs, but the documentation is complete and properly structured.
 
 ---
 

@@ -189,11 +189,27 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 - `COV_LOUPE_OPTS` can set default CLI flags (command-line arguments still win).
 - CLI vs MCP mode auto-detects based on TTY; use `-F mcp`/`--force-mode mcp` if you need to bypass MCP auto-start during manual runs.
 
-## Rucocop Linting
+## Rubocop Linting
 
-Rubocop is used to enforce consistent code styling and best programming practices. 
-Write code consistent with Rubocop configured rules, e.g. indentation and use of 
+Rubocop is used to enforce consistent code styling and best programming practices.
+Write code consistent with Rubocop configured rules, e.g. indentation and use of
 `it_behaves_like` instead of `include_examples` in RSpec.
+
+### Sandbox Environments
+
+If running RuboCop in a sandboxed environment (e.g., AI coding assistants with file system restrictions), you may encounter cache write failures:
+
+```
+Read-only file system @ rb_sysopen
+  → /home/user/.cache/rubocop_cache/...
+```
+
+**Workaround:** Use the `--cache false` flag:
+```sh
+bundle exec rubocop --cache false
+```
+
+This disables caching and adds approximately 5 seconds to execution time (3s → 8s) but ensures successful analysis in sandboxed environments. See [docs/dev/DESIGN_RATIONALE.md](docs/dev/DESIGN_RATIONALE.md) for details on why caching is enabled by default.
 
 ## Documentation
 - `README.md` – primary documentation for installation, CLI usage, MCP integration, troubleshooting, and resultset configuration.
