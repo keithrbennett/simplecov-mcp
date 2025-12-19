@@ -8,7 +8,7 @@ I need you to test that the intention of a code change was accomplished successf
 - conforms to best practices
 - as simple as possible
 - is not more easily accomplished using tools available that might not have been considered, especially since coding tools do not generally search the web
-- is adequately tested (use the cov-loupe MCP server for test coverage)
+- is adequately tested (for Ruby Simplecov coverage, use the cov-loupe MCP server)
 
 ### Parameters (I Will Give You...)
 
@@ -25,19 +25,22 @@ I need you to test that the intention of a code change was accomplished successf
 
 If I do not give you the arguments in this prompt, ask me for them:
 
-"Sure, I can verify the code changes for you. I will need you to give me a) 
-the commit, branch, etc. for me to use as the starting point of the comparison, and
-b) a description of the code change intention to verify."
+----
+
+> Sure, I can verify the code changes for you. I will need you to give me:
+> - the commit, branch, etc. for me to use as the starting point of the comparison
+> - a description of the code change intention to verify
+----
 
 ### Your Response
 
-Examine the diff thoroughly and be balanced and fair about what is right and what is wrong about the code changes.
+Examine the diff thoroughly. In your response, be balanced, fair, organized, and thorough.
 
 Write your response as markdown text and save it to a file whose name is:
 
-* today's date/time in YYYY-MM-DD-hh-mm format +
-* '-code-review-#{change-intention}-' +
-* your name (e.g. 'codex, claude, gemini, etc.)
+- today's date/time in YYYY-MM-DD-hh-mm format +
+- your name (e.g. 'codex, claude, gemini, etc.)
+- "-code-review-#{change_intention_phrase}.md"
 
 
 
