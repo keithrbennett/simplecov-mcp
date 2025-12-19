@@ -16,7 +16,7 @@ Before you begin the report:
 * If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
 
 Write your analysis in a Markdown file whose name is:
-* today's date in YYYY-MM-DD format +
+* today's date in UTC YYYY-MM-DD-hh-mm format +
 * '-state-of-the-code-base-' + 
 * your name (e.g. 'codex, claude, gemini, zai)
 
