@@ -8,13 +8,16 @@ RSpec.describe CovLoupe::CoverageCLI do
   it 'shows help and exits 0' do
     out, err, status = run_cli_with_status('--help')
     expect(status).to eq(0)
-    expect(out).to match(/Usage:.*cov-loupe/)
-    expect(out).to include(
-      'Repository: https://github.com/keithrbennett/cov-loupe',
-      'Subcommands:'
-    )
-    expect(out).to match(/Version:.*#{CovLoupe::VERSION}/)
     expect(err).to eq('')
+    [
+      %r{Usage:\s+cov-loupe \[options\] \[subcommand\] \[args\]\s+\(default subcommand: list\)},
+      %r{Repository:\s+https://github.com/keithrbennett/cov-loupe},
+      %r{Documentation \(Web\):\s+https://keithrbennett.github.io/cov-loupe/},
+      %r{Documentation \(Local\):\s+},
+      %r{Version:\s+#{CovLoupe::VERSION}}
+    ].each do |pattern|
+      expect(out).to match(pattern)
+    end
   end
 
   shared_examples 'maps error to exit 1 with message' do

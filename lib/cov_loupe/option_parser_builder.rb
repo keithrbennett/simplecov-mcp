@@ -26,11 +26,14 @@ module CovLoupe
     end
 
     private def configure_banner(parser)
+      gem_root = File.expand_path('../..', __dir__)
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
-        Usage:      cov-loupe [options] [subcommand] [args]  (default subcommand: list)
-        Repository: https://github.com/keithrbennett/cov-loupe
-        Version:    #{CovLoupe::VERSION}
+        Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
+        Repository:            https://github.com/keithrbennett/cov-loupe
+        Documentation (Web):   https://keithrbennett.github.io/cov-loupe/
+        Documentation (Local): #{gem_root}/**/*.md
+        Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
 
         BANNER
@@ -96,9 +99,6 @@ module CovLoupe
       end
       parser.on('-h', '--help', 'Show help') do
         puts parser
-        gem_root = File.expand_path('../..', __dir__)
-        puts "\nFor more detailed help, consult README.md and docs/user/**/*.md"
-        puts "in the installed gem at: #{gem_root}"
         exit 0
       end
       parser.on('-l', '--log-file PATH', String,
