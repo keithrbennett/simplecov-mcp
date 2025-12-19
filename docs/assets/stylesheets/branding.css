@@ -1,12 +1,16 @@
+/* Increase logo size */
 .md-header__button.md-logo img,
 .md-header__button.md-logo svg {
-  height: 2.2rem; /* Increased from default ~1.2rem */
+  height: 2.8rem; /* Increased from default */
   width: auto;
 }
 
-@media (max-width: 480px) {
-  .md-header__button.md-logo img,
-  .md-header__button.md-logo svg {
-    height: 1.6rem; /* Keep header compact on tiny screens */
-  }
+/* Adjust header title to accommodate larger logo */
+.md-header__title {
+  margin-left: 0.5rem;
+}
+
+/* Optional: Add a subtle hover effect to the logo */
+.md-header__button.md-logo:hover {
+  opacity: 0.8;
 }
