@@ -3,3 +3,10 @@
   height: 2.2rem; /* Increased from default ~1.2rem */
   width: auto;
 }
+
+@media (max-width: 480px) {
+  .md-header__button.md-logo img,
+  .md-header__button.md-logo svg {
+    height: 1.6rem; /* Keep header compact on tiny screens */
+  }
+}
