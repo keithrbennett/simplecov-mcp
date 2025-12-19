@@ -128,6 +128,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/](https://keithrbennett.github.io/cov-loupe/)**.
 
 **User Guides:**
+
 - [Quick Start](QUICKSTART.md) - Get up and running in 3 steps
 - [User Docs Overview](user/README.md) - Map of all end-user guides
 - [Installation](user/INSTALLATION.md) - Setup for different environments
@@ -140,6 +141,7 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 - [Troubleshooting](user/TROUBLESHOOTING.md) - Common issues
 
 **Special Topics & Prompts:**
+
 - [CLI Fallback for LLMs](user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
 - [Codex Env Var Workaround](user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
 - [Sample MCP Prompts](user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
@@ -149,6 +151,7 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
   - [Migrate to v2](user/migrations/MIGRATING_TO_V2.md)
 
 **Developer Docs:**
+
 - [Developer Docs Overview](dev/README.md) - Entry point for contributors
 - [Architecture](dev/ARCHITECTURE.md) - Design and internals
 - [Branch Coverage](dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
