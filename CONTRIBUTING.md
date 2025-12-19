@@ -1,6 +1,6 @@
 # Contributing to cov-loupe
 
-[Back to main README](index.md)
+[Back to main README](docs/index.md)
 
 Thank you for your interest in contributing! 
 This project welcomes bug reports, improvements, and suggestions that make it more useful and reliable for the Ruby community.
@@ -12,7 +12,7 @@ This project welcomes bug reports, improvements, and suggestions that make it mo
 ### 1. Reporting Issues
 - Check existing issues before opening a new one.  
 - Include clear reproduction steps, expected vs. actual results, and your Ruby version (`ruby -v`) and OS.  
-- Keep discussion technical and respectful — see the [Code of Conduct](code_of_conduct.md).
+- Keep discussion technical and respectful — see the [Code of Conduct](docs/code_of_conduct.md).
 
 ### 2. Submitting Changes
 1. **Fork** the repository on GitHub.  
@@ -70,7 +70,7 @@ pip3 install -r requirements.txt
 mkdocs serve  # View at http://127.0.0.1:8000
 ```
 
-For detailed platform-specific installation instructions (macOS, Linux, Windows) and troubleshooting, see the [Documentation Development](dev/DEVELOPMENT.md#documentation-development) section of the Development Guide
+For detailed platform-specific installation instructions (macOS, Linux, Windows) and troubleshooting, see the [Documentation Development](docs/dev/DEVELOPMENT.md#documentation-development) section of the Development Guide
 
 ---
 
@@ -94,7 +94,7 @@ For detailed platform-specific installation instructions (macOS, Linux, Windows)
 
 ## Code of Conduct
 
-Please review and follow the [Code of Conduct](code_of_conduct.md). 
+Please review and follow the [Code of Conduct](docs/code_of_conduct.md). 
 Instances of unacceptable behavior may be reported through GitHub’s [Report Abuse form](https://github.com/contact/report-abuse).
 
 ---

@@ -1,1 +1,1 @@
---8<-- "CONTRIBUTING.md"
+{% include-markdown "../CONTRIBUTING.md" %}

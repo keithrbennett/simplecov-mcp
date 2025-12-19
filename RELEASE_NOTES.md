@@ -1,6 +1,6 @@
 # Release Notes
 
-[Back to main README](README.md)
+[Back to main README](docs/index.md)
 
 ## v4.0.0 (Breaking)
 
@@ -346,7 +346,7 @@ See `CLAUDE.md`, `AGENTS.md`, and `GEMINI.md` for AI agent integration notes.
 
 ### 🔗 Links
 
-- **Changelog:** [RELEASE_NOTES.md](RELEASE_NOTES.md)
+- **Changelog:** [RELEASE_NOTES.md](docs/release_notes.md)
 - **GitHub:** https://github.com/keithrbennett/simplecov-mcp
 - **RubyGems:** https://rubygems.org/gems/simplecov-mcp
 - **Issues:** https://github.com/keithrbennett/simplecov-mcp/issues

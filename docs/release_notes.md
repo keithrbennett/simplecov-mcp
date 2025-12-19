@@ -1,1 +1,3 @@
---8<-- "release_notes.md"
+# Release Notes
+
+{% include-markdown "../RELEASE_NOTES.md" %}

@@ -1,3 +1,3 @@
 # License
 
---8<-- "LICENSE"
+{% include-markdown "../LICENSE" %}
