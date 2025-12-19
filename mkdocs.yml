@@ -29,16 +29,23 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
   features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - search.suggest
-    - search.highlight
-    - content.code.copy
-    - content.code.annotate
-    - header.autohide
-    - navigation.footer
+    # Navigation
+    - navigation.tabs        # Top-level sections as tabs
+    - navigation.sections    # Grouped sidebar sections
+    - navigation.expand      # Auto-expand all sections
+    - navigation.top         # Back-to-top button
+    - navigation.footer      # Prev/next links
+
+    # Search
+    - search.suggest         # Query suggestions
+    - search.highlight       # Highlight matches
+    - search.share           # Shareable search URLs
+
+    # Code & tabs
+    - content.code.copy      # Copy button on code blocks
+    - content.code.annotate  # Code annotations
+    - content.tabs.link      # Linked tabs across pages
+
 
 plugins:
   - search
