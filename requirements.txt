@@ -4,6 +4,7 @@ mkdocs-material>=9.0.0
 
 # Plugins
 mkdocs-awesome-pages-plugin>=2.9.0
+mkdocs-minify-plugin>=0.6.4
 
 # Extensions (usually included with mkdocs-material, but listed for completeness)
 pymdown-extensions>=10.0

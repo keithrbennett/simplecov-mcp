@@ -51,6 +51,8 @@ theme:
 
 plugins:
   - search
+  - minify:
+      minify_html: true
 
 markdown_extensions:
   - admonition
@@ -123,3 +125,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/keithrbennett/cov-loupe
+    - icon: fontawesome/solid/gem
+      link: https://rubygems.org/gems/cov-loupe
+  generator: false
