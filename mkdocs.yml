@@ -9,6 +9,8 @@ exclude_docs: |
 
 theme:
   name: material
+  logo: assets/images/cov-loupe-logo.png
+  favicon: assets/images/cov-loupe-logo.png
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
@@ -35,6 +37,8 @@ theme:
     - search.highlight
     - content.code.copy
     - content.code.annotate
+    - header.autohide
+    - navigation.footer
 
 plugins:
   - search
@@ -102,6 +106,9 @@ nav:
   - Code of Conduct: code_of_conduct.md
   - Release Notes: release_notes.md
   - License: license.md
+
+extra_css:
+  - assets/stylesheets/branding.css
 
 extra:
   social:
