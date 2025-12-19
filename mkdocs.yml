@@ -121,6 +121,7 @@ nav:
 
 extra_css:
   - assets/stylesheets/branding.css
+  - assets/stylesheets/extra.css
 
 extra:
   social:
