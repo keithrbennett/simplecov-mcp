@@ -10,7 +10,7 @@ exclude_docs: |
 theme:
   name: material
   logo: assets/images/cov-loupe-logo.png
-  favicon: assets/images/cov-loupe-logo.png
+  favicon: assets/images/favicon.png
   palette:
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
