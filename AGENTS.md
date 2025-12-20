@@ -209,7 +209,7 @@ Read-only file system @ rb_sysopen
 bundle exec rubocop --cache false
 ```
 
-This disables caching and adds approximately 5 seconds to execution time (3s → 8s) but ensures successful analysis in sandboxed environments. See [docs/dev/DESIGN_RATIONALE.md](docs/dev/DESIGN_RATIONALE.md) for details on why caching is enabled by default.
+This disables caching and adds approximately 5 seconds to execution time (3s → 8s) but ensures successful analysis in sandboxed environments. See [dev/prompts/ai-code-evaluator-guidelines.md](dev/prompts/ai-code-evaluator-guidelines.md) for details on why caching is enabled by default.
 
 ## Documentation
 - `README.md` – primary documentation for installation, CLI usage, MCP integration, troubleshooting, and resultset configuration.

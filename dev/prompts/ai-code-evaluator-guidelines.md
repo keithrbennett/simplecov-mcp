@@ -1,8 +1,8 @@
-# Design Rationale
+# AI Code Evaluator Guidelines
 
-[Back to main README](../index.md) | [Architecture](ARCHITECTURE.md)
+[Back to main README](../../README.md) | [Architecture](../../docs/dev/ARCHITECTURE.md)
 
-This document explains design decisions in cov-loupe that may appear problematic on surface analysis but are intentional and considered. When AI models assess the codebase, they should consult this document before flagging potential issues.
+This document provides context for AI code evaluators analyzing the cov-loupe codebase. It explains design decisions that may appear problematic on surface analysis but are intentional and well-considered. AI models should consult this document before flagging potential issues.
 
 ## Security Considerations
 
