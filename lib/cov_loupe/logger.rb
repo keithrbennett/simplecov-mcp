@@ -6,10 +6,13 @@ require 'time'
 module CovLoupe
   class Logger
     DEFAULT_LOG_FILESPEC = './cov_loupe.log'
+    FALLBACK_LOG_FILE = 'COV-LOUPE-LOG-ERROR.log'
 
-    def initialize(target:, mcp_mode: false)
-      @mcp_mode = mcp_mode
+    def initialize(target:, mode: :library)
+      @mode = mode
       @init_error = nil
+      @stderr_warning_emitted = false
+
       begin
         @logger = build_logger(target)
       rescue => e
@@ -63,15 +66,26 @@ module CovLoupe
     end
 
     private def handle_logging_error(error, original_msg)
-      # Fallback to stderr if file logging fails, but suppress in MCP mode
-      return if @mcp_mode
-
-      # We can't rely on the logger itself if it failed, so write directly to stderr
-      timestamp = Time.now.iso8601
-      $stderr.puts "[#{timestamp}] LOGGING ERROR: #{error.message}"
-      $stderr.puts "[#{timestamp}] #{original_msg}"
+      write_fallback_file(error, original_msg)
+      warn_stderr_once if @mode == :cli
     rescue
-      # Silently ignore stderr fallback failures
+      # Silently ignore all fallback failures
+    end
+
+    private def write_fallback_file(error, original_msg)
+      File.open(FALLBACK_LOG_FILE, 'a') do |f|
+        timestamp = Time.now.iso8601
+        f.puts "[#{timestamp}] MODE:#{@mode} ERROR:#{error.message} MSG:#{original_msg}"
+      end
+    rescue
+      # Best effort - ignore write failures
+    end
+
+    private def warn_stderr_once
+      return if @stderr_warning_emitted
+
+      @stderr_warning_emitted = true
+      $stderr.puts "Warning: Logging failed. See #{FALLBACK_LOG_FILE} for details."
     end
   end
 end

@@ -14,6 +14,8 @@
   - Library: Internal format symbol changed from `:awesome_print` to `:amazing_print`.
     - `CovLoupe::AppConfig#format` now returns `:amazing_print` when configured for that output.
     - `CovLoupe::Formatters.format(obj, :amazing_print)` is the new API method.
+- **Internal Logger API changed**: `CovLoupe::Logger.new` now requires `mode:` (symbol) instead of `mcp_mode:` (boolean).
+    - Use `CovLoupe::Logger.new(target: t, mode: :cli|:mcp|:library)` instead of `mcp_mode: true/false`.
 
 **📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V4.md](docs/user/migrations/MIGRATING_TO_V4.md)**
 

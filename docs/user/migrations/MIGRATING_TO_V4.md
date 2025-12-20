@@ -134,6 +134,27 @@ result = model.list
 table = model.format_table(result)  # This will fail
 ```
 
+### Logger Initialization Changed
+
+The `CovLoupe::Logger` class has updated its `initialize` signature.
+
+*   **Old**: `initialize(target:, mcp_mode: false)`
+*   **New**: `initialize(target:, mode: :library)` # or :cli or :mcp
+
+#### Migration
+
+If you are manually instantiating `CovLoupe::Logger`:
+
+```ruby
+# Old
+logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mcp_mode: true)
+logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mcp_mode: false)
+
+# New
+logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :mcp)
+logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :cli)     # or :library
+```
+
 ---
 
 ## Getting Help

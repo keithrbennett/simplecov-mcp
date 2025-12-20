@@ -3,10 +3,20 @@
 require 'spec_helper'
 
 RSpec.describe 'Logging Fallback Behavior' do
+  let(:fallback_file) { CovLoupe::Logger::FALLBACK_LOG_FILE }
+
+  # Run all tests in a temporary directory to isolate fallback file creation
+  around do |example|
+    Dir.mktmpdir do |dir|
+      Dir.chdir(dir) do
+        example.run
+      end
+    end
+  end
+
   describe 'CovLoupe.logger error handling' do
     context 'when file logging fails in library mode' do
-      it 'falls back to stderr with error message' do
-        # Set up library mode context
+      it 'writes to fallback file but suppresses stderr' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_library,
           log_target: '/invalid/path/that/does/not/exist.log',
@@ -21,14 +31,15 @@ RSpec.describe 'Logging Fallback Behavior' do
           end
         end
 
-        expect(stderr_output).to include('LOGGING ERROR')
-        expect(stderr_output).to include('test message')
+        expect(stderr_output).to be_empty
+        expect(File.exist?(fallback_file)).to be true
+        content = File.read(fallback_file)
+        expect(content).to include('MODE:library', 'MSG:test message')
       end
     end
 
     context 'when file logging fails in CLI mode' do
-      it 'falls back to stderr with error message' do
-        # Set up CLI mode context
+      it 'writes to fallback file and prints warning to stderr exactly once' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_cli,
           log_target: '/invalid/path/that/does/not/exist.log',
@@ -38,19 +49,33 @@ RSpec.describe 'Logging Fallback Behavior' do
         stderr_output = nil
         CovLoupe.with_context(context) do
           silence_output do |_stdout, stderr|
-            CovLoupe.logger.info('test message')
-            stderr_output = stderr.string
+            # First failure
+            CovLoupe.logger.info('first failure')
+            first_stderr = stderr.string.dup
+            stderr.reopen(StringIO.new) # clear stderr buffer
+
+            # Second failure
+            CovLoupe.logger.info('second failure')
+            second_stderr = stderr.string
+
+            stderr_output = first_stderr + second_stderr
           end
         end
 
-        expect(stderr_output).to include('LOGGING ERROR')
-        expect(stderr_output).to include('test message')
+        # Check stderr
+        lines = stderr_output.split("\n")
+        warning_msg = "Warning: Logging failed. See #{fallback_file} for details."
+        expect(lines.count { |l| l.include?(warning_msg) }).to eq(1)
+
+        # Check fallback file
+        expect(File.exist?(fallback_file)).to be true
+        content = File.read(fallback_file)
+        expect(content).to include('MODE:cli', 'MSG:first failure', 'MSG:second failure')
       end
     end
 
     context 'when file logging fails in MCP server mode' do
-      it 'suppresses stderr output to avoid interfering with JSON-RPC' do
-        # Set up MCP server mode context
+      it 'writes to fallback file but suppresses stderr' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_mcp_server,
           log_target: '/invalid/path/that/does/not/exist.log',
@@ -66,63 +91,33 @@ RSpec.describe 'Logging Fallback Behavior' do
         end
 
         expect(stderr_output).to be_empty
+        expect(File.exist?(fallback_file)).to be true
+        content = File.read(fallback_file)
+        expect(content).to include('MODE:mcp', 'MSG:test message')
       end
     end
 
     context 'when logging succeeds' do
-      it 'does not write to stderr' do
-        Dir.mktmpdir do |dir|
-          log_file = File.join(dir, 'test.log')
-          context = CovLoupe.create_context(
-            error_handler: CovLoupe::ErrorHandlerFactory.for_library,
-            log_target: log_file,
-            mode: :library
-          )
+      it 'does not write to stderr or fallback file' do
+        log_file = 'test.log'
+        context = CovLoupe.create_context(
+          error_handler: CovLoupe::ErrorHandlerFactory.for_library,
+          log_target: log_file,
+          mode: :library
+        )
 
-          stderr_output = nil
-          CovLoupe.with_context(context) do
-            silence_output do |_stdout, stderr|
-              CovLoupe.logger.info('test message')
-              stderr_output = stderr.string
-            end
+        stderr_output = nil
+        CovLoupe.with_context(context) do
+          silence_output do |_stdout, stderr|
+            CovLoupe.logger.info('test message')
+            stderr_output = stderr.string
           end
-
-          expect(stderr_output).to be_empty
-          expect(File.read(log_file)).to include('test message')
         end
+
+        expect(stderr_output).to be_empty
+        expect(File.exist?(fallback_file)).to be false
+        expect(File.read(log_file)).to include('test message')
       end
-    end
-  end
-
-  describe 'AppContext mode predicates' do
-    it 'correctly identifies library mode' do
-      context = CovLoupe.create_context(
-        error_handler: CovLoupe::ErrorHandlerFactory.for_library,
-        mode: :library
-      )
-      expect(context.library_mode?).to be true
-      expect(context.cli_mode?).to be false
-      expect(context.mcp_mode?).to be false
-    end
-
-    it 'correctly identifies CLI mode' do
-      context = CovLoupe.create_context(
-        error_handler: CovLoupe::ErrorHandlerFactory.for_cli,
-        mode: :cli
-      )
-      expect(context.library_mode?).to be false
-      expect(context.cli_mode?).to be true
-      expect(context.mcp_mode?).to be false
-    end
-
-    it 'correctly identifies MCP mode' do
-      context = CovLoupe.create_context(
-        error_handler: CovLoupe::ErrorHandlerFactory.for_mcp_server,
-        mode: :mcp
-      )
-      expect(context.library_mode?).to be false
-      expect(context.cli_mode?).to be false
-      expect(context.mcp_mode?).to be true
     end
   end
 
@@ -134,41 +129,38 @@ RSpec.describe 'Logging Fallback Behavior' do
       { level: :safe_log, severity: 'INFO', message: 'safe log message' }
     ].each do |test_case|
       it "logs with #{test_case[:level]} level" do
-        Dir.mktmpdir do |dir|
-          log_file = File.join(dir, 'test.log')
-          logger = CovLoupe::Logger.new(target: log_file, mcp_mode: false)
+        log_file = 'test.log'
+        logger = CovLoupe::Logger.new(target: log_file, mode: :library)
 
-          logger.send(test_case[:level], test_case[:message])
+        logger.send(test_case[:level], test_case[:message])
 
-          log_content = File.read(log_file)
-          expect(log_content).to include(test_case[:severity])
-          expect(log_content).to include(test_case[:message])
-        end
+        log_content = File.read(log_file)
+        expect(log_content).to include(test_case[:severity], test_case[:message])
       end
     end
 
     it 'handles runtime errors during logging' do
-      Dir.mktmpdir do |dir|
-        log_file = File.join(dir, 'test.log')
-        logger = CovLoupe::Logger.new(target: log_file, mcp_mode: false)
+      log_file = 'test.log'
+      logger = CovLoupe::Logger.new(target: log_file, mode: :cli)
 
-        # Create a mock logger that will raise during send
-        mock_stdlib_logger = instance_double(::Logger)
-        allow(mock_stdlib_logger).to receive(:info).and_raise(StandardError.new('runtime error'))
+      # Create a mock logger that will raise during send
+      mock_stdlib_logger = instance_double(::Logger)
+      allow(mock_stdlib_logger).to receive(:info).and_raise(StandardError.new('runtime error'))
 
-        # Inject the mock logger
-        logger.instance_variable_set(:@logger, mock_stdlib_logger)
+      # Inject the mock logger
+      logger.instance_variable_set(:@logger, mock_stdlib_logger)
 
-        stderr_output = nil
-        silence_output do |_stdout, stderr|
-          logger.info('test message')
-          stderr_output = stderr.string
-        end
-
-        expect(stderr_output).to include('LOGGING ERROR')
-        expect(stderr_output).to include('runtime error')
-        expect(stderr_output).to include('test message')
+      stderr_output = nil
+      silence_output do |_stdout, stderr|
+        logger.info('test message')
+        stderr_output = stderr.string
       end
+
+      expect(stderr_output).to include("Warning: Logging failed. See #{fallback_file} for details.")
+
+      expect(File.exist?(fallback_file)).to be true
+      content = File.read(fallback_file)
+      expect(content).to include('MODE:cli', 'ERROR:runtime error', 'MSG:test message')
     end
   end
 end

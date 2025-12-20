@@ -12,7 +12,7 @@ module CovLoupe
       @log_target = log_target
       @mode = mode
       @app_config = app_config
-      @logger = Logger.new(target: log_target, mcp_mode: mcp_mode?)
+      @logger = Logger.new(target: log_target, mode: mode)
     end
 
     def with_error_handler(handler)
