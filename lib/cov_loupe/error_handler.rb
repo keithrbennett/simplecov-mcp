@@ -127,11 +127,8 @@ module CovLoupe
       return unless log_errors?
 
       message = build_log_message(error, context)
-      if logger
-        logger.error(message)
-      else
-        CovUtil.log(message)
-      end
+      active_logger = @logger || CovLoupe.logger
+      active_logger.error(message)
     end
 
     private def build_log_message(error, context)

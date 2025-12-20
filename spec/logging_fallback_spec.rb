@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'Logging Fallback Behavior' do
-  describe 'CovUtil.log error handling' do
+  describe 'CovLoupe.logger error handling' do
     context 'when file logging fails in library mode' do
       it 'falls back to stderr with error message' do
         # Set up library mode context
@@ -16,7 +16,7 @@ RSpec.describe 'Logging Fallback Behavior' do
         stderr_output = nil
         CovLoupe.with_context(context) do
           silence_output do |_stdout, stderr|
-            CovLoupe::CovUtil.log('test message')
+            CovLoupe.logger.info('test message')
             stderr_output = stderr.string
           end
         end
@@ -38,7 +38,7 @@ RSpec.describe 'Logging Fallback Behavior' do
         stderr_output = nil
         CovLoupe.with_context(context) do
           silence_output do |_stdout, stderr|
-            CovLoupe::CovUtil.log('test message')
+            CovLoupe.logger.info('test message')
             stderr_output = stderr.string
           end
         end
@@ -60,7 +60,7 @@ RSpec.describe 'Logging Fallback Behavior' do
         stderr_output = nil
         CovLoupe.with_context(context) do
           silence_output do |_stdout, stderr|
-            CovLoupe::CovUtil.log('test message')
+            CovLoupe.logger.info('test message')
             stderr_output = stderr.string
           end
         end
@@ -82,7 +82,7 @@ RSpec.describe 'Logging Fallback Behavior' do
           stderr_output = nil
           CovLoupe.with_context(context) do
             silence_output do |_stdout, stderr|
-              CovLoupe::CovUtil.log('test message')
+              CovLoupe.logger.info('test message')
               stderr_output = stderr.string
             end
           end

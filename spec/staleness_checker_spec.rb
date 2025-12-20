@@ -175,6 +175,7 @@ RSpec.describe CovLoupe::StalenessChecker do
       File.write(file, 'content')
 
       # Mock File.open to raise an error
+      allow(File).to receive(:open).and_call_original
       allow(File).to receive(:open).with(file, 'rb').and_raise(StandardError.new('IO error'))
 
       expect(checker.send(:missing_trailing_newline?, file)).to be false

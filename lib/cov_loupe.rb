@@ -119,6 +119,10 @@ module CovLoupe
       @default_context = default_context.with_error_handler(handler)
     end
 
+    def logger
+      context.logger
+    end
+
     private def default_context
       @default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,

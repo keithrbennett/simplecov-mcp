@@ -28,11 +28,14 @@ module CovLoupe
     # - raise_on_stale: boolean (default false). When true, raises
     #   stale errors if sources are newer than coverage or line counts mismatch.
     # - tracked_globs: only used for list project-level staleness.
-    def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil)
+    # - logger: logger instance (defaults to CovLoupe.logger)
+    def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil,
+      logger: nil)
       @root = File.absolute_path(root || '.')
       @resultset = resultset
       @default_tracked_globs = tracked_globs
       @skipped_rows = []
+      @logger = logger || CovLoupe.logger
       @relativizer = PathRelativizer.new(
         root: @root,
         scalar_keys: RELATIVIZER_SCALAR_KEYS,
@@ -79,7 +82,8 @@ module CovLoupe
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-    def list(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
+    def list(sort_order: :descending,
+      raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       @skipped_rows = []
       rows = build_list_rows(tracked_globs: tracked_globs, raise_on_stale: raise_on_stale)
@@ -110,7 +114,7 @@ module CovLoupe
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
-      CovUtil.safe_log("Failed to check staleness for #{path}: #{e.message}")
+      @logger.safe_log("Failed to check staleness for #{path}: #{e.message}")
       false
     end
 
@@ -125,7 +129,7 @@ module CovLoupe
 
     private def load_coverage_data(resultset, raise_on_stale)
       rs = CovUtil.find_resultset(@root, resultset: resultset)
-      loaded = ResultsetLoader.load(resultset_path: rs)
+      loaded = ResultsetLoader.load(resultset_path: rs, logger: @logger)
       coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 
       @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
@@ -176,7 +180,7 @@ module CovLoupe
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
 
-      CovUtil.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
+      @logger.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
       @skipped_rows << {
         'file' => abs_path,
         'error' => e.message,

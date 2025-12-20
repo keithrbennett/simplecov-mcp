@@ -11,121 +11,129 @@ module CovLoupe
     Result = Struct.new(:coverage_map, :timestamp, :suite_names, keyword_init: true)
     SuiteEntry = Struct.new(:name, :coverage, :timestamp, keyword_init: true)
 
-    class << self
-      def load(resultset_path:)
-        raw = JSON.load_file(resultset_path)
+    def self.load(resultset_path:, logger: nil)
+      logger ||= CovLoupe.logger
+      new(resultset_path: resultset_path, logger: logger).load
+    end
 
+    def initialize(resultset_path:, logger:)
+      @resultset_path = resultset_path
+      @logger = logger
+    end
 
-        suites = extract_suite_entries(raw, resultset_path)
-        raise CoverageDataError, "No test suite with coverage data found in resultset file: #{resultset_path}" if suites.empty?
+    def load
+      raw = JSON.load_file(@resultset_path)
 
-        coverage_map = build_coverage_map(suites, resultset_path)
-        Result.new(
-          coverage_map: coverage_map,
-          timestamp: compute_combined_timestamp(suites),
-          suite_names: suites.map(&:name)
-        )
+      suites = extract_suite_entries(raw)
+      if suites.empty?
+        raise CoverageDataError, "No test suite with coverage data found in resultset file: #{@resultset_path}"
       end
 
-      private def extract_suite_entries(raw, resultset_path)
+      coverage_map = build_coverage_map(suites)
+      Result.new(
+        coverage_map: coverage_map,
+        timestamp: compute_combined_timestamp(suites),
+        suite_names: suites.map(&:name)
+      )
+    end
+
+    private def extract_suite_entries(raw)
+      raw
+        .select { |_, data| data.is_a?(Hash) && data.key?('coverage') && !data['coverage'].nil? }
+        .map do |name, data|
+          SuiteEntry.new(
+            name: name.to_s,
+            coverage: normalize_suite_coverage(data['coverage'], suite_name: name),
+            timestamp: normalize_coverage_timestamp(data['timestamp'], data['created_at'])
+          )
+        end
+    end
+
+    private def build_coverage_map(suites)
+      return suites.first&.coverage if suites.length == 1
+
+      merge_suite_coverages(suites)
+    end
+
+    private def normalize_suite_coverage(coverage, suite_name:)
+      unless coverage.is_a?(Hash)
+        raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{@resultset_path}"
+      end
+
+      needs_adaptation = coverage.values.any? { |value| value.is_a?(Array) }
+      return coverage unless needs_adaptation
+
+      coverage.transform_values do |value|
+        value.is_a?(Array) ? { 'lines' => value } : value
+      end
+    end
+
+    private def merge_suite_coverages(suites)
+      require_simplecov_for_merge!
+      log_duplicate_suite_names(suites)
+
+      suites.reduce(nil) do |memo, suite|
+        coverage = suite.coverage
+        memo ?
+          SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) :
+          coverage
+      end
+    end
+
+    private def require_simplecov_for_merge!
+      require 'simplecov'
+    rescue LoadError
+      raise CoverageDataError, "Multiple coverage suites detected in #{@resultset_path}, but the simplecov gem could not be loaded. Install simplecov to enable suite merging."
+    end
+
+    private def log_duplicate_suite_names(suites)
+      grouped = suites.group_by(&:name)
+      duplicates = grouped.select { |_, entries| entries.length > 1 }.keys
+      return if duplicates.empty?
+
+      message = "Merging duplicate coverage suites for #{duplicates.join(', ')}"
+      @logger.safe_log(message)
+    end
+
+    private def compute_combined_timestamp(suites)
+      suites.map(&:timestamp).compact.max.to_i
+    end
+
+    private def normalize_coverage_timestamp(timestamp_value, created_at_value)
+      raw = timestamp_value.nil? ? created_at_value : timestamp_value
+      return 0 if raw.nil?
+
+      case raw
+      when Integer
         raw
-          .select { |_, data| data.is_a?(Hash) && data.key?('coverage') && !data['coverage'].nil? }
-          .map do |name, data|
-            SuiteEntry.new(
-              name: name.to_s,
-              coverage: normalize_suite_coverage(data['coverage'], suite_name: name,
-                resultset_path: resultset_path),
-              timestamp: normalize_coverage_timestamp(data['timestamp'], data['created_at'])
-            )
-          end
-      end
-
-      private def build_coverage_map(suites, resultset_path)
-        return suites.first&.coverage if suites.length == 1
-
-        merge_suite_coverages(suites, resultset_path)
-      end
-
-      private def normalize_suite_coverage(coverage, suite_name:, resultset_path:)
-        unless coverage.is_a?(Hash)
-          raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{resultset_path}"
-        end
-
-        needs_adaptation = coverage.values.any? { |value| value.is_a?(Array) }
-        return coverage unless needs_adaptation
-
-        coverage.transform_values do |value|
-          value.is_a?(Array) ? { 'lines' => value } : value
-        end
-      end
-
-      private def merge_suite_coverages(suites, resultset_path)
-        require_simplecov_for_merge!(resultset_path)
-        log_duplicate_suite_names(suites)
-
-        suites.reduce(nil) do |memo, suite|
-          coverage = suite.coverage
-          memo ?
-            SimpleCov::Combine.combine(SimpleCov::Combine::ResultsCombiner, memo, coverage) :
-            coverage
-        end
-      end
-
-      private def require_simplecov_for_merge!(resultset_path)
-        require 'simplecov'
-      rescue LoadError
-        raise CoverageDataError, "Multiple coverage suites detected in #{resultset_path}, but the simplecov gem could not be loaded. Install simplecov to enable suite merging."
-      end
-
-      private def log_duplicate_suite_names(suites)
-        grouped = suites.group_by(&:name)
-        duplicates = grouped.select { |_, entries| entries.length > 1 }.keys
-        return if duplicates.empty?
-
-        message = "Merging duplicate coverage suites for #{duplicates.join(', ')}"
-        CovUtil.safe_log(message)
-      end
-
-      private def compute_combined_timestamp(suites)
-        suites.map(&:timestamp).compact.max.to_i
-      end
-
-      private def normalize_coverage_timestamp(timestamp_value, created_at_value)
-        raw = timestamp_value.nil? ? created_at_value : timestamp_value
-        return 0 if raw.nil?
-
-        case raw
-        when Integer
-          raw
-        when Float, Time
-          raw.to_i
-        when String
-          normalize_string_timestamp(raw)
-        else
-          log_timestamp_warning(raw)
-          0
-        end
-      rescue => e
-        log_timestamp_warning(raw, e)
+      when Float, Time
+        raw.to_i
+      when String
+        normalize_string_timestamp(raw)
+      else
+        log_timestamp_warning(raw)
         0
       end
+    rescue => e
+      log_timestamp_warning(raw, e)
+      0
+    end
 
-      private def normalize_string_timestamp(value)
-        str = value.strip
-        return 0 if str.empty?
+    private def normalize_string_timestamp(value)
+      str = value.strip
+      return 0 if str.empty?
 
-        if str.match?(/\A-?\d+(\.\d+)?\z/)
-          str.to_f.to_i
-        else
-          Time.parse(str).to_i
-        end
+      if str.match?(/\A-?\d+(\.\d+)?\z/)
+        str.to_f.to_i
+      else
+        Time.parse(str).to_i
       end
+    end
 
-      private def log_timestamp_warning(raw_value, error = nil)
-        message = "Coverage resultset timestamp could not be parsed: #{raw_value.inspect}"
-        message = "#{message} (#{error.message})" if error
-        CovUtil.safe_log(message)
-      end
+    private def log_timestamp_warning(raw_value, error = nil)
+      message = "Coverage resultset timestamp could not be parsed: #{raw_value.inspect}"
+      message = "#{message} (#{error.message})" if error
+      @logger.safe_log(message)
     end
   end
 end

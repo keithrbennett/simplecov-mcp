@@ -232,17 +232,21 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   describe 'list error handling' do
     it 'skips files that raise FileError during coverage lookup' do
       # This exercises the `next` statement in the list loop when FileError is raised
-      model = described_class.new(root: root, resultset: 'coverage')
+
+      # Create mock logger first
+      mock_logger = instance_double(CovLoupe::Logger)
+
+      # Expect the error to be logged only once (per model.list call)
+      expect(mock_logger).to receive(:safe_log)
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
+
+      model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
 
       # Mock lookup_lines to raise FileError for one specific file
       allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::CovUtil).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
-
-      # Expect the error to be logged only once (per model.list call)
-      expect(CovLoupe::CovUtil).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
       # Should not raise, just skip the problematic file
       list_result = model.list(raise_on_stale: false)
@@ -262,15 +266,16 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
 
     it 'skips files that raise CorruptCoverageDataError during coverage lookup' do
-      model = described_class.new(root: root, resultset: 'coverage')
+      mock_logger = instance_double(CovLoupe::Logger)
+      expect(mock_logger).to receive(:safe_log)
+        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
+
+      model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
 
       allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::CovUtil).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
-
-      expect(CovLoupe::CovUtil).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
       list_result = model.list(raise_on_stale: false)
       files = list_result['files']
