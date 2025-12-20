@@ -32,35 +32,28 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
 
     it 'raises CoverageDataError with message detail for invalid JSON format' do
-      # Mock JSON.parse to raise JSON::ParserError
-      allow(JSON).to receive(:load_file).with(anything)
-        .and_raise(JSON::ParserError.new('unexpected token'))
+      mock_json_parse_error(JSON::ParserError.new('unexpected token'))
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Invalid coverage data format')
-        expect(error.message).to include('unexpected token')
+        expect(error.message).to include('Invalid coverage data format', 'unexpected token')
       end
     end
 
     it 'raises FilePermissionError when coverage file is not readable' do
-      # Mock File.read to raise Errno::EACCES
-      allow(JSON).to receive(:load_file).with(anything).and_raise(
-        Errno::EACCES.new('Permission denied')
-      )
+      mock_file_read_error(Errno::EACCES.new('Permission denied'))
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied reading coverage data')
-        expect(error.message).to include('Permission denied')
       end
     end
 
 
     it 'raises CoverageDataError when resultset structure is invalid (TypeError)' do
-      allow(JSON).to receive(:load_file).with(anything).and_return(malformed_resultset)
+      mock_resultset_data(malformed_resultset)
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -102,8 +95,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
 
     it 'raises CoverageDataError when path operations raise ArgumentError' do
-      allow(JSON).to receive(:load_file).with(end_with('.resultset.json'))
-        .and_return(valid_resultset)
+      mock_resultset_data(valid_resultset, path_matcher: end_with('.resultset.json'))
 
       # Mock File.absolute_path to raise ArgumentError when called with the problematic path
       # But allow it to work for the root initialization
@@ -115,31 +107,25 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Invalid path in coverage data')
-        expect(error.message).to include('null byte')
+        expect(error.message).to include('Invalid path in coverage data', 'null byte')
       end
     end
 
     it 'preserves error context in JSON::ParserError messages' do
-      allow(JSON).to receive(:load_file).with(anything).and_raise(
-        JSON::ParserError.new('765: unexpected token at line 3, column 5')
-      )
+      mock_json_parse_error(JSON::ParserError.new('765: unexpected token at line 3, column 5'))
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         # Verify the original error message details are preserved
-        expect(error.message).to include('765')
-        expect(error.message).to include('line 3')
+        expect(error.message).to include('765', 'line 3')
       end
     end
 
     it 'provides helpful error for permission issues with file path' do
       # Mock to raise permission error with actual file path
       resultset_path = File.join(root, 'coverage', '.resultset.json')
-      allow(JSON).to receive(:load_file).with(resultset_path).and_raise(
-        Errno::EACCES.new(resultset_path)
-      )
+      mock_file_read_error(Errno::EACCES.new(resultset_path), path_matcher: resultset_path)
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -152,8 +138,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
   describe 'error context preservation' do
     it 'includes original exception message for JSON::ParserError' do
-      allow(JSON).to receive(:load_file).with(anything)
-        .and_raise(JSON::ParserError.new('unexpected character at byte 42'))
+      mock_json_parse_error(JSON::ParserError.new('unexpected character at byte 42'))
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -164,7 +149,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
     it 'includes original exception message for Errno::EACCES' do
       resultset_path = File.join(root, 'coverage', '.resultset.json')
-      allow(JSON).to receive(:load_file).with(resultset_path).and_raise(Errno::EACCES.new(resultset_path))
+      mock_file_read_error(Errno::EACCES.new(resultset_path), path_matcher: resultset_path)
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
@@ -175,13 +160,12 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
     it 'includes original exception message for TypeError' do
       # Mock to cause TypeError within ResultsetLoader's processing
-      allow(JSON).to receive(:load_file).with(anything).and_return(malformed_resultset)
+      mock_resultset_data(malformed_resultset)
 
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Invalid coverage data structure')
-        expect(error.message).to include('suite "RSpec"')
+        expect(error.message).to include('Invalid coverage data structure', 'suite "RSpec"')
       end
     end
   end
@@ -223,8 +207,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect do
         described_class.new(root: root, resultset: 'coverage')
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Failed to load coverage data')
-        expect(error.message).to include('Some completely unrelated runtime error')
+        expect(error.message).to include('Failed to load coverage data',
+          'Some completely unrelated runtime error')
       end
     end
   end

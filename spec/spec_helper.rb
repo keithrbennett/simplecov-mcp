@@ -73,10 +73,10 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
     }.merge(metadata)
   }
 
-  allow(JSON).to receive(:load_file).and_call_original # Allow real JSON.load_file for other calls
+  allow(File).to receive(:read).and_call_original # Allow real File.read for other calls
 
-  allow(JSON).to receive(:load_file).with(end_with('.resultset.json'))
-    .and_return(fake_resultset_hash)
+  allow(File).to receive(:read).with(end_with('.resultset.json'))
+    .and_return(JSON.generate(fake_resultset_hash))
   allow(CovLoupe::CovUtil).to receive(:find_resultset)
     .and_wrap_original do |method, search_root, resultset: nil|
     if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
@@ -113,6 +113,7 @@ RSpec.configure do |config|
   config.include MCPToolTestHelpers
   config.include MockingHelpers
   config.include ControlFlowHelpers
+  config.include ResultsetMockHelpers
 end
 
 # Custom matchers

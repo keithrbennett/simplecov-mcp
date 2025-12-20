@@ -22,7 +22,7 @@ module CovLoupe
     end
 
     def load
-      raw = JSON.load_file(@resultset_path)
+      raw = JSON.parse(File.read(@resultset_path))
 
       suites = extract_suite_entries(raw)
       if suites.empty?

@@ -191,4 +191,55 @@ RSpec.describe CovLoupe::ResultsetLoader do
       expect(value).to eq(0)
     end
   end
+
+  describe 'security: json_class protection' do
+    it 'does not instantiate arbitrary objects from json_class attributes' do
+      Dir.mktmpdir do |dir|
+        resultset_path = File.join(dir, '.resultset.json')
+        foo_path = File.join(dir, 'lib', 'foo.rb')
+        # Create a malicious payload that would execute code if JSON.load_file were used
+        # With JSON.parse, json_class is just treated as a regular string key
+        malicious_json = <<~JSON
+          {
+            "RSpec": {
+              "json_class": "File",
+              "args": ["/etc/passwd"],
+              "timestamp": 123,
+              "coverage": {
+                "#{foo_path}": { "lines": [1, 0] }
+              }
+            }
+          }
+        JSON
+        File.write(resultset_path, malicious_json)
+
+        # Should parse successfully without instantiating File class
+        result = described_class.load(resultset_path: resultset_path)
+        expect(result.coverage_map).to be_a(Hash)
+        expect(result.coverage_map[foo_path]).to eq('lines' => [1, 0])
+        expect(result.suite_names).to eq(['RSpec'])
+      end
+    end
+
+    it 'treats json_class as ordinary string keys in coverage data' do
+      Dir.mktmpdir do |dir|
+        resultset_path = File.join(dir, '.resultset.json')
+        foo_path = File.join(dir, 'lib', 'foo.rb')
+        # Coverage data that includes json_class as a harmless string key
+        data = {
+          'SuiteA' => {
+            'timestamp' => 100,
+            'coverage' => {
+              foo_path => { 'lines' => [1, 0], 'json_class' => 'IgnoredString' }
+            }
+          }
+        }
+        File.write(resultset_path, JSON.generate(data))
+
+        result = described_class.load(resultset_path: resultset_path)
+        expect(result.coverage_map[foo_path]['lines']).to eq([1, 0])
+        expect(result.coverage_map[foo_path]['json_class']).to eq('IgnoredString')
+      end
+    end
+  end
 end

@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::CoverageModel do
       # Stub find_resultset to return a path, but File.read to raise ENOENT
       allow(CovLoupe::CovUtil).to receive(:find_resultset)
         .and_return('/some/path/.resultset.json')
-      allow(JSON).to receive(:load_file).with('/some/path/.resultset.json')
+      allow(File).to receive(:read).with('/some/path/.resultset.json')
         .and_raise(Errno::ENOENT, 'No such file')
 
       expect do
@@ -370,11 +370,10 @@ RSpec.describe CovLoupe::CoverageModel do
           original.call(search_root, resultset: resultset)
         end
       end
-      # This line might need to be removed as we now mock JSON.load_file directly
     end
 
     it 'merges coverage data from multiple suites while keeping latest timestamp' do
-      allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset)
+      allow(File).to receive(:read).with(resultset_path).and_return(JSON.generate(resultset))
 
       model = described_class.new(root: root)
       files = model.list(sort_order: :ascending)['files']
@@ -386,7 +385,8 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'combines coverage arrays when the same file appears in multiple suites' do
-      allow(JSON).to receive(:load_file).with(resultset_path).and_return(resultset_combined)
+      allow(File).to receive(:read).with(resultset_path)
+        .and_return(JSON.generate(resultset_combined))
 
       model = described_class.new(root: root)
       detailed = model.detailed_for('lib/foo.rb')
