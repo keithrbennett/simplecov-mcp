@@ -105,11 +105,51 @@ All RuboCop Metrics cops (AbcSize, BlockLength, ClassLength, CyclomaticComplexit
    - Clear inline documentation for complex logic
    - Voluntary file size restraint (most files < 200 lines)
 
-4. **Readability over arbitrary limits** – The project values one clear 40-line method over four fragmented 10-line methods when the former better expresses intent. Key examples:
-   - `CoverageModel#list` (48 lines) coordinates filtering, sorting, and staleness checking
+4. **Readability over arbitrary limits** – The project values clear, cohesive methods over arbitrary line limits. When a method's length accurately reflects its necessary complexity, splitting it just to meet a metric harms rather than helps. Key examples:
    - `StalenessChecker#compute_file_staleness_details` (30 lines) handles complex edge cases with clear documentation
+   - `CoverageDataProjectStaleError#build_details` (22 lines) builds error messages through simple sequential operations
 
 **Evidence:** Manual review shows appropriate complexity for domain logic, with no god objects or unclear methods.
+
+### Method Length and Complexity
+
+AI code analysis tools may flag methods as "too long" based on line count alone. However, **line count is not always a proxy for complexity**. Many long methods in this codebase are intentionally structured for clarity and maintainability.
+
+**When long methods are acceptable:**
+
+1. **Sequential data structure building** – Methods that build arrays or hashes through sequential operations are highly readable despite line count:
+   - `CoverageDataProjectStaleError#build_details` (22 lines, lib/cov_loupe/errors.rb:163-184) – builds error message parts in an array through simple, similar operations
+   - This pattern is far clearer than extracting fragmented helper methods
+
+2. **Comprehensive conditional handling** – Methods with extensive if-elsif-else chains that handle different cases clearly:
+   - `ErrorHandler#convert_runtime_error` (22 lines, lib/cov_loupe/error_handler.rb:103-124) – converts different error types with appropriate context
+   - Each branch is simple; complexity lies in coverage, not algorithmic difficulty
+
+3. **Well-documented edge case handling** – Methods handling multiple edge cases with clear inline documentation:
+   - `StalenessChecker#compute_file_staleness_details` (30 lines, lib/cov_loupe/staleness_checker.rb:160-190) – handles file existence, timestamps, and line count mismatches with inline explanations
+   - Comments clarify intent; the logic itself remains straightforward
+
+4. **Coordinated multi-step operations** – Methods that orchestrate several well-defined steps in a logical flow:
+   - While `CoverageModel#list` was previously 48 lines, it has been refactored to 16 lines (lib/cov_loupe/model.rb:80-95) by extracting helper methods
+   - This demonstrates that extraction makes sense when it improves clarity, not to meet arbitrary line limits
+
+**When to refactor:**
+
+Long methods warrant refactoring when they exhibit:
+- Deeply nested conditionals (>3 levels)
+- Mixed concerns (I/O, business logic, and presentation in one method)
+- High cyclomatic complexity (many independent decision points)
+- Difficulty understanding purpose or flow even with comments
+
+**Guidance for AI analysis tools:**
+
+Before flagging a long method, assess:
+- **What is it doing?** One cohesive thing, or mixing concerns?
+- **Would splitting improve readability?** Or just scatter related logic?
+- **What causes the length?** Data structures, error handling, or algorithmic complexity?
+- **Is it well-documented?** Inline comments can make complex logic clear.
+
+Method length is a heuristic, not a rule. Judge methods by clarity, cohesion, and testability rather than line count alone.
 
 ### RuboCop Cache and Sandboxed Environments
 
