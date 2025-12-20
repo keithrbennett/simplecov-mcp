@@ -125,4 +125,50 @@ RSpec.describe 'Logging Fallback Behavior' do
       expect(context.mcp_mode?).to be true
     end
   end
+
+  describe 'CovLoupe::Logger log levels' do
+    [
+      { level: :info, severity: 'INFO', message: 'info message' },
+      { level: :warn, severity: 'WARN', message: 'warning message' },
+      { level: :error, severity: 'ERROR', message: 'error message' },
+      { level: :safe_log, severity: 'INFO', message: 'safe log message' }
+    ].each do |test_case|
+      it "logs with #{test_case[:level]} level" do
+        Dir.mktmpdir do |dir|
+          log_file = File.join(dir, 'test.log')
+          logger = CovLoupe::Logger.new(target: log_file, mcp_mode: false)
+
+          logger.send(test_case[:level], test_case[:message])
+
+          log_content = File.read(log_file)
+          expect(log_content).to include(test_case[:severity])
+          expect(log_content).to include(test_case[:message])
+        end
+      end
+    end
+
+    it 'handles runtime errors during logging' do
+      Dir.mktmpdir do |dir|
+        log_file = File.join(dir, 'test.log')
+        logger = CovLoupe::Logger.new(target: log_file, mcp_mode: false)
+
+        # Create a mock logger that will raise during send
+        mock_stdlib_logger = instance_double(::Logger)
+        allow(mock_stdlib_logger).to receive(:info).and_raise(StandardError.new('runtime error'))
+
+        # Inject the mock logger
+        logger.instance_variable_set(:@logger, mock_stdlib_logger)
+
+        stderr_output = nil
+        silence_output do |_stdout, stderr|
+          logger.info('test message')
+          stderr_output = stderr.string
+        end
+
+        expect(stderr_output).to include('LOGGING ERROR')
+        expect(stderr_output).to include('runtime error')
+        expect(stderr_output).to include('test message')
+      end
+    end
+  end
 end
