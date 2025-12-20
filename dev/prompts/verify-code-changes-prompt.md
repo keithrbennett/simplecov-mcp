@@ -38,7 +38,7 @@ Examine the diff thoroughly. In your response, be balanced, fair, organized, and
 
 Write your response as markdown text and save it to a file whose name is:
 
-- today's date/time in UTC YYYY-MM-DD-hh-mm format +
+- today's date/time in UTC `%Y-%m-%d-%H-%M` format +
 - your name (e.g. 'codex, claude, gemini, etc.)
 - "-code-review-#{change_intention_phrase}.md"
 
