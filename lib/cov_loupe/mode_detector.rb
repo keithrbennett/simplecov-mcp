@@ -7,9 +7,8 @@ module CovLoupe
   # Centralizes the logic for detecting whether to run in CLI or MCP server mode.
   # This makes the mode detection strategy explicit and testable.
   class ModeDetector
-    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
-
-    # Reference shared constant to avoid duplication with CoverageCLI
+    # Reference shared constants to avoid duplication with CoverageCLI
+    SUBCOMMANDS = Constants::SUBCOMMANDS
     OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
 
     def self.cli_mode?(argv, stdin: $stdin)

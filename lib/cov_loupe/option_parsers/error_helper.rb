@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_relative '../constants'
+
 module CovLoupe
   module OptionParsers
     class ErrorHelper
-      SUBCOMMANDS = %w[list summary raw uncovered detailed totals version].freeze
+      # Reference shared constant to avoid duplication
+      SUBCOMMANDS = Constants::SUBCOMMANDS
 
       def initialize(subcommands = SUBCOMMANDS)
         @subcommands = subcommands

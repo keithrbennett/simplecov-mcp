@@ -11,10 +11,10 @@ require_relative 'presenters/project_coverage_presenter'
 
 module CovLoupe
   class CoverageCLI
-    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
     HORIZONTAL_RULE = '-' * 79
 
-    # Reference shared constant to avoid duplication with ModeDetector
+    # Reference shared constants to avoid duplication with ModeDetector
+    SUBCOMMANDS = Constants::SUBCOMMANDS
     OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
 
     attr_reader :config

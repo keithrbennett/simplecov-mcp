@@ -3,11 +3,14 @@
 require_relative 'option_normalizers'
 require_relative 'version'
 require_relative 'boolean_type'
+require_relative 'constants'
 
 module CovLoupe
   class OptionParserBuilder
     HORIZONTAL_RULE = '-' * 79
-    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
+
+    # Reference shared constant to avoid duplication
+    SUBCOMMANDS = Constants::SUBCOMMANDS
 
     attr_reader :config
 
