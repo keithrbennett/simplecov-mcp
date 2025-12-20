@@ -32,7 +32,6 @@ module CovLoupe
       else
         # MCP server mode: load MCP server components only
         require_relative 'cov_loupe/all_mcp'
-        require_relative 'cov_loupe/config_parser'
         config = ConfigParser.parse(full_argv)
 
         if config.log_file == 'stdout'

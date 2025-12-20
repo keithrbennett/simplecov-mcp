@@ -8,6 +8,7 @@ require_relative '../cov_loupe' # Core library components
 # MCP server dependencies
 require 'mcp'
 require 'mcp/server/transports/stdio_transport'
+require_relative 'config_parser'
 require_relative 'base_tool'
 require_relative 'tools/coverage_raw_tool'
 require_relative 'tools/coverage_summary_tool'
