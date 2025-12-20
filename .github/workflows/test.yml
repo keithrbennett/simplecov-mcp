@@ -52,7 +52,7 @@ jobs:
         bundler-cache: true
 
     - name: Audit dependencies for vulnerabilities
-      uses: andrewmcodes/bundler-audit-action@main
+      uses: andrewmcodes/bundler-audit-action@v0.1.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
