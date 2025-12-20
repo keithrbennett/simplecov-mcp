@@ -18,17 +18,17 @@ module CovLoupe
       class << self
         def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
-          with_error_handling('CoverageDetailedTool', error_mode: error_mode) do
-            model = create_model(
-              server_context: server_context,
-              root: root,
-              resultset: resultset,
-              raise_on_stale: raise_on_stale
-            )
-            presenter = Presenters::CoverageDetailedPresenter.new(model: model, path: path)
-            respond_json(presenter.relativized_payload, name: 'coverage_detailed.json',
-              pretty: true)
-          end
+          call_with_file_presenter(
+            presenter_class: Presenters::CoverageDetailedPresenter,
+            path: path,
+            tool_name: 'CoverageDetailedTool',
+            error_mode: error_mode,
+            server_context: server_context,
+            json_name: 'coverage_detailed.json',
+            root: root,
+            resultset: resultset,
+            raise_on_stale: raise_on_stale
+          )
         end
       end
     end

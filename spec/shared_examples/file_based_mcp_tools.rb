@@ -21,16 +21,12 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
 
   before do
     setup_mcp_response_stub
-    model = instance_double(CovLoupe::CoverageModel)
-    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-    allow(model).to receive(model_method).with('lib/foo.rb').and_return(mock_data)
-    relativizer = CovLoupe::PathRelativizer.new(
-      root: '/abs/path',
-      scalar_keys: %w[file file_path],
-      array_keys: %w[newer_files missing_files deleted_files]
+    stub_coverage_model(
+      model_method: model_method,
+      mock_data: mock_data,
+      file_path: 'lib/foo.rb',
+      staleness: false
     )
-    allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
-    allow(model).to receive(:staleness_for).with('lib/foo.rb').and_return(false)
   end
 
 
@@ -79,18 +75,11 @@ FILE_BASED_TOOL_CONFIGS = {
     },
     tool_specific_examples: {
       'includes percentage in summary data' => ->(config) {
-        model = instance_double(CovLoupe::CoverageModel)
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive_messages(
-          summary_for: config[:mock_data],
-          staleness_for: false
+        stub_coverage_model(
+          model_method: :summary_for,
+          mock_data: config[:mock_data],
+          staleness: false
         )
-        relativizer = CovLoupe::PathRelativizer.new(
-          root: '/abs/path',
-          scalar_keys: %w[file file_path],
-          array_keys: %w[newer_files missing_files deleted_files]
-        )
-        allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb',
@@ -133,18 +122,11 @@ FILE_BASED_TOOL_CONFIGS = {
     },
     tool_specific_examples: {
       'includes both uncovered lines and summary' => ->(config) {
-        model = instance_double(CovLoupe::CoverageModel)
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive_messages(
-          uncovered_for: config[:mock_data],
-          staleness_for: false
+        stub_coverage_model(
+          model_method: :uncovered_for,
+          mock_data: config[:mock_data],
+          staleness: false
         )
-        relativizer = CovLoupe::PathRelativizer.new(
-          root: '/abs/path',
-          scalar_keys: %w[file file_path],
-          array_keys: %w[newer_files missing_files deleted_files]
-        )
-        allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }
         setup_mcp_response_stub
 
         response = config[:tool_class].call(path: 'lib/foo.rb',

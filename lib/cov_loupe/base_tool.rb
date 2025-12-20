@@ -136,5 +136,26 @@ module CovLoupe
     def self.default_model_options
       { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }
     end
+
+    # Common pattern for file-based tools: create model, instantiate presenter, return JSON.
+    # Eliminates duplication across coverage_summary, coverage_raw, coverage_detailed, and
+    # uncovered_lines tools.
+    #
+    # @param presenter_class [Class] The presenter class to instantiate
+    # @param path [String] File path to analyze
+    # @param tool_name [String] Tool name for error handling
+    # @param error_mode [String] Error handling mode
+    # @param server_context [AppContext] Server context
+    # @param json_name [String] JSON resource name
+    # @param explicit_params [Hash] Additional parameters for model creation
+    # @return [MCP::Tool::Response] JSON response
+    def self.call_with_file_presenter(presenter_class:, path:, tool_name:, error_mode:,
+      server_context:, json_name:, **explicit_params)
+      with_error_handling(tool_name, error_mode: error_mode) do
+        model = create_model(server_context: server_context, **explicit_params)
+        presenter = presenter_class.new(model: model, path: path)
+        respond_json(presenter.relativized_payload, name: json_name, pretty: true)
+      end
+    end
   end
 end

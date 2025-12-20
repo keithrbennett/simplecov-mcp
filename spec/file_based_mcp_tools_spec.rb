@@ -28,11 +28,12 @@ RSpec.describe 'File-based MCP Tools' do
     it 'all file-based tools accept the same basic parameters' do
       # Test that all tools can be called with the same parameter signature
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
-        model = instance_double(CovLoupe::CoverageModel)
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
-        allow(model).to receive(:relativize) { |payload| payload }
-        allow(model).to receive(:staleness_for).and_return(false)
+        stub_coverage_model(
+          model_method: config[:model_method],
+          mock_data: config[:mock_data],
+          file_path: 'lib/example.rb',
+          staleness: false
+        )
 
         expect do
           config[:tool_class].call(
@@ -47,11 +48,11 @@ RSpec.describe 'File-based MCP Tools' do
 
     it 'all file-based tools return JSON resources with consistent structure' do
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
-        model = instance_double(CovLoupe::CoverageModel)
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
-        allow(model).to receive(:relativize) { |payload| payload }
-        allow(model).to receive(:staleness_for).and_return(false)
+        stub_coverage_model(
+          model_method: config[:model_method],
+          mock_data: config[:mock_data],
+          staleness: false
+        )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
 
@@ -80,11 +81,11 @@ RSpec.describe 'File-based MCP Tools' do
       end
 
       summary_tools.each_value do |config|
-        model = instance_double(CovLoupe::CoverageModel)
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(model).to receive(config[:model_method]).and_return(config[:mock_data])
-        allow(model).to receive(:relativize) { |payload| payload }
-        allow(model).to receive(:staleness_for).and_return(false)
+        stub_coverage_model(
+          model_method: config[:model_method],
+          mock_data: config[:mock_data],
+          staleness: false
+        )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
         data = JSON.parse(response.payload.first['text'])
