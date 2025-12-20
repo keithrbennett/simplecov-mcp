@@ -79,49 +79,11 @@ module CovLoupe
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
     def list(sort_order: :descending, raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
-      # Build a staleness checker that *doesn't* raise errors, as we want to collect
-      # staleness status per file without interrupting the row generation.
       @skipped_rows = []
-      stale_checker = build_staleness_checker(raise_on_stale: false,
-        tracked_globs: tracked_globs)
-
-      rows = @cov.map do |abs_path, _data|
-        begin
-          coverage_lines = CovUtil.lookup_lines(@cov, abs_path)
-        rescue FileError, CoverageDataError => e
-          raise e if raise_on_stale
-
-          # If a FileError or CoverageDataError occurs (e.g., the file is in the resultset but cannot
-          # be resolved to a source file, or the data is corrupt),
-          # skip this entry and continue processing other files. This allows
-          # the application to report on other valid coverage entries.
-          CovUtil.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
-          @skipped_rows << {
-            'file' => abs_path,
-            'error' => e.message,
-            'error_class' => e.class.name
-          }
-          next
-        end
-
-        s = CovUtil.summary(coverage_lines)
-        stale = stale_checker.stale_for_file?(abs_path, coverage_lines)
-        {
-          'file' => abs_path,
-          'covered' => s['covered'],
-          'total' => s['total'],
-          'percentage' => s['percentage'],
-          'stale' => stale
-        }
-      end.compact
-
-      rows = filter_rows_by_globs(rows, tracked_globs)
-
-      # Perform a project-level staleness check to identify newer, deleted, and missing files.
-      # The check_project! method now returns the details and raises an error only if in error mode.
-      project_staleness_details = build_staleness_checker(
-        raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
-      ).check_project!(@cov)
+      rows = build_list_rows(tracked_globs: tracked_globs, raise_on_stale: raise_on_stale)
+      project_staleness_details = project_staleness_report(
+        tracked_globs: tracked_globs, raise_on_stale: raise_on_stale
+      )
 
       {
         'files' => sort_rows(rows, sort_order: sort_order),
@@ -185,6 +147,46 @@ module CovLoupe
         tracked_globs: tracked_globs,
         timestamp: @cov_timestamp
       )
+    end
+
+    private def build_list_rows(tracked_globs:, raise_on_stale:)
+      checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
+
+      rows = @cov.filter_map do |abs_path, _data|
+        coverage_lines = coverage_lines_for_listing(abs_path, raise_on_stale)
+        next unless coverage_lines
+
+        summary = CovUtil.summary(coverage_lines)
+        {
+          'file' => abs_path,
+          'covered' => summary['covered'],
+          'total' => summary['total'],
+          'percentage' => summary['percentage'],
+          'stale' => checker.stale_for_file?(abs_path, coverage_lines)
+        }
+      end
+
+      filter_rows_by_globs(rows, tracked_globs)
+    end
+
+    private def coverage_lines_for_listing(abs_path, raise_on_stale)
+      CovUtil.lookup_lines(@cov, abs_path)
+    rescue FileError, CoverageDataError => e
+      raise e if raise_on_stale
+
+      CovUtil.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
+      @skipped_rows << {
+        'file' => abs_path,
+        'error' => e.message,
+        'error_class' => e.class.name
+      }
+      nil
+    end
+
+    private def project_staleness_report(tracked_globs:, raise_on_stale:)
+      build_staleness_checker(
+        raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
+      ).check_project!(@cov)
     end
 
     private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
