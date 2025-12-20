@@ -6,6 +6,23 @@ require 'tempfile'
 RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
+  # Windows refuses to delete a temporary directory while a file handle inside it
+  # remains open, so we ensure the logger (and its file) are closed after each use.
+  # We do this so that the tests will run on Windows (including for CI),
+  # but this workaround should not be necessary for a Windows production system
+  # since the log file is not created by Dir.mktmpdir.
+  def with_temp_cli_log_file(file_name = 'custom.log')
+    Dir.mktmpdir do |dir|
+      log_path = File.join(dir, file_name)
+      captured_std_logger = nil
+      begin
+        yield log_path, ->(logger) { captured_std_logger = logger.instance_variable_get(:@logger) }
+      ensure
+        captured_std_logger&.close
+      end
+    end
+  end
+
   def run_cli(*argv)
     cli = described_class.new
     silence_output do |out, _err|
@@ -117,15 +134,16 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   describe 'log file configuration' do
     it 'passes --log-file path into the CLI execution context' do
-      Dir.mktmpdir do |dir|
-        log_path = File.join(dir, 'custom.log')
+      original_target = CovLoupe.active_log_file
+      with_temp_cli_log_file do |log_path, capture_logger|
         expect(CovLoupe).to receive(:create_context)
           .and_wrap_original do |m, error_handler:, log_target:, mode:|
           # Ensure CLI forwards the requested log path into the context without changing other fields.
           expect(log_target).to eq(log_path)
-          m.call(error_handler: error_handler, log_target: log_target, mode: mode)
+          context = m.call(error_handler: error_handler, log_target: log_target, mode: mode)
+          capture_logger.call(context.logger)
+          context
         end
-        original_target = CovLoupe.active_log_file
         run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
           '--log-file', log_path, 'summary', 'lib/foo.rb')
         expect(CovLoupe.active_log_file).to eq(original_target)
