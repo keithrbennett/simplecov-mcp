@@ -4,9 +4,6 @@ require 'json'
 require 'time'
 require 'pathname'
 require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 requires explicit require for set; RuboCop targets 3.2
-require 'optparse'
-require 'mcp'
-require 'mcp/server/transports/stdio_transport'
 
 require_relative 'cov_loupe/version'
 require_relative 'cov_loupe/app_context'
@@ -19,19 +16,6 @@ require_relative 'cov_loupe/resultset_loader'
 require_relative 'cov_loupe/mode_detector'
 require_relative 'cov_loupe/model'
 require_relative 'cov_loupe/coverage_reporter'
-require_relative 'cov_loupe/base_tool'
-require_relative 'cov_loupe/tools/coverage_raw_tool'
-require_relative 'cov_loupe/tools/coverage_summary_tool'
-require_relative 'cov_loupe/tools/uncovered_lines_tool'
-require_relative 'cov_loupe/tools/coverage_detailed_tool'
-require_relative 'cov_loupe/tools/list_tool'
-require_relative 'cov_loupe/tools/coverage_totals_tool'
-require_relative 'cov_loupe/tools/coverage_table_tool'
-require_relative 'cov_loupe/tools/validate_tool'
-require_relative 'cov_loupe/tools/version_tool'
-require_relative 'cov_loupe/tools/help_tool'
-require_relative 'cov_loupe/mcp_server'
-require_relative 'cov_loupe/cli'
 
 module CovLoupe
   class << self
@@ -42,10 +26,12 @@ module CovLoupe
       full_argv = extract_env_opts + argv
 
       if ModeDetector.cli_mode?(full_argv)
-        # CLI mode: pass merged argv to CoverageCLI
+        # CLI mode: load CLI components only
+        require_relative 'cov_loupe/all_cli'
         CoverageCLI.new.run(full_argv)
       else
-        # MCP server mode: parse config once from full_argv
+        # MCP server mode: load MCP server components only
+        require_relative 'cov_loupe/all_mcp'
         require_relative 'cov_loupe/config_parser'
         config = ConfigParser.parse(full_argv)
 

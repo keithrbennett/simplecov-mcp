@@ -27,7 +27,9 @@ require 'rspec'
 require 'pathname'
 require 'json'
 
-require 'cov_loupe'
+# Load all components for testing (CLI, MCP server, tools)
+# Library users should use 'require "cov_loupe"' to load only core components
+require 'cov_loupe/all'
 
 FIXTURES_DIR = Pathname.new(File.expand_path('fixtures', __dir__))
 
