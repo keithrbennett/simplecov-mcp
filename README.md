@@ -194,7 +194,7 @@ See [CLI Usage Guide](docs/user/CLI_USAGE.md) for complete details.
 ```sh
 # Files with worst coverage
 cov-loupe -o d list           # -o = --sort-order, d = descending (worst at end)
-cov-loupe list | less         # display table in pager, worst files first
+cov-loupe list | less         # display table in pager, best files first (worst at end)
 cov-loupe list | head -10     # truncate the table
 
 # Specific directory

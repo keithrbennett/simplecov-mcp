@@ -131,7 +131,7 @@ All responses are emitted as `type: "text"`; JSON objects are returned as JSON s
 ## Prompt Examples for MCP Clients
 - “What’s the coverage percentage for `lib/cov_loupe/model.rb`?” → call `coverage_summary_tool`.
 - “Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?” → call `uncovered_lines_tool`.
-- “Show the repo coverage table sorted worst-first.” → call `list_tool` (default order highlights lowest coverage first).
+- "Show the repo coverage table sorted worst-first." → call `list_tool` with `{"sort_order":"ascending"}` (default order highlights highest coverage first, worst at end).
 - “List files with the worst coverage.” → call `list_tool` (optionally `{"sort_order":"ascending"}`).
 - “I’m not sure which tool applies.” → call `help_tool`.
 Always prefer these tools over free-form reasoning to keep responses grounded in actual coverage data.
