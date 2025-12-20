@@ -15,6 +15,8 @@ module CovLoupe
   class CoverageModel
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
     RELATIVIZER_ARRAY_KEYS = %w[newer_files missing_files deleted_files].freeze
+    GLOB_MATCH_FLAGS = File::FNM_PATHNAME | File::FNM_EXTGLOB
+    private_constant :GLOB_MATCH_FLAGS
 
     attr_reader :relativizer, :skipped_rows
 
@@ -218,41 +220,37 @@ module CovLoupe
     # @param tracked_globs [Array<String>, String, nil] glob patterns to match against
     # @return [Array<Hash>] rows whose files match at least one pattern (or all rows if no patterns)
     private def filter_rows_by_globs(rows, tracked_globs)
-      patterns = Array(tracked_globs).compact.map(&:to_s).reject(&:empty?)
+      patterns = normalize_patterns(tracked_globs)
       return rows if patterns.empty?
 
       absolute_patterns = patterns.map { |p| absolutize_pattern(p) }
       rows.select { |row| matches_any_pattern?(row['file'], absolute_patterns) }
     end
 
-    # Converts a relative pattern to absolute by joining with root.
-    # Absolute patterns are returned unchanged.
-    #
-    # @param pattern [String] glob pattern (e.g., "lib/**/*.rb")
-    # @return [String] absolute pattern
-    private def absolutize_pattern(pattern)
-      absolute_pattern?(pattern) ? pattern : File.join(@root, pattern)
+    # Ensures input is a clean array of non-empty strings.
+    # @param globs [Array<String>, String, nil] glob patterns
+    # @return [Array<String>] normalized patterns
+    private def normalize_patterns(globs)
+      Array(globs).compact.map(&:to_s).reject(&:empty?)
     end
 
-    # Checks if a pattern is absolute, handling both Unix and Windows-style paths.
-    # On Unix, Pathname won't recognize "C:/" as absolute, so we check explicitly.
+    # Converts a pattern to absolute path relative to project root.
+    # Handles both relative patterns ("lib/*.rb") and absolute ones ("/tmp/*.rb").
     #
     # @param pattern [String] glob pattern
-    # @return [Boolean] true if pattern is absolute
-    private def absolute_pattern?(pattern)
-      Pathname.new(pattern).absolute? || pattern.match?(/\A[A-Za-z]:/)
+    # @return [String] absolute pattern
+    private def absolutize_pattern(pattern)
+      File.absolute_path(pattern, @root)
     end
 
     # Tests if a file path matches any of the given absolute glob patterns.
-    # Uses File.fnmatch? for pure string matching without filesystem access,
-    # which is faster and works for paths that may no longer exist on disk.
+    # Uses File.fnmatch? for pure string matching without filesystem access.
     #
     # @param abs_path [String] absolute file path to test
     # @param patterns [Array<String>] absolute glob patterns
     # @return [Boolean] true if the path matches at least one pattern
     private def matches_any_pattern?(abs_path, patterns)
-      flags = File::FNM_PATHNAME | File::FNM_EXTGLOB
-      patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, flags) }
+      patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, GLOB_MATCH_FLAGS) }
     end
 
     # Retrieves coverage data for a file path.

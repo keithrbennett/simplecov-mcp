@@ -152,6 +152,12 @@ RSpec.describe CovLoupe::CoverageModel do
       )
     end
 
+    it 'handles absolute patterns correctly' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+      files = model.list(tracked_globs: [abs_foo])['files']
+      expect(files.map { |f| f['file'] }).to contain_exactly(abs_foo)
+    end
+
     it 'records skipped rows when coverage data errors occur' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
