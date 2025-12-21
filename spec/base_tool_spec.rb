@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'tmpdir'
 
 RSpec.describe CovLoupe::BaseTool do
   let(:handler) { CovLoupe::ErrorHandler.new(error_mode: :log, logger: test_logger) }
@@ -126,6 +127,44 @@ RSpec.describe CovLoupe::BaseTool do
       )
 
       expect(config[:root]).to eq('/cli/root')
+    end
+  end
+
+  describe '.create_configured_model' do
+    let(:context) do
+      CovLoupe::AppContext.new(error_handler: handler, mode: :mcp, app_config: nil,
+        model_cache: CovLoupe::ModelCache.new)
+    end
+
+    it 'reuses cached models when the resultset timestamp is unchanged' do
+      Dir.mktmpdir do |root|
+        mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
+        resultset_path = File.join(root, 'coverage', '.resultset.json')
+
+        allow(File).to receive(:mtime).and_call_original
+        allow(File).to receive(:mtime).with(resultset_path).and_return(Time.at(100))
+
+        model1, = described_class.create_configured_model(server_context: context, root: root)
+        model2, = described_class.create_configured_model(server_context: context, root: root)
+
+        expect(model2).to be(model1)
+      end
+    end
+
+    it 'refreshes cached models when the resultset timestamp changes' do
+      Dir.mktmpdir do |root|
+        mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
+        resultset_path = File.join(root, 'coverage', '.resultset.json')
+
+        allow(File).to receive(:mtime).and_call_original
+        allow(File).to receive(:mtime).with(resultset_path)
+          .and_return(Time.at(100), Time.at(200), Time.at(200))
+
+        model1, = described_class.create_configured_model(server_context: context, root: root)
+        model2, = described_class.create_configured_model(server_context: context, root: root)
+
+        expect(model2).not_to be(model1)
+      end
     end
   end
 end

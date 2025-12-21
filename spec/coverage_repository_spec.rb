@@ -18,7 +18,7 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
       end
 
       it 'normalizes keys to absolute paths' do
-        repo.coverage_map.keys.each do |key|
+        repo.coverage_map.each_key do |key|
           expect(Pathname.new(key)).to be_absolute
         end
       end
@@ -42,13 +42,13 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
         end.to raise_error(CovLoupe::ResultsetNotFoundError)
       end
     end
-    
+
     context 'when underlying loader raises generic error' do
       before do
         allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_return('dummy')
-        allow(CovLoupe::ResultsetLoader).to receive(:load).and_raise(RuntimeError.new("Boom"))
+        allow(CovLoupe::ResultsetLoader).to receive(:load).and_raise(RuntimeError.new('Boom'))
       end
-      
+
       it 'wraps generic errors in CoverageDataError' do
         expect do
           repo

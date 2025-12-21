@@ -3,7 +3,16 @@
 # MCP Tool shared examples and helpers
 module MCPToolTestHelpers
   def null_server_context
-    instance_double('ServerContext', app_config: nil).as_null_object
+    instance_double('ServerContext', app_config: nil, mcp_mode?: false, model_cache: nil)
+  end
+
+  def mcp_server_context(cache: nil, app_config: nil)
+    instance_double(
+      'ServerContext',
+      app_config: app_config,
+      mcp_mode?: true,
+      model_cache: cache || CovLoupe::ModelCache.new
+    )
   end
 
   def setup_mcp_response_stub
