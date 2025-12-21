@@ -131,10 +131,7 @@ RSpec.describe CovLoupe::BaseTool do
   end
 
   describe '.create_configured_model' do
-    let(:context) do
-      CovLoupe::AppContext.new(error_handler: handler, mode: :mcp, app_config: nil,
-        model_cache: CovLoupe::ModelCache.new)
-    end
+    let(:context) { mcp_server_context }
 
     it 'reuses cached models when the resultset timestamp is unchanged' do
       Dir.mktmpdir do |root|
