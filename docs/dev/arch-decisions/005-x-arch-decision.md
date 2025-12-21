@@ -48,7 +48,7 @@ cov-loupe currently depends on `amazing_print`, `mcp`, and `simplecov` at runtim
 
 Coverage data is read directly from JSON files by `CovLoupe::CoverageModel#load_coverage_data`:
 ```ruby
-rs = Resolvers::ResolverFactory.find_resultset(@root, resultset: resultset)
+rs = Resolvers::ResolverHelpers.find_resultset(@root, resultset: resultset)
 loaded = ResultsetLoader.load(resultset_path: rs)
 coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }

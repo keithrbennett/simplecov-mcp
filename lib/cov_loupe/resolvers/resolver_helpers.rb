@@ -5,7 +5,7 @@ require_relative 'coverage_line_resolver'
 
 module CovLoupe
   module Resolvers
-    class ResolverFactory
+    class ResolverHelpers
       def self.create_resultset_resolver(root: Dir.pwd, resultset: nil, candidates: nil)
         candidates ?
           ResultsetPathResolver.new(root: root, candidates: candidates) :

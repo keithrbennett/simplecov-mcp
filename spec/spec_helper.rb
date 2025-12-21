@@ -79,7 +79,7 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
 
   allow(File).to receive(:read).with(end_with('.resultset.json'))
     .and_return(JSON.generate(fake_resultset_hash))
-  allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset)
+  allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
     .and_wrap_original do |method, search_root, resultset: nil|
     if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
       File.join(abs_root, 'coverage', '.resultset.json')

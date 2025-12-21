@@ -3,7 +3,7 @@
 require 'spec_helper'
 require 'tmpdir'
 
-RSpec.describe CovLoupe::Resolvers::ResolverFactory do
+RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
   describe '.create_resultset_resolver' do
     it 'uses provided candidates when present' do
       custom_candidates = ['alt/.resultset.json']

@@ -10,7 +10,7 @@ require_relative 'path_relativizer'
 require_relative 'resultset_loader'
 require_relative 'coverage_table_formatter'
 require_relative 'coverage_calculator'
-require_relative 'resolvers/resolver_factory'
+require_relative 'resolvers/resolver_helpers'
 
 module CovLoupe
   class CoverageModel
@@ -111,7 +111,7 @@ module CovLoupe
 
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
-      coverage_lines = Resolvers::ResolverFactory.lookup_lines(@cov, file_abs)
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
@@ -129,7 +129,7 @@ module CovLoupe
     end
 
     private def load_coverage_data(resultset, raise_on_stale)
-      rs = Resolvers::ResolverFactory.find_resultset(@root, resultset: resultset)
+      rs = Resolvers::ResolverHelpers.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs, logger: @logger)
       coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 
@@ -177,7 +177,7 @@ module CovLoupe
     end
 
     private def coverage_lines_for_listing(abs_path, raise_on_stale)
-      Resolvers::ResolverFactory.lookup_lines(@cov, abs_path)
+      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path)
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
 
@@ -269,7 +269,7 @@ module CovLoupe
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.absolute_path(path, @root)
       begin
-        coverage_lines = Resolvers::ResolverFactory.lookup_lines(@cov, file_abs)
+        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs)
       rescue RuntimeError
         raise FileError, "No coverage data found for file: #{path}"
       end

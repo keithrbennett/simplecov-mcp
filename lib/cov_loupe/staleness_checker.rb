@@ -3,7 +3,7 @@
 require 'time'
 require 'pathname'
 require_relative 'errors'
-require_relative 'resolvers/resolver_factory'
+require_relative 'resolvers/resolver_helpers'
 
 module CovLoupe
   # Lightweight service object to check staleness of coverage vs. sources
@@ -119,7 +119,7 @@ module CovLoupe
     end
 
     private def resultset_path
-      @resultset_path ||= Resolvers::ResolverFactory.find_resultset(@root, resultset: @resultset)
+      @resultset_path ||= Resolvers::ResolverHelpers.find_resultset(@root, resultset: @resultset)
     rescue
       nil
     end

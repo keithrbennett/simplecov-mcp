@@ -11,7 +11,7 @@ RSpec.describe CovLoupe::CoverageModel do
   describe 'initialization error handling' do
     it 'raises FileError when File.read raises Errno::ENOENT directly' do
       # Stub find_resultset to return a path, but File.read to raise ENOENT
-      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset)
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
         .and_return('/some/path/.resultset.json')
       allow(File).to receive(:read).with('/some/path/.resultset.json')
         .and_raise(Errno::ENOENT, 'No such file')
@@ -161,7 +161,7 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'records skipped rows when coverage data errors occur' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
-      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_wrap_original do
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
       |method, coverage_map, absolute|
         if absolute == abs_foo
           raise CovLoupe::CoverageDataError, 'corrupt data'
@@ -233,7 +233,7 @@ RSpec.describe CovLoupe::CoverageModel do
   describe 'resolve method error handling' do
     it 'raises FileError when coverage_lines is nil after lookup' do
       # Stub lookup_lines to return nil without raising
-      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_return(nil)
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_return(nil)
 
       expect do
         model.summary_for('lib/nonexistent.rb')
@@ -257,7 +257,7 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'raises FileError when lookup_lines raises RuntimeError' do
-      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
         .and_raise(RuntimeError, 'Could not find coverage data')
 
       expect do
@@ -360,7 +360,7 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     before do
-      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset).and_wrap_original do
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_wrap_original do
         |original, search_root, resultset: nil|
         root_match = File.absolute_path(search_root) == File.absolute_path(root)
         resultset_empty = resultset.nil? || resultset.to_s.empty?
