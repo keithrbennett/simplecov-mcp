@@ -48,18 +48,14 @@ cov-loupe currently depends on `amazing_print`, `mcp`, and `simplecov` at runtim
 
 Coverage data is read directly from JSON files by `CovLoupe::CoverageModel#load_coverage_data`:
 ```ruby
-rs = CovUtil.find_resultset(@root, resultset: resultset)
-raw = JSON.parse(File.read(rs))
-# SimpleCov typically writes a single test suite entry to .resultset.json
-# Find the first entry that has coverage data (skip comment entries)
-_suite, data = raw.find { |k, v| v.is_a?(Hash) && v.key?('coverage') }
-raise "No test suite with coverage data found in resultset file: #{rs}" unless data
-cov = data['coverage'] or raise "No 'coverage' key found in resultset file: #{rs}"
-@cov = cov.transform_keys { |k| File.absolute_path(k, @root) }
-@cov_timestamp = (data['timestamp'] || data['created_at'] || 0).to_i
+rs = Resolvers::ResolverFactory.find_resultset(@root, resultset: resultset)
+loaded = ResultsetLoader.load(resultset_path: rs)
+coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
+@cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
+@cov_timestamp = loaded.timestamp
 ```
 
-Coverage calculations use simple algorithms in `CovLoupe::CovUtil` (`summary`, `uncovered`, `detailed`):
+Coverage calculations use simple algorithms in `CovLoupe::CoverageCalculator` (`summary`, `uncovered`, `detailed`):
 ```ruby
 def summary(arr)
   total = 0
@@ -116,9 +112,9 @@ Where:
 
 ### Resultset Discovery
 
-We implement flexible discovery of `.resultset.json` files via `CovUtil::RESULTSET_CANDIDATES`:
+We implement flexible discovery of `.resultset.json` files via `Resolvers::ResultsetPathResolver::DEFAULT_CANDIDATES`:
 ```ruby
-RESULTSET_CANDIDATES = [
+DEFAULT_CANDIDATES = [
   '.resultset.json',
   'coverage/.resultset.json',
   'tmp/.resultset.json'
@@ -177,8 +173,8 @@ If SimpleCov's format changes:
 ## References
 
 - Gemspec dependencies: `cov-loupe.gemspec` (`spec.add_dependency` entries)
-- JSON parsing: `lib/cov_loupe/model.rb` (`CoverageModel#load_coverage_data`)
-- Coverage calculations: `lib/cov_loupe/util.rb` (`CovUtil.summary`, `.uncovered`, `.detailed`)
-- Resultset discovery: `lib/cov_loupe/util.rb` (`CovUtil::RESULTSET_CANDIDATES` and helpers)
+- JSON parsing: `lib/cov_loupe/resultset_loader.rb` (`ResultsetLoader.load`)
+- Coverage calculations: `lib/cov_loupe/coverage_calculator.rb` (`CoverageCalculator.summary`, `.uncovered`, `.detailed`)
+- Resultset discovery: `lib/cov_loupe/resolvers/resultset_path_resolver.rb` (`ResultsetPathResolver::DEFAULT_CANDIDATES`)
 - SimpleCov format documentation: https://github.com/simplecov-ruby/simplecov
 - Development usage: Uses SimpleCov in `spec/spec_helper.rb` to test itself

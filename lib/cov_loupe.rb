@@ -7,7 +7,6 @@ require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 re
 
 require_relative 'cov_loupe/version'
 require_relative 'cov_loupe/app_context'
-require_relative 'cov_loupe/util'
 require_relative 'cov_loupe/errors'
 require_relative 'cov_loupe/error_handler'
 require_relative 'cov_loupe/error_handler_factory'

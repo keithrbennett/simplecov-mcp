@@ -2,7 +2,6 @@
 
 require 'json'
 require_relative 'errors'
-require_relative 'util'
 
 module CovLoupe
   # Handles error reporting and logging with configurable behavior

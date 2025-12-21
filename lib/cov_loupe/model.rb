@@ -3,13 +3,14 @@
 require 'time'
 require 'json'
 
-require_relative 'util'
 require_relative 'errors'
 require_relative 'error_handler'
 require_relative 'staleness_checker'
 require_relative 'path_relativizer'
 require_relative 'resultset_loader'
 require_relative 'coverage_table_formatter'
+require_relative 'coverage_calculator'
+require_relative 'resolvers/resolver_factory'
 
 module CovLoupe
   class CoverageModel
@@ -58,7 +59,7 @@ module CovLoupe
     # Returns { 'file' => <absolute_path>, 'summary' => {'covered'=>, 'total'=>, 'percentage'=>} }
     def summary_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
-      { 'file' => file_abs, 'summary' => CovUtil.summary(coverage_lines) }
+      { 'file' => file_abs, 'summary' => CoverageCalculator.summary(coverage_lines) }
     end
 
     # Returns { 'file' => <absolute_path>, 'uncovered' => [line,...], 'summary' => {...} }
@@ -66,8 +67,8 @@ module CovLoupe
       file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
         'file' => file_abs,
-        'uncovered' => CovUtil.uncovered(coverage_lines),
-        'summary' => CovUtil.summary(coverage_lines)
+        'uncovered' => CoverageCalculator.uncovered(coverage_lines),
+        'summary' => CoverageCalculator.summary(coverage_lines)
       }
     end
 
@@ -76,8 +77,8 @@ module CovLoupe
       file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
         'file' => file_abs,
-        'lines' => CovUtil.detailed(coverage_lines),
-        'summary' => CovUtil.summary(coverage_lines)
+        'lines' => CoverageCalculator.detailed(coverage_lines),
+        'summary' => CoverageCalculator.summary(coverage_lines)
       }
     end
 
@@ -110,7 +111,7 @@ module CovLoupe
 
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
-      coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
+      coverage_lines = Resolvers::ResolverFactory.lookup_lines(@cov, file_abs)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
@@ -128,7 +129,7 @@ module CovLoupe
     end
 
     private def load_coverage_data(resultset, raise_on_stale)
-      rs = CovUtil.find_resultset(@root, resultset: resultset)
+      rs = Resolvers::ResolverFactory.find_resultset(@root, resultset: resultset)
       loaded = ResultsetLoader.load(resultset_path: rs, logger: @logger)
       coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
 
@@ -162,7 +163,7 @@ module CovLoupe
         coverage_lines = coverage_lines_for_listing(abs_path, raise_on_stale)
         next unless coverage_lines
 
-        summary = CovUtil.summary(coverage_lines)
+        summary = CoverageCalculator.summary(coverage_lines)
         {
           'file' => abs_path,
           'covered' => summary['covered'],
@@ -176,7 +177,7 @@ module CovLoupe
     end
 
     private def coverage_lines_for_listing(abs_path, raise_on_stale)
-      CovUtil.lookup_lines(@cov, abs_path)
+      Resolvers::ResolverFactory.lookup_lines(@cov, abs_path)
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
 
@@ -268,7 +269,7 @@ module CovLoupe
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.absolute_path(path, @root)
       begin
-        coverage_lines = CovUtil.lookup_lines(@cov, file_abs)
+        coverage_lines = Resolvers::ResolverFactory.lookup_lines(@cov, file_abs)
       rescue RuntimeError
         raise FileError, "No coverage data found for file: #{path}"
       end

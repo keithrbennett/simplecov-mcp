@@ -173,7 +173,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   describe 'RuntimeError handling from find_resultset' do
     it 'converts RuntimeError to CoverageDataError with helpful message' do
       # Mock find_resultset to raise RuntimeError (simulating missing resultset)
-      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset).and_raise(
         RuntimeError.new('Specified resultset not found: /nonexistent/path/.resultset.json')
       )
 
@@ -186,7 +186,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
     it 'handles RuntimeError with generic messages' do
       # Test RuntimeError with any generic message that includes 'resultset'
-      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset).and_raise(
         RuntimeError.new('Something went wrong during resultset lookup')
       )
 
@@ -200,7 +200,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'converts RuntimeError without "resultset" in message to CoverageDataError' do
       # Test RuntimeError that does NOT contain 'resultset' in its message
       # This exercises the else branch in the RuntimeError rescue clause
-      allow(CovLoupe::CovUtil).to receive(:find_resultset).and_raise(
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:find_resultset).and_raise(
         RuntimeError.new('Some completely unrelated runtime error')
       )
 
@@ -227,8 +227,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
 
       # Mock lookup_lines to raise FileError for one specific file
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
@@ -256,8 +256,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
 
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
 
@@ -279,8 +279,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'raises FileError when raise_on_stale is true and file lookup fails' do
       model = described_class.new(root: root, resultset: 'coverage')
 
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::FileError.new('Missing file'))
 
@@ -292,8 +292,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
       model = described_class.new(root: root, resultset: 'coverage')
 
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'))
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
 
@@ -309,7 +309,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: 'coverage')
 
       # Mock lookup_lines to raise RuntimeError for a specific file
-      allow(CovLoupe::CovUtil).to receive(:lookup_lines)
+      allow(CovLoupe::Resolvers::ResolverFactory).to receive(:lookup_lines)
         .and_raise(RuntimeError.new('Unexpected runtime error during lookup'))
 
       expect do
