@@ -52,6 +52,34 @@ RSpec.describe CovLoupe::GlobUtils do
       patterns = ['/root/lib/*.{rb,erb}']
       expect(described_class.matches_any_pattern?('/root/lib/view.erb', patterns)).to be true
     end
+
+    it 'supports recursive matching (**)' do
+      patterns = ['/root/**/*.rb']
+      expect(described_class.matches_any_pattern?('/root/lib/deeply/nested/file.rb',
+        patterns)).to be true
+    end
+
+    it 'respects directory boundaries with * (does not cross directories)' do
+      patterns = ['/root/lib/*.rb']
+      expect(described_class.matches_any_pattern?('/root/lib/subdir/file.rb', patterns)).to be false
+    end
+
+    it 'supports character sets ([...])' do
+      patterns = ['/root/file[1-9].rb']
+      expect(described_class.matches_any_pattern?('/root/file5.rb', patterns)).to be true
+      expect(described_class.matches_any_pattern?('/root/fileA.rb', patterns)).to be false
+    end
+
+    it 'supports single character wildcard (?)' do
+      patterns = ['/root/test?.rb']
+      expect(described_class.matches_any_pattern?('/root/test1.rb', patterns)).to be true
+      expect(described_class.matches_any_pattern?('/root/test12.rb', patterns)).to be false
+    end
+
+    it 'does not match dotfiles with * by default' do
+      patterns = ['/root/*']
+      expect(described_class.matches_any_pattern?('/root/.hidden', patterns)).to be false
+    end
   end
 
   describe '.filter_by_pattern' do
