@@ -11,13 +11,12 @@ require_relative 'resultset_loader'
 require_relative 'coverage_table_formatter'
 require_relative 'coverage_calculator'
 require_relative 'resolvers/resolver_helpers'
+require_relative 'glob_utils'
 
 module CovLoupe
   class CoverageModel
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
     RELATIVIZER_ARRAY_KEYS = %w[newer_files missing_files deleted_files].freeze
-    GLOB_MATCH_FLAGS = File::FNM_PATHNAME | File::FNM_EXTGLOB
-    private_constant :GLOB_MATCH_FLAGS
 
     attr_reader :relativizer, :skipped_rows
 
@@ -225,37 +224,11 @@ module CovLoupe
     # @param tracked_globs [Array<String>, String, nil] glob patterns to match against
     # @return [Array<Hash>] rows whose files match at least one pattern (or all rows if no patterns)
     private def filter_rows_by_globs(rows, tracked_globs)
-      patterns = normalize_patterns(tracked_globs)
+      patterns = GlobUtils.normalize_patterns(tracked_globs)
       return rows if patterns.empty?
 
-      absolute_patterns = patterns.map { |p| absolutize_pattern(p) }
-      rows.select { |row| matches_any_pattern?(row['file'], absolute_patterns) }
-    end
-
-    # Ensures input is a clean array of non-empty strings.
-    # @param globs [Array<String>, String, nil] glob patterns
-    # @return [Array<String>] normalized patterns
-    private def normalize_patterns(globs)
-      Array(globs).compact.map(&:to_s).reject(&:empty?)
-    end
-
-    # Converts a pattern to absolute path relative to project root.
-    # Handles both relative patterns ("lib/*.rb") and absolute ones ("/tmp/*.rb").
-    #
-    # @param pattern [String] glob pattern
-    # @return [String] absolute pattern
-    private def absolutize_pattern(pattern)
-      File.absolute_path(pattern, @root)
-    end
-
-    # Tests if a file path matches any of the given absolute glob patterns.
-    # Uses File.fnmatch? for pure string matching without filesystem access.
-    #
-    # @param abs_path [String] absolute file path to test
-    # @param patterns [Array<String>] absolute glob patterns
-    # @return [Boolean] true if the path matches at least one pattern
-    private def matches_any_pattern?(abs_path, patterns)
-      patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, GLOB_MATCH_FLAGS) }
+      absolute_patterns = patterns.map { |p| GlobUtils.absolutize_pattern(p, @root) }
+      GlobUtils.filter_by_pattern(rows, absolute_patterns)
     end
 
     # Retrieves coverage data for a file path.
