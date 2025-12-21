@@ -181,7 +181,7 @@ export COV_LOUPE_OPTS="-r /path/to/your/coverage"
 # "args": ["-r", "/path/to/your/coverage"]
 ```
 
-**MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `raise_on_stale: false`, etc.).
+**MCP precedence:** For MCP tool calls, per-request JSON parameters win over the CLI args used to start the server (including `COV_LOUPE_OPTS`). If neither is provided, built-in defaults are used (`root: '.'`, `raise_on_stale: false`, etc.). MCP mode caches the `CoverageModel` between requests when the resolved `.resultset.json` path and file mtime are unchanged, replacing the model when the resultset changes.
 
 See [CLI Usage Guide](docs/user/CLI_USAGE.md) for complete details.
 

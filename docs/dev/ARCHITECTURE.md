@@ -30,7 +30,7 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 ### MCP Server (`CovLoupe::MCPServer`)
 
 - Assembles a list of tool classes and mounts them in `MCP::Server` using STDIO transport.
-- Relies on the same core model; each tool instance recreates `CoverageModel` with the arguments provided by the MCP client, keeping the server stateless between requests.
+- Relies on the same core model; MCP requests reuse a cached `CoverageModel` when the resolved `.resultset.json` path and file mtime are unchanged, replacing the model when the resultset changes.
 - Configuration precedence in MCP: per-request JSON parameters override CLI arguments passed when the server starts (including `COV_LOUPE_OPTS`), which in turn override built-in defaults.
 - Error handling delegates to `BaseTool.handle_mcp_error`, which swaps in the MCP-specific handler and emits `MCP::Tool::Response` objects.
 
