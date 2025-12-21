@@ -12,6 +12,7 @@ require_relative 'coverage_table_formatter'
 require_relative 'coverage_calculator'
 require_relative 'resolvers/resolver_helpers'
 require_relative 'glob_utils'
+require_relative 'repositories/coverage_repository'
 
 module CovLoupe
   class CoverageModel
@@ -32,7 +33,7 @@ module CovLoupe
     def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil,
       logger: nil)
       @root = File.absolute_path(root || '.')
-      @resultset = resultset
+      @resultset_arg = resultset
       @default_tracked_globs = tracked_globs
       @skipped_rows = []
       @logger = logger || CovLoupe.logger
@@ -41,8 +42,9 @@ module CovLoupe
         scalar_keys: RELATIVIZER_SCALAR_KEYS,
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
+      @default_raise_on_stale = raise_on_stale
 
-      load_coverage_data(resultset, raise_on_stale)
+      load_coverage_data
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -127,28 +129,21 @@ module CovLoupe
       CoverageTableFormatter.format(rows)
     end
 
-    private def load_coverage_data(resultset, raise_on_stale)
-      rs = Resolvers::ResolverHelpers.find_resultset(@root, resultset: resultset)
-      loaded = ResultsetLoader.load(resultset_path: rs, logger: @logger)
-      coverage_map = loaded.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{rs}")
-
-      @cov = coverage_map.transform_keys { |k| File.absolute_path(k, @root) }
-      @cov_timestamp = loaded.timestamp
-      @default_raise_on_stale = raise_on_stale
-
-      # We don't keep a persistent checker anymore, but we validate the
-      # params by building one once (or we could just rely on lazy creation).
-      # For now, we just store the default preference.
-    rescue CovLoupe::Error
-      raise # Re-raise our own errors as-is
-    rescue => e
-      raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
+    private def load_coverage_data
+      repo = Repositories::CoverageRepository.new(
+        root: @root,
+        resultset_path: @resultset_arg,
+        logger: @logger
+      )
+      @cov = repo.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{repo.resultset_path}")
+      @cov_timestamp = repo.timestamp
+      @resultset_path = repo.resultset_path # Store resolved path for StalenessChecker
     end
 
     private def build_staleness_checker(raise_on_stale:, tracked_globs:)
       StalenessChecker.new(
         root: @root,
-        resultset: @resultset,
+        resultset: @resultset_path,
         mode: raise_on_stale ? :error : :off,
         tracked_globs: tracked_globs,
         timestamp: @cov_timestamp
