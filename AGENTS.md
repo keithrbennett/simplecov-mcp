@@ -183,6 +183,7 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 - SimpleCov loads lazily only when merging multi-suite resultsets.
 - Test files live in `spec/` and follow standard RSpec conventions.
 - Where possible, make tests more DRY (concise) by iterating over arrays of test setups.
+- If there are test errors that would never occur in production (i.e. that are errors due to the test environment and not logic errors), the agent should modify test code and not production code, and make the solution as simple as possible.
 
 ## Troubleshooting Notes
 - Coverage lookup order: The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
