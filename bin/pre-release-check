@@ -11,17 +11,29 @@ class PreReleaseCheck
   def call
     Dir.chdir(ROOT) do
       verify_git_clean!
+      puts "✓ Git working tree is clean"
+
       verify_branch!
+      puts "✓ On main branch"
+
       verify_sync!
+      puts "✓ Local branch is in sync with origin/main"
+
       verify_ci_passed!
+      puts "✓ GitHub Actions CI passed"
 
       @version = fetch_version
       @tag_name = "v#{@version}"
+      puts "✓ Preparing release for version #{@version}"
 
       verify_release_notes!
+      puts "✓ Release notes found for #{@tag_name}"
+
       verify_tag_new!
+      puts "✓ Tag #{@tag_name} does not yet exist"
 
       build_gem!
+      puts "✓ Gem built successfully"
 
       puts "\nBuild complete! To finish the release, run:"
       puts
