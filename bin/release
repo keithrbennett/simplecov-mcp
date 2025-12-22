@@ -21,10 +21,14 @@ class Release
       verify_tag_new!
 
       build_gem!
-      tag_and_push!
-      publish_gem!
 
-      puts "\nRelease #{@tag_name} complete. Remember to draft the GitHub release via the web UI."
+      puts "\nBuild complete! To finish the release, run:"
+      puts
+      puts "  git tag -a #{@tag_name} -m 'Version #{@version}'"
+      puts "  git push origin main --follow-tags"
+      puts "  gem push #{@gem_file.basename}"
+      puts
+      puts "Then draft the GitHub release via the web UI."
     end
   end
 
@@ -75,15 +79,6 @@ class Release
     FileUtils.rm_f(@gem_file)
     run!('gem build cov-loupe.gemspec')
     abort_with("Gem file #{@gem_file} not found after build.") unless @gem_file.exist?
-  end
-
-  private def tag_and_push!
-    run!("git tag -a #{@tag_name} -m 'Version #{@version}'")
-    run!('git push origin main --follow-tags')
-  end
-
-  private def publish_gem!
-    run!("gem push #{@gem_file}")
   end
 
   private def run!(cmd, stream: true)
