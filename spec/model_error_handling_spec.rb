@@ -171,7 +171,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'RuntimeError handling from find_resultset' do
-    it 'converts RuntimeError to CoverageDataError with helpful message' do
+    it 'wraps RuntimeError as UnknownError' do
       # Mock find_resultset to raise RuntimeError (simulating missing resultset)
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
         RuntimeError.new('Specified resultset not found: /nonexistent/path/.resultset.json')
@@ -179,12 +179,12 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: '/nonexistent/path')
-      end.to raise_error(CovLoupe::ResultsetNotFoundError) do |error|
+      end.to raise_error(CovLoupe::UnknownError) do |error|
         expect(error.message).to include('Specified resultset not found')
       end
     end
 
-    it 'handles RuntimeError with generic messages' do
+    it 'wraps RuntimeError with generic messages' do
       # Test RuntimeError with any generic message that includes 'resultset'
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
         RuntimeError.new('Something went wrong during resultset lookup')
@@ -192,23 +192,21 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       expect do
         described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-      end.to raise_error(CovLoupe::ResultsetNotFoundError) do |error|
+      end.to raise_error(CovLoupe::UnknownError) do |error|
         expect(error.message).to include('Something went wrong during resultset lookup')
       end
     end
 
-    it 'converts RuntimeError without "resultset" in message to CoverageDataError' do
+    it 'wraps RuntimeError without "resultset" in message' do
       # Test RuntimeError that does NOT contain 'resultset' in its message
-      # This exercises the else branch in the RuntimeError rescue clause
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
         RuntimeError.new('Some completely unrelated runtime error')
       )
 
       expect do
         described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-      end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Failed to load coverage data',
-          'Some completely unrelated runtime error')
+      end.to raise_error(CovLoupe::UnknownError) do |error|
+        expect(error.message).to include('Some completely unrelated runtime error')
       end
     end
   end

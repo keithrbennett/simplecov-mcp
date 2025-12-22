@@ -52,22 +52,12 @@ RSpec.describe CovLoupe::ErrorHandler do
     expect(e.user_friendly_message).to include('Invalid coverage data structure')
   end
 
-  it 'maps runtime strings from util to friendly errors' do
-    e = handler.convert_standard_error(
-      RuntimeError.new('Could not find .resultset.json under /path; run tests')
-    )
-    expect(e).to be_a(CovLoupe::CoverageDataError)
-    expect(e.user_friendly_message).to include('run your tests first')
+  it 'wraps RuntimeError as UnknownError' do
+    error = RuntimeError.new('Could not find .resultset.json under /path; run tests')
+    result = handler.convert_standard_error(error)
 
-    e = handler.convert_standard_error(
-      RuntimeError.new('No .resultset.json found in directory: /path')
-    )
-    expect(e).to be_a(CovLoupe::CoverageDataError)
-
-    e = handler.convert_standard_error(
-      RuntimeError.new('Specified resultset not found: /nowhere/file.json')
-    )
-    expect(e).to be_a(CovLoupe::ResultsetNotFoundError)
+    expect(result).to be_a(CovLoupe::UnknownError)
+    expect(result.message).to eq('Could not find .resultset.json under /path; run tests')
   end
 
   it 'logs via provided logger' do
@@ -88,11 +78,11 @@ RSpec.describe CovLoupe::ErrorHandler do
     expect(result.user_friendly_message).to include('Invalid coverage data structure')
   end
 
-  it 'returns generic Error for unrecognized SystemCallError' do
+  it 'wraps unrecognized SystemCallError as UnknownError' do
     error = Errno::EEXIST.new('File exists')
     result = handler.convert_standard_error(error)
 
-    expect(result).to be_a(CovLoupe::Error)
+    expect(result).to be_a(CovLoupe::UnknownError)
     expect(result.user_friendly_message).to include('An unexpected error occurred')
   end
 
@@ -156,20 +146,13 @@ RSpec.describe CovLoupe::ErrorHandler do
     end
   end
 
-  # ErrorHandler#convert_runtime_error handles RuntimeErrors differently based on context:
-  # - :coverage_loading assumes errors relate to coverage data and maps them to
-  #   CoverageDataError or ResultsetNotFoundError
-  # - :general (or any other context) maps unrecognized errors to generic Error
-  # This tests the final else branch in convert_runtime_error.
-  describe 'convert_runtime_error with general context' do
-    it 'converts RuntimeError with unrecognized message to generic Error' do
+  describe 'RuntimeError handling with general context' do
+    it 'wraps RuntimeError as UnknownError' do
       error = RuntimeError.new('Some completely unexpected runtime error')
 
       result = handler.convert_standard_error(error, context: :general)
 
-      expect(result).to be_a(CovLoupe::Error)
-      expect(result.user_friendly_message)
-        .to include('An unexpected error occurred', 'unexpected runtime error')
+      expect(result).to be_a(CovLoupe::UnknownError)
     end
   end
 

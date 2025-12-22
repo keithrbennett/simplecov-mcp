@@ -50,6 +50,13 @@ module CovLoupe
     end
   end
 
+  # Error wrapper when the root cause is unknown or unclassified.
+  class UnknownError < Error
+    def user_friendly_message
+      "An unexpected error occurred: #{message}"
+    end
+  end
+
   # File or path related errors
   class FileError < Error
     def user_friendly_message

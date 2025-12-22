@@ -49,10 +49,10 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
         allow(CovLoupe::ResultsetLoader).to receive(:load).and_raise(RuntimeError.new('Boom'))
       end
 
-      it 'wraps generic errors in CoverageDataError' do
+      it 'wraps RuntimeError as UnknownError' do
         expect do
           repo
-        end.to raise_error(CovLoupe::CoverageDataError, /Boom/)
+        end.to raise_error(CovLoupe::UnknownError, /Boom/)
       end
     end
   end

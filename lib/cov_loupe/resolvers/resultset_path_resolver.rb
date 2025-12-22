@@ -2,6 +2,8 @@
 
 require 'pathname'
 
+require_relative '../errors'
+
 module CovLoupe
   module Resolvers
     class ResultsetPathResolver
@@ -39,11 +41,11 @@ module CovLoupe
         candidate = File.join(path, '.resultset.json')
         return candidate if File.file?(candidate)
 
-        raise "No .resultset.json found in directory: #{path}"
+        raise ResultsetNotFoundError, "No .resultset.json found in directory: #{path}"
       end
 
       private def raise_not_found_error_for_file(path)
-        raise "Specified resultset not found: #{path}"
+        raise ResultsetNotFoundError, "Specified resultset not found: #{path}"
       end
 
       private def resolve_fallback
@@ -91,12 +93,13 @@ module CovLoupe
       end
 
       private def raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
-        raise "Ambiguous resultset location specified. Both #{expanded_pwd} and #{expanded_root} exist. " \
-              'Use `./` or an absolute filespec to disambiguate.'
+        raise ConfigurationError, "Ambiguous resultset location specified. Both #{expanded_pwd} and #{expanded_root} exist. " \
+                                  'Use `./` or an absolute filespec to disambiguate.'
       end
 
       private def raise_not_found_error
-        raise "Could not find .resultset.json under #{@root.inspect}; run tests or set --resultset option"
+        raise ResultsetNotFoundError,
+          "Could not find .resultset.json under #{@root.inspect}; run tests or set --resultset option"
       end
     end
   end

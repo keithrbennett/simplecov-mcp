@@ -55,10 +55,8 @@ module CovLoupe
         convert_argument_error(error, context)
       when NoMethodError
         convert_no_method_error(error, context)
-      when RuntimeError
-        convert_runtime_error(error, context)
-      else
-        Error.new("An unexpected error occurred: #{error.message}", error)
+      else # including RuntimeError
+        UnknownError.new(error.message, error)
       end
     end
 
@@ -99,28 +97,6 @@ module CovLoupe
       end
     end
 
-    private def convert_runtime_error(error, context)
-      message = error.message
-      if message.include?('Could not find .resultset.json')
-        dir_info = message.match(/under (.+?)(?:;|$)/)&.[](1) || 'project directory'
-        CoverageDataError.new(
-          "Coverage data not found in #{dir_info} - please run your tests first", error)
-      elsif message.include?('No .resultset.json found in directory')
-        dir_info = message.match(/directory: (.+)$/)&.[](1) || 'specified directory'
-        CoverageDataError.new("Coverage data not found in directory: #{dir_info}", error)
-      elsif message.include?('Specified resultset not found')
-        # Preserve the original message format for consistency with existing tests
-        ResultsetNotFoundError.new(message, error)
-      elsif context == :coverage_loading
-        if message.downcase.include?('resultset')
-          ResultsetNotFoundError.new(message, error)
-        else
-          CoverageDataError.new("Failed to load coverage data: #{message}", error)
-        end
-      else
-        Error.new("An unexpected error occurred: #{message}", error)
-      end
-    end
 
     private def log_error(error, context)
       return unless log_errors?
