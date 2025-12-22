@@ -1,66 +1,112 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "fileutils"
-require "pathname"
-require "open3"
+require 'fileutils'
+require 'pathname'
+require 'open3'
 
-ROOT = Pathname.new(__dir__).join("..").expand_path
+class Release
+  ROOT = Pathname.new(__dir__).join('..').expand_path
 
-def abort_with(message)
-  warn "ERROR: #{message}"
-  exit 1
-end
+  def call
+    Dir.chdir(ROOT) do
+      verify_git_clean!
+      verify_branch!
+      verify_sync!
 
-def run!(cmd, stream: true)
-  puts "→ #{cmd}"
-  output = +""
-  status = nil
-  Open3.popen2e(cmd) do |_stdin, stdout_err, wait_thr|
-    stdout_err.each do |line|
-      print line if stream
-      output << line
+      @version = fetch_version
+      @tag_name = "v#{@version}"
+
+      verify_release_notes!
+      verify_tag_new!
+
+      build_gem!
+      tag_and_push!
+      publish_gem!
+
+      puts "\nRelease #{@tag_name} complete. Remember to draft the GitHub release via the web UI."
     end
-    status = wait_thr.value
   end
-  abort_with("Command failed: #{cmd}") unless status&.success?
-  output
+
+  private def verify_git_clean!
+    status = run!('git status --porcelain', stream: false)
+    unless status.strip.empty?
+      abort_with('Uncommitted changes present. Commit or stash before releasing.')
+    end
+  end
+
+  private def verify_branch!
+    current_branch = run!('git rev-parse --abbrev-ref HEAD', stream: false).strip
+    abort_with('Releases must be cut from the main branch.') unless current_branch == 'main'
+  end
+
+  private def verify_sync!
+    run!('git fetch origin --tags')
+    local_head = run!('git rev-parse HEAD', stream: false).strip
+    remote_head = run!('git rev-parse origin/main', stream: false).strip
+    unless local_head == remote_head
+      abort_with('Local main is behind origin. Pull or push before releasing.')
+    end
+  end
+
+  private def fetch_version
+    version_file = ROOT.join('lib/cov_loupe/version.rb')
+    version_source = version_file.read
+    version = version_source[/VERSION\s*=\s*["'](.+?)["']/, 1]
+    abort_with("Could not find VERSION constant in #{version_file}") unless version
+    version
+  end
+
+  private def verify_release_notes!
+    release_notes = ROOT.join('RELEASE_NOTES.md').read
+    header = "## #{@tag_name}"
+    unless release_notes.include?(header)
+      abort_with("Add a '#{header}' section to RELEASE_NOTES.md before releasing.")
+    end
+  end
+
+  private def verify_tag_new!
+    existing_tag = run!("git tag -l #{@tag_name}", stream: false).split("\n").include?(@tag_name)
+    abort_with("Tag #{@tag_name} already exists. Bump the version before releasing.") if existing_tag
+  end
+
+  private def build_gem!
+    @gem_file = ROOT.join("cov-loupe-#{@version}.gem")
+    FileUtils.rm_f(@gem_file)
+    run!('gem build cov-loupe.gemspec')
+    abort_with("Gem file #{@gem_file} not found after build.") unless @gem_file.exist?
+  end
+
+  private def tag_and_push!
+    run!("git tag -a #{@tag_name} -m 'Version #{@version}'")
+    run!('git push origin main --follow-tags')
+  end
+
+  private def publish_gem!
+    run!("gem push #{@gem_file}")
+  end
+
+  private def run!(cmd, stream: true)
+    puts "→ #{cmd}"
+    output = +''
+    status = nil
+    Open3.popen2e(cmd) do |_stdin, stdout_err, wait_thr|
+      stdout_err.each do |line|
+        print line if stream
+        output << line
+      end
+      status = wait_thr.value
+    end
+    abort_with("Command failed: #{cmd}") unless status&.success?
+    output
+  end
+
+  private def abort_with(message)
+    warn "ERROR: #{message}"
+    exit 1
+  end
 end
 
-Dir.chdir(ROOT) do
-  status = run!("git status --porcelain", stream: false)
-  abort_with("Uncommitted changes present. Commit or stash before releasing.") unless status.strip.empty?
-
-  branch = run!("git rev-parse --abbrev-ref HEAD", stream: false).strip
-  abort_with("Releases must be cut from the main branch.") unless branch == "main"
-
-  run!("git fetch origin --tags")
-  local_head = run!("git rev-parse HEAD", stream: false).strip
-  remote_head = run!("git rev-parse origin/#{branch}", stream: false).strip
-  abort_with("Local main is behind origin. Pull or push before releasing.") unless local_head == remote_head
-
-  version_file = ROOT.join("lib/cov_loupe/version.rb")
-  version_source = version_file.read
-  version = version_source[/VERSION\s*=\s*["'](.+?)["']/, 1]
-  abort_with("Could not find VERSION constant in #{version_file}") unless version
-
-  release_notes = ROOT.join("RELEASE_NOTES.md").read
-  header = "## v#{version}"
-  abort_with("Add a '#{header}' section to RELEASE_NOTES.md before releasing.") unless release_notes.include?(header)
-
-  tag_name = "v#{version}"
-  existing_tag = run!("git tag -l #{tag_name}", stream: false).split("\n").include?(tag_name)
-  abort_with("Tag #{tag_name} already exists. Bump the version before releasing.") if existing_tag
-
-  gem_file = ROOT.join("cov-loupe-#{version}.gem")
-  FileUtils.rm_f(gem_file)
-  run!("gem build cov-loupe.gemspec")
-  abort_with("Gem file #{gem_file} not found after build.") unless gem_file.exist?
-
-  run!("git tag -a #{tag_name} -m 'Version #{version}'")
-  run!("git push origin #{branch} --follow-tags")
-
-  run!("gem push #{gem_file}")
-
-  puts "\nRelease #{tag_name} complete. Remember to draft the GitHub release via the web UI."
+if __FILE__ == $PROGRAM_NAME
+  Release.new.call
 end
