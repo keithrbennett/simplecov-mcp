@@ -15,7 +15,7 @@ module MockingHelpers
   end
 
   # Stub a presenter with specific payload data
-  # @param presenter_class [Class] The presenter class to stub (e.g., CovLoupe::Presenters::CoverageRawPresenter)
+  # @param presenter_class [Class] The presenter class to stub (e.g., CovLoupe::Presenters::CoveragePayloadPresenter)
   # @param absolute_payload [Hash] The data hash to return from #absolute_payload
   # @param relative_path [String] The path to return from #relative_path
   def mock_presenter(presenter_class, absolute_payload:, relative_path:)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'base_command'
-require_relative '../presenters/coverage_raw_presenter'
+require_relative '../presenters/coverage_payload_presenter'
 require_relative '../table_formatter'
 
 module CovLoupe
@@ -9,7 +9,8 @@ module CovLoupe
     class RawCommand < BaseCommand
       def execute(args)
         handle_with_path(args, 'raw') do |path|
-          presenter = Presenters::CoverageRawPresenter.new(model: model, path: path)
+          presenter = Presenters::CoveragePayloadPresenter.new(model: model, path: path,
+            payload_method: :raw_for)
           data = presenter.absolute_payload
           break if maybe_output_structured_format?(data, model)
 

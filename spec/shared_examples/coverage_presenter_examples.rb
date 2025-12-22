@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'a coverage presenter' do |config|
-  subject(:presenter) { described_class.new(model: model, path: config.fetch(:path, 'lib/foo.rb')) }
+  subject(:presenter) do
+    described_class.new(
+      model: model,
+      path: config.fetch(:path, 'lib/foo.rb'),
+      **config.fetch(:presenter_options, {})
+    )
+  end
 
   let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:raw_payload) { config.fetch(:payload) }

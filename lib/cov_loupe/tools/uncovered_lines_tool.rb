@@ -2,7 +2,7 @@
 
 require_relative '../base_tool'
 require_relative '../model'
-require_relative '../presenters/coverage_uncovered_presenter'
+require_relative '../presenters/coverage_payload_presenter'
 
 module CovLoupe
   module Tools
@@ -18,13 +18,10 @@ module CovLoupe
       class << self
         def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
           server_context:)
-          call_with_file_presenter(
-            presenter_class: Presenters::CoverageUncoveredPresenter,
+          call_with_file_payload(
             path: path,
-            tool_name: 'UncoveredLinesTool',
             error_mode: error_mode,
             server_context: server_context,
-            json_name: 'uncovered_lines.json',
             root: root,
             resultset: resultset,
             raise_on_stale: raise_on_stale

@@ -26,7 +26,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
     context 'when the file is fully covered' do
       it 'still prints the raw table' do
         mock_presenter(
-          CovLoupe::Presenters::CoverageRawPresenter,
+          CovLoupe::Presenters::CoveragePayloadPresenter,
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'lines' => [1, 1, 1],

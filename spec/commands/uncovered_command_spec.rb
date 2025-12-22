@@ -27,7 +27,7 @@ RSpec.describe CovLoupe::Commands::UncoveredCommand do
     context 'when the file is fully covered' do
       before do
         mock_presenter(
-          CovLoupe::Presenters::CoverageUncoveredPresenter,
+          CovLoupe::Presenters::CoveragePayloadPresenter,
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'uncovered' => [],

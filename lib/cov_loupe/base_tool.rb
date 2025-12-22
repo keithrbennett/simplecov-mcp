@@ -5,6 +5,7 @@ require 'json'
 require_relative 'errors'
 require_relative 'error_handler'
 require_relative 'model_cache'
+require_relative 'presenters/coverage_payload_presenter'
 
 module CovLoupe
   class BaseTool < ::MCP::Tool
@@ -102,36 +103,37 @@ module CovLoupe
     # Merges configuration from server context (CLI flags) with explicit tool parameters (JSON).
     # Explicit parameters take precedence over context config, which takes precedence over defaults.
     # @param server_context [AppContext] The server context containing app_config from CLI
-    # @param explicit_params [Hash] Parameters explicitly passed in the JSON tool call
+    # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [Hash] Merged configuration for CoverageModel initialization
-    def self.model_config_for(server_context:, **explicit_params)
+    def self.model_config_for(server_context:, **model_option_overrides)
       # Start with config from context (CLI flags) or hardcoded defaults
       base = server_context.app_config&.model_options || default_model_options
 
       # Merge explicit params from JSON, removing nils
       # (nil means "not provided", so use base config)
-      base.merge(explicit_params.compact)
+      base.merge(model_option_overrides.compact)
     end
 
     # Creates and configures a CoverageModel instance.
     # Encapsulates the common pattern of merging config and initializing the model.
     # @param server_context [AppContext] The server context
-    # @param explicit_params [Hash] explicit tool parameters
+    # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [CoverageModel] The configured model
-    def self.create_model(server_context:, **explicit_params)
-      model, _config = create_configured_model(server_context: server_context, **explicit_params)
+    def self.create_model(server_context:, **model_option_overrides)
+      model, _config = create_configured_model(server_context: server_context,
+        **model_option_overrides)
       model
     end
 
     # Creates and configures a CoverageModel instance, returning both the model and the configuration.
     # Useful when the tool needs access to the resolved configuration (e.g., root, raise_on_stale).
     # @param server_context [AppContext] The server context
-    # @param explicit_params [Hash] explicit tool parameters
+    # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [Array<CoverageModel, Hash>] The configured model and the configuration hash
     # Creates a CoverageModel and returns it with the resolved config.
     # In MCP mode, reuses a cached model if the resultset file has not changed.
-    def self.create_configured_model(server_context:, **explicit_params)
-      config = model_config_for(server_context: server_context, **explicit_params)
+    def self.create_configured_model(server_context:, **model_option_overrides)
+      config = model_config_for(server_context: server_context, **model_option_overrides)
       cached_model = cached_model_for(server_context, config)
       return [cached_model, config] if cached_model
 
@@ -145,26 +147,50 @@ module CovLoupe
       { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }
     end
 
-    # Common pattern for file-based tools: create model, instantiate presenter, return JSON.
-    # Eliminates duplication across coverage_summary, coverage_raw, coverage_detailed, and
-    # uncovered_lines tools.
-    #
-    # @param presenter_class [Class] The presenter class to instantiate
+    # Runs a file-based tool request by deriving payload method and JSON name from the tool class.
     # @param path [String] File path to analyze
-    # @param tool_name [String] Tool name for error handling
     # @param error_mode [String] Error handling mode
     # @param server_context [AppContext] Server context
-    # @param json_name [String] JSON resource name
-    # @param explicit_params [Hash] Additional parameters for model creation
+    # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [MCP::Tool::Response] JSON response
-    def self.call_with_file_presenter(presenter_class:, path:, tool_name:, error_mode:,
-      server_context:, json_name:, **explicit_params)
+    def self.call_with_file_payload(path:, error_mode:, server_context:,
+      **model_option_overrides)
+      tool_name = name.split('::').last
+
       with_error_handling(tool_name, error_mode: error_mode) do
-        model = create_model(server_context: server_context, **explicit_params)
-        presenter = presenter_class.new(model: model, path: path)
-        respond_json(presenter.relativized_payload, name: json_name, pretty: true)
+        model = create_model(server_context: server_context, **model_option_overrides)
+        presenter = Presenters::CoveragePayloadPresenter.new(
+          model: model,
+          path: path,
+          payload_method: payload_method_for(tool_name)
+        )
+        respond_json(presenter.relativized_payload, name: json_name_for(tool_name), pretty: true)
       end
     end
+
+    # Infer CoverageModel method name from a tool class name.
+    # CoverageSummaryTool -> :summary_for, CoverageRawTool -> :raw_for,
+    # CoverageDetailedTool -> :detailed_for, UncoveredLinesTool -> :uncovered_for.
+    def self.payload_method_for(tool_name)
+      base = tool_name.sub(/Tool\z/, '')
+      underscored = underscore(base).sub(/\Acoverage_/, '').sub(/_lines\z/, '')
+      :"#{underscored}_for"
+    end
+
+    # Infer the MCP JSON resource name from a tool class name.
+    # CoverageSummaryTool -> coverage_summary.json, UncoveredLinesTool -> uncovered_lines.json.
+    def self.json_name_for(tool_name)
+      "#{underscore(tool_name.sub(/Tool\z/, ''))}.json"
+    end
+
+    # Minimal underscore helper to avoid pulling in ActiveSupport.
+    def self.underscore(value)
+      value
+        .gsub(/([A-Z]+)([A-Z][a-z])/, '\\1_\\2')
+        .gsub(/([a-z\\d])([A-Z])/, '\\1_\\2')
+        .downcase
+    end
+    private_class_method :payload_method_for, :json_name_for, :underscore
 
     # Returns a cached model if it is safe to reuse for the current config.
     def self.cached_model_for(server_context, config)
