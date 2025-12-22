@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
 # Enable SimpleCov for this project (coverage output in ./coverage)
-require 'fileutils'
-Kernel.at_exit { FileUtils.rm_rf(File.join(Dir.pwd, 'coverage')) }
-
 begin
   require 'simplecov'
-  require 'simplecov-cobertura'
   SimpleCov.start do
     enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
     add_filter(/^\/spec\//)
     track_files 'lib/**/*.rb'
-    formatter SimpleCov::Formatter::CoberturaFormatter
+    formatter SimpleCov::Formatter::HTMLFormatter
   end
 
   # Report lowest coverage files at the end of the test run
