@@ -5,7 +5,7 @@ require 'fileutils'
 require 'pathname'
 require 'open3'
 
-class Release
+class PreReleaseCheck
   ROOT = Pathname.new(__dir__).join('..').expand_path
 
   def call
@@ -103,5 +103,5 @@ class Release
 end
 
 if __FILE__ == $PROGRAM_NAME
-  Release.new.call
+  PreReleaseCheck.new.call
 end
