@@ -13,6 +13,7 @@ class PreReleaseCheck
       verify_git_clean!
       verify_branch!
       verify_sync!
+      verify_ci_passed!
 
       @version = fetch_version
       @tag_name = "v#{@version}"
@@ -59,6 +60,18 @@ class PreReleaseCheck
     else
       abort_with('Local main has diverged from origin. Reconcile before releasing.')
     end
+  end
+
+  private def verify_ci_passed!
+    run!("gh workflow run test.yml --ref main")
+    puts "Waiting for workflow to initialize..."
+    sleep 5
+
+    run_id = run!("gh run list --workflow=test.yml --branch=main --limit=1 --json databaseId --jq '.[0].databaseId'", stream: false).strip
+    abort_with("Failed to retrieve the CI run ID.") if run_id.empty?
+
+    puts "Monitoring CI build (Run ID: #{run_id})..."
+    run!("gh run watch #{run_id} --exit-status")
   end
 
   private def fetch_version
