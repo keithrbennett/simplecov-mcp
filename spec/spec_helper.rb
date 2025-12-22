@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 # Enable SimpleCov for this project (coverage output in ./coverage)
+require 'fileutils'
+Kernel.at_exit { FileUtils.rm_rf(File.join(Dir.pwd, 'coverage')) }
+
 begin
   require 'simplecov'
   require 'simplecov-cobertura'
@@ -32,6 +35,7 @@ require 'json'
 require 'cov_loupe/all'
 
 FIXTURES_DIR = Pathname.new(File.expand_path('fixtures', __dir__))
+FIXTURE_PROJECT1_RESULTSET_PATH = (FIXTURES_DIR / 'project1' / 'coverage' / '.resultset.json').to_s
 
 # Test timestamp constants for consistent and documented test data
 # Main fixture coverage timestamp: 1720000000 = 2024-07-03 16:26:40 UTC

@@ -7,7 +7,7 @@ require 'cov_loupe/tools/validate_tool'
 
 RSpec.describe CovLoupe::Tools::ValidateTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:resultset) { 'coverage' }
+  let(:resultset) { FIXTURE_PROJECT1_RESULTSET_PATH }
   let(:server_context) { null_server_context }
 
   before do

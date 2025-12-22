@@ -3,39 +3,31 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe::CoverageCLI, 'format option' do
-  let(:root) { (FIXTURES_DIR / 'project1').to_s }
-
   def run_cli(*argv)
-    cli = CovLoupe::CoverageCLI.new
-    output = nil
-    silence_output do |stdout, _stderr|
-      cli.send(:run, argv)
-      output = stdout.string
-    end
-    output
+    run_fixture_cli_output(*argv)
   end
 
   describe 'format normalization' do
     it 'normalizes short format aliases' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'j', 'list')
+      output = run_cli('--format', 'j', 'list')
       expect(output).to include('"files":', '"percentage":')
       data = JSON.parse(output)
       expect(data['files']).to be_an(Array)
     end
 
     it 'normalizes table format' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 't', 'list')
+      output = run_cli('--format', 't', 'list')
       expect(output).to include('File', '%')  # Table output
       expect(output).not_to include('"files"')  # Not JSON
     end
 
     it 'supports yaml format' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'y', 'list')
+      output = run_cli('--format', 'y', 'list')
       expect(output).to include('---', 'files:', 'file:')
     end
 
     it 'supports amazing_print format' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'a', 'list')
+      output = run_cli('--format', 'a', 'list')
       # AmazingPrint output contains colored/formatted structure
       expect(output).to match(/:files|"files"/)
     end
@@ -43,15 +35,13 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
 
   describe 'option order requirements' do
     it 'works with format option before subcommand' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'json', 'list')
+      output = run_cli('--format', 'json', 'list')
       data = JSON.parse(output)
       expect(data).to have_key('files')
     end
 
     it 'shows helpful error when global option comes after subcommand' do
-      _out, err, status = run_cli_with_status(
-        '--root', root, '--resultset', 'coverage', 'list', '--format', 'json'
-      )
+      _out, err, status = run_fixture_cli_with_status('list', '--format', 'json')
       expect(status).to eq(1)
       expect(err).to include(
         'Global option(s) must come BEFORE the subcommand',
@@ -64,15 +54,14 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
 
   describe 'format with different subcommands' do
     it 'works with totals subcommand' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'json', 'totals')
+      output = run_cli('--format', 'json', 'totals')
       data = JSON.parse(output)
       expect(data).to have_key('lines')
       expect(data).to have_key('percentage')
     end
 
     it 'works with summary subcommand' do
-      output = run_cli('--root', root, '--resultset', 'coverage', '--format', 'json',
-        'summary', 'lib/foo.rb')
+      output = run_cli('--format', 'json', 'summary', 'lib/foo.rb')
       data = JSON.parse(output)
       expect(data).to have_key('file')
       expect(data).to have_key('summary')

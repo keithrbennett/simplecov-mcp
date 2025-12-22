@@ -56,16 +56,43 @@ module CovLoupe
         candidate = Pathname.new(resultset)
         return candidate.cleanpath.to_s if candidate.absolute?
 
-        expanded = File.expand_path(resultset, Dir.pwd)
-        return expanded if within_root?(expanded)
+        expanded_pwd = File.expand_path(resultset, Dir.pwd)
+        expanded_root = File.absolute_path(resultset, @root)
 
-        File.absolute_path(resultset, @root)
+        if ambiguous_resultset_path?(expanded_pwd, expanded_root)
+          raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
+        end
+
+        return expanded_pwd if valid_resultset_location?(expanded_pwd)
+        return expanded_root if valid_resultset_location?(expanded_root)
+
+        return expanded_pwd if within_root?(expanded_pwd)
+
+        expanded_root
       end
 
       private def within_root?(path)
         normalized_root = Pathname.new(@root).cleanpath.to_s
         root_with_sep = normalized_root.end_with?(File::SEPARATOR) ? normalized_root : "#{normalized_root}#{File::SEPARATOR}"
         path == normalized_root || path.start_with?(root_with_sep)
+      end
+
+      private def ambiguous_resultset_path?(expanded_pwd, expanded_root)
+        return false if expanded_pwd == expanded_root
+
+        valid_resultset_location?(expanded_pwd) && valid_resultset_location?(expanded_root)
+      end
+
+      private def valid_resultset_location?(path)
+        return true if File.file?(path)
+        return false unless File.directory?(path)
+
+        File.file?(File.join(path, '.resultset.json'))
+      end
+
+      private def raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
+        raise "Ambiguous resultset location specified. Both #{expanded_pwd} and #{expanded_root} exist. " \
+              'Use `./` or an absolute filespec to disambiguate.'
       end
 
       private def raise_not_found_error

@@ -35,7 +35,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_json_parse_error(JSON::ParserError.new('unexpected token'))
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data format', 'unexpected token')
       end
@@ -45,7 +45,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_file_read_error(Errno::EACCES.new('Permission denied'))
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied reading coverage data')
       end
@@ -56,7 +56,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_resultset_data(malformed_resultset)
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
@@ -85,7 +85,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       )
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure')
       end
@@ -105,7 +105,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       )
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid path in coverage data', 'null byte')
       end
@@ -115,7 +115,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_json_parse_error(JSON::ParserError.new('765: unexpected token at line 3, column 5'))
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         # Verify the original error message details are preserved
         expect(error.message).to include('765', 'line 3')
@@ -128,7 +128,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_file_read_error(Errno::EACCES.new(resultset_path), path_matcher: resultset_path)
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include('Permission denied')
         expect(error.message).to match(/\.resultset\.json/)
@@ -141,7 +141,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_json_parse_error(JSON::ParserError.new('unexpected character at byte 42'))
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('unexpected character at byte 42')
       end
@@ -152,7 +152,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_file_read_error(Errno::EACCES.new(resultset_path), path_matcher: resultset_path)
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::FilePermissionError) do |error|
         expect(error.message).to include(resultset_path)
       end
@@ -163,7 +163,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       mock_resultset_data(malformed_resultset)
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Invalid coverage data structure', 'suite "RSpec"')
       end
@@ -191,7 +191,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       )
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::ResultsetNotFoundError) do |error|
         expect(error.message).to include('Something went wrong during resultset lookup')
       end
@@ -205,7 +205,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       )
 
       expect do
-        described_class.new(root: root, resultset: 'coverage')
+        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
         expect(error.message).to include('Failed to load coverage data',
           'Some completely unrelated runtime error')
@@ -224,7 +224,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect(mock_logger).to receive(:safe_log)
         .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
-      model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+        logger: mock_logger)
 
       # Mock lookup_lines to raise FileError for one specific file
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
@@ -254,7 +255,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect(mock_logger).to receive(:safe_log)
         .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
 
-      model = described_class.new(root: root, resultset: 'coverage', logger: mock_logger)
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+        logger: mock_logger)
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
@@ -277,7 +279,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
 
     it 'raises FileError when raise_on_stale is true and file lookup fails' do
-      model = described_class.new(root: root, resultset: 'coverage')
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
@@ -290,7 +292,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
 
     it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
-      model = described_class.new(root: root, resultset: 'coverage')
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
@@ -306,7 +308,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   describe 'resolve method error handling' do
     it 'converts RuntimeError from lookup_lines to FileError' do
       # This exercises the RuntimeError rescue clause in the resolve method
-      model = described_class.new(root: root, resultset: 'coverage')
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
       # Mock lookup_lines to raise RuntimeError for a specific file
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)

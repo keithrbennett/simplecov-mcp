@@ -268,7 +268,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
   describe 'resultset directory handling' do
     it 'accepts a directory containing .resultset.json' do
-      model = described_class.new(root: root, resultset: 'coverage')
+      model = described_class.new(
+        root: root,
+        resultset: File.dirname(FIXTURE_PROJECT1_RESULTSET_PATH)
+      )
       data = model.summary_for('lib/foo.rb')
       expect(data['summary']['total']).to eq(3)
       expect(data['summary']['covered']).to eq(2)

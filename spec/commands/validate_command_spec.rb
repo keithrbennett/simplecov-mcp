@@ -4,8 +4,6 @@ require 'spec_helper'
 require 'tempfile'
 
 RSpec.describe CovLoupe::Commands::ValidateCommand do
-  let(:root) { (FIXTURES_DIR / 'project1').to_s }
-
   def with_temp_predicate(content)
     Tempfile.create(%w[predicate .rb]) do |file|
       file.write(content)
@@ -17,9 +15,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
   describe 'validate subcommand with file' do
     it 'exits 0 when predicate returns truthy value' do
       with_temp_predicate("->(model) { true }\n") do |path|
-        _out, _err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, _err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(0)
@@ -28,9 +24,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
     it 'exits 1 when predicate returns falsy value' do
       with_temp_predicate("->(model) { false }\n") do |path|
-        _out, _err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, _err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(1)
@@ -39,9 +33,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
     it 'exits 2 when predicate raises an error' do
       with_temp_predicate("->(model) { raise 'Boom!' }\n") do |path|
-        _out, err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(2)
@@ -51,10 +43,8 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
     it 'shows backtrace when predicate errors with --error-mode debug' do
       with_temp_predicate("->(model) { raise 'Boom!' }\n") do |path|
-        _out, err, status = run_cli_with_status(
+        _out, err, status = run_fixture_cli_with_status(
           '--error-mode', 'debug',
-          '--root', root,
-          '--resultset', 'coverage',
           'validate', path
         )
         expect(status).to eq(2)
@@ -65,9 +55,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
     end
 
     it 'exits 2 when predicate file is not found' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '/nonexistent/predicate.rb'
       )
       expect(status).to eq(2)
@@ -76,9 +64,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
     it 'exits 2 when predicate has syntax error' do
       with_temp_predicate("-> { this is invalid syntax\n") do |path|
-        _out, err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(2)
@@ -88,9 +74,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
     it 'exits 2 when predicate is not callable' do
       with_temp_predicate("42\n") do |path|
-        _out, err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(2)
@@ -107,9 +91,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
           summary['summary']['percentage'] > 50  # Should be true for foo.rb
         end
       RUBY
-        _out, _err, status = run_cli_with_status(
-          '--root', root,
-          '--resultset', 'coverage',
+        _out, _err, status = run_fixture_cli_with_status(
           'validate', path
         )
         expect(status).to eq(0)
@@ -119,27 +101,21 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
   describe 'validate subcommand with -i/--inline flag' do
     it 'exits 0 when predicate code returns truthy value' do
-      _out, _err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, _err, status = run_fixture_cli_with_status(
         'validate', '-i', '->(model) { true }'
       )
       expect(status).to eq(0)
     end
 
     it 'exits 1 when predicate code returns falsy value' do
-      _out, _err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, _err, status = run_fixture_cli_with_status(
         'validate', '-i', '->(model) { false }'
       )
       expect(status).to eq(1)
     end
 
     it 'exits 2 when predicate code raises an error' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '-i', "->(model) { raise 'Boom!' }"
       )
       expect(status).to eq(2)
@@ -147,9 +123,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
     end
 
     it 'exits 2 when predicate code has syntax error' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '-i', '-> { invalid syntax'
       )
       expect(status).to eq(2)
@@ -157,9 +131,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
     end
 
     it 'exits 2 when predicate code is not callable' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '-i', '42'
       )
       expect(status).to eq(2)
@@ -170,9 +142,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
       code = <<~RUBY.strip
         ->(model) { model.summary_for('lib/foo.rb')['summary']['percentage'] > 50 }
       RUBY
-      _out, _err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, _err, status = run_fixture_cli_with_status(
         'validate', '-i', code
       )
       expect(status).to eq(0)
@@ -181,9 +151,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
 
   describe 'error handling' do
     it 'raises error when no file or -i flag provided' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate'
       )
       expect(status).to eq(1)
@@ -191,9 +159,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
     end
 
     it 'raises error when -i flag provided without code' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '-i'
       )
       expect(status).to eq(1)
@@ -201,9 +167,7 @@ RSpec.describe CovLoupe::Commands::ValidateCommand do
     end
 
     it 'raises error when unknown option is provided' do
-      _out, err, status = run_cli_with_status(
-        '--root', root,
-        '--resultset', 'coverage',
+      _out, err, status = run_fixture_cli_with_status(
         'validate', '--unknown-option'
       )
       expect(status).to eq(1)

@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'tempfile'
 
 RSpec.describe CovLoupe::CoverageCLI do
-  let(:root) { (FIXTURES_DIR / 'project1').to_s }
+  let(:fixture_root) { File.dirname(FIXTURE_PROJECT1_RESULTSET_PATH, 2) }
 
   # Windows refuses to delete a temporary directory while a file handle inside it
   # remains open, so we ensure the logger (and its file) are closed after each use.
@@ -24,21 +24,12 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   def run_cli(*argv)
-    cli = described_class.new
-    silence_output do |out, _err|
-      begin
-        cli.run(argv.flatten)
-      rescue SystemExit
-        # Ignore exit, just capture output
-      end
-      return out.string
-    end
+    run_fixture_cli_output(*argv)
   end
 
   describe 'JSON output' do
     def with_json_output(command, *args)
-      output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
-        command, *args)
+      output = run_cli('--format', 'json', command, *args)
       yield JSON.parse(output)
     end
 
@@ -73,14 +64,14 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   it 'prints raw lines as text' do
-    output = run_cli('--root', root, '--resultset', 'coverage', 'raw', 'lib/foo.rb')
+    output = run_cli('raw', 'lib/foo.rb')
     expect(output).to include('File: lib/foo.rb')
     expect(output).to include('│')  # Table format
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
     output = run_cli(
-      '--format', 'json', '--root', root, '--resultset', 'coverage', '--sort-order', 'a', 'list'
+      '--format', 'json', '--sort-order', 'a', 'list'
     )
     asc = JSON.parse(output)
     expect(asc['files']).to be_an(Array)
@@ -95,14 +86,14 @@ RSpec.describe CovLoupe::CoverageCLI do
     expect(ok + stale).to eq(total)
 
     output = run_cli(
-      '--format', 'json', '--root', root, '--resultset', 'coverage', '--sort-order', 'd', 'list'
+      '--format', 'json', '--sort-order', 'd', 'list'
     )
     desc = JSON.parse(output)
     expect(desc['files'].first['file']).to end_with('lib/foo.rb')
   end
 
   it 'list subcommand outputs formatted table' do
-    output = run_cli('--root', root, '--resultset', 'coverage', 'list')
+    output = run_cli('list')
     expect(output).to include('File')
     expect(output).to include('lib/foo.rb')
     expect(output).to include('lib/bar.rb')
@@ -110,8 +101,8 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   it 'list subcommand retains rows when using an absolute tracked glob' do
-    absolute_glob = File.join(root, 'lib', '**', '*.rb')
-    output = run_cli('--root', root, '--resultset', 'coverage', '--tracked-globs',
+    absolute_glob = File.join(fixture_root, 'lib', '**', '*.rb')
+    output = run_cli('--tracked-globs',
       absolute_glob, 'list')
     expect(output).not_to include('No coverage data found')
     expect(output).to include('lib/foo.rb')
@@ -119,15 +110,14 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   it 'totals subcommand prints a readable summary by default' do
-    output = run_cli('--root', root, '--resultset', 'coverage', 'totals')
+    output = run_cli('totals')
     expect(output).to include('│')  # Table format
     expect(output).to include('Lines')
     # expect(output).to include('Average coverage:')  # Not in table version
   end
 
   it 'can include source in JSON payload (nil if file missing)' do
-    output = run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
-      '--source', 'full', 'summary', 'lib/foo.rb')
+    output = run_cli('--format', 'json', '--source', 'full', 'summary', 'lib/foo.rb')
     data = JSON.parse(output)
     expect(data).to have_key('source')
   end
@@ -144,8 +134,7 @@ RSpec.describe CovLoupe::CoverageCLI do
           capture_logger.call(context.logger)
           context
         end
-        run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
-          '--log-file', log_path, 'summary', 'lib/foo.rb')
+        run_cli('--format', 'json', '--log-file', log_path, 'summary', 'lib/foo.rb')
         expect(CovLoupe.active_log_file).to eq(original_target)
       end
     end
@@ -158,8 +147,7 @@ RSpec.describe CovLoupe::CoverageCLI do
         m.call(error_handler: error_handler, log_target: log_target, mode: mode)
       end
       original_target = CovLoupe.active_log_file
-      run_cli('--format', 'json', '--root', root, '--resultset', 'coverage',
-        '--log-file', 'stdout', 'summary', 'lib/foo.rb')
+      run_cli('--format', 'json', '--log-file', 'stdout', 'summary', 'lib/foo.rb')
       expect(CovLoupe.active_log_file).to eq(original_target)
     end
   end
@@ -185,7 +173,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
 
     it 'works with version command and other flags' do
-      output = run_cli('--root', root, 'version')
+      output = run_cli('--color=false', 'version')
       expect(output).to include('│')  # Table format
       expect(output).to include(CovLoupe::VERSION)
     end

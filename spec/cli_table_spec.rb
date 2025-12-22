@@ -3,18 +3,12 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe::CoverageCLI do
-  let(:root) { (FIXTURES_DIR / 'project1').to_s }
-
   def run_cli(*argv)
-    cli = described_class.new
-    silence_output do |out, _err|
-      cli.run(argv.flatten)
-      return out.string
-    end
+    run_fixture_cli_output(*argv)
   end
 
   it 'prints default table when no subcommand is given' do
-    output = run_cli('--root', root, '--resultset', 'coverage')
+    output = run_cli
 
     # Contains a header row and at least one data row with expected columns
     expect(output).to include('File')

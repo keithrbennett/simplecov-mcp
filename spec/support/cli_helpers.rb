@@ -19,4 +19,32 @@ module CLITestHelpers
     end
     [out_str, err_str, status]
   end
+
+  def run_fixture_cli_with_status(*argv)
+    run_cli_with_status(*fixture_cli_args(*argv))
+  end
+
+  def run_fixture_cli_output(*argv)
+    stdout, _stderr, _status = run_fixture_cli_with_status(*argv)
+    stdout
+  end
+
+  private def fixture_cli_args(*argv)
+    args = argv.flatten
+    fixture_root = File.dirname(FIXTURE_PROJECT1_RESULTSET_PATH, 2)
+
+    unless args.any? do |arg|
+      arg == '--root' || arg.start_with?('--root=') || arg.start_with?('-R')
+    end
+      args = ['--root', fixture_root] + args
+    end
+
+    unless args.any? do |arg|
+      arg == '--resultset' || arg.start_with?('--resultset=') || arg.start_with?('-r')
+    end
+      args = ['--resultset', FIXTURE_PROJECT1_RESULTSET_PATH] + args
+    end
+
+    args
+  end
 end

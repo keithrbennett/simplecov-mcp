@@ -62,6 +62,34 @@ RSpec.describe CovLoupe::Resolvers::ResultsetPathResolver do
       expect(resolved).to eq(File.join(project_root, 'coverage', '.resultset.json'))
     end
 
+    it 'raises when relative resultset is ambiguous between root and Dir.pwd' do
+      FileUtils.mkdir_p(File.join(root, 'coverage'))
+      File.write(File.join(root, 'coverage', '.resultset.json'), '{}')
+
+      Dir.mktmpdir do |pwd|
+        FileUtils.mkdir_p(File.join(pwd, 'coverage'))
+        File.write(File.join(pwd, 'coverage', '.resultset.json'), '{}')
+
+        Dir.chdir(pwd) do
+          expect do
+            resolver.find_resultset(resultset: 'coverage')
+          end.to raise_error(RuntimeError, /Ambiguous resultset location specified/)
+        end
+      end
+    end
+
+    it 'prefers the root candidate when the Dir.pwd candidate is missing' do
+      FileUtils.mkdir_p(File.join(root, 'coverage'))
+      File.write(File.join(root, 'coverage', '.resultset.json'), '{}')
+
+      Dir.mktmpdir do |pwd|
+        Dir.chdir(pwd) do
+          resolved = resolver.find_resultset(resultset: 'coverage')
+          expect(resolved).to eq(File.join(root, 'coverage', '.resultset.json'))
+        end
+      end
+    end
+
     # In non-strict mode, resolve_candidate returns nil instead of raising
     # when the path doesn't exist, allowing fallback resolution to continue.
     it 'returns nil for non-existent path in non-strict mode' do
