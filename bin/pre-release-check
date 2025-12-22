@@ -46,10 +46,18 @@ class PreReleaseCheck
 
   private def verify_sync!
     run!('git fetch origin --tags')
-    local_head = run!('git rev-parse HEAD', stream: false).strip
-    remote_head = run!('git rev-parse origin/main', stream: false).strip
-    unless local_head == remote_head
-      abort_with('Local main is behind origin. Pull or push before releasing.')
+    local = run!('git rev-parse HEAD', stream: false).strip
+    remote = run!('git rev-parse origin/main', stream: false).strip
+    return if local == remote
+
+    base = run!('git merge-base HEAD origin/main', stream: false).strip
+
+    if base == local
+      abort_with('Local main is behind origin. Pull before releasing.')
+    elsif base == remote
+      abort_with('Local main is ahead of origin. Push before releasing.')
+    else
+      abort_with('Local main has diverged from origin. Reconcile before releasing.')
     end
   end
 
