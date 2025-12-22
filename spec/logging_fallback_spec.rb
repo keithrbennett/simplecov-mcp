@@ -14,6 +14,17 @@ RSpec.describe 'Logging Fallback Behavior' do
     end
   end
 
+  def with_stringio_logger(mode: :library)
+    io = StringIO.new
+    stdlib_logger = ::Logger.new(io)
+    stdlib_logger.formatter = proc do |severity, datetime, _progname, msg|
+      "[#{datetime.iso8601}] #{severity}: #{msg}\n"
+    end
+    logger = CovLoupe::Logger.new(target: 'stderr', mode: mode)
+    logger.instance_variable_set(:@logger, stdlib_logger)
+    yield logger, io
+  end
+
   describe 'CovLoupe.logger error handling' do
     context 'when file logging fails in library mode' do
       it 'writes to fallback file but suppresses stderr' do
@@ -99,24 +110,26 @@ RSpec.describe 'Logging Fallback Behavior' do
 
     context 'when logging succeeds' do
       it 'does not write to stderr or fallback file' do
-        log_file = 'test.log'
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_library,
-          log_target: log_file,
+          log_target: 'stderr',
           mode: :library
         )
+        with_stringio_logger(mode: :library) do |logger, io|
+          context.instance_variable_set(:@logger, logger)
 
-        stderr_output = nil
-        CovLoupe.with_context(context) do
-          silence_output do |_stdout, stderr|
-            CovLoupe.logger.info('test message')
-            stderr_output = stderr.string
+          stderr_output = nil
+          CovLoupe.with_context(context) do
+            silence_output do |_stdout, stderr|
+              CovLoupe.logger.info('test message')
+              stderr_output = stderr.string
+            end
           end
-        end
 
-        expect(stderr_output).to be_empty
-        expect(File.exist?(fallback_file)).to be false
-        expect(File.read(log_file)).to include('test message')
+          expect(stderr_output).to be_empty
+          expect(File.exist?(fallback_file)).to be false
+          expect(io.string).to include('test message')
+        end
       end
     end
   end
@@ -129,19 +142,16 @@ RSpec.describe 'Logging Fallback Behavior' do
       { level: :safe_log, severity: 'INFO', message: 'safe log message' }
     ].each do |test_case|
       it "logs with #{test_case[:level]} level" do
-        log_file = 'test.log'
-        logger = CovLoupe::Logger.new(target: log_file, mode: :library)
+        with_stringio_logger(mode: :library) do |logger, io|
+          logger.send(test_case[:level], test_case[:message])
 
-        logger.send(test_case[:level], test_case[:message])
-
-        log_content = File.read(log_file)
-        expect(log_content).to include(test_case[:severity], test_case[:message])
+          expect(io.string).to include(test_case[:severity], test_case[:message])
+        end
       end
     end
 
     it 'handles runtime errors during logging' do
-      log_file = 'test.log'
-      logger = CovLoupe::Logger.new(target: log_file, mode: :cli)
+      logger = CovLoupe::Logger.new(target: 'stderr', mode: :cli)
 
       # Create a mock logger that will raise during send
       mock_stdlib_logger = instance_double(::Logger)
