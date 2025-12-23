@@ -3,7 +3,7 @@
 require_relative 'resolvers/resolver_helpers'
 
 module CovLoupe
-  # Caches CoverageModel instances keyed by resolved resultset path.
+  # Caches CoverageModel instances keyed by resolved resultset path and root.
   # Entries are invalidated when the resultset mtime changes.
   class ModelCache
     def initialize
@@ -11,28 +11,31 @@ module CovLoupe
     end
 
     def fetch(config)
-      resultset_path = resolve_resultset_path(config)
-      entry = @entries[resultset_path]
+      cache_key = build_cache_key(config)
+      entry = @entries[cache_key]
       return unless entry
 
-      current_mtime = resultset_mtime(resultset_path)
+      current_mtime = resultset_mtime(cache_key[:resultset_path])
       return unless entry[:mtime] == current_mtime
 
       entry[:model]
     end
 
     def store(config, model)
-      resultset_path = resolve_resultset_path(config)
-      @entries[resultset_path] = {
+      cache_key = build_cache_key(config)
+      @entries[cache_key] = {
         model: model,
-        mtime: resultset_mtime(resultset_path)
+        mtime: resultset_mtime(cache_key[:resultset_path])
       }
       model
     end
 
-    private def resolve_resultset_path(config)
+    private def build_cache_key(config)
       root = File.absolute_path(config[:root] || '.')
-      Resolvers::ResolverHelpers.find_resultset(root, resultset: config[:resultset])
+      resultset_path = Resolvers::ResolverHelpers.find_resultset(
+        root, resultset: config[:resultset]
+      )
+      { root: root, resultset_path: resultset_path }
     end
 
     private def resultset_mtime(resultset_path)

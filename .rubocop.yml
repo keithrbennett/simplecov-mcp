@@ -144,6 +144,9 @@ RSpec/DescribeMethod:
 RSpec/ExampleLength:
   Enabled: false
 
+RSpec/IndexedLet:
+  Enabled: false
+
 RSpec/MessageSpies:
   Enabled: false  # Allow both mock (receive) and spy (have_received) styles
 
