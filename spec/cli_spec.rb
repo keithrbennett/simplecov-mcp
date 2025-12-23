@@ -152,10 +152,6 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
   end
 
-
-
-
-
   describe 'version command' do
     it 'prints version as plain text by default' do
       output = run_cli('version')

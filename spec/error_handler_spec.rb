@@ -14,7 +14,6 @@ RSpec.describe CovLoupe::ErrorHandler do
     end.new
   end
 
-
   it 'maps filesystem errors to friendly custom errors' do
     e = handler.convert_standard_error(Errno::EISDIR.new('Is a directory @ rb_sysopen - a_dir'))
     expect(e).to be_a(CovLoupe::NotAFileError)
@@ -94,11 +93,8 @@ RSpec.describe CovLoupe::ErrorHandler do
     expect(result.user_friendly_message).to include('some weird error message')
   end
 
-  describe 'else branch for non-StandardError exceptions' do
-    # This tests the else clause in convert_standard_error for exceptions
-    # that don't inherit from StandardError
-    it 'returns generic Error for Exception subclasses not inheriting from StandardError' do
-      # Create a custom exception that inherits from Exception, not StandardError
+  describe 'else branch for unhandled exceptions' do
+    it 'returns generic Error for unrecognized exceptions' do
       custom_exception_class = Class.new(StandardError) do
         def message
           'Custom non-standard exception'

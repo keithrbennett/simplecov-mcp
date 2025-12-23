@@ -11,12 +11,6 @@ RSpec.describe CovLoupe::CoverageCLI do
     output = run_cli
 
     # Contains a header row and at least one data row with expected columns
-    expect(output).to include('File')
-    expect(output).to include('Covered')
-    expect(output).to include('Total')
-
-    # Should list fixture files from the demo project
-    expect(output).to include('lib/foo.rb')
-    expect(output).to include('lib/bar.rb')
+    expect(output).to include('File', 'Covered', 'Total', 'lib/foo.rb', 'lib/bar.rb')
   end
 end
