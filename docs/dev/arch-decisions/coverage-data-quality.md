@@ -1,12 +1,16 @@
-# ADR 003: Coverage Staleness Detection
+# Coverage Data Quality
 
 [Back to main README](../../index.md)
 
-## Status
+This document describes how cov-loupe ensures the accuracy and reliability of coverage data through staleness detection.
+
+## Coverage Staleness Detection
+
+### Status
 
 Accepted
 
-## Context
+### Context
 
 Coverage data can become outdated when source files are modified after tests run. This creates misleading results:
 
@@ -22,18 +26,18 @@ We needed a staleness detection system that could:
 4. Support both file-level and project-level checks
 5. Allow users to control whether staleness is reported or causes errors
 
-### Alternative Approaches Considered
+#### Alternative Approaches Considered
 
 1. **No staleness checking**: Simple, but leads to confusing/incorrect reports
 2. **Single timestamp check**: Fast, but misses line count mismatches (files edited and reverted)
 3. **Content hashing**: Accurate, but expensive for large projects
 4. **Multi-type detection with modes**: More complex, but provides accurate detection with user control
 
-## Decision
+### Decision
 
 We implemented a **three-type staleness detection system** with configurable error modes.
 
-### Three Staleness Types
+#### Three Staleness Types
 
 The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) detects three distinct types of staleness:
 
@@ -50,7 +54,7 @@ The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) d
    - Handles edge case: Files without trailing newlines (adjusts count by 1)
    - Example: Lines were added/removed without changing mtime (rare but possible with version control)
 
-### Implementation Details
+#### Implementation Details
 
 The core algorithm lives in `CovLoupe::StalenessChecker#compute_file_staleness_details`:
 
@@ -86,7 +90,7 @@ def compute_file_staleness_details(file_abs, coverage_lines)
 end
 ```
 
-### Staleness Modes
+#### Staleness Modes
 
 The checker supports two modes, configured when instantiating `StalenessChecker`:
 
@@ -98,7 +102,7 @@ This allows:
 - CI systems to fail builds on stale coverage
 - AI agents to decide how to handle staleness based on their goals
 
-### File-Level vs Project-Level Checks
+#### File-Level vs Project-Level Checks
 
 **File-level** (`check_file!` and `stale_for_file?`):
 - Checks a single file's staleness
@@ -114,7 +118,7 @@ This allows:
 - Raises `CoverageDataProjectStaleError` with lists of problematic files
 - Used by `list_tool` and `coverage_table_tool`
 
-### Tracked Globs Feature
+#### Tracked Globs Feature
 
 The project-level check supports `tracked_globs` parameter to detect newly added files:
 
@@ -125,9 +129,9 @@ checker.check_project!(coverage_map)  # with tracked_globs: ['lib/**/*.rb']
 
 This helps teams ensure new files are included in test runs.
 
-## Consequences
+### Consequences
 
-### Positive
+#### Positive
 
 1. **Accurate detection**: Three types catch different staleness scenarios comprehensively
 2. **Edge case handling**: Missing trailing newlines handled correctly
@@ -135,27 +139,27 @@ This helps teams ensure new files are included in test runs.
 4. **Detailed information**: Staleness errors include specific file lists and timestamps
 5. **Project awareness**: Can detect newly added files that lack coverage
 
-### Negative
+#### Negative
 
 1. **Complexity**: Three staleness types are harder to understand than a single timestamp check
 2. **Performance**: Line counting and mtime checks for every file add overhead
 3. **Maintenance burden**: Edge case logic (trailing newlines) requires careful testing
 4. **Ambiguity**: When multiple staleness types apply, prioritization logic (length > timestamp) may surprise users
 
-### Trade-offs
+#### Trade-offs
 
 - **Versus timestamp-only**: More accurate but slower and more complex
 - **Versus content hashing**: Fast enough for most projects, but can't detect "edit then revert" scenarios
 - **Versus no checking**: Essential for reliable coverage reporting, worth the complexity
 
-### Edge Cases Handled
+#### Edge Cases Handled
 
 1. **Missing trailing newline**: Files without `\n` at EOF have `line_count == coverage_length + 1`, checker adjusts for this
 2. **Deleted files**: Appear as 'M' (missing) type staleness
 3. **Empty files**: `cov_len.positive?` guard prevents false positives
 4. **No coverage timestamp**: Defaults to 0, effectively disabling timestamp checks
 
-## References
+### References
 
 - Implementation: `lib/cov_loupe/staleness_checker.rb` (`StalenessChecker` class)
 - File-level checking: `StalenessChecker#check_file!` and `#stale_for_file?`

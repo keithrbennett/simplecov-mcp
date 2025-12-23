@@ -37,11 +37,12 @@ Links to related code, issues, documentation, or other ADRs.
 
 ## Index of ADRs
 
-- [001: Dual-Mode Operation](001-x-arch-decision.md) - CLI vs MCP server mode detection
-- [002: Context-Aware Error Handling](002-x-arch-decision.md) - Mode-specific error handling strategy
-- [003: Coverage Staleness Detection](003-x-arch-decision.md) - Three-type staleness system
-- [004: Ruby Instance Eval for Success Predicates](004-x-arch-decision.md) - Dynamic Ruby evaluation approach
-- [005: No SimpleCov Runtime Dependency](005-x-arch-decision.md) - Superseded by the multi-suite merge work (runtime SimpleCov dependency)
+ADRs are organized by topic area rather than chronologically:
+
+- [Application Architecture](application-architecture.md) - Dual-mode operation (CLI/MCP) and context-aware error handling
+- [Coverage Data Quality](coverage-data-quality.md) - Staleness detection system
+- [Policy Validation](policy-validation.md) - Success predicates using Ruby `instance_eval`
+- [SimpleCov Integration](simplecov-integration.md) - Dependency strategy and data loading (replaced)
 
 ## When to Create an ADR
 
@@ -54,7 +55,7 @@ Create an ADR when:
 ## Contributing
 
 When adding a new ADR:
-1. Use the next sequential number (e.g., `006-x-arch-decision.md`)
+1. Add it to the appropriate topic-based file, or create a new file if it covers a new area
 2. Follow the format outlined above
 3. Update this README's index
 4. Link to relevant code and documentation

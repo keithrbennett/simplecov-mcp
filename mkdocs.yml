@@ -107,11 +107,10 @@ nav:
       - Releasing: dev/RELEASING.md
       - Architecture Decisions:
           - Overview: dev/arch-decisions/README.md
-          - ADR 001 - Dual-Mode Operation: dev/arch-decisions/001-x-arch-decision.md
-          - ADR 002 - Direct Coverage Reading: dev/arch-decisions/002-x-arch-decision.md
-          - ADR 003 - Tool Organization: dev/arch-decisions/003-x-arch-decision.md
-          - ADR 004 - Staleness Detection: dev/arch-decisions/004-x-arch-decision.md
-          - ADR 005 - Error Handling: dev/arch-decisions/005-x-arch-decision.md
+          - Application Architecture: dev/arch-decisions/application-architecture.md
+          - Coverage Data Quality: dev/arch-decisions/coverage-data-quality.md
+          - Policy Validation: dev/arch-decisions/policy-validation.md
+          - SimpleCov Integration: dev/arch-decisions/simplecov-integration.md
       - Presentations: dev/presentations/cov-loupe-presentation.md
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md
