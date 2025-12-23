@@ -3,6 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe do
+  def expect_listed_files(message, files)
+    files.each { |file| expect(message).to include("  - #{file}") }
+  end
+
+  def expect_absent_files(message, files)
+    files.each { |file| expect(message).not_to include("  - #{file}") }
+  end
+
   describe CovLoupe::ConfigurationError do
     describe '#user_friendly_message' do
       it 'prefixes message with "Configuration error:"' do
@@ -82,8 +90,7 @@ RSpec.describe CovLoupe do
         )
 
         message = error.user_friendly_message
-        expect(message).to include('Coverage data stale')
-        expect(message).to include('Test error')
+        expect(message).to include('Coverage data stale', 'Test error')
       end
 
       it 'handles time that breaks Time.parse but has valid to_s' do
@@ -104,10 +111,8 @@ RSpec.describe CovLoupe do
         )
 
         message = error.user_friendly_message
-        expect(message).to include('Coverage data stale')
-        expect(message).to include('Test error')
         # Should fallback to string representation
-        expect(message).to include('unparseable_time_string')
+        expect(message).to include('Coverage data stale', 'Test error', 'unparseable_time_string')
       end
 
       it 'handles delta calculation with invalid values in rescue path' do
@@ -186,8 +191,7 @@ RSpec.describe CovLoupe do
 
         message = error.user_friendly_message
         # user_friendly_message prefixes with "Coverage data stale (project):"
-        expect(message).to include('Coverage data stale (project)')
-        expect(message).to include('Newer files')
+        expect(message).to include('Coverage data stale (project)', 'Newer files')
       end
 
       it 'exercises default_message directly via send' do
@@ -218,9 +222,7 @@ RSpec.describe CovLoupe do
 
         message = error.user_friendly_message
         expect(message).to include('Coverage-only files (deleted or moved in project, 10):')
-        deleted_files.each do |file|
-          expect(message).to include("  - #{file}")
-        end
+        expect_listed_files(message, deleted_files)
         expect(message).not_to include('...')
       end
 
@@ -236,13 +238,9 @@ RSpec.describe CovLoupe do
         message = error.user_friendly_message
         expect(message).to include('Coverage-only files (deleted or moved in project, 15):')
         # Should show first 10 files
-        deleted_files[0..9].each do |file|
-          expect(message).to include("  - #{file}")
-        end
+        expect_listed_files(message, deleted_files[0..9])
         # Should not show files beyond 10
-        deleted_files[10..14].each do |file|
-          expect(message).not_to include("  - #{file}")
-        end
+        expect_absent_files(message, deleted_files[10..14])
         # Should show ellipsis
         expect(message).to include('...')
       end
@@ -258,9 +256,7 @@ RSpec.describe CovLoupe do
 
         message = error.user_friendly_message
         expect(message).to include('Missing files (new in project, not in coverage, 10):')
-        missing_files.each do |file|
-          expect(message).to include("  - #{file}")
-        end
+        expect_listed_files(message, missing_files)
         expect(message).not_to include('...')
       end
 
@@ -276,11 +272,9 @@ RSpec.describe CovLoupe do
         message = error.user_friendly_message
         expect(message).to include('Missing files (new in project, not in coverage, 12):')
         # Should show first 10 files
-        missing_files[0..9].each do |file|
-          expect(message).to include("  - #{file}")
-        end
+        expect_listed_files(message, missing_files[0..9])
         # Should not show files beyond 10
-        expect(message).not_to include("  - #{missing_files[11]}")
+        expect_absent_files(message, [missing_files[11]])
         # Should show ellipsis
         expect(message).to include('...')
       end
@@ -297,13 +291,9 @@ RSpec.describe CovLoupe do
         message = error.user_friendly_message
         expect(message).to include('Newer files (20):')
         # Should show first 10 files
-        newer_files[0..9].each do |file|
-          expect(message).to include("  - #{file}")
-        end
+        expect_listed_files(message, newer_files[0..9])
         # Should not show files beyond 10
-        newer_files[10..19].each do |file|
-          expect(message).not_to include("  - #{file}")
-        end
+        expect_absent_files(message, newer_files[10..19])
         # Should show ellipsis
         expect(message).to include('...')
       end

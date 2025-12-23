@@ -65,8 +65,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'prints raw lines as text' do
     output = run_cli('raw', 'lib/foo.rb')
-    expect(output).to include('File: lib/foo.rb')
-    expect(output).to include('│')  # Table format
+    expect(output).to include('File: lib/foo.rb', '│') # Table format
   end
 
   it 'list subcommand with --json outputs JSON with sort order' do
@@ -94,9 +93,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'list subcommand outputs formatted table' do
     output = run_cli('list')
-    expect(output).to include('File')
-    expect(output).to include('lib/foo.rb')
-    expect(output).to include('lib/bar.rb')
+    expect(output).to include('File', 'lib/foo.rb', 'lib/bar.rb')
     expect(output).to match(/Files: total \d+/)
   end
 
@@ -105,14 +102,12 @@ RSpec.describe CovLoupe::CoverageCLI do
     output = run_cli('--tracked-globs',
       absolute_glob, 'list')
     expect(output).not_to include('No coverage data found')
-    expect(output).to include('lib/foo.rb')
-    expect(output).to include('lib/bar.rb')
+    expect(output).to include('lib/foo.rb', 'lib/bar.rb')
   end
 
   it 'totals subcommand prints a readable summary by default' do
     output = run_cli('totals')
-    expect(output).to include('│')  # Table format
-    expect(output).to include('Lines')
+    expect(output).to include('│', 'Lines') # Table format
     # expect(output).to include('Average coverage:')  # Not in table version
   end
 
@@ -155,8 +150,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   describe 'version command' do
     it 'prints version as plain text by default' do
       output = run_cli('version')
-      expect(output).to include('│')  # Table format
-      expect(output).to include(CovLoupe::VERSION)
+      expect(output).to include('│', CovLoupe::VERSION) # Table format
       expect(output).not_to include('{')
       expect(output).not_to include('}')
     end
@@ -170,16 +164,14 @@ RSpec.describe CovLoupe::CoverageCLI do
 
     it 'works with version command and other flags' do
       output = run_cli('--color=false', 'version')
-      expect(output).to include('│')  # Table format
-      expect(output).to include(CovLoupe::VERSION)
+      expect(output).to include('│', CovLoupe::VERSION) # Table format
     end
   end
 
   describe 'version option (-v)' do
     it 'prints the same version info as the version subcommand' do
       output = run_cli('-v')
-      expect(output).to include('│')  # Table format
-      expect(output).to include(CovLoupe::VERSION)
+      expect(output).to include('│', CovLoupe::VERSION) # Table format
     end
 
     it 'respects --json when -v is used' do
