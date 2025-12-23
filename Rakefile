@@ -60,3 +60,34 @@ end
 
 desc 'Run all security audits'
 task security: 'security:all'
+
+require_relative 'lib/cov_loupe/scripts/pre_release_check'
+require_relative 'lib/cov_loupe/scripts/latest_ci_status'
+require_relative 'lib/cov_loupe/scripts/setup_doc_server'
+require_relative 'lib/cov_loupe/scripts/start_doc_server'
+
+namespace :release do
+  desc 'Run pre-release checks (git status, CI, version bump)'
+  task :check do
+    CovLoupe::Scripts::PreReleaseCheck.new.call
+  end
+end
+
+namespace :ci do
+  desc 'Get latest CI status'
+  task :status do
+    CovLoupe::Scripts::LatestCiStatus.new.call
+  end
+end
+
+namespace :docs do
+  desc 'Set up python environment for docs'
+  task :setup do
+    CovLoupe::Scripts::SetupDocServer.new.call
+  end
+
+  desc 'Start documentation server'
+  task :serve do
+    CovLoupe::Scripts::StartDocServer.new.call
+  end
+end

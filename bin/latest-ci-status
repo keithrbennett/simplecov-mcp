@@ -1,80 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'json'
-require 'open3'
+require_relative '../lib/cov_loupe/scripts/latest_ci_status'
 
-def run_command(cmd, fail_on_error: true)
-  stdout, status = Open3.capture2(cmd)
-  if fail_on_error && !status.success?
-    warn "Error running: #{cmd}"
-    exit 1
-  end
-  return stdout.strip, status.success?
-end
-
-branch, = run_command('git rev-parse --abbrev-ref HEAD')
-puts "Fetching latest CI run for branch: #{branch}..."
-
-# Fetch the run
-json_output, success = run_command("gh run list --branch #{branch} --limit 1 --json databaseId,status,conclusion,url,displayTitle,createdAt", fail_on_error: false)
-
-unless success
-  warn "Failed to fetch runs. Ensure 'gh' is installed and you are authenticated."
-  exit 1
-end
-
-runs = JSON.parse(json_output)
-
-if runs.empty?
-  puts "No workflow runs found for branch '#{branch}'."
-  exit
-end
-
-run = runs.first
-id = run['databaseId']
-status = run['status'] # e.g., 'completed', 'in_progress', 'queued'
-conclusion = run['conclusion'] # e.g., 'success', 'failure', 'cancelled', 'startup_failure'
-url = run['url']
-title = run['displayTitle']
-created_at = run['createdAt']
-
-# Formatting helper
-def colorize(text, color_code)
-  "\e[#{color_code}m#{text}\e[0m"
-end
-
-def status_color(status, conclusion)
-  if status == 'completed'
-    case conclusion
-    when 'success' then 32 # Green
-    when 'failure', 'startup_failure', 'timed_out' then 31 # Red
-    when 'cancelled' then 33 # Yellow
-    else 37 # White
-    end
-  else
-    34 # Blue for in_progress/queued
-  end
-end
-
-color = status_color(status, conclusion)
-display_status = status == 'completed' ? conclusion.upcase : status.upcase
-
-puts "\nLatest Run Details:"
-puts "-------------------"
-puts "Title:      #{title}"
-puts "ID:         #{id}"
-puts "Time:       #{created_at}"
-puts "Status:     #{colorize(display_status, color)}"
-puts "URL:        #{url}"
-
-if status == 'completed' && ['failure', 'startup_failure', 'timed_out'].include?(conclusion)
-  puts "\n#{colorize('Fetching failure logs...', 31)}"
-  puts "------------------------"
-  system("gh run view #{id} --log-failed")
-elsif status == 'in_progress'
-  puts "\n#{colorize('Build is currently running... ⏳', 34)}"
-  puts "You can watch it with: gh run watch #{id}"
-elsif status == 'queued'
-  puts "\n#{colorize('Build is queued... 🕒', 34)}"
+if __FILE__ == $PROGRAM_NAME
+  CovLoupe::Scripts::LatestCiStatus.new.call
 end

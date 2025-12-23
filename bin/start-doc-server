@@ -1,2 +1,8 @@
-#!/usr/bin/env bash
-mkdocs serve
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../lib/cov_loupe/scripts/start_doc_server'
+
+if __FILE__ == $PROGRAM_NAME
+  CovLoupe::Scripts::StartDocServer.new.call
+end
