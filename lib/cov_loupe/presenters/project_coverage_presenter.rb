@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require_relative 'payload_caching'
+
 module CovLoupe
   module Presenters
     # Provides repository-wide coverage summaries shared by CLI and MCP surfaces.
     class ProjectCoveragePresenter
+      include PayloadCaching
+
       attr_reader :model, :sort_order, :raise_on_stale, :tracked_globs
 
       def initialize(model:, sort_order:, raise_on_stale:, tracked_globs:)
@@ -11,35 +15,6 @@ module CovLoupe
         @sort_order = sort_order
         @raise_on_stale = raise_on_stale
         @tracked_globs = tracked_globs
-      end
-
-      # Returns the absolute-path payload including counts.
-      def absolute_payload
-        @absolute_payload ||= begin
-          list_result = model.list(
-            sort_order: sort_order,
-            raise_on_stale: raise_on_stale,
-            tracked_globs: tracked_globs
-          )
-          files = list_result['files']
-          skipped_files = list_result['skipped_files']
-          missing_tracked_files = list_result['missing_tracked_files']
-          newer_files = list_result['newer_files']
-          deleted_files = list_result['deleted_files']
-          {
-            'files' => files,
-            'skipped_files' => skipped_files,
-            'missing_tracked_files' => missing_tracked_files,
-            'newer_files' => newer_files,
-            'deleted_files' => deleted_files,
-            'counts' => build_counts(files)
-          }
-        end
-      end
-
-      # Returns the payload with file paths relativized for presentation.
-      def relativized_payload
-        @relativized_payload ||= model.relativize(absolute_payload)
       end
 
       # Returns the relativized file rows.
@@ -50,6 +25,27 @@ module CovLoupe
       # Returns the coverage counts with relative file paths.
       def relative_counts
         relativized_payload['counts']
+      end
+
+      private def compute_absolute_payload
+        list_result = model.list(
+          sort_order: sort_order,
+          raise_on_stale: raise_on_stale,
+          tracked_globs: tracked_globs
+        )
+        files = list_result['files']
+        skipped_files = list_result['skipped_files']
+        missing_tracked_files = list_result['missing_tracked_files']
+        newer_files = list_result['newer_files']
+        deleted_files = list_result['deleted_files']
+        {
+          'files' => files,
+          'skipped_files' => skipped_files,
+          'missing_tracked_files' => missing_tracked_files,
+          'newer_files' => newer_files,
+          'deleted_files' => deleted_files,
+          'counts' => build_counts(files)
+        }
       end
 
       private def build_counts(files)
