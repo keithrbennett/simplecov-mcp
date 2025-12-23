@@ -114,15 +114,16 @@ module CovLoupe
         line_hits = {}
 
         branch_data
-          .values
+          .values # Extract all branch target hashes, discarding the metadata keys
           .select { |targets| targets.is_a?(Hash) } # ignore malformed branch entries
-          .flat_map(&:to_a) # flatten each branch target into [meta, hits]
+          .flat_map(&:to_a) # flatten each branch target into [meta, hits] pairs
           .filter_map do |meta, hits|
             # Extract the covered line; filter_map discards nil results.
             line_number = extract_line_number(meta)
             line_number && [line_number, hits.to_i]
           end
           .each do |line_number, hits|
+            # Accumulate hits for each line (multiple branches may execute on the same line)
             line_hits[line_number] = line_hits.fetch(line_number, 0) + hits
           end
 
@@ -131,6 +132,7 @@ module CovLoupe
         max_line = line_hits.keys.max
         # Build a dense array up to the highest line recorded so downstream
         # consumers see the familiar SimpleCov shape (nil for untouched lines).
+        # Uses idx + 1 because SimpleCov line numbers are 1-based (array indices are 0-based).
         Array.new(max_line) { |idx| line_hits[idx + 1] }
       end
 
@@ -145,8 +147,10 @@ module CovLoupe
           return Integer(line_token, exception: false)
         end
 
+        # Parse stringified metadata by removing brackets and splitting on commas
+        # E.g., "[:if, 0, 12, 4, 20, 29]" becomes [":if", "0", "12", "4", "20", "29"]
         tokens = meta.to_s.tr('[]', '').split(',').map(&:strip)
-        return if tokens.length < 3
+        return if tokens.length < 3 # Need at least 3 elements to access index 2
 
         Integer(tokens[2], exception: false)
         # Any parsing errors result in nil; callers treat that as "no line".
