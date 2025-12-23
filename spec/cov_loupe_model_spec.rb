@@ -162,12 +162,12 @@ RSpec.describe CovLoupe::CoverageModel do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
-      |method, coverage_map, absolute|
+      |method, coverage_map, absolute, **kwargs|
         if absolute == abs_foo
           raise CovLoupe::CoverageDataError, 'corrupt data'
         end
 
-        method.call(coverage_map, absolute)
+        method.call(coverage_map, absolute, **kwargs)
       end
 
       result = model.list

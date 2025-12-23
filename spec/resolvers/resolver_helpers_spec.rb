@@ -29,7 +29,7 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
   describe '.create_coverage_resolver' do
     it 'wraps coverage data in a CoverageLineResolver' do
       cov = { '/tmp/foo.rb' => { 'lines' => [1, 0] } }
-      resolver = described_class.create_coverage_resolver(cov)
+      resolver = described_class.create_coverage_resolver(cov, root: '/tmp')
 
       expect(resolver).to be_a(CovLoupe::Resolvers::CoverageLineResolver)
       expect(resolver.lookup_lines('/tmp/foo.rb')).to eq([1, 0])
@@ -54,7 +54,7 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
       cov = { '/tmp/bar.rb' => { 'lines' => [0, 1] } }
 
       expect(
-        described_class.lookup_lines(cov, '/tmp/bar.rb')
+        described_class.lookup_lines(cov, '/tmp/bar.rb', root: '/tmp')
       ).to eq([0, 1])
     end
 

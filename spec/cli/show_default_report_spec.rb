@@ -36,10 +36,10 @@ RSpec.describe CovLoupe::CoverageCLI do
       before do
         cli.config.format = :table
         allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original \
-        do |method, coverage_map, abs_path|
+        do |method, coverage_map, abs_path, **kwargs|
           raise CovLoupe::CoverageDataError, 'corrupt data' if abs_path == foo_path
 
-          method.call(coverage_map, abs_path)
+          method.call(coverage_map, abs_path, **kwargs)
         end
       end
 

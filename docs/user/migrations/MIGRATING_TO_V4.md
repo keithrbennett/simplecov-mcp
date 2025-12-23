@@ -47,6 +47,21 @@ These changes improve consistency between short and long flag forms and eliminat
 
 ## Ruby API Changes
 
+### CoverageLineResolver Now Requires `root:`
+
+**Breaking Change**: `CovLoupe::Resolvers::CoverageLineResolver` now requires a `root:` keyword argument, and `CovLoupe::Resolvers::ResolverHelpers.lookup_lines` / `create_coverage_resolver` now require `root:` as well.
+
+#### Migration
+```ruby
+# Old
+resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data)
+lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path)
+
+# New
+resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data, root: root)
+lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path, root: root)
+```
+
 ### Method Renamed
 
 *   **Old**: `CoverageModel#all_files_coverage`

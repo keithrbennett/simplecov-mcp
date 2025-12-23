@@ -4,6 +4,8 @@ require 'spec_helper'
 
 RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
   describe '#lookup_lines' do
+    let(:root) { '/project' }
+
     context 'with direct path matching' do
       it 'returns lines array for exact path match' do
         abs_path = '/project/lib/foo.rb'
@@ -11,7 +13,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           abs_path => { 'lines' => [1, 0, nil, 2] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 0, nil, 2])
@@ -23,32 +25,32 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           path => { 'lines' => [1, 1, 1] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         expect(resolver.lookup_lines(path)).to eq([1, 1, 1])
       end
     end
 
-    context 'with CWD stripping fallback' do
-      it 'finds relative path when absolute path includes CWD' do
-        cwd = Dir.pwd
+    context 'with root stripping fallback' do
+      it 'finds relative path when absolute path includes root' do
+        root = '/project'
         relative_path = 'lib/bar.rb'
-        abs_path = File.join(cwd, relative_path)
+        abs_path = File.join(root, relative_path)
         cov_data = {
           relative_path => { 'lines' => [1, 0, 1] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 0, 1])
       end
 
-      it 'matches via basename fallback when absolute path does not start with CWD' do
+      it 'matches via basename fallback when absolute path does not start with root' do
         cov_data = {
           'lib/baz.rb' => { 'lines' => [1, 1] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
 
         # Previously this raised FileError because stripping logic failed.
         # Now it should match via basename fallback.
@@ -62,7 +64,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/project/lib/foo.rb' => { 'lines' => [1, 0] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
 
         expect do
           resolver.lookup_lines('/project/lib/missing.rb')
@@ -70,7 +72,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'raises FileError when coverage data is empty' do
-        resolver = described_class.new({})
+        resolver = described_class.new({}, root: root)
 
         expect do
           resolver.lookup_lines('/any/path.rb')
@@ -82,7 +84,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/project/lib/foo.rb' => { 'other_key' => 'value' }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
 
         expect do
           resolver.lookup_lines('/project/lib/foo.rb')
@@ -111,7 +113,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(branch_cov)
+        resolver = described_class.new(branch_cov, root: root)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines[5]).to eq(3)  # line 6
@@ -136,7 +138,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(branch_cov)
+        resolver = described_class.new(branch_cov, root: root)
         lines = resolver.lookup_lines(path)
 
         expect(lines[2]).to eq(5) # line 3 with summed hits
@@ -155,7 +157,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(path)
 
         expect(lines[5]).to eq(2) # line 6
@@ -170,7 +172,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
 
         expect do
           resolver.lookup_lines(path)
@@ -194,7 +196,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(path)
 
         # Should still get line 6 from the valid branch
@@ -203,7 +205,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
     end
 
     context 'with extract_line_number edge cases' do
-      let(:resolver) { described_class.new({}) }
+      let(:resolver) { described_class.new({}, root: root) }
 
       it 'extracts line number from array metadata' do
         result = resolver.send(:extract_line_number, [:if, 0, 10, 2, 15, 5])
@@ -272,7 +274,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(path)
 
         # Should return the lines array, not synthesized branch data

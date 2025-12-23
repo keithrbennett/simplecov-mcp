@@ -12,15 +12,15 @@ module CovLoupe
           ResultsetPathResolver.new(root: root)
       end
 
-      def self.create_coverage_resolver(cov_data)
-        CoverageLineResolver.new(cov_data)
+      def self.create_coverage_resolver(cov_data, root:)
+        CoverageLineResolver.new(cov_data, root: root)
       end
 
       def self.find_resultset(root, resultset: nil)
         ResultsetPathResolver.new(root: root).find_resultset(resultset: resultset)
       end
 
-      def self.lookup_lines(cov, file_abs, root: nil)
+      def self.lookup_lines(cov, file_abs, root:)
         CoverageLineResolver.new(cov, root: root).lookup_lines(file_abs)
       end
     end

@@ -3,7 +3,7 @@
 module CovLoupe
   module Resolvers
     class CoverageLineResolver
-      def initialize(cov_data, root: nil)
+      def initialize(cov_data, root:)
         @cov_data = cov_data
         @root = root
       end
@@ -31,6 +31,7 @@ module CovLoupe
       end
 
       private def find_stripped_match(file_abs)
+        return unless @root
         return unless file_abs.start_with?(resolution_root_with_slash)
 
         relative_path = file_abs[(resolution_root.length + 1)..]
@@ -62,10 +63,12 @@ module CovLoupe
       end
 
       private def resolution_root
-        @resolution_root ||= @root || Dir.pwd
+        @resolution_root ||= @root
       end
 
       private def resolution_root_with_slash
+        return unless resolution_root
+
         @resolution_root_with_slash ||= "#{resolution_root}/"
       end
 

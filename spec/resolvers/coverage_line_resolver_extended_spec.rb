@@ -4,6 +4,8 @@ require 'spec_helper'
 
 RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
   describe '#lookup_lines extended' do
+    let(:root) { '/project' }
+
     context 'with basename fallback' do
       it 'finds coverage data when only basename matches' do
         abs_path = '/project/lib/foo.rb'
@@ -12,7 +14,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/other/path/foo.rb' => { 'lines' => [1, 0, 1] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 0, 1])
@@ -25,7 +27,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/other/path/foo.rb' => { 'lines' => [0, 0, 0] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 1, 1])
@@ -38,7 +40,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/path/b/common.rb' => { 'lines' => [2] }
         }
 
-        resolver = described_class.new(cov_data)
+        resolver = described_class.new(cov_data, root: root)
         expect do
           resolver.lookup_lines(abs_path)
         end.to raise_error(CovLoupe::FileError, /Multiple coverage entries match basename/)
@@ -55,11 +57,9 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           relative_path => { 'lines' => [1, 0] }
         }
 
-        # We expect to pass root to the initializer
-        # This will fail initially because initialize doesn't accept root yet
         resolver = described_class.new(cov_data, root: root)
 
-        # We need to stub Dir.pwd to ensure it's NOT using that
+        # Stub Dir.pwd to ensure the resolver doesn't use it for fallback resolution.
         allow(Dir).to receive(:pwd).and_return('/wrong/place')
 
         lines = resolver.lookup_lines(abs_path)
