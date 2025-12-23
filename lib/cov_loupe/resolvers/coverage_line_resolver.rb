@@ -41,11 +41,14 @@ module CovLoupe
         target_basename = File.basename(file_abs)
 
         # Look for any key that ends with /target_basename or is exactly target_basename
-        match_key = cov_data.keys.find do |key|
+        match_keys = cov_data.keys.select do |key|
           key == target_basename || key.end_with?("/#{target_basename}")
         end
 
-        fetch_lines_for_path(match_key) if match_key
+        return fetch_lines_for_path(match_keys.first) if match_keys.length == 1
+        return if match_keys.empty?
+
+        raise FileError, "Multiple coverage entries match basename #{target_basename}: #{match_keys.join(', ')}"
       end
 
       private def fetch_lines_for_path(path)

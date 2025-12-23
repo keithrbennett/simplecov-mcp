@@ -32,12 +32,6 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'raises error if multiple files match the basename (ambiguous)' do
-        # This is an edge case decision: currently most implementations just pick first or error.
-        # Given the requirement "Logic assumes a narrow set of path variants",
-        # let's assume we just want it to find *a* match for now, or maybe the first one.
-        # But wait, if we have foo.rb in two places, which one is it?
-        # The prompt didn't specify handling ambiguity, but let's test that it finds ONE of them at least.
-
         abs_path = '/project/lib/common.rb'
         cov_data = {
           '/path/a/common.rb' => { 'lines' => [1] },
@@ -45,9 +39,9 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         }
 
         resolver = described_class.new(cov_data)
-        # It should find one of them. We don't strictly care which one unless specified,
-        # but typically deterministic behavior is better.
-        expect { resolver.lookup_lines(abs_path) }.not_to raise_error
+        expect do
+          resolver.lookup_lines(abs_path)
+        end.to raise_error(CovLoupe::FileError, /Multiple coverage entries match basename/)
       end
     end
 
