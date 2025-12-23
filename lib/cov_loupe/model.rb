@@ -112,7 +112,7 @@ module CovLoupe
 
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
-      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs)
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
@@ -171,7 +171,7 @@ module CovLoupe
     end
 
     private def coverage_lines_for_listing(abs_path, raise_on_stale)
-      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path)
+      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path, root: @root)
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
 
@@ -237,7 +237,7 @@ module CovLoupe
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.absolute_path(path, @root)
       begin
-        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs)
+        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root)
       rescue RuntimeError
         raise FileError, "No coverage data found for file: #{path}"
       end

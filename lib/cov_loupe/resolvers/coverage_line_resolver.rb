@@ -3,8 +3,9 @@
 module CovLoupe
   module Resolvers
     class CoverageLineResolver
-      def initialize(cov_data)
+      def initialize(cov_data, root: nil)
         @cov_data = cov_data
+        @root = root
       end
 
       def lookup_lines(file_abs)
@@ -16,6 +17,10 @@ module CovLoupe
         stripped_match = find_stripped_match(file_abs)
         return stripped_match if stripped_match
 
+        # Finally try matching by basename
+        basename_match = find_basename_match(file_abs)
+        return basename_match if basename_match
+
         raise_not_found_error(file_abs)
       end
 
@@ -26,10 +31,21 @@ module CovLoupe
       end
 
       private def find_stripped_match(file_abs)
-        return unless file_abs.start_with?(cwd_with_slash)
+        return unless file_abs.start_with?(resolution_root_with_slash)
 
-        relative_path = file_abs[(cwd.length + 1)..]
+        relative_path = file_abs[(resolution_root.length + 1)..]
         fetch_lines_for_path(relative_path)
+      end
+
+      private def find_basename_match(file_abs)
+        target_basename = File.basename(file_abs)
+
+        # Look for any key that ends with /target_basename or is exactly target_basename
+        match_key = cov_data.keys.find do |key|
+          key == target_basename || key.end_with?("/#{target_basename}")
+        end
+
+        fetch_lines_for_path(match_key) if match_key
       end
 
       private def fetch_lines_for_path(path)
@@ -42,12 +58,12 @@ module CovLoupe
         raise CorruptCoverageDataError, "Entry for #{path} has no valid lines or branches"
       end
 
-      private def cwd
-        @cwd ||= Dir.pwd
+      private def resolution_root
+        @resolution_root ||= @root || Dir.pwd
       end
 
-      private def cwd_with_slash
-        @cwd_with_slash ||= "#{cwd}/"
+      private def resolution_root_with_slash
+        @resolution_root_with_slash ||= "#{resolution_root}/"
       end
 
       private def raise_not_found_error(file_abs)

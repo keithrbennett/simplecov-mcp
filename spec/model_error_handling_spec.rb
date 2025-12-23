@@ -228,7 +228,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       # Mock lookup_lines to raise FileError for one specific file
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'))
+        .with(anything, include('/lib/foo.rb'), any_args)
         .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
 
       # Should not raise, just skip the problematic file
@@ -258,7 +258,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'))
+        .with(anything, include('/lib/foo.rb'), any_args)
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
 
       list_result = model.list(raise_on_stale: false)
@@ -281,7 +281,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'))
+        .with(anything, include('/lib/foo.rb'), any_args)
         .and_raise(CovLoupe::FileError.new('Missing file'))
 
       expect do
@@ -294,7 +294,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'))
+        .with(anything, include('/lib/foo.rb'), any_args)
         .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
 
       expect do

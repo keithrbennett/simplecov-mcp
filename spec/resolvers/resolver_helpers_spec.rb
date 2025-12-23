@@ -57,5 +57,16 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
         described_class.lookup_lines(cov, '/tmp/bar.rb')
       ).to eq([0, 1])
     end
+
+    it 'passes root parameter to CoverageLineResolver' do
+      cov = { 'lib/foo.rb' => { 'lines' => [1, 1] } }
+      root = '/my/root'
+      abs_path = '/my/root/lib/foo.rb'
+
+      # If root is passed, it should find it via stripping root
+      expect(
+        described_class.lookup_lines(cov, abs_path, root: root)
+      ).to eq([1, 1])
+    end
   end
 end
