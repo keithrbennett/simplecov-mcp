@@ -182,6 +182,36 @@ Use `bundle exec rubocop --cache false` in sandboxed environments. This adds app
 
 The 3-second speedup is valuable for frequent local development. Developers in non-sandboxed environments (the common case) benefit from faster linting. The issue only affects specific sandboxed AI tools and CI environments, which can use the `--cache false` flag when needed.
 
+## Dependency Management
+
+### Documentation Dependencies: Version Ranges vs. Lock Files
+
+The project uses **both** `requirements.txt` (version ranges) and `requirements-lock.txt` (exact pins) for Python documentation build dependencies.
+
+**Why version ranges are used in `requirements.txt`:**
+
+1. **Optional dependencies** - These Python packages are only needed for building documentation. They are NOT part of the Ruby gem or required for using cov-loupe as an MCP server.
+
+2. **Library compatibility** - Contributors may be working on multiple projects with different documentation tooling. Flexible ranges allow them to use compatible versions already in their environment without conflicts.
+
+3. **Development flexibility** - Local documentation builds should work with any compatible version. Overly strict pinning would create unnecessary friction for contributors.
+
+**Why lock files are used in CI (`requirements-lock.txt`):**
+
+1. **Reproducible builds** - CI documentation builds must be deterministic. The same commit should always produce the same documentation output.
+
+2. **Prevent drift** - Without locked versions, a new minor/patch release could silently change docs rendering, break the build, or introduce bugs.
+
+3. **Standard practice** - This is the recommended pattern in Python: flexible ranges for development (`requirements.txt`/`requirements.in`), exact pins for deployment (`requirements-lock.txt`).
+
+**How it works:**
+
+- Contributors run `pip install -r requirements.txt` locally (flexible)
+- CI runs `pip install -r requirements-lock.txt` (reproducible)
+- Users of the gem/MCP server are unaffected (these are Python-only doc dependencies)
+
+This dual-file approach is intentional and follows Python packaging best practices for applications with optional documentation tooling.
+
 ## Documentation Structure
 
 ### MkDocs Include-Markdown Stubs
