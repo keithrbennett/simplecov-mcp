@@ -1,12 +1,16 @@
-# ADR 004: Ruby `instance_eval` for Success Predicates
+# Policy Validation
 
 [Back to main README](../../index.md)
 
-## Status
+This document describes how cov-loupe allows users to define and enforce custom coverage policies through success predicates.
+
+## Ruby `instance_eval` for Success Predicates
+
+### Status
 
 Accepted
 
-## Context
+### Context
 
 cov-loupe needed a mechanism for users to define custom coverage policies beyond simple percentage thresholds. Different projects have different requirements:
 
@@ -22,7 +26,7 @@ We considered several approaches:
 3. **Ruby file evaluation**: Load and execute arbitrary Ruby code that returns a callable predicate
 4. **Sandboxed DSL**: Use a restricted Ruby environment (e.g., `$SAFE` levels, isolated VMs)
 
-### Key Requirements
+#### Key Requirements
 
 - Flexibility: Support arbitrarily complex coverage policies
 - Simplicity: Easy for users to write and understand
@@ -30,7 +34,7 @@ We considered several approaches:
 - CI/CD integration: Clear exit codes (0 = pass, 1 = fail, 2 = error)
 - Access to coverage data: Predicates need access to the full `CoverageModel` API
 
-### Why Not a Custom DSL?
+#### Why Not a Custom DSL?
 
 A custom DSL would be:
 - Limited in expressiveness (hard to predict all future use cases)
@@ -38,7 +42,7 @@ A custom DSL would be:
 - More maintenance burden (parsing, validation, documentation)
 - Still vulnerable to injection if it allowed any dynamic computation
 
-### Why Not Sandboxing?
+#### Why Not Sandboxing?
 
 Ruby's sandboxing options are limited:
 - `$SAFE` levels were deprecated and removed in Ruby 2.7+
@@ -46,11 +50,11 @@ Ruby's sandboxing options are limited:
 - Any Turing-complete sandbox can be escaped given enough effort
 - True security requires not executing untrusted code at all
 
-## Decision
+### Decision
 
 We chose to **evaluate Ruby files using `instance_eval`** with prominent security warnings rather than attempting to create a false sense of security through incomplete sandboxing.
 
-### Implementation
+#### Implementation
 
 The implementation is in `lib/cov_loupe/cli.rb` (`CoverageCLI#load_success_predicate`):
 
@@ -97,7 +101,7 @@ rescue => e
 end
 ```
 
-### Security Model: Treat as Executable Code
+#### Security Model: Treat as Executable Code
 
 Rather than pretending to sandbox untrusted code, we treat success predicates **exactly like any other Ruby code in the project**:
 
@@ -116,7 +120,7 @@ Rather than pretending to sandbox untrusted code, we treat success predicates **
 3. **CI/CD best practices**: Same permissions model as running tests themselves
 4. **Example predicates**: Well-documented examples showing safe patterns
 
-### Predicate API
+#### Predicate API
 
 Success predicates must be callable (lambda, proc, or object with `#call` method):
 
@@ -147,9 +151,9 @@ The predicate receives a full `CoverageModel` instance with access to:
 - `uncovered_for(path)` - Uncovered lines for a specific file
 - `detailed_for(path)` - Per-line coverage data
 
-## Consequences
+### Consequences
 
-### Positive
+#### Positive
 
 1. **Maximum flexibility**: Users can express arbitrarily complex coverage policies using full Ruby
 2. **Familiar tooling**: Users can debug predicates with standard Ruby tools (pry, byebug, etc.)
@@ -158,20 +162,20 @@ The predicate receives a full `CoverageModel` instance with access to:
 5. **Composability**: Users can require other libraries, define helper methods, etc.
 6. **Excellent examples**: We provide 5+ well-documented example predicates
 
-### Negative
+#### Negative
 
 1. **Security responsibility**: Users must understand the security implications
 2. **Potential misuse**: Users might mistakenly trust untrusted predicate files
 3. **No isolation**: Buggy predicates can access/modify anything in the system
 4. **Documentation burden**: Must clearly communicate security model
 
-### Trade-offs
+#### Trade-offs
 
 - **Versus custom DSL**: More powerful and debuggable, but requires user awareness of security
 - **Versus plugin architecture**: Simpler (no gem dependencies, no protocol to learn), but same security profile
 - **Versus incomplete sandboxing**: Honest about capabilities rather than security theater
 
-### Threat Model
+#### Threat Model
 
 This approach is **appropriate** when:
 - Predicate files are stored in version control with code review
@@ -183,7 +187,7 @@ This approach is **inappropriate** when:
 - Allowing users to upload predicates via web interface
 - Running in a multi-tenant environment without isolation
 
-### Future Considerations
+#### Future Considerations
 
 If demand arises for truly untrusted predicate execution, alternatives include:
 
@@ -193,7 +197,7 @@ If demand arises for truly untrusted predicate execution, alternatives include:
 
 However, for the primary use case (CI/CD policy enforcement), the current approach is simpler and more flexible than these alternatives.
 
-## References
+### References
 
 - Implementation: `lib/cov_loupe/cli.rb` (`CoverageCLI#load_success_predicate` and `#run_success_predicate`)
 - Security warnings: `examples/success_predicates/README.md`

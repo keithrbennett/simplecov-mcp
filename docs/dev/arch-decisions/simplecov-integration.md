@@ -1,22 +1,26 @@
-# ADR 005: No SimpleCov Runtime Dependency
+# SimpleCov Integration
 
 [Back to main README](../../index.md)
 
-## Status
+This document describes how cov-loupe integrates with SimpleCov and manages its dependency on the SimpleCov gem.
 
-Replaced – cov-loupe now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov’s combine helpers.
+## SimpleCov Runtime Dependency
 
-## Context
+### Status
+
+**Replaced** – cov-loupe now requires SimpleCov at runtime so that multi-suite resultsets can be merged using SimpleCov's combine helpers.
+
+### Original Context
 
 cov-loupe provides tooling for inspecting SimpleCov coverage reports. When designing the gem, we had to decide whether to depend on SimpleCov as a runtime dependency.
 
-### Alternative Approaches
+#### Alternative Approaches
 
 1. **Runtime dependency on SimpleCov**: Use SimpleCov's API to read and process coverage data
 2. **Development-only dependency**: Read SimpleCov's `.resultset.json` files directly without requiring SimpleCov at runtime
 3. **Support multiple coverage formats**: Parse coverage data from multiple tools (SimpleCov, Coverage, etc.)
 
-### Key Considerations
+#### Key Considerations
 
 **Dependency weight**: SimpleCov itself has dependencies:
 - `docile` (~> 1.1)
@@ -38,11 +42,19 @@ cov-loupe provides tooling for inspecting SimpleCov coverage reports. When desig
 - The format is simple JSON with predictable structure
 - Breaking changes would affect all SimpleCov users, so the format is unlikely to change
 
-## Decision
+### Original Decision
 
-We chose to **make SimpleCov a development dependency only** and read `.resultset.json` files directly using Ruby's standard library JSON parser.
+We initially chose to **make SimpleCov a development dependency only** and read `.resultset.json` files directly using Ruby's standard library JSON parser.
 
-### Implementation
+### Revision: SimpleCov as Runtime Dependency
+
+cov-loupe now depends on SimpleCov at runtime for the following reasons:
+
+1. **Multi-suite merging**: Projects using multiple test suites (e.g., RSpec + Minitest) produce separate coverage results that must be merged using SimpleCov's `SimpleCov::ResultMerger.merge_results`
+2. **Consistent calculations**: SimpleCov's coverage percentage algorithms handle edge cases that are difficult to replicate correctly
+3. **Format compatibility**: Changes to SimpleCov's internal data structures are automatically handled by using its API
+
+### Current Implementation
 
 cov-loupe currently depends on `amazing_print`, `mcp`, and `simplecov` at runtime.
 
@@ -123,9 +135,9 @@ DEFAULT_CANDIDATES = [
 
 This supports common SimpleCov configurations without requiring SimpleCov to be loaded.
 
-## Consequences
+### Consequences
 
-### Positive
+#### Positive (Original Development-Only Approach)
 
 1. **Lightweight installation**: No transitive dependencies beyond `mcp` gem
 2. **Deployment flexibility**: Can analyze coverage in environments without test dependencies
@@ -134,7 +146,7 @@ This supports common SimpleCov configurations without requiring SimpleCov to be 
 5. **CI/CD optimization**: Analysis jobs don't need full test suite dependencies
 6. **Production-safe**: Can be deployed to production environments if needed (e.g., for monitoring)
 
-### Negative
+#### Negative (Original Development-Only Approach)
 
 1. **Format dependency**: Tightly coupled to SimpleCov's JSON format
 2. **Breaking changes risk**: If SimpleCov changes `.resultset.json` structure, we must adapt
@@ -142,18 +154,18 @@ This supports common SimpleCov configurations without requiring SimpleCov to be 
 4. **Duplicate logic**: Coverage percentage calculations reimplemented (though simple)
 5. **Maintenance**: Must track SimpleCov format changes manually
 
-### Trade-offs
+#### Trade-offs (Current Runtime Dependency Approach)
 
-- **Versus runtime dependency**: Lighter weight but less resilient to format changes
+- **Versus development-only dependency**: Heavier installation footprint, but better multi-suite support and format compatibility
 - **Versus multi-format support**: Simpler implementation but locked to SimpleCov ecosystem
-- **Versus using SimpleCov API**: More flexible deployment but requires understanding the file format
+- **Versus custom merging logic**: More reliable but requires SimpleCov at runtime
 
 ### Risk Mitigation
 
 1. **Format stability**: SimpleCov has maintained `.resultset.json` compatibility for years
 2. **Simple format**: JSON structure is straightforward and unlikely to change dramatically
 3. **Development dependency**: We still use SimpleCov in our own tests, so format changes would be detected immediately
-4. **Documentation**: CLAUDE.md documents the format dependency explicitly
+4. **Documentation**: AGENTS.md documents the format dependency explicitly
 5. **Error handling**: Robust error messages when format doesn't match expectations
 
 ### Format Evolution Strategy
@@ -167,10 +179,10 @@ If SimpleCov's format changes:
 
 - Only supports SimpleCov (not Coverage gem, other tools)
 - Assumes standard `.resultset.json` locations
-- No support for merged coverage from multiple test runs (SimpleCov handles this before writing JSON)
+- Multi-suite merging requires SimpleCov runtime dependency
 - No support for branch coverage (SimpleCov feature not widely used yet)
 
-## References
+### References
 
 - Gemspec dependencies: `cov-loupe.gemspec` (`spec.add_dependency` entries)
 - JSON parsing: `lib/cov_loupe/resultset_loader.rb` (`ResultsetLoader.load`)
