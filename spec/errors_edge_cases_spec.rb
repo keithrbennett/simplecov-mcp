@@ -11,6 +11,15 @@ RSpec.describe CovLoupe do
     files.each { |file| expect(message).not_to include("  - #{file}") }
   end
 
+  describe CovLoupe::Error do
+    describe '#user_friendly_message' do
+      it 'returns the message for base Error class' do
+        error = described_class.new('Base error message')
+        expect(error.user_friendly_message).to eq('Base error message')
+      end
+    end
+  end
+
   describe CovLoupe::ConfigurationError do
     describe '#user_friendly_message' do
       it 'prefixes message with "Configuration error:"' do

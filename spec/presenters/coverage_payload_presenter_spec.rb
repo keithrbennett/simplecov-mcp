@@ -60,4 +60,18 @@ RSpec.describe CovLoupe::Presenters::CoveragePayloadPresenter do
         config.merge(presenter_options: { payload_method: config.fetch(:payload_method) })
     end
   end
+
+  describe CovLoupe::Presenters::PayloadCaching do
+    it 'raises NotImplementedError when compute_absolute_payload is not implemented' do
+      klass = Class.new do
+        include CovLoupe::Presenters::PayloadCaching
+      end
+
+      instance = klass.new
+      expect { instance.absolute_payload }.to raise_error(
+        NotImplementedError,
+        /must implement #compute_absolute_payload/
+      )
+    end
+  end
 end

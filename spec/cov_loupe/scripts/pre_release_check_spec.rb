@@ -106,6 +106,50 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
 
       expect { script.call }.to raise_error(SystemExit)
     end
+
+    it 'aborts if local is ahead of remote' do
+      mock_command('git status --porcelain', '')
+      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
+      mock_command('git fetch origin --tags', '')
+      mock_command('git rev-parse HEAD', 'sha1')
+      mock_command('git rev-parse origin/main', 'sha2')
+      mock_command('git merge-base HEAD origin/main', 'sha2') # base == remote (ahead)
+
+      expect { script.call }.to raise_error(SystemExit)
+    end
+
+    it 'aborts if local has diverged from remote' do
+      mock_command('git status --porcelain', '')
+      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
+      mock_command('git fetch origin --tags', '')
+      mock_command('git rev-parse HEAD', 'sha1')
+      mock_command('git rev-parse origin/main', 'sha2')
+      mock_command('git merge-base HEAD origin/main', 'sha3') # base != local and != remote (diverged)
+
+      expect { script.call }.to raise_error(SystemExit)
+    end
+
+    it 'aborts if release notes are missing' do
+      mock_command('git status --porcelain', '')
+      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
+      mock_command('git fetch origin --tags', '')
+      mock_command('git rev-parse HEAD', 'sha1')
+      mock_command('git rev-parse origin/main', 'sha1')
+      mock_command('gh workflow run test.yml --ref main', '')
+      allow(script).to receive(:sleep)
+      mock_command(
+        'gh run list --workflow=test.yml --branch=main --limit=1 --json databaseId ' \
+        "--jq '.[0].databaseId'",
+        '999'
+      )
+      mock_command('gh run watch 999 --exit-status', '')
+      mock_command('git tag -l v1.2.3', '')
+
+      # Override release notes to not include the expected header
+      allow(release_notes).to receive(:read).and_return("## v1.0.0\n\n- Old changes")
+
+      expect { script.call }.to raise_error(SystemExit)
+    end
   end
 end
 # rubocop:enable RSpec/SubjectStub

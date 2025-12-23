@@ -345,4 +345,51 @@ RSpec.describe CovLoupe::CoverageModel do
       end
     end
   end
+
+  describe '#staleness_for' do
+    it 'returns false and logs error when staleness check fails' do
+      logger = instance_double(CovLoupe::Logger)
+      allow(CovLoupe).to receive(:logger).and_return(logger)
+      allow(logger).to receive(:safe_log)
+
+      model_with_logger = described_class.new(root: root, logger: logger)
+
+      # Make lookup_lines raise an error
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+        .and_raise(StandardError, 'Test error')
+
+      result = model_with_logger.staleness_for('lib/foo.rb')
+
+      expect(result).to be false
+      expect(logger).to have_received(:safe_log).with(/Failed to check staleness/)
+    end
+  end
+
+  describe 'sort tiebreaker' do
+    it 'sorts by filename when percentages are equal' do
+      # Create a fixture with files having identical coverage percentages
+      resultset = {
+        'RSpec' => {
+          'timestamp' => 100,
+          'coverage' => {
+            File.join(root, 'lib/alpha.rb') => { 'lines' => [1, 0] },
+            File.join(root, 'lib/zebra.rb') => { 'lines' => [1, 0] },
+            File.join(root, 'lib/middle.rb') => { 'lines' => [1, 0] }
+          }
+        }
+      }
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
+        .and_return('/tmp/test_resultset.json')
+      allow(File).to receive(:read).with('/tmp/test_resultset.json')
+        .and_return(JSON.generate(resultset))
+
+      test_model = described_class.new(root: root)
+      files = test_model.list(sort_order: :ascending)['files']
+
+      # All files have 50% coverage, so they should be sorted alphabetically
+      file_basenames = files.map { |f| File.basename(f['file']) }
+      expect(file_basenames).to eq(['alpha.rb', 'middle.rb', 'zebra.rb'])
+    end
+  end
 end

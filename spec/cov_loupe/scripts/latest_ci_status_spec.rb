@@ -91,6 +91,87 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
         expect(script).to have_received(:system).with('gh run view 654321 --log-failed')
       end
     end
+
+    context 'when the run is in progress' do
+      let(:run_json) do
+        [
+          {
+            'databaseId' => 789_012,
+            'status' => 'in_progress',
+            'conclusion' => nil,
+            'url' => 'url',
+            'displayTitle' => 'Running',
+            'createdAt' => 'time'
+          }
+        ].to_json
+      end
+
+      it 'shows in-progress message with watch command' do
+        script.call
+        expect($stdout).to have_received(:puts).with(/Build is currently running/)
+        expect($stdout).to have_received(:puts).with(/gh run watch 789012/)
+      end
+    end
+
+    context 'when the run is queued' do
+      let(:run_json) do
+        [
+          {
+            'databaseId' => 345_678,
+            'status' => 'queued',
+            'conclusion' => nil,
+            'url' => 'url',
+            'displayTitle' => 'Queued',
+            'createdAt' => 'time'
+          }
+        ].to_json
+      end
+
+      it 'shows queued message' do
+        script.call
+        expect($stdout).to have_received(:puts).with(/Build is queued/)
+      end
+    end
+
+    context 'when the run was cancelled' do
+      let(:run_json) do
+        [
+          {
+            'databaseId' => 111_222,
+            'status' => 'completed',
+            'conclusion' => 'cancelled',
+            'url' => 'url',
+            'displayTitle' => 'Cancelled',
+            'createdAt' => 'time'
+          }
+        ].to_json
+      end
+
+      it 'displays cancelled status with yellow color' do
+        script.call
+        expect($stdout).to have_received(:puts).with(/Status:.*CANCELLED/)
+      end
+    end
+
+    context 'when the run has an unknown conclusion' do
+      let(:run_json) do
+        [
+          {
+            'databaseId' => 999_888,
+            'status' => 'completed',
+            'conclusion' => 'unknown_status',
+            'url' => 'url',
+            'displayTitle' => 'Unknown',
+            'createdAt' => 'time'
+          }
+        ].to_json
+      end
+
+      it 'displays the status with default white color' do
+        script.call
+        expect($stdout).to have_received(:puts).with(/Status:.*UNKNOWN_STATUS/)
+      end
+    end
   end
 end
 # rubocop:enable RSpec/SubjectStub
