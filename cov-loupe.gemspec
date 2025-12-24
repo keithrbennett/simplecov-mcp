@@ -17,7 +17,13 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.2'
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
-    Dir['lib/**/*', 'README.md', 'docs/**/*.md', 'LICENSE*', 'exe/*', 'spec/**/*']
+    `git ls-files -z`.split("\x0").reject do |f|
+      f.start_with?('spec/', 'test/')
+    end.select do |f|
+      f.start_with?('lib/', 'exe/', 'docs/', 'dev/', 'examples/') ||
+        f.end_with?('.md') ||
+        f.start_with?('LICENSE')
+    end
   end
   spec.bindir        = 'exe'
   spec.executables   = ['cov-loupe']
