@@ -58,6 +58,46 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
     end
 
+    context 'with separator normalization' do
+      it 'matches Windows-style coverage keys against Unix-style lookups' do
+        abs_path = '/project/lib/foo.rb'
+        cov_data = {
+          'C:\\project\\lib\\foo.rb' => { 'lines' => [1, 0, nil, 2] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+        lines = resolver.lookup_lines(abs_path)
+
+        expect(lines).to eq([1, 0, nil, 2])
+      end
+
+      it 'matches Unix-style coverage keys against Windows-style lookups' do
+        abs_path = 'C:\\project\\lib\\bar.rb'
+        cov_data = {
+          '/project/lib/bar.rb' => { 'lines' => [1, 0, 1] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+        lines = resolver.lookup_lines(abs_path)
+
+        expect(lines).to eq([1, 0, 1])
+      end
+
+      it 'raises when multiple normalized keys match a single lookup' do
+        abs_path = 'C:\\project\\lib/dup.rb'
+        cov_data = {
+          'C:\\project\\lib\\dup.rb' => { 'lines' => [1] },
+          'C:/project/lib/dup.rb' => { 'lines' => [0] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+
+        expect do
+          resolver.lookup_lines(abs_path)
+        end.to raise_error(CovLoupe::FileError, /Multiple coverage entries match path/)
+      end
+    end
+
     context 'when handling errors' do
       it 'raises FileError when file is not found in coverage data' do
         cov_data = {
