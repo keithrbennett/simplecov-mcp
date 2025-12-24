@@ -40,16 +40,18 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
     allow(model).to receive(:list).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
       tracked_globs: tracked_globs).and_return({
         'files' => files,
-        'skipped_files' => [],
-        'missing_tracked_files' => [],
+        'skipped_files' => [
+          { 'file' => '/abs/path/lib/skipped.rb', 'error' => 'boom' }
+        ],
+        'missing_tracked_files' => ['/abs/path/lib/missing.rb'],
         'newer_files' => [],
-        'deleted_files' => []
+        'deleted_files' => ['/abs/path/lib/deleted.rb']
       })
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(
         root: '/abs/path',
         scalar_keys: %w[file file_path],
-        array_keys: %w[newer_files missing_files deleted_files]
+        array_keys: %w[newer_files missing_files deleted_files missing_tracked_files skipped_files]
       )
       relativizer.relativize(payload)
     end
@@ -88,6 +90,32 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   describe '#relative_counts' do
     it 'returns the relativized counts hash' do
       expect(presenter.relative_counts).to eq({ 'total' => 2, 'ok' => 1, 'stale' => 1 })
+    end
+  end
+
+  describe '#relative_skipped_files' do
+    it 'returns the relativized skipped files' do
+      expect(presenter.relative_skipped_files).to eq([
+        { 'file' => 'lib/skipped.rb', 'error' => 'boom' }
+      ])
+    end
+  end
+
+  describe '#relative_missing_tracked_files' do
+    it 'returns the relativized missing tracked files' do
+      expect(presenter.relative_missing_tracked_files).to eq(['lib/missing.rb'])
+    end
+  end
+
+  describe '#relative_newer_files' do
+    it 'returns the relativized newer files' do
+      expect(presenter.relative_newer_files).to eq([])
+    end
+  end
+
+  describe '#relative_deleted_files' do
+    it 'returns the relativized deleted files' do
+      expect(presenter.relative_deleted_files).to eq(['lib/deleted.rb'])
     end
   end
 end

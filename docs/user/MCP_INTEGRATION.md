@@ -188,7 +188,7 @@ These tools analyze individual files. All require `path` parameter.
 
 **`list_tool`** - Coverage for all files
 - Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
-- Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}}`
+- Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...]}`
 
 **`coverage_totals_tool`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`

@@ -17,7 +17,8 @@ require_relative 'repositories/coverage_repository'
 module CovLoupe
   class CoverageModel
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
-    RELATIVIZER_ARRAY_KEYS = %w[newer_files missing_files deleted_files].freeze
+    RELATIVIZER_ARRAY_KEYS =
+      %w[newer_files missing_files deleted_files missing_tracked_files skipped_files].freeze
 
     attr_reader :relativizer, :skipped_rows
 

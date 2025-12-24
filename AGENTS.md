@@ -139,7 +139,7 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 ## MCP Tool Playbook
 - Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool`.
 - Available tools: `coverage_summary_tool`, `coverage_detailed_tool`, `uncovered_lines_tool`, `coverage_raw_tool`, `list_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, and `version_tool`.
-- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `list_tool` now includes a `skipped_files` array in its output to report any files that could not be processed due to errors.
+- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `list_tool` now includes `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files` arrays in its output to report any files that could not be processed due to errors or staleness.
 
 ## Development Conventions
 - Target Ruby >= 3.2; use two-space indentation and `# frozen_string_literal: true` in Ruby files.

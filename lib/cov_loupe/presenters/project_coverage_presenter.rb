@@ -27,6 +27,26 @@ module CovLoupe
         relativized_payload['counts']
       end
 
+      # Returns the relativized skipped files.
+      def relative_skipped_files
+        relativized_payload['skipped_files']
+      end
+
+      # Returns the relativized missing tracked files.
+      def relative_missing_tracked_files
+        relativized_payload['missing_tracked_files']
+      end
+
+      # Returns the relativized newer files.
+      def relative_newer_files
+        relativized_payload['newer_files']
+      end
+
+      # Returns the relativized deleted files.
+      def relative_deleted_files
+        relativized_payload['deleted_files']
+      end
+
       private def compute_absolute_payload
         list_result = model.list(
           sort_order: sort_order,
