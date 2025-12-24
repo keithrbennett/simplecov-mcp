@@ -7,7 +7,7 @@ gemspec
 # Development dependencies
 gem 'rake'
 gem 'rspec', '~> 3.0'
-gem 'rubocop', '~> 1.0'
+gem 'rubocop', '~> 1.82'
 gem 'rubocop-rspec', '~> 3.8'
 
 # Security auditing
