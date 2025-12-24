@@ -8,17 +8,25 @@ Before you begin the report:
 2. Always open the report by citing the most recent git commit at the time you begin writing.
 3. Limit the review strictly to git-tracked files.
 
-* You are a senior software architect and code reviewer.  
-* Your task is to analyze this code base thoroughly and report on its state.  
-* Focus on identifying weaknesses, risks, and areas for improvement.
-* Disregard any issues included in /dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.
-* For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
-* If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
+----
+
+- You are a senior software architect and code reviewer.  
+- Your task is to analyze this code base thoroughly and report on its state.  
+- Focus on identifying weaknesses, risks, and areas for improvement.
+- Disregard any issues included in /dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.
+- Repeating for emphasis: **Disregard any issues included in /dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.**
+- For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
+- If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
+- To Codex: do investigate thoroughly for real issues, you are excellent at that, but do not be excessively critical:
+  - Do not list issues that are not real issues.
+  - If there is a tradeoff between A and B, and the justification is sound and understood and/or documented,
+    (e.g. in ai-code-evaluator-guidelines.md), do not penalize the code base for that tradeoff.
+  - Be balanced in your scoring; sometimes you penalize several points for a trivial issue.
 
 Write your analysis in a Markdown file whose name is:
-* today's date in UTC `%Y-%m-%d-%H-%M` format +
-* '-state-of-the-code-base-' + 
-* your name (e.g. 'codex, claude, gemini, zai)
+- today's date in UTC `%Y-%m-%d-%H-%M` format +
+- '-state-of-the-code-base-' + 
+- your name (e.g. 'codex, claude, gemini, zai)
 
 The file should have the following structure:
 
@@ -79,6 +87,7 @@ List issues so severe that they must be resolved before meaningful progress can 
     - Report coverage at a high and general level.
     - Rank risks of lacking coverage in **descending order of magnitude**.
 - Highlight untested critical paths and potential consequences.
+- Do not output the entire table in the report, but maybe the 10 least covered files if you believe it would be helpful.
 - **Score (1–10)**
 
 ---
