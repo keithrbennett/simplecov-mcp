@@ -465,6 +465,8 @@ clp -l stderr                   # Log to standard error
 
 **Default:** `./cov_loupe.log`
 
+**Warning:** Log files may grow unbounded in long-running or CI usage. Consider using a log rotation tool or periodically cleaning up the log file if this is a concern.
+
 ### `-e, --error-mode MODE`
 
 Error handling verbosity.

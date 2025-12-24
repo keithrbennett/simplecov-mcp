@@ -320,6 +320,8 @@ grep ERROR cov_loupe.log | tail -20
 
 To override the default log file location, specify the `--log-file` (or `-l`) argument wherever and however you configure your MCP server. For example, to log to a different file path, include `-l /path/to/logfile.log` in your server configuration. To log to standard error, use `-l stderr`.
 
+**Warning:** Log files may grow unbounded in long-running or CI usage. Consider using a log rotation tool or periodically cleaning up the log file if this is a concern.
+
 **Note:** Logging to `stdout` is not permitted in MCP mode.
 
 ## Troubleshooting
