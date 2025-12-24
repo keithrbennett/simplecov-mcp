@@ -194,7 +194,7 @@ These tools analyze individual files. All require `path` parameter.
 - Parameters: `tracked_globs` (array), `raise_on_stale`
 - Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N}}`
 
-**`coverage_table_tool`** - Formatted ASCII table
+**`coverage_table_tool`** - Formatted table with box-drawing characters
 - Parameters: `sort_order` (`ascending`|`descending`)
 - Returns: Plain text table
 
