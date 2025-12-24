@@ -15,6 +15,9 @@ RSpec.describe CovLoupe::Tools::CoverageSummaryTool do
     # Ensure the file exists so we don't hit FileNotFoundError
     FileUtils.mkdir_p(File.dirname(file_path))
     FileUtils.touch(file_path)
+    # Mock File.mtime for the resultset file so ModelCache can store/fetch
+    allow(File).to receive(:mtime).and_call_original
+    allow(File).to receive(:mtime).with(end_with('.resultset.json')).and_return(Time.now)
   end
 
   after do
