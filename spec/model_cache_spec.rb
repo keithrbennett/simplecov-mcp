@@ -61,6 +61,21 @@ RSpec.describe CovLoupe::ModelCache do
       expect(cache.fetch(config)).to be_nil
     end
 
+    it 'detects subsecond mtime changes' do
+      config = { root: project1_root, resultset: project1_resultset }
+      model = CovLoupe::CoverageModel.new(**config)
+
+      cache.store(config, model)
+      expect(cache.fetch(config)).to eq(model)
+
+      # Simulate subsecond mtime change (0.001 seconds = 1 millisecond)
+      base_time = Time.now
+      allow(File).to receive(:mtime).with(project1_resultset).and_return(base_time + 0.001)
+
+      # Cache should be invalidated even for subsecond changes
+      expect(cache.fetch(config)).to be_nil
+    end
+
     it 'handles absolute and relative root paths consistently' do
       # Both should resolve to the same absolute path and cache key
       config_absolute = { root: File.absolute_path(project1_root), resultset: project1_resultset }

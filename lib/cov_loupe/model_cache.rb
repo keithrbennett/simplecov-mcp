@@ -39,7 +39,7 @@ module CovLoupe
     end
 
     private def resultset_mtime(resultset_path)
-      File.mtime(resultset_path).to_i
+      File.mtime(resultset_path)
     end
   end
 end
