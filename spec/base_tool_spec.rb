@@ -130,6 +130,24 @@ RSpec.describe CovLoupe::BaseTool do
     end
   end
 
+  describe '.create_model' do
+    let(:context) { mcp_server_context }
+
+    it 'creates and returns a configured model' do
+      root = '/test/project'
+      mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
+      resultset_path = File.join(root, 'coverage', '.resultset.json')
+
+      allow(File).to receive(:mtime).and_call_original
+      allow(File).to receive(:mtime)
+        .with(resultset_path)
+        .and_return(Time.at(FIXTURE_COVERAGE_TIMESTAMP))
+
+      model = described_class.create_model(server_context: context, root: root)
+      expect(model).to be_a(CovLoupe::CoverageModel)
+    end
+  end
+
   describe '.create_configured_model' do
     let(:context) { mcp_server_context }
 
