@@ -22,6 +22,8 @@ Before you begin the report:
   - If there is a tradeoff between A and B, and the justification is sound and understood and/or documented,
     (e.g. in ai-code-evaluator-guidelines.md), do not penalize the code base for that tradeoff.
   - Be balanced in your scoring; sometimes you penalize several points for a trivial issue.
+  - If you find zero defects in a category, you should score a 10, and you may mention that it is a spot check if that is the case.
+
 
 Write your analysis in a Markdown file whose name is:
 - today's date in UTC `%Y-%m-%d-%H-%M` format +
