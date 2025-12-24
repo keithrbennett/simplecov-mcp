@@ -9,6 +9,7 @@ gem 'rake'
 gem 'rspec', '~> 3.0'
 gem 'rubocop', '~> 1.82'
 gem 'rubocop-rspec', '~> 3.8'
+gem 'simplecov-cobertura'
 
 # Security auditing
 gem 'bundler-audit', require: false
