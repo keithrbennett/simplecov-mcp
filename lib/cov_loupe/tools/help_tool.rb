@@ -72,14 +72,7 @@ module CovLoupe
           label: 'Validate coverage policy',
           use_when: 'User needs to enforce coverage rules (e.g., minimum percentage) in CI.',
           avoid_when: 'User just wants to view coverage data.',
-          inputs: ['path (required)', 'root/resultset (optional)']
-        },
-        {
-          tool: ValidateTool,
-          label: 'Validate coverage policy',
-          use_when: 'User needs to enforce coverage rules (e.g., minimum percentage) in CI.',
-          avoid_when: 'User just wants to view coverage data.',
-          inputs: ['path (required)', 'root/resultset (optional)']
+          inputs: ['code OR file (one required)', 'root/resultset/raise_on_stale (optional)']
         },
         {
           tool: VersionTool,
