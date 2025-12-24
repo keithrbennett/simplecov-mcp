@@ -59,5 +59,9 @@ RSpec.describe CovLoupe::Tools::ListTool do
     total = counts[:total] || counts['total']
     expect(ok + stale).to eq(total)
     expect(stale).to eq(1)
+
+    expect(CovLoupe::Presenters::ProjectCoveragePresenter).to have_received(:new).with(
+      hash_including(sort_order: :descending)
+    )
   end
 end

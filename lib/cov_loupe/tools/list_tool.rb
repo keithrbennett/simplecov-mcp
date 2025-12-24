@@ -18,9 +18,9 @@ module CovLoupe
         additional_properties: {
           sort_order: {
             type: 'string',
-            description: 'Sort order for coverage percentages.' \
-                         "'ascending' highlights the riskiest files first.",
-            default: 'ascending',
+            description: 'Sort order for coverage percentages. ' \
+                         "'descending' (default) lists highest coverage first.",
+            default: 'descending',
             enum: ['ascending', 'descending']
           },
           tracked_globs: TRACKED_GLOBS_PROPERTY
@@ -39,7 +39,7 @@ module CovLoupe
             )
 
             # Convert string inputs from MCP to symbols for internal use
-            sort_order_sym = (sort_order || 'ascending').to_sym
+            sort_order_sym = (sort_order || 'descending').to_sym
 
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,

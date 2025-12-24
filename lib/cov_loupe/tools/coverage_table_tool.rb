@@ -19,7 +19,7 @@ module CovLoupe
           sort_order: {
             type: 'string',
             description: 'Sort order for the printed coverage table (ascending or descending).',
-            default: 'ascending',
+            default: 'descending',
             enum: ['ascending', 'descending']
           },
           tracked_globs: TRACKED_GLOBS_PROPERTY
@@ -38,7 +38,7 @@ module CovLoupe
             )
 
             # Convert string inputs from MCP to symbols for internal use
-            sort_order_sym = (sort_order || 'ascending').to_sym
+            sort_order_sym = (sort_order || 'descending').to_sym
 
             table = model.format_table(
               sort_order: sort_order_sym,

@@ -56,4 +56,16 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     )
     expect(model).to have_received(:format_table)
   end
+
+  it 'uses descending sort order by default' do
+    model = instance_double(CovLoupe::CoverageModel)
+    allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+    allow(model).to receive(:format_table).and_return('Mock table')
+
+    described_class.call(root: root, server_context: server_context)
+
+    expect(model).to have_received(:format_table).with(
+      hash_including(sort_order: :descending)
+    )
+  end
 end
