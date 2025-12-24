@@ -146,15 +146,17 @@ module CovLoupe
   # Project-level stale coverage (global) — coverage timestamp older than
   # one or more source files, or new tracked files missing from coverage.
   class CoverageDataProjectStaleError < CoverageDataError
-    attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files, :resultset_path
+    attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files,
+      :length_mismatch_files, :resultset_path
 
     def initialize(message = nil, original_error = nil, cov_timestamp: nil, newer_files: [],
-      missing_files: [], deleted_files: [], resultset_path: nil)
+      missing_files: [], deleted_files: [], length_mismatch_files: [], resultset_path: nil)
       super(message, original_error)
       @cov_timestamp = cov_timestamp
       @newer_files = Array(newer_files)
       @missing_files = Array(missing_files)
       @deleted_files = Array(deleted_files)
+      @length_mismatch_files = Array(length_mismatch_files)
       @resultset_path = resultset_path
     end
 
@@ -185,6 +187,11 @@ module CovLoupe
         parts << "\nCoverage-only files (deleted or moved in project, #{@deleted_files.size}):"
         parts.concat(@deleted_files.first(10).map { |f| "  - #{f}" })
         parts << '  ...' if @deleted_files.size > 10
+      end
+      unless @length_mismatch_files.empty?
+        parts << "\nLine count mismatches (#{@length_mismatch_files.size}):"
+        parts.concat(@length_mismatch_files.first(10).map { |f| "  - #{f}" })
+        parts << '  ...' if @length_mismatch_files.size > 10
       end
       parts << "\nResultset - #{@resultset_path}" if @resultset_path
       parts.join

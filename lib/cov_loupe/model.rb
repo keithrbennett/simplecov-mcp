@@ -88,10 +88,19 @@ module CovLoupe
       raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       @skipped_rows = []
-      rows = build_list_rows(tracked_globs: tracked_globs, raise_on_stale: raise_on_stale)
-      project_staleness_details = project_staleness_report(
-        tracked_globs: tracked_globs, raise_on_stale: raise_on_stale
+      rows, coverage_lines_by_path = build_list_rows(
+        tracked_globs: tracked_globs,
+        raise_on_stale: raise_on_stale
       )
+      project_staleness_details = project_staleness_report(
+        tracked_globs: tracked_globs,
+        raise_on_stale: raise_on_stale,
+        coverage_lines_by_path: coverage_lines_by_path
+      )
+      file_statuses = project_staleness_details[:file_statuses] || {}
+      rows.each do |row|
+        row['stale'] = file_statuses.fetch(row['file'], false)
+      end
 
       {
         'files' => sort_rows(rows, sort_order: sort_order),
@@ -151,23 +160,26 @@ module CovLoupe
     end
 
     private def build_list_rows(tracked_globs:, raise_on_stale:)
-      checker = build_staleness_checker(raise_on_stale: false, tracked_globs: tracked_globs)
-
+      coverage_lines_by_path = {}
       rows = @cov.filter_map do |abs_path, _data|
         coverage_lines = coverage_lines_for_listing(abs_path, raise_on_stale)
         next unless coverage_lines
 
+        coverage_lines_by_path[abs_path] = coverage_lines
         summary = CoverageCalculator.summary(coverage_lines)
         {
           'file' => abs_path,
           'covered' => summary['covered'],
           'total' => summary['total'],
           'percentage' => summary['percentage'],
-          'stale' => checker.stale_for_file?(abs_path, coverage_lines)
+
+          # We set 'stale' => false as a placeholder, then in list we overwrite it
+          # with the true status from the project report.
+          'stale' => false
         }
       end
 
-      filter_rows_by_globs(rows, tracked_globs)
+      [filter_rows_by_globs(rows, tracked_globs), coverage_lines_by_path]
     end
 
     private def coverage_lines_for_listing(abs_path, raise_on_stale)
@@ -184,10 +196,10 @@ module CovLoupe
       nil
     end
 
-    private def project_staleness_report(tracked_globs:, raise_on_stale:)
+    private def project_staleness_report(tracked_globs:, raise_on_stale:, coverage_lines_by_path:)
       build_staleness_checker(
         raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
-      ).check_project!(@cov)
+      ).check_project_with_lines!(coverage_lines_by_path, coverage_files: @cov.keys)
     end
 
     private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)

@@ -60,18 +60,21 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'list' do
-    def stub_staleness_checker(newer_files: [], missing_files: [], deleted_files: [])
+    def stub_staleness_checker(
+      newer_files: [], missing_files: [], deleted_files: [], file_statuses: {}
+    )
       checker = instance_double(
         CovLoupe::StalenessChecker,
-        off?: false,
-        stale_for_file?: false
+        off?: false
       )
 
       allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
-      allow(checker).to receive(:check_project!).and_return(
+      allow(checker).to receive(:check_project_with_lines!).and_return(
         newer_files: newer_files,
         missing_files: missing_files,
-        deleted_files: deleted_files
+        deleted_files: deleted_files,
+        length_mismatch_files: [],
+        file_statuses: file_statuses
       )
     end
 
@@ -319,9 +322,14 @@ RSpec.describe CovLoupe::CoverageModel do
       allow(model_with_globs).to receive(:filter_rows_by_globs).and_call_original
       stub_checker = instance_double(
         CovLoupe::StalenessChecker,
-        stale_for_file?: false,
         off?: true,
-        check_project!: { newer_files: [], missing_files: [], deleted_files: [] }
+        check_project_with_lines!: {
+          newer_files: [],
+          missing_files: [],
+          deleted_files: [],
+          length_mismatch_files: [],
+          file_statuses: {}
+        }
       )
       allow(model_with_globs).to receive(:build_staleness_checker).and_return(stub_checker)
 

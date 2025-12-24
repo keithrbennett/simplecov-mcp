@@ -90,6 +90,58 @@ module CovLoupe
       staleness_details
     end
 
+    # Compute and return project staleness details including line-count mismatches.
+    # If in error mode, raises CoverageDataProjectStaleError when issues are found.
+    # Returns a hash with newer/missing/deleted/mismatched files and per-file statuses.
+    def check_project_with_lines!(coverage_lines_by_path, coverage_files:)
+      coverage_lines_by_path ||= {}
+      ts = coverage_timestamp
+
+      newer, deleted = compute_newer_and_deleted_files(coverage_files, ts)
+      missing = compute_missing_files(coverage_files)
+
+      file_statuses = {}
+      length_mismatch = []
+
+      coverage_lines_by_path.each do |abs_path, coverage_lines|
+        details = compute_file_staleness_details(abs_path, coverage_lines)
+        status = if !details[:exists]
+          'M'
+        elsif details[:newer]
+          'T'
+        elsif details[:len_mismatch]
+          'L'
+        else
+          false
+        end
+        file_statuses[abs_path] = status
+        length_mismatch << rel(abs_path) if details[:len_mismatch] && details[:exists]
+      end
+
+      staleness_details = {
+        newer_files: newer,
+        missing_files: missing,
+        deleted_files: deleted,
+        length_mismatch_files: length_mismatch,
+        file_statuses: file_statuses
+      }
+
+      if @mode == :error && (newer.any? || missing.any? || deleted.any? || length_mismatch.any?)
+        raise CoverageDataProjectStaleError.new(
+          nil,
+          nil,
+          cov_timestamp: ts,
+          newer_files: newer,
+          missing_files: missing,
+          deleted_files: deleted,
+          length_mismatch_files: length_mismatch,
+          resultset_path: resultset_path
+        )
+      end
+
+      staleness_details
+    end
+
     private def compute_newer_and_deleted_files(coverage_files, timestamp)
       existing, deleted_abs = coverage_files.partition { |abs| File.file?(abs) }
 

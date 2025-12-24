@@ -18,6 +18,18 @@ RSpec.describe CovLoupe do
         model.summary_for('lib/bar.rb')
       end.to raise_error(CovLoupe::CoverageDataStaleError, /stale/i)
     end
+
+    it 'raises on list when source and coverage lengths differ' do
+      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: {
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [1, 1] } # 2 entries vs 3 lines in source
+      })
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+        raise_on_stale: true)
+
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError, /stale/i)
+    end
   end
 
   describe CovLoupe::StalenessChecker do
