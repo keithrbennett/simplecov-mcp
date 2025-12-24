@@ -80,6 +80,9 @@ namespace :ci do
   end
 end
 
+desc 'Get latest CI status'
+task ci: 'ci:status'
+
 namespace :docs do
   desc 'Set up python environment for docs'
   task :setup do
