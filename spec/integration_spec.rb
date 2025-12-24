@@ -249,11 +249,12 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     end
 
     def parse_jsonrpc(output)
-      output.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+      lines = output.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
         .lines
         .map(&:strip)
         .reject(&:empty?)
-        .each do |line|
+
+      lines.each do |line|
         parsed = JSON.parse(line)
         return parsed if parsed['jsonrpc'] == '2.0'
       rescue JSON::ParserError

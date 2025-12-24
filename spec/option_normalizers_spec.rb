@@ -11,8 +11,10 @@ RSpec.describe CovLoupe::OptionNormalizers do
         end
       end
 
-      invalid_cases.map { |c| c.is_a?(Hash) ? [c.fetch(:input), c[:error_fragment]] : [c, c] }
-        .each do |input_val, fragment_val|
+      normalized_cases = invalid_cases.map do |c|
+        c.is_a?(Hash) ? [c.fetch(:input), c[:error_fragment]] : [c, c]
+      end
+      normalized_cases.each do |input_val, fragment_val|
         context "when input is #{input_val.inspect}" do
           let(:input) { input_val }
           let(:fragment) { fragment_val }
