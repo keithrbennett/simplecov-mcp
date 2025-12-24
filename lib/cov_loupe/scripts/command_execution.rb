@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'open3'
+require 'shellwords'
 
 module CovLoupe
   module Scripts
     module CommandExecution
       # Execute a command and return its stdout.
       #
-      # @param cmd [String] The shell command to run.
+      # @param cmd [String, Array<String>] The shell command to run.
       # @param print_output [Boolean] If true, prints output to stdout/stderr in real-time.
       # @param fail_on_error [Boolean] If true, aborts execution if the command fails.
       # @return [String] The stdout output of the command (stripped).
@@ -21,10 +22,10 @@ module CovLoupe
 
       # Execute a command and return stdout and success status.
       #
-      # @param cmd [String] The shell command to run.
+      # @param cmd [String, Array<String>] The shell command to run.
       # @return [Array<String, Boolean>] The stdout and success boolean.
       def run_command_with_status(cmd)
-        stdout, status = Open3.capture2(cmd)
+        stdout, status = capture_command(cmd)
         [stdout.strip, status.success?]
       end
 
@@ -38,15 +39,15 @@ module CovLoupe
       def command_exists?(cmd)
         return true if File.exist?(cmd) && File.executable?(cmd)
 
-        system("which #{cmd} > /dev/null 2>&1")
+        system('which', cmd, out: File::NULL, err: File::NULL)
       end
 
       private def run_streamed(cmd, fail_on_error:)
-        puts "→ #{cmd}"
+        puts "→ #{command_display(cmd)}"
         output = +''
         status = nil
 
-        Open3.popen2e(cmd) do |_stdin, stdout_err, wait_thr|
+        popen_command(cmd) do |_stdin, stdout_err, wait_thr|
           stdout_err.each do |line|
             print line
             output << line
@@ -62,14 +63,36 @@ module CovLoupe
       end
 
       private def run_captured(cmd, fail_on_error:)
-        stdout, status = Open3.capture2(cmd)
+        stdout, status = capture_command(cmd)
 
         if fail_on_error && !status.success?
-          warn "Error running: #{cmd}"
+          warn "Error running: #{command_display(cmd)}"
           exit 1
         end
 
         stdout.strip
+      end
+
+      private def popen_command(cmd, &)
+        if cmd.is_a?(Array)
+          Open3.popen2e(*cmd, &)
+        else
+          Open3.popen2e(cmd, &)
+        end
+      end
+
+      private def capture_command(cmd)
+        if cmd.is_a?(Array)
+          Open3.capture2(*cmd)
+        else
+          Open3.capture2(cmd)
+        end
+      end
+
+      private def command_display(cmd)
+        return Shellwords.join(cmd) if cmd.is_a?(Array)
+
+        cmd.to_s
       end
     end
   end

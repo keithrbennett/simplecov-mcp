@@ -52,98 +52,120 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       thread_double = instance_double(Thread, value: status_double)
 
       # Mock popen2e for streamed commands
-      allow(Open3).to receive(:popen2e).with(cmd).and_yield(nil, [output], thread_double)
+      if cmd.is_a?(Array)
+        allow(Open3).to receive(:popen2e).with(*cmd).and_yield(nil, [output], thread_double)
+      else
+        allow(Open3).to receive(:popen2e).with(cmd).and_yield(nil, [output], thread_double)
+      end
 
       # Mock capture2 for captured commands
-      allow(Open3).to receive(:capture2).with(cmd).and_return([output, status_double])
+      if cmd.is_a?(Array)
+        allow(Open3).to receive(:capture2).with(*cmd).and_return([output, status_double])
+      else
+        allow(Open3).to receive(:capture2).with(cmd).and_return([output, status_double])
+      end
+    end
+
+    def mock_commands(command_outputs)
+      command_outputs.each { |cmd, output| mock_command(cmd, output) }
+    end
+
+    def git_clean_commands(status: '')
+      [[%w[git status --porcelain], status]]
+    end
+
+    def branch_commands(name)
+      [[%w[git rev-parse --abbrev-ref HEAD], name]]
+    end
+
+    def sync_commands(local:, remote:, base: nil)
+      commands = [
+        [%w[git fetch origin --tags], ''],
+        [%w[git rev-parse HEAD], local],
+        [%w[git rev-parse origin/main], remote]
+      ]
+      commands << [%w[git merge-base HEAD origin/main], base] if base
+      commands
+    end
+
+    def ci_commands(run_id: '999')
+      [
+        [%w[gh workflow run test.yml --ref main], ''],
+        [%w[gh run list --workflow test.yml --branch main --limit 1] \
+           + %w[--json databaseId --jq .[0].databaseId], run_id],
+        [['gh', 'run', 'watch', run_id, '--exit-status'], '']
+      ]
+    end
+
+    def tag_check_commands(tag = 'v1.2.3')
+      [[['git', 'tag', '-l', tag], '']]
     end
 
     it 'runs through the checklist successfully' do
-      # 1. Clean git
-      mock_command('git status --porcelain', '')
-      # 2. Main branch
-      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
-      # 3. Sync
-      mock_command('git fetch origin --tags', '')
-      mock_command('git rev-parse HEAD', 'sha1')
-      mock_command('git rev-parse origin/main', 'sha1')
-      # 4. CI passed
-      mock_command('gh workflow run test.yml --ref main', '')
-      allow(script).to receive(:sleep) # Don't sleep in tests
-      mock_command(
-        'gh run list --workflow=test.yml --branch=main --limit=1 --json databaseId ' \
-        "--jq '.[0].databaseId'",
-        '999'
+      mock_commands(
+        git_clean_commands +
+        branch_commands('main') +
+        sync_commands(local: 'sha1', remote: 'sha1') +
+        ci_commands +
+        tag_check_commands
       )
-      mock_command('gh run watch 999 --exit-status', '')
-      # 5. Tag check
-      mock_command('git tag -l v1.2.3', '')
+      allow(script).to receive(:sleep) # Don't sleep in tests
       # 6. Gem build
-      mock_command('gem build cov-loupe.gemspec', '')
+      mock_command(%w[gem build cov-loupe.gemspec], '')
 
       expect { script.call }.not_to raise_error
       expect($stdout).to have_received(:puts).with('✓ Gem built successfully')
     end
 
     it 'aborts if git is not clean' do
-      mock_command('git status --porcelain', 'M lib/foo.rb')
+      mock_commands(git_clean_commands(status: 'M lib/foo.rb'))
       expect { script.call }.to raise_error(SystemExit)
     end
 
     it 'aborts if not on main branch' do
-      mock_command('git status --porcelain', '')
-      mock_command('git rev-parse --abbrev-ref HEAD', 'feature-branch')
+      mock_commands(git_clean_commands + branch_commands('feature-branch'))
       expect { script.call }.to raise_error(SystemExit)
     end
 
     it 'aborts if local is behind remote' do
-      mock_command('git status --porcelain', '')
-      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
-      mock_command('git fetch origin --tags', '')
-      mock_command('git rev-parse HEAD', 'sha1')
-      mock_command('git rev-parse origin/main', 'sha2')
-      mock_command('git merge-base HEAD origin/main', 'sha1') # base == local (behind)
+      mock_commands(
+        git_clean_commands +
+        branch_commands('main') +
+        sync_commands(local: 'sha1', remote: 'sha2', base: 'sha1') # base == local (behind)
+      )
 
       expect { script.call }.to raise_error(SystemExit)
     end
 
     it 'aborts if local is ahead of remote' do
-      mock_command('git status --porcelain', '')
-      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
-      mock_command('git fetch origin --tags', '')
-      mock_command('git rev-parse HEAD', 'sha1')
-      mock_command('git rev-parse origin/main', 'sha2')
-      mock_command('git merge-base HEAD origin/main', 'sha2') # base == remote (ahead)
+      mock_commands(
+        git_clean_commands +
+        branch_commands('main') +
+        sync_commands(local: 'sha1', remote: 'sha2', base: 'sha2') # base == remote (ahead)
+      )
 
       expect { script.call }.to raise_error(SystemExit)
     end
 
     it 'aborts if local has diverged from remote' do
-      mock_command('git status --porcelain', '')
-      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
-      mock_command('git fetch origin --tags', '')
-      mock_command('git rev-parse HEAD', 'sha1')
-      mock_command('git rev-parse origin/main', 'sha2')
-      mock_command('git merge-base HEAD origin/main', 'sha3') # base != local and != remote (diverged)
+      mock_commands(
+        git_clean_commands +
+        branch_commands('main') +
+        sync_commands(local: 'sha1', remote: 'sha2', base: 'sha3') # base != local and != remote (diverged)
+      )
 
       expect { script.call }.to raise_error(SystemExit)
     end
 
     it 'aborts if release notes are missing' do
-      mock_command('git status --porcelain', '')
-      mock_command('git rev-parse --abbrev-ref HEAD', 'main')
-      mock_command('git fetch origin --tags', '')
-      mock_command('git rev-parse HEAD', 'sha1')
-      mock_command('git rev-parse origin/main', 'sha1')
-      mock_command('gh workflow run test.yml --ref main', '')
-      allow(script).to receive(:sleep)
-      mock_command(
-        'gh run list --workflow=test.yml --branch=main --limit=1 --json databaseId ' \
-        "--jq '.[0].databaseId'",
-        '999'
+      mock_commands(
+        git_clean_commands +
+        branch_commands('main') +
+        sync_commands(local: 'sha1', remote: 'sha1') +
+        ci_commands +
+        tag_check_commands
       )
-      mock_command('gh run watch 999 --exit-status', '')
-      mock_command('git tag -l v1.2.3', '')
+      allow(script).to receive(:sleep)
 
       # Override release notes to not include the expected header
       allow(release_notes).to receive(:read).and_return("## v1.0.0\n\n- Old changes")

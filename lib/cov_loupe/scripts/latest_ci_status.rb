@@ -23,12 +23,13 @@ module CovLoupe
       end
 
       private def fetch_current_branch
-        run_command('git rev-parse --abbrev-ref HEAD')
+        run_command(%w[git rev-parse --abbrev-ref HEAD])
       end
 
       private def fetch_latest_run(branch)
         json_output, success = run_command_with_status(
-          "gh run list --branch #{branch} --limit 1 --json databaseId,status,conclusion,url,displayTitle,createdAt"
+          ['gh', 'run', 'list', '--branch', branch, '--limit', '1', '--json',
+           'databaseId,status,conclusion,url,displayTitle,createdAt']
         )
 
         unless success
@@ -66,7 +67,7 @@ module CovLoupe
         if status == 'completed' && ['failure', 'startup_failure', 'timed_out'].include?(conclusion)
           puts "\n#{colorize('Fetching failure logs...', 31)}"
           puts '------------------------'
-          system("gh run view #{id} --log-failed")
+          system('gh', 'run', 'view', id.to_s, '--log-failed')
         elsif status == 'in_progress'
           puts "\n#{colorize('Build is currently running... ⏳', 34)}"
           puts "You can watch it with: gh run watch #{id}"

@@ -17,7 +17,7 @@ module CovLoupe
         end
 
         puts 'Starting documentation server...'
-        exec("#{mkdocs_path} serve")
+        exec(mkdocs_path, 'serve')
       end
     end
   end

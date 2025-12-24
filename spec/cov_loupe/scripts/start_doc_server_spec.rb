@@ -21,7 +21,7 @@ RSpec.describe CovLoupe::Scripts::StartDocServer do
       end
 
       it 'executes the venv mkdocs' do
-        expect(script).to receive(:exec).with('.venv/bin/mkdocs serve')
+        expect(script).to receive(:exec).with('.venv/bin/mkdocs', 'serve')
         script.call
       end
     end
@@ -31,11 +31,11 @@ RSpec.describe CovLoupe::Scripts::StartDocServer do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('.venv/bin/mkdocs').and_return(false)
         # Mock global existence check
-        allow(script).to receive(:system).with('which mkdocs > /dev/null 2>&1').and_return(true)
+        allow(script).to receive(:system).with('which', 'mkdocs', out: File::NULL, err: File::NULL).and_return(true)
       end
 
       it 'executes the global mkdocs' do
-        expect(script).to receive(:exec).with('mkdocs serve')
+        expect(script).to receive(:exec).with('mkdocs', 'serve')
         script.call
       end
     end
@@ -44,7 +44,7 @@ RSpec.describe CovLoupe::Scripts::StartDocServer do
       before do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('.venv/bin/mkdocs').and_return(false)
-        allow(script).to receive(:system).with('which mkdocs > /dev/null 2>&1').and_return(false)
+        allow(script).to receive(:system).with('which', 'mkdocs', out: File::NULL, err: File::NULL).and_return(false)
         allow(script).to receive(:warn)
       end
 

@@ -49,24 +49,24 @@ module CovLoupe
       end
 
       private def verify_git_clean!
-        status = run_command('git status --porcelain', print_output: false)
+        status = run_command(%w[git status --porcelain], print_output: false)
         unless status.strip.empty?
           abort_with('Uncommitted changes present. Commit or stash before releasing.')
         end
       end
 
       private def verify_branch!
-        current_branch = run_command('git rev-parse --abbrev-ref HEAD', print_output: false).strip
+        current_branch = run_command(%w[git rev-parse --abbrev-ref HEAD], print_output: false).strip
         abort_with('Releases must be cut from the main branch.') unless current_branch == 'main'
       end
 
       private def verify_sync!
-        run_command('git fetch origin --tags', print_output: true)
-        local = run_command('git rev-parse HEAD', print_output: false).strip
-        remote = run_command('git rev-parse origin/main', print_output: false).strip
+        run_command(%w[git fetch origin --tags], print_output: true)
+        local = run_command(%w[git rev-parse HEAD], print_output: false).strip
+        remote = run_command(%w[git rev-parse origin/main], print_output: false).strip
         return if local == remote
 
-        base = run_command('git merge-base HEAD origin/main', print_output: false).strip
+        base = run_command(%w[git merge-base HEAD origin/main], print_output: false).strip
 
         if base == local
           abort_with('Local main is behind origin. Pull before releasing.')
@@ -78,19 +78,19 @@ module CovLoupe
       end
 
       private def verify_ci_passed!
-        run_command('gh workflow run test.yml --ref main', print_output: true)
+        run_command(%w[gh workflow run test.yml --ref main], print_output: true)
         puts 'Waiting for workflow to initialize...'
         sleep 5
 
         run_id = run_command(
-          'gh run list --workflow=test.yml --branch=main --limit=1 --json databaseId ' \
-          "--jq '.[0].databaseId'",
+          %w[gh run list --workflow test.yml --branch main --limit 1] \
+            + %w[--json databaseId --jq .[0].databaseId],
           print_output: false
         ).strip
         abort_with('Failed to retrieve the CI run ID.') if run_id.empty?
 
         puts "Monitoring CI build (Run ID: #{run_id})..."
-        run_command("gh run watch #{run_id} --exit-status", print_output: true)
+        run_command(['gh', 'run', 'watch', run_id, '--exit-status'], print_output: true)
       end
 
       private def fetch_version
@@ -110,14 +110,15 @@ module CovLoupe
       end
 
       private def verify_tag_new!
-        existing_tag = run_command("git tag -l #{@tag_name}", print_output: false).split("\n").include?(@tag_name)
+        existing_tag = run_command(['git', 'tag', '-l', @tag_name], print_output: false)
+          .split("\n").include?(@tag_name)
         abort_with("Tag #{@tag_name} already exists. Bump the version before releasing.") if existing_tag
       end
 
       private def build_gem!
         @gem_file = ROOT.join("cov-loupe-#{@version}.gem")
         FileUtils.rm_f(@gem_file)
-        run_command('gem build cov-loupe.gemspec', print_output: true)
+        run_command(%w[gem build cov-loupe.gemspec], print_output: true)
         abort_with("Gem file #{@gem_file} not found after build.") unless @gem_file.exist?
       end
     end

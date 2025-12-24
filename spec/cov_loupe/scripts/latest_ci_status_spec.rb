@@ -9,6 +9,10 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
 
   describe '#call' do
     let(:branch) { 'main' }
+    let(:run_list_args) do
+      %w[gh run list --branch] + [branch] +
+        %w[--limit 1 --json databaseId,status,conclusion,url,displayTitle,createdAt]
+    end
     let(:run_json) do
       [
         {
@@ -25,12 +29,12 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
     before do
       # Mock git branch detection
       allow(Open3).to receive(:capture2)
-        .with('git rev-parse --abbrev-ref HEAD')
+        .with(*%w[git rev-parse --abbrev-ref HEAD])
         .and_return([branch, instance_double(Process::Status, success?: true)])
 
       # Mock gh run list
       allow(Open3).to receive(:capture2)
-        .with("gh run list --branch #{branch} --limit 1 --json databaseId,status,conclusion,url,displayTitle,createdAt")
+        .with(*run_list_args)
         .and_return([run_json, instance_double(Process::Status, success?: true)])
 
       # Suppress stdout
@@ -57,7 +61,7 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
     context 'when the fetch command fails' do
       before do
         allow(Open3).to receive(:capture2)
-          .with(include('gh run list'))
+          .with(*run_list_args)
           .and_return(['', instance_double(Process::Status, success?: false)])
       end
 
@@ -88,7 +92,7 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
 
       it 'attempts to fetch failure logs' do
         script.call
-        expect(script).to have_received(:system).with('gh run view 654321 --log-failed')
+        expect(script).to have_received(:system).with(*%w[gh run view 654321 --log-failed])
       end
     end
 
