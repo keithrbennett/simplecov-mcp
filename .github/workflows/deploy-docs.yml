@@ -1,13 +1,18 @@
-name: Deploy Docs
+# Builds docs on PRs and deploys to GitHub Pages on main.
+name: Docs
+
+x-docs-paths: &docs_paths
+  - 'docs/**'
+  - 'mkdocs.yml'
+  - '.github/workflows/deploy-docs.yml'
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - '.github/workflows/deploy-docs.yml'
+    paths: *docs_paths
+  pull_request:
+    paths: *docs_paths
 
 permissions:
   contents: write
@@ -17,7 +22,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements-lock.txt
+
+      - name: Build docs
+        run: mkdocs build --strict
+
   deploy:
+    name: Deploy docs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -9,6 +9,7 @@ on:
 
 jobs:
   test:
+    name: Run tests
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -41,6 +42,7 @@ jobs:
         fail_ci_if_error: false
 
   security:
+    name: Security audit
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -58,6 +60,7 @@ jobs:
       run: bundle exec ruby-audit check
 
   rubocop:
+    name: RuboCop
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -70,19 +73,3 @@ jobs:
 
     - name: Run RuboCop
       run: bundle exec rubocop
-
-  docs-check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: pip install -r requirements-lock.txt
-
-    - name: Build documentation
-      run: mkdocs build --strict
