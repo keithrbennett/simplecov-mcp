@@ -118,6 +118,10 @@ module CovLoupe
         length_mismatch << rel(abs_path) if details[:len_mismatch] && details[:exists]
       end
 
+      # Ensure files are not reported as both "newer" and "length mismatch"
+      # Length mismatch is the stronger signal for staleness
+      newer -= length_mismatch
+
       staleness_details = {
         newer_files: newer,
         missing_files: missing,

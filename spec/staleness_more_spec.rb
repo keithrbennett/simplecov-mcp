@@ -35,13 +35,18 @@ RSpec.describe CovLoupe do
       # Create coverage with an old timestamp (1 hour ago)
       old_timestamp = Time.now.to_i - 3600
       bar_path = File.join(root, 'lib', 'bar.rb')
+      # Use current time for file mtime to ensure it is newer
+      current_time = Time.now
 
       mock_resultset_with_timestamp(root, old_timestamp, coverage: {
-        bar_path => { 'lines' => [1, 0, 1] } # 3 lines matching actual bar.rb
+        # 5 lines to match actual bar.rb (was incorrectly 3 in previous tests)
+        bar_path => { 'lines' => [1, 1, 0, 0, 1] }
       })
 
-      # Touch the file to make it newer than the coverage timestamp
-      FileUtils.touch(bar_path)
+      # Stub mtime to simulate file being newer than coverage
+      allow(File).to receive(:mtime).and_wrap_original do |m, path|
+        path.to_s == bar_path ? current_time : m.call(path)
+      end
 
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         raise_on_stale: true)
@@ -90,17 +95,20 @@ RSpec.describe CovLoupe do
       end
     end
 
-    it 'detects both time-based and length-based staleness for the same file' do
+    it 'prioritizes length-based staleness over time-based for the same file' do
       # Create coverage with old timestamp AND different line count
       old_timestamp = Time.now.to_i - 3600
       bar_path = File.join(root, 'lib', 'bar.rb')
+      current_time = Time.now
 
       mock_resultset_with_timestamp(root, old_timestamp, coverage: {
-        bar_path => { 'lines' => [1, 1] } # 2 lines vs 3 in actual file
+        bar_path => { 'lines' => [1, 1] } # 2 lines vs 5 in actual file
       })
 
-      # Touch the file to make it newer than coverage
-      FileUtils.touch(bar_path)
+      # Stub mtime to simulate file being newer than coverage
+      allow(File).to receive(:mtime).and_wrap_original do |m, path|
+        path.to_s == bar_path ? current_time : m.call(path)
+      end
 
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         raise_on_stale: true)
@@ -108,9 +116,10 @@ RSpec.describe CovLoupe do
       expect do
         model.list(raise_on_stale: true)
       end.to raise_error(CovLoupe::CoverageDataProjectStaleError) do |error|
-        # File appears in both lists since it's both newer AND has wrong line count
-        expect(error.newer_files).to include('lib/bar.rb')
+        # File should be in length_mismatch_files
         expect(error.length_mismatch_files).to include('lib/bar.rb')
+        # But NOT in newer_files (length mismatch takes precedence)
+        expect(error.newer_files).not_to include('lib/bar.rb')
       end
     end
 
@@ -138,15 +147,18 @@ RSpec.describe CovLoupe do
       bar_path = File.join(root, 'lib', 'bar.rb')
       foo_path = File.join(root, 'lib', 'foo.rb')
       missing_path = File.join(root, 'lib', 'deleted.rb')
+      current_time = Time.now
 
       mock_resultset_with_timestamp(root, old_timestamp, coverage: {
-        bar_path => { 'lines' => [1, 0, 1] }, # 3 lines - will be newer (T)
-        foo_path => { 'lines' => [1, 1] },    # 2 lines vs 3 actual - length mismatch (L)
-        missing_path => { 'lines' => [1, 1, 1] } # doesn't exist - missing (M)
+        bar_path => { 'lines' => [1, 0, 1, 0, 1] }, # 5 lines matching bar.rb - will be newer (T)
+        foo_path => { 'lines' => [1, 1] },          # 2 lines vs 6 actual - length mismatch (L)
+        missing_path => { 'lines' => [1, 1, 1] }    # doesn't exist - missing (M)
       })
 
-      # Touch bar.rb to make it newer
-      FileUtils.touch(bar_path)
+      # Stub mtime to make it newer than coverage
+      allow(File).to receive(:mtime).and_wrap_original do |m, path|
+        path.to_s == bar_path ? current_time : m.call(path)
+      end
 
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         raise_on_stale: true)
