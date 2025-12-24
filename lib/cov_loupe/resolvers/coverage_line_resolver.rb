@@ -42,7 +42,7 @@ module CovLoupe
         target_basename = File.basename(file_abs)
 
         # Look for any key that ends with /target_basename or is exactly target_basename
-        match_keys = cov_data.keys.select do |key|
+        match_keys = cov_data.each_key.select do |key|
           key == target_basename || key.end_with?("/#{target_basename}")
         end
 
