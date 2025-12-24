@@ -50,7 +50,8 @@ module MockingHelpers
     staleness: false, root: '/abs/path')
     model = instance_double(CovLoupe::CoverageModel)
     allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-    allow(model).to receive(model_method).with(file_path).and_return(mock_data)
+    # Accept any keyword arguments (like raise_on_stale) in addition to the file path
+    allow(model).to receive(model_method).with(file_path, any_args).and_return(mock_data)
 
     relativizer = create_test_relativizer(root: root)
     allow(model).to receive(:relativize) { |payload| relativizer.relativize(payload) }

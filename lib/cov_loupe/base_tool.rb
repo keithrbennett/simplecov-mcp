@@ -158,11 +158,13 @@ module CovLoupe
       tool_name = name.split('::').last
 
       with_error_handling(tool_name, error_mode: error_mode) do
-        model = create_model(server_context: server_context, **model_option_overrides)
+        model, config = create_configured_model(server_context: server_context,
+          **model_option_overrides)
         presenter = Presenters::CoveragePayloadPresenter.new(
           model: model,
           path: path,
-          payload_method: payload_method_for(tool_name)
+          payload_method: payload_method_for(tool_name),
+          raise_on_stale: config[:raise_on_stale]
         )
         respond_json(presenter.relativized_payload, name: json_name_for(tool_name), pretty: true)
       end
