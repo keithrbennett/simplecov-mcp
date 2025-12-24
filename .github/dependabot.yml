@@ -23,3 +23,12 @@ updates:
       # Prefix all commit messages with "chore(ci)"
       prefix: "chore(ci)"
       include: "scope"
+
+  # Maintain dependencies for Python (pip) - used for documentation
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    commit-message:
+      prefix: "chore(docs-deps)"
+      include: "scope"
