@@ -15,17 +15,21 @@ module CovLoupe
       entry = @entries[cache_key]
       return unless entry
 
-      current_mtime = resultset_mtime(cache_key[:resultset_path])
-      return unless entry[:mtime] == current_mtime
+      file_mtime = resultset_mtime(cache_key[:resultset_path])
+      cached_time = entry[:mtime]
+      return unless file_mtime && cached_time && file_mtime == cached_time
 
       entry[:model]
     end
 
     def store(config, model)
       cache_key = build_cache_key(config)
+      mtime = resultset_mtime(cache_key[:resultset_path])
+      return model unless mtime
+
       @entries[cache_key] = {
         model: model,
-        mtime: resultset_mtime(cache_key[:resultset_path])
+        mtime: mtime
       }
       model
     end
@@ -40,6 +44,8 @@ module CovLoupe
 
     private def resultset_mtime(resultset_path)
       File.mtime(resultset_path)
+    rescue Errno::ENOENT
+      nil
     end
   end
 end

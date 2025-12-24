@@ -76,6 +76,16 @@ RSpec.describe CovLoupe::ModelCache do
       expect(cache.fetch(config)).to be_nil
     end
 
+    it 'does not raise if the resultset disappears between calls' do
+      config = { root: project1_root, resultset: project1_resultset }
+      model = CovLoupe::CoverageModel.new(**config)
+
+      allow(File).to receive(:mtime).with(project1_resultset).and_raise(Errno::ENOENT)
+
+      expect(cache.store(config, model)).to eq(model)
+      expect(cache.fetch(config)).to be_nil
+    end
+
     it 'handles absolute and relative root paths consistently' do
       # Both should resolve to the same absolute path and cache key
       config_absolute = { root: File.absolute_path(project1_root), resultset: project1_resultset }
