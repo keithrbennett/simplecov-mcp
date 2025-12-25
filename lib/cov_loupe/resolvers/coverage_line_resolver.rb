@@ -131,7 +131,8 @@ module CovLoupe
       private def lines_from_entry(entry)
         return unless entry.is_a?(Hash)
 
-        entry['lines']
+        lines = entry['lines']
+        lines.is_a?(Array) ? lines : nil
       end
     end
   end

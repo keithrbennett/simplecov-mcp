@@ -119,7 +119,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
-      it 'raises CorruptCoverageDataError when entry exists but has no lines or branches' do
+      it 'raises CorruptCoverageDataError when entry exists but has no valid lines' do
         cov_data = {
           '/project/lib/foo.rb' => { 'other_key' => 'value' }
         }
