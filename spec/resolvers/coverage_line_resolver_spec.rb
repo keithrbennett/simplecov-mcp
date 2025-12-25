@@ -131,6 +131,21 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         end.to raise_error(CovLoupe::CorruptCoverageDataError,
           /Entry for .* has no valid lines/)
       end
+
+      it 'raises CorruptCoverageDataError for branch-only coverage (no lines array)' do
+        cov_data = {
+          '/project/lib/branch_only.rb' => {
+            'branches' => { '[:if, 0, 1, 0, 1, 4]' => { '[:then, 1, 1, 0, 1, 4]' => 1 } }
+          }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+
+        expect do
+          resolver.lookup_lines('/project/lib/branch_only.rb')
+        end.to raise_error(CovLoupe::CorruptCoverageDataError,
+          /Entry for .* has no valid lines/)
+      end
     end
   end
 end
