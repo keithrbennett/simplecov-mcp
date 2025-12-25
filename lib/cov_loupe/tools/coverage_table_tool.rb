@@ -3,6 +3,7 @@
 
 require_relative '../base_tool'
 require_relative '../presenters/project_coverage_presenter'
+require_relative '../option_normalizers'
 
 module CovLoupe
   module Tools
@@ -16,12 +17,7 @@ module CovLoupe
       DESC
       input_schema(**coverage_schema(
         additional_properties: {
-          sort_order: {
-            type: 'string',
-            description: 'Sort order for the printed coverage table (ascending or descending).',
-            default: 'descending',
-            enum: ['ascending', 'descending']
-          },
+          sort_order: SORT_ORDER_PROPERTY,
           tracked_globs: TRACKED_GLOBS_PROPERTY
         }
       ))
@@ -37,8 +33,10 @@ module CovLoupe
               tracked_globs: tracked_globs
             )
 
-            # Convert string inputs from MCP to symbols for internal use
-            sort_order_sym = (sort_order || 'descending').to_sym
+            # Normalize and validate sort_order (supports 'a'/'d' abbreviations)
+            sort_order_sym = OptionNormalizers.normalize_sort_order(
+              sort_order || BaseTool::DEFAULT_SORT_ORDER, strict: true
+            )
 
             table = model.format_table(
               sort_order: sort_order_sym,

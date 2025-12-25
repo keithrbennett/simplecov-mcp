@@ -64,4 +64,30 @@ RSpec.describe CovLoupe::Tools::ListTool do
       hash_including(sort_order: :descending)
     )
   end
+
+  describe 'sort_order parameter validation' do
+    it 'accepts valid values: ascending, descending, a, d' do
+      %w[ascending descending a d].each do |sort_order|
+        response = described_class.call(
+          root: root,
+          sort_order: sort_order,
+          server_context: server_context
+        )
+        expect(response).to be_a(MCP::Tool::Response)
+        expect(response.payload.first['type']).to eq('text')
+      end
+    end
+
+    it 'rejects invalid sort_order values' do
+      response = described_class.call(
+        root: root,
+        sort_order: 'invalid',
+        server_context: server_context
+      )
+      expect(response).to be_a(MCP::Tool::Response)
+      text = response.payload.first['text']
+      expect(text).to include('Error')
+      expect(text).to include('invalid')
+    end
+  end
 end

@@ -5,6 +5,7 @@ require 'json'
 require_relative 'errors'
 require_relative 'error_handler'
 require_relative 'model_cache'
+require_relative 'model'
 require_relative 'presenters/coverage_payload_presenter'
 
 module CovLoupe
@@ -42,6 +43,17 @@ module CovLoupe
       description: 'Glob patterns for files that should exist in the coverage report' \
                    '(helps flag new files).',
       items: { type: 'string' }
+    }.freeze
+
+    DEFAULT_SORT_ORDER = CoverageModel::DEFAULT_SORT_ORDER.to_s
+
+    SORT_ORDER_PROPERTY = {
+      type: 'string',
+      description: 'Sort order for coverage percentages. ' \
+                   "'#{DEFAULT_SORT_ORDER}' (default) lists highest coverage first. " \
+                   'Accepts: a[scending], d[escending].',
+      default: DEFAULT_SORT_ORDER,
+      enum: %w[ascending descending a d]
     }.freeze
 
     PATH_PROPERTY = {

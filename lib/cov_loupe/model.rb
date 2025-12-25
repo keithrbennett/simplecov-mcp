@@ -20,6 +20,8 @@ module CovLoupe
     RELATIVIZER_ARRAY_KEYS =
       %w[newer_files missing_files deleted_files missing_tracked_files skipped_files].freeze
 
+    DEFAULT_SORT_ORDER = :descending
+
     attr_reader :relativizer, :skipped_rows
 
     # Create a CoverageModel
@@ -85,7 +87,7 @@ module CovLoupe
     end
 
     # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
-    def list(sort_order: :descending,
+    def list(sort_order: DEFAULT_SORT_ORDER,
       raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       @skipped_rows = []
@@ -132,7 +134,8 @@ module CovLoupe
 
     # Returns formatted table string for all files coverage data
     # Delegates to CoverageTableFormatter for presentation logic
-    def format_table(rows = nil, sort_order: :descending, raise_on_stale: @default_raise_on_stale,
+    def format_table(rows = nil, sort_order: DEFAULT_SORT_ORDER,
+      raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
