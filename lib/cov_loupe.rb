@@ -25,7 +25,13 @@ module CovLoupe
 
       # Parse config to determine mode
       require_relative 'cov_loupe/config_parser'
-      config = ConfigParser.parse(full_argv.dup)
+      begin
+        config = ConfigParser.parse(full_argv.dup)
+      rescue OptionParser::ParseError => e
+        warn "Error: #{e.message}"
+        warn "Run 'cov-loupe --help' for usage information."
+        exit 2
+      end
 
       if config.mode == :cli
         # CLI mode: load CLI components only

@@ -490,7 +490,7 @@ Specify execution mode: `cli` or `mcp` (default: `cli`). Use `--mode mcp` to run
 In v4.0.0+, automatic mode detection was removed; you must explicitly specify `--mode mcp` to run the MCP server.
 
 ```sh
-clp --m mcp              # MCP server mode (required for MCP), short option form
+clp -m mcp               # MCP server mode (required for MCP), short option form
 clp --mode mcp           # MCP server mode (required for MCP), long option form
 clp -m cli list          # CLI mode (default), can use to override environment variable
 ```

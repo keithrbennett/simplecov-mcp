@@ -31,6 +31,14 @@ RSpec.describe CovLoupe do
         end
       end
     end
+
+    it 'exits with code 2 and shows friendly error for invalid options' do
+      expect do
+        described_class.run(%w[--invalid-option])
+      end.to raise_error(SystemExit) do |error|
+        expect(error.status).to eq(2)
+      end
+    end
   end
 
   # When no thread-local context exists, active_log_file= creates one
