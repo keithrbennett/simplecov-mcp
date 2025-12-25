@@ -1,16 +1,15 @@
 # Builds docs on PRs and deploys to GitHub Pages on main.
 name: Docs
 
-x-docs-paths: &docs_paths
-  - 'docs/**'
-  - 'mkdocs.yml'
-  - '.github/workflows/deploy-docs.yml'
-
 on:
   push:
     branches:
       - main
-    paths: *docs_paths
+    # Anchor paths so pull_request can reuse the same list.
+    paths: &docs_paths
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/deploy-docs.yml'
   pull_request:
     paths: *docs_paths
 
