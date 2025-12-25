@@ -77,8 +77,16 @@ module CovLoupe
     # Handle errors consistently across all MCP tools
     # Returns an MCP::Tool::Response with appropriate error message
     def self.handle_mcp_error(error, tool_name, error_mode: :log)
+      # Safely normalize error_mode to a symbol, defaulting to :log for invalid inputs
+      # This prevents crashes when MCP clients send invalid types (null, numbers, objects, etc.)
+      safe_mode = case error_mode
+                  when Symbol then error_mode
+                  when String then error_mode.to_sym
+                  else :log
+      end
+
       # Create error handler with the specified mode
-      error_handler = ErrorHandlerFactory.for_mcp_server(error_mode: error_mode.to_sym)
+      error_handler = ErrorHandlerFactory.for_mcp_server(error_mode: safe_mode)
 
       # Normalize to a CovLoupe::Error so we can handle/log uniformly
       normalized = error.is_a?(CovLoupe::Error) \
