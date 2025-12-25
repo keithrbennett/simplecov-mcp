@@ -3,21 +3,33 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe do
-  # Mode detection tests moved to mode_detector_spec.rb
-  # These tests verify the integration with ModeDetector
-  describe 'mode detection integration' do
-    it 'uses ModeDetector for CLI mode detection' do
-      allow(described_class::ModeDetector).to receive(:cli_mode?).with(%w[--force-mode cli])
-        .and_return(true)
-      cli = instance_double(described_class::CoverageCLI, run: nil)
-      allow(described_class::CoverageCLI).to receive(:new).and_return(cli)
+  # Mode selection tests - mode is determined by --mode flag, not autodetection
+  describe 'mode selection' do
+    [
+      { desc: 'runs in CLI mode by default (no --mode flag)', argv: [], mode: :cli },
+      { desc: 'runs in CLI mode when --mode cli is specified', argv: %w[--mode cli], mode: :cli },
+      { desc: 'runs in MCP mode when --mode mcp is specified', argv: %w[--mode mcp], mode: :mcp },
+      { desc: 'runs in MCP mode when -m mcp is specified', argv: %w[-m mcp], mode: :mcp }
+    ].each do |test_case|
+      it test_case[:desc] do
+        if test_case[:mode] == :cli
+          cli = instance_double(described_class::CoverageCLI, run: nil)
+          allow(described_class::CoverageCLI).to receive(:new).and_return(cli)
 
-      described_class.run(%w[--force-mode cli])
+          described_class.run(test_case[:argv])
 
-      expect(described_class::ModeDetector)
-        .to have_received(:cli_mode?).with(%w[--force-mode cli])
-      expect(described_class::CoverageCLI).to have_received(:new)
-      expect(cli).to have_received(:run)
+          expect(described_class::CoverageCLI).to have_received(:new)
+          expect(cli).to have_received(:run).with(test_case[:argv])
+        else
+          mcp_server = instance_double(described_class::MCPServer, run: nil)
+          allow(described_class::MCPServer).to receive(:new).and_return(mcp_server)
+
+          described_class.run(test_case[:argv])
+
+          expect(described_class::MCPServer).to have_received(:new)
+          expect(mcp_server).to have_received(:run)
+        end
+      end
     end
   end
 

@@ -47,7 +47,7 @@ Prefer project‑local tools and scripts (for example, bin/ scripts, package.jso
 - **Simplecov** - test coverage analysis tool
 
 ### Dual Mode Architecture
-`CovLoupe.run` detects whether to operate in CLI mode (interactive TTY or explicit subcommands) or MCP server mode (JSON-RPC piped input). This dual-mode entry point enables both interactive commands and background tool-serving from the same executable.
+`CovLoupe.run` operates in either CLI mode (default) or MCP server mode (when `-m mcp` or `--mode mcp` is specified). This dual-mode entry point enables both interactive commands and background tool-serving from the same executable.
 
 ### Core Components
 - `lib/cov_loupe/model.rb` (`CoverageModel`) – core API for querying and shaping coverage data.
@@ -189,7 +189,7 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 ## Troubleshooting Notes
 - Coverage lookup order: The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](README.md#configuring-the-resultset) section in the main README.
 - `COV_LOUPE_OPTS` can set default CLI flags (command-line arguments still win).
-- CLI vs MCP mode auto-detects based on TTY; use `-F mcp`/`--force-mode mcp` if you need to bypass MCP auto-start during manual runs.
+- Mode selection: Use `-m mcp`/`--mode mcp` to run as MCP server, or `-m cli`/`--mode cli` (or omit for default) for CLI mode.
 
 ## Rubocop Linting
 

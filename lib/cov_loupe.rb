@@ -12,7 +12,6 @@ require_relative 'cov_loupe/error_handler'
 require_relative 'cov_loupe/error_handler_factory'
 require_relative 'cov_loupe/path_relativizer'
 require_relative 'cov_loupe/resultset_loader'
-require_relative 'cov_loupe/mode_detector'
 require_relative 'cov_loupe/model'
 require_relative 'cov_loupe/coverage_reporter'
 
@@ -24,14 +23,17 @@ module CovLoupe
       # Prepend environment options once at entry point
       full_argv = extract_env_opts + argv
 
-      if ModeDetector.cli_mode?(full_argv)
+      # Parse config to determine mode
+      require_relative 'cov_loupe/config_parser'
+      config = ConfigParser.parse(full_argv.dup)
+
+      if config.mode == :cli
         # CLI mode: load CLI components only
         require_relative 'cov_loupe/all_cli'
         CoverageCLI.new.run(full_argv)
       else
         # MCP server mode: load MCP server components only
         require_relative 'cov_loupe/all_mcp'
-        config = ConfigParser.parse(full_argv)
 
         if config.log_file == 'stdout'
           raise ConfigurationError,

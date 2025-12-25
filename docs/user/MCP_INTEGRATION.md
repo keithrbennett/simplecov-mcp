@@ -2,6 +2,9 @@
 
 [Back to main README](../index.md)
 
+> **⚠️ BREAKING CHANGE (v4.0.0+):** The `-m/--mode mcp` flag is now **required** to run cov-loupe as an MCP server. 
+> Automatic mode detection based on TTY/stdin has been removed. If you're upgrading from an earlier version, you **must** update your MCP server configuration to include `-m mcp` or `--mode mcp` or the server will run in CLI mode and hang. See [Migration Guide](migrations/MIGRATING_TO_V4.md) for details.
+
 ## Table of Contents
 
 - [Setup by Client](#setup-by-client)
@@ -19,13 +22,13 @@ For the `mcp add` commands, the executable path comes after the server name. You
 
 ```sh
 # Add the MCP server; equivalent to ...--scope local...
-claude mcp add cov-loupe cov-loupe
+claude mcp add cov-loupe cov-loupe -- -m mcp
 
 # For user-wide configuration
-claude mcp add --scope user cov-loupe cov-loupe
+claude mcp add --scope user cov-loupe cov-loupe -- -m mcp
 
 # For project-specific configuration.
-claude mcp add --scope project cov-loupe cov-loupe
+claude mcp add --scope project cov-loupe cov-loupe -- -m mcp
 
 # List configured MCP servers
 claude mcp list
@@ -33,8 +36,10 @@ claude mcp list
 # Get server details
 claude mcp get cov-loupe
 
-# Remove if needed
-claude mcp remove cov-loupe
+# Remove if needed (use --scope to match where it was added)
+claude mcp remove cov-loupe                # Removes from local scope (default)
+claude mcp remove --scope user cov-loupe   # Removes from user scope
+claude mcp remove --scope project cov-loupe # Removes from project scope
 ```
 
 ### Codex
@@ -43,7 +48,7 @@ Using the Codex CLI:
 
 ```sh
 # Add the MCP server
-codex mcp add cov-loupe cov-loupe
+codex mcp add cov-loupe cov-loupe -m mcp
 
 # List configured servers
 codex mcp list
@@ -51,11 +56,23 @@ codex mcp list
 # Show server details
 codex mcp get cov-loupe
 
-# Remove if needed
+# Remove if needed (check codex documentation for scope options if applicable)
 codex mcp remove cov-loupe
 ```
 
-**Note:** Codex may not pass environment variables like `GEM_HOME` to MCP servers. If `cov-loupe` fails to start, see [Codex MCP env var passthrough workaround](CODEX_ENV_VAR_WORKAROUND.md).
+**Important:** Codex does not pass environment variables like `GEM_HOME`/`GEM_PATH` to MCP servers
+by default. After adding the server, you **must** manually edit `~/.codex/config.toml` to add the 'env_vars' setting:
+
+```toml
+[mcp_servers.cov-loupe]
+command = "cov-loupe"
+args = ["-m", "mcp"]
+env_vars = ["GEM_HOME", "GEM_PATH"]  # Add this line manually
+```
+
+**Warning:** If you run `codex mcp remove cov-loupe`, the `env_vars` line will be deleted along with the rest of the section.
+You'll need to manually add it back after running `codex mcp add` again.
+To avoid this, consider editing `~/.codex/config.toml` directly instead of using `remove`/`add` commands.
 
 ### Gemini
 
@@ -63,12 +80,12 @@ Using the Gemini CLI:
 
 ```sh
 # Add the MCP server
-gemini mcp add cov-loupe cov-loupe
+gemini mcp add cov-loupe cov-loupe -- -m mcp
 
 # List configured servers
 gemini mcp list
 
-# Remove if needed
+# Remove if needed (check gemini documentation for scope options if applicable)
 gemini mcp remove cov-loupe
 ```
 
@@ -135,7 +152,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 | `-s`, `--source` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-c`, `--context-lines` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
 | `-C`, `--color BOOLEAN` | ❌ No | N/A | CLI-only presentation flag (not used by MCP) |
-| `-F`, `--force-mode` | N/A | N/A | Force mode: `cli` or `mcp` (`auto` = default detection). |
+| `-m`, `--mode` | ✅ Required | N/A | **Required for MCP mode:** `-m mcp` or `--mode mcp`. Default: `cli`. |
 
 **Key Takeaways:**
 - **Server-level options** (`--error-mode`, `--log-file`): Set once when server starts, apply to all tool calls
@@ -364,13 +381,13 @@ For troubleshooting, add error mode when configuring the server:
 
 ```sh
 # Claude Code
-claude mcp add cov-loupe cov-loupe -- --error-mode debug
+claude mcp add cov-loupe cov-loupe -- -m mcp --error-mode debug
 
 # Codex
-codex mcp add cov-loupe cov-loupe --error-mode debug  
+codex mcp add cov-loupe cov-loupe -m mcp --error-mode debug
 
 # Gemini
-gemini mcp add cov-loupe cov-loupe --error-mode debug
+gemini mcp add cov-loupe cov-loupe -- -m mcp --error-mode debug
 ```
 
 ## Next Steps

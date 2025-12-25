@@ -81,33 +81,30 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       expect(status).not_to eq(0)
     end
 
-    it 'returns empty array when COV_LOUPE_OPTS is not set' do
-      # ENV is already cleared by around block
-      opts = CovLoupe.send(:extract_env_opts)
-      expect(opts).to eq([])
-    end
-
-    it 'returns empty array when COV_LOUPE_OPTS is empty' do
-      ENV['COV_LOUPE_OPTS'] = ''
-      opts = CovLoupe.send(:extract_env_opts)
-      expect(opts).to eq([])
+    [
+      { desc: 'returns empty array when COV_LOUPE_OPTS is not set', env_value: nil },
+      { desc: 'returns empty array when COV_LOUPE_OPTS is empty', env_value: '' }
+    ].each do |test_case|
+      it test_case[:desc] do
+        ENV['COV_LOUPE_OPTS'] = test_case[:env_value] if test_case[:env_value]
+        opts = CovLoupe.send(:extract_env_opts)
+        expect(opts).to eq([])
+      end
     end
   end
 
-  describe 'CLI mode detection with COV_LOUPE_OPTS' do
-    it 'respects --force-mode cli from environment variable' do
-      ENV['COV_LOUPE_OPTS'] = '--force-mode cli'
-
-      # This would normally be MCP mode (no TTY, no subcommand)
-      stdin = double('stdin', tty?: false)
+  describe 'CLI mode with COV_LOUPE_OPTS' do
+    it 'respects --mode cli from environment variable' do
+      ENV['COV_LOUPE_OPTS'] = '--mode cli'
 
       env_opts = CovLoupe.send(:extract_env_opts)
       full_argv = env_opts + []
 
-      expect(CovLoupe::ModeDetector.cli_mode?(full_argv, stdin: stdin)).to be true
+      config = CovLoupe::ConfigParser.parse(full_argv)
+      expect(config.mode).to eq(:cli)
     end
 
-    it 'handles parse errors gracefully in mode detection' do
+    it 'handles parse errors gracefully' do
       ENV['COV_LOUPE_OPTS'] = '--option "unclosed quote'
 
       # Should return empty array and not crash
@@ -115,11 +112,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       expect(opts).to eq([])
     end
 
-    it 'actually runs CLI when --force-mode cli is in COV_LOUPE_OPTS' do
-      ENV['COV_LOUPE_OPTS'] = '--force-mode cli'
-
-      # Mock STDIN to not be a TTY (would normally trigger MCP server mode)
-      allow($stdin).to receive(:tty?).and_return(false)
+    it 'actually runs CLI when --mode cli is in COV_LOUPE_OPTS' do
+      ENV['COV_LOUPE_OPTS'] = '--mode cli'
 
       # Run with --help which should produce help output
       output = nil
@@ -135,11 +129,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       expect(output).to include('cov-loupe')
     end
 
-    it 'actually runs MCP server mode when no CLI indicators present' do
+    it 'actually runs MCP server mode when --mode mcp is specified' do
       ENV['COV_LOUPE_OPTS'] = ''
-
-      # Mock STDIN to not be a TTY and to provide valid JSON-RPC
-      allow($stdin).to receive(:tty?).and_return(false)
 
       # Provide a minimal JSON-RPC request that the server can handle
       json_request = JSON.generate({
@@ -158,7 +149,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       # Capture output to verify MCP server response
       output = nil
       silence_output do |out, err|
-        CovLoupe.run([])
+        CovLoupe.run(%w[--mode mcp])
         output = out.string + err.string
       end
 

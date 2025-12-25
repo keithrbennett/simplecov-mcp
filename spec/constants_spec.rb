@@ -25,7 +25,7 @@ RSpec.describe CovLoupe::Constants do
         -g --tracked-globs
         -l --log-file
         --error-mode
-        -F --force-mode
+        -m --mode
       ]
 
       expect(options.sort).to eq(expected_options.sort)
@@ -41,21 +41,9 @@ RSpec.describe CovLoupe::Constants do
   end
 
   describe 'usage by other classes' do
-    it 'is used by ModeDetector' do
-      expect(CovLoupe::ModeDetector::OPTIONS_EXPECTING_ARGUMENT)
-        .to equal(CovLoupe::Constants::OPTIONS_EXPECTING_ARGUMENT)
-    end
-
     it 'is used by CoverageCLI' do
       expect(CovLoupe::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT)
         .to equal(CovLoupe::Constants::OPTIONS_EXPECTING_ARGUMENT)
-    end
-
-    it 'ensures both classes reference the same object' do
-      cli_options = CovLoupe::CoverageCLI::OPTIONS_EXPECTING_ARGUMENT
-      detector_options = CovLoupe::ModeDetector::OPTIONS_EXPECTING_ARGUMENT
-
-      expect(cli_options).to equal(detector_options)
     end
   end
 end

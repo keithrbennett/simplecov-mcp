@@ -8,16 +8,46 @@ This document describes the breaking changes introduced in version 4.0.0. These 
 
 ## CLI Changes
 
-### Mode Flag Renamed & Expanded
+### ⚠️ MCP Mode Now Requires Explicit `-m/--mode mcp` Flag
 
-The `--force-cli` flag has been removed and replaced with a more flexible `--force-mode` option.
+**BREAKING**: Automatic mode detection has been removed. 
+The `-m/--mode mcp` flag is now **required** to run cov-loupe as an MCP server.
 
-*   **Old**: `--force-cli` (boolean)
-*   **New**: `--force-mode` (or `-F`) taking values `cli`, `mcp`, or the default `auto`.
+#### Previous Behavior (v3.x)
+- cov-loupe automatically detected MCP mode based on TTY/stdin status
+- `--force-mode` could override detection (values: `cli`, `mcp`, `auto`)
 
-#### Migration
-*   Replace `--force-cli` with `--force-mode cli` (or `-F cli`).
-*   Use `--force-mode mcp` if you need to force MCP mode even when a TTY is detected (e.g., when running inside an AI tool that provides a TTY).
+#### New Behavior (v4.x)
+- **No automatic detection** - mode defaults to `cli`
+- `-m mcp` or `--mode mcp` is **required** for MCP server mode
+- Accepted values: `cli` (default) or `mcp`
+
+#### Migration for MCP Users
+
+**If you use cov-loupe as an MCP server, you MUST update your configuration:**
+
+1. **Remove the old entry** (see [MCP Integration Guide - Setup by Client](../MCP_INTEGRATION.md#setup-by-client)
+for removal commands with proper `--scope` options)
+2. **Add the new entry with `-m mcp` flag:**
+
+```sh
+# Claude Code
+claude mcp add cov-loupe cov-loupe -- -m mcp
+
+# Codex
+codex mcp add cov-loupe cov-loupe -m mcp
+
+# Gemini
+gemini mcp add cov-loupe cov-loupe -- -m mcp
+```
+
+**Without `-m mcp` or `--mode mcp`, the server will run in CLI mode and hang waiting for subcommands.**
+
+#### Migration for CLI Users
+
+CLI users are unaffected. The default mode is `cli`, so no changes are needed. However:
+- `--force-cli` removed → use `-m cli` or `--mode cli` if you need to be explicit (rare)
+- `--force-mode` removed → use `-m/--mode` instead
 
 ### Unified Stale Coverage Enforcement
 

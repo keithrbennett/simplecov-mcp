@@ -9,7 +9,7 @@ module CovLoupe
     SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
 
     # CLI options that expect an argument value following them.
-    # Used by both CoverageCLI and ModeDetector to correctly parse command-line arguments.
+    # Used by CoverageCLI to correctly parse command-line arguments.
     OPTIONS_EXPECTING_ARGUMENT = %w[
       -r --resultset
       -R --root
@@ -20,7 +20,7 @@ module CovLoupe
       -g --tracked-globs
       -l --log-file
       --error-mode
-      -F --force-mode
+      -m --mode
     ].freeze
   end
 end

@@ -108,9 +108,9 @@ module CovLoupe
         'Log file path (default ./cov_loupe.log, use stdout/stderr for streams)') do |value|
         config.log_file = value
       end
-      parser.on('-F', '--force-mode MODE', String,
-        'Force execution mode: cli|mcp|auto (auto = default detection)') do |value|
-        config.force_mode = normalize_force_mode(value)
+      parser.on('-m', '--mode MODE', String,
+        'Execution mode: cli|mcp (default: cli)') do |value|
+        config.mode = normalize_mode(value)
       end
       parser.on('-e', '--error-mode MODE', String,
         'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
@@ -149,8 +149,8 @@ module CovLoupe
       OptionNormalizers.normalize_format(value, strict: true)
     end
 
-    private def normalize_force_mode(value)
-      OptionNormalizers.normalize_force_mode(value, strict: true)
+    private def normalize_mode(value)
+      OptionNormalizers.normalize_mode(value, strict: true)
     end
   end
 end

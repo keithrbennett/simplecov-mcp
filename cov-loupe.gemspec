@@ -41,12 +41,20 @@ Gem::Specification.new do |spec|
     ┃ V4.0.0 BREAKING CHANGES                                                   ┃
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃                                                                           ┃
-    ┃  • --force-cli removed → use -F/--force-mode cli|mcp|auto instead         ┃
+    ┃  ⚠️  MCP MODE NOW REQUIRES -m/--mode mcp FLAG (AUTO-DETECTION REMOVED)    ┃
+    ┃                                                                           ┃
+    ┃  If you use cov-loupe as an MCP server, you MUST update your config.     ┃
+    ┃  Without -m mcp, the server will run in CLI mode and hang.                ┃
+    ┃                                                                           ┃
+    ┃  📖 Migration instructions: docs/user/migrations/MIGRATING_TO_V4.md       ┃
+    ┃                                                                           ┃
+    ┃ Other breaking changes:                                                   ┃
+    ┃  • --force-mode removed → use -m/--mode cli|mcp instead                   ┃
     ┃  • --staleness removed → use --raise-on-stale (boolean) instead           ┃
     ┃  • Ruby API: check_stale removed → use raise_on_stale (boolean) instead   ┃
     ┃  • Model #all_files_coverage method renamed to #list                      ┃
     ┃                                                                           ┃
-    ┃ See RELEASE_NOTES.md for migration details.                               ┃
+    ┃ See RELEASE_NOTES.md for full migration details.                          ┃
     ┃                                                                           ┃
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃ V3.0.0 - GEM RENAMED: simplecov-mcp → cov-loupe                           ┃

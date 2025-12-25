@@ -27,81 +27,73 @@ cov-loupe needed to serve two distinct use cases:
 We considered three approaches:
 
 1. **Separate binaries/gems**: Create `simplecov-cli` and `cov-loupe` as separate projects
-2. **Single binary with explicit mode flags**: Require users to pass `--mcp` or `--cli` to select mode
-3. **Automatic mode detection**: Single binary that automatically detects the operating mode based on input
+2. **Single binary with explicit mode flags**: Require users to pass `--mode mcp` to run as MCP server
+3. **Automatic mode detection**: Single binary that automatically detects the operating mode based on input (TTY status, stdin)
 
 #### Key Constraints
 
 - MCP servers communicate via JSON-RPC over stdin/stdout, so any human-readable output would corrupt the protocol
 - CLI users expect immediate, readable output without ceremony
 - The gem should be simple to install and use for both audiences
-- Mode detection must be reliable and unambiguous
+- Mode selection must be reliable and unambiguous
 
-### Decision
+### Decision (v4.0.0+)
 
-We implemented **automatic mode detection** via a single entry point (`CovLoupe.run`) that routes to either CLI or MCP server mode based on the execution context.
+We implemented **explicit mode selection** via the `-m/--mode` flag. The default mode is `cli`, and MCP users must pass `-m mcp` or `--mode mcp` to run the server.
 
-#### Mode Detection Algorithm
+#### Mode Selection Logic
 
-The `ModeDetector` class (defined in `lib/cov_loupe/mode_detector.rb`) implements a priority-based detection strategy:
+The mode is determined by parsing the `-m/--mode` flag from argv (including environment variables via `COV_LOUPE_OPTS`):
 
-1. **Force mode flag** (`-F/--force-mode cli|mcp`) overrides detection
-2. **Explicit CLI flags** (`-h`, `--help`, `--version`) → CLI mode
-3. **Presence of subcommands** (non-option arguments like `summary`, `list`) → CLI mode
-4. **TTY detection** fallback: `stdin.tty?` returns true → CLI mode, false → MCP server mode
+- **Default**: CLI mode (when `-m/--mode` is not specified)
+- **MCP mode**: Must explicitly pass `-m mcp` or `--mode mcp`
 
-The implementation lives in `lib/cov_loupe.rb` within `CovLoupe.run`:
-
-```ruby
-def run(argv)
-  env_opts = extract_env_opts
-  full_argv = env_opts + argv
-
-  if ModeDetector.cli_mode?(full_argv)
-    CoverageCLI.new.run(argv)
-  else
-    CovLoupe.default_log_file = parse_log_file(full_argv)
-    MCPServer.new.run
-  end
-end
-```
+The implementation parses the configuration from the command-line arguments and routes to either `CoverageCLI` or `MCPServer` based on the mode setting.
 
 #### Why This Works
 
-- **MCP clients** pipe JSON-RPC to stdin (not a TTY) and don't pass subcommands → routes to MCP server
-- **CLI users** run from an interactive terminal (TTY) or pass explicit subcommands → routes to CLI
-- **Edge cases** are covered by explicit flags (`--force-mode mcp` for testing MCP mode from a TTY)
+- **MCP clients** are configured once with `-m mcp` or `--mode mcp` in their server config → always routes to MCP server
+- **CLI users** don't need to specify anything → defaults to CLI mode
+- **No ambiguity**: Mode is explicit and deterministic based on the `-m/--mode` flag
+
+#### Historical Note
+
+Prior to v4.0.0, cov-loupe used automatic mode detection based on TTY status and presence of subcommands. This was removed because:
+- Automatic detection caused issues with piped input (`cov-loupe --format json > output.json` would hang in MCP mode)
+- CI environments and non-TTY contexts were unpredictable
+- CLI-only flags without subcommands (`--format`, `--sort-order`) couldn't be reliably detected
+- Explicit mode selection is more predictable and follows standard practice for language servers
 
 ### Consequences
 
 #### Positive
 
 1. **User convenience**: Single gem to install (`gem install cov-loupe`), single executable (`cov-loupe`)
-2. **No ceremony**: Users don't need to remember mode flags or understand the MCP/CLI distinction
-3. **Testable**: The `ModeDetector` class is a pure function that can be tested in isolation
+2. **Predictable behavior**: Mode is explicit and deterministic - no surprises based on environment
+3. **Simpler implementation**: No complex mode detection logic to maintain
 4. **Clear separation**: CLI and MCP server implementations remain completely separate after routing
+5. **Follows conventions**: Matches standard practice for language servers (e.g., `typescript-language-server --stdio`)
 
 #### Negative
 
-1. **Complexity**: Requires maintaining the mode detection logic and keeping it accurate
-2. **Potential ambiguity**: In unusual environments (non-TTY CLI execution without subcommands), users must understand `--force-mode`
+1. **Breaking change**: Users upgrading from v3.x must update MCP server configuration to include `-m mcp` or `--mode mcp`
+2. **Slight verbosity**: MCP users must include `-m mcp` or `--mode mcp` in their server config (but this is one-time setup)
 3. **Shared dependencies**: Some components (error handling, coverage model) must work correctly in both modes
 
 #### Trade-offs
 
-- **Versus separate gems**: More initial complexity, but better DX (single installation, no confusion about which gem to use)
-- **Versus explicit mode flags**: Slightly more "magical", but eliminates user error and reduces boilerplate
+- **Versus automatic detection**: More explicit, but eliminates ambiguity and edge cases
+- **Versus separate gems**: Single installation is simpler, but requires mode flag for MCP
 
 #### Future Constraints
 
-- Mode detection logic must remain stable and backward-compatible
-- Any new CLI subcommands must be registered in `ModeDetector::SUBCOMMANDS`
 - Shared components (like `CoverageModel`) must never output to stdout/stderr in ways that differ by mode
+- Default mode must remain `cli` for backward compatibility with existing CLI users
 
 ### References
 
 - Implementation: `lib/cov_loupe.rb` (`CovLoupe.run`)
-- Mode detection: `lib/cov_loupe/mode_detector.rb`
+- Configuration: `lib/cov_loupe/app_config.rb`
 - CLI implementation: `lib/cov_loupe/cli.rb`
 - MCP server implementation: `lib/cov_loupe/mcp_server.rb`
 - Related section: [Context-Aware Error Handling](#context-aware-error-handling)

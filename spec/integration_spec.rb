@@ -220,7 +220,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     let(:default_env) do
       {
         'RUBY_LIB' => lib_path,
-        'COV_LOUPE_OPTS' => "--root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
+        'COV_LOUPE_OPTS' => "--mode mcp --root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
       }
     end
 
@@ -407,13 +407,15 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       # Respects --log-file
 
       req = jsonrpc_request(10, 'tools/call', { name: 'version_tool', arguments: {} })
-      res = run_mcp_json(req, env: default_env.merge('COV_LOUPE_OPTS' => '--log-file stderr'))
+      res = run_mcp_json(req, env: default_env.merge('COV_LOUPE_OPTS' =>
+        "--mode mcp --root #{project_root} --resultset #{coverage_dir} --log-file stderr"))
       expect_jsonrpc_result(parse_jsonrpc(res[:stdout]), 10)
 
       # Prohibits stdout logging
       res_err = Spec::Support::McpRunner.call(
         input: nil,
-        **runner_args(env: { 'RUBY_LIB' => lib_path, 'COV_LOUPE_OPTS' => '--log-file stdout' })
+        **runner_args(env:
+          { 'RUBY_LIB' => lib_path, 'COV_LOUPE_OPTS' => '--mode mcp --log-file stdout' })
       )
 
       expect(res_err[:stdout] + res_err[:stderr]).to include('stdout', 'not permitted')

@@ -108,7 +108,9 @@ The model looks up files by absolute path, then cwd-relative path, then basename
    See **[CLI Fallback for LLMs](CLI_FALLBACK_FOR_LLMS.md)** for complete guidance.
 
 7. **Check for Codex environment variable issues:**
-   If you are using Codex and the server fails to start due to missing gems, see [Codex MCP env var passthrough workaround](CODEX_ENV_VAR_WORKAROUND.md).
+   If you are using Codex and the server fails to start due to missing gems, you need to manually add 
+   `env_vars = ["GEM_HOME", "GEM_PATH"]` to your `~/.codex/config.toml`. 
+   See the [MCP Integration - Codex section](MCP_INTEGRATION.md#codex) for complete setup instructions.
 
 ### Path Issues with Version Managers
 

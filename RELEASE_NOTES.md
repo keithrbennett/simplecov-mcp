@@ -4,7 +4,10 @@
 
 ## v4.0.0 (Breaking)
 
-- **Mode flag renamed/expanded**: New `-F/--force-mode cli|mcp|auto` replaces `--force-cli` (removed). Use this to force MCP even when the client allocates a TTY (e.g., Codex) or to force CLI when stdin is not a TTY.
+- **⚠️ MCP mode now requires `-m/--mode mcp` flag**: Automatic mode detection has been removed. MCP users **must** update their MCP server configuration to include `-m mcp` or `--mode mcp` or the server will run in CLI mode and hang. See migration guide for setup commands.
+  - **Old**: Mode was auto-detected based on TTY/stdin status, with optional `--force-mode cli|mcp|auto` override
+  - **New**: Mode defaults to `cli`. Use `-m mcp` or `--mode mcp` to run as MCP server. No auto-detection.
+  - **Rationale**: Auto-detection caused issues with piped input, CI environments, and CLI-only flags (e.g., `cov-loupe --format json` would hang in MCP mode)
 - **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues.
 - **Ruby API method renamed**: `CoverageModel#all_files_coverage` renamed to `CoverageModel#list` for consistency with CLI subcommand naming.
 - **Ruby API return type changed**: `CoverageModel#list` now returns a **hash** with comprehensive staleness information instead of just an array of files. The hash includes keys: `files` (array), `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files`. Update code to use `model.list['files']` when you need just the file array.

@@ -3,10 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe 'MCP Server Bootstrap' do
-  it 'does not crash on startup in non-TTY environments' do
-    # Simulate a non-TTY environment, which should trigger MCP mode
-    allow($stdin).to receive(:tty?).and_return(false)
-
+  it 'does not crash on startup when started in MCP mode' do
     # The server will try to run, but we only need to ensure it gets past
     # the point where the NameError would have occurred. We can mock the
     # server's run method to prevent it from hanging while waiting for input.
@@ -16,7 +13,7 @@ RSpec.describe 'MCP Server Bootstrap' do
 
     # The key assertion is that this code executes without raising a NameError
     # or any other exception related to the bootstrap process.
-    expect { CovLoupe.run([]) }.not_to raise_error
+    expect { CovLoupe.run(%w[--mode mcp]) }.not_to raise_error
 
     expect(mcp_server_instance).to have_received(:run)
   end

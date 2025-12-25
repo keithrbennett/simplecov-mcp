@@ -143,7 +143,6 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 **Special Topics & Prompts:**
 
 - [CLI Fallback for LLMs](docs/user/CLI_FALLBACK_FOR_LLMS.md) - When MCP isn't available
-- [Codex Env Var Workaround](docs/user/CODEX_ENV_VAR_WORKAROUND.md) - Passing GEM paths through Codex MCP configs
 - [Sample MCP Prompts](docs/user/prompts/README.md) - Ready-to-use ChatGPT/Claude/Gemini prompts
 - [Migration Guides](docs/user/migrations/README.md)
   - [Migrate to v4](docs/user/migrations/MIGRATING_TO_V4.md)

@@ -127,14 +127,14 @@ RSpec.describe CovLoupe::OptionNormalizers do
 
   describe 'constant maps' do
     [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :ERROR_MODE_MAP,
-     :FORMAT_MAP, :FORCE_MODE_MAP].each do |const|
+     :FORMAT_MAP, :MODE_MAP].each do |const|
       it "has frozen #{const}" do
         expect(described_class.const_get(const)).to be_frozen
       end
     end
   end
 
-  describe '.normalize_force_mode' do
+  describe '.normalize_mode' do
     it 'normalizes cli and mcp values (full and short)' do
       {
         'cli' => :cli,
@@ -142,22 +142,17 @@ RSpec.describe CovLoupe::OptionNormalizers do
         'mcp' => :mcp,
         'm' => :mcp
       }.each do |input, expected|
-        expect(described_class.normalize_force_mode(input)).to eq(expected)
+        expect(described_class.normalize_mode(input)).to eq(expected)
       end
     end
 
-    it 'returns nil for auto to signal no override' do
-      expect(described_class.normalize_force_mode('auto')).to be_nil
-      expect(described_class.normalize_force_mode('a')).to be_nil
-    end
-
     it 'raises on invalid values in strict mode' do
-      expect { described_class.normalize_force_mode('bad') }
+      expect { described_class.normalize_mode('bad') }
         .to raise_error(OptionParser::InvalidArgument)
     end
 
     it 'returns default when not strict and invalid' do
-      expect(described_class.normalize_force_mode('bad', strict: false, default: :cli)).to eq(:cli)
+      expect(described_class.normalize_mode('bad', strict: false, default: :cli)).to eq(:cli)
     end
   end
 end
