@@ -313,7 +313,6 @@ Add this to your `spec/spec_helper.rb` to automatically report files below a cov
 ```ruby
 require 'simplecov'
 SimpleCov.start do
-  enable_coverage :branch
   add_filter %r{^/spec/}
   track_files 'lib/**/*.rb'  # Ensures new/untested files show up with 0%
 end

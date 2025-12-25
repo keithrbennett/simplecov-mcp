@@ -204,37 +204,6 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
-  describe 'branch-only coverage resultsets' do
-    let(:branch_root) { (FIXTURES_DIR / 'branch_only_project').to_s }
-    let(:branch_model) { described_class.new(root: branch_root) }
-
-    it 'handles branch coverage correctly' do
-      aggregate_failures do
-        # Summary
-        data = branch_model.summary_for('lib/branch_only.rb')
-        expect(data['summary']).to include('total' => 5, 'covered' => 3)
-        expect(data['summary']['percentage']).to be_within(0.01).of(60.0)
-
-        # Detailed
-        detailed = branch_model.detailed_for('lib/branch_only.rb')
-        expect(detailed['lines']).to include(
-          { 'line' => 6,  'hits' => 3, 'covered' => true },
-          { 'line' => 7,  'hits' => 0, 'covered' => false }
-        )
-
-        # Uncovered
-        uncovered = branch_model.uncovered_for('lib/branch_only.rb')
-        expect(uncovered['uncovered']).to eq([7, 13])
-
-        # List
-        files = branch_model.list(sort_order: :ascending)['files']
-        branch_path = File.expand_path('lib/branch_only.rb', branch_root)
-        another_path = File.expand_path('lib/another.rb', branch_root)
-        expect(files.map { |f| f['file'] }).to contain_exactly(branch_path, another_path)
-      end
-    end
-  end
-
   describe 'multiple suites in resultset' do
     let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
     let(:shared_file) { File.join(root, 'lib', 'foo.rb') }

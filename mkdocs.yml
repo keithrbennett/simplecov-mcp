@@ -103,7 +103,6 @@ nav:
       - Overview: dev/README.md
       - Architecture: dev/ARCHITECTURE.md
       - Development: dev/DEVELOPMENT.md
-      - Branch Coverage: dev/BRANCH_ONLY_COVERAGE.md
       - Releasing: dev/RELEASING.md
       - Architecture Decisions:
           - Overview: dev/arch-decisions/README.md

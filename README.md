@@ -40,7 +40,6 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 - ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
 - ✅ **Comprehensive error handling** - Context-aware messages for each mode
-- ⚠️ **Branch coverage limitation** - Branch-level metrics are collapsed to per-line totals. Use native SimpleCov reports for branch-by-branch analysis.
 
 ### Practical Use Cases
 
@@ -153,7 +152,6 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 
 - [Developer Docs Overview](docs/dev/README.md) - Entry point for contributors
 - [Architecture](docs/dev/ARCHITECTURE.md) - Design and internals
-- [Branch Coverage](docs/dev/BRANCH_ONLY_COVERAGE.md) - Branch coverage limitations
 - [Development Guide](docs/dev/DEVELOPMENT.md) - Local dev workflow
 - [Releasing](docs/dev/RELEASING.md) - Release checklist
 - [Architecture Decision Records](docs/dev/arch-decisions/README.md) - Design history

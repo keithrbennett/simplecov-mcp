@@ -5,7 +5,6 @@ begin
   require 'simplecov'
   require 'simplecov-cobertura'
   SimpleCov.start do
-    enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
     add_filter(/^\/spec\//)
     track_files 'lib/**/*.rb'
     formatter SimpleCov::Formatter::MultiFormatter.new([
