@@ -209,7 +209,8 @@ These tools analyze individual files. All require `path` parameter.
 
 **`coverage_totals_tool`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`
-- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N}}`
+- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N},"excluded_files":{"skipped":N,"missing_tracked":N,"newer":N,"deleted":N}}`
+- The `excluded_files` object shows counts of files excluded from totals due to errors, staleness, or tracking issues. When `raise_on_stale` is enabled, errors are raised immediately for problematic files and this field won't be present.
 
 **`coverage_table_tool`** - Formatted table with box-drawing characters
 - Parameters: `sort_order` (`ascending`|`descending`)

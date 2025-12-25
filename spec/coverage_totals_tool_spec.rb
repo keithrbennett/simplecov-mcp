@@ -17,7 +17,8 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
     payload = {
       'lines' => { 'total' => 42, 'covered' => 40, 'uncovered' => 2 },
       'percentage' => 95.24,
-      'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 }
+      'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 },
+      'excluded_files' => { 'skipped' => 0, 'missing_tracked' => 0, 'newer' => 0, 'deleted' => 0 }
     }
 
     presenter = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
@@ -33,5 +34,18 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
     expect(data['lines']).to include('total' => 42, 'covered' => 40, 'uncovered' => 2)
     expect(data['files']).to include('total' => 4, 'stale' => 0)
     expect(data['percentage']).to eq(95.24)
+  end
+
+  it 'includes excluded_files metadata in output' do
+    data, = expect_mcp_text_json(
+      tool_response,
+      expected_keys: %w[lines percentage files excluded_files]
+    )
+
+    expect(data).to have_key('excluded_files')
+    expect(data['excluded_files']).to be_a(Hash)
+    expect(data['excluded_files'].keys).to contain_exactly(
+      'skipped', 'missing_tracked', 'newer', 'deleted'
+    )
   end
 end

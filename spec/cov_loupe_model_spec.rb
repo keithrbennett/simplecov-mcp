@@ -191,6 +191,59 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(totals['lines']).to include('total' => 3, 'covered' => 2, 'uncovered' => 1)
       expect(totals['files']).to include('total' => 1)
     end
+
+    it 'includes excluded_files metadata when no files are excluded' do
+      totals = model.project_totals
+
+      expect(totals['excluded_files']).to eq(
+        'skipped' => 0,
+        'missing_tracked' => 0,
+        'newer' => 0,
+        'deleted' => 0
+      )
+    end
+
+    it 'includes excluded_files metadata when files are skipped' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
+        |method, coverage_map, absolute, **kwargs|
+        if absolute == abs_foo
+          raise(CovLoupe::CoverageDataError, 'corrupt data')
+        else
+          method.call(coverage_map, absolute, **kwargs)
+        end
+      end
+
+      totals = model.project_totals(raise_on_stale: false)
+
+      aggregate_failures do
+        # Only one file (bar.rb) should be included in totals
+        expect(totals['files']['total']).to eq(1)
+        expect(totals['excluded_files']).to include('skipped' => 1)
+      end
+    end
+
+    it 'includes all exclusion types in metadata when raise_on_stale is false' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+
+      # Stub one file to be skipped
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
+        |method, coverage_map, absolute, **kwargs|
+        if absolute == abs_foo
+          raise(CovLoupe::FileError, 'file error')
+        else
+          method.call(coverage_map, absolute, **kwargs)
+        end
+      end
+
+      totals = model.project_totals(raise_on_stale: false)
+
+      expect(totals['excluded_files']).to include(
+        'skipped' => 1,
+        'missing_tracked' => 0
+      )
+    end
   end
 
   describe 'resultset directory handling' do

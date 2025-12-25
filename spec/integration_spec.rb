@@ -65,7 +65,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         # Test list command
         list_output = run_cli_command('list')
         expect(list_output).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
-        data_lines = list_output.lines.select { |line| line.include?('lib/') }
+        # Select only table rows (lines starting with │) that contain file paths
+        data_lines = list_output.lines.select do |line|
+          line.start_with?('│') && line.include?('lib/')
+        end
         expect(data_lines.first).to include('lib/foo.rb')
         expect(data_lines.last).to include('lib/bar.rb')
 

@@ -59,6 +59,15 @@ RSpec.describe CovLoupe::CoverageCLI do
         expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
         expect(data['files']).to include('total' => 2)
         expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
+
+        # Verify excluded_files metadata is present
+        expect(data).to have_key('excluded_files')
+        expect(data['excluded_files']).to include(
+          'skipped' => 0,
+          'missing_tracked' => 1,  # uncovered_file.rb in fixture
+          'newer' => 0,
+          'deleted' => 0
+        )
       end
     end
   end

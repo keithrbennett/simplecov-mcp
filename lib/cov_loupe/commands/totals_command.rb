@@ -22,6 +22,7 @@ module CovLoupe
 
         lines = payload['lines']
         files = payload['files']
+        excluded = payload['excluded_files']
 
         # Table format
         headers = ['Metric', 'Total', 'Covered', 'Uncovered', '%']
@@ -41,6 +42,28 @@ module CovLoupe
             ''
           ]
         ]
+
+        # Add excluded files rows if any exclusions exist
+        total_excluded = excluded.values.sum
+        if total_excluded > 0
+          rows << [
+            'Excluded',
+            total_excluded.to_s,
+            '',
+            '',
+            ''
+          ]
+
+          # Add breakdown rows for each exclusion type with non-zero count
+          [
+            ['  Skipped', excluded['skipped']],
+            ['  Missing', excluded['missing_tracked']],
+            ['  Newer', excluded['newer']],
+            ['  Deleted', excluded['deleted']]
+          ].each do |label, count|
+            rows << [label, count.to_s, '', '', ''] if count > 0
+          end
+        end
 
         puts TableFormatter.format(
           headers: headers,

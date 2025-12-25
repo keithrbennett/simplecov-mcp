@@ -289,22 +289,80 @@ clp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 
 **Output (default format):**
 ```
-Lines: total 47       covered 38       uncovered 9
-Average coverage:  80.85% across 7 files (ok: 7, stale: 0)
+┌──────────┬───────┬─────────┬───────────┬────────┐
+│ Metric   │ Total │ Covered │ Uncovered │      % │
+├──────────┼───────┼─────────┼───────────┼────────┤
+│ Lines    │    47 │      38 │         9 │ 80.85% │
+│ Files    │     7 │       7 │         0 │        │
+└──────────┴───────┴─────────┴───────────┴────────┘
 ```
+
+**When files are excluded** (skipped due to errors or staleness):
+```
+┌──────────┬───────┬─────────┬───────────┬────────┐
+│ Metric   │ Total │ Covered │ Uncovered │      % │
+├──────────┼───────┼─────────┼───────────┼────────┤
+│ Lines    │    90 │      85 │         5 │ 94.44% │
+│ Files    │     9 │       9 │         0 │        │
+│ Excluded │     3 │         │           │        │
+│  Skipped │     1 │         │           │        │
+│  Newer   │     2 │         │           │        │
+└──────────┴───────┴─────────┴───────────┴────────┘
+```
+
+The excluded files breakdown shows:
+- **Excluded**: Total count of all excluded files
+- **Skipped**: Files with coverage data errors
+- **Newer**: Files modified after the coverage run
+- **Deleted**: Coverage entries for non-existent files
+- **Missing**: Tracked files with no coverage data
+
+Only non-zero exclusion types are shown.
 
 **Output (JSON format):**
 ```json
 {
   "lines": { "total": 47, "covered": 38, "uncovered": 9 },
   "percentage": 80.85,
-  "files": { "total": 7, "ok": 7, "stale": 0 }
+  "files": { "total": 7, "ok": 7, "stale": 0 },
+  "excluded_files": {
+    "skipped": 0,
+    "missing_tracked": 0,
+    "newer": 0,
+    "deleted": 0
+  }
 }
 ```
 
+**Excluded files metadata:**
+
+The `excluded_files` object shows counts of files that were excluded from totals:
+- **`skipped`**: Files with coverage data errors (corrupt data, missing entries)
+- **`missing_tracked`**: Tracked files (via `-g` / `--tracked-globs`) that have no coverage data
+- **`newer`**: Files modified after the coverage run (timestamp mismatch)
+- **`deleted`**: Coverage entries for files that no longer exist on disk
+
+When all counts are zero, no files were excluded and the totals represent complete data. Non-zero counts indicate partial totals that may be misleading without context.
+
+**Example with exclusions:**
+```json
+{
+  "lines": { "total": 90, "covered": 85, "uncovered": 5 },
+  "percentage": 94.44,
+  "files": { "total": 9, "ok": 9, "stale": 0 },
+  "excluded_files": {
+    "skipped": 1,
+    "missing_tracked": 0,
+    "newer": 2,
+    "deleted": 0
+  }
+}
+```
+In this example, the totals are based on 9 files, but 3 additional files (1 skipped + 2 newer) were excluded due to staleness or errors. The true project state includes 12 files, not 9.
+
 **Notes:**
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
-- Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
+- Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date (when enabled, errors are raised immediately and `excluded_files` won't be present in the output).
 
 ### `version`
 
@@ -447,11 +505,27 @@ clp --raise-on-stale false
 
 Comma-separated glob patterns for files that should be tracked.
 
+**Default:** `lib/**/*.rb,app/**/*.rb,src/**/*.rb`
+
+When not specified, cov-loupe automatically tracks common Ruby source directories. This helps detect files that should have coverage but don't (e.g., new files not yet loaded by tests).
+
 ```sh
-clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list  # -g = --tracked-globs
+# Use defaults (lib/**/*.rb, app/**/*.rb, src/**/*.rb)
+clp list
+
+# Override with custom patterns
+clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+
+# Explicitly disable tracking (only show files with coverage)
+clp -g "" list
 ```
 
-Used with `-S` / `--raise-on-stale` to detect new files not yet in coverage and to filter the `list`/`totals` subcommands.
+Used to:
+- Detect new files not yet in coverage (shown in `missing_tracked_files`)
+- Filter `list`/`totals` output to specific patterns
+- Work with `-S` / `--raise-on-stale` to catch missing coverage
+
+**To disable defaults:** Use an empty string `--tracked-globs ""`
 
 ### `-l, --log-file PATH`
 

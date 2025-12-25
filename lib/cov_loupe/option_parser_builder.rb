@@ -97,8 +97,11 @@ module CovLoupe
         config.raise_on_stale = BooleanType.parse(value)
       end
       parser.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list/totals subcommands)') do |value|
-        config.tracked_globs = value
+        'Globs for filtering files (list/totals subcommands)',
+        'Default: lib/**/*.rb,app/**/*.rb,src/**/*.rb',
+        'Use empty string to disable: --tracked-globs ""') do |value|
+        # Convert [""] to [] to explicitly disable defaults
+        config.tracked_globs = value == [''] ? [] : value
       end
       parser.on('-h', '--help', 'Show help') do
         puts parser

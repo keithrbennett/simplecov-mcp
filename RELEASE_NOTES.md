@@ -23,6 +23,51 @@
 - **Internal Logger API changed**: `CovLoupe::Logger.new` now requires `mode:` (symbol) instead of `mcp_mode:` (boolean).
     - Use `CovLoupe::Logger.new(target: t, mode: :cli|:mcp|:library)` instead of `mcp_mode: true/false`.
 
+### ✨ Enhancements
+
+- **Default tracked globs for common Ruby projects**: The `--tracked-globs` option now defaults to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` when not explicitly provided. This automatically detects files that should have coverage but don't (e.g., new files not yet loaded by tests), making it easier to catch missing coverage without manual configuration.
+
+  **Breaking change behavior:** Previously, omitting `--tracked-globs` meant "don't track anything" (only show files with coverage). Now it means "track common Ruby source directories". To restore the old behavior, explicitly pass an empty string: `--tracked-globs ""`.
+
+  **Why this matters:** Before this change, copying a file like `model_2.rb` to `lib/` wouldn't appear anywhere unless you explicitly set `--tracked-globs`. Now it will automatically appear in the "Missing" exclusion category in totals output, helping you catch gaps in coverage.
+
+- **Project totals now include exclusion metadata**: The `totals` subcommand and `coverage_totals_tool` now include an `excluded_files` object in their output, showing counts of files excluded from totals:
+  - `skipped`: Files with coverage data errors (corrupt data, missing entries)
+  - `missing_tracked`: Tracked files that have no coverage data
+  - `newer`: Files modified after the coverage run
+  - `deleted`: Coverage entries for files that no longer exist
+
+  This addresses a data-correctness issue where totals could appear healthy while silently omitting problematic files. When `raise_on_stale` is enabled, errors are raised immediately as before. When disabled, the exclusion counts provide visibility into partial data.
+
+  **Example output:**
+  ```json
+  {
+    "lines": { "total": 100, "covered": 90, "uncovered": 10 },
+    "percentage": 90.0,
+    "files": { "total": 10, "ok": 9, "stale": 1 },
+    "excluded_files": {
+      "skipped": 0,
+      "missing_tracked": 0,
+      "newer": 0,
+      "deleted": 0
+    }
+  }
+  ```
+
+  Table format also shows exclusions when they exist:
+  ```
+  ┌──────────┬───────┬─────────┬───────────┬────────┐
+  │ Metric   │ Total │ Covered │ Uncovered │      % │
+  ├──────────┼───────┼─────────┼───────────┼────────┤
+  │ Lines    │    90 │      85 │         5 │ 94.44% │
+  │ Files    │     9 │       9 │         0 │        │
+  │ Excluded │     1 │         │           │        │
+  │  Missing │     1 │         │           │        │
+  └──────────┴───────┴─────────┴───────────┴────────┘
+  ```
+
+  This is a **non-breaking change** – the new field is additive and all existing consumers continue to work.
+
 **📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V4.md](docs/user/migrations/MIGRATING_TO_V4.md)**
 
 ## v3.0.0

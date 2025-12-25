@@ -14,8 +14,23 @@ RSpec.describe CovLoupe::AppConfig do
       expect(config.raise_on_stale).to be(false)
       expect(config.resultset).to be_nil
       expect(config.source_mode).to be_nil
-      expect(config.tracked_globs).to be_nil
+      expect(config.tracked_globs).to eq(CovLoupe::Constants::DEFAULT_TRACKED_GLOBS)
       expect(config.log_file).to be_nil
+    end
+
+    it 'applies default tracked globs when not provided' do
+      config = described_class.new
+      expect(config.tracked_globs).to eq(%w[lib/**/*.rb app/**/*.rb src/**/*.rb])
+    end
+
+    it 'allows explicitly setting tracked_globs to empty array' do
+      config = described_class.new(tracked_globs: [])
+      expect(config.tracked_globs).to eq([])
+    end
+
+    it 'allows overriding default tracked_globs with custom values' do
+      config = described_class.new(tracked_globs: ['custom/**/*.rb'])
+      expect(config.tracked_globs).to eq(['custom/**/*.rb'])
     end
 
     it 'allows overriding defaults via keyword arguments' do
@@ -58,13 +73,13 @@ RSpec.describe CovLoupe::AppConfig do
       })
     end
 
-    it 'handles nil values correctly' do
+    it 'handles default values correctly' do
       config = described_class.new
       options = config.model_options
       expect(options[:root]).to eq('.')
       expect(options[:resultset]).to be_nil
       expect(options[:raise_on_stale]).to be(false)
-      expect(options[:tracked_globs]).to be_nil
+      expect(options[:tracked_globs]).to eq(CovLoupe::Constants::DEFAULT_TRACKED_GLOBS)
     end
   end
 

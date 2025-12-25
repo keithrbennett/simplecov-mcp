@@ -22,5 +22,17 @@ module CovLoupe
       --error-mode
       -m --mode
     ].freeze
+
+    # Default glob patterns for tracking files that should have coverage.
+    # Used when --tracked-globs is not explicitly provided.
+    # Covers common Ruby project structures:
+    # - lib/**/*.rb: Standard gem structure
+    # - app/**/*.rb: Rails applications
+    # - src/**/*.rb: Alternative source directory
+    DEFAULT_TRACKED_GLOBS = %w[
+      lib/**/*.rb
+      app/**/*.rb
+      src/**/*.rb
+    ].freeze
   end
 end

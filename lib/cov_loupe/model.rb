@@ -117,9 +117,20 @@ module CovLoupe
     def project_totals(
       tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
     )
+      # NOTE: When raise_on_stale is true, list() will raise immediately for
+      # skipped/newer/deleted files, so the excluded_files metadata will only
+      # be present when raise_on_stale is false.
       list_result = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
-      totals_from_rows(list_result['files'])
+
+      totals_from_rows(list_result['files']).merge(
+        'excluded_files' => {
+          'skipped' => list_result['skipped_files'].length,
+          'missing_tracked' => list_result['missing_tracked_files'].length,
+          'newer' => list_result['newer_files'].length,
+          'deleted' => list_result['deleted_files'].length
+        }
+      )
     end
 
     def staleness_for(path)

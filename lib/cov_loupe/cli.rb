@@ -75,6 +75,7 @@ module CovLoupe
           raise_on_stale: config.raise_on_stale,
           tracked_globs: nil
         )
+        show_exclusions_summary(presenter, output)
       else
         require_relative 'formatters'
         output.puts Formatters.format(presenter.relativized_payload, config.format)
@@ -188,6 +189,42 @@ module CovLoupe
         warn "  - #{relative_path}: #{row['error']}"
       end
       warn 'Run again with --raise-on-stale to exit when rows are skipped.'
+    end
+
+    private def show_exclusions_summary(presenter, output)
+      missing = presenter.relative_missing_tracked_files
+      newer = presenter.relative_newer_files
+      deleted = presenter.relative_deleted_files
+      skipped = presenter.relative_skipped_files
+
+      # Only show if there are any exclusions
+      return if missing.empty? && newer.empty? && deleted.empty? && skipped.empty?
+
+      output.puts "\nFiles excluded from coverage:"
+
+      unless missing.empty?
+        output.puts "\nMissing tracked files (#{missing.length}):"
+        missing.each { |file| output.puts "  - #{file}" }
+      end
+
+      unless newer.empty?
+        output.puts "\nFiles newer than coverage (#{newer.length}):"
+        newer.each { |file| output.puts "  - #{file}" }
+      end
+
+      unless deleted.empty?
+        output.puts "\nDeleted files with coverage (#{deleted.length}):"
+        deleted.each { |file| output.puts "  - #{file}" }
+      end
+
+      unless skipped.empty?
+        output.puts "\nFiles skipped due to errors (#{skipped.length}):"
+        skipped.each do |row|
+          output.puts "  - #{row['file']}: #{row['error']}"
+        end
+      end
+
+      output.puts "\nRun with --raise-on-stale to exit when files are excluded."
     end
   end
 end
