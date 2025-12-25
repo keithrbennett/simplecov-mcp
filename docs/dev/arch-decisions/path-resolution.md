@@ -34,6 +34,8 @@ Upon closer examination, this cross-OS scenario is unrealistic for several reaso
 
 Specifically:
 - Normalize backslashes to forward slashes on Windows only
+- Apply case-insensitive path matching on Windows (filesystem is case-insensitive)
+- Apply case-sensitive path matching on Unix (filesystem is case-sensitive)
 - Keep path resolution focused on same-OS scenarios:
   - Exact absolute path matching
   - Relative path matching (stripping project root)
@@ -59,7 +61,17 @@ Specifically:
 - CI/CD integration
 - Docker/container-based development
 
+### Implementation
+
+Path normalization uses a strategy pattern to minimize runtime branching:
+- A normalization lambda is built once at resolver initialization based on `RUBY_PLATFORM`
+- Windows normalizer: converts backslashes to forward slashes and downcases for case-insensitive matching
+- Unix normalizer: returns path as-is (no conversion needed)
+- All path operations use the injected normalizer without platform checks at the call site
+
+This approach keeps the code clean and avoids scattered `if windows?` checks throughout the resolver.
+
 ### References
 
-- Removed in: `lib/cov_loupe/resolvers/coverage_line_resolver.rb` (normalize_path method)
-- Related tests removed: `spec/resolvers/coverage_line_resolver_spec.rb` (separator normalization context)
+- Implementation: `lib/cov_loupe/resolvers/coverage_line_resolver.rb` (build_path_normalizer method)
+- Related tests removed: `spec/resolvers/coverage_line_resolver_spec.rb` (cross-OS separator normalization context)

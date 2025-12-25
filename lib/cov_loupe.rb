@@ -115,6 +115,13 @@ module CovLoupe
       context.logger
     end
 
+    # Returns true if running on Windows (mingw, mswin, cygwin).
+    def windows?
+      return @windows if defined?(@windows)
+
+      @windows = RUBY_PLATFORM.match?(/mingw|mswin|cygwin/)
+    end
+
     private def default_context
       @default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,

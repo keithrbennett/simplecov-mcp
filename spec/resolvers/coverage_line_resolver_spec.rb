@@ -107,5 +107,38 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           /Entry for .* has no valid lines/)
       end
     end
+
+    context 'with platform-specific path normalization' do
+      # On Unix: paths are case-sensitive (Foo.rb != foo.rb)
+      # On Windows: paths are case-insensitive (Foo.rb == foo.rb) due to filesystem semantics
+      it 'applies case-sensitive matching on Unix' do
+        skip 'Windows-specific test' if CovLoupe.windows?
+
+        cov_data = {
+          '/project/lib/Foo.rb' => { 'lines' => [1, 0] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+
+        # On Unix, different casing = different file
+        expect do
+          resolver.lookup_lines('/project/lib/foo.rb')
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
+      end
+
+      it 'applies case-insensitive matching on Windows' do
+        skip 'Unix-specific test' unless CovLoupe.windows?
+
+        cov_data = {
+          'C:/Project/Lib/Foo.rb' => { 'lines' => [1, 0] }
+        }
+
+        resolver = described_class.new(cov_data, root: 'C:/Project')
+
+        # On Windows, different casing = same file
+        lines = resolver.lookup_lines('c:/project/lib/foo.rb')
+        expect(lines).to eq([1, 0])
+      end
+    end
   end
 end
