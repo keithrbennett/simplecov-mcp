@@ -2,13 +2,10 @@
 
 [Back to main README](docs/index.md)
 
-## Unreleased
+## v4.0.0 (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.
   - Removed `docs/dev/BRANCH_ONLY_COVERAGE.md`.
-
-## v4.0.0 (Breaking)
-
 - **⚠️ MCP mode now requires `-m/--mode mcp` flag**: Automatic mode detection has been removed. MCP users **must** update their MCP server configuration to include `-m mcp` or `--mode mcp` or the server will run in CLI mode and hang. See migration guide for setup commands.
   - **Old**: Mode was auto-detected based on TTY/stdin status, with optional `--force-mode cli|mcp|auto` override
   - **New**: Mode defaults to `cli`. Use `-m mcp` or `--mode mcp` to run as MCP server. No auto-detection.

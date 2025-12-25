@@ -200,6 +200,23 @@ logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :mcp)
 logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :cli)     # or :library
 ```
 
+## Removed Branch-Only Coverage Support
+
+**Breaking Change**: The automatic synthesis of line coverage data from SimpleCov branch-only coverage results has been removed.
+
+### Rationale
+The logic required to maintain this feature was complex and prone to edge cases, particularly regarding staleness detection and line-count mismatches. Additionally, branch-only coverage is a rarely used configuration in the SimpleCov ecosystem.
+
+### Impact
+If your project is configured to track **only** branch coverage in SimpleCov (e.g., `enable_coverage :branch` without also tracking lines), `cov-loupe` will no longer be able to process your coverage data and will raise a `CorruptCoverageDataError`.
+
+### How to Migrate
+Most users do not need to take any action. Line coverage is enabled by default in SimpleCov.
+
+If you have `enable_coverage :branch` in your configuration, your `.resultset.json` contains both `lines` and `branches` data. **This is fully supported.** `cov-loupe` will read and report the `lines` coverage as usual.
+
+The change in v4.0 is simply that `cov-loupe` no longer looks at the `branches` data at all. Previously, if `lines` data was missing (a rare edge case), `cov-loupe` would attempt to calculate line coverage by summing up branch hits. This fallback logic has been removed.
+
 ---
 
 ## Getting Help
