@@ -88,7 +88,6 @@ nav:
       - Error Handling: user/ERROR_HANDLING.md
       - Troubleshooting: user/TROUBLESHOOTING.md
       - CLI Fallback for LLMs: user/CLI_FALLBACK_FOR_LLMS.md
-      - Codex Workaround: user/CODEX_ENV_VAR_WORKAROUND.md
   - Migrations:
       - Overview: user/migrations/README.md
       - Migrating to v4: user/migrations/MIGRATING_TO_V4.md
