@@ -107,6 +107,7 @@ nav:
           - Overview: dev/arch-decisions/README.md
           - Application Architecture: dev/arch-decisions/application-architecture.md
           - Coverage Data Quality: dev/arch-decisions/coverage-data-quality.md
+          - Path Resolution: dev/arch-decisions/path-resolution.md
           - Policy Validation: dev/arch-decisions/policy-validation.md
           - SimpleCov Integration: dev/arch-decisions/simplecov-integration.md
       - Presentations: dev/presentations/cov-loupe-presentation.md

@@ -9,9 +9,6 @@ module CovLoupe
     # 1) exact match on the provided path
     # 2) match after stripping the configured root prefix
     # 3) match by basename when the full path is unknown
-    #
-    # For portability, matching normalizes path separators to '/' so Windows
-    # and Unix-style keys can be compared without mutating stored data.
     class CoverageLineResolver
       # @param cov_data [Hash] coverage data map keyed by file path
       # @param root [String, nil] project root used for path stripping
@@ -110,14 +107,22 @@ module CovLoupe
         raise FileError, "Multiple coverage entries match path #{path}: #{match_keys.join(', ')}"
       end
 
-      # Normalize separators for matching, keeping original values intact.
+      # Normalize path separators on Windows only.
+      # On Unix systems, paths already use forward slashes natively.
       private def normalize_path(path)
-        path.to_s.tr('\\', '/')
+        str = path.to_s
+        windows? ? str.tr('\\', '/') : str
       end
 
-      # Derive a basename after normalizing separators.
+      # Derive a basename from the normalized path.
       private def basename_for(path)
         normalize_path(path).split('/').last
+      end
+
+      private def windows?
+        return @windows if defined?(@windows)
+
+        @windows = RUBY_PLATFORM.match?(/mingw|mswin|cygwin/)
       end
 
       private def raise_not_found_error(file_abs)
