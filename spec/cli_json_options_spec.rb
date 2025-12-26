@@ -16,6 +16,13 @@ RSpec.describe CovLoupe::CoverageCLI, 'json format options' do
       expect(data['files']).to be_an(Array)
     end
 
+    it 'produces pretty JSON with -f J (uppercase short flag)' do
+      output = run_cli_output('-f', 'J', 'list')
+      expect(output.strip.lines.count).to be > 1
+      data = JSON.parse(output)
+      expect(data['files']).to be_an(Array)
+    end
+
     it 'produces pretty JSON with -f pretty-json' do
       output = run_cli_output('-f', 'pretty-json', 'list')
       expect(output.strip.lines.count).to be > 1

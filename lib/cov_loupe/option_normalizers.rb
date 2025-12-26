@@ -92,7 +92,8 @@ module CovLoupe
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     module_function def normalize_format(value, strict: true)
-      normalized = FORMAT_MAP[value.to_s.downcase]
+      # Try exact match first (preserves case-sensitive 'J' for pretty_json)
+      normalized = FORMAT_MAP[value.to_s] || FORMAT_MAP[value.to_s.downcase]
       return normalized if normalized
 
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
