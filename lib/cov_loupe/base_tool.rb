@@ -97,6 +97,10 @@ module CovLoupe
                   else :log
       end
 
+      # Validate against VALID_ERROR_MODES and fallback to :log if invalid
+      # This prevents ArgumentError when handling errors with invalid error_mode values
+      safe_mode = :log unless ErrorHandler::VALID_ERROR_MODES.include?(safe_mode)
+
       # Create error handler with the specified mode
       error_handler = ErrorHandlerFactory.for_mcp_server(error_mode: safe_mode)
 

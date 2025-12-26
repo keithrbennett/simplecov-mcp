@@ -91,6 +91,22 @@ RSpec.describe 'Error Mode System' do
         expect(response.payload.first['text']).to include('Error:')
       end
     end
+
+    it 'BaseTool.handle_mcp_error falls back to :log for invalid error_mode' do
+      test_error = StandardError.new('Test MCP error')
+
+      # Test invalid error modes (string and symbol) fall back to :log
+      ['invalid_mode', :invalid_mode, 'bad', :bad, 123, nil, {}, []].each do |invalid_mode|
+        expect(CovLoupe::ErrorHandlerFactory)
+          .to receive(:for_mcp_server).with(error_mode: :log).and_call_original
+
+        response = CovLoupe::BaseTool.handle_mcp_error(
+          test_error, 'TestTool', error_mode: invalid_mode
+        )
+        expect(response).to be_a(MCP::Tool::Response)
+        expect(response.payload.first['text']).to include('Error:')
+      end
+    end
   end
 
   describe 'CLI error mode support' do
