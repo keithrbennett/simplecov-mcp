@@ -18,6 +18,7 @@ require_relative 'cov_loupe/coverage_reporter'
 module CovLoupe
   class << self
     THREAD_CONTEXT_KEY = :cov_loupe_context
+    private_constant :THREAD_CONTEXT_KEY
 
     def run(argv)
       # Prepend environment options once at entry point
