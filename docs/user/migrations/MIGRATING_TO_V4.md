@@ -77,9 +77,9 @@ These changes improve consistency between short and long flag forms and eliminat
 
 ## Ruby API Changes
 
-### CoverageLineResolver Now Requires `root:`
+### CoverageLineResolver Now Requires `root:` and `volume_case_sensitive:`
 
-**Breaking Change**: `CovLoupe::Resolvers::CoverageLineResolver` now requires a `root:` keyword argument, and `CovLoupe::Resolvers::ResolverHelpers.lookup_lines` / `create_coverage_resolver` now require `root:` as well.
+**Breaking Change**: `CovLoupe::Resolvers::CoverageLineResolver` now requires `root:` and `volume_case_sensitive:` keyword arguments, and `CovLoupe::Resolvers::ResolverHelpers.lookup_lines` / `create_coverage_resolver` now require these parameters as well.
 
 #### Migration
 ```ruby
@@ -88,9 +88,13 @@ resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data)
 lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path)
 
 # New
-resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data, root: root)
-lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path, root: root)
+root = '/path/to/project'
+volume_case_sensitive = CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?(root)
+resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data, root: root, volume_case_sensitive: volume_case_sensitive)
+lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path, root: root, volume_case_sensitive: volume_case_sensitive)
 ```
+
+**Note**: If you're using `CoverageModel` (recommended), this is handled automatically - the model lazily detects volume case-sensitivity on first use and passes it to resolvers internally.
 
 ### Method Renamed
 
