@@ -35,21 +35,26 @@ We needed a staleness detection system that could:
 
 ### Decision
 
-We implemented a **three-type staleness detection system** with configurable error modes.
+We implemented a **staleness detection system** with configurable error modes that can identify four distinct staleness conditions.
 
-#### Three Staleness Types
+#### Four Staleness Types
 
-The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) detects three distinct types of staleness:
+The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) detects three distinct types of staleness, and `CoverageModel#staleness_for` can return a fourth type when errors occur:
 
-1. **Type 'M' (Missing)**: The source file exists in coverage but is now deleted/missing
+1. **Type 'E' (Error)**: The staleness check itself failed
+   - Returned by `CoverageModel#staleness_for` when an exception is raised during staleness checking
+   - Example: File permission errors, resolver failures, or other unexpected issues
+   - The error is logged but execution continues with an 'E' marker instead of crashing
+
+2. **Type 'M' (Missing)**: The source file exists in coverage but is now deleted/missing
    - Returned by `stale_for_file?` when `File.file?(file_abs)` returns false
    - Example: File was deleted after tests ran
 
-2. **Type 'T' (Timestamp)**: The source file's mtime is newer than the coverage timestamp
+3. **Type 'T' (Timestamp)**: The source file's mtime is newer than the coverage timestamp
    - Detected by comparing `File.mtime(file_abs)` with coverage timestamp
    - Example: File was edited after tests ran
 
-3. **Type 'L' (Length)**: The source file line count doesn't match the coverage lines array length
+4. **Type 'L' (Length)**: The source file line count doesn't match the coverage lines array length
    - Detected by comparing `File.foreach(path).count` with `coverage_lines.length`
    - Handles edge case: Files without trailing newlines (adjusts count by 1)
    - Example: Lines were added/removed without changing mtime (rare but possible with version control)

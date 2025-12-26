@@ -279,6 +279,100 @@ end
 
 ---
 
+## Staleness Check Errors Now Return 'E' Marker
+
+**Breaking Change**: When staleness checking itself fails (e.g., file permission errors, resolver failures), the `stale` field now returns `'E'` instead of `false`.
+
+### Previous Behavior (v3.x)
+```ruby
+# Staleness check fails due to permission error or other exception
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.list
+# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => false, ... }], ... }
+
+# Error was logged but stale field returned false (indistinguishable from fresh files)
+if result['files'][0]['stale']
+  puts "Stale file"
+else
+  puts "Fresh file"  # This executes - misleading!
+end
+```
+
+### New Behavior (v4.x)
+```ruby
+# Staleness check fails due to permission error or other exception
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.list
+# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => 'E', ... }], ... }
+
+# Error is logged and stale field returns 'E' (explicitly indicates error)
+if result['files'][0]['stale']
+  puts "Stale or error"  # This executes - correct!
+end
+```
+
+### Rationale
+
+The previous behavior made it impossible to distinguish between:
+1. Successfully checked and found fresh (`false`)
+2. Failed to check due to errors (`false`)
+
+Returning `'E'` makes staleness check failures explicit and consistent with other staleness markers (`'M'`, `'T'`, `'L'`).
+
+### Impact
+
+This affects code that:
+- **Checks equality**: `stale == false` will no longer match errors
+- **Uses truthiness**: `if stale` behavior reverses (was false, now truthy string)
+- **Pattern matches**: Case statements need to handle `'E'` value
+- **Type checks**: `stale.is_a?(String)` changes from false to true
+
+**Frequency**: Rare - only occurs when staleness checking fails (not normal staleness detection).
+
+### Migration
+
+**If you check for fresh files with equality**:
+```ruby
+# Old
+if file['stale'] == false
+  # file is fresh
+end
+
+# New - explicitly check for false
+if file['stale'] == false
+  # file is fresh (error cases now excluded)
+end
+
+# Or check for any staleness including errors
+if file['stale']
+  # file is stale or had error checking
+end
+```
+
+**If you use truthiness checks**:
+```ruby
+# Old (ambiguous - errors treated as fresh)
+unless payload['stale']
+  # process fresh files
+end
+
+# New (recommended - be explicit)
+if payload['stale'] == false
+  # process only confirmed fresh files
+elsif payload['stale'] == 'E'
+  # handle staleness check errors
+else
+  # handle other staleness types ('M', 'T', 'L')
+end
+```
+
+**Table output includes 'E' in legend**:
+```
+Staleness: E = Error checking, M = Missing file, T = Timestamp (source newer), L = Line count mismatch
+```
+
+---
+
 ## Removed Branch-Only Coverage Support
 
 **Breaking Change**: The automatic synthesis of line coverage data from SimpleCov branch-only coverage results has been removed.

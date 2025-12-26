@@ -213,7 +213,7 @@ Returns `Array<Hash>` where each hash contains:
   'covered' => Integer,   # Number of covered lines
   'total' => Integer,     # Total relevant lines
   'percentage' => Float,  # Coverage percentage (0.00-100.00)
-  'stale' => false | String  # Staleness indicator: false, 'M', 'T', or 'L'
+  'stale' => false | String  # Staleness indicator: false, 'E', 'M', 'T', or 'L'
 }
 ```
 

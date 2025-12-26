@@ -140,7 +140,7 @@ module CovLoupe
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
       @logger.safe_log("Failed to check staleness for #{path}: #{e.message}")
-      false
+      'E'
     end
 
     # Returns formatted table string for all files coverage data

@@ -21,7 +21,8 @@ module CovLoupe
       lines << summary_counts(rows)
       if rows.any? { |f| f['stale'] }
         lines <<
-          'Staleness: M = Missing file, T = Timestamp (source newer), L = Line count mismatch'
+          'Staleness: E = Error checking, M = Missing file, ' \
+          'T = Timestamp (source newer), L = Line count mismatch'
       end
       lines.join("\n")
     end

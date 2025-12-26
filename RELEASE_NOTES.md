@@ -26,6 +26,11 @@
   - **Old**: `model.summary_for('deleted_file.rb')` would return coverage data with exit 0
   - **New**: `model.summary_for('deleted_file.rb')` raises `CovLoupe::FileNotFoundError`
   - **Rationale**: Deleted files represent stale data that pollutes metrics. The API documentation already promised `FileNotFoundError` for missing files; the implementation now matches the contract.
+- **Staleness check errors now return 'E' marker**: Previously, when staleness checking itself failed (e.g., file permission errors, resolver failures, unexpected exceptions), the `stale` field returned `false`, making errors indistinguishable from fresh files. Now returns `'E'` to explicitly indicate a failed staleness check.
+  - **Old**: `{ "file": "...", "stale": false }` (error silently treated as fresh)
+  - **New**: `{ "file": "...", "stale": "E" }` (error explicitly flagged)
+  - **Impact**: Code checking `stale == false` or using truthiness checks (`if payload['stale']`) will need updating. Error is still logged for debugging.
+  - **Frequency**: Rare - only affects error conditions during staleness checking (not normal staleness detection)
 
 ### ✨ Enhancements
 

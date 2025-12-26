@@ -99,8 +99,8 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'includes staleness legend when stale files present' do
         output = described_class.format(rows)
 
-        staleness_msg = 'Staleness: M = Missing file, T = Timestamp (source newer), ' \
-                        'L = Line count mismatch'
+        staleness_msg = 'Staleness: E = Error checking, M = Missing file, ' \
+                        'T = Timestamp (source newer), L = Line count mismatch'
         expect(output).to include(staleness_msg)
       end
 

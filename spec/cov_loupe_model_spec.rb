@@ -377,7 +377,7 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe '#staleness_for' do
-    it 'returns false and logs error when staleness check fails' do
+    it "returns 'E' marker and logs error when staleness check fails" do
       logger = instance_double(CovLoupe::Logger)
       allow(CovLoupe).to receive(:logger).and_return(logger)
       allow(logger).to receive(:safe_log)
@@ -390,7 +390,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
       result = model_with_logger.staleness_for('lib/foo.rb')
 
-      expect(result).to be false
+      expect(result).to eq('E')
       expect(logger).to have_received(:safe_log).with(/Failed to check staleness/)
     end
   end
