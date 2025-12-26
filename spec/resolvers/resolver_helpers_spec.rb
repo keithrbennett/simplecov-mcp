@@ -29,7 +29,8 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
   describe '.create_coverage_resolver' do
     it 'wraps coverage data in a CoverageLineResolver' do
       cov = { '/tmp/foo.rb' => { 'lines' => [1, 0] } }
-      resolver = described_class.create_coverage_resolver(cov, root: '/tmp')
+      resolver = described_class.create_coverage_resolver(
+        cov, root: '/tmp', volume_case_sensitive: true)
 
       expect(resolver).to be_a(CovLoupe::Resolvers::CoverageLineResolver)
       expect(resolver.lookup_lines('/tmp/foo.rb')).to eq([1, 0])
@@ -54,7 +55,7 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
       cov = { '/tmp/bar.rb' => { 'lines' => [0, 1] } }
 
       expect(
-        described_class.lookup_lines(cov, '/tmp/bar.rb', root: '/tmp')
+        described_class.lookup_lines(cov, '/tmp/bar.rb', root: '/tmp', volume_case_sensitive: true)
       ).to eq([0, 1])
     end
 
@@ -65,8 +66,33 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
 
       # If root is passed, it should find it via stripping root
       expect(
-        described_class.lookup_lines(cov, abs_path, root: root)
+        described_class.lookup_lines(cov, abs_path, root: root, volume_case_sensitive: true)
       ).to eq([1, 1])
+    end
+  end
+
+  describe '.volume_case_sensitive?' do
+    let(:test_dir) { Dir.mktmpdir("cov_loupe_volume_test_#{SecureRandom.hex(4)}") }
+
+    after do
+      FileUtils.rm_rf(test_dir)
+    end
+
+    it 'returns a boolean value' do
+      result = described_class.volume_case_sensitive?(test_dir)
+      expect([true, false].include?(result)).to be(true)
+    end
+
+    it 'returns consistent results when called multiple times' do
+      # Write 2 files whose names differ only in case in the temporary test directory
+      %w[SampleFile.txt sAMPLEfILE.TXT]
+        .map { |filename| File.join(test_dir, filename) }
+        .each { |filespec| FileUtils.touch(filespec) }
+
+      test_count = 3
+      results = Array.new(test_count) { described_class.volume_case_sensitive?(test_dir) }
+      expect(results.size).to eq(test_count)
+      expect(results.uniq.size).to eq(1) # All results should be identical
     end
   end
 end

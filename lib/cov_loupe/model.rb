@@ -135,7 +135,8 @@ module CovLoupe
 
     def staleness_for(path)
       file_abs = File.absolute_path(path, @root)
-      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root)
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
+        volume_case_sensitive: volume_case_sensitive)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
     rescue => e
@@ -151,6 +152,12 @@ module CovLoupe
       rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
       CoverageTableFormatter.format(rows)
+    end
+
+    private def volume_case_sensitive
+      return @volume_case_sensitive if defined?(@volume_case_sensitive)
+
+      @volume_case_sensitive = Resolvers::ResolverHelpers.volume_case_sensitive?(@root)
     end
 
     private def load_coverage_data
@@ -198,7 +205,8 @@ module CovLoupe
     end
 
     private def coverage_lines_for_listing(abs_path, raise_on_stale)
-      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path, root: @root)
+      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path, root: @root,
+        volume_case_sensitive: volume_case_sensitive)
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
 
@@ -264,7 +272,8 @@ module CovLoupe
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.absolute_path(path, @root)
       begin
-        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root)
+        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
+          volume_case_sensitive: volume_case_sensitive)
       rescue RuntimeError
         raise FileError, "No coverage data found for file: #{path}"
       end

@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           abs_path => { 'lines' => [1, 0, nil, 2] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 0, nil, 2])
@@ -25,7 +25,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           path => { 'lines' => [1, 1, 1] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
         expect(resolver.lookup_lines(path)).to eq([1, 1, 1])
       end
     end
@@ -39,7 +39,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           relative_path => { 'lines' => [1, 0, 1] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
         lines = resolver.lookup_lines(abs_path)
 
         expect(lines).to eq([1, 0, 1])
@@ -50,7 +50,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           'lib/baz.rb' => { 'lines' => [1, 1] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
         # Previously this raised FileError because stripping logic failed.
         # Now it should match via basename fallback.
@@ -64,7 +64,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/project/lib/foo.rb' => { 'lines' => [1, 0] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
         expect do
           resolver.lookup_lines('/project/lib/missing.rb')
@@ -72,7 +72,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'raises FileError when coverage data is empty' do
-        resolver = described_class.new({}, root: root)
+        resolver = described_class.new({}, root: root, volume_case_sensitive: true)
 
         expect do
           resolver.lookup_lines('/any/path.rb')
@@ -84,7 +84,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           '/project/lib/foo.rb' => { 'other_key' => 'value' }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
         expect do
           resolver.lookup_lines('/project/lib/foo.rb')
@@ -99,7 +99,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
         expect do
           resolver.lookup_lines('/project/lib/branch_only.rb')
@@ -108,50 +108,43 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
     end
 
-    context 'with platform-specific path normalization' do
-      # On Unix: paths are case-sensitive (Foo.rb != foo.rb)
-      # On Windows: paths are case-insensitive (Foo.rb == foo.rb) due to filesystem semantics
-      it 'applies case-sensitive matching on Unix' do
-        skip 'Windows-specific test' if CovLoupe.windows?
-
+    context 'with volume-specific path normalization' do
+      it 'applies case-sensitive matching when volume_case_sensitive is true' do
         cov_data = {
           '/project/lib/Foo.rb' => { 'lines' => [1, 0] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
-        # On Unix, different casing = different file
+        # On case-sensitive volumes, different casing = different file
         expect do
           resolver.lookup_lines('/project/lib/foo.rb')
         end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
-      it 'applies case-insensitive matching on Windows' do
-        skip 'Unix-specific test' unless CovLoupe.windows?
-
+      it 'applies case-insensitive matching when volume_case_sensitive is false' do
         cov_data = {
-          'C:/Project/Lib/Foo.rb' => { 'lines' => [1, 0] }
+          '/project/lib/Foo.rb' => { 'lines' => [1, 0] }
         }
 
-        resolver = described_class.new(cov_data, root: 'C:/Project')
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
 
-        # On Windows, different casing = same file
-        lines = resolver.lookup_lines('c:/project/lib/foo.rb')
+        # On case-insensitive volumes, different casing = same file
+        lines = resolver.lookup_lines('/project/lib/foo.rb')
         expect(lines).to eq([1, 0])
       end
     end
 
     context 'with normalized path resolution edge cases' do
       it 'resolves single normalized match when exact match fails on case-insensitive FS' do
-        # Simulate case-insensitive filesystem behavior
-        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
+        # Simulate case-insensitive volume behavior
         allow(CovLoupe).to receive(:windows?).and_return(false)
 
         cov_data = {
           'lib/Foo.rb' => { 'lines' => [1, 2, 3] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
 
         # Request with different casing - should normalize and find the match
         lines = resolver.lookup_lines('lib/foo.rb')
@@ -159,8 +152,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'raises FileError for ambiguous normalized matches on case-insensitive filesystems' do
-        # Simulate case-insensitive filesystem where 'Foo.rb' and 'foo.rb' both normalize to 'foo.rb'
-        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
+        # Simulate case-insensitive volume where 'Foo.rb' and 'foo.rb' both normalize to 'foo.rb'
         allow(CovLoupe).to receive(:windows?).and_return(false)
 
         cov_data = {
@@ -168,7 +160,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           'lib/foo.rb' => { 'lines' => [4, 5, 6] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
 
         # Both keys normalize to the same path, causing ambiguity
         expect do
@@ -180,30 +172,28 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
     context 'with path normalization' do
       it 'normalizes backslashes on Windows' do
         # Windows needs backslash normalization
-        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', true)
         allow(CovLoupe).to receive(:windows?).and_return(true)
 
         cov_data = {
           'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
-        # Windows path with backslashes (but case-sensitive filesystem)
+        # Windows path with backslashes (but case-sensitive volume)
         lines = resolver.lookup_lines('lib\\utils\\Helper.rb')
         expect(lines).to eq([10, 20, 30])
       end
 
       it 'normalizes both slashes and case on Windows with case-insensitive filesystem' do
-        # Windows with case-insensitive filesystem needs both normalizations
-        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
+        # Windows with case-insensitive volume needs both normalizations
         allow(CovLoupe).to receive(:windows?).and_return(true)
 
         cov_data = {
           'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
 
         # Windows path with backslashes and different casing
         lines = resolver.lookup_lines('lib\\utils\\HELPER.rb')
@@ -211,7 +201,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'does not normalize on case-sensitive volumes' do
-        skip 'Test requires case-sensitive volume' unless CovLoupe::VOLUME_CASE_SENSITIVE
+        skip 'Test requires case-sensitive volume' unless CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?('.')
 
         # Ensure no slash normalization either (non-Windows)
         allow(CovLoupe).to receive(:windows?).and_return(false)
@@ -220,7 +210,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           'lib/Helper.rb' => { 'lines' => [1, 2] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
         # On case-sensitive volumes, backslashes are literal characters (not separators)
         # and case matters, so this should not match
@@ -230,7 +220,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'normalizes case on case-insensitive volumes' do
-        skip 'Test requires case-insensitive volume' if CovLoupe::VOLUME_CASE_SENSITIVE
+        skip 'Test requires case-insensitive volume' if CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?('.')
 
         # Ensure no slash normalization (non-Windows)
         allow(CovLoupe).to receive(:windows?).and_return(false)
@@ -239,7 +229,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           'lib/Helper.rb' => { 'lines' => [1, 2, 3] }
         }
 
-        resolver = described_class.new(cov_data, root: root)
+        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
 
         # On case-insensitive volumes, different casing should match
         lines = resolver.lookup_lines('lib/helper.rb')

@@ -12,11 +12,12 @@ module CovLoupe
     class CoverageLineResolver
       # @param cov_data [Hash] coverage data map keyed by file path
       # @param root [String, nil] project root used for path stripping
-      def initialize(cov_data, root:)
+      # @param volume_case_sensitive [Boolean] whether the volume is case-sensitive
+      def initialize(cov_data, root:, volume_case_sensitive:)
         @cov_data = cov_data
         @root = root
         @normalize_slashes = CovLoupe.windows?
-        @normalize_case = !CovLoupe::VOLUME_CASE_SENSITIVE
+        @normalize_case = !volume_case_sensitive
       end
 
       # Resolve coverage lines for a file path, trying fallbacks before raising.

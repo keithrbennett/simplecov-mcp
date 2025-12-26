@@ -67,34 +67,4 @@ RSpec.describe CovLoupe do
       expect(described_class.default_log_file).to eq(original_default)
     end
   end
-
-  describe '.volume_case_sensitive?' do
-    let(:test_dir) { Dir.mktmpdir("cov_loupe_volume_test_#{SecureRandom.hex(4)}") }
-
-    after do
-      FileUtils.rm_rf(test_dir)
-    end
-
-    it 'returns a boolean value' do
-      result = described_class.volume_case_sensitive?(test_dir)
-      expect(result).to be(true).or be(false)
-    end
-
-    it 'caches results and only performs detection once per path' do
-      # Spy on FileUtils.touch to count how many times detection is performed
-      allow(FileUtils).to receive(:touch).and_call_original
-
-      # Call multiple times with same path
-      first_result = described_class.volume_case_sensitive?(test_dir)
-      second_result = described_class.volume_case_sensitive?(test_dir)
-      third_result = described_class.volume_case_sensitive?(test_dir)
-
-      # All results should be identical
-      expect(first_result).to eq(second_result)
-      expect(second_result).to eq(third_result)
-
-      # FileUtils.touch should only be called once (for the first detection)
-      expect(FileUtils).to have_received(:touch).once
-    end
-  end
 end
