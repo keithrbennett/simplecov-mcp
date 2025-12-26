@@ -122,6 +122,46 @@ module CovLoupe
       @windows = RUBY_PLATFORM.match?(/mingw|mswin|cygwin/)
     end
 
+    # Detects whether the volume at the given path is case-sensitive.
+    # Creates a temporary file with mixed-case name and tests if case variants exist.
+    # Results are cached per path to avoid repeated checks.
+    #
+    # @param path [String] directory path to test (defaults to current directory)
+    # @return [Boolean] true if case-sensitive, false if case-insensitive
+    def volume_case_sensitive?(path = '.')
+      require 'securerandom'
+      require 'fileutils'
+
+      @case_sensitivity_cache ||= {}
+      abs_path = File.absolute_path(path)
+
+      return @case_sensitivity_cache[abs_path] if @case_sensitivity_cache.key?(abs_path)
+
+      # Generate a unique mixed-case filename
+      test_file = nil
+      while test_file.nil?
+        candidate = File.join(abs_path, "CovLoupe_CaseSensitivity_Test_#{SecureRandom.hex(8)}.tmp")
+        variants = [candidate, candidate.upcase, candidate.downcase]
+        test_file = candidate if variants.none? { |v| File.exist?(v) }
+      end
+
+      begin
+        # Create the test file
+        FileUtils.touch(test_file)
+
+        # Test if exactly one variant exists (case-sensitive) vs all exist (case-insensitive)
+        variants = [test_file, test_file.upcase, test_file.downcase]
+        result = variants.one? { |variant| File.exist?(variant) }
+
+        @case_sensitivity_cache[abs_path] = result
+      ensure
+        # Clean up all potential variants
+        [test_file, test_file.upcase, test_file.downcase].each do |variant|
+          FileUtils.rm_f(variant)
+        end
+      end
+    end
+
     private def default_context
       @default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,
@@ -141,4 +181,7 @@ module CovLoupe
       end
     end
   end
+
+  # Detect volume case-sensitivity once at module load time
+  VOLUME_CASE_SENSITIVE = CovLoupe.volume_case_sensitive?
 end

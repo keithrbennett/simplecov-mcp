@@ -31,6 +31,12 @@
   - **New**: `{ "file": "...", "stale": "E" }` (error explicitly flagged)
   - **Impact**: Code checking `stale == false` or using truthiness checks (`if payload['stale']`) will need updating. Error is still logged for debugging.
   - **Frequency**: Rare - only affects error conditions during staleness checking (not normal staleness detection)
+- **Path resolution now handles case-sensitivity and path separators correctly (NEW in v4.0.0)**: Path normalization now independently handles two concerns: (1) slash normalization for Windows backslashes, and (2) case-folding for case-insensitive volumes. Case-sensitivity is detected at module load time by testing the actual volume (the project root) using a temporary test file, not by platform assumptions.
+  - **Windows**: Paths are now case-insensitive with backslash normalization (`C:\Foo\Bar.rb` matches `c:/foo/bar.rb`)
+  - **macOS**: Most macOS users have case-insensitive APFS volumes - path lookups like `lib/Foo.rb` will now correctly match `lib/foo.rb` in coverage data. This may surface previously-hidden case mismatches in test code.
+  - **Linux**: Typically case-sensitive (no change in behavior for most users)
+  - **Special cases**: Correctly handles case-sensitive APFS volumes (macOS formatted with `-s`), external drives, and mixed-volume setups
+  - **Why**: A filesystem type (APFS, ext4, NTFS) can have multiple volumes with different case-sensitivity settings. Platform assumptions are insufficient. Runtime detection is the only accurate approach.
 
 ### ✨ Enhancements
 

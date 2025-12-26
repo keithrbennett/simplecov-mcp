@@ -142,10 +142,10 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
     end
 
     context 'with normalized path resolution edge cases' do
-      it 'resolves single normalized match when exact match fails' do
-        # Coverage line 106: return match_keys.first if match_keys.length == 1
-        # Simulate Windows-like behavior where paths differ only in case/separators
-        allow(CovLoupe).to receive(:windows?).and_return(true)
+      it 'resolves single normalized match when exact match fails on case-insensitive FS' do
+        # Simulate case-insensitive filesystem behavior
+        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
+        allow(CovLoupe).to receive(:windows?).and_return(false)
 
         cov_data = {
           'lib/Foo.rb' => { 'lines' => [1, 2, 3] }
@@ -158,10 +158,10 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         expect(lines).to eq([1, 2, 3])
       end
 
-      it 'raises FileError for ambiguous normalized matches' do
-        # Coverage line 108: raise FileError when multiple keys normalize to the same path
-        # Simulate Windows where 'Foo.rb' and 'foo.rb' both normalize to 'foo.rb'
-        allow(CovLoupe).to receive(:windows?).and_return(true)
+      it 'raises FileError for ambiguous normalized matches on case-insensitive filesystems' do
+        # Simulate case-insensitive filesystem where 'Foo.rb' and 'foo.rb' both normalize to 'foo.rb'
+        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
+        allow(CovLoupe).to receive(:windows?).and_return(false)
 
         cov_data = {
           'lib/Foo.rb' => { 'lines' => [1, 2, 3] },
@@ -170,16 +170,33 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
 
         resolver = described_class.new(cov_data, root: root)
 
-        # Both keys normalize to the same path on Windows, causing ambiguity
+        # Both keys normalize to the same path, causing ambiguity
         expect do
           resolver.lookup_lines('lib/FOO.rb')
         end.to raise_error(CovLoupe::FileError, /Multiple coverage entries match path/)
       end
     end
 
-    context 'with Windows path normalization' do
-      it 'normalizes backslashes and applies case-folding on Windows' do
-        # Coverage line 116: Windows-specific normalizer with backslash conversion and downcase
+    context 'with path normalization' do
+      it 'normalizes backslashes on Windows' do
+        # Windows needs backslash normalization
+        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', true)
+        allow(CovLoupe).to receive(:windows?).and_return(true)
+
+        cov_data = {
+          'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+
+        # Windows path with backslashes (but case-sensitive filesystem)
+        lines = resolver.lookup_lines('lib\\utils\\Helper.rb')
+        expect(lines).to eq([10, 20, 30])
+      end
+
+      it 'normalizes both slashes and case on Windows with case-insensitive filesystem' do
+        # Windows with case-insensitive filesystem needs both normalizations
+        stub_const('CovLoupe::VOLUME_CASE_SENSITIVE', false)
         allow(CovLoupe).to receive(:windows?).and_return(true)
 
         cov_data = {
@@ -193,8 +210,11 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         expect(lines).to eq([10, 20, 30])
       end
 
-      it 'does not apply Windows normalization on Unix' do
-        skip 'Windows-specific test' if CovLoupe.windows?
+      it 'does not normalize on case-sensitive volumes' do
+        skip 'Test requires case-sensitive volume' unless CovLoupe::VOLUME_CASE_SENSITIVE
+
+        # Ensure no slash normalization either (non-Windows)
+        allow(CovLoupe).to receive(:windows?).and_return(false)
 
         cov_data = {
           'lib/Helper.rb' => { 'lines' => [1, 2] }
@@ -202,11 +222,31 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
 
         resolver = described_class.new(cov_data, root: root)
 
-        # On Unix, backslashes are literal characters in filenames (not separators)
+        # On case-sensitive volumes, backslashes are literal characters (not separators)
         # and case matters, so this should not match
         expect do
           resolver.lookup_lines('lib\\helper.rb')
         end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
+      end
+
+      it 'normalizes case on case-insensitive volumes' do
+        skip 'Test requires case-insensitive volume' if CovLoupe::VOLUME_CASE_SENSITIVE
+
+        # Ensure no slash normalization (non-Windows)
+        allow(CovLoupe).to receive(:windows?).and_return(false)
+
+        cov_data = {
+          'lib/Helper.rb' => { 'lines' => [1, 2, 3] }
+        }
+
+        resolver = described_class.new(cov_data, root: root)
+
+        # On case-insensitive volumes, different casing should match
+        lines = resolver.lookup_lines('lib/helper.rb')
+        expect(lines).to eq([1, 2, 3])
+
+        lines = resolver.lookup_lines('lib/HELPER.rb')
+        expect(lines).to eq([1, 2, 3])
       end
     end
   end

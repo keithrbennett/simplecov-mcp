@@ -15,7 +15,8 @@ module CovLoupe
       def initialize(cov_data, root:)
         @cov_data = cov_data
         @root = root
-        @path_normalizer = build_path_normalizer
+        @normalize_slashes = CovLoupe.windows?
+        @normalize_case = !CovLoupe::VOLUME_CASE_SENSITIVE
       end
 
       # Resolve coverage lines for a file path, trying fallbacks before raising.
@@ -108,20 +109,14 @@ module CovLoupe
         raise FileError, "Multiple coverage entries match path #{path}: #{match_keys.join(', ')}"
       end
 
-      # Build a path normalization strategy based on the platform.
-      # On Windows: normalize separators and apply case-folding for case-insensitive matching.
-      # On Unix: return path as-is (paths are already forward-slash and case-sensitive).
-      private def build_path_normalizer
-        if CovLoupe.windows?
-          ->(path) { path.to_s.tr('\\', '/').downcase }
-        else
-          :to_s.to_proc
-        end
-      end
-
-      # Normalize a path using the platform-specific strategy.
+      # Normalize a path by independently handling:
+      # 1. Slash normalization (Windows backslashes -> forward slashes)
+      # 2. Case normalization (case-insensitive volumes)
       private def normalize_path(path)
-        @path_normalizer.call(path)
+        result = path.to_s
+        result = result.tr('\\', '/') if @normalize_slashes
+        result = result.downcase if @normalize_case
+        result
       end
 
       # Derive a basename from the normalized path.

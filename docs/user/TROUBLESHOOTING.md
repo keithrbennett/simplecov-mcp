@@ -47,20 +47,27 @@ Codex's macOS sandbox forbids `/bin/ps`; RVM shells need it. When you run `bundl
 
 ### Stale Coverage Errors
 
-`--raise-on-stale` (or `-S`, or `raise_on_stale: true`) compares file mtimes and line counts to the coverage snapshot and raises if stale. When it fails:
+`--raise-on-stale` (or `-S`, or `raise_on_stale: true`) compares file mtimes and line counts
+to the coverage snapshot and raises if stale. When it fails:
 
 - Regenerate coverage (`bundle exec rspec`) so the snapshot matches current sources.
 - Or drop back to warning-only behaviour using `--no-raise-on-stale` / `raise_on_stale: false`.
 
-If you only care about a subset of files, supply `-g` / `--tracked-globs` (CLI) or `tracked_globs:` (API) so new files outside those globs do not trigger staleness.
+If you only care about a subset of files, supply `-g` / `--tracked-globs` (CLI) or `tracked_globs:`
+(API) so new files outside those globs do not trigger staleness.
 
 ### "No coverage data found for file"
 
 The model looks up files by absolute path, then cwd-relative path, then basename. If you still hit this error:
 
 1. Verify the file is listed in the coverage table (`cov-loupe list | grep model.rb`).
-2. Use the exact project-relative path that SimpleCov recorded (case-sensitive, no symlinks).
+2. Use the exact project-relative path that SimpleCov recorded (no symlinks; case-sensitivity 
+depends on your volume - see note below).
 3. If the file truly never executes under tests, add coverage or exclude it from your workflow.
+
+**Note on case-sensitivity:** `cov-loupe` auto-detects volume case-sensitivity at startup. 
+On case-insensitive volumes (most macOS/Windows), `lib/Foo.rb` and `lib/foo.rb` are treated
+as the same file. On case-sensitive volumes (most Linux, some macOS), they are different files.
 
 ## MCP Server Issues
 
