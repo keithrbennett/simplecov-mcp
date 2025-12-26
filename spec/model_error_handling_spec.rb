@@ -319,4 +319,24 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       end
     end
   end
+
+  describe 'deleted file detection' do
+    [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
+      [true, false].each do |raise_on_stale|
+        it "#{method} raises FileNotFoundError for deleted files (raise_on_stale: #{raise_on_stale})" do
+          model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+
+          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+            .and_return([1, 0, 1, nil])
+          allow(File).to receive(:file?).and_return(false)
+
+          expect do
+            model.send(method, 'lib/deleted_file.rb', raise_on_stale: raise_on_stale)
+          end.to raise_error(CovLoupe::FileNotFoundError) do |error|
+            expect(error.message).to include('File not found')
+          end
+        end
+      end
+    end
+  end
 end

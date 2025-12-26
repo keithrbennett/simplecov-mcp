@@ -200,6 +200,85 @@ logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :mcp)
 logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :cli)     # or :library
 ```
 
+## Deleted Files Now Raise `FileNotFoundError`
+
+**Breaking Change**: Querying a file that has been deleted (but still exists in the coverage resultset) now raises `FileNotFoundError` instead of returning stale coverage data.
+
+### Previous Behavior (v3.x)
+```ruby
+# File lib/foo.rb was deleted after running tests
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.summary_for('lib/foo.rb')
+# => { 'file' => '/path/to/lib/foo.rb', 'summary' => { 'covered' => 4, 'total' => 6, 'percentage' => 66.67 } }
+# Returns stale coverage data with no error
+```
+
+```sh
+# CLI would return coverage percentage and exit 0
+$ cov-loupe summary lib/foo.rb
+lib/foo.rb: 66.67% (4/6)
+$ echo $?
+0
+```
+
+### New Behavior (v4.x)
+```ruby
+# File lib/foo.rb was deleted after running tests
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.summary_for('lib/foo.rb')
+# => raises CovLoupe::FileNotFoundError: "File not found: lib/foo.rb"
+```
+
+```sh
+# CLI raises error and exits 1
+$ cov-loupe summary lib/foo.rb
+Error: File not found: lib/foo.rb
+$ echo $?
+1
+```
+
+### Rationale
+
+Deleted files represent **stale data** that:
+1. Misleads coverage metrics and statistics
+2. Violates the API contract (docstring already promised `FileNotFoundError`)
+3. Should be treated the same as other staleness issues
+
+If a file no longer exists, its coverage data is no longer meaningful. The new behavior ensures you don't accidentally include deleted file coverage in your metrics.
+
+### Impact
+
+This affects:
+- `model.summary_for(path)` - All single-file query methods
+- `model.raw_for(path)`
+- `model.uncovered_for(path)`
+- `model.detailed_for(path)`
+- CLI commands: `summary`, `raw`, `uncovered`, `detailed`
+- MCP tools: `coverage_summary_tool`, `coverage_raw_tool`, etc.
+
+### Migration
+
+**If you expect deleted files to raise errors** (recommended):
+- No action needed. This is the correct behavior.
+
+**If you relied on getting coverage for deleted files**:
+- This was incorrect behavior. Update your workflow to:
+  1. Re-run tests after file deletions to get fresh coverage, OR
+  2. Use the `list` command to see deleted files in the `deleted_files` array without querying them directly
+
+**Example: Checking for deleted files**
+```ruby
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.list
+
+if result['deleted_files'].any?
+  puts "Warning: Coverage data exists for deleted files:"
+  result['deleted_files'].each { |f| puts "  - #{f}" }
+end
+```
+
+---
+
 ## Removed Branch-Only Coverage Support
 
 **Breaking Change**: The automatic synthesis of line coverage data from SimpleCov branch-only coverage results has been removed.

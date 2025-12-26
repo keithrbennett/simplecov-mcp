@@ -110,24 +110,21 @@ RSpec.describe CovLoupe::CoverageCLI do
     expect(out).to show_source_table_or_fallback
   end
 
-  it 'shows fallback message when source file is unreadable' do
-    # Test the fallback path when source files can't be read
-    # Temporarily rename the source file to make it unreadable
+  it 'raises error when querying deleted file with coverage data' do
+    # Deleted files should raise FileNotFoundError, not return stale coverage
     foo_path = File.join(root, 'lib', 'foo.rb')
     temp_path = "#{foo_path}.hidden"
 
     begin
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
 
-      out, err, status = run_fixture_cli_with_status(
+      _out, err, status = run_fixture_cli_with_status(
         '--source', 'full', '--color=false', 'summary', 'lib/foo.rb'
       )
 
-      expect(status).to eq(0)
-      expect(err).to eq('')
-      expect(out).to include('lib/foo.rb')
-      expect(out).to include('66.67%')
-      expect(out).to include('[source not available]')
+      expect(status).to eq(1)
+      expect(err).to include('File not found')
+      expect(err).to include('lib/foo.rb')
     ensure
       # Restore the file
       File.rename(temp_path, foo_path) if File.exist?(temp_path)

@@ -269,12 +269,19 @@ module CovLoupe
         raise FileError, "No coverage data found for file: #{path}"
       end
 
-      checker = build_staleness_checker(raise_on_stale: raise_on_stale, tracked_globs: nil)
-      checker.check_file!(file_abs, coverage_lines) unless checker.off?
-
       if coverage_lines.nil?
         raise FileError, "No coverage data found for file: #{path}"
       end
+
+      # Check file existence before staleness check
+      # Missing files are fundamentally different from stale files and should be
+      # reported as such regardless of raise_on_stale setting
+      unless File.file?(file_abs)
+        raise FileNotFoundError, "File not found: #{path}"
+      end
+
+      checker = build_staleness_checker(raise_on_stale: raise_on_stale, tracked_globs: nil)
+      checker.check_file!(file_abs, coverage_lines) unless checker.off?
 
       [file_abs, coverage_lines]
     rescue Errno::ENOENT

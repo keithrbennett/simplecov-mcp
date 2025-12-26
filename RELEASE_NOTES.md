@@ -22,6 +22,10 @@
     - `CovLoupe::Formatters.format(obj, :amazing_print)` is the new API method.
 - **Internal Logger API changed**: `CovLoupe::Logger.new` now requires `mode:` (symbol) instead of `mcp_mode:` (boolean).
     - Use `CovLoupe::Logger.new(target: t, mode: :cli|:mcp|:library)` instead of `mcp_mode: true/false`.
+- **Deleted files now raise `FileNotFoundError`**: Previously, querying a file that was deleted after coverage was generated would incorrectly return stale coverage data. This was misleading for metrics and violated the documented API contract. Now properly raises `FileNotFoundError` for missing files, regardless of whether coverage data exists in the resultset.
+  - **Old**: `model.summary_for('deleted_file.rb')` would return coverage data with exit 0
+  - **New**: `model.summary_for('deleted_file.rb')` raises `CovLoupe::FileNotFoundError`
+  - **Rationale**: Deleted files represent stale data that pollutes metrics. The API documentation already promised `FileNotFoundError` for missing files; the implementation now matches the contract.
 
 ### ✨ Enhancements
 
