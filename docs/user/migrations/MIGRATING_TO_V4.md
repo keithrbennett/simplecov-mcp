@@ -4,6 +4,23 @@
 
 This document describes the breaking changes introduced in version 4.0.0. These changes affect the CLI flags for mode selection and staleness checks, as well as a method rename in the Ruby API.
 
+## Table of Contents
+
+- [CLI Changes](#cli-changes)
+  - [MCP Mode Now Requires Explicit `-m/--mode mcp` Flag](#️-mcp-mode-now-requires-explicit--m--mode-mcp-flag)
+  - [Unified Stale Coverage Enforcement](#unified-stale-coverage-enforcement)
+  - [`--raise-on-stale` / `-S` - Explicit Value Required](#--raise-on-stale---s---explicit-value-required)
+  - [`--color` / `-C` - Explicit Value Required](#--color---c---explicit-value-required)
+- [Ruby API Changes](#ruby-api-changes)
+  - [CoverageLineResolver Now Requires `root:` and `volume_case_sensitive:`](#coveragelineresolver-now-requires-root-and-volume_case_sensitive)
+  - [Method Renamed](#method-renamed)
+  - [Return Type Changed: `list` Now Returns a Hash](#return-type-changed-list-now-returns-a-hash)
+  - [Logger Initialization Changed](#logger-initialization-changed)
+- [Deleted Files Now Raise `FileNotFoundError`](#deleted-files-now-raise-filenotfounderror)
+- [Staleness Check Errors Now Return 'E' Marker](#staleness-check-errors-now-return-e-marker)
+- [Removed Branch-Only Coverage Support](#removed-branch-only-coverage-support)
+- [Getting Help](#getting-help)
+
 ---
 
 ## CLI Changes
@@ -74,6 +91,8 @@ The staleness checking logic has been unified into a single flag that raises an 
 *   **New (required)**: `--color true`, `-C true`, `--color=on`, etc.
 
 These changes improve consistency between short and long flag forms and eliminate ambiguous behavior where long-form bare flags would fail but short-form bare flags would succeed.
+
+[↑ Back to top](#table-of-contents)
 
 ## Ruby API Changes
 
@@ -204,6 +223,8 @@ logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :mcp)
 logger = CovLoupe::Logger.new(target: 'cov_loupe.log', mode: :cli)     # or :library
 ```
 
+[↑ Back to top](#table-of-contents)
+
 ## Deleted Files Now Raise `FileNotFoundError`
 
 **Breaking Change**: Querying a file that has been deleted (but still exists in the coverage resultset) now raises `FileNotFoundError` instead of returning stale coverage data.
@@ -280,6 +301,8 @@ if result['deleted_files'].any?
   result['deleted_files'].each { |f| puts "  - #{f}" }
 end
 ```
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
@@ -375,6 +398,8 @@ end
 Staleness: E = Error checking, M = Missing file, T = Timestamp (source newer), L = Line count mismatch
 ```
 
+[↑ Back to top](#table-of-contents)
+
 ---
 
 ## Removed Branch-Only Coverage Support
@@ -393,6 +418,8 @@ Most users do not need to take any action. Line coverage is enabled by default i
 If you have `enable_coverage :branch` in your configuration, your `.resultset.json` contains both `lines` and `branches` data. **This is fully supported.** `cov-loupe` will read and report the `lines` coverage as usual.
 
 The change in v4.0 is simply that `cov-loupe` no longer looks at the `branches` data at all. Previously, if `lines` data was missing (a rare edge case), `cov-loupe` would attempt to calculate line coverage by summing up branch hits. This fallback logic has been removed.
+
+[↑ Back to top](#table-of-contents)
 
 ---
 
