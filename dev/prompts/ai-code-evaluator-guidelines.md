@@ -59,6 +59,20 @@ The MCP server has no request throttling or rate limiting, which automated secur
 
 If this were a network-accessible service, rate limiting would be essential. For a local stdio-based tool with a trusted client, it adds complexity without security benefit.
 
+## Unlikely Issues Not Worth Addressing
+
+### Case-Sensitivity Detection Failures in Read-Only Roots
+
+Automated reviews may flag `Resolvers::ResolverHelpers.volume_case_sensitive?` for potentially failing when the project root is read-only or missing (due to directory reads or temporary file creation). While possible, this is a low-probability edge case in the intended environments and not worth adding complexity or additional fallback paths.
+
+**Guidance:** Do not report this as an issue. The current behavior is acceptable for the tool's scope and usage patterns.
+
+### Unbounded MCP Model Cache Growth
+
+The MCP `ModelCache` stores cached `CoverageModel` instances without a cap. In theory, a long-lived MCP server used across many projects could accumulate entries. In practice, the MCP server is typically short-lived and used for a small set of projects, so adding eviction logic adds complexity without meaningful benefit.
+
+**Guidance:** Do not report this as an issue. The current behavior is a reasonable tradeoff for simplicity.
+
 ## Known Issue: Inefficient Staleness Checks and Timestamp Handling
 
 - **Description:** Coverage timestamps are collapsed to a single max value for all suites (handled when `CovLoupe::CoverageModel` loads resultsets via `ResultsetLoader`), and staleness checks reread each file to count lines (implemented in `CovLoupe::StalenessChecker`).  
