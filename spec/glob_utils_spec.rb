@@ -122,4 +122,67 @@ RSpec.describe CovLoupe::GlobUtils do
       expect(result).to contain_exactly({ 'path' => '/root/lib/foo.rb' })
     end
   end
+
+  describe '.filter_paths' do
+    let(:root) { '/project' }
+    let(:paths) do
+      [
+        '/project/lib/foo.rb',
+        '/project/lib/bar.rb',
+        '/project/spec/foo_spec.rb',
+        '/project/spec/bar_spec.rb'
+      ]
+    end
+
+    it 'returns all paths when globs is nil' do
+      expect(described_class.filter_paths(paths, nil, root: root)).to eq(paths)
+    end
+
+    it 'returns all paths when globs is empty array' do
+      expect(described_class.filter_paths(paths, [], root: root)).to eq(paths)
+    end
+
+    it 'filters paths by a single glob pattern' do
+      result = described_class.filter_paths(paths, 'lib/*.rb', root: root)
+      expect(result).to contain_exactly(
+        '/project/lib/foo.rb',
+        '/project/lib/bar.rb'
+      )
+    end
+
+    it 'filters paths by multiple glob patterns' do
+      result = described_class.filter_paths(paths, ['lib/foo.rb', 'spec/*.rb'], root: root)
+      expect(result).to contain_exactly(
+        '/project/lib/foo.rb',
+        '/project/spec/foo_spec.rb',
+        '/project/spec/bar_spec.rb'
+      )
+    end
+
+    it 'handles absolute glob patterns' do
+      result = described_class.filter_paths(paths, '/project/lib/*.rb', root: root)
+      expect(result).to contain_exactly(
+        '/project/lib/foo.rb',
+        '/project/lib/bar.rb'
+      )
+    end
+
+    it 'supports recursive patterns' do
+      nested_paths = [
+        '/project/lib/utils/helper.rb',
+        '/project/lib/foo.rb',
+        '/project/spec/foo_spec.rb'
+      ]
+      result = described_class.filter_paths(nested_paths, 'lib/**/*.rb', root: root)
+      expect(result).to contain_exactly(
+        '/project/lib/utils/helper.rb',
+        '/project/lib/foo.rb'
+      )
+    end
+
+    it 'returns empty array when no paths match' do
+      result = described_class.filter_paths(paths, 'src/*.rb', root: root)
+      expect(result).to eq([])
+    end
+  end
 end

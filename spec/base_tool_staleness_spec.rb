@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'cov_loupe/tools/coverage_summary_tool'
+require 'digest'
 
 RSpec.describe CovLoupe::Tools::CoverageSummaryTool do
   include MCPToolTestHelpers
@@ -15,9 +16,14 @@ RSpec.describe CovLoupe::Tools::CoverageSummaryTool do
     # Ensure the file exists so we don't hit FileNotFoundError
     FileUtils.mkdir_p(File.dirname(file_path))
     FileUtils.touch(file_path)
-    # Mock File.mtime for the resultset file so ModelCache can store/fetch
-    allow(File).to receive(:mtime).and_call_original
-    allow(File).to receive(:mtime).with(end_with('.resultset.json')).and_return(Time.now)
+    # Mock File.stat and Digest for the resultset file so ModelCache can store/fetch
+    resultset_path = File.join(root, 'coverage', '.resultset.json')
+    stat = double('File::Stat', mtime: Time.now, size: 1000, ino: 12_345)
+    allow(File).to receive(:stat).and_call_original
+    allow(File).to receive(:stat).with(resultset_path).and_return(stat)
+    allow(Digest::MD5).to receive(:file).and_call_original
+    allow(Digest::MD5).to receive(:file).with(resultset_path)
+      .and_return(double(hexdigest: 'test_digest'))
   end
 
   after do

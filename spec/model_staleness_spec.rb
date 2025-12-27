@@ -47,6 +47,57 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
+  describe 'tracked_globs scoping for staleness checks' do
+    it 'only reports newer_files that match tracked_globs' do
+      # Use coverage data with correct line counts (foo.rb: 6 lines, bar.rb: 5 lines)
+      accurate_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
+      }
+      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: accurate_coverage)
+
+      # All files are newer than the very old timestamp, but we're only tracking lib/foo.rb
+      model = described_class.new(root: root, raise_on_stale: false)
+      result = model.list(tracked_globs: ['lib/foo.rb'])
+
+      # Should only report foo.rb as newer, not bar.rb (which is also newer but outside scope)
+      expect(result['newer_files']).to eq(['lib/foo.rb'])
+      expect(result['newer_files']).not_to include('lib/bar.rb')
+    end
+
+    it 'only reports deleted_files that match tracked_globs' do
+      # Create a scenario where bar.rb is in coverage but missing from filesystem
+      coverage_with_missing = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0, 1] },
+        File.join(root, 'lib', 'nonexistent.rb') => { 'lines' => [1, 1] }
+      }
+      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: coverage_with_missing)
+
+      model = described_class.new(root: root, raise_on_stale: false)
+      result = model.list(tracked_globs: ['lib/foo.rb'])
+
+      # Should not report nonexistent.rb as deleted since it's outside tracked_globs scope
+      expect(result['deleted_files']).to eq([])
+      expect(result['deleted_files']).not_to include('lib/nonexistent.rb')
+    end
+
+    it 'includes all stale files when tracked_globs is not specified' do
+      # Use coverage data with correct line counts (foo.rb: 6 lines, bar.rb: 5 lines)
+      accurate_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
+      }
+      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: accurate_coverage)
+
+      model = described_class.new(root: root, raise_on_stale: false)
+      result = model.list
+
+      # Should report both files as newer when no filtering is applied
+      expect(result['newer_files']).to include('lib/foo.rb', 'lib/bar.rb')
+    end
+  end
+
   describe 'timestamp normalization' do
     it 'parses created_at strings to epoch seconds' do
       created_at = Time.new(2024, 7, 3, 16, 26, 40, '-07:00')

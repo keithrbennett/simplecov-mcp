@@ -39,5 +39,20 @@ module CovLoupe
 
       items.select { |item| matches_any_pattern?(item[key], patterns) }
     end
+
+    # Filters an array of absolute file paths by glob patterns.
+    # Handles normalization and absolutization of patterns internally.
+    #
+    # @param paths [Array<String>] absolute file paths to filter
+    # @param globs [Array<String>, String, nil] glob patterns (can be relative)
+    # @param root [String] root directory for resolving relative patterns
+    # @return [Array<String>] paths that match at least one pattern (or all if no patterns)
+    module_function def filter_paths(paths, globs, root:)
+      patterns = normalize_patterns(globs)
+      return paths if patterns.empty?
+
+      absolute_patterns = patterns.map { |p| absolutize_pattern(p, root) }
+      paths.select { |path| matches_any_pattern?(path, absolute_patterns) }
+    end
   end
 end

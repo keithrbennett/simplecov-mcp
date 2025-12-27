@@ -220,9 +220,12 @@ module CovLoupe
     end
 
     private def project_staleness_report(tracked_globs:, raise_on_stale:, coverage_lines_by_path:)
+      # Filter coverage files to match the same scope as tracked_globs
+      coverage_files = GlobUtils.filter_paths(@cov.keys, tracked_globs, root: @root)
+
       build_staleness_checker(
         raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
-      ).check_project_with_lines!(coverage_lines_by_path, coverage_files: @cov.keys)
+      ).check_project_with_lines!(coverage_lines_by_path, coverage_files: coverage_files)
     end
 
     private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
