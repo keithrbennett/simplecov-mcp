@@ -134,6 +134,16 @@ checker.check_project!(coverage_map)  # with tracked_globs: ['lib/**/*.rb']
 
 This helps teams ensure new files are included in test runs.
 
+#### Resultset Path Consistency (SimpleCov)
+
+SimpleCov can emit mixed path forms for the same file when resultsets are merged across suites or
+environments (for example, absolute vs relative paths, or different roots). This is a SimpleCov
+data consistency risk, not a cov-loupe behavior. Downstream tools that normalize paths may treat
+one entry as overriding another when multiple keys map to the same absolute path.
+
+**Guidance:** Keep `SimpleCov.root` consistent across all suites and avoid manual path rewriting
+before merging resultsets.
+
 ### Consequences
 
 #### Positive

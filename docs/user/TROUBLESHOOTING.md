@@ -69,6 +69,16 @@ depends on your volume - see note below).
 On case-insensitive volumes (most macOS/Windows), `lib/Foo.rb` and `lib/foo.rb` are treated
 as the same file. On case-sensitive volumes (most Linux, some macOS), they are different files.
 
+### SimpleCov path consistency (merged resultsets)
+
+When SimpleCov merges resultsets from multiple suites or environments, it can record the same file
+under different path forms (for example, absolute vs relative, or with different roots). This is a
+SimpleCov output issue, not a cov-loupe issue. Downstream tools will normalize paths and may treat
+one entry as overriding another if two keys map to the same file.
+
+**Recommendation:** Keep `SimpleCov.root` consistent across suites and avoid manual path rewriting
+when merging resultsets.
+
 ## MCP Server Issues
 
 ### MCP Integration Not Working
