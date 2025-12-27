@@ -4,6 +4,27 @@
 
 This document provides context for AI code evaluators analyzing the cov-loupe codebase. It explains design decisions that may appear problematic on surface analysis but are intentional and well-considered. AI models should consult this document before flagging potential issues.
 
+## Table of Contents
+
+- [Security Considerations](#security-considerations)
+  - [Validate Command and Arbitrary Code Execution](#validate-command-and-arbitrary-code-execution)
+  - [File System Race Conditions](#file-system-race-conditions)
+  - [No Rate Limiting on MCP Server](#no-rate-limiting-on-mcp-server)
+- [Unlikely Issues Not Worth Addressing](#unlikely-issues-not-worth-addressing)
+  - [Case-Sensitivity Detection Failures in Read-Only Roots](#case-sensitivity-detection-failures-in-read-only-roots)
+  - [Unbounded MCP Model Cache Growth](#unbounded-mcp-model-cache-growth)
+- [Known Issue: Inefficient Staleness Checks and Timestamp Handling](#known-issue-inefficient-staleness-checks-and-timestamp-handling)
+- [Performance & Scalability](#performance--scalability)
+  - [Memory-Based Coverage Data](#memory-based-coverage-data)
+- [Code Quality & Style](#code-quality--style)
+  - [RuboCop Metrics Cops Disabled](#rubocop-metrics-cops-disabled)
+  - [Method Length and Complexity](#method-length-and-complexity)
+  - [RuboCop Cache and Sandboxed Environments](#rubocop-cache-and-sandboxed-environments)
+- [Dependency Management](#dependency-management)
+  - [Documentation Dependencies: Version Ranges vs. Lock Files](#documentation-dependencies-version-ranges-vs-lock-files)
+- [Documentation Structure](#documentation-structure)
+  - [MkDocs Include-Markdown Stubs](#mkdocs-include-markdown-stubs)
+
 ## Security Considerations
 
 ### Validate Command and Arbitrary Code Execution
@@ -21,6 +42,8 @@ The `validate` command accepts Ruby code (via `--inline` or from a file) and exe
 4. **Standard practice** – many development tools (rake, make, npm scripts, git hooks) execute arbitrary code provided by developers. This is expected and necessary for a flexible validation/policy tool.
 
 The security model assumes the developer controls their workspace and the code they execute. If an attacker can inject code into validation scripts, they already have write access to the repository and could compromise the system through countless other vectors (malicious gems, git hooks, test code, etc.).
+
+[⬆ Back to top](#table-of-contents)
 
 ### File System Race Conditions
 
@@ -41,6 +64,8 @@ Automated security analysis tools may flag potential race conditions between sta
 
 For a production system handling untrusted input or making security-critical decisions, race condition handling would be essential. For a development tool analyzing static coverage snapshots, the complexity of atomic file operations is not justified.
 
+[⬆ Back to top](#table-of-contents)
+
 ### No Rate Limiting on MCP Server
 
 The MCP server has no request throttling or rate limiting, which automated security scanners may flag as a denial-of-service vulnerability.
@@ -59,6 +84,8 @@ The MCP server has no request throttling or rate limiting, which automated secur
 
 If this were a network-accessible service, rate limiting would be essential. For a local stdio-based tool with a trusted client, it adds complexity without security benefit.
 
+[⬆ Back to top](#table-of-contents)
+
 ## Unlikely Issues Not Worth Addressing
 
 ### Case-Sensitivity Detection Failures in Read-Only Roots
@@ -67,11 +94,15 @@ Automated reviews may flag `Resolvers::ResolverHelpers.volume_case_sensitive?` f
 
 **Guidance:** Do not report this as an issue. The current behavior is acceptable for the tool's scope and usage patterns.
 
+[⬆ Back to top](#table-of-contents)
+
 ### Unbounded MCP Model Cache Growth
 
 The MCP `ModelCache` stores cached `CoverageModel` instances without a cap. In theory, a long-lived MCP server used across many projects could accumulate entries. In practice, the MCP server is typically short-lived and used for a small set of projects, so adding eviction logic adds complexity without meaningful benefit.
 
 **Guidance:** Do not report this as an issue. The current behavior is a reasonable tradeoff for simplicity.
+
+[⬆ Back to top](#table-of-contents)
 
 ## Known Issue: Inefficient Staleness Checks and Timestamp Handling
 
@@ -80,6 +111,8 @@ The MCP `ModelCache` stores cached `CoverageModel` instances without a cap. In t
   **Urgency:** Medium.  
   **Estimated Cost-to-Fix:** High (store per-suite/file metadata and cache line counts/mtimes).
   **Rationale for Status Quo:** Fixing this requires a significant architectural overhaul to track per-file/per-suite metadata. Simple caching of file stats is insufficient because the primary use case involves active development where source files change frequently, invalidating caches. Given the high cost of a proper fix and the tool's focus on small-to-medium projects, the current O(N) check is an acceptable tradeoff.
+
+[⬆ Back to top](#table-of-contents)
 
 ## Performance & Scalability
 
@@ -98,6 +131,8 @@ cov-loupe loads the entire SimpleCov resultset into memory for analysis. This me
 4. **Practical upper bound** – even large Ruby projects (Rails, GitLab) generate resultsets in the tens of megabytes. Modern machines have gigabytes of RAM. The constraint is theoretical rather than practical for the intended audience.
 
 If a project grows large enough that coverage analysis becomes a memory bottleneck, it likely has deeper problems (test suite organization, monolith vs services architecture) that should be addressed at that level rather than by adding complexity to a coverage inspection tool.
+
+[⬆ Back to top](#table-of-contents)
 
 ## Code Quality & Style
 
@@ -124,6 +159,8 @@ All RuboCop Metrics cops (AbcSize, BlockLength, ClassLength, CyclomaticComplexit
    - `CoverageDataProjectStaleError#build_details` (22 lines) builds error messages through simple sequential operations
 
 **Evidence:** Manual review shows appropriate complexity for domain logic, with no god objects or unclear methods.
+
+[⬆ Back to top](#table-of-contents)
 
 ### Method Length and Complexity
 
@@ -165,6 +202,8 @@ Before flagging a long method, assess:
 
 Method length is a heuristic, not a rule. Judge methods by clarity, cohesion, and testability rather than line count alone.
 
+[⬆ Back to top](#table-of-contents)
+
 ### RuboCop Cache and Sandboxed Environments
 
 RuboCop may crash in sandboxed environments (such as AI coding assistants with file system restrictions) when attempting to write cache files:
@@ -196,6 +235,8 @@ Use `bundle exec rubocop --cache false` in sandboxed environments. This adds app
 
 The 3-second speedup is valuable for frequent local development. Developers in non-sandboxed environments (the common case) benefit from faster linting. The issue only affects specific sandboxed AI tools and CI environments, which can use the `--cache false` flag when needed.
 
+[⬆ Back to top](#table-of-contents)
+
 ## Dependency Management
 
 ### Documentation Dependencies: Version Ranges vs. Lock Files
@@ -226,6 +267,8 @@ The project uses **both** `requirements.txt` (version ranges) and `requirements-
 
 This dual-file approach is intentional and follows Python packaging best practices for applications with optional documentation tooling.
 
+[⬆ Back to top](#table-of-contents)
+
 ## Documentation Structure
 
 ### MkDocs Include-Markdown Stubs
@@ -252,6 +295,8 @@ The actual comprehensive documentation exists at:
 3. **Standard practice** - This is the recommended approach in the MkDocs documentation for including existing project files in the documentation site.
 
 AI tools analyzing file sizes directly will see 46-byte stubs, but the documentation is complete and properly structured.
+
+[⬆ Back to top](#table-of-contents)
 
 ---
 
