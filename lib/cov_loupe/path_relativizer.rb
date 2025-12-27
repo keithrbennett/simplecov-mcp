@@ -7,7 +7,7 @@ module CovLoupe
   # relative to the project root while leaving the original payload untouched.
   class PathRelativizer
     def initialize(root:, scalar_keys:, array_keys: [])
-      @root = Pathname.new(File.absolute_path(root || '.'))
+      @root = Pathname.new(File.expand_path(root || '.'))
       @scalar_keys = Array(scalar_keys).map(&:to_s).freeze
       @array_keys = Array(array_keys).map(&:to_s).freeze
     end
@@ -23,7 +23,7 @@ module CovLoupe
     # @return [String] relative path or original path on failure
     def relativize_path(path)
       root_str = @root.to_s
-      abs = File.absolute_path(path, root_str)
+      abs = File.expand_path(path, root_str)
       return path unless abs.start_with?(root_prefix(root_str)) || abs == root_str
 
       Pathname.new(abs).relative_path_from(@root).to_s

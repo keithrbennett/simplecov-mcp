@@ -50,7 +50,7 @@ module CovLoupe
 
       private def resolve_fallback
         @candidates
-          .map { |p| File.absolute_path(p, @root) }
+          .map { |p| File.expand_path(p, @root) }
           .find { |p| File.file?(p) }
       end
 
@@ -59,7 +59,7 @@ module CovLoupe
         return candidate.cleanpath.to_s if candidate.absolute?
 
         expanded_pwd = File.expand_path(resultset, Dir.pwd)
-        expanded_root = File.absolute_path(resultset, @root)
+        expanded_root = File.expand_path(resultset, @root)
 
         if ambiguous_resultset_path?(expanded_pwd, expanded_root)
           raise_ambiguous_resultset_error(expanded_pwd, expanded_root)

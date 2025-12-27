@@ -15,7 +15,7 @@ module CovLoupe
     # @param root [String] root directory path
     # @return [String] absolute pattern
     module_function def absolutize_pattern(pattern, root)
-      File.absolute_path(pattern, root)
+      File.expand_path(pattern, root)
     end
 
     # Tests if a file path matches any of the given absolute glob patterns.

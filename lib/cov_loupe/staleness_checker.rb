@@ -12,7 +12,7 @@ module CovLoupe
     MODES = [:off, :error].freeze
 
     def initialize(root:, resultset:, mode: :off, tracked_globs: nil, timestamp: nil)
-      @root = File.absolute_path(root || '.')
+      @root = File.expand_path(root || '.')
       @resultset = resultset
       @mode = (mode || :off).to_sym
       @tracked_globs = tracked_globs
@@ -162,7 +162,7 @@ module CovLoupe
     private def compute_missing_files(coverage_files)
       return [] unless @tracked_globs && Array(@tracked_globs).any?
 
-      patterns = Array(@tracked_globs).map { |g| File.absolute_path(g, @root) }
+      patterns = Array(@tracked_globs).map { |g| File.expand_path(g, @root) }
       tracked = patterns
         .flat_map { |p| Dir.glob(p, File::FNM_EXTGLOB | File::FNM_PATHNAME) }
         .select { |p| File.file?(p) }

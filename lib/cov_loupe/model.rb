@@ -35,7 +35,7 @@ module CovLoupe
     # - logger: logger instance (defaults to CovLoupe.logger)
     def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil,
       logger: nil)
-      @root = File.absolute_path(root || '.')
+      @root = File.expand_path(root || '.')
       @resultset_arg = resultset
       @default_tracked_globs = tracked_globs
       @skipped_rows = []
@@ -134,7 +134,7 @@ module CovLoupe
     end
 
     def staleness_for(path)
-      file_abs = File.absolute_path(path, @root)
+      file_abs = File.expand_path(path, @root)
       coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
         volume_case_sensitive: volume_case_sensitive)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
@@ -270,7 +270,7 @@ module CovLoupe
     # @raise [FileNotFoundError] if the file does not exist
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
-      file_abs = File.absolute_path(path, @root)
+      file_abs = File.expand_path(path, @root)
       begin
         coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
           volume_case_sensitive: volume_case_sensitive)

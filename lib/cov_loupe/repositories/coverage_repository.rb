@@ -52,7 +52,7 @@ module CovLoupe
       private def normalize_paths(map)
         return {} unless map
 
-        map.transform_keys { |k| File.absolute_path(k, @root) }
+        map.transform_keys { |k| File.expand_path(k, @root) }
       end
     end
   end
