@@ -170,11 +170,23 @@ RSpec.describe CovLoupe::StalenessChecker do
       expect(checker.send(:missing_trailing_newline?, file)).to be false
     end
 
-    it 'handles errors gracefully' do
+    it 'raises FilePermissionError on permission denied' do
       file = File.join(tmpdir, 'test.rb')
       File.write(file, 'content')
 
-      # Mock File.open to raise an error
+      # Mock File.open to raise permission error
+      allow(File).to receive(:open).and_call_original
+      allow(File).to receive(:open).with(file, 'rb')
+        .and_raise(Errno::EACCES.new('Permission denied'))
+
+      expect { checker.send(:missing_trailing_newline?, file) }.to raise_error(CovLoupe::FilePermissionError)
+    end
+
+    it 'handles other errors gracefully' do
+      file = File.join(tmpdir, 'test.rb')
+      File.write(file, 'content')
+
+      # Mock File.open to raise a different error
       allow(File).to receive(:open).and_call_original
       allow(File).to receive(:open).with(file, 'rb').and_raise(StandardError.new('IO error'))
 
@@ -258,11 +270,21 @@ RSpec.describe CovLoupe::StalenessChecker do
       expect(checker.send(:safe_count_lines, file)).to eq(0)
     end
 
-    it 'handles errors gracefully' do
+    it 'raises FilePermissionError on permission denied' do
       file = File.join(tmpdir, 'test.rb')
       File.write(file, "line1\nline2\n")
 
-      # Mock File.foreach to raise an error
+      # Mock File.foreach to raise permission error
+      allow(File).to receive(:foreach).with(file).and_raise(Errno::EACCES.new('Permission denied'))
+
+      expect { checker.send(:safe_count_lines, file) }.to raise_error(CovLoupe::FilePermissionError)
+    end
+
+    it 'handles other errors gracefully' do
+      file = File.join(tmpdir, 'test.rb')
+      File.write(file, "line1\nline2\n")
+
+      # Mock File.foreach to raise a different error
       allow(File).to receive(:foreach).with(file).and_raise(StandardError.new('IO error'))
 
       expect(checker.send(:safe_count_lines, file)).to eq(0)

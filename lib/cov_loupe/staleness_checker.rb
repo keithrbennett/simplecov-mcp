@@ -185,6 +185,8 @@ module CovLoupe
       return 0 unless File.file?(path)
 
       File.foreach(path).count
+    rescue Errno::EACCES => e
+      raise FilePermissionError.new("Permission denied reading file: #{rel(path)}", e)
     rescue
       0
     end
@@ -199,6 +201,8 @@ module CovLoupe
         f.seek(-1, IO::SEEK_END)
         f.getbyte != 0x0A
       end
+    rescue Errno::EACCES => e
+      raise FilePermissionError.new("Permission denied reading file: #{rel(path)}", e)
     rescue
       false
     end
