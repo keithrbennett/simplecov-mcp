@@ -8,6 +8,8 @@ RSpec.describe CovLoupe::ModelCache do
   let(:cache) { described_class.new }
   let(:project1_root) { (FIXTURES_DIR / 'project1').to_s }
   let(:project1_resultset) { FIXTURE_PROJECT1_RESULTSET_PATH }
+  let(:config) { { root: project1_root, resultset: project1_resultset } }
+  let(:model) { CovLoupe::CoverageModel.new(**config) }
 
   def build_stat(mtime:, mtime_nsec: nil, size: 0, inode: 0)
     stat = double('File::Stat', mtime: mtime, size: size, ino: inode)
@@ -15,6 +17,22 @@ RSpec.describe CovLoupe::ModelCache do
 
     allow(stat).to receive(:mtime_nsec).and_return(mtime_nsec)
     stat
+  end
+
+  def stub_unchanged_stat(path)
+    stat = build_stat(mtime: Time.at(100), mtime_nsec: 0, size: 10, inode: 1)
+    allow(File).to receive(:stat).with(path).and_return(stat)
+  end
+
+  def stub_digest(path, *digests)
+    allow(Digest::MD5).to receive(:file).with(path)
+      .and_return(*digests.map { |d| double(hexdigest: d) })
+  end
+
+  def expect_cache_invalidation
+    cache.store(config, model)
+    expect(cache.fetch(config)).to eq(model)
+    expect(cache.fetch(config)).to be_nil
   end
 
   describe '#fetch and #store' do
@@ -39,79 +57,79 @@ RSpec.describe CovLoupe::ModelCache do
     end
 
     it 'returns the same model for identical config' do
-      config = { root: project1_root, resultset: project1_resultset }
-      model = CovLoupe::CoverageModel.new(**config)
-
       cache.store(config, model)
-
-      # Multiple fetches should return the same model instance
       expect(cache.fetch(config)).to eq(model)
       expect(cache.fetch(config)).to eq(model)
     end
 
     it 'returns nil for config that has not been cached' do
-      config = { root: project1_root, resultset: project1_resultset }
-
       expect(cache.fetch(config)).to be_nil
     end
 
     it 'invalidates cache when resultset mtime changes' do
-      config = { root: project1_root, resultset: project1_resultset }
-      model = CovLoupe::CoverageModel.new(**config)
-
       stat_now = build_stat(mtime: Time.at(100), size: 10, inode: 1)
       stat_later = build_stat(mtime: Time.at(200), size: 10, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
         .and_return(stat_now, stat_now, stat_later)
 
-      cache.store(config, model)
-      expect(cache.fetch(config)).to eq(model)
-
-      # Cache should be invalidated
-      expect(cache.fetch(config)).to be_nil
+      expect_cache_invalidation
     end
 
     it 'detects subsecond mtime changes' do
-      config = { root: project1_root, resultset: project1_resultset }
-      model = CovLoupe::CoverageModel.new(**config)
-
       base_time = Time.at(100)
       stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
       stat_subsecond = build_stat(mtime: base_time, mtime_nsec: 1_000_000, size: 10, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
         .and_return(stat_now, stat_now, stat_subsecond)
 
-      cache.store(config, model)
-      expect(cache.fetch(config)).to eq(model)
-
-      # Cache should be invalidated even for subsecond changes
-      expect(cache.fetch(config)).to be_nil
+      expect_cache_invalidation
     end
 
     it 'invalidates cache when size changes within the same second' do
-      config = { root: project1_root, resultset: project1_resultset }
-      model = CovLoupe::CoverageModel.new(**config)
-
       base_time = Time.at(100)
       stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
       stat_size_change = build_stat(mtime: base_time, mtime_nsec: 0, size: 11, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
         .and_return(stat_now, stat_now, stat_size_change)
 
-      cache.store(config, model)
-      expect(cache.fetch(config)).to eq(model)
-
-      # Cache should be invalidated for same-second size changes
-      expect(cache.fetch(config)).to be_nil
+      expect_cache_invalidation
     end
 
     it 'does not raise if the resultset disappears between calls' do
-      config = { root: project1_root, resultset: project1_resultset }
-      model = CovLoupe::CoverageModel.new(**config)
-
       allow(File).to receive(:stat).with(project1_resultset).and_raise(Errno::ENOENT)
 
       expect(cache.store(config, model)).to eq(model)
+      expect(cache.fetch(config)).to be_nil
+    end
+
+    it 'invalidates cache when content changes but metadata is identical' do
+      stub_unchanged_stat(project1_resultset)
+      stub_digest(project1_resultset, 'digest_v1', 'digest_v1', 'digest_v2')
+
+      expect_cache_invalidation
+    end
+
+    it 'validates digest on every fetch' do
+      stub_unchanged_stat(project1_resultset)
+      stub_digest(project1_resultset, 'unchanged', 'unchanged', 'unchanged')
+
+      cache.store(config, model)
+      expect(cache.fetch(config)).to eq(model)
+    end
+
+    it 'handles digest computation failures gracefully on store' do
+      allow(Digest::MD5).to receive(:file).with(project1_resultset).and_raise(Errno::ENOENT)
+
+      expect(cache.store(config, model)).to eq(model)
+      expect(cache.fetch(config)).to be_nil
+    end
+
+    it 'handles digest computation failures gracefully on fetch' do
+      stub_unchanged_stat(project1_resultset)
+      stub_digest(project1_resultset, 'valid', 'valid')
+
+      cache.store(config, model)
+      allow(Digest::MD5).to receive(:file).with(project1_resultset).and_raise(Errno::EACCES)
       expect(cache.fetch(config)).to be_nil
     end
 
