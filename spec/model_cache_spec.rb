@@ -9,6 +9,14 @@ RSpec.describe CovLoupe::ModelCache do
   let(:project1_root) { (FIXTURES_DIR / 'project1').to_s }
   let(:project1_resultset) { FIXTURE_PROJECT1_RESULTSET_PATH }
 
+  def build_stat(mtime:, mtime_nsec: nil, size: 0, inode: 0)
+    stat = double('File::Stat', mtime: mtime, size: size, ino: inode)
+    return stat unless mtime_nsec
+
+    allow(stat).to receive(:mtime_nsec).and_return(mtime_nsec)
+    stat
+  end
+
   describe '#fetch and #store' do
     it 'caches models by both root and resultset path' do
       # Use a temporary directory as a different root with same resultset
@@ -51,11 +59,13 @@ RSpec.describe CovLoupe::ModelCache do
       config = { root: project1_root, resultset: project1_resultset }
       model = CovLoupe::CoverageModel.new(**config)
 
+      stat_now = build_stat(mtime: Time.at(100), size: 10, inode: 1)
+      stat_later = build_stat(mtime: Time.at(200), size: 10, inode: 1)
+      allow(File).to receive(:stat).with(project1_resultset)
+        .and_return(stat_now, stat_now, stat_later)
+
       cache.store(config, model)
       expect(cache.fetch(config)).to eq(model)
-
-      # Simulate mtime change by stubbing File.mtime to return a different time
-      allow(File).to receive(:mtime).with(project1_resultset).and_return(Time.now + 100)
 
       # Cache should be invalidated
       expect(cache.fetch(config)).to be_nil
@@ -65,14 +75,33 @@ RSpec.describe CovLoupe::ModelCache do
       config = { root: project1_root, resultset: project1_resultset }
       model = CovLoupe::CoverageModel.new(**config)
 
+      base_time = Time.at(100)
+      stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
+      stat_subsecond = build_stat(mtime: base_time, mtime_nsec: 1_000_000, size: 10, inode: 1)
+      allow(File).to receive(:stat).with(project1_resultset)
+        .and_return(stat_now, stat_now, stat_subsecond)
+
       cache.store(config, model)
       expect(cache.fetch(config)).to eq(model)
 
-      # Simulate subsecond mtime change (0.001 seconds = 1 millisecond)
-      base_time = Time.now
-      allow(File).to receive(:mtime).with(project1_resultset).and_return(base_time + 0.001)
-
       # Cache should be invalidated even for subsecond changes
+      expect(cache.fetch(config)).to be_nil
+    end
+
+    it 'invalidates cache when size changes within the same second' do
+      config = { root: project1_root, resultset: project1_resultset }
+      model = CovLoupe::CoverageModel.new(**config)
+
+      base_time = Time.at(100)
+      stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
+      stat_size_change = build_stat(mtime: base_time, mtime_nsec: 0, size: 11, inode: 1)
+      allow(File).to receive(:stat).with(project1_resultset)
+        .and_return(stat_now, stat_now, stat_size_change)
+
+      cache.store(config, model)
+      expect(cache.fetch(config)).to eq(model)
+
+      # Cache should be invalidated for same-second size changes
       expect(cache.fetch(config)).to be_nil
     end
 
@@ -80,7 +109,7 @@ RSpec.describe CovLoupe::ModelCache do
       config = { root: project1_root, resultset: project1_resultset }
       model = CovLoupe::CoverageModel.new(**config)
 
-      allow(File).to receive(:mtime).with(project1_resultset).and_raise(Errno::ENOENT)
+      allow(File).to receive(:stat).with(project1_resultset).and_raise(Errno::ENOENT)
 
       expect(cache.store(config, model)).to eq(model)
       expect(cache.fetch(config)).to be_nil

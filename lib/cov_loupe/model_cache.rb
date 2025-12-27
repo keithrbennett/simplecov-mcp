@@ -15,21 +15,21 @@ module CovLoupe
       entry = @entries[cache_key]
       return unless entry
 
-      file_mtime = resultset_mtime(cache_key[:resultset_path])
-      cached_time = entry[:mtime]
-      return unless file_mtime && cached_time && file_mtime == cached_time
+      signature = resultset_signature(cache_key[:resultset_path])
+      cached_signature = entry[:signature]
+      return unless signature && cached_signature && signature == cached_signature
 
       entry[:model]
     end
 
     def store(config, model)
       cache_key = build_cache_key(config)
-      mtime = resultset_mtime(cache_key[:resultset_path])
-      return model unless mtime
+      signature = resultset_signature(cache_key[:resultset_path])
+      return model unless signature
 
       @entries[cache_key] = {
         model: model,
-        mtime: mtime
+        signature: signature
       }
       model
     end
@@ -42,9 +42,15 @@ module CovLoupe
       { root: root, resultset_path: resultset_path }
     end
 
-    private def resultset_mtime(resultset_path)
-      File.mtime(resultset_path)
-    rescue Errno::ENOENT
+    private def resultset_signature(resultset_path)
+      stat = File.stat(resultset_path)
+      {
+        mtime: stat.mtime,
+        mtime_nsec: stat.respond_to?(:mtime_nsec) ? stat.mtime_nsec : stat.mtime.nsec,
+        size: stat.size,
+        inode: stat.respond_to?(:ino) ? stat.ino : nil
+      }.compact
+    rescue Errno::ENOENT, Errno::EACCES
       nil
     end
   end

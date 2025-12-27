@@ -130,6 +130,13 @@ RSpec.describe CovLoupe::BaseTool do
     end
   end
 
+  def stub_resultset_stat(path, mtime:, size: 1, ino: 1, sequence: nil)
+    stat = double('File::Stat', mtime: mtime, size: size, ino: ino)
+    allow(File).to receive(:stat).and_call_original
+    stub = allow(File).to receive(:stat).with(path)
+    sequence ? stub.and_return(*sequence) : stub.and_return(stat)
+  end
+
   describe '.create_model' do
     let(:context) { mcp_server_context }
 
@@ -138,10 +145,7 @@ RSpec.describe CovLoupe::BaseTool do
       mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
       resultset_path = File.join(root, 'coverage', '.resultset.json')
 
-      allow(File).to receive(:mtime).and_call_original
-      allow(File).to receive(:mtime)
-        .with(resultset_path)
-        .and_return(Time.at(FIXTURE_COVERAGE_TIMESTAMP))
+      stub_resultset_stat(resultset_path, mtime: Time.at(FIXTURE_COVERAGE_TIMESTAMP))
 
       model = described_class.create_model(server_context: context, root: root)
       expect(model).to be_a(CovLoupe::CoverageModel)
@@ -156,8 +160,7 @@ RSpec.describe CovLoupe::BaseTool do
         mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
         resultset_path = File.join(root, 'coverage', '.resultset.json')
 
-        allow(File).to receive(:mtime).and_call_original
-        allow(File).to receive(:mtime).with(resultset_path).and_return(Time.at(100))
+        stub_resultset_stat(resultset_path, mtime: Time.at(100))
 
         model1, = described_class.create_configured_model(server_context: context, root: root)
         model2, = described_class.create_configured_model(server_context: context, root: root)
@@ -171,9 +174,10 @@ RSpec.describe CovLoupe::BaseTool do
         mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
         resultset_path = File.join(root, 'coverage', '.resultset.json')
 
-        allow(File).to receive(:mtime).and_call_original
-        allow(File).to receive(:mtime).with(resultset_path)
-          .and_return(Time.at(100), Time.at(200), Time.at(200))
+        stat_old = double('File::Stat', mtime: Time.at(100), size: 1, ino: 1)
+        stat_new = double('File::Stat', mtime: Time.at(200), size: 1, ino: 1)
+        stub_resultset_stat(resultset_path, mtime: Time.at(100),
+          sequence: [stat_old, stat_new, stat_new])
 
         model1, = described_class.create_configured_model(server_context: context, root: root)
         model2, = described_class.create_configured_model(server_context: context, root: root)
