@@ -4,6 +4,19 @@ module CovLoupe
   module GlobUtils
     GLOB_MATCH_FLAGS = File::FNM_PATHNAME | File::FNM_EXTGLOB
 
+    # Returns a lambda that normalizes path separators for the current platform.
+    # On Windows, returns a lambda that converts backslashes to forward slashes.
+    # On Unix, returns a pass-through lambda.
+    # The lambda is memoized so platform detection only happens once.
+    # @return [Proc] lambda that takes a string and returns it normalized
+    module_function def fn_normalize_path_separators
+      @fn_normalize_path_separators ||= if CovLoupe.windows?
+        ->(str) { str.tr('\\', '/') }
+      else
+        ->(str) { str }
+      end
+    end
+
     module_function def normalize_patterns(globs)
       Array(globs).compact.map(&:to_s).reject(&:empty?)
     end
@@ -20,12 +33,18 @@ module CovLoupe
 
     # Tests if a file path matches any of the given absolute glob patterns.
     # Uses File.fnmatch? for pure string matching without filesystem access.
+    # Normalizes paths to forward slashes on Windows for cross-platform compatibility.
     #
     # @param abs_path [String] absolute file path to test
     # @param patterns [Array<String>] absolute glob patterns
     # @return [Boolean] true if the path matches at least one pattern
     module_function def matches_any_pattern?(abs_path, patterns)
-      patterns.any? { |pattern| File.fnmatch?(pattern, abs_path, GLOB_MATCH_FLAGS) }
+      normalizer = fn_normalize_path_separators
+      normalized_path = normalizer.call(abs_path)
+      patterns.any? do |pattern|
+        normalized_pattern = normalizer.call(pattern)
+        File.fnmatch?(normalized_pattern, normalized_path, GLOB_MATCH_FLAGS)
+      end
     end
 
     # Filters items where a key contains a file path matching the patterns.
