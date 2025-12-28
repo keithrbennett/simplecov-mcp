@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'pathname'
+require_relative 'path_utils'
 
 module CovLoupe
   # Utility object that converts configured path-bearing keys to forms
-  # relative to the project root while leaving the original payload untouched.
+  # relative to a project root while leaving the original payload untouched.
   class PathRelativizer
     def initialize(root:, scalar_keys:, array_keys: [])
-      @root = Pathname.new(File.expand_path(root || '.'))
+      @root = Pathname.new(PathUtils.expand(root || '.'))
       @scalar_keys = Array(scalar_keys).map(&:to_s).freeze
       @array_keys = Array(array_keys).map(&:to_s).freeze
     end
@@ -22,13 +23,8 @@ module CovLoupe
     # @param path [String] file path (absolute or relative)
     # @return [String] relative path or original path on failure
     def relativize_path(path)
-      root_str = @root.to_s
-      abs = File.expand_path(path, root_str)
-      return path unless abs.start_with?(root_prefix(root_str)) || abs == root_str
-
-      Pathname.new(abs).relative_path_from(@root).to_s
-    rescue ArgumentError
-      path
+      # PathUtils handles all the complexity automatically
+      PathUtils.relativize(path, @root.to_s)
     end
 
     private def deep_copy_and_relativize(obj)
@@ -55,10 +51,6 @@ module CovLoupe
       else
         deep_copy_and_relativize(value)
       end
-    end
-
-    private def root_prefix(root_str)
-      root_str.end_with?(File::SEPARATOR) ? root_str : root_str + File::SEPARATOR
     end
   end
 end

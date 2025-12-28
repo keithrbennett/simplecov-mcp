@@ -3,6 +3,7 @@
 require 'pathname'
 
 require_relative '../errors'
+require_relative '../path_utils'
 
 module CovLoupe
   module Resolvers
@@ -50,16 +51,16 @@ module CovLoupe
 
       private def resolve_fallback
         @candidates
-          .map { |p| File.expand_path(p, @root) }
+          .map { |p| PathUtils.expand(p, @root) }
           .find { |p| File.file?(p) }
       end
 
       private def normalize_resultset_path(resultset)
         candidate = Pathname.new(resultset)
-        return candidate.cleanpath.to_s if candidate.absolute?
+        return PathUtils.normalize(candidate.cleanpath.to_s) if PathUtils.absolute?(resultset)
 
-        expanded_pwd = File.expand_path(resultset, Dir.pwd)
-        expanded_root = File.expand_path(resultset, @root)
+        expanded_pwd = PathUtils.expand(resultset, Dir.pwd)
+        expanded_root = PathUtils.expand(resultset, @root)
 
         if ambiguous_resultset_path?(expanded_pwd, expanded_root)
           raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
@@ -68,15 +69,13 @@ module CovLoupe
         return expanded_pwd if valid_resultset_location?(expanded_pwd)
         return expanded_root if valid_resultset_location?(expanded_root)
 
-        return expanded_pwd if within_root?(expanded_pwd)
+        return expanded_pwd if PathUtils.within_root?(expanded_pwd, @root)
 
         expanded_root
       end
 
       private def within_root?(path)
-        normalized_root = Pathname.new(@root).cleanpath.to_s
-        root_with_sep = normalized_root.end_with?(File::SEPARATOR) ? normalized_root : "#{normalized_root}#{File::SEPARATOR}"
-        path == normalized_root || path.start_with?(root_with_sep)
+        PathUtils.within_root?(path, @root)
       end
 
       private def ambiguous_resultset_path?(expanded_pwd, expanded_root)

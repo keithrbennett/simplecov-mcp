@@ -3,6 +3,7 @@
 require_relative '../resolvers/resolver_helpers'
 require_relative '../resultset_loader'
 require_relative '../errors'
+require_relative '../path_utils'
 
 module CovLoupe
   module Repositories
@@ -52,7 +53,7 @@ module CovLoupe
       private def normalize_paths(map)
         return {} unless map
 
-        map.transform_keys { |k| File.expand_path(k, @root) }
+        map.transform_keys { |k| PathUtils.expand(k, @root) }
       end
     end
   end
