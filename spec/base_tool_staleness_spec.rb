@@ -8,7 +8,7 @@ RSpec.describe CovLoupe::Tools::CoverageSummaryTool do
   include MCPToolTestHelpers
 
   let(:context) { mcp_server_context }
-  let(:root) { Dir.pwd }
+  let(:root) { File.absolute_path('.') }
   let(:file_path) { 'lib/foo.rb' }
 
   before do
