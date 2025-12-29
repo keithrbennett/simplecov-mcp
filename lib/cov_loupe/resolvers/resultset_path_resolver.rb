@@ -56,20 +56,18 @@ module CovLoupe
       end
 
       private def normalize_resultset_path(resultset)
-        candidate = Pathname.new(resultset)
-        return PathUtils.normalize(candidate.cleanpath.to_s) if PathUtils.absolute?(resultset)
-
-        expanded_pwd = PathUtils.expand(resultset, Dir.pwd)
+        Pathname.new(resultset)
+        expanded_resultset = PathUtils.expand(resultset, Dir.pwd)
         expanded_root = PathUtils.expand(resultset, @root)
 
-        if ambiguous_resultset_path?(expanded_pwd, expanded_root)
-          raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
+        if ambiguous_resultset_path?(expanded_resultset, expanded_root)
+          raise_ambiguous_resultset_error(expanded_resultset, expanded_root)
         end
 
-        return expanded_pwd if valid_resultset_location?(expanded_pwd)
+        return expanded_resultset if valid_resultset_location?(expanded_resultset)
         return expanded_root if valid_resultset_location?(expanded_root)
 
-        return expanded_pwd if PathUtils.within_root?(expanded_pwd, @root)
+        return expanded_resultset if PathUtils.within_root?(expanded_resultset, @root)
 
         expanded_root
       end

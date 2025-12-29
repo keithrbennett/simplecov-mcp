@@ -63,7 +63,8 @@ module CovLoupe
     def self.relativize(path, root)
       return path if path.nil? || path.empty? || root.nil? || root.empty?
 
-      abs_path = expand(path)
+      # Only expand relative paths against root; absolute paths expand without base
+      abs_path = absolute?(path) ? expand(path) : expand(path, root)
       abs_root = expand(root)
 
       # Check if path is within root (handles different drives on Windows)
@@ -81,6 +82,9 @@ module CovLoupe
     # @return [Boolean] true if path is absolute
     def self.absolute?(path)
       return false if path.nil? || path.empty?
+
+      # Check for Windows drive paths (C:/, D:/, etc.)
+      return true if path.match?(/^[A-Za-z]:[\/\\]/)
 
       Pathname.new(path).absolute?
     end
