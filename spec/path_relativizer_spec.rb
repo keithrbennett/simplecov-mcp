@@ -84,6 +84,7 @@ RSpec.describe CovLoupe::PathRelativizer do
     # drives (e.g., C: vs D:). The rescue block returns the original path.
     it 'returns original path when relative_path_from raises ArgumentError' do
       fake_pathname = instance_double(Pathname)
+      allow(fake_pathname).to receive(:absolute?).and_return(true)
       allow(fake_pathname).to receive(:relative_path_from)
         .and_raise(ArgumentError, 'different prefix')
       allow(Pathname).to receive(:new).and_call_original
