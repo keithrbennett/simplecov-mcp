@@ -22,7 +22,6 @@ module CovLoupe
     #
     # @param path [String, Pathname] path to normalize
     # @param options [Hash] normalization options
-    # @option options [Boolean] :normalize_slashes (true on Windows)
     # @option options [Boolean] :normalize_case (true on case-insensitive volumes)
     # @return [String] normalized path
     def self.normalize(path, options = {})
@@ -30,10 +29,8 @@ module CovLoupe
 
       result = path.to_s
 
-      # Handle slash normalization for Windows
-      if options.fetch(:normalize_slashes, windows?)
-        result = result.tr('\\', '/')
-      end
+      # Always normalize slashes on Windows (Pathname#cleanpath does this anyway)
+      result = result.tr('\\', '/') if windows?
 
       # Handle case normalization for case-insensitive volumes
       if options.fetch(:normalize_case, !volume_case_sensitive?)

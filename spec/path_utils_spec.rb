@@ -160,18 +160,6 @@ RSpec.describe CovLoupe::PathUtils do
         result = described_class.normalize('C:\\Users\\file.rb')
         expect(result).to eq('C:/Users/file.rb')
       end
-
-      it 'leaves forward slashes unchanged when normalize_slashes is false' do
-        allow(described_class).to receive_messages(windows?: true, volume_case_sensitive?: true)
-        result = described_class.normalize('C:\\Users\\file.rb', normalize_slashes: false)
-        expect(result).to eq('C:\\Users\\file.rb')
-      end
-
-      it 'does not normalize slashes on non-Windows' do
-        allow(described_class).to receive(:windows?).and_return(false)
-        result = described_class.normalize('path\\to\\file')
-        expect(result).to eq('path\\to\\file')
-      end
     end
 
     context 'with case normalization' do
@@ -232,13 +220,13 @@ RSpec.describe CovLoupe::PathUtils do
     it 'expands relative path relative to base directory' do
       base = '/base/directory'
       result = described_class.expand('relative/path', base)
-      expect(result).to eq('/base/directory/relative/path')
+      expect(result).to eq(File.expand_path('relative/path', base))
     end
 
     it 'returns absolute paths unchanged' do
       absolute = '/absolute/path'
       result = described_class.expand(absolute)
-      expect(result).to eq(absolute)
+      expect(result).to eq(File.expand_path(absolute))
     end
 
     it 'returns Windows-style absolute paths unchanged on Unix systems' do

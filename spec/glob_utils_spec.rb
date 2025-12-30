@@ -124,13 +124,13 @@ RSpec.describe CovLoupe::GlobUtils do
   end
 
   describe '.filter_paths' do
-    let(:root) { '/project' }
+    let(:root) { File.expand_path('/project') }
     let(:paths) do
       [
-        '/project/lib/foo.rb',
-        '/project/lib/bar.rb',
-        '/project/spec/foo_spec.rb',
-        '/project/spec/bar_spec.rb'
+        File.expand_path('/project/lib/foo.rb'),
+        File.expand_path('/project/lib/bar.rb'),
+        File.expand_path('/project/spec/foo_spec.rb'),
+        File.expand_path('/project/spec/bar_spec.rb')
       ]
     end
 
@@ -145,38 +145,39 @@ RSpec.describe CovLoupe::GlobUtils do
     it 'filters paths by a single glob pattern' do
       result = described_class.filter_paths(paths, 'lib/*.rb', root: root)
       expect(result).to contain_exactly(
-        '/project/lib/foo.rb',
-        '/project/lib/bar.rb'
+        File.expand_path('/project/lib/foo.rb'),
+        File.expand_path('/project/lib/bar.rb')
       )
     end
 
     it 'filters paths by multiple glob patterns' do
       result = described_class.filter_paths(paths, ['lib/foo.rb', 'spec/*.rb'], root: root)
       expect(result).to contain_exactly(
-        '/project/lib/foo.rb',
-        '/project/spec/foo_spec.rb',
-        '/project/spec/bar_spec.rb'
+        File.expand_path('/project/lib/foo.rb'),
+        File.expand_path('/project/spec/foo_spec.rb'),
+        File.expand_path('/project/spec/bar_spec.rb')
       )
     end
 
     it 'handles absolute glob patterns' do
-      result = described_class.filter_paths(paths, '/project/lib/*.rb', root: root)
+      result = described_class.filter_paths(paths,
+        File.expand_path('/project/lib/*.rb'), root: root)
       expect(result).to contain_exactly(
-        '/project/lib/foo.rb',
-        '/project/lib/bar.rb'
+        File.expand_path('/project/lib/foo.rb'),
+        File.expand_path('/project/lib/bar.rb')
       )
     end
 
     it 'supports recursive patterns' do
       nested_paths = [
-        '/project/lib/utils/helper.rb',
-        '/project/lib/foo.rb',
-        '/project/spec/foo_spec.rb'
+        File.expand_path('/project/lib/utils/helper.rb'),
+        File.expand_path('/project/lib/foo.rb'),
+        File.expand_path('/project/spec/foo_spec.rb')
       ]
       result = described_class.filter_paths(nested_paths, 'lib/**/*.rb', root: root)
       expect(result).to contain_exactly(
-        '/project/lib/utils/helper.rb',
-        '/project/lib/foo.rb'
+        File.expand_path('/project/lib/utils/helper.rb'),
+        File.expand_path('/project/lib/foo.rb')
       )
     end
 

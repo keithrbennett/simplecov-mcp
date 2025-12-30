@@ -18,7 +18,6 @@ module CovLoupe
       def initialize(cov_data, root:, volume_case_sensitive:)
         @cov_data = cov_data
         @root = root
-        @normalize_slashes = PathUtils.windows?
         @normalize_case = !volume_case_sensitive
       end
 
@@ -124,14 +123,12 @@ module CovLoupe
 
       # Normalize a path using centralized PathUtils
       private def normalize_path(path)
-        PathUtils.normalize(path, normalize_slashes: @normalize_slashes,
-          normalize_case: @normalize_case)
+        PathUtils.normalize(path, normalize_case: @normalize_case)
       end
 
       # Derive a basename from normalized path.
       private def basename_for(path)
-        PathUtils.basename(path, normalize_slashes: @normalize_slashes,
-          normalize_case: @normalize_case)
+        PathUtils.basename(path, normalize_case: @normalize_case)
       end
 
       private def raise_not_found_error(file_abs)
