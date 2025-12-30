@@ -1,6 +1,6 @@
 # Contributor Covenant Code of Conduct
 
-[Back to main README](README.md)
+[Back to main README](docs/index.md)
 
 ## Our Pledge
 

@@ -7,10 +7,10 @@ This document describes the breaking changes introduced in version 4.0.0. These 
 ## Table of Contents
 
 - [CLI Changes](#cli-changes)
-  - [MCP Mode Now Requires Explicit `-m/--mode mcp` Flag](#️-mcp-mode-now-requires-explicit--m--mode-mcp-flag)
+  - [MCP Mode Now Requires Explicit `-m/--mode mcp` Flag](#mcp-mode-now-requires-explicit-m-mode-mcp-flag)
   - [Unified Stale Coverage Enforcement](#unified-stale-coverage-enforcement)
-  - [`--raise-on-stale` / `-S` - Explicit Value Required](#--raise-on-stale---s---explicit-value-required)
-  - [`--color` / `-C` - Explicit Value Required](#--color---c---explicit-value-required)
+  - [`--raise-on-stale` / `-S` - Explicit Value Required](#raise-on-stale-s-explicit-value-required)
+  - [`--color` / `-C` - Explicit Value Required](#color-c-explicit-value-required)
 - [Ruby API Changes](#ruby-api-changes)
   - [CoverageLineResolver Now Requires `root:` and `volume_case_sensitive:`](#coveragelineresolver-now-requires-root-and-volume_case_sensitive)
   - [Method Renamed](#method-renamed)
@@ -82,11 +82,11 @@ The staleness checking logic has been unified into a single flag that raises an 
 
 **IMPORTANT:** As of v4.0.0, boolean flags now require explicit values for consistency.
 
-### `--raise-on-stale` / `-S` - Explicit Value Required
+### `--raise-on-stale` / `-S` - Explicit Value Required {#raise-on-stale-s-explicit-value-required}
 *   **Old (no longer works)**: `--raise-on-stale`, `-S`
 *   **New (required)**: `--raise-on-stale true`, `-S true`, `--raise-on-stale=yes`, etc.
 
-### `--color` / `-C` - Explicit Value Required
+### `--color` / `-C` - Explicit Value Required {#color-c-explicit-value-required}
 *   **Old (no longer works)**: `--color`, `-C`
 *   **New (required)**: `--color true`, `-C true`, `--color=on`, etc.
 

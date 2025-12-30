@@ -265,8 +265,8 @@ cli = CovLoupe::CoverageCLI.new(error_handler: CustomErrorHandler.new)
 
 ### Building Custom Coverage Policies
 
-Use the `validate` subcommand to enforce custom coverage policies in CI/CD. 
-Example predicates are in [`examples/success_predicates/`](../../examples/success_predicates/).
+Use the `validate` subcommand to enforce custom coverage policies in CI/CD.
+Example predicates are in [`examples/success_predicates/`](../examples/success_predicates.md).
 
 The predicate can be any Ruby object that responds to `call` and accepts a `CoverageModel`
 as its argument. This is usually a lambda (proc), but it can also be a nonlambda proc, a class,
@@ -339,7 +339,7 @@ CoveragePolicy.new
 - `1` - Predicate returned falsy (fail)
 - `2` - Predicate raised an error
 
-See [examples/success_predicates/README.md](../../examples/success_predicates/README.md) for more examples.
+See [examples/success_predicates/README.md](../examples/success_predicates.md) for more examples.
 
 ### Path Relativization
 

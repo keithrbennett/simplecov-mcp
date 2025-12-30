@@ -1,6 +1,6 @@
 ## Example Prompts for MCP-Aware Assistants
 
-[Back to main README](../../README.md)
+[Back to main README](../../docs/index.md)
 
 This directory contains example natural-language prompts that you can use with an MCP-enabled AI assistant to interact with the `cov-loupe` server and analyze your project's test coverage.
 

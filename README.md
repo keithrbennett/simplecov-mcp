@@ -155,13 +155,13 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 
 **Project Docs & Examples:**
 
-- [Contributing](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [Release Notes](RELEASE_NOTES.md)
-- [License](LICENSE)
-- [MCP Input Examples](examples/mcp-inputs/README.md)
-- [Prompt Examples](examples/prompts/README.md)
-- [Predicate Examples](examples/success_predicates/README.md)
+- [Contributing](docs/contributing.md)
+- [Code of Conduct](docs/code_of_conduct.md)
+- [Release Notes](docs/release_notes.md)
+- [License](docs/license.md)
+- [MCP Input Examples](docs/examples/mcp-inputs.md)
+- [Prompt Examples](docs/examples/prompts.md)
+- [Predicate Examples](docs/examples/success_predicates.md)
 
 ## Requirements
 

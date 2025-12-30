@@ -7,7 +7,7 @@ Complete reference for using cov-loupe from the command line.
 > Docs use `clp` as a shortcut pointing at the demo fixture with partial coverage:
 > `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
 > Replace `clp` with `cov-loupe` to run commands against your own project.
-> See the [demo fixture details](../fixtures/demo_project/README.md) for context.
+> The demo fixture is a small Rails-like project in `docs/fixtures/demo_project` with intentional coverage gaps for testing `--tracked-globs`.
 
 ## Table of Contents
 
@@ -619,7 +619,7 @@ clp -r coverage validate -i '->(m) { m.list.size > 0 }'
 end
 ```
 
-See [examples/success_predicates/](https://github.com/keithrbennett/cov-loupe/tree/main/examples/success_predicates/) for more examples.
+See [examples/success_predicates/](../examples/success_predicates.md) for more examples.
 
 ## Output Formats
 

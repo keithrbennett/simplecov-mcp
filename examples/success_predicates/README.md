@@ -1,6 +1,6 @@
 # Coverage Validation Predicate Examples
 
-[Back to main README](../../README.md)
+[Back to main README](../../docs/index.md)
 
 This directory contains example coverage validation predicates for use with the `validate` subcommand.
 

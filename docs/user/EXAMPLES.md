@@ -5,11 +5,11 @@
 Practical examples for common tasks with cov-loupe. Examples are organized by skill level and use case.
 
 > For brevity, these examples use `clp`, an alias to the demo fixture with partial coverage:
-> 
+>
 > `alias clp='cov-loupe -R docs/fixtures/demo_project'  # -R = --root`
-> 
+>
 > Swap `clp` for `cov-loupe` to run against your own project and resultset.
-> See the [demo fixture details](../fixtures/demo_project/README.md) for context.
+> The demo fixture is a small Rails-like project in `docs/fixtures/demo_project` with intentional coverage gaps for testing `--tracked-globs`.
 
 ## Table of Contents
 
@@ -530,10 +530,10 @@ end
 
 ## Example Scripts
 
-The [`examples/`](../../examples/) directory contains runnable scripts:
+The `examples/` directory contains runnable scripts:
 
-- **[filter_and_table_demo.rb](../../examples/filter_and_table_demo.rb)** - Filter and format coverage data
-- **[success_predicates](../../examples/success_predicates/)** - Custom coverage policy examples
+- **filter_and_table_demo.rb** - Filter and format coverage data (in `examples/` directory)
+- **[success_predicates](../examples/success_predicates.md)** - Custom coverage policy examples
 - **[Coverage Delta Tracking recipe in the Library API Guide](LIBRARY_API.md#coverage-delta-tracking)**
 
 ## Related Documentation

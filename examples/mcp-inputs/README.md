@@ -1,12 +1,12 @@
 ## MCP JSON Inputs
 
-[Back to main README](../../README.md)
+[Back to main README](../../docs/index.md)
 
 This directory contains example JSON-RPC requests that can be sent to the MCP server over stdio.
 
 Each file contains a single line of JSON (NDJSON-ready), so you can pipe it directly to the executable.
 
-**Target Project:** These inputs are designed to work with the demo project located at `docs/fixtures/demo_project` (see [fixture details](../../docs/fixtures/demo_project/README.md)).
+**Target Project:** These inputs are designed to work with the demo project located at `docs/fixtures/demo_project`.
 
 ### Running the Examples
 
