@@ -65,5 +65,41 @@ RSpec.describe CovLoupe::CoverageCLI do
         end.to raise_error(CovLoupe::CoverageDataError, /corrupt data/)
       end
     end
+
+    context 'when exclusions include deleted files' do
+      let(:presenter) do
+        instance_double(
+          CovLoupe::Presenters::ProjectCoveragePresenter,
+          relative_files: [],
+          relative_missing_tracked_files: [],
+          relative_newer_files: [],
+          relative_deleted_files: ['lib/old.rb'],
+          relative_skipped_files: []
+        )
+      end
+      let(:model) do
+        instance_double(CovLoupe::CoverageModel, format_table: "table\n", skipped_rows: [])
+      end
+
+      before do
+        cli.config.format = :table
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+        allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+      end
+
+      it 'prints the deleted files section in the exclusions summary' do
+        output = nil
+        silence_output do |stdout, _stderr|
+          cli.show_default_report(sort_order: :ascending, output: stdout)
+          output = stdout.string
+        end
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Deleted files with coverage (1):',
+          '  - lib/old.rb'
+        )
+      end
+    end
   end
 end

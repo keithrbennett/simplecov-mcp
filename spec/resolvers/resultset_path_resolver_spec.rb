@@ -97,4 +97,21 @@ RSpec.describe CovLoupe::Resolvers::ResultsetPathResolver do
       expect(result).to be_nil
     end
   end
+
+  describe 'private #within_root?' do
+    it 'delegates to PathUtils.within_root? for root checks' do
+      Dir.mktmpdir do |root|
+        resolver = described_class.new(root: root)
+        inside = File.join(root, 'lib')
+
+        outside_root = Dir.mktmpdir
+        outside = File.join(outside_root, 'lib')
+
+        expect(resolver.send(:within_root?, inside)).to be(true)
+        expect(resolver.send(:within_root?, outside)).to be(false)
+      ensure
+        FileUtils.remove_entry(outside_root) if outside_root && Dir.exist?(outside_root)
+      end
+    end
+  end
 end

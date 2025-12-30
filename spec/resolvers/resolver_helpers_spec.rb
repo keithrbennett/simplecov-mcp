@@ -94,5 +94,26 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
       expect(results.size).to eq(test_count)
       expect(results.uniq.size).to eq(1) # All results should be identical
     end
+
+    [true, false].each do |identical|
+      expected_state_str = identical ? 'identical' : 'different'
+      it "returns #{!identical} when case-variant files exist and are #{expected_state_str}" do
+        abs_path = File.absolute_path(test_dir)
+        original = File.join(abs_path, 'SampleFile.txt')
+        alternate = original.tr('A-Za-z', 'a-zA-Z')
+
+        # Force the "existing file" branch without relying on OS case behavior.
+        allow(Dir).to receive(:children) do |path, *_opts|
+          path == abs_path ? [File.basename(original)] : []
+        end
+        allow(File).to receive(:file?) { |path| path == original }
+        # Simulate a case-variant path that exists so we hit the identical? check.
+        allow(File).to receive(:exist?) { |path| path == alternate }
+        # Drive the outcome by controlling whether the two paths refer to the same file.
+        allow(File).to receive(:identical?).and_return(identical)
+
+        expect(described_class.volume_case_sensitive?(test_dir)).to be(!identical)
+      end
+    end
   end
 end

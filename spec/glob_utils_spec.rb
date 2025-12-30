@@ -4,6 +4,10 @@ require 'spec_helper'
 require 'cov_loupe/glob_utils'
 
 RSpec.describe CovLoupe::GlobUtils do
+  before do
+    described_class.instance_variable_set(:@fn_normalize_path_separators, nil)
+  end
+
   describe '.normalize_patterns' do
     it 'converts patterns to strings' do
       expect(described_class.normalize_patterns([123])).to eq(['123'])
@@ -23,6 +27,15 @@ RSpec.describe CovLoupe::GlobUtils do
 
     it 'handles nil input' do
       expect(described_class.normalize_patterns(nil)).to eq([])
+    end
+  end
+
+  describe '.fn_normalize_path_separators' do
+    it 'normalizes backslashes when running on Windows' do
+      allow(CovLoupe).to receive(:windows?).and_return(true)
+
+      normalizer = described_class.fn_normalize_path_separators
+      expect(normalizer.call('C:\\tmp\\file.rb')).to eq('C:/tmp/file.rb')
     end
   end
 
