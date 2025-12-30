@@ -1,24 +1,26 @@
 ## MCP JSON Inputs
 
+[Back to main README](../../README.md)
+
 This directory contains example JSON-RPC requests that can be sent to the MCP server over stdio.
 
 Each file contains a single line of JSON (NDJSON-ready), so you can pipe it directly to the executable.
 
-**Target Project:** These inputs are designed to work with the demo project located at `examples/fixtures/demo_project`.
+**Target Project:** These inputs are designed to work with the demo project located at `docs/fixtures/demo_project` (see [fixture details](../../docs/fixtures/demo_project/README.md)).
 
 ### Running the Examples
 
 From the repository root:
 
 ```sh
-exe/cov-loupe < examples/mcp-inputs/coverage_summary.json
-exe/cov-loupe < examples/mcp-inputs/uncovered_lines.json
+exe/cov-loupe -m mcp < examples/mcp-inputs/coverage_summary.json
+exe/cov-loupe -m mcp < examples/mcp-inputs/uncovered_lines.json
 ```
 
 If `cov-loupe` is installed globally and available on your `PATH`:
 
 ```sh
-cov-loupe < examples/mcp-inputs/coverage_summary.json
+cov-loupe -m mcp < examples/mcp-inputs/coverage_summary.json
 ```
 
 ### Formatting Tips (jq and rexe)
@@ -48,17 +50,17 @@ rexe -f examples/mcp-inputs/coverage_summary.json -oJ
 
 Using `jq`:
 ```sh
-exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | jq .
+exe/cov-loupe -m mcp < examples/mcp-inputs/coverage_summary.json | jq .
 ```
 
 Using Ruby:
 ```sh
-exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | ruby -r json -e '
+exe/cov-loupe -m mcp < examples/mcp-inputs/coverage_summary.json | ruby -r json -e '
   puts JSON.pretty_generate(JSON.parse($stdin.read))
 '
 ```
 
 Using `rexe`:
 ```sh
-exe/cov-loupe < examples/mcp-inputs/coverage_summary.json | rexe -ml -ij -oJ
+exe/cov-loupe -m mcp < examples/mcp-inputs/coverage_summary.json | rexe -ml -ij -oJ
 ```

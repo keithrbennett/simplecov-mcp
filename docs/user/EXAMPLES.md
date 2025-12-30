@@ -9,6 +9,7 @@ Practical examples for common tasks with cov-loupe. Examples are organized by sk
 > `alias clp='cov-loupe -R docs/fixtures/demo_project'  # -R = --root`
 > 
 > Swap `clp` for `cov-loupe` to run against your own project and resultset.
+> See the [demo fixture details](../fixtures/demo_project/README.md) for context.
 
 ## Table of Contents
 
@@ -50,21 +51,21 @@ clp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u
 ### Find Coverage Gaps
 
 ```bash
-# Files with worst coverage
-clp list | tail -10
+# Files with worst coverage (account for header/footer)
+clp list | tail -12
 
 # Only show files below 80%
-clp -fJ list | jq '.files[] | select(.percentage < 95)'
+clp -fJ list | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
 clp -fJ list | ruby -r json -e '
-  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-clp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 95 }'
+clp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Check specific directory
 clp -g "lib/payments/**/*.rb" list  # -g = --tracked-globs
@@ -94,18 +95,18 @@ Here are some examples:
 **Parse and filter:**
 ```bash
 # Files below threshold
-clp -fJ list | jq '.files[] | select(.percentage < 95) | {file, coverage: .percentage}'
+clp -fJ list | jq '.files[] | select(.percentage < 80) | {file, coverage: .percentage}'
 
 # Ruby alternative:
 clp -fJ list | ruby -r json -e '
-  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 95 }.each do |f|
+  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate({file: f["file"], coverage: f["percentage"]})
   end
 '
 
 # Rexe alternative:
 clp -fJ list | rexe -ij -mb -oJ '
-  self["files"].select { |f| f["percentage"] < 95 }.map do |f|
+  self["files"].select { |f| f["percentage"] < 80 }.map do |f|
     {file: f["file"], coverage: f["percentage"]}
   end
 '

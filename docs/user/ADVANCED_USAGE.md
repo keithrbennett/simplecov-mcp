@@ -55,41 +55,40 @@ To override the default log file location, specify the `--log-file` (or `-l`) ar
 
 ### Testing MCP Server Manually
 
-Use JSON-RPC over stdin to test the MCP server. **Note:** CLI flags like `-R` do NOT affect MCP tool calls—you must pass configuration parameters (like `root`) in each JSON request.
+Use JSON-RPC over stdin to test the MCP server. **Note:** CLI flags set defaults for MCP tool calls, but per-request JSON parameters still win. Use `-R`/`-r` when you want server-wide defaults, or pass `root`/`resultset` per request.
 
 ```sh
 # Get version (no parameters needed)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
 
 # Get file summary (include root parameter in JSON)
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 
 # List all files with sorting (include root parameter)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_tool","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_tool","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 
 # Get uncovered lines (include root parameter)
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_lines_tool","arguments":{"path":"app/controllers/orders_controller.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 ```
 
-**Why not use `clp` alias here?** The `clp` alias (`cov-loupe -R docs/fixtures/demo_project`) sets the root for CLI subcommands, but the `-R` flag is ignored in MCP mode. Instead, pass `root` explicitly in the JSON arguments for each tool call.
+**Why not use `clp` alias here?** `clp` is useful for CLI subcommands, but MCP calls run a long-lived server process. You can pass `-R` at startup to set defaults, or set `root` explicitly in each JSON request when you want to be explicit or override the defaults.
 
 ---
 
 ## Staleness Detection & Validation
 
-### Understanding Staleness Modes
+### Understanding Staleness Checks
 
-Staleness checking prevents using outdated coverage data. Two modes are available:
+Staleness checking prevents using outdated coverage data. The behavior is controlled by the boolean `raise_on_stale` setting:
 
-**Mode: `off` (default)**
-- No validation, fastest operation
-- Coverage data used as-is
-- Stale indicators still computed but don't block operations
+**`raise_on_stale: false` (default)**
+- Coverage data is returned even if stale
+- Stale indicators are still computed
+- Best for exploratory reporting
 
-**Mode: `error`**
-- Strict validation enabled
-- Raises errors if coverage is outdated
-- Perfect for CI/CD pipelines
+**`raise_on_stale: true`**
+- Raises errors when stale coverage is detected
+- Recommended for CI/CD enforcement
 
 ### File-Level Staleness
 
@@ -300,7 +299,7 @@ clp validate examples/success_predicates/project_coverage_minimum_predicate.rb
 clp validate coverage_policy.rb
 
 # Inline string mode
-clp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
+clp validate -i '->(m) { m.list["files"].all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Creating a predicate:**
@@ -308,7 +307,7 @@ clp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 # coverage_policy.rb
 ->(model) do
   # All files must have >= 80% coverage
-  model.list.all? { |f| f['percentage'] >= 80 }
+  model.list['files'].all? { |f| f['percentage'] >= 80 }
 end
 ```
 
@@ -357,9 +356,10 @@ data = model.summary_for('app/models/order.rb')
 relative_data = model.relativize(data)
 # => { 'file' => 'app/models/order.rb', ... }
 
-# Works with arrays too
-files = model.list
-relative_files = model.relativize(files)
+# Works with list payloads too
+list_result = model.list
+relative_list = model.relativize(list_result)
+relative_files = relative_list['files']
 ```
 
 ---
@@ -372,7 +372,7 @@ The CLI is designed for CI/CD use with features that integrate naturally into pi
 
 - **Exit codes**: Non-zero on failure, making it suitable for pipeline failure conditions
 - **JSON output**: `-fJ` format for parsing by CI tools and custom processing
-- **Staleness checking**: `--stale error` to fail on outdated coverage data
+- **Staleness checking**: `--raise-on-stale true` to fail on outdated coverage data
 - **Success predicates**: Custom Ruby policies for coverage enforcement
 
 ### Basic CI Pattern
@@ -481,7 +481,7 @@ model = CovLoupe::CoverageModel.new
 # Filter files in output
 api_files = model.list(
   tracked_globs: ['lib/api/**/*.rb']
-)
+)['files']
 
 # Multi-pattern filtering
 core_files = model.list(
@@ -489,12 +489,12 @@ core_files = model.list(
     'lib/core/**/*.rb',
     'lib/domain/**/*.rb'
   ]
-)
+)['files']
 
 # Validate specific subsystems
 begin
   model.list(
-    check_stale: true,
+    raise_on_stale: true,
     tracked_globs: ['lib/critical/**/*.rb']
   )
 rescue CovLoupe::CoverageDataProjectStaleError => e
@@ -515,13 +515,13 @@ The `CoverageModel` reads `.resultset.json` once at initialization:
 ```ruby
 # Good: Single model for multiple queries
 model = CovLoupe::CoverageModel.new
-files = model.list
+files = model.list['files']
 file1 = model.summary_for('lib/a.rb')
 file2 = model.summary_for('lib/b.rb')
 
 # Bad: Re-reads coverage for each operation
 model1 = CovLoupe::CoverageModel.new
-files = model1.list
+files = model1.list['files']
 
 model2 = CovLoupe::CoverageModel.new
 file1 = model2.summary_for('lib/a.rb')
@@ -550,13 +550,13 @@ Use `tracked_globs` to reduce data processing:
 
 ```ruby
 # Bad: Filter after loading all data
-list = model.list
+list = model.list['files']
 api_files = list.select { |f| f['file'].include?('api') }
 
 # Good: Filter during query
 api_files = model.list(
   tracked_globs: ['lib/api/**/*.rb']
-)
+)['files']
 ```
 
 ### Caching Coverage Models
@@ -601,7 +601,7 @@ model = cache.model_for('/path/to/project')
 require 'csv'
 
 model = CovLoupe::CoverageModel.new
-files = model.list
+files = model.list['files']
 
 CSV.open('coverage.csv', 'w') do |csv|
   csv << ['File', 'Coverage %', 'Lines Covered', 'Total Lines', 'Stale']
@@ -644,7 +644,9 @@ template = ERB.new(<<~HTML)
 HTML
 
 model = CovLoupe::CoverageModel.new
-files = model.relativize(model.list)
+list_result = model.list
+relative_list = model.relativize(list_result)
+files = relative_list['files']
 File.write('coverage.html', template.result(binding))
 ```
 
@@ -744,7 +746,7 @@ require 'net/http'
 require 'json'
 
 model = CovLoupe::CoverageModel.new
-files = model.list
+files = model.list['files']
 
 coveralls_data = {
   repo_token: ENV['COVERALLS_REPO_TOKEN'],

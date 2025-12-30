@@ -1,6 +1,6 @@
 # Shared Examples for MCP Tools
 
-This directory contains reusable test patterns for SimpleCov MCP tools.
+This directory contains reusable test patterns for cov-loupe MCP tools.
 
 ## File-Based MCP Tools
 
@@ -8,8 +8,7 @@ The `file_based_mcp_tools.rb` shared example provides parameterized testing for 
 
 - Take a `path` parameter (file to analyze)
 - Call a specific method on `CoverageModel`
-- Return JSON resource with predictable structure
-- Have consistent output filenames
+- Return JSON text payloads with predictable structure
 
 ### Usage
 
@@ -21,7 +20,6 @@ your_tool: {
   tool_class: CovLoupe::Tools::YourTool,
   model_method: :your_method,
   expected_keys: ['file', 'your_data'],
-  output_filename: 'your_tool.json',
   description: 'your tool data',
   mock_data: {
     'file' => '/abs/path/lib/foo.rb',
@@ -34,9 +32,8 @@ your_tool: {
 ```
 
 The parameterized test will automatically:
-- ✅ Test basic MCP resource structure
-- ✅ Verify expected JSON keys are present  
-- ✅ Check correct output filename
+- ✅ Test basic MCP text response structure
+- ✅ Verify expected JSON keys are present
 - ✅ Run tool-specific validations
 - ✅ Test parameter consistency across tools
 - ✅ Validate JSON structure consistency
@@ -61,13 +58,11 @@ RSpec.describe CovLoupe::Tools::YourTool do
 
   subject { described_class.call(path: 'lib/foo.rb', server_context: server_context) }
 
-  it_behaves_like 'an MCP tool that returns JSON resource'
+  it_behaves_like 'an MCP tool that returns text JSON'
 
   it 'returns your tool data with expected structure' do
     response = subject
-    data, item = expect_mcp_json_resource(response, expected_keys: ['file', 'your_data'])
-    
-    expect(item['resource']['name']).to eq('your_tool.json')
+    data, item = expect_mcp_text_json(response, expected_keys: ['file', 'your_data'])
     expect(data['your_data']).to include('key')
   end
 end
@@ -80,7 +75,6 @@ your_tool: {
   tool_class: CovLoupe::Tools::YourTool,
   model_method: :your_method,
   expected_keys: ['file', 'your_data'], 
-  output_filename: 'your_tool.json',
   description: 'your tool data',
   mock_data: { 'file' => '/abs/path/lib/foo.rb', 'your_data' => { 'key' => 'value' } },
   additional_validations: ->(data, item) { expect(data['your_data']).to include('key') }
@@ -90,7 +84,7 @@ your_tool: {
 ### Additional Benefits
 
 1. **Cross-tool consistency testing**: Automatically tests that all tools handle parameters consistently
-2. **Structural validation**: Ensures all tools return properly formed MCP resources  
+2. **Structural validation**: Ensures all tools return properly formed MCP text responses
 3. **Reduced maintenance**: Bug fixes and improvements benefit all tools at once
 4. **Better coverage**: Gets consistency tests you wouldn't write individually
 5. **Enforces patterns**: Encourages consistent tool design

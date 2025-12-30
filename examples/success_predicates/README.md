@@ -1,5 +1,7 @@
 # Coverage Validation Predicate Examples
 
+[Back to main README](../../README.md)
+
 This directory contains example coverage validation predicates for use with the `validate` subcommand.
 
 > **⚠️ SECURITY WARNING**
@@ -25,7 +27,7 @@ cov-loupe validate examples/success_predicates/<filename>.rb
 
 **String mode:**
 ```sh
-cov-loupe validate -i '->(model) { model.list.all? { |f| f["percentage"] >= 80 } }'
+cov-loupe validate -i '->(model) { model.list["files"].all? { |f| f["percentage"] >= 80 } }'
 ```
 
 The predicate receives a `CoverageModel` instance and returns:
@@ -66,7 +68,7 @@ A predicate must be a callable object (lambda, proc, or class with `#call` metho
 **Lambda example:**
 ```ruby
 ->(model) do
-  model.list.all? { |f| f['percentage'] >= 80 }
+  model.list['files'].all? { |f| f['percentage'] >= 80 }
 end
 ```
 
@@ -74,7 +76,7 @@ end
 ```ruby
 class MyPolicy
   def self.call(model)
-    model.list.all? { |f| f['percentage'] >= @threshold }
+    model.list['files'].all? { |f| f['percentage'] >= @threshold }
   end
 end
 
@@ -89,7 +91,7 @@ class MyPolicy
   end
 
   def call(model)
-    model.list.all? { |f| f['percentage'] >= @threshold }
+    model.list['files'].all? { |f| f['percentage'] >= @threshold }
   end
 end
 
@@ -103,11 +105,11 @@ The `model` parameter provides:
 
 ```ruby
 # Get all files
-files = model.list
+files = model.list['files']
 # => [{ "file" => "...", "covered" => 12, "total" => 14, "percentage" => 85.71, "stale" => false }, ...]
 
 # Filter by globs
-api_files = model.list(tracked_globs: ['lib/api/**/*.rb'])
+api_files = model.list(tracked_globs: ['lib/api/**/*.rb'])['files']
 
 # Get specific file data
 summary = model.summary_for('lib/model.rb')
@@ -146,7 +148,7 @@ model = CovLoupe::CoverageModel.new(
 )
 
 # Complex logic with external API
-files = model.list
+files = model.list['files']
 low_coverage_files = files.select { |f| f['percentage'] < 80 }
 
 # Post to Slack

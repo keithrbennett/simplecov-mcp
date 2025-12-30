@@ -18,10 +18,6 @@
 [![Gem Version](https://badge.fury.io/rb/cov-loupe.svg)](https://badge.fury.io/rb/cov-loupe)
 [![Documentation](https://img.shields.io/badge/docs-online-blue.svg)](https://keithrbennett.github.io/cov-loupe/)
 
-## Documentation
-
-Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/](https://keithrbennett.github.io/cov-loupe/)**.
-
 ## What is cov-loupe?
 
 **cov-loupe** makes SimpleCov coverage data queryable and actionable through three interfaces:
@@ -98,11 +94,12 @@ Repository: https://github.com/keithrbennett/cov-loupe  # <--- Project URL ---
 require "cov_loupe"
 
 model = CovLoupe::CoverageModel.new
-files = model.list
+list_result = model.list
+files = list_result["files"]
 # => [{ "file" => "lib/cov_loupe/model.rb", "covered" => 114, "total" => 118, "percentage" => 96.61, "stale" => false }, ...]
 
 summary = model.summary_for("lib/cov_loupe/model.rb")
-# => { "file" => "lib/cov_loupe/model.rb", "summary" => { "covered" => 114, "total" => 118, "percentage" => 96.61 }, "stale" => false }
+# => { "file" => "lib/cov_loupe/model.rb", "summary" => { "covered" => 114, "total" => 118, "percentage" => 96.61 } }
 ```
 
 **MCP Server:**
@@ -122,7 +119,7 @@ When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucum
 
 **Multiple resultset files:** Only suites stored inside a *single* `.resultset.json` are merged automatically. If your project produces separate resultset files (e.g., different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`), you must merge them yourself before pointing `cov-loupe` at the combined file.
 
-## Documentation
+## Documentation Index
 
 Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/](https://keithrbennett.github.io/cov-loupe/)**.
 
@@ -155,6 +152,16 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 - [Development Guide](docs/dev/DEVELOPMENT.md) - Local dev workflow
 - [Releasing](docs/dev/RELEASING.md) - Release checklist
 - [Architecture Decision Records](docs/dev/arch-decisions/README.md) - Design history
+
+**Project Docs & Examples:**
+
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Release Notes](RELEASE_NOTES.md)
+- [License](LICENSE)
+- [MCP Input Examples](examples/mcp-inputs/README.md)
+- [Prompt Examples](examples/prompts/README.md)
+- [Predicate Examples](examples/success_predicates/README.md)
 
 ## Requirements
 

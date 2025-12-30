@@ -121,7 +121,7 @@ For tools that return structured data, `cov-loupe` serializes the data as a JSON
 ```json
 {
   "type": "text",
-  "text": "{"coverage_summary":{"covered":10,"total":20,"percentage":50.0}}"
+  "text": "{\"file\":\"lib/foo.rb\",\"summary\":{\"covered\":10,\"total\":20,\"percentage\":50.0},\"stale\":false}"
 }
 ```
 
@@ -156,7 +156,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 
 **Key Takeaways:**
 - **Server-level options** (`--error-mode`, `--log-file`): Set once when server starts, apply to all tool calls
-- **Tool-level options** (`root`, `resultset`, `staleness`, `tracked_globs`): CLI args provide defaults; per-tool JSON params override when provided
+- **Tool-level options** (`root`, `resultset`, `raise_on_stale`, `tracked_globs`): CLI args provide defaults; per-tool JSON params override when provided
 - **CLI-only options** (`--format`, `--source`, etc.): Not applicable to MCP mode
 
 **Precedence for MCP tool config:** `JSON request param` > `CLI args used to start MCP` (including `COV_LOUPE_OPTS`) > built-in defaults (`root: '.'`, `raise_on_stale: false`, `resultset: nil`, `tracked_globs: nil`).
@@ -200,6 +200,8 @@ These tools analyze individual files. All require `path` parameter.
 ```json
 {"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": false}
 ```
+
+**Staleness values:** `false` (fresh), `"M"` (missing), `"T"` (timestamp), `"L"` (length), `"E"` (staleness check error)
 
 #### Project-Wide Tools
 
@@ -286,21 +288,21 @@ Test the MCP server responds to JSON-RPC:
 
 ```sh
 # Test version tool (simplest, no parameters needed)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
 
 # Test help tool (no parameters needed)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | cov-loupe -m mcp
 
-# Test summary tool (requires root parameter since -R flag doesn't work in MCP mode)
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb","root":"."}}}' | cov-loupe
+# Test summary tool (use root param if needed)
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb","root":"."}}}' | cov-loupe -m mcp
 
 # Test with a project-specific root
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 ```
 
 **Important Notes:**
 - JSON-RPC messages must be on a single line. Multi-line JSON will cause parse errors.
-- CLI flags like `-R` do NOT affect MCP tool calls—you must pass `root` in the JSON `arguments` object.
+- CLI flags like `-R` set server defaults, but per-request JSON parameters still win.
 - The `root` parameter is optional and defaults to `.` (current directory).
 
 ### Testing in AI Assistant

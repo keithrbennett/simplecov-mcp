@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the comprehensive integration tests added for the SimpleCov MCP server protocol in `spec/integration_spec.rb`.
+This document describes the comprehensive integration tests added for the cov-loupe MCP server protocol in `spec/integration_spec.rb`.
 
 ## Test Coverage
 
@@ -11,7 +11,7 @@ The integration tests spawn the actual MCP server as a subprocess and communicat
 ### Tests Added (12 total)
 
 1. **starts MCP server without errors** - Verifies the server starts and responds to basic requests without NameError or other initialization issues
-2. **handles tools/list request** - Confirms all 8 expected tools are properly registered
+2. **handles tools/list request** - Confirms all expected tools are properly registered
 3. **executes coverage_summary_tool via JSON-RPC** - Tests single-file coverage summary queries
 4. **executes list_tool via JSON-RPC** - Tests project-wide coverage listing
 5. **executes uncovered_lines_tool via JSON-RPC** - Tests uncovered line detection

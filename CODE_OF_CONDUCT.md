@@ -1,5 +1,7 @@
 # Contributor Covenant Code of Conduct
 
+[Back to main README](README.md)
+
 ## Our Pledge
 
 We as members, contributors, and users pledge to make participation in this

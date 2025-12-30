@@ -33,7 +33,8 @@ model = CovLoupe::CoverageModel.new(
 )
 
 # List all files with coverage summary
-files = model.list
+list_result = model.list
+files = list_result['files']
 # Per-file queries
 
 target = 'lib/cov_loupe/base_tool.rb'
@@ -54,15 +55,16 @@ Returns coverage summary for all files in the resultset.
 - `raise_on_stale` (Boolean, optional): Whether to raise error if project is stale. Defaults to model setting.
 - `tracked_globs` (Array<String>, optional): Patterns to filter files (also used for staleness checks)
 
-**Returns:** `Array<Hash>` - See [list return type](#list)
+**Returns:** `Hash` - See [list return type](#list)
 
 **Example:**
 ```ruby
-files = model.list
+list_result = model.list
+files = list_result['files']
 # => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => false }, ... ]
 
 # Get worst coverage first
-worst_files = model.list(sort_order: :ascending).first(10)
+worst_files = model.list(sort_order: :ascending)['files'].first(10)
 
 # Force staleness check
 model.list(raise_on_stale: true)
@@ -82,7 +84,7 @@ Returns coverage summary for a specific file.
 **Example:**
 ```ruby
 summary = model.summary_for(target)
-# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'percentage'=>85.71}, 'stale' => false }
+# => { 'file' => '/abs/.../lib/foo.rb', 'summary' => {'covered'=>12, 'total'=>14, 'percentage'=>85.71} }
 ```
 
 ### `uncovered_for(path)`
@@ -99,7 +101,7 @@ Returns list of uncovered line numbers for a specific file.
 **Example:**
 ```ruby
 uncovered = model.uncovered_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... }, 'stale' => false }
+# => { 'file' => '/abs/.../lib/foo.rb', 'uncovered' => [5, 9, 12], 'summary' => { ... } }
 ```
 
 ### `detailed_for(path)`
@@ -116,7 +118,7 @@ Returns per-line coverage details with hit counts.
 **Example:**
 ```ruby
 detailed = model.detailed_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... }, 'stale' => false }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [{'line' => 1, 'hits' => 1, 'covered' => true}, ...], 'summary' => { ... } }
 ```
 
 ### `raw_for(path)`
@@ -133,7 +135,7 @@ Returns raw SimpleCov lines array for a specific file.
 **Example:**
 ```ruby
 raw = model.raw_for("lib/foo.rb")
-# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...], 'stale' => false }
+# => { 'file' => '/abs/.../lib/foo.rb', 'lines' => [nil, 1, 0, 3, ...] }
 ```
 
 ### `format_table(rows = nil, sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
@@ -173,11 +175,14 @@ Returns aggregated coverage totals across all files.
 **Example:**
 ```ruby
 totals = model.project_totals
-# => { 'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23 }, 'percentage' => 81.3, 'files' => { 'total' => 5, 'ok' => 4, 'stale' => 1 } }
+# => { 'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23 }, 'percentage' => 81.3,
+#      'files' => { 'total' => 5, 'ok' => 4, 'stale' => 1 }, 'excluded_files' => { ... } }
 
 # Filter to specific directory
 lib_totals = model.project_totals(tracked_globs: 'lib/**/*.rb')
 ```
+
+When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals; otherwise `excluded_files` reports any skipped or stale files.
 
 ### `relativize(data)`
 
@@ -197,7 +202,8 @@ relative_summary = model.relativize(summary)
 # => { 'file' => 'lib/cov_loupe/model.rb', ... }
 
 # Works with arrays too
-files = model.list
+list_result = model.list
+files = list_result['files']
 relative_files = model.relativize(files)
 ```
 
@@ -205,15 +211,23 @@ relative_files = model.relativize(files)
 
 ### `list`
 
-Returns `Array<Hash>` where each hash contains:
+Returns `Hash` with file data and staleness metadata:
 
 ```ruby
 {
-  'file' => String,       # Absolute file path
-  'covered' => Integer,   # Number of covered lines
-  'total' => Integer,     # Total relevant lines
-  'percentage' => Float,  # Coverage percentage (0.00-100.00)
-  'stale' => false | String  # Staleness indicator: false, 'E', 'M', 'T', or 'L'
+  'files' => [
+    {
+      'file' => String,       # Absolute file path
+      'covered' => Integer,   # Number of covered lines
+      'total' => Integer,     # Total relevant lines
+      'percentage' => Float,  # Coverage percentage (0.00-100.00)
+      'stale' => false | String  # Staleness indicator: false, 'E', 'M', 'T', or 'L'
+    }
+  ],
+  'skipped_files' => Array<String>,        # Files skipped due to coverage errors
+  'missing_tracked_files' => Array<String>,# Tracked files missing from coverage
+  'newer_files' => Array<String>,          # Files newer than coverage
+  'deleted_files' => Array<String>         # Coverage entries for deleted files
 }
 ```
 
@@ -300,6 +314,12 @@ Returns `Hash`:
     'total' => Integer,      # Total number of files
     'ok' => Integer,         # Files with fresh coverage
     'stale' => Integer       # Files with stale coverage
+  },
+  'excluded_files' => {
+    'skipped' => Integer,        # Coverage data errors
+    'missing_tracked' => Integer,# Tracked files missing from coverage
+    'newer' => Integer,          # Files newer than coverage
+    'deleted' => Integer         # Coverage entries for deleted files
   }
 }
 ```
@@ -341,7 +361,7 @@ end
 ```ruby
 # Option 1: Check staleness without raising
 model = CovLoupe::CoverageModel.new(raise_on_stale: false)
-files = model.list
+files = model.list['files']
 
 stale_files = files.select { |f| f['stale'] }
 if stale_files.any?
@@ -354,7 +374,7 @@ end
 # Option 2: Raise on staleness
 begin
   model = CovLoupe::CoverageModel.new(raise_on_stale: true)
-  files = model.list
+  files = model.list['files']
 rescue CovLoupe::CoverageDataStaleError => e
   puts "Stale coverage detected: #{e.message}"
   puts "Re-run tests: bundle exec rspec"
@@ -447,7 +467,7 @@ class CoverageValidator
   end
 
   def validate!
-    files = @model.list
+    files = @model.list['files']
     failures = []
 
     files.each do |file|
@@ -531,7 +551,7 @@ class CoverageDeltaTracker
   end
 
   def save_baseline
-    current = @model.list
+    current = @model.list['files']
     File.write(@baseline_path, JSON.pretty_generate(current))
     puts "Saved coverage baseline (#{current.length} files)"
   end
@@ -543,7 +563,7 @@ class CoverageDeltaTracker
     end
 
     baseline = JSON.parse(File.read(@baseline_path))
-    current = @model.list
+    current = @model.list['files']
 
     improved = []
     regressed = []
@@ -609,7 +629,7 @@ class CoverageReporter
   end
 
   def generate_markdown_report(output_path)
-    files = @model.list
+    files = @model.list['files']
     totals = @model.project_totals
 
     # Overall stats
@@ -684,6 +704,7 @@ The `list` method returns a `'stale'` field for each file with one of these valu
 - `'M'` - **Missing**: File no longer exists on disk
 - `'T'` - **Timestamp**: File modified more recently than coverage data
 - `'L'` - **Length**: Source file line count differs from coverage data
+- `'E'` - **Error**: Staleness check failed
 
 **Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `list` and filter the results.
 

@@ -121,7 +121,7 @@ The `cov-loupe` executable can be run directly (`bundle exec exe/cov-loupe ...` 
 - `version` – show version information.
 
 ## MCP Server Usage
-When `cov-loupe` runs without CLI arguments and detects non-interactive stdio, it automatically starts the MCP server. You can issue JSON-RPC requests over stdio, for example:
+Run `cov-loupe` in MCP mode with `-m mcp`/`--mode mcp`. You can issue JSON-RPC requests over stdio, for example:
 ```
 {"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}
 {"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}

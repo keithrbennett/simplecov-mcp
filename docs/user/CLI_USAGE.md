@@ -7,6 +7,7 @@ Complete reference for using cov-loupe from the command line.
 > Docs use `clp` as a shortcut pointing at the demo fixture with partial coverage:
 > `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
 > Replace `clp` with `cov-loupe` to run commands against your own project.
+> See the [demo fixture details](../fixtures/demo_project/README.md) for context.
 
 ## Table of Contents
 
@@ -78,18 +79,18 @@ Default sort order is descending (highest coverage first) so the lowest-coverage
 ┌────────────────────────────────────────┬──────────┬───────────┬─────────┬───────┐
 │ File                                   │        % │   Covered │   Total │ Stale │
 ├────────────────────────────────────────┼──────────┼───────────┼─────────┼───────┤
-│ lib/payments/refund_service.rb         │   60.00% │         3 │       5 │       │
-│ app/controllers/orders_controller.rb   │   70.00% │         7 │      10 │       │
+│ app/models/user.rb                     │  100.00% │         6 │       6 │       │
+│ lib/api/client.rb                      │   88.89% │         8 │       9 │       │
+│ app/models/order.rb                    │   85.71% │         6 │       7 │       │
 │ lib/ops/jobs/report_job.rb             │   80.00% │         4 │       5 │       │
 │ lib/payments/processor.rb              │   80.00% │         4 │       5 │       │
-│ app/models/order.rb                    │   85.71% │         6 │       7 │       │
-│ lib/api/client.rb                      │   88.89% │         8 │       9 │       │
-│ app/models/user.rb                     │  100.00% │         6 │       6 │       │
+│ app/controllers/orders_controller.rb   │   70.00% │         7 │      10 │       │
+│ lib/payments/refund_service.rb         │   60.00% │         3 │       5 │       │
 └────────────────────────────────────────┴──────────┴───────────┴─────────┴───────┘
 Files: total 7, ok 7, stale 0
 ```
 
-**Stale indicators:** M (missing file), T (timestamp mismatch), L (line count mismatch)
+**Stale indicators:** M (missing file), T (timestamp mismatch), L (line count mismatch), E (staleness check error)
 
 ### `summary <path>`
 
@@ -116,7 +117,11 @@ clp summary app/models/order.rb -s full  # -s = --source
 
 **Output (default format):**
 ```
-  85.71%       6/7       app/models/order.rb
+┌───────────────────────┬──────────┬─────────┬───────┬───────┐
+│ File                  │        % │ Covered │ Total │ Stale │
+├───────────────────────┼──────────┼─────────┼───────┼───────┤
+│ app/models/order.rb   │   85.71% │       6 │     7 │       │
+└───────────────────────┴──────────┴─────────┴───────┴───────┘
 ```
 
 **Output (JSON format):**
@@ -708,11 +713,11 @@ export COV_LOUPE_OPTS="-r coverage -S -fJ"
 ### Basic Coverage Check
 
 ```sh
-# Show all files sorted by lowest coverage first
+# Show all files sorted by highest coverage first (default)
 clp
 
-# Find the 5 files with worst coverage
-clp list | head -10
+# Find the 5 files with worst coverage (account for header/footer)
+clp list | tail -7
 ```
 
 ### Detailed File Investigation
@@ -787,7 +792,7 @@ clp -S true
 clp -S true -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
-clp list  # Stale files marked with !
+clp list  # Stale column shows M/T/L/E markers
 ```
 
 ### Source Code Display

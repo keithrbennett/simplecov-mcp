@@ -9,7 +9,7 @@ backgroundColor: #fff
 color: #333
 ---
 
-# SimpleCovMCP
+# CovLoupe
 ### MCP Server, CLI, and Library for SimpleCov Ruby Test Coverage 
 
 - Keith Bennett
@@ -59,7 +59,7 @@ This code base requires a Ruby version >= 3.2.0, because this is required by the
 
 ```bash
 # Test the MCP server manually
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | cov-loupe -m mcp
 ```
 
 **What AI agents can do:**
@@ -73,12 +73,13 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 
 | Tool                      | Purpose                    | Example CLI Command                                  |
 |---------------------------|----------------------------|------------------------------------------------------|
-| `list_coverage_tool` | Project-wide coverage data | `cov-loupe list`                                 |
+| `list_tool` | Project-wide coverage data | `cov-loupe list`                                 |
 | `coverage_detailed_tool`  | Per-line hit counts        | `cov-loupe detailed lib/cov_loupe/model.rb`  |
 | `coverage_raw_tool`       | Raw SimpleCov lines array  | `cov-loupe raw lib/cov_loupe/model.rb`       |
 | `coverage_summary_tool`   | Get coverage % for a file  | `cov-loupe summary lib/cov_loupe/model.rb`   |
 | `coverage_table_tool`     | Formatted coverage table   | `cov-loupe list`                                 |
 | `coverage_totals_tool`    | Aggregated line totals     | `cov-loupe totals`                               |
+| `validate_tool`           | Validate coverage policy   | `cov-loupe validate coverage_policy.rb`          |
 | `help_tool`               | Tool usage guidance        | `cov-loupe --help`                               |
 | `uncovered_lines_tool`    | Find missing test coverage | `cov-loupe uncovered lib/cov_loupe/cli.rb`   |
 | `version_tool`            | Display version info       | `cov-loupe version`                              |
@@ -89,14 +90,14 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 ### 
 
 ```bash
-# Show all files, worst coverage first
+# Show all files, best coverage first
 cov-loupe
 
 # Focus on a specific file
 cov-loupe summary lib/cov_loupe/cli.rb
 
 # Find untested lines with source context
-cov-loupe uncovered lib/cov_loupe/cli.rb --source=uncovered --source-context 3
+cov-loupe uncovered lib/cov_loupe/cli.rb --source=uncovered --context-lines 3
 
 # JSON for scripts
 cov-loupe -fJ | jq '.files[] | select(.percentage < 80)'
@@ -124,7 +125,7 @@ cov-loupe --resultset coverage-all/
 cov-loupe --sort-order d
 
 # Staleness checking (file newer than coverage?)
-cov-loupe --staleness error
+cov-loupe --raise-on-stale true
 
 # Track new files missing from coverage
 cov-loupe --tracked-globs "lib/**/tools/*.rb"
@@ -193,12 +194,13 @@ lib/cov_loupe
 ├── path_relativizer.rb
 ├── staleness_checker.rb
 ├── tools
-│ ├── list_coverage_tool.rb
+│ ├── list_tool.rb
 │ ├── coverage_detailed_tool.rb
 │ ├── coverage_raw_tool.rb
 │ ├── coverage_summary_tool.rb
 │ ├── coverage_table_tool.rb
 │ ├── coverage_totals_tool.rb
+│ ├── validate_tool.rb
 │ ├── help_tool.rb
 │ ├── uncovered_lines_tool.rb
 │ └── version_tool.rb

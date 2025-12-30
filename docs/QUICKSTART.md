@@ -26,7 +26,7 @@ This creates `coverage/.resultset.json`.
 cov-loupe
 ```
 
-You'll see a table showing coverage for each file, sorted by lowest coverage first.
+You'll see a table showing coverage for each file, sorted by highest coverage first (lowest at the bottom).
 
 ## Common Commands
 

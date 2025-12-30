@@ -1,1 +1,1 @@
-{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"list_tool","arguments":{"root":"examples/fixtures/demo_project"}}}
+{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"list_tool","arguments":{"root":"docs/fixtures/demo_project"}}}

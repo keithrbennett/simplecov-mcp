@@ -39,15 +39,21 @@ rescue JSON::ParserError => e
 ```ruby
 module CovLoupe::Tools
   class MyTool < BaseTool
-    def self.name = 'my_tool'
-    def self.description = 'What this tool does'
-    
-    def self.call(path:, root: '.', resultset: nil, stale: 'off', error_mode: 'on', **)
-      model = CoverageModel.new(root: root, resultset: resultset, staleness: stale)
-      data = model.my_method_for(path)
-      respond_json(model.relativize(data), name: 'my_tool_output.json')
-    rescue => e
-      handle_mcp_error(e, name, error_mode: error_mode.to_sym)
+    description 'What this tool does'
+    input_schema(**input_schema_def)
+
+    def self.call(path:, root: nil, resultset: nil, raise_on_stale: nil,
+      error_mode: 'log', server_context:)
+      with_error_handling('MyTool', error_mode: error_mode) do
+        model = create_model(
+          server_context: server_context,
+          root: root,
+          resultset: resultset,
+          raise_on_stale: raise_on_stale
+        )
+        data = model.my_method_for(path)
+        respond_json(model.relativize(data), name: 'my_tool_output.json')
+      end
     end
   end
 end
@@ -177,5 +183,5 @@ mkdocs serve
 
 **MCP server testing:**
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
 ```
