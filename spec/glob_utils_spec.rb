@@ -37,6 +37,14 @@ RSpec.describe CovLoupe::GlobUtils do
       normalizer = described_class.fn_normalize_path_separators
       expect(normalizer.call('C:\\tmp\\file.rb')).to eq('C:/tmp/file.rb')
     end
+
+    it 'returns paths unchanged when not running on Windows' do
+      allow(CovLoupe).to receive(:windows?).and_return(false)
+
+      normalizer = described_class.fn_normalize_path_separators
+      expect(normalizer.call('/tmp/file.rb')).to eq('/tmp/file.rb')
+      expect(normalizer.call('lib/foo.rb')).to eq('lib/foo.rb')
+    end
   end
 
   describe '.absolutize_pattern' do

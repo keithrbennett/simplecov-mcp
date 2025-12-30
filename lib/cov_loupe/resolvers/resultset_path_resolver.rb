@@ -67,7 +67,7 @@ module CovLoupe
         return expanded_resultset if valid_resultset_location?(expanded_resultset)
         return expanded_root if valid_resultset_location?(expanded_root)
 
-        return expanded_resultset if PathUtils.within_root?(expanded_resultset, @root)
+        return expanded_resultset if within_root?(expanded_resultset)
 
         expanded_root
       end

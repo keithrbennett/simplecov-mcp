@@ -77,14 +77,15 @@ RSpec.describe CovLoupe::CoverageCLI do
           relative_skipped_files: []
         )
       end
-      let(:model) do
-        instance_double(CovLoupe::CoverageModel, format_table: "table\n", skipped_rows: [])
-      end
 
       before do
         cli.config.format = :table
-        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
-        allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+        # Allow the model to be created naturally, only mock the presenter
+        allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new) do |model:, **_opts|
+          # Stub model methods that are called in show_default_report
+          allow(model).to receive_messages(format_table: "table\n", skipped_rows: [])
+          presenter
+        end
       end
 
       it 'prints the deleted files section in the exclusions summary' do

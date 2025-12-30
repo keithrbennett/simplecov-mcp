@@ -1,1 +1,1 @@
-{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary","arguments":{"path":"lib/foo.rb","root":"examples/fixtures/demo_project"}}}
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/foo.rb","root":"docs/fixtures/demo_project"}}}
