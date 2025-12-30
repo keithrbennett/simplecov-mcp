@@ -529,10 +529,10 @@ end
 
 ## Example Scripts
 
-The [`https://github.com/keithrbennett/cov-loupe/tree/main/examples`](https://github.com/keithrbennett/cov-loupe/tree/main/examples) directory contains runnable scripts:
+The [`examples/`](../../examples/) directory contains runnable scripts:
 
-- **[filter_and_table_demo.rb](https://github.com/keithrbennett/cov-loupe/blob/mainhttps://github.com/keithrbennett/cov-loupe/tree/main/examples/filter_and_table_demo.rb)** - Filter and format coverage data
-- **[success_predicathttps://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/mainhttps://github.com/keithrbennett/cov-loupe/tree/main/examples/success_predicates/)** - Custom coverage policy examples
+- **[filter_and_table_demo.rb](../../examples/filter_and_table_demo.rb)** - Filter and format coverage data
+- **[success_predicates](../../examples/success_predicates/)** - Custom coverage policy examples
 - **[Coverage Delta Tracking recipe in the Library API Guide](LIBRARY_API.md#coverage-delta-tracking)**
 
 ## Related Documentation

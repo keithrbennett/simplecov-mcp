@@ -14,7 +14,7 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 
 1. **Resultset discovery** – The tool locates the `.resultset.json` file by checking a series of default paths or by using a path specified by the user. For a detailed explanation of the configuration options, see the [Configuring the Resultset](../index.md#configuring-the-resultset) section in the main README.
 2. **Parsing and normalization** – `CoverageModel` loads the chosen resultset once, extracts all test suites that expose `coverage` data (e.g., "RSpec", "Minitest"), merges them if multiple suites exist, and maps all file keys to absolute paths anchored at the configured project root. Timestamps are cached for staleness checks.
-3. **Path relativizing** – `PathRelativizer` produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
+3. **Path relativizing** – `PathRelativizer` (powered by the centralized `PathUtils` module) produces relative paths for user-facing payloads without mutating the canonical data. Tool responses pass through `CoverageModel#relativize` before leaving the process.
 4. **Derived metrics** – `CovUtil.summary`, `CovUtil.uncovered`, and `CovUtil.detailed` compute coverage stats from the raw `lines` arrays. `CoverageModel` exposes `summary_for`, `uncovered_for`, `detailed_for`, and `raw_for` helpers that wrap these utilities.
 5. **Staleness detection** – `StalenessChecker` compares source mtimes/line counts to coverage metadata. CLI flags and MCP arguments can promote warnings to hard failures (`--staleness error`) or simply mark rows as stale for display.
 
@@ -67,6 +67,7 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 
 - `lib/cov_loupe/` – Core runtime (model, utilities, error handling, CLI, MCP server, tools).
 - `lib/cov_loupe.rb` – Primary public entry point required by gem consumers.
+- `lib/cov_loupe/path_utils.rb` – Centralized path normalization and expansion logic.
 - `docs/` – Audience-specific guides (`docs/user` for usage, `docs/dev` for contributors).
 - `spec/` – RSpec suite with fixtures under `spec/fixtures/` for deterministic coverage data.
 

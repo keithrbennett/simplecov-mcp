@@ -63,15 +63,15 @@ Specifically:
 
 ### Implementation
 
-Path normalization uses a strategy pattern to minimize runtime branching:
-- A normalization lambda is built once at resolver initialization based on `RUBY_PLATFORM`
-- Windows normalizer: converts backslashes to forward slashes and downcases for case-insensitive matching
-- Unix normalizer: returns path as-is (no conversion needed)
-- All path operations use the injected normalizer without platform checks at the call site
+Path normalization is centralized in the `PathUtils` module (`lib/cov_loupe/path_utils.rb`). It handles:
+- Normalizing path separators (backslashes to forward slashes on Windows)
+- Case normalization for case-insensitive volumes (autodetected or explicit)
+- Path cleaning
 
-This approach keeps the code clean and avoids scattered `if windows?` checks throughout the resolver.
+`CoverageLineResolver` delegates all path normalization to `PathUtils.normalize`, avoiding scattered platform checks and keeping the resolver logic focused on lookup strategies.
 
 ### References
 
-- Implementation: `lib/cov_loupe/resolvers/coverage_line_resolver.rb` (build_path_normalizer method)
+- Implementation: `lib/cov_loupe/resolvers/coverage_line_resolver.rb` (delegates to `PathUtils`)
+- Central Logic: `lib/cov_loupe/path_utils.rb`
 - Related tests removed: `spec/resolvers/coverage_line_resolver_spec.rb` (cross-OS separator normalization context)
