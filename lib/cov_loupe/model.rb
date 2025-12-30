@@ -183,8 +183,9 @@ module CovLoupe
 
     private def build_list_rows(tracked_globs:, raise_on_stale:)
       coverage_lines_by_path = {}
-      rows = @cov.filter_map do |abs_path, _data|
-        coverage_lines = coverage_lines_for_listing(abs_path, raise_on_stale)
+      rows = @cov.filter_map do |abs_path, entry|
+        # Extract lines directly from the entry to avoid O(n^2) resolver scans
+        coverage_lines = coverage_lines_for_listing(abs_path, entry, raise_on_stale)
         next unless coverage_lines
 
         coverage_lines_by_path[abs_path] = coverage_lines
@@ -204,7 +205,13 @@ module CovLoupe
       [filter_rows_by_globs(rows, tracked_globs), coverage_lines_by_path]
     end
 
-    private def coverage_lines_for_listing(abs_path, raise_on_stale)
+    private def coverage_lines_for_listing(abs_path, entry, raise_on_stale)
+      # Try to extract lines directly from the entry (O(1) operation)
+      # Only fall back to resolver if the entry is malformed
+      lines = extract_lines_from_entry(entry)
+      return lines if lines
+
+      # Fallback to resolver for malformed entries
       Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path, root: @root,
         volume_case_sensitive: volume_case_sensitive)
     rescue FileError, CoverageDataError => e
@@ -321,6 +328,18 @@ module CovLoupe
           'stale' => stale_count
         }
       }
+    end
+
+    # Extract coverage lines from a SimpleCov entry.
+    # Returns nil if the entry is not a valid Hash or does not contain a lines array.
+    #
+    # @param entry [Hash, Object] coverage entry from the resultset
+    # @return [Array<Integer, nil>, nil] SimpleCov-style line coverage array or nil
+    private def extract_lines_from_entry(entry)
+      return unless entry.is_a?(Hash)
+
+      lines = entry['lines']
+      lines.is_a?(Array) ? lines : nil
     end
   end
 end
