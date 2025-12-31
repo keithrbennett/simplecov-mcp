@@ -134,6 +134,20 @@ If a project grows large enough that coverage analysis becomes a memory bottlene
 
 [⬆ Back to top](#table-of-contents)
 
+### Model Cache Digest Reads
+
+The MCP model cache computes an MD5 digest of the resultset file on each fetch. This can look like unnecessary file I/O, but it is intentional.
+
+**Why this is acceptable:**
+
+1. **Correctness over metadata shortcuts** – mtime/size/inode can miss changes (e.g., clock skew, restored files, or filesystem quirks). Hashing is the only reliable way to guarantee the content is unchanged.
+2. **Cheaper than parsing** – reading and hashing the file is far faster than parsing JSON into memory, so the cache still provides meaningful savings.
+3. **Scoped to MCP usage** – this path is used for repeated MCP tool calls where avoiding full parsing is the main goal.
+
+**Guidance:** Do not flag this as a performance defect; it is a deliberate tradeoff for correctness.
+
+[⬆ Back to top](#table-of-contents)
+
 ## Code Quality & Style
 
 ### RuboCop Metrics Cops Disabled
