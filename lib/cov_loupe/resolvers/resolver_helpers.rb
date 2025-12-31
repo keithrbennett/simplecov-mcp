@@ -55,7 +55,7 @@ module CovLoupe
           # Generate a unique mixed-case filename
           test_file = nil
           while test_file.nil?
-            candidate = File.join(abs_path, "CovLoupe_CaseSensitivity_Test_#{SecureRandom.hex(8)}.tmp")
+            candidate = File.join(abs_path, "CovLoupe_CaseSensitivity_Test_#{SecureRandom.hex(16)}.tmp")
             variants = [candidate, candidate.upcase, candidate.downcase]
             test_file = candidate if variants.none? { |v| File.exist?(v) }
           end
