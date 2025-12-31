@@ -33,7 +33,10 @@ module CovLoupe
           # 2. Load the data
           loaded_data = load_data
 
-          # 3. Normalize keys to absolute paths
+          # 3. Detect volume case sensitivity from project root
+          @volume_case_sensitive = detect_volume_case_sensitivity
+
+          # 4. Normalize keys to absolute paths
           @coverage_map = normalize_paths(loaded_data.coverage_map)
           @timestamp = loaded_data.timestamp
         rescue CovLoupe::Error
@@ -51,6 +54,22 @@ module CovLoupe
         ResultsetLoader.load(resultset_path: @resultset_path, logger: @logger)
       end
 
+      # Detects volume case sensitivity from the project root directory.
+      # Uses @root because coverage map keys are paths to source files in the project.
+      #
+      # Falls back to assuming case-insensitive if @root doesn't exist (test scenarios)
+      # or isn't accessible. This conservative fallback catches more potential collisions.
+      #
+      # @return [Boolean] true if volume is case-sensitive
+      private def detect_volume_case_sensitivity
+        return false unless File.directory?(@root)
+
+        Resolvers::ResolverHelpers.volume_case_sensitive?(@root)
+      rescue SystemCallError, IOError
+        # Can't detect from filesystem, assume case-insensitive to be conservative
+        false
+      end
+
       # Normalizes all coverage map keys to absolute paths and detects collisions.
       #
       # This method transforms relative and mixed-case paths to their canonical absolute
@@ -58,8 +77,12 @@ module CovLoupe
       # "/full/path/lib/foo.rb"), this indicates corrupt or problematic coverage data that
       # would otherwise silently overwrite earlier entries.
       #
+      # On case-insensitive volumes, paths that differ only in case (e.g., "Foo.rb" and
+      # "foo.rb") are detected as collisions. The original case is preserved in stored keys
+      # for correct display in error messages and reports.
+      #
       # @param map [Hash] Original coverage map with potentially relative/mixed keys
-      # @return [Hash] Normalized coverage map with absolute path keys
+      # @return [Hash] Normalized coverage map with absolute path keys (preserving original case)
       # @raise [CoverageDataError] If duplicate keys normalize to the same path
       private def normalize_paths(map)
         return {} unless map
@@ -68,12 +91,25 @@ module CovLoupe
         # Track which original keys map to each normalized key to detect collisions
         # Example: { "/abs/path/lib/foo.rb" => ["lib/foo.rb", "/abs/path/lib/foo.rb"] }
         provided_paths_by_normalized_path = Hash.new { |h, k| h[k] = [] }
+        # Track the expanded (but not case-normalized) key for storage
+        # Example: { "/abs/path/lib/foo.rb" => "/full/path/lib/foo.rb" }
+        expanded_by_normalized = {}
 
         # First pass: normalize all keys and track the mapping
         map.each do |original_key, value|
-          normalized_key = PathUtils.expand(original_key, @root)
+          # Expand to absolute path first
+          expanded_key = PathUtils.expand(original_key, @root)
+
+          # Then apply case normalization for collision detection only
+          normalized_key = PathUtils.normalize(
+            expanded_key,
+            normalize_case: !@volume_case_sensitive
+          )
+
           provided_paths_by_normalized_path[normalized_key] << original_key
-          result[normalized_key] = value
+          # Store using expanded key (preserves original case) for display purposes
+          expanded_by_normalized[normalized_key] ||= expanded_key
+          result[expanded_by_normalized[normalized_key]] = value
         end
 
         # Second pass: detect collisions (any normalized key with multiple original keys)

@@ -136,6 +136,98 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
           end
         end
       end
+
+      # Tests that case-only variations are detected as collisions on case-insensitive volumes.
+      # On macOS/Windows, "Foo.rb" and "foo.rb" refer to the same file and should be
+      # detected as a collision to prevent duplicate entries in coverage reports.
+      context 'with case-only path collision on case-insensitive volume' do
+        let(:foo_path_lower) { File.join(root, 'lib', 'foo.rb') }
+        let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
+
+        before do
+          # Mock volume_case_sensitive? to return false (case-insensitive)
+          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
+            .and_return(false)
+
+          # Simulate a resultset with paths that differ only in case
+          coverage_data = {
+            foo_path_lower => { 'lines' => [1, 0, nil, 2] },
+            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
+          }
+          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+        end
+
+        it 'raises CoverageDataError detecting case collision' do
+          expect { repo }.to raise_error(CovLoupe::CoverageDataError,
+            /Duplicate paths detected after normalization/)
+        end
+
+        it 'includes both original case variants in the error message' do
+          expect { repo }.to raise_error(CovLoupe::CoverageDataError) do |error|
+            expect(error.message).to include('foo.rb')
+            expect(error.message).to include('Foo.rb')
+          end
+        end
+      end
+
+      # Tests that case-only collisions are NOT detected on case-sensitive volumes.
+      # On Linux and other case-sensitive systems, "Foo.rb" and "foo.rb" are distinct files
+      # and should not be treated as collisions.
+      context 'with case-only path differences on case-sensitive volume' do
+        let(:foo_path_lower) { File.join(root, 'lib', 'foo.rb') }
+        let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
+
+        before do
+          # Mock volume_case_sensitive? to return true (case-sensitive)
+          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
+            .and_return(true)
+
+          # Simulate a resultset with paths that differ only in case
+          coverage_data = {
+            foo_path_lower => { 'lines' => [1, 0, nil, 2] },
+            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
+          }
+          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+        end
+
+        it 'does not raise an error for case-only differences' do
+          expect { repo }.not_to raise_error
+        end
+
+        it 'preserves both entries in the coverage map' do
+          expect(repo.coverage_map).to have_key(foo_path_lower)
+          expect(repo.coverage_map).to have_key(foo_path_upper)
+          expect(repo.coverage_map.size).to be >= 2
+        end
+
+        it 'preserves the original case in coverage map keys' do
+          expect(repo.coverage_map.keys).to include(foo_path_lower, foo_path_upper)
+        end
+      end
+
+      # Tests that original case is preserved in coverage map keys even when
+      # collision detection uses case normalization.
+      context 'with mixed-case paths on case-insensitive volume without collisions' do
+        let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
+
+        before do
+          # Mock volume_case_sensitive? to return false (case-insensitive)
+          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
+            .and_return(false)
+
+          # Simulate a resultset with a single mixed-case path
+          coverage_data = {
+            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
+          }
+          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+        end
+
+        it 'preserves the original case in the coverage map key' do
+          expect(repo.coverage_map).to have_key(foo_path_upper)
+          # Verify it's not downcased
+          expect(repo.coverage_map.keys.grep(/Foo\.rb/)).not_to be_empty
+        end
+      end
     end
   end
 end
