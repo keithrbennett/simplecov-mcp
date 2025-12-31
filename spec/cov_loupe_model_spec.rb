@@ -36,13 +36,13 @@ RSpec.describe CovLoupe::CoverageModel do
       end.to raise_error(CovLoupe::FileError, /No coverage data found for file/)
     end
 
-    it 'raises FileError when lookup_lines raises RuntimeError' do
+    it 'allows FileError from lookup_lines to propagate' do
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .and_raise(RuntimeError, 'Could not find coverage data')
+        .and_raise(CovLoupe::FileError, 'No coverage entry found for lib/some_file.rb')
 
       expect do
         model.summary_for('lib/some_file.rb')
-      end.to raise_error(CovLoupe::FileError, /No coverage data found for file/)
+      end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
     end
 
     it 'raises FileNotFoundError when check_file! raises ENOENT' do

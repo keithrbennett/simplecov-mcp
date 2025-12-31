@@ -324,18 +324,20 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'resolve method error handling' do
-    it 'converts RuntimeError from lookup_lines to FileError' do
-      # This exercises the RuntimeError rescue clause in the resolve method
+    it 'allows FileError from lookup_lines to propagate with detailed message' do
+      # Resolver raises FileError with detailed messages (e.g., basename collisions, not found)
+      # The model should let these propagate to preserve helpful diagnostics
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
-      # Mock lookup_lines to raise RuntimeError for a specific file
+      # Mock lookup_lines to raise FileError with a detailed message
+      error_message = 'Multiple coverage entries match basename foo.rb: lib/foo.rb, test/foo.rb'
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .and_raise(RuntimeError.new('Unexpected runtime error during lookup'))
+        .and_raise(CovLoupe::FileError.new(error_message))
 
       expect do
         model.summary_for('nonexistent_file.rb')
       end.to raise_error(CovLoupe::FileError) do |error|
-        expect(error.message).to include('No coverage data found for file')
+        expect(error.message).to include('Multiple coverage entries match basename')
       end
     end
   end

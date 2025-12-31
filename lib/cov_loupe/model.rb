@@ -287,12 +287,8 @@ module CovLoupe
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.expand_path(path, @root)
-      begin
-        coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
-          volume_case_sensitive: volume_case_sensitive)
-      rescue RuntimeError
-        raise FileError, "No coverage data found for file: #{path}"
-      end
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
+        volume_case_sensitive: volume_case_sensitive)
 
       if coverage_lines.nil?
         raise FileError, "No coverage data found for file: #{path}"
