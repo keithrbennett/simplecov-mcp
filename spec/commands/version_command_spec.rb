@@ -33,6 +33,12 @@ RSpec.describe CovLoupe::Commands::VersionCommand do
       end
     end
 
+    it 'rejects extra arguments' do
+      expect do
+        command.execute(['unexpected'])
+      end.to raise_error(CovLoupe::UsageError, /Unexpected argument.*unexpected/)
+    end
+
     it_behaves_like 'a command with formatted output', [], %w[version gem_root]
   end
 end

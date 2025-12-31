@@ -35,6 +35,9 @@ module CovLoupe
           code = file_path
         end
 
+        # Ensure no extra arguments remain
+        reject_extra_args(args, 'validate')
+
         # Evaluate the predicate
         result = if inline_mode
           PredicateEvaluator.evaluate_code(code, model)

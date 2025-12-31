@@ -62,5 +62,11 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
       it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
         { 'file' => 'lib/foo.rb', 'summary' => nil, 'stale' => 'L' }
     end
+
+    it 'rejects extra arguments after path' do
+      expect do
+        command.execute(['lib/foo.rb', 'extra', 'args'])
+      end.to raise_error(CovLoupe::UsageError, /Unexpected argument.*extra args/)
+    end
   end
 end

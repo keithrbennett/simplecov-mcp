@@ -160,7 +160,11 @@ module CovLoupe
                           -c --context-lines -S --raise-on-stale -g --tracked-globs
                           -l --log-file --error-mode --color]
 
-      misplaced = args.select { |arg| global_options.include?(arg) }
+      misplaced = args.select do |arg|
+        # Extract base option (e.g., --format from --format=json)
+        base = arg.split('=', 2).first
+        global_options.include?(base)
+      end
       return if misplaced.empty?
 
       option_list = misplaced.join(', ')

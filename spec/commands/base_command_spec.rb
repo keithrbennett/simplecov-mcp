@@ -94,13 +94,23 @@ RSpec.describe CovLoupe::Commands::BaseCommand do
       end
 
       it 'shifts the path from args' do
-        args = %w[lib/foo.rb extra args]
+        args = %w[lib/foo.rb]
 
         test_command.public_handle_with_path(args, 'test') do |_path|
           # Block execution
         end
 
-        expect(args).to eq(%w[extra args])
+        expect(args).to be_empty
+      end
+
+      it 'rejects extra arguments after path' do
+        args = %w[lib/foo.rb extra args]
+
+        expect do
+          test_command.public_handle_with_path(args, 'test') do |_path|
+            # Should not reach here
+          end
+        end.to raise_error(CovLoupe::UsageError, /Unexpected argument.*extra args/)
       end
     end
   end

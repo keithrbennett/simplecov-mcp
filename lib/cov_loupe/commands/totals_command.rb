@@ -8,9 +8,7 @@ module CovLoupe
   module Commands
     class TotalsCommand < BaseCommand
       def execute(args)
-        unless args.empty?
-          raise UsageError.for_subcommand('totals')
-        end
+        reject_extra_args(args, 'totals')
 
         presenter = Presenters::ProjectTotalsPresenter.new(
           model: model,

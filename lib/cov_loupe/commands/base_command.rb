@@ -25,11 +25,21 @@ module CovLoupe
 
       protected def handle_with_path(args, name)
         path = args.shift or raise UsageError.for_subcommand("#{name} <path>")
+        reject_extra_args(args, name)
         yield(path)
       rescue Errno::ENOENT
         raise FileNotFoundError, "File not found: #{path}"
       rescue Errno::EACCES
         raise FilePermissionError, "Permission denied: #{path}"
+      end
+
+      # Validates that no unexpected arguments remain after parsing.
+      # Raises UsageError if extra args are present.
+      protected def reject_extra_args(args, command_name)
+        return if args.empty?
+
+        extra = args.join(' ')
+        raise UsageError, "Unexpected argument(s) for '#{command_name}': #{extra}"
       end
 
       protected def maybe_output_structured_format?(obj, model)

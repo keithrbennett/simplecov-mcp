@@ -7,7 +7,8 @@ require_relative '../table_formatter'
 module CovLoupe
   module Commands
     class VersionCommand < BaseCommand
-      def execute(_args)
+      def execute(args)
+        reject_extra_args(args, 'version')
         @gem_root = File.expand_path('../../..', __dir__)
 
         if config.format == :table

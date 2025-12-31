@@ -23,6 +23,12 @@ RSpec.describe CovLoupe::Commands::ListCommand do
       end
     end
 
+    it 'rejects extra arguments' do
+      expect do
+        command.execute(['extra', 'args'])
+      end.to raise_error(CovLoupe::UsageError, /Unexpected argument.*extra args/)
+    end
+
     it_behaves_like 'a command with formatted output', [], %w[files counts]
   end
 end
