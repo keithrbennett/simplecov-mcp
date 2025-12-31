@@ -96,6 +96,47 @@ RSpec.describe CovLoupe::CoverageModel do
       # Should report both files as newer when no filtering is applied
       expect(result['newer_files']).to include('lib/foo.rb', 'lib/bar.rb')
     end
+
+    it 'only checks length mismatches for files matching tracked_globs' do
+      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 3 lines)
+      # and accurate coverage for foo.rb (actual: 6 lines, coverage: 6 lines)
+      mismatched_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0] } # Wrong length!
+      }
+      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: mismatched_coverage)
+
+      # Only track foo.rb - bar.rb's length mismatch should be ignored
+      model = described_class.new(root: root, raise_on_stale: false)
+      result = model.list(tracked_globs: ['lib/foo.rb'])
+
+      # bar.rb should not appear in the results at all since it's outside tracked_globs
+      expect(result['files'].map { |f| f['file'] }).to eq([File.join(root, 'lib', 'foo.rb')])
+      # foo.rb should not be marked as stale (no mismatch, and timestamp is current)
+      foo_row = result['files'].find { |f| f['file'] == File.join(root, 'lib', 'foo.rb') }
+      expect(foo_row['stale']).to be false
+    end
+
+    it 'raises error for length mismatch only when file is in tracked_globs scope' do
+      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 3 lines)
+      # and accurate coverage for foo.rb (actual: 6 lines, coverage: 6 lines)
+      mismatched_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0] } # Wrong length!
+      }
+      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: mismatched_coverage)
+
+      # When tracking only foo.rb with raise_on_stale, bar.rb's mismatch should be ignored
+      model = described_class.new(root: root, raise_on_stale: true)
+      expect { model.list(tracked_globs: ['lib/foo.rb']) }.not_to raise_error
+
+      # When tracking bar.rb with raise_on_stale, the length mismatch should raise
+      expect do
+        model.list(tracked_globs: ['lib/bar.rb'])
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError) { |error|
+        expect(error.length_mismatch_files).to include('lib/bar.rb')
+      }
+    end
   end
 
   describe 'timestamp normalization' do

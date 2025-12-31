@@ -230,9 +230,14 @@ module CovLoupe
       # Filter coverage files to match the same scope as tracked_globs
       coverage_files = GlobUtils.filter_paths(@cov.keys, tracked_globs, root: @root)
 
+      # Filter coverage_lines_by_path to the same scope to ensure length-mismatch
+      # checks only apply to files within the tracked_globs scope
+      coverage_files_set = coverage_files.to_set
+      scoped_coverage_lines = coverage_lines_by_path.slice(*coverage_files_set)
+
       build_staleness_checker(
         raise_on_stale: raise_on_stale, tracked_globs: tracked_globs
-      ).check_project_with_lines!(coverage_lines_by_path, coverage_files: coverage_files)
+      ).check_project_with_lines!(scoped_coverage_lines, coverage_files: coverage_files)
     end
 
     private def prepare_rows(rows, sort_order:, raise_on_stale:, tracked_globs:)
