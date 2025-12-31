@@ -38,6 +38,11 @@
   - **Special cases**: Correctly handles case-sensitive APFS volumes (macOS formatted with `-s`) and external drives
   - **Limitation**: All coverage files are assumed to be on the same volume as the project root. Mixed-volume coverage data (e.g., files from both case-sensitive and case-insensitive volumes) is not supported.
   - **Why**: A filesystem type (APFS, ext4, NTFS) can have multiple volumes with different case-sensitivity settings. Platform assumptions are insufficient. Runtime detection is the only accurate approach.
+- **Stricter staleness detection for line count mismatches**: Removed the trailing newline adjustment heuristic that could mask legitimate code additions (false negatives). Previously, if a file's line count was exactly one more than the coverage data and the file was missing a trailing newline, the staleness checker would adjust the count and report the file as fresh. This heuristic was risky because it couldn't distinguish between a harmless missing newline and a developer adding a line of code while simultaneously removing the trailing newline. All line count mismatches are now treated as significant staleness indicators.
+  - **Old**: File with 101 lines (no trailing newline) matching 100 coverage lines → reported as fresh (adjusted)
+  - **New**: File with 101 lines matching 100 coverage lines → reported as stale (length mismatch)
+  - **Impact**: More conservative staleness detection may flag some files that were previously considered fresh. This is intentional to prevent false negatives.
+  - **Rationale**: Prioritizes accuracy over convenience. Better to flag a file as stale and re-run tests than to miss actual code changes.
 
 ### ✨ Enhancements
 
