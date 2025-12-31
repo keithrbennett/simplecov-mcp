@@ -35,6 +35,16 @@ RSpec.describe CovLoupe::CoverageCLI do
 
       before do
         cli.config.format = :table
+
+        # Make the entry malformed for foo.rb so it falls back to the resolver
+        # This needs to be done after the model is created, so we'll use a callback
+        allow(CovLoupe::CoverageModel).to receive(:new).and_wrap_original do |method, **kwargs|
+          model = method.call(**kwargs)
+          cov = model.instance_variable_get(:@cov)
+          cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+          model
+        end
+
         allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original \
         do |method, coverage_map, abs_path, **kwargs|
           raise CovLoupe::CoverageDataError, 'corrupt data' if abs_path == foo_path

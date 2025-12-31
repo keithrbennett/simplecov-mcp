@@ -225,6 +225,11 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         logger: mock_logger)
 
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
       # Mock lookup_lines to raise FileError for one specific file
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
@@ -256,6 +261,11 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         logger: mock_logger)
 
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'), any_args)
@@ -279,6 +289,11 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'raises FileError when raise_on_stale is true and file lookup fails' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
         .with(anything, include('/lib/foo.rb'), any_args)
@@ -291,6 +306,11 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
     it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)

@@ -130,6 +130,10 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'records skipped rows when coverage data errors occur' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      cov = model.instance_variable_get(:@cov)
+      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
+
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
         |method, coverage_map, absolute, **kwargs|
         if absolute == abs_foo
@@ -206,6 +210,10 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'includes excluded_files metadata when files are skipped' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      cov = model.instance_variable_get(:@cov)
+      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
+
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
         |method, coverage_map, absolute, **kwargs|
         if absolute == abs_foo
@@ -226,6 +234,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
     it 'includes all exclusion types in metadata when raise_on_stale is false' do
       abs_foo = File.expand_path('lib/foo.rb', root)
+
+      # Make the entry malformed for foo.rb so it falls back to the resolver
+      cov = model.instance_variable_get(:@cov)
+      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
 
       # Stub one file to be skipped
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
