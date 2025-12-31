@@ -77,7 +77,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         .and_return(StringIO.new(malformed_resultset.to_json))
 
       broken_map = instance_double('CoverageMap')
-      allow(broken_map).to receive(:transform_keys)
+      allow(broken_map).to receive(:each)
         .and_raise(NoMethodError.new("undefined method `upcase' for nil:NilClass"))
       allow(CovLoupe::ResultsetLoader).to receive(:load).and_return(
         CovLoupe::ResultsetLoader::Result.new(coverage_map: broken_map,

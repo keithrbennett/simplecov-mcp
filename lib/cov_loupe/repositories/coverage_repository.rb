@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'json'
 require_relative '../resolvers/resolver_helpers'
 require_relative '../resultset_loader'
 require_relative '../errors'
@@ -50,10 +51,57 @@ module CovLoupe
         ResultsetLoader.load(resultset_path: @resultset_path, logger: @logger)
       end
 
+      # Normalizes all coverage map keys to absolute paths and detects collisions.
+      #
+      # This method transforms relative and mixed-case paths to their canonical absolute
+      # form. If multiple original keys normalize to the same path (e.g., "lib/foo.rb" and
+      # "/full/path/lib/foo.rb"), this indicates corrupt or problematic coverage data that
+      # would otherwise silently overwrite earlier entries.
+      #
+      # @param map [Hash] Original coverage map with potentially relative/mixed keys
+      # @return [Hash] Normalized coverage map with absolute path keys
+      # @raise [CoverageDataError] If duplicate keys normalize to the same path
       private def normalize_paths(map)
         return {} unless map
 
-        map.transform_keys { |k| PathUtils.expand(k, @root) }
+        result = {}
+        # Track which original keys map to each normalized key to detect collisions
+        # Example: { "/abs/path/lib/foo.rb" => ["lib/foo.rb", "/abs/path/lib/foo.rb"] }
+        provided_paths_by_normalized_path = Hash.new { |h, k| h[k] = [] }
+
+        # First pass: normalize all keys and track the mapping
+        map.each do |original_key, value|
+          normalized_key = PathUtils.expand(original_key, @root)
+          provided_paths_by_normalized_path[normalized_key] << original_key
+          result[normalized_key] = value
+        end
+
+        # Second pass: detect collisions (any normalized key with multiple original keys)
+        collisions = provided_paths_by_normalized_path.select do |_norm_key, orig_keys|
+          orig_keys.size > 1
+        end
+
+        collisions.empty? ? result : raise_collision_error(collisions)
+      end
+
+      # Raises a CoverageDataError with details about path normalization collisions.
+      #
+      # Formats collision data as parseable JSON with each collision on one line:
+      #   {
+      #     "/full/path/lib/foo.rb": ["lib/foo.rb", "/full/path/lib/foo.rb"],
+      #     "/full/path/lib/bar.rb": ["lib/bar.rb", "/full/path/lib/bar.rb"]
+      #   }
+      #
+      # @param collisions [Hash] Map of normalized paths to arrays of original keys
+      # @raise [CoverageDataError] Always raises with formatted collision details
+      private def raise_collision_error(collisions)
+        json_lines = collisions.map do |norm_key, orig_keys|
+          "  #{JSON.generate(norm_key)}: #{JSON.generate(orig_keys)}"
+        end
+        details = "{\n#{json_lines.join(",\n")}\n}"
+
+        raise CoverageDataError,
+          "Duplicate paths detected after normalization. The following keys normalize to the same path:\n#{details}"
       end
     end
   end
