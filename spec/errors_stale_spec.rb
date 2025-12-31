@@ -121,21 +121,5 @@ RSpec.describe CovLoupe::CoverageDataStaleError do
 
       it_behaves_like 'raises FilePermissionError with descriptive message'
     end
-
-    context 'when file is unreadable during trailing newline check' do
-      let(:coverage_lines) { [1, 1, 1] }
-
-      before do
-        FileUtils.mkdir_p(File.dirname(file))
-        # Coverage has 3 lines, file has 4 lines -> triggers missing_trailing_newline? check
-        File.write(file, "line1\nline2\nline3\nline4")
-        # Mock File.open to simulate permission denied for trailing newline check
-        allow(File).to receive(:open).and_call_original
-        allow(File).to receive(:open).with(file, 'rb')
-          .and_raise(Errno::EACCES.new('Permission denied'))
-      end
-
-      it_behaves_like 'raises FilePermissionError with descriptive message'
-    end
   end
 end

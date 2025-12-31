@@ -191,22 +191,6 @@ module CovLoupe
       0
     end
 
-    private def missing_trailing_newline?(path)
-      return false unless File.file?(path)
-
-      File.open(path, 'rb') do |f|
-        size = f.size
-        return false if size.zero?
-
-        f.seek(-1, IO::SEEK_END)
-        f.getbyte != 0x0A
-      end
-    rescue Errno::EACCES => e
-      raise FilePermissionError.new("Permission denied reading file: #{rel(path)}", e)
-    rescue
-      false
-    end
-
     private def rel(path)
       # Handle relative vs absolute path mismatches that cause ArgumentError
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
@@ -227,16 +211,8 @@ module CovLoupe
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
       src_len = exists ? safe_count_lines(file_abs) : 0
 
-      # Adjust source line count to handle edge cases with missing trailing newlines
-      adjusted_src_len = adjust_line_count_for_missing_newline(
-        file_abs: file_abs,
-        exists: exists,
-        cov_len: cov_len,
-        src_len: src_len
-      )
-
       # Check if the source file has been modified since coverage was generated
-      len_mismatch = length_mismatch?(cov_len, adjusted_src_len)
+      len_mismatch = length_mismatch?(cov_len, src_len)
       newer = check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch)
 
       {
@@ -250,38 +226,6 @@ module CovLoupe
       }
     end
 
-    # Adjusts the source line count to account for files missing trailing newlines.
-    #
-    # Why this edge case exists:
-    # - File.foreach counts lines by separator (typically \n)
-    # - For a file with no trailing newline, File.foreach still counts all lines correctly
-    # - However, some editors or file operations may report one extra line when checking
-    #   if the file doesn't end with a newline
-    # - SimpleCov's coverage array length matches the logical line count (excluding trailing newline)
-    # - If src_len is exactly one more than cov_len AND the file is missing a trailing newline,
-    #   we adjust src_len down by 1 to match SimpleCov's convention
-    #
-    # Example: A file with "line1\nline2\nline3" (no final \n)
-    # - File.foreach counts: 3 lines
-    # - SimpleCov coverage array length: 3
-    # - No adjustment needed
-    #
-    # However, in certain edge cases where the file system or parsing reports an extra line:
-    # - Reported line count: 4
-    # - SimpleCov coverage array length: 3
-    # - Missing trailing newline: true
-    # - Adjustment: 4 - 1 = 3 (now matches)
-    private def adjust_line_count_for_missing_newline(file_abs:, exists:, cov_len:, src_len:)
-      # Only adjust if:
-      # 1. File exists (can't check newlines for missing files)
-      # 2. Coverage data is present (cov_len > 0)
-      # 3. Source has exactly one more line than coverage
-      # 4. File is missing a trailing newline
-      needs_adjusting =
-        exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
-      needs_adjusting ? src_len - 1 : src_len
-    end
-
     # Checks if the source line count differs from the coverage line count.
     #
     # Why this check exists:
@@ -291,8 +235,8 @@ module CovLoupe
     #
     # Note: Empty coverage (cov_len == 0) is not considered a mismatch, as it may represent
     # files that were never executed or files that are legitimately empty.
-    private def length_mismatch?(cov_len, adjusted_src_len)
-      cov_len.positive? && adjusted_src_len != cov_len
+    private def length_mismatch?(cov_len, src_len)
+      cov_len.positive? && src_len != cov_len
     end
 
     # Determines if a file has been modified more recently than the coverage timestamp.

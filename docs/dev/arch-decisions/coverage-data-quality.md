@@ -22,7 +22,7 @@ We needed a staleness detection system that could:
 
 1. Detect when source files have been modified since coverage was collected
 2. Detect when source files have different line counts than coverage data
-3. Handle edge cases (deleted files, files without trailing newlines)
+3. Handle edge cases (deleted files)
 4. Support both file-level and project-level checks
 5. Allow users to control whether staleness is reported or causes errors
 
@@ -56,7 +56,6 @@ The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) d
 
 4. **Type 'L' (Length)**: The source file line count doesn't match the coverage lines array length
    - Detected by comparing `File.foreach(path).count` with `coverage_lines.length`
-   - Handles edge case: Files without trailing newlines (adjusts count by 1)
    - Example: Lines were added/removed without changing mtime (rare but possible with version control)
 
 #### Implementation Details
@@ -74,13 +73,7 @@ def compute_file_staleness_details(file_abs, coverage_lines)
 
   newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
 
-  # Adjust for missing trailing newline edge case
-  adjusted_src_len = src_len
-  if exists && cov_len.positive? && src_len == cov_len + 1 && missing_trailing_newline?(file_abs)
-    adjusted_src_len -= 1
-  end
-
-  len_mismatch = (cov_len.positive? && adjusted_src_len != cov_len)
+  len_mismatch = (cov_len.positive? && src_len != cov_len)
   newer &&= !len_mismatch  # Prioritize length mismatch over timestamp
 
   {
@@ -149,17 +142,15 @@ before merging resultsets.
 #### Positive
 
 1. **Accurate detection**: Three types catch different staleness scenarios comprehensively
-2. **Edge case handling**: Missing trailing newlines handled correctly
-3. **User control**: Modes allow errors or warnings based on use case
-4. **Detailed information**: Staleness errors include specific file lists and timestamps
-5. **Project awareness**: Can detect newly added files that lack coverage
+2. **User control**: Modes allow errors or warnings based on use case
+3. **Detailed information**: Staleness errors include specific file lists and timestamps
+4. **Project awareness**: Can detect newly added files that lack coverage
 
 #### Negative
 
 1. **Complexity**: Three staleness types are harder to understand than a single timestamp check
 2. **Performance**: Line counting and mtime checks for every file add overhead
-3. **Maintenance burden**: Edge case logic (trailing newlines) requires careful testing
-4. **Ambiguity**: When multiple staleness types apply, prioritization logic (length > timestamp) may surprise users
+3. **Ambiguity**: When multiple staleness types apply, prioritization logic (length > timestamp) may surprise users
 
 #### Trade-offs
 
@@ -169,10 +160,9 @@ before merging resultsets.
 
 #### Edge Cases Handled
 
-1. **Missing trailing newline**: Files without `\n` at EOF have `line_count == coverage_length + 1`, checker adjusts for this
-2. **Deleted files**: Appear as 'M' (missing) type staleness
-3. **Empty files**: `cov_len.positive?` guard prevents false positives
-4. **No coverage timestamp**: Defaults to 0, effectively disabling timestamp checks
+1. **Deleted files**: Appear as 'M' (missing) type staleness
+2. **Empty files**: `cov_len.positive?` guard prevents false positives
+3. **No coverage timestamp**: Defaults to 0, effectively disabling timestamp checks
 
 ### References
 
