@@ -76,5 +76,37 @@ RSpec.describe CovLoupe::CoverageCalculator do
       arr = [1]
       expect(described_class.detailed(arr).first['line']).to eq(1)
     end
+
+    it 'includes all lines with 0 hits in the output' do
+      arr = [0, 0, nil, 0]
+      result = described_class.detailed(arr)
+      expect(result).to eq([
+        { 'line' => 1, 'hits' => 0, 'covered' => false },
+        { 'line' => 2, 'hits' => 0, 'covered' => false },
+        { 'line' => 4, 'hits' => 0, 'covered' => false }
+      ])
+    end
+
+    it 'handles consecutive zero-hit lines correctly' do
+      arr = [1, 0, 0, 0, 1]
+      result = described_class.detailed(arr)
+      expect(result.length).to eq(5)
+      expect(result[1..3]).to all(include('hits' => 0, 'covered' => false))
+    end
+
+    it 'coerces string "0" values to integer zero' do
+      arr = ['0', '1', nil, '0']
+      result = described_class.detailed(arr)
+      expect(result).to eq([
+        { 'line' => 1, 'hits' => 0, 'covered' => false },
+        { 'line' => 2, 'hits' => 1, 'covered' => true },
+        { 'line' => 4, 'hits' => 0, 'covered' => false }
+      ])
+    end
+
+    it 'returns empty array for all-nil coverage' do
+      arr = [nil, nil, nil]
+      expect(described_class.detailed(arr)).to eq([])
+    end
   end
 end
