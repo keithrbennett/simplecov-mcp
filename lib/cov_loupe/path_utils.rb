@@ -49,16 +49,16 @@ module CovLoupe
     def self.expand(path, base = nil)
       return path if path.nil? || path.empty?
 
-      # On Windows, only bypass File.expand_path if the path already has a drive letter.
+      # On Windows, only bypass File.expand_path if path already has a drive letter.
       # Paths like "/foo" are considered absolute by absolute? but need File.expand_path
       # to acquire the current drive letter (e.g., "C:/foo").
       if absolute?(path) && (!windows? || path.match?(/^[A-Za-z]:/))
         # Use Pathname#cleanpath to preserve case on Windows, as File.expand_path
         # can sometimes canonicalize case for existing files.
-        return Pathname.new(path).cleanpath.to_s
+        Pathname.new(path).cleanpath.to_s
+      else
+        base ? File.expand_path(path, base) : File.expand_path(path)
       end
-
-      base ? File.expand_path(path, base) : File.expand_path(path)
     end
 
     # Converts an absolute path to a path relative to the given root
@@ -73,8 +73,8 @@ module CovLoupe
       abs_path = absolute?(path) ? expand(path) : expand(path, root)
       abs_root = expand(root)
 
-      # Check if path is within root (handles different drives on Windows)
-      return path unless abs_path.start_with?(root_prefix(abs_root)) || abs_path == abs_root
+      # Check if path is within root using normalized comparison
+      return path unless normalized_start_with?(abs_path, abs_root) || abs_path == abs_root
 
       Pathname.new(abs_path).relative_path_from(Pathname.new(abs_root)).to_s
     rescue ArgumentError
@@ -151,6 +151,32 @@ module CovLoupe
       return '' if root.nil? || root.empty?
 
       root.end_with?(File::SEPARATOR) ? root : "#{root}#{File::SEPARATOR}"
+    end
+
+    # Checks if a path starts with a prefix using normalized comparison
+    # to handle case-insensitive volumes and mixed separators
+    #
+    # @param path [String] path to check
+    # @param prefix [String] prefix to match against
+    # @return [Boolean] true if path starts with prefix (after normalization)
+    def self.normalized_start_with?(path, prefix)
+      return false if path.nil? || prefix.nil? || prefix.empty?
+
+      # Normalize both paths for comparison (case + separators)
+      normalized_path = normalize(path, normalize_case: !volume_case_sensitive?)
+      normalized_prefix = normalize(prefix, normalize_case: !volume_case_sensitive?)
+
+      # Check if normalized path starts with normalized prefix
+      # AND ensure we have proper path boundary (either exact match or followed by separator)
+      return false unless normalized_path.start_with?(normalized_prefix)
+
+      # If exact match, return true
+      return true if normalized_path == normalized_prefix
+
+      # Otherwise, ensure character after prefix is a path separator
+      prefix_length = normalized_prefix.length
+      next_char = normalized_path[prefix_length]
+      ['/', '\\'].include?(next_char)
     end
   end
 end

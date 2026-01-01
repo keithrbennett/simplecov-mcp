@@ -21,7 +21,6 @@ module CovLoupe
         'uncovered' => UncoveredCommand,
         'detailed' => DetailedCommand,
         'totals' => TotalsCommand,
-        'total' => TotalsCommand, # Alias for backward compatibility
         'validate' => ValidateCommand
       }.freeze
 

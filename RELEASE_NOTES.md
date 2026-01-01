@@ -5,6 +5,7 @@
 ## Next
 
 - **Totals exclude stale coverage**: Project totals now omit stale files (`M`, `T`, `L`, `E`) and report new `length_mismatch`/`unreadable` exclusion counts. The list output and CLI exclusions section now surface line-mismatch and unreadable-file metadata as well.
+- **Path relativization cross-platform improvements**: Fixed case-insensitive and mixed-separator path handling in `PathUtils.relativize`. On case-insensitive volumes (Windows, macOS), paths with different casing now correctly match and relativize. Mixed path separators (forward slashes vs backslashes) are also normalized properly before comparison. This resolves inconsistent CLI/MCP output across platforms, particularly for Windows users.
 
 ## v4.0.0 (Breaking)
 
@@ -62,7 +63,7 @@
   - `newer`: Files modified after the coverage run
   - `deleted`: Coverage entries for files that no longer exist
 
-  This addresses a data-correctness issue where totals could appear healthy while silently omitting problematic files. When `raise_on_stale` is enabled, errors are raised immediately as before. When disabled, the exclusion counts provide visibility into partial data.
+  This addresses a data-correctness issue where totals could appear healthy while silently omitting problematic files. When `raise_on_stale` is enabled, errors are raised immediately as before. When disabled, exclusion counts provide visibility into partial data.
 
   **Example output:**
   ```json
