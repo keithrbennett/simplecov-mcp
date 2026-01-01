@@ -370,8 +370,9 @@ RSpec.describe CovLoupe::CoverageModel do
       aggregate_failures do
         # List
         model_with_globs.list
+        # filter_rows_by_globs is called twice: once for files, once for skipped_files
         expect(model_with_globs).to have_received(:filter_rows_by_globs)
-          .with(anything, tracked_globs)
+          .with(anything, tracked_globs).twice
 
         # Project totals (delegates to list with globs)
         expect(model_with_globs).to receive(:list)

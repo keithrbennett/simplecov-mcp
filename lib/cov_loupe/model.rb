@@ -108,7 +108,7 @@ module CovLoupe
 
       {
         'files' => sort_rows(rows, sort_order: sort_order),
-        'skipped_files' => @skipped_rows,
+        'skipped_files' => filter_rows_by_globs(@skipped_rows, tracked_globs),
         'missing_tracked_files' => project_staleness_details[:missing_files],
         'newer_files' => project_staleness_details[:newer_files],
         'deleted_files' => project_staleness_details[:deleted_files]

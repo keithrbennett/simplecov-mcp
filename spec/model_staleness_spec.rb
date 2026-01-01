@@ -137,6 +137,40 @@ RSpec.describe CovLoupe::CoverageModel do
         expect(error.length_mismatch_files).to include('lib/bar.rb')
       }
     end
+
+    context 'with skipped files' do
+      let(:foo_path) { File.join(root, 'lib', 'foo.rb') }
+      let(:bar_path) { File.join(root, 'lib', 'bar.rb') }
+      let(:baz_path) { File.join(root, 'lib', 'baz.rb') }
+      let(:coverage_with_errors) do
+        {
+          foo_path => { 'lines' => [nil, nil, 1, 0, nil, 2] },  # Valid
+          bar_path => 'not_a_hash',  # Malformed - will be skipped
+          baz_path => 'also_malformed'  # Malformed - will be skipped
+        }
+      end
+
+      before do
+        mock_resultset_with_timestamp(root, Time.now.to_i, coverage: coverage_with_errors)
+      end
+
+      it 'only includes skipped files that match tracked_globs' do
+        model = described_class.new(root: root, raise_on_stale: false)
+        result = model.list(tracked_globs: ['lib/foo.rb', 'lib/bar.rb'])
+
+        expect(result['skipped_files'].map { |f| f['file'] }).to eq([bar_path])
+        expect(result['skipped_files']).not_to include(hash_including('file' => baz_path))
+      end
+
+      it 'includes all skipped files when tracked_globs is not specified' do
+        model = described_class.new(root: root, raise_on_stale: false)
+        result = model.list
+
+        skipped_paths = result['skipped_files'].map { |f| f['file'] }
+        expect(skipped_paths).to include(bar_path, baz_path)
+        expect(skipped_paths.length).to eq(2)
+      end
+    end
   end
 
   describe 'timestamp normalization' do
