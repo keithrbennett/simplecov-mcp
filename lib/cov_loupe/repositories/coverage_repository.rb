@@ -117,7 +117,7 @@ module CovLoupe
           orig_keys.size > 1
         end
 
-        collisions.empty? ? result : raise_collision_error(collisions)
+        collisions.empty? ? result : raise_collision_error(collisions, expanded_by_normalized)
       end
 
       # Raises a CoverageDataError with details about path normalization collisions.
@@ -129,10 +129,13 @@ module CovLoupe
       #   }
       #
       # @param collisions [Hash] Map of normalized paths to arrays of original keys
+      # @param expanded_by_normalized [Hash] Map of normalized paths to case-preserved expanded paths
       # @raise [CoverageDataError] Always raises with formatted collision details
-      private def raise_collision_error(collisions)
+      private def raise_collision_error(collisions, expanded_by_normalized)
         json_lines = collisions.map do |norm_key, orig_keys|
-          "  #{JSON.generate(norm_key)}: #{JSON.generate(orig_keys)}"
+          # Use the case-preserved expanded key instead of the normalized key
+          expanded_key = expanded_by_normalized[norm_key]
+          "  #{JSON.generate(expanded_key)}: #{JSON.generate(orig_keys)}"
         end
         details = "{\n#{json_lines.join(",\n")}\n}"
 
