@@ -49,7 +49,10 @@ module CovLoupe
     def self.expand(path, base = nil)
       return path if path.nil? || path.empty?
 
-      if absolute?(path)
+      # On Windows, only bypass File.expand_path if the path already has a drive letter.
+      # Paths like "/foo" are considered absolute by absolute? but need File.expand_path
+      # to acquire the current drive letter (e.g., "C:/foo").
+      if absolute?(path) && (!windows? || path.match?(/^[A-Za-z]:/))
         # Use Pathname#cleanpath to preserve case on Windows, as File.expand_path
         # can sometimes canonicalize case for existing files.
         return Pathname.new(path).cleanpath.to_s
