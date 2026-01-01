@@ -104,12 +104,13 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       expect(config.mode).to eq(:cli)
     end
 
-    it 'handles parse errors gracefully' do
+    it 'raises ConfigurationError for parse errors' do
       ENV['COV_LOUPE_OPTS'] = '--option "unclosed quote'
 
-      # Should return empty array and not crash
-      opts = CovLoupe.send(:extract_env_opts)
-      expect(opts).to eq([])
+      # Should raise ConfigurationError instead of silently ignoring
+      expect do
+        CovLoupe.send(:extract_env_opts)
+      end.to raise_error(CovLoupe::ConfigurationError, /Invalid COV_LOUPE_OPTS format/)
     end
 
     it 'actually runs CLI when --mode cli is in COV_LOUPE_OPTS' do

@@ -28,7 +28,7 @@ module CovLoupe
       require_relative 'cov_loupe/config_parser'
       begin
         config = ConfigParser.parse(full_argv.dup)
-      rescue OptionParser::ParseError => e
+      rescue OptionParser::ParseError, ConfigurationError => e
         warn "Error: #{e.message}"
         warn "Run 'cov-loupe --help' for usage information."
         exit 2
@@ -131,15 +131,8 @@ module CovLoupe
     end
 
     private def extract_env_opts
-      require 'shellwords'
-      opts_string = ENV['COV_LOUPE_OPTS']
-      return [] unless opts_string && !opts_string.empty?
-
-      begin
-        Shellwords.split(opts_string)
-      rescue ArgumentError
-        [] # Ignore parsing errors
-      end
+      require_relative 'cov_loupe/option_parsers/env_options_parser'
+      OptionParsers::EnvOptionsParser.new.parse_env_opts
     end
   end
 end
