@@ -49,6 +49,12 @@ module CovLoupe
     def self.expand(path, base = nil)
       return path if path.nil? || path.empty?
 
+      if absolute?(path)
+        # Use Pathname#cleanpath to preserve case on Windows, as File.expand_path
+        # can sometimes canonicalize case for existing files.
+        return Pathname.new(path).cleanpath.to_s
+      end
+
       base ? File.expand_path(path, base) : File.expand_path(path)
     end
 
