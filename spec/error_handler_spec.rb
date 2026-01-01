@@ -173,4 +173,48 @@ RSpec.describe CovLoupe::ErrorHandler do
       expect(logger.messages.join).to include('Error in test')
     end
   end
+
+  describe '#handle_error with context parameter' do
+    it 'converts Errno::ENOENT to ResultsetNotFoundError when context is :coverage_loading' do
+      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - .resultset.json')
+
+      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
+        .to raise_error(CovLoupe::ResultsetNotFoundError, 'Coverage data not found')
+    end
+
+    it 'converts Errno::ENOENT to FileNotFoundError when context is :general' do
+      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
+
+      expect { handler.handle_error(error, context: :general, reraise: true) }
+        .to raise_error(CovLoupe::FileNotFoundError)
+    end
+
+    it 'converts Errno::ENOENT to FileNotFoundError when context is nil' do
+      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
+
+      expect { handler.handle_error(error, reraise: true) }
+        .to raise_error(CovLoupe::FileNotFoundError)
+    end
+
+    it 'converts Errno::EACCES with coverage-specific message when context is :coverage_loading' do
+      error = Errno::EACCES.new('Permission denied @ rb_sysopen - .resultset.json')
+
+      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
+        .to raise_error(CovLoupe::FilePermissionError, /Permission denied reading coverage data/)
+    end
+
+    it 'converts ArgumentError with coverage-specific message when context is :coverage_loading' do
+      error = ArgumentError.new('invalid path')
+
+      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
+        .to raise_error(CovLoupe::CoverageDataError, /Invalid path in coverage data/)
+    end
+
+    it 'converts NoMethodError with coverage-specific message when context is :coverage_loading' do
+      error = NoMethodError.new("undefined method `each' for nil:NilClass")
+
+      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
+        .to raise_error(CovLoupe::CoverageDataError, /Invalid coverage data structure/)
+    end
+  end
 end

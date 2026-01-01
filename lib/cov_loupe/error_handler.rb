@@ -31,7 +31,7 @@ module CovLoupe
     def handle_error(error, context: nil, reraise: true)
       log_error(error, context)
       if reraise
-        raise error.is_a?(CovLoupe::Error) ? error : convert_standard_error(error)
+        raise error.is_a?(CovLoupe::Error) ? error : convert_standard_error(error, context: context)
       end
     end
 
