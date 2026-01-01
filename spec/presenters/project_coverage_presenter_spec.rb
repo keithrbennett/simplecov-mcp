@@ -45,13 +45,23 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
         ],
         'missing_tracked_files' => ['/abs/path/lib/missing.rb'],
         'newer_files' => [],
-        'deleted_files' => ['/abs/path/lib/deleted.rb']
+        'deleted_files' => ['/abs/path/lib/deleted.rb'],
+        'length_mismatch_files' => ['/abs/path/lib/bad_length.rb'],
+        'unreadable_files' => ['/abs/path/lib/unreadable.rb']
       })
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(
         root: '/abs/path',
         scalar_keys: %w[file file_path],
-        array_keys: %w[newer_files missing_files deleted_files missing_tracked_files skipped_files]
+        array_keys: %w[
+          newer_files
+          missing_files
+          deleted_files
+          missing_tracked_files
+          skipped_files
+          length_mismatch_files
+          unreadable_files
+        ]
       )
       relativizer.relativize(payload)
     end
@@ -116,6 +126,18 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   describe '#relative_deleted_files' do
     it 'returns the relativized deleted files' do
       expect(presenter.relative_deleted_files).to eq(['lib/deleted.rb'])
+    end
+  end
+
+  describe '#relative_length_mismatch_files' do
+    it 'returns the relativized length mismatch files' do
+      expect(presenter.relative_length_mismatch_files).to eq(['lib/bad_length.rb'])
+    end
+  end
+
+  describe '#relative_unreadable_files' do
+    it 'returns the relativized unreadable files' do
+      expect(presenter.relative_unreadable_files).to eq(['lib/unreadable.rb'])
     end
   end
 end

@@ -61,7 +61,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
   describe 'list' do
     def stub_staleness_checker(
-      newer_files: [], missing_files: [], deleted_files: [], file_statuses: {}
+      newer_files: [], missing_files: [], deleted_files: [], length_mismatch_files: [],
+      unreadable_files: [], file_statuses: {}
     )
       checker = instance_double(
         CovLoupe::StalenessChecker,
@@ -73,7 +74,8 @@ RSpec.describe CovLoupe::CoverageModel do
         newer_files: newer_files,
         missing_files: missing_files,
         deleted_files: deleted_files,
-        length_mismatch_files: [],
+        length_mismatch_files: length_mismatch_files,
+        unreadable_files: unreadable_files,
         file_statuses: file_statuses
       )
     end
@@ -82,7 +84,8 @@ RSpec.describe CovLoupe::CoverageModel do
       result = model.list
       expect(result).to be_a(Hash)
       expect(result.keys).to contain_exactly(
-        'files', 'skipped_files', 'missing_tracked_files', 'newer_files', 'deleted_files'
+        'files', 'skipped_files', 'missing_tracked_files', 'newer_files', 'deleted_files',
+        'length_mismatch_files', 'unreadable_files'
       )
       result.each_value { |v| expect(v).to be_a(Array) }
     end
@@ -189,6 +192,36 @@ RSpec.describe CovLoupe::CoverageModel do
       end
     end
 
+    it 'excludes stale rows from totals and reports length/unreadable exclusions' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+      abs_bar = File.expand_path('lib/bar.rb', root)
+
+      checker = instance_double(CovLoupe::StalenessChecker)
+      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:check_project_with_lines!).and_return(
+        newer_files: [],
+        missing_files: [],
+        deleted_files: [],
+        length_mismatch_files: [abs_bar],
+        unreadable_files: [abs_foo],
+        file_statuses: {
+          abs_bar => 'L',
+          abs_foo => 'E'
+        }
+      )
+
+      totals = model.project_totals
+
+      aggregate_failures do
+        expect(totals['lines']).to include('total' => 0, 'covered' => 0, 'uncovered' => 0)
+        expect(totals['files']).to include('total' => 0, 'ok' => 0, 'stale' => 0)
+        expect(totals['excluded_files']).to include(
+          'length_mismatch' => 1,
+          'unreadable' => 1
+        )
+      end
+    end
+
     it 'respects tracked_globs filtering' do
       totals = model.project_totals(tracked_globs: ['lib/foo.rb'])
 
@@ -203,7 +236,9 @@ RSpec.describe CovLoupe::CoverageModel do
         'skipped' => 0,
         'missing_tracked' => 0,
         'newer' => 0,
-        'deleted' => 0
+        'deleted' => 0,
+        'length_mismatch' => 0,
+        'unreadable' => 0
       )
     end
 
@@ -253,7 +288,9 @@ RSpec.describe CovLoupe::CoverageModel do
 
       expect(totals['excluded_files']).to include(
         'skipped' => 1,
-        'missing_tracked' => 0
+        'missing_tracked' => 0,
+        'length_mismatch' => 0,
+        'unreadable' => 0
       )
     end
   end

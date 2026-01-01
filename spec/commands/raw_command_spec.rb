@@ -53,8 +53,8 @@ RSpec.describe CovLoupe::Commands::RawCommand do
         payload = JSON.parse(output)
         expect(payload['file']).to eq('lib/foo.rb')
         expect(payload['lines']).to be_an(Array)
-        expect(payload['lines'][0]).to eq(1) # specific value
-        expect(payload['lines'][1]).to eq(0) # specific value
+        expect(payload['lines'][2]).to eq(1) # specific value
+        expect(payload['lines'][3]).to eq(0) # specific value
         expect(payload['stale']).to eq('L')
       end
     end

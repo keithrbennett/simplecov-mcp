@@ -84,6 +84,8 @@ RSpec.describe CovLoupe::CoverageCLI do
           relative_missing_tracked_files: [],
           relative_newer_files: [],
           relative_deleted_files: ['lib/old.rb'],
+          relative_length_mismatch_files: [],
+          relative_unreadable_files: [],
           relative_skipped_files: []
         )
       end

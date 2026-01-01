@@ -33,16 +33,16 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         expect(bar['percentage']).to be_within(0.01).of(33.33)
 
         raw = model.raw_for('lib/foo.rb')
-        expect(raw['lines']).to eq([1, 0, nil, 2])
+        expect(raw['lines']).to eq([nil, nil, 1, 0, nil, 2])
 
         summary = model.summary_for('lib/foo.rb')
         expect(summary['summary']).to include('covered' => 2, 'total' => 3)
 
         uncovered = model.uncovered_for('lib/foo.rb')
-        expect(uncovered['uncovered']).to eq([2])
+        expect(uncovered['uncovered']).to eq([4])
 
         detailed = model.detailed_for('lib/foo.rb')
-        expect(detailed['lines']).to include({ 'line' => 2, 'hits' => 0, 'covered' => false })
+        expect(detailed['lines']).to include({ 'line' => 4, 'hits' => 0, 'covered' => false })
 
         table = model.format_table
         expect(table).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
@@ -126,7 +126,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         )
 
         raw_data, _raw_item = expect_mcp_text_json(raw_response, expected_keys: %w[file lines])
-        expect(raw_data['lines']).to eq([1, 0, nil, 2])
+        expect(raw_data['lines']).to eq([nil, nil, 1, 0, nil, 2])
 
         # Test all files tool
         list_response = CovLoupe::Tools::ListTool.call(
@@ -329,7 +329,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         )
         content = expect_jsonrpc_result(resp3, 5)['content']
         data = JSON.parse(content.first['text'])
-        expect(data['uncovered']).to eq([2])
+        expect(data['uncovered']).to eq([4])
       end
     end
 

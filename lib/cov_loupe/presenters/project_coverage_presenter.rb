@@ -47,6 +47,16 @@ module CovLoupe
         relativized_payload['deleted_files']
       end
 
+      # Returns the relativized length-mismatch files.
+      def relative_length_mismatch_files
+        relativized_payload['length_mismatch_files']
+      end
+
+      # Returns the relativized unreadable files.
+      def relative_unreadable_files
+        relativized_payload['unreadable_files']
+      end
+
       private def compute_absolute_payload
         list_result = model.list(
           sort_order: sort_order,
@@ -58,12 +68,16 @@ module CovLoupe
         missing_tracked_files = list_result['missing_tracked_files']
         newer_files = list_result['newer_files']
         deleted_files = list_result['deleted_files']
+        length_mismatch_files = list_result['length_mismatch_files']
+        unreadable_files = list_result['unreadable_files']
         {
           'files' => files,
           'skipped_files' => skipped_files,
           'missing_tracked_files' => missing_tracked_files,
           'newer_files' => newer_files,
           'deleted_files' => deleted_files,
+          'length_mismatch_files' => length_mismatch_files,
+          'unreadable_files' => unreadable_files,
           'counts' => build_counts(files)
         }
       end

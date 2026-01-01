@@ -2,6 +2,10 @@
 
 [Back to main README](docs/index.md)
 
+## Next
+
+- **Totals exclude stale coverage**: Project totals now omit stale files (`M`, `T`, `L`, `E`) and report new `length_mismatch`/`unreadable` exclusion counts. The list output and CLI exclusions section now surface line-mismatch and unreadable-file metadata as well.
+
 ## v4.0.0 (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.

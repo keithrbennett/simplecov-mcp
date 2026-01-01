@@ -39,8 +39,8 @@ RSpec.describe CovLoupe do
       current_time = Time.now
 
       mock_resultset_with_timestamp(root, old_timestamp, coverage: {
-        # 5 lines to match actual bar.rb (was incorrectly 3 in previous tests)
-        bar_path => { 'lines' => [1, 1, 0, 0, 1] }
+        # 5 lines to match actual bar.rb
+        bar_path => { 'lines' => [nil, nil, 1, 0, 1] }
       })
 
       # Stub mtime to simulate file being newer than coverage
@@ -66,8 +66,8 @@ RSpec.describe CovLoupe do
       foo_path = File.join(root, 'lib', 'foo.rb')
 
       mock_resultset_with_timestamp(root, future_timestamp, coverage: {
-        bar_path => { 'lines' => [1, nil, 0, 0, 1] }, # 5 lines matching bar.rb
-        foo_path => { 'lines' => [1, nil, 1, 0, nil, 1] } # 6 lines matching foo.rb
+        bar_path => { 'lines' => [nil, nil, 1, 0, 1] }, # 5 lines matching bar.rb
+        foo_path => { 'lines' => [nil, nil, 1, 0, nil, 2] } # 6 lines matching foo.rb
       })
 
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
@@ -150,8 +150,8 @@ RSpec.describe CovLoupe do
       current_time = Time.now
 
       mock_resultset_with_timestamp(root, old_timestamp, coverage: {
-        bar_path => { 'lines' => [1, 0, 1, 0, 1] }, # 5 lines matching bar.rb - will be newer (T)
-        foo_path => { 'lines' => [1, 1] },          # 2 lines vs 6 actual - length mismatch (L)
+        bar_path => { 'lines' => [nil, nil, 1, 0, 1] }, # 5 lines matching bar.rb - will be newer (T)
+        foo_path => { 'lines' => [1, 1] },    # 2 lines vs 6 actual - length mismatch (L)
         missing_path => { 'lines' => [1, 1, 1] }    # doesn't exist - missing (M)
       })
 

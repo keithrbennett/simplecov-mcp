@@ -116,6 +116,10 @@ This allows:
 - Raises `CoverageDataProjectStaleError` with lists of problematic files
 - Used by `list_tool` and `coverage_table_tool`
 
+**Totals behavior**:
+- `project_totals` excludes any stale files (`M`, `T`, `L`, `E`) from aggregate counts.
+- Excluded totals are reported via `excluded_files` metadata so callers can reconcile what was omitted.
+
 #### Tracked Globs Feature
 
 The project-level check supports `tracked_globs` parameter to detect newly added files:
@@ -145,6 +149,7 @@ before merging resultsets.
 2. **User control**: Modes allow errors or warnings based on use case
 3. **Detailed information**: Staleness errors include specific file lists and timestamps
 4. **Project awareness**: Can detect newly added files that lack coverage
+5. **Conservative totals**: Aggregate totals only include fresh coverage data
 
 #### Negative
 

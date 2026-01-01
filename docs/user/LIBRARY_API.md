@@ -176,13 +176,13 @@ Returns aggregated coverage totals across all files.
 ```ruby
 totals = model.project_totals
 # => { 'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23 }, 'percentage' => 81.3,
-#      'files' => { 'total' => 5, 'ok' => 4, 'stale' => 1 }, 'excluded_files' => { ... } }
+#      'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 }, 'excluded_files' => { ... } }
 
 # Filter to specific directory
 lib_totals = model.project_totals(tracked_globs: 'lib/**/*.rb')
 ```
 
-When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals; otherwise `excluded_files` reports any skipped or stale files.
+When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals. Otherwise, totals exclude stale files (`M`, `T`, `L`, `E`) and `excluded_files` reports the stale and skipped counts. Because stale rows are excluded, `files['stale']` is expected to be 0 in totals output.
 
 ### `relativize(data)`
 
@@ -227,7 +227,9 @@ Returns `Hash` with file data and staleness metadata:
   'skipped_files' => Array<String>,        # Files skipped due to coverage errors
   'missing_tracked_files' => Array<String>,# Tracked files missing from coverage
   'newer_files' => Array<String>,          # Files newer than coverage
-  'deleted_files' => Array<String>         # Coverage entries for deleted files
+  'deleted_files' => Array<String>,        # Coverage entries for deleted files
+  'length_mismatch_files' => Array<String>,# Files whose line counts differ from coverage
+  'unreadable_files' => Array<String>      # Files that could not be read
 }
 ```
 
@@ -319,7 +321,9 @@ Returns `Hash`:
     'skipped' => Integer,        # Coverage data errors
     'missing_tracked' => Integer,# Tracked files missing from coverage
     'newer' => Integer,          # Files newer than coverage
-    'deleted' => Integer         # Coverage entries for deleted files
+    'deleted' => Integer,        # Coverage entries for deleted files
+    'length_mismatch' => Integer,# Line count mismatch entries
+    'unreadable' => Integer      # Files that could not be read
   }
 }
 ```

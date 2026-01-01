@@ -199,10 +199,13 @@ module CovLoupe
       missing = presenter.relative_missing_tracked_files
       newer = presenter.relative_newer_files
       deleted = presenter.relative_deleted_files
+      length_mismatch = presenter.relative_length_mismatch_files
+      unreadable = presenter.relative_unreadable_files
       skipped = presenter.relative_skipped_files
 
       # Only show if there are any exclusions
-      return if missing.empty? && newer.empty? && deleted.empty? && skipped.empty?
+      return if missing.empty? && newer.empty? && deleted.empty? &&
+                length_mismatch.empty? && unreadable.empty? && skipped.empty?
 
       output.puts "\nFiles excluded from coverage:"
 
@@ -219,6 +222,16 @@ module CovLoupe
       unless deleted.empty?
         output.puts "\nDeleted files with coverage (#{deleted.length}):"
         deleted.each { |file| output.puts "  - #{file}" }
+      end
+
+      unless length_mismatch.empty?
+        output.puts "\nLine count mismatches (#{length_mismatch.length}):"
+        length_mismatch.each { |file| output.puts "  - #{file}" }
+      end
+
+      unless unreadable.empty?
+        output.puts "\nUnreadable files (#{unreadable.length}):"
+        unreadable.each { |file| output.puts "  - #{file}" }
       end
 
       unless skipped.empty?

@@ -38,10 +38,10 @@ RSpec.describe CovLoupe::CoverageCLI do
         d['summary']['covered'] == 2
       } },
       { cmd: 'raw', args: ['lib/foo.rb'], key: 'lines', check: ->(d) {
-        d['lines'] == [1, 0, nil, 2]
+        d['lines'] == [nil, nil, 1, 0, nil, 2]
       } },
       { cmd: 'uncovered', args: ['lib/foo.rb'], key: 'uncovered', check: ->(d) {
-        d['uncovered'] == [2]
+        d['uncovered'] == [4]
       } },
       { cmd: 'detailed', args: ['lib/foo.rb'], key: 'lines', check: ->(d) {
         d['lines'].is_a?(Array)
@@ -66,7 +66,9 @@ RSpec.describe CovLoupe::CoverageCLI do
           'skipped' => 0,
           'missing_tracked' => 1,  # uncovered_file.rb in fixture
           'newer' => 0,
-          'deleted' => 0
+          'deleted' => 0,
+          'length_mismatch' => 0,
+          'unreadable' => 0
         )
       end
     end

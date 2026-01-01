@@ -320,6 +320,8 @@ The excluded files breakdown shows:
 - **Skipped**: Files with coverage data errors
 - **Newer**: Files modified after the coverage run
 - **Deleted**: Coverage entries for non-existent files
+- **Line mismatch**: Coverage entries whose line counts no longer match the source
+- **Unreadable**: Files that cannot be read due to permission/I/O errors
 - **Missing**: Tracked files with no coverage data
 
 Only non-zero exclusion types are shown.
@@ -334,7 +336,9 @@ Only non-zero exclusion types are shown.
     "skipped": 0,
     "missing_tracked": 0,
     "newer": 0,
-    "deleted": 0
+    "deleted": 0,
+    "length_mismatch": 0,
+    "unreadable": 0
   }
 }
 ```
@@ -346,6 +350,8 @@ The `excluded_files` object shows counts of files that were excluded from totals
 - **`missing_tracked`**: Tracked files (via `-g` / `--tracked-globs`) that have no coverage data
 - **`newer`**: Files modified after the coverage run (timestamp mismatch)
 - **`deleted`**: Coverage entries for files that no longer exist on disk
+- **`length_mismatch`**: Coverage entries whose line counts no longer match source files
+- **`unreadable`**: Files that cannot be read due to permission or I/O errors
 
 When all counts are zero, no files were excluded and the totals represent complete data. Non-zero counts indicate partial totals that may be misleading without context.
 
@@ -359,7 +365,9 @@ When all counts are zero, no files were excluded and the totals represent comple
     "skipped": 1,
     "missing_tracked": 0,
     "newer": 2,
-    "deleted": 0
+    "deleted": 0,
+    "length_mismatch": 0,
+    "unreadable": 0
   }
 }
 ```
@@ -367,6 +375,7 @@ In this example, the totals are based on 9 files, but 3 additional files (1 skip
 
 **Notes:**
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
+- Totals exclude stale files (`M`, `T`, `L`, `E`) so the aggregate reflects only fresh coverage data.
 - Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date (when enabled, errors are raised immediately and `excluded_files` won't be present in the output).
 
 ### `version`
@@ -504,6 +513,7 @@ clp --raise-on-stale false
 - **M** (Missing): Source file no longer exists on disk
 - **T** (Timestamp): Source file modified after coverage was generated
 - **L** (Length): Source file line count differs from coverage data
+- **E** (Error): Staleness check failed due to permission or I/O errors
 - Tracked files missing from coverage (with --tracked-globs)
 
 ### `-g, --tracked-globs PATTERNS`

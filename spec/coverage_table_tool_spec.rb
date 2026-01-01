@@ -25,7 +25,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
       '┌', '┬', '┐', '│', '├', '┼', '┤', '└', '┴', '┘',
       'File', 'Covered', 'Total', ' │ Stale │',
       'lib/foo.rb', 'lib/bar.rb',
-      'Files: total 2, ok 0, stale 2'
+      'Files: total 2, ok 2, stale 0'
     )
   end
 

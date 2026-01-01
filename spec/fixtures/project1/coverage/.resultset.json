@@ -1,15 +1,27 @@
 {
-  "_comment": "Test fixture - timestamp 1720000000 = 2024-07-03 16:26:40 UTC (see FIXTURE_COVERAGE_TIMESTAMP in spec_helper.rb)",
   "RSpec": {
-    "timestamp": 1720000000,
     "coverage": {
-      "lib/foo.rb": {
-        "lines": [1, 0, null, 2]
-      },
       "lib/bar.rb": {
-        "lines": [0, 0, 1]
+        "lines": [
+          null,
+          null,
+          0,
+          0,
+          1
+        ]
+      },
+      "lib/foo.rb": {
+        "lines": [
+          null,
+          null,
+          1,
+          0,
+          null,
+          2
+        ]
       }
-    }
-  }
+    },
+    "timestamp": 4000000000
+  },
+  "_comment": "Test fixture - timestamp 1720000000 = 2024-07-03 16:26:40 UTC (see FIXTURE_COVERAGE_TIMESTAMP in spec_helper.rb)"
 }
-

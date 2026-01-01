@@ -49,7 +49,7 @@ RSpec.describe CovLoupe::Commands::UncoveredCommand do
       before { stub_staleness_check('L') }
 
       it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
-        { 'file' => 'lib/foo.rb', 'uncovered' => [2], 'summary' => nil, 'stale' => 'L' }
+        { 'file' => 'lib/foo.rb', 'uncovered' => [4], 'summary' => nil, 'stale' => 'L' }
     end
   end
 end

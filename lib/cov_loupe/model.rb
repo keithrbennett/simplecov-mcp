@@ -18,8 +18,15 @@ require_relative 'repositories/coverage_repository'
 module CovLoupe
   class CoverageModel
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
-    RELATIVIZER_ARRAY_KEYS =
-      %w[newer_files missing_files deleted_files missing_tracked_files skipped_files].freeze
+    RELATIVIZER_ARRAY_KEYS = %w[
+      newer_files
+      missing_files
+      deleted_files
+      missing_tracked_files
+      skipped_files
+      length_mismatch_files
+      unreadable_files
+    ].freeze
 
     DEFAULT_SORT_ORDER = :descending
 
@@ -102,6 +109,8 @@ module CovLoupe
         coverage_lines_by_path: coverage_lines_by_path
       )
       file_statuses = project_staleness_details[:file_statuses] || {}
+      length_mismatch_files = Array(project_staleness_details[:length_mismatch_files]).uniq
+      unreadable_files = Array(project_staleness_details[:unreadable_files]).uniq
       rows.each do |row|
         row['stale'] = file_statuses.fetch(row['file'], false)
       end
@@ -111,7 +120,9 @@ module CovLoupe
         'skipped_files' => filter_rows_by_globs(@skipped_rows, tracked_globs),
         'missing_tracked_files' => project_staleness_details[:missing_files],
         'newer_files' => project_staleness_details[:newer_files],
-        'deleted_files' => project_staleness_details[:deleted_files]
+        'deleted_files' => project_staleness_details[:deleted_files],
+        'length_mismatch_files' => length_mismatch_files,
+        'unreadable_files' => unreadable_files
       }
     end
 
@@ -124,12 +135,16 @@ module CovLoupe
       list_result = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
 
-      totals_from_rows(list_result['files']).merge(
+      rows = list_result['files']
+      included_rows = rows.reject { |row| row['stale'] }
+      totals_from_rows(included_rows).merge(
         'excluded_files' => {
           'skipped' => list_result['skipped_files'].length,
           'missing_tracked' => list_result['missing_tracked_files'].length,
           'newer' => list_result['newer_files'].length,
-          'deleted' => list_result['deleted_files'].length
+          'deleted' => list_result['deleted_files'].length,
+          'length_mismatch' => list_result.fetch('length_mismatch_files', []).length,
+          'unreadable' => list_result.fetch('unreadable_files', []).length
         }
       )
     end

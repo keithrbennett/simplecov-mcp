@@ -98,11 +98,11 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'only checks length mismatches for files matching tracked_globs' do
-      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 3 lines)
+      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 2 lines)
       # and accurate coverage for foo.rb (actual: 6 lines, coverage: 6 lines)
       mismatched_coverage = {
         File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
-        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0] } # Wrong length!
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0] } # Wrong length!
       }
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: mismatched_coverage)
 
@@ -118,11 +118,11 @@ RSpec.describe CovLoupe::CoverageModel do
     end
 
     it 'raises error for length mismatch only when file is in tracked_globs scope' do
-      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 3 lines)
+      # Create coverage with length mismatch for bar.rb (actual: 5 lines, coverage: 2 lines)
       # and accurate coverage for foo.rb (actual: 6 lines, coverage: 6 lines)
       mismatched_coverage = {
         File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
-        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0] } # Wrong length!
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0] } # Wrong length!
       }
       mock_resultset_with_timestamp(root, Time.now.to_i, coverage: mismatched_coverage)
 
