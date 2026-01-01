@@ -43,8 +43,8 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
             'missing_tracked' => 0,
             'newer' => 2,
             'deleted' => 1,
-            'length_mismatch' => 0,
-            'unreadable' => 0
+            'length_mismatch' => 1,
+            'unreadable' => 1
           }
         )
         allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new)
@@ -53,10 +53,12 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
         output = capture_command_output(command, [])
 
         aggregate_failures do
-          expect(output).to include('Excluded', '4')
+          expect(output).to include('Excluded', '6')
           expect(output).to include('Skipped', '1')
           expect(output).to include('Newer', '2')
           expect(output).to include('Deleted', '1')
+          expect(output).to include('Line mismatch', '1')
+          expect(output).to include('Unreadable', '1')
           expect(output).not_to include('Missing') # 0, so not shown
         end
       end

@@ -57,7 +57,9 @@ module CovLoupe
             ['  Skipped', excluded['skipped']],
             ['  Missing', excluded['missing_tracked']],
             ['  Newer', excluded['newer']],
-            ['  Deleted', excluded['deleted']]
+            ['  Deleted', excluded['deleted']],
+            ['  Line mismatch', excluded['length_mismatch']],
+            ['  Unreadable', excluded['unreadable']]
           ].each do |label, count|
             rows << [label, count.to_s, '', '', ''] if count > 0
           end
