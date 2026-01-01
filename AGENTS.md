@@ -176,6 +176,7 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 ## Response Expectations
 - Be concise and collaborative. Lead with the change/insight; follow with necessary detail.
 - Reference files with inline clickable paths (e.g., `lib/cov_loupe/model.rb:42`). Avoid ranges and external URIs.
+- When providing content intended for the user to copy and paste (like commit messages or configuration snippets), do not include line numbers or any other decorators that would interfere with direct usage.
 - Summaries use plain bullets (`-`). Offer next steps only when they flow naturally (tests, commits, builds, validation).
 - Do not dump entire files; mention paths. Keep tone factual, note open questions, and highlight testing gaps.
 
