@@ -42,8 +42,10 @@ module CovLoupe
     def self.detailed(coverage_lines)
       rows = []
       coverage_lines.each_with_index do |hits, i|
-        h = hits&.to_i
-        rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? } if h
+        next if hits.nil?
+
+        h = hits.to_i
+        rows << { 'line' => i + 1, 'hits' => h, 'covered' => h.positive? }
       end
       rows
     end
