@@ -134,24 +134,35 @@ RSpec.describe CovLoupe::StalenessChecker do
       expect(checker.send(:safe_count_lines, file)).to eq(0)
     end
 
-    it 'raises FilePermissionError on permission denied' do
+    it 'returns :read_error on permission denied (EACCES)' do
       file = File.join(tmpdir, 'test.rb')
       File.write(file, "line1\nline2\n")
 
       # Mock File.foreach to raise permission error
       allow(File).to receive(:foreach).with(file).and_raise(Errno::EACCES.new('Permission denied'))
 
-      expect { checker.send(:safe_count_lines, file) }.to raise_error(CovLoupe::FilePermissionError)
+      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
     end
 
-    it 'handles other errors gracefully' do
+    it 'returns :read_error on permission denied (EPERM)' do
       file = File.join(tmpdir, 'test.rb')
       File.write(file, "line1\nline2\n")
 
-      # Mock File.foreach to raise a different error
-      allow(File).to receive(:foreach).with(file).and_raise(StandardError.new('IO error'))
+      # Mock File.foreach to raise permission error
+      allow(File).to receive(:foreach).with(file)
+        .and_raise(Errno::EPERM.new('Operation not permitted'))
 
-      expect(checker.send(:safe_count_lines, file)).to eq(0)
+      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
+    end
+
+    it 'returns :read_error on IO errors' do
+      file = File.join(tmpdir, 'test.rb')
+      File.write(file, "line1\nline2\n")
+
+      # Mock File.foreach to raise an IO error
+      allow(File).to receive(:foreach).with(file).and_raise(IOError.new('IO error'))
+
+      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
     end
 
     it 'counts lines correctly for file with final newline' do
@@ -278,6 +289,87 @@ RSpec.describe CovLoupe::StalenessChecker do
       ensure
         FileUtils.remove_entry(tracked_root)
       end
+    end
+  end
+
+  context 'when handling file permission errors in project checks' do
+    let(:test_file) { File.join(tmpdir, 'test.rb') }
+    let(:checker_mode) { :off }
+    let(:checker_timestamp) { Time.now.to_i }
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: checker_mode,
+        timestamp: checker_timestamp)
+    end
+
+    def create_test_file(path, content)
+      File.write(path, content)
+    end
+
+    it 'handles File.file? errors gracefully in compute_newer_and_deleted_files' do
+      file1 = File.join(tmpdir, 'accessible.rb')
+      file2 = File.join(tmpdir, 'unreadable.rb')
+      create_test_file(file1, "puts 'ok'\n")
+      create_test_file(file2, "puts 'denied'\n")
+
+      coverage_map = { file1 => [1], file2 => [1] }
+
+      allow(File).to receive(:file?).and_call_original
+      allow(File).to receive(:file?).with(file2).and_raise(Errno::EACCES.new('Permission denied'))
+
+      details = checker.check_project!(coverage_map)
+      expect(details[:unreadable_files]).to include('unreadable.rb')
+    end
+
+    it 'handles File.mtime errors gracefully in compute_newer_and_deleted_files' do
+      create_test_file(test_file, "puts 'test'\n")
+      coverage_map = { test_file => [1] }
+      checker_with_old_timestamp = described_class.new(
+        root: tmpdir, resultset: nil, mode: :off, timestamp: Time.at(0)
+      )
+
+      allow(File).to receive(:mtime).with(test_file)
+        .and_raise(Errno::EPERM.new('Operation not permitted'))
+
+      details = checker_with_old_timestamp.check_project!(coverage_map)
+      expect(details[:unreadable_files]).to include('test.rb')
+    end
+
+    it 'reports unreadable files with read errors in check_project_with_lines!' do
+      create_test_file(test_file, "line1\nline2\n")
+      coverage_map = { test_file => [1, 1] }
+
+      allow(File).to receive(:foreach).with(test_file)
+        .and_raise(Errno::EACCES.new('Permission denied'))
+
+      details = checker.check_project_with_lines!(coverage_map, coverage_files: [test_file])
+      expect(details[:unreadable_files]).to include('test.rb')
+      expect(details[:file_statuses][test_file]).to eq('E')
+    end
+
+    it 'raises error in error mode when unreadable files are present' do
+      create_test_file(test_file, "line1\nline2\n")
+      coverage_map = { test_file => [1, 1] }
+      error_checker = described_class.new(root: tmpdir, resultset: nil, mode: :error,
+        timestamp: Time.now.to_i)
+
+      allow(File).to receive(:foreach).with(test_file)
+        .and_raise(Errno::EACCES.new('Permission denied'))
+
+      expect do
+        error_checker.check_project_with_lines!(coverage_map, coverage_files: [test_file])
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError) { |error|
+        expect(error.unreadable_files).to include('test.rb')
+      }
+    end
+
+    it 'does not crash in non-error mode when files are unreadable' do
+      create_test_file(test_file, "line1\nline2\n")
+      coverage_map = { test_file => [1, 1] }
+
+      allow(File).to receive(:file?).with(test_file)
+        .and_raise(Errno::EACCES.new('Permission denied'))
+
+      expect { checker.check_project!(coverage_map) }.not_to raise_error
     end
   end
 end

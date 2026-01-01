@@ -124,16 +124,18 @@ module CovLoupe
     include StalenessFormatterMixin
 
     attr_reader :cov_timestamp, :newer_files, :missing_files, :deleted_files,
-      :length_mismatch_files, :resultset_path
+      :length_mismatch_files, :unreadable_files, :resultset_path
 
     def initialize(message = nil, original_error = nil, cov_timestamp: nil, newer_files: [],
-      missing_files: [], deleted_files: [], length_mismatch_files: [], resultset_path: nil)
+      missing_files: [], deleted_files: [], length_mismatch_files: [], unreadable_files: [],
+      resultset_path: nil)
       super(message, original_error)
       @cov_timestamp = cov_timestamp
       @newer_files = Array(newer_files)
       @missing_files = Array(missing_files)
       @deleted_files = Array(deleted_files)
       @length_mismatch_files = Array(length_mismatch_files)
+      @unreadable_files = Array(unreadable_files)
       @resultset_path = resultset_path
     end
 
@@ -143,7 +145,8 @@ module CovLoupe
         newer_files: @newer_files,
         missing_files: @missing_files,
         deleted_files: @deleted_files,
-        length_mismatch_files: @length_mismatch_files
+        length_mismatch_files: @length_mismatch_files,
+        unreadable_files: @unreadable_files
       )
     end
 
