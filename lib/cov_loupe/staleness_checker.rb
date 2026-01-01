@@ -30,9 +30,9 @@ module CovLoupe
 
       d = compute_file_staleness_details(file_abs, coverage_lines)
 
-      # Raise FilePermissionError if there was a read error
+      # Raise FileError if there was a read error
       if d[:read_error]
-        raise FilePermissionError, "Permission denied reading file: #{rel(file_abs)}"
+        raise FileError, "Error reading file: #{rel(file_abs)}"
       end
 
       # For single-file checks, missing files with recorded coverage count as stale
@@ -224,6 +224,28 @@ module CovLoupe
       :read_error
     end
 
+    private def safe_file_state(path)
+      exists = false
+      file_mtime = nil
+      read_error = false
+
+      begin
+        exists = File.file?(path)
+      rescue SystemCallError, IOError
+        return [false, nil, true]
+      end
+
+      return [false, nil, false] unless exists
+
+      begin
+        file_mtime = File.mtime(path)
+      rescue SystemCallError, IOError
+        read_error = true
+      end
+
+      [exists, file_mtime, read_error]
+    end
+
     private def rel(path)
       # Handle relative vs absolute path mismatches that cause ArgumentError
       Pathname.new(path).relative_path_from(Pathname.new(@root)).to_s
@@ -238,14 +260,13 @@ module CovLoupe
     private def compute_file_staleness_details(file_abs, coverage_lines)
       coverage_ts = coverage_timestamp
 
-      exists = File.file?(file_abs)
-      file_mtime = exists ? File.mtime(file_abs) : nil
+      exists, file_mtime, read_error = safe_file_state(file_abs)
 
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
-      src_len = exists ? safe_count_lines(file_abs) : 0
+      src_len = (exists && !read_error) ? safe_count_lines(file_abs) : 0
 
       # Check if safe_count_lines returned an error sentinel
-      read_error = src_len == :read_error
+      read_error ||= src_len == :read_error
       src_len = 0 if read_error
 
       # Check if the source file has been modified since coverage was generated

@@ -124,6 +124,43 @@ RSpec.describe CovLoupe::StalenessChecker do
       expected_error: nil
   end
 
+  context 'when file stat calls raise errors' do
+    let(:checker) do
+      described_class.new(root: tmpdir, resultset: nil, mode: 'error',
+        tracked_globs: nil, timestamp: Time.now)
+    end
+
+    it 'returns E and raises FileError when File.file? fails' do
+      file = File.join(tmpdir, 'lib', 'test.rb')
+      write_file(file, %w[a b])
+      coverage_lines = [1, 1]
+
+      allow(File).to receive(:file?).and_call_original
+      allow(File).to receive(:file?).with(file).and_raise(Errno::EACCES.new('Permission denied'))
+
+      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
+      expect(details[:read_error]).to be true
+      expect(checker.stale_for_file?(file, coverage_lines)).to eq('E')
+      expect { checker.check_file!(file, coverage_lines) }
+        .to raise_error(CovLoupe::FileError, /Error reading file/)
+    end
+
+    it 'returns E and raises FileError when File.mtime fails' do
+      file = File.join(tmpdir, 'lib', 'test.rb')
+      write_file(file, %w[a b])
+      coverage_lines = [1, 1]
+
+      allow(File).to receive(:mtime).and_call_original
+      allow(File).to receive(:mtime).with(file).and_raise(Errno::EACCES.new('Permission denied'))
+
+      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
+      expect(details[:read_error]).to be true
+      expect(checker.stale_for_file?(file, coverage_lines)).to eq('E')
+      expect { checker.check_file!(file, coverage_lines) }
+        .to raise_error(CovLoupe::FileError, /Error reading file/)
+    end
+  end
+
   context 'when handling safe_count_lines edge cases' do
     let(:checker) do
       described_class.new(root: tmpdir, resultset: nil, mode: 'off', timestamp: Time.now)

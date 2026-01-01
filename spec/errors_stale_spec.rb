@@ -98,11 +98,11 @@ RSpec.describe CovLoupe::CoverageDataStaleError do
 
     after { FileUtils.remove_entry(tmpdir) if tmpdir && File.directory?(tmpdir) }
 
-    shared_examples 'raises FilePermissionError with descriptive message' do
-      it 'raises FilePermissionError instead of CoverageDataStaleError' do
+    shared_examples 'raises FileError with descriptive message' do
+      it 'raises FileError instead of CoverageDataStaleError' do
         expect { checker.check_file!(file, coverage_lines) }
-          .to raise_error(CovLoupe::FilePermissionError) do |error|
-            expect(error.message).to include('Permission denied')
+          .to raise_error(CovLoupe::FileError) do |error|
+            expect(error.message).to include('Error reading file')
             expect(error.message).to include('lib/test.rb')
           end
       end
@@ -119,7 +119,7 @@ RSpec.describe CovLoupe::CoverageDataStaleError do
           .and_raise(Errno::EACCES.new('Permission denied'))
       end
 
-      it_behaves_like 'raises FilePermissionError with descriptive message'
+      it_behaves_like 'raises FileError with descriptive message'
     end
   end
 end
