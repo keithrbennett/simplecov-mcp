@@ -10,6 +10,17 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
   let(:resultset_arg) { nil }
   let(:logger) { instance_double('CovLoupe::Logger', safe_log: nil) }
 
+  # Helper to set up volume case sensitivity mocking and resultset with custom coverage data
+  def setup_volume_and_coverage(case_sensitive:, coverage_data:)
+    # Mock volume_case_sensitive? to return the specified value
+    allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
+      .with(anything)
+      .and_return(case_sensitive)
+
+    # Set up the resultset with the provided coverage data
+    mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+  end
+
   describe '#initialize' do
     context 'with valid data' do
       it 'loads coverage map' do
@@ -143,18 +154,15 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
       context 'with case-only path collision on case-insensitive volume' do
         let(:foo_path_lower) { File.join(root, 'lib', 'foo.rb') }
         let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
-
-        before do
-          # Mock volume_case_sensitive? to return false (case-insensitive)
-          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
-            .and_return(false)
-
-          # Simulate a resultset with paths that differ only in case
-          coverage_data = {
+        let(:coverage_data) do
+          {
             foo_path_lower => { 'lines' => [1, 0, nil, 2] },
             foo_path_upper => { 'lines' => [1, 1, nil, 2] }
           }
-          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+        end
+
+        before do
+          setup_volume_and_coverage(case_sensitive: false, coverage_data: coverage_data)
         end
 
         it 'raises CoverageDataError detecting case collision' do
@@ -176,18 +184,15 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
       context 'with case-only path differences on case-sensitive volume' do
         let(:foo_path_lower) { File.join(root, 'lib', 'foo.rb') }
         let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
-
-        before do
-          # Mock volume_case_sensitive? to return true (case-sensitive)
-          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
-            .and_return(true)
-
-          # Simulate a resultset with paths that differ only in case
-          coverage_data = {
+        let(:coverage_data) do
+          {
             foo_path_lower => { 'lines' => [1, 0, nil, 2] },
             foo_path_upper => { 'lines' => [1, 1, nil, 2] }
           }
-          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+        end
+
+        before do
+          setup_volume_and_coverage(case_sensitive: true, coverage_data: coverage_data)
         end
 
         it 'does not raise an error for case-only differences' do
@@ -209,17 +214,12 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
       # collision detection uses case normalization.
       context 'with mixed-case paths on case-insensitive volume without collisions' do
         let(:foo_path_upper) { File.join(root, 'lib', 'Foo.rb') }
+        let(:coverage_data) do
+          { foo_path_upper => { 'lines' => [1, 1, nil, 2] } }
+        end
 
         before do
-          # Mock volume_case_sensitive? to return false (case-insensitive)
-          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
-            .and_return(false)
-
-          # Simulate a resultset with a single mixed-case path
-          coverage_data = {
-            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
-          }
-          mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
+          setup_volume_and_coverage(case_sensitive: false, coverage_data: coverage_data)
         end
 
         it 'preserves the original case in the coverage map key' do
