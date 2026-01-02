@@ -81,23 +81,18 @@ RSpec.describe CovLoupe::PathRelativizer do
     end
 
     # On Windows, relative_path_from raises ArgumentError for paths on different
-    # drives (e.g., C: vs D:). The rescue block returns the original path.
-    it 'returns original path when relative_path_from raises ArgumentError' do
-      fake_pathname = instance_double(Pathname)
-      allow(fake_pathname).to receive_messages(
-        absolute?: true,
-        cleanpath: fake_pathname,
-        to_s: File.absolute_path('lib/foo.rb', root)
-      )
-      allow(fake_pathname).to receive(:relative_path_from)
-        .and_raise(ArgumentError, 'different prefix')
-      allow(Pathname).to receive(:new).and_call_original
-      allow(Pathname).to receive(:new).with(File.absolute_path('lib/foo.rb', root))
-        .and_return(fake_pathname)
+    # drives (e.g., C: vs D:). PathUtils.relativize rescues and returns the original path.
+    it 'returns original path when PathUtils.relativize returns original path' do
+      test_path = File.join(root, 'lib/foo.rb')
 
-      result = relativizer.relativize_path(File.join(root, 'lib/foo.rb'))
+      # Mock PathUtils to simulate the ArgumentError rescue behavior
+      allow(CovLoupe::PathUtils).to receive(:relativize)
+        .with(test_path, root)
+        .and_return(test_path)
 
-      expect(result).to eq(File.join(root, 'lib/foo.rb'))
+      result = relativizer.relativize_path(test_path)
+
+      expect(result).to eq(test_path)
     end
 
     it 'returns the project root as dot when relativizing the root path' do
