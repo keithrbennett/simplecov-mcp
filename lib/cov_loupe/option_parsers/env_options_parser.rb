@@ -24,15 +24,26 @@ module CovLoupe
       end
 
       def pre_scan_error_mode(argv, error_mode_normalizer: method(:normalize_error_mode))
-        # Quick scan for --error-mode to ensure early errors are logged correctly
-        argv.each_with_index do |arg, i|
-          if arg == '--error-mode' && argv[i + 1]
+        # Quick scan for --error-mode or -e to ensure early errors are logged correctly.
+        # Scan in reverse so that the last occurrence (CLI) overrides earlier ones (ENV).
+        i = argv.length - 1
+        while i >= 0
+          arg = argv[i]
+          if %w[--error-mode -e].include?(arg) && argv[i + 1]
             return error_mode_normalizer.call(argv[i + 1])
+
           elsif arg.start_with?('--error-mode=')
             value = arg.split('=', 2)[1]
-            return nil if value.to_s.empty?
-            return error_mode_normalizer.call(value) if value
+            return error_mode_normalizer.call(value)
+
+          elsif arg.start_with?('-e') && arg.length > 2
+            # Handle attached short option: -edebug
+            value = arg[2..]
+            return error_mode_normalizer.call(value)
+
           end
+
+          i -= 1
         end
         nil
       rescue

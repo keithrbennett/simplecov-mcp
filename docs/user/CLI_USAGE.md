@@ -571,6 +571,7 @@ Error handling verbosity.
 ```sh
 clp --error-mode debug summary lib/api/client.rb
 clp -e debug summary lib/api/client.rb  # -e = --error-mode
+clp -edebug summary lib/api/client.rb   # attached short option form
 ```
 
 ### `-m, --mode MODE`

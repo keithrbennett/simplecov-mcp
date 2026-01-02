@@ -120,20 +120,54 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
       it 'handles error-mode with equals but empty value' do
         argv = %w[--error-mode= --other-option]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
-        # Empty value after = explicitly returns nil (line 32)
-        expect(result).to be_nil
+        # Empty value resolves to default :log
+        expect(result).to eq(:log)
       end
 
-      it 'returns first error-mode when multiple are present' do
+      it 'returns last error-mode when multiple are present' do
         argv = %w[--error-mode log --error-mode off]
+        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+        expect(result).to eq(:off)
+      end
+
+      it 'supports short -e flag' do
+        argv = %w[-e debug]
+        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+        expect(result).to eq(:debug)
+      end
+
+      it 'supports attached short -e flag (-edebug)' do
+        argv = %w[-edebug]
+        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+        expect(result).to eq(:debug)
+      end
+
+      it 'returns default for -e=debug because optparse does not strip equals for short options' do
+        argv = %w[-e=debug]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
         expect(result).to eq(:log)
       end
 
-      it 'returns nil when a standalone --error-mode lacks a value' do
-        argv = %w[--error-mode]
+      it 'prioritizes later flags over earlier ones (mixed short/long)' do
+        argv = %w[--error-mode log -e debug]
         result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
-        expect(result).to be_nil
+        expect(result).to eq(:debug)
+      end
+
+      it 'treats trailing empty assignment as an override (returning default)' do
+        # Simulates ENV providing 'off', but CLI providing invalid/empty override.
+        # Should stop at the last one and return default (:log), not fall back to :off.
+        argv = %w[--error-mode off --error-mode=]
+        result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+        expect(result).to eq(:log)
+      end
+
+      it 'returns nil when a standalone option lacks a value at the end of argv' do
+        %w[--error-mode -e].each do |opt|
+          argv = ['--other-opt', opt]
+          result = parser.pre_scan_error_mode(argv, error_mode_normalizer: error_mode_normalizer)
+          expect(result).to be_nil
+        end
       end
     end
 
