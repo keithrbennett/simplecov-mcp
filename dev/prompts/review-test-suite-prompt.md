@@ -12,7 +12,7 @@ Carefully examine the test suite. Report and fix:
 Ensure that any code changes comply with rubocop linting:
 
 - run `rubocop` to see if there are any errors
-- run `rubocp -A` to fix anything rubocop is capable of fixing
+- run `rubocop -A` to fix anything rubocop is capable of fixing
 - fix the other errors yourself
 
 Run the test suite as necessary to verify that all tests pass.

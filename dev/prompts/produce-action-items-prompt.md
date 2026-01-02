@@ -5,9 +5,10 @@
 - Use the cov-loupe MCP server *as an MCP server, not a command line application with args, to find information about test coverage. Only if you are unable to use the cov-loupe MCP server, use cov-loupe in CLI mode (run cov-loupe -h for help).
 - Write your analysis in a Markdown file whose name is:
 
-today's date in YYYY-MM-DD format +
-'-action-items-' +
-your name (e.g. 'codex, claude, gemini, zai)
+- today's date in UTC `%Y-%m-%d-%H-%M` format +
+- '-action-items-' +
+- your name (e.g. 'codex', 'claude', 'gemini', 'zai') +
+- the `.md` extension.
 
 At the end, produce a markdown table that summarizes the issues, in descending order of importance, including as columns:
 

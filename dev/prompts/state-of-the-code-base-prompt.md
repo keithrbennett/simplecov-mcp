@@ -4,8 +4,8 @@
 
 Before you begin the report:
 
-1. If `git status` shows uncommitted changes, inform me, ask for confirmation to proceed, and—if I consent—start the report with those `git status` details.
-2. Always open the report by citing the most recent git commit at the time you begin writing.
+1. Always open the report by citing the most recent git commit at the time you begin writing.
+2. If `git status` shows uncommitted changes, inform me, ask for confirmation to proceed, and—if I consent—include those `git status` details immediately after the commit citation.
 3. Limit the review strictly to git-tracked files.
 
 ----
@@ -28,7 +28,8 @@ Before you begin the report:
 Write your analysis in a Markdown file whose name is:
 - today's date in UTC `%Y-%m-%d-%H-%M` format +
 - '-state-of-the-code-base-' + 
-- your name (e.g. 'codex, claude, gemini, zai)
+- your name (e.g. 'codex', 'claude', 'gemini', 'zai') +
+- the `.md` extension.
 
 The file should have the following structure:
 

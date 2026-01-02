@@ -32,7 +32,7 @@ Write your analysis in a Markdown file whose name is:
 - today's date in UTC `%Y-%m-%d-%H-%M` format +
 - '-architectural-review-' +
 - your name (e.g. 'codex', 'claude', 'gemini', 'zai') +
-- '.md'
+- the `.md` extension.
 
 **For each issue found:**
 1.  **Headline & Description:** Clear and concise.

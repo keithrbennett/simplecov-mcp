@@ -28,5 +28,6 @@ Before you begin the report:
 Write your analysis in a Markdown file whose name is:
 - today's date in UTC `%Y-%m-%d-%H-%M` format +
 - '-issue-investigation-' +
-- your name (e.g. 'codex, claude, gemini, zai)
+- your name (e.g. 'codex', 'claude', 'gemini', 'zai') +
+- the `.md` extension.
 
