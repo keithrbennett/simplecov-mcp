@@ -70,6 +70,20 @@ Path normalization is centralized in the `PathUtils` module (`lib/cov_loupe/path
 
 `CoverageLineResolver` delegates all path normalization to `PathUtils.normalize`, avoiding scattered platform checks and keeping the resolver logic focused on lookup strategies.
 
+#### Path Comparison Strategy
+
+Path comparison uses a **normalize-for-comparison-only** approach rather than normalize-and-store:
+
+- **Original paths are preserved** - `PathUtils.expand` preserves the original case to avoid corrupting displayed file paths
+- **Normalization happens at comparison time** - The `normalized_start_with?` helper method normalizes both paths internally for comparison but doesn't modify the originals
+- **Boundary checking** - Prevents false matches where a path starts with a prefix string but isn't actually within that directory (e.g., `/home/user/project` should not match `/home/user/project-backup/file.rb`)
+
+This approach ensures:
+1. User-visible paths maintain original casing for better UX
+2. Path matching works correctly on case-insensitive volumes (Windows, most macOS)
+3. Mixed path separators (forward slash vs backslash) are handled transparently
+4. Directory boundary checking prevents incorrect prefix matches
+
 ### References
 
 - Implementation: `lib/cov_loupe/resolvers/coverage_line_resolver.rb` (delegates to `PathUtils`)

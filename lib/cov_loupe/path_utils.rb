@@ -74,9 +74,25 @@ module CovLoupe
       abs_root = expand(root)
 
       # Check if path is within root using normalized comparison
-      return path unless normalized_start_with?(abs_path, abs_root) || abs_path == abs_root
+      return path unless normalized_start_with?(abs_path, abs_root)
 
-      Pathname.new(abs_path).relative_path_from(Pathname.new(abs_root)).to_s
+      # Normalize paths before calling relative_path_from to handle case-insensitive
+      # volumes and mixed separators. This ensures Pathname can correctly compute
+      # the relative path even when the input paths have different casings or separators.
+      # On case-insensitive volumes, normalize case as well so Pathname recognizes them as the same path.
+      normalized_path = normalize(abs_path, normalize_case: !volume_case_sensitive?)
+      normalized_root = normalize(abs_root, normalize_case: !volume_case_sensitive?)
+
+      relative = Pathname.new(normalized_path)
+        .relative_path_from(Pathname.new(normalized_root))
+        .to_s
+
+      # Preserve original casing from abs_path by mapping normalized components back
+      if !volume_case_sensitive? && relative != '.'
+        preserve_original_casing(relative, abs_path, abs_root)
+      else
+        relative
+      end
     rescue ArgumentError
       # Path is on a different drive or cannot be made relative
       path
@@ -114,7 +130,7 @@ module CovLoupe
       abs_path = expand(path)
       abs_root = expand(root)
 
-      abs_path == abs_root || abs_path.start_with?(root_prefix(abs_root))
+      normalized_start_with?(abs_path, abs_root)
     end
 
     # Extracts basename from a path, handling normalization
@@ -153,6 +169,30 @@ module CovLoupe
       root.end_with?(File::SEPARATOR) ? root : "#{root}#{File::SEPARATOR}"
     end
 
+    # Preserves original casing from the source path when creating a relative path
+    #
+    # @param relative_path [String] normalized relative path
+    # @param source_path [String] original source path with original casing
+    # @param root_path [String] root path
+    # @return [String] relative path with original casing preserved
+    def self.preserve_original_casing(relative_path, source_path, root_path)
+      # Split paths into components
+      relative_components = relative_path.split('/')
+      source_components = normalize(source_path, normalize_case: false).split('/')
+      root_components = normalize(root_path, normalize_case: false).split('/')
+
+      # Skip root components to get to the relative part
+      relative_start_index = root_components.length
+
+      # Map each normalized component back to its original casing
+      original_components = relative_components.map.with_index do |_component, index|
+        source_index = relative_start_index + index
+        source_components[source_index] || relative_components[index]
+      end
+
+      original_components.join('/')
+    end
+
     # Checks if a path starts with a prefix using normalized comparison
     # to handle case-insensitive volumes and mixed separators
     #
@@ -174,9 +214,9 @@ module CovLoupe
       return true if normalized_path == normalized_prefix
 
       # Otherwise, ensure character after prefix is a path separator
+      # (normalize converts all backslashes to forward slashes, so only check for /)
       prefix_length = normalized_prefix.length
-      next_char = normalized_path[prefix_length]
-      ['/', '\\'].include?(next_char)
+      normalized_path[prefix_length] == '/'
     end
   end
 end
