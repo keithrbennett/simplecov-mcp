@@ -192,6 +192,32 @@ RSpec.describe CovLoupe::CoverageModel do
       end
     end
 
+    it 'reports stale file counts while excluding them from line totals' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+      abs_bar = File.expand_path('lib/bar.rb', root)
+
+      checker = instance_double(CovLoupe::StalenessChecker)
+      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:check_project_with_lines!).and_return(
+        newer_files: [],
+        missing_files: [],
+        deleted_files: [],
+        length_mismatch_files: [],
+        unreadable_files: [],
+        file_statuses: {
+          abs_foo => false,
+          abs_bar => 'T'
+        }
+      )
+
+      totals = model.project_totals
+
+      aggregate_failures do
+        expect(totals['lines']).to include('total' => 3, 'covered' => 2, 'uncovered' => 1)
+        expect(totals['files']).to include('total' => 2, 'ok' => 1, 'stale' => 1)
+      end
+    end
+
     it 'excludes stale rows from totals and reports length/unreadable exclusions' do
       abs_foo = File.expand_path('lib/foo.rb', root)
       abs_bar = File.expand_path('lib/bar.rb', root)

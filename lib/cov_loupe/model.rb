@@ -136,8 +136,29 @@ module CovLoupe
         tracked_globs: tracked_globs)
 
       rows = list_result['files']
+
+      # Compute line totals from only non-stale rows
       included_rows = rows.reject { |row| row['stale'] }
-      totals_from_rows(included_rows).merge(
+      line_totals = totals_from_rows(included_rows)
+
+      # Compute file counts separately:
+      # - Exclude files with error statuses ('L', 'E') from totals entirely
+      #   (they're already counted in excluded_files)
+      # - Count only 'T' (timestamp stale) files as "stale"
+      # - Count false/nil as "ok"
+      countable_rows = rows.reject { |row| ['L', 'E'].include?(row['stale']) }
+      total_files = countable_rows.length
+      stale_files = countable_rows.count { |row| row['stale'] == 'T' }
+      ok_files = total_files - stale_files
+
+      # Override file counts to reflect accurate totals
+      line_totals['files'] = {
+        'total' => total_files,
+        'ok' => ok_files,
+        'stale' => stale_files
+      }
+
+      line_totals.merge(
         'excluded_files' => {
           'skipped' => list_result['skipped_files'].length,
           'missing_tracked' => list_result['missing_tracked_files'].length,
