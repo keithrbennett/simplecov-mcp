@@ -12,8 +12,8 @@ Before you begin the report:
 - You are a senior software architect and code reviewer.
 - Your task is to analyze this code base thoroughly and report any issues needing addressing.
 - Focus on bugs, identifying weaknesses, risks, ambiguities, and other areas for improvement.
-- Disregard any issues included in /dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.
-- Repeating for emphasis: **Disregard any issues included in /dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.**
+- Disregard any issues included in dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.
+- Repeating for emphasis: **Disregard any issues included in dev/prompts/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.**
 - For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
 - If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
 - To Codex: do investigate thoroughly for real issues, you are excellent at that, but do not be excessively critical:

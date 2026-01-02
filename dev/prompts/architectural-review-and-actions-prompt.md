@@ -15,7 +15,7 @@ Before you begin the report:
 
 ### Exclusions & Fairness
 
-- **Consult Guidelines:** Disregard any issues included in `/dev/prompts/ai-code-evaluator-guidelines.md` (e.g. Arbitrary Code Execution in Validate, Race Conditions, Metrics Cops), unless your objections are not covered in that document.
+- **Consult Guidelines:** Disregard any issues included in `dev/prompts/ai-code-evaluator-guidelines.md` (e.g. Arbitrary Code Execution in Validate, Race Conditions, Metrics Cops), unless your objections are not covered in that document.
 - **Be Balanced:** Do not be excessively critical.
     - Do not list issues that are not real issues.
     - If there is a tradeoff between A and B, and the justification is sound and documented, do not penalize the code base for that tradeoff.

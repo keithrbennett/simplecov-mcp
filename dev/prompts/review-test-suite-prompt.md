@@ -11,8 +11,8 @@ Carefully examine the test suite. Report and fix:
 
 Ensure that any code changes comply with rubocop linting:
 
-- run `rubocop` to see if there are any errors
-- run `rubocop -A` to fix anything rubocop is capable of fixing
+- run `rubocop` to see if there are any errors. If cache writes fail (e.g., in a sandboxed environment), use `bundle exec rubocop --cache false`.
+- run `rubocop -A` (or `bundle exec rubocop -A --cache false` if needed) to fix anything rubocop is capable of fixing
 - fix the other errors yourself
 
 Run the test suite as necessary to verify that all tests pass.
