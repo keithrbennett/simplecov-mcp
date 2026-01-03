@@ -71,7 +71,12 @@ def compute_file_staleness_details(file_abs, coverage_lines)
   cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
   src_len = exists ? safe_count_lines(file_abs) : 0
 
-  newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
+  # If coverage timestamp is 0 (missing/invalid), we cannot determine if file is newer
+  newer = if coverage_ts.to_i > 0
+            !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
+          else
+            false
+          end
 
   len_mismatch = (cov_len.positive? && src_len != cov_len)
   newer &&= !len_mismatch  # Prioritize length mismatch over timestamp

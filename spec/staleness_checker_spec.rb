@@ -122,6 +122,23 @@ RSpec.describe CovLoupe::StalenessChecker do
       },
       expected_stale_char: false,
       expected_error: nil
+
+    it_behaves_like 'a staleness check',
+      description: 'ignores timestamp check when coverage timestamp is 0 (missing/invalid)',
+      file_lines: %w[a b],
+      coverage_lines: [1, 1],
+      timestamp: 0,
+      expected_details: {
+        exists: true,
+        cov_len: 2,
+        src_len: 2,
+        newer: false,
+        len_mismatch: false,
+        file_mtime: :any,
+        coverage_timestamp: 0
+      },
+      expected_stale_char: false,
+      expected_error: nil
   end
 
   context 'when file stat calls raise errors' do
@@ -327,6 +344,18 @@ RSpec.describe CovLoupe::StalenessChecker do
         FileUtils.remove_entry(tracked_root)
       end
     end
+
+    it 'does not report files as newer when timestamp is 0 in project check' do
+      file = File.join(tmpdir, 'test.rb')
+      write_file(file, %w[a b])
+      coverage_map = { file => [1, 1] }
+
+      checker = described_class.new(root: tmpdir, resultset: nil, mode: :error,
+        timestamp: 0)
+
+      details = checker.check_project!(coverage_map)
+      expect(details[:newer_files]).to be_empty
+    end
   end
 
   context 'when handling file permission errors in project checks' do
@@ -360,14 +389,14 @@ RSpec.describe CovLoupe::StalenessChecker do
     it 'handles File.mtime errors gracefully in compute_newer_and_deleted_files' do
       create_test_file(test_file, "puts 'test'\n")
       coverage_map = { test_file => [1] }
-      checker_with_old_timestamp = described_class.new(
-        root: tmpdir, resultset: nil, mode: :off, timestamp: Time.at(0)
+      checker_with_valid_timestamp = described_class.new(
+        root: tmpdir, resultset: nil, mode: :off, timestamp: Time.at(100)
       )
 
       allow(File).to receive(:mtime).with(test_file)
         .and_raise(Errno::EPERM.new('Operation not permitted'))
 
-      details = checker_with_old_timestamp.check_project!(coverage_map)
+      details = checker_with_valid_timestamp.check_project!(coverage_map)
       expect(details[:unreadable_files]).to include('test.rb')
     end
 

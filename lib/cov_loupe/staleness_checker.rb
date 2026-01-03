@@ -179,8 +179,11 @@ module CovLoupe
       end
 
       newer = []
+      # If timestamp is missing/0, skip newer checks
+      check_newer = timestamp.to_i > 0
+
       existing.each do |abs|
-        newer << rel(abs) if File.mtime(abs).to_i > timestamp.to_i
+        newer << rel(abs) if check_newer && File.mtime(abs).to_i > timestamp.to_i
       rescue SystemCallError, IOError
         # Permission denied or other filesystem errors reading mtime
         unreadable_abs << abs
@@ -310,6 +313,8 @@ module CovLoupe
     # - If len_mismatch or read_error is true, set newer to false (those take precedence)
     # - This way, staleness is categorized as either 'T' (time-based), 'L' (length-based), or 'E' (error), not multiple
     private def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch, read_error)
+      return false if coverage_ts.to_i <= 0
+
       newer = !!(file_mtime && file_mtime.to_i > coverage_ts.to_i)
       # If there's a length mismatch or read error, don't also flag as "newer" - those are more specific
       newer &&= !len_mismatch && !read_error

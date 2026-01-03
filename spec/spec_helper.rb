@@ -41,9 +41,10 @@ FIXTURE_PROJECT1_RESULTSET_PATH = (FIXTURES_DIR / 'project1' / 'coverage' / '.re
 # This represents when the coverage data in spec/fixtures/project1/coverage/.resultset.json was "generated"
 FIXTURE_COVERAGE_TIMESTAMP = 1_720_000_000
 
-# Very old timestamp: 0 = 1970-01-01 00:00:00 UTC (Unix epoch)
+# Very old timestamp: 1 = 1970-01-01 00:00:01 UTC (Unix epoch + 1s)
 # Used in tests to simulate stale coverage (much older than any real file)
-VERY_OLD_TIMESTAMP = 0
+# Note: 0 is reserved for missing/invalid timestamps which disable staleness checks.
+VERY_OLD_TIMESTAMP = 1
 
 # Test timestamps for stale error formatting tests
 # 1000 = 1970-01-01 00:16:40 UTC (16 minutes and 40 seconds after epoch)

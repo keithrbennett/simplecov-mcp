@@ -22,10 +22,10 @@ RSpec.describe CovLoupe::CoverageDataStaleError do
     expect(msg).to include('Coverage data stale: Coverage data appears stale for foo.rb')
     expect(msg).to match(/File\s*-\s*time:\s*1970-01-01T00:16:40Z/)
     expect(msg).to include('(local ') # do not assert exact local tz
-    expect(msg).to match(/Coverage\s*-\s*time:\s*1970-01-01T00:00:00Z/)
+    expect(msg).to match(/Coverage\s*-\s*time:\s*1970-01-01T00:00:01Z/)
     expect(msg).to match(/lines:\s*10/)
     expect(msg).to match(/lines:\s*8/)
-    expect(msg).to match(/Delta\s*- file is \+1000s newer than coverage/)
+    expect(msg).to match(/Delta\s*- file is \+999s newer than coverage/)
     expect(msg).to include('Resultset - /path/to/coverage/.resultset.json')
   end
 
