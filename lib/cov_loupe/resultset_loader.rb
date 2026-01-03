@@ -100,7 +100,11 @@ module CovLoupe
 
     private def normalize_coverage_timestamp(timestamp_value, created_at_value)
       raw = timestamp_value.nil? ? created_at_value : timestamp_value
-      return 0 if raw.nil?
+      if raw.nil?
+        @logger.safe_log('Coverage timestamp missing, defaulting to 0. ' \
+                         'Time-based staleness checks will be disabled.')
+        return 0
+      end
 
       case raw
       when Integer

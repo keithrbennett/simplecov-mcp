@@ -85,9 +85,10 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(result).to be_a(Hash)
       expect(result.keys).to contain_exactly(
         'files', 'skipped_files', 'missing_tracked_files', 'newer_files', 'deleted_files',
-        'length_mismatch_files', 'unreadable_files'
+        'length_mismatch_files', 'unreadable_files', 'timestamp_status'
       )
-      result.each_value { |v| expect(v).to be_a(Array) }
+      expect(result['timestamp_status']).to be_a(Symbol).or be_a(String)
+      result.except('timestamp_status').each_value { |v| expect(v).to be_a(Array) }
     end
 
     it 'sorts files correctly' do

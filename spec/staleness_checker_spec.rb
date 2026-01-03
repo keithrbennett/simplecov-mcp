@@ -355,6 +355,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.check_project!(coverage_map)
       expect(details[:newer_files]).to be_empty
+      expect(details[:timestamp_status]).to eq(:missing)
     end
   end
 

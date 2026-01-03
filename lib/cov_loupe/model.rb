@@ -122,7 +122,8 @@ module CovLoupe
         'newer_files' => project_staleness_details[:newer_files],
         'deleted_files' => project_staleness_details[:deleted_files],
         'length_mismatch_files' => length_mismatch_files,
-        'unreadable_files' => unreadable_files
+        'unreadable_files' => unreadable_files,
+        'timestamp_status' => project_staleness_details[:timestamp_status]
       }
     end
 
@@ -166,7 +167,8 @@ module CovLoupe
           'deleted' => list_result['deleted_files'].length,
           'length_mismatch' => list_result.fetch('length_mismatch_files', []).length,
           'unreadable' => list_result.fetch('unreadable_files', []).length
-        }
+        },
+        'timestamp_status' => list_result.fetch('timestamp_status', :ok)
       )
     end
 

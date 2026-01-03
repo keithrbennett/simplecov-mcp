@@ -81,7 +81,8 @@ module CovLoupe
         newer_files: newer,
         missing_files: missing,
         deleted_files: deleted,
-        unreadable_files: unreadable
+        unreadable_files: unreadable,
+        timestamp_status: ts.to_i > 0 ? :ok : :missing
       }
 
       if @mode == :error && (newer.any? || missing.any? || deleted.any? || unreadable.any?)
@@ -142,7 +143,8 @@ module CovLoupe
         deleted_files: deleted,
         length_mismatch_files: length_mismatch,
         unreadable_files: unreadable,
-        file_statuses: file_statuses
+        file_statuses: file_statuses,
+        timestamp_status: ts.to_i > 0 ? :ok : :missing
       }
 
       if @mode == :error && [newer, missing, deleted, length_mismatch, unreadable].any?(&:any?)
