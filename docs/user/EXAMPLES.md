@@ -202,7 +202,7 @@ model = CovLoupe::CoverageModel.new(root: root)
 # Project totals
 totals = model.project_totals
 puts "Total files: #{totals['files']['total']}"
-puts "Average coverage: #{totals['percentage']}%"
+puts "Average coverage: #{totals['lines']['percent_covered']}%"
 
 # Check specific file
 summary = model.summary_for("app/models/order.rb")
@@ -238,7 +238,7 @@ dirs = %w[app lib lib/payments lib/ops/jobs].uniq
 dirs.each do |dir|
   pattern = File.join(dir, '**/*.rb')
   totals = model.project_totals(tracked_globs: pattern)
-  puts "#{dir}: #{totals['percentage'].round(2)}% (#{totals['files']['total']} files)"
+  puts "#{dir}: #{totals['lines']['percent_covered'].round(2)}% (#{totals['files']['total']} files)"
 end
 ```
 
@@ -446,14 +446,14 @@ test:
 
   # Must have at least 80% average coverage
   totals = model.project_totals
-  return false if totals['percentage'] < 80.0
+  return false if totals['lines']['percent_covered'] < 80.0
 
   # No files below 60%
   return false if list.any? { |f| f['percentage'] < 60.0 }
 
   # lib/ files must average 90%
   lib_totals = model.project_totals(tracked_globs: ['lib/**/*.rb'])
-  return false if lib_totals['percentage'] < 90.0
+  return false if lib_totals['lines']['percent_covered'] < 90.0
 
   true
 end
@@ -487,7 +487,7 @@ results = patterns.map do |pattern|
   {
     directory: pattern,
     files: totals['files']['total'],
-    coverage: totals['percentage'].round(2),
+    coverage: totals['lines']['percent_covered'].round(2),
     covered: totals['lines']['covered'],
     total: totals['lines']['total']
   }

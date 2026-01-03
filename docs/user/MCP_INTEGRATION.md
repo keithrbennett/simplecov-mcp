@@ -211,8 +211,8 @@ These tools analyze individual files. All require `path` parameter.
 
 **`coverage_totals_tool`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`
-- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N},"percentage":Float,"files":{"total":N,"ok":N,"stale":N},"excluded_files":{"skipped":N,"missing_tracked":N,"newer":N,"deleted":N,"length_mismatch":N,"unreadable":N},"timestamp_status":"ok|missing"}`
-- The `excluded_files` object shows counts of files excluded from totals due to errors, staleness, or tracking issues. Totals exclude stale files (`M`, `T`, `L`, `E`). When `raise_on_stale` is enabled, errors are raised immediately for problematic files and this field won't be present.
+- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N,"percent_covered":Float},"tracking":{"enabled":Boolean,"globs":[String]},"files":{"total":N,"with_coverage":{"total":N,"ok":N,"stale":{"total":N,"by_type":{"missing_from_disk":N,"newer":N,"length_mismatch":N,"unreadable":N}}},"without_coverage":{"total":N,"by_type":{"missing_from_coverage":N,"unreadable":N,"skipped":N}}}}`
+- `without_coverage` is only present when tracking is enabled (tracked globs provided).
 
 **`coverage_table_tool`** - Formatted table with box-drawing characters
 - Parameters: `sort_order` (`ascending`|`descending`)

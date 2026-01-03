@@ -58,42 +58,43 @@
 
   **Why this matters:** Before this change, copying a file like `model_2.rb` to `lib/` wouldn't appear anywhere unless you explicitly set `--tracked-globs`. Now it will automatically appear in the "Missing" exclusion category in totals output, helping you catch gaps in coverage.
 
-- **Project totals now include exclusion metadata**: The `totals` subcommand and `coverage_totals_tool` now include an `excluded_files` object in their output, showing counts of files excluded from totals:
-  - `skipped`: Files with coverage data errors (corrupt data, missing entries)
-  - `missing_tracked`: Tracked files that have no coverage data
-  - `newer`: Files modified after the coverage run
-  - `deleted`: Coverage entries for files that no longer exist
-
-  This addresses a data-correctness issue where totals could appear healthy while silently omitting problematic files. When `raise_on_stale` is enabled, errors are raised immediately as before. When disabled, exclusion counts provide visibility into partial data.
+- **Project totals now include coverage breakdowns**: The `totals` subcommand and `coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
 
   **Example output:**
   ```json
   {
-    "lines": { "total": 100, "covered": 90, "uncovered": 10 },
-    "percentage": 90.0,
-    "files": { "total": 10, "ok": 9, "stale": 1 },
-    "excluded_files": {
-      "skipped": 0,
-      "missing_tracked": 0,
-      "newer": 0,
-      "deleted": 0
+    "lines": { "total": 100, "covered": 90, "uncovered": 10, "percent_covered": 90.0 },
+    "tracking": { "enabled": true, "globs": ["lib/**/*.rb"] },
+    "files": {
+      "total": 10,
+      "with_coverage": {
+        "total": 9,
+        "ok": 8,
+        "stale": {
+          "total": 1,
+          "by_type": {
+            "missing_from_disk": 0,
+            "newer": 1,
+            "length_mismatch": 0,
+            "unreadable": 0
+          }
+        }
+      },
+      "without_coverage": {
+        "total": 1,
+        "by_type": {
+          "missing_from_coverage": 1,
+          "unreadable": 0,
+          "skipped": 0
+        }
+      }
     }
   }
   ```
 
-  Table format also shows exclusions when they exist:
-  ```
-  ┌──────────┬───────┬─────────┬───────────┬────────┐
-  │ Metric   │ Total │ Covered │ Uncovered │      % │
-  ├──────────┼───────┼─────────┼───────────┼────────┤
-  │ Lines    │    90 │      85 │         5 │ 94.44% │
-  │ Files    │     9 │       9 │         0 │        │
-  │ Excluded │     1 │         │           │        │
-  │  Missing │     1 │         │           │        │
-  └──────────┴───────┴─────────┴───────────┴────────┘
-  ```
+  Table format also includes a file breakdown section after totals.
 
-  This is a **non-breaking change** – the new field is additive and all existing consumers continue to work.
+  **Breaking change:** The JSON shape for totals has changed (the old `percentage` and `excluded_files` fields are removed).
 
 **📖 For complete migration guide, see [docs/user/migrations/MIGRATING_TO_V4.md](docs/user/migrations/MIGRATING_TO_V4.md)**
 

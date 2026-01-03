@@ -19,32 +19,55 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       it 'prints aggregated totals for the project' do
         output = capture_command_output(command, [])
 
-        expect(output).to include('│', 'Lines', '50.00%')
+        expect(output).to include('Tracked globs:', 'Totals', '│', 'Lines', '50.00%')
       end
 
-      it 'does not show excluded rows when no files are excluded' do
-        # Disable tracked globs to ensure no missing files are detected
+      it 'omits without coverage breakdown when tracking is disabled' do
+        # Disable tracked globs to ensure tracking is off
         cli_context.config.tracked_globs = []
         output = capture_command_output(command, [])
 
-        expect(output).not_to include('Excluded')
-        expect(output).not_to include('Skipped')
+        expect(output).to include('Tracked globs: (tracking disabled)')
+        expect(output).not_to include('Without coverage')
       end
 
-      it 'shows excluded files breakdown when files are excluded' do
-        # Mock the presenter to return data with excluded files
+      it 'shows file breakdown with stale and without coverage details' do
+        # Mock the presenter to return data with stale and without coverage counts
         presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
         allow(presenter_double).to receive(:absolute_payload).and_return(
-          'lines' => { 'total' => 6, 'covered' => 3, 'uncovered' => 3 },
-          'percentage' => 50.0,
-          'files' => { 'total' => 2, 'ok' => 2, 'stale' => 0 },
-          'excluded_files' => {
-            'skipped' => 1,
-            'missing_tracked' => 0,
-            'newer' => 2,
-            'deleted' => 1,
-            'length_mismatch' => 1,
-            'unreadable' => 1
+          'lines' => {
+            'total' => 6,
+            'covered' => 3,
+            'uncovered' => 3,
+            'percent_covered' => 50.0
+          },
+          'tracking' => {
+            'enabled' => true,
+            'globs' => ['lib/**/*.rb']
+          },
+          'files' => {
+            'total' => 4,
+            'with_coverage' => {
+              'total' => 3,
+              'ok' => 2,
+              'stale' => {
+                'total' => 1,
+                'by_type' => {
+                  'missing_from_disk' => 0,
+                  'newer' => 1,
+                  'length_mismatch' => 0,
+                  'unreadable' => 0
+                }
+              }
+            },
+            'without_coverage' => {
+              'total' => 1,
+              'by_type' => {
+                'missing_from_coverage' => 1,
+                'unreadable' => 0,
+                'skipped' => 0
+              }
+            }
           }
         )
         allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new)
@@ -53,33 +76,16 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
         output = capture_command_output(command, [])
 
         aggregate_failures do
-          expect(output).to include('Excluded', '6')
-          expect(output).to include('Skipped', '1')
-          expect(output).to include('Newer', '2')
-          expect(output).to include('Deleted', '1')
-          expect(output).to include('Line mismatch', '1')
-          expect(output).to include('Unreadable', '1')
-          expect(output).not_to include('Missing') # 0, so not shown
+          expect(output).to include('File breakdown:')
+          expect(output).to include('With coverage: 3 total, 2 ok, 1 stale')
+          expect(output).to include('newer than coverage = 1')
+          expect(output).to include('Without coverage: 1 total')
+          expect(output).to include('Missing from coverage = 1')
         end
       end
     end
 
-    it_behaves_like 'a command with formatted output', [], %w[lines files percentage]
-
-    context 'with JSON format' do
-      before { cli_context.config.format = :json }
-
-      it 'includes excluded_files metadata in output' do
-        output = capture_command_output(command, [])
-        data = JSON.parse(output)
-
-        expect(data).to have_key('excluded_files')
-        expect(data['excluded_files']).to be_a(Hash)
-        expect(data['excluded_files'].keys).to contain_exactly(
-          'skipped', 'missing_tracked', 'newer', 'deleted', 'length_mismatch', 'unreadable'
-        )
-      end
-    end
+    it_behaves_like 'a command with formatted output', [], %w[lines tracking files]
 
     it 'raises when unexpected arguments are provided' do
       expect do

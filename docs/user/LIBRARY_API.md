@@ -175,14 +175,17 @@ Returns aggregated coverage totals across all files.
 **Example:**
 ```ruby
 totals = model.project_totals
-# => { 'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23 }, 'percentage' => 81.3,
-#      'files' => { 'total' => 4, 'ok' => 4, 'stale' => 0 }, 'excluded_files' => { ... } }
+# => {
+#      'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23, 'percent_covered' => 81.3 },
+#      'tracking' => { 'enabled' => true, 'globs' => ['lib/**/*.rb'] },
+#      'files' => { 'total' => 4, 'with_coverage' => { 'total' => 4, 'ok' => 4, 'stale' => { ... } } }
+#    }
 
 # Filter to specific directory
 lib_totals = model.project_totals(tracked_globs: 'lib/**/*.rb')
 ```
 
-When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals. Otherwise, totals exclude stale files (`M`, `T`, `L`, `E`) and `excluded_files` reports the stale and skipped counts. Because stale rows are excluded, `files['stale']` is expected to be 0 in totals output.
+When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals. Otherwise, totals exclude stale files (`M`, `T`, `L`, `E`) from line counts and report stale breakdowns under `files['with_coverage']['stale']`.
 
 ### `relativize(data)`
 
@@ -247,6 +250,7 @@ Returns `Hash`:
   }
 }
 ```
+`without_coverage` is only present when tracking is enabled (tracked globs provided).
 
 ### `uncovered_for`
 
@@ -307,23 +311,38 @@ Returns `Hash`:
 ```ruby
 {
   'lines' => {
-    'total' => Integer,      # Total relevant lines across all files
-    'covered' => Integer,    # Total covered lines
-    'uncovered' => Integer   # Total uncovered lines
+    'total' => Integer,            # Total relevant lines across all files
+    'covered' => Integer,          # Total covered lines
+    'uncovered' => Integer,        # Total uncovered lines
+    'percent_covered' => Float     # Overall percent covered
   },
-  'percentage' => Float,     # Overall coverage percentage
+  'tracking' => {
+    'enabled' => Boolean,          # Whether tracked_globs are active
+    'globs' => Array<String>       # Active tracked globs (empty when disabled)
+  },
   'files' => {
-    'total' => Integer,      # Total number of files
-    'ok' => Integer,         # Files with fresh coverage
-    'stale' => Integer       # Files with stale coverage
-  },
-  'excluded_files' => {
-    'skipped' => Integer,        # Coverage data errors
-    'missing_tracked' => Integer,# Tracked files missing from coverage
-    'newer' => Integer,          # Files newer than coverage
-    'deleted' => Integer,        # Coverage entries for deleted files
-    'length_mismatch' => Integer,# Line count mismatch entries
-    'unreadable' => Integer      # Files that could not be read
+    'total' => Integer,          # Total number of files (with + without coverage)
+    'with_coverage' => {
+      'total' => Integer,        # Files with coverage entries
+      'ok' => Integer,           # Fresh coverage entries
+      'stale' => {
+        'total' => Integer,      # Stale coverage entries
+        'by_type' => {
+          'missing_from_disk' => Integer,
+          'newer' => Integer,
+          'length_mismatch' => Integer,
+          'unreadable' => Integer
+        }
+      }
+    },
+    'without_coverage' => {
+      'total' => Integer,        # Tracked files missing coverage entries
+      'by_type' => {
+        'missing_from_coverage' => Integer,
+        'unreadable' => Integer,
+        'skipped' => Integer
+      }
+    }
   }
 }
 ```
@@ -530,7 +549,7 @@ directory_stats = patterns.map do |pattern|
   {
     directory: pattern,
     files: totals['files']['total'],
-    coverage: totals['percentage'].round(2),
+    coverage: totals['lines']['percent_covered'].round(2),
     covered: totals['lines']['covered'],
     total: totals['lines']['total']
   }
@@ -637,7 +656,7 @@ class CoverageReporter
     totals = @model.project_totals
 
     # Overall stats
-    overall_percentage = totals['percentage']
+    overall_percentage = totals['lines']['percent_covered']
     total_lines = totals['lines']['total']
     covered_lines = totals['lines']['covered']
     total_files = totals['files']['total']

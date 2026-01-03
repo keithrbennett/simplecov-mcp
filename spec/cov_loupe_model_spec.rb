@@ -186,10 +186,15 @@ RSpec.describe CovLoupe::CoverageModel do
       totals = model.project_totals
 
       aggregate_failures do
-        expect(totals['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
-        expect(totals['percentage']).to be_within(0.01).of(50.0)
+        expect(totals['lines']).to include(
+          'total' => 6,
+          'covered' => 3,
+          'uncovered' => 3,
+          'percent_covered' => be_within(0.01).of(50.0)
+        )
+        expect(totals['tracking']).to include('enabled' => false, 'globs' => [])
         expect(totals['files']).to include('total' => 2)
-        expect(totals['files']['ok'] + totals['files']['stale']).to eq(totals['files']['total'])
+        expect(totals['files']['with_coverage']).to include('total' => 2, 'ok' => 2)
       end
     end
 
@@ -214,8 +219,16 @@ RSpec.describe CovLoupe::CoverageModel do
       totals = model.project_totals
 
       aggregate_failures do
-        expect(totals['lines']).to include('total' => 3, 'covered' => 2, 'uncovered' => 1)
-        expect(totals['files']).to include('total' => 2, 'ok' => 1, 'stale' => 1)
+        expect(totals['lines']).to include(
+          'total' => 3,
+          'covered' => 2,
+          'uncovered' => 1,
+          'percent_covered' => be_within(0.01).of(66.67)
+        )
+        expect(totals['files']).to include('total' => 2)
+        expect(totals['files']['with_coverage']).to include('total' => 2, 'ok' => 1)
+        expect(totals['files']['with_coverage']['stale']).to include('total' => 1)
+        expect(totals['files']['with_coverage']['stale']['by_type']).to include('newer' => 1)
       end
     end
 
@@ -240,9 +253,15 @@ RSpec.describe CovLoupe::CoverageModel do
       totals = model.project_totals
 
       aggregate_failures do
-        expect(totals['lines']).to include('total' => 0, 'covered' => 0, 'uncovered' => 0)
-        expect(totals['files']).to include('total' => 0, 'ok' => 0, 'stale' => 0)
-        expect(totals['excluded_files']).to include(
+        expect(totals['lines']).to include(
+          'total' => 0,
+          'covered' => 0,
+          'uncovered' => 0,
+          'percent_covered' => 100.0
+        )
+        expect(totals['files']).to include('total' => 2)
+        expect(totals['files']['with_coverage']['stale']).to include('total' => 2)
+        expect(totals['files']['with_coverage']['stale']['by_type']).to include(
           'length_mismatch' => 1,
           'unreadable' => 1
         )
@@ -252,73 +271,24 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'respects tracked_globs filtering' do
       totals = model.project_totals(tracked_globs: ['lib/foo.rb'])
 
-      expect(totals['lines']).to include('total' => 3, 'covered' => 2, 'uncovered' => 1)
+      expect(totals['lines']).to include(
+        'total' => 3,
+        'covered' => 2,
+        'uncovered' => 1,
+        'percent_covered' => be_within(0.01).of(66.67)
+      )
+      expect(totals['tracking']).to include('enabled' => true, 'globs' => ['lib/foo.rb'])
       expect(totals['files']).to include('total' => 1)
+      expect(totals['files']['with_coverage']).to include('total' => 1, 'ok' => 1)
     end
 
-    it 'includes excluded_files metadata when no files are excluded' do
-      totals = model.project_totals
+    it 'includes without_coverage data when tracking is enabled' do
+      totals = model.project_totals(tracked_globs: ['lib/**/*.rb'])
 
-      expect(totals['excluded_files']).to eq(
-        'skipped' => 0,
-        'missing_tracked' => 0,
-        'newer' => 0,
-        'deleted' => 0,
-        'length_mismatch' => 0,
-        'unreadable' => 0
-      )
-    end
-
-    it 'includes excluded_files metadata when files are skipped' do
-      abs_foo = File.expand_path('lib/foo.rb', root)
-
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      cov = model.instance_variable_get(:@cov)
-      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
-        |method, coverage_map, absolute, **kwargs|
-        if absolute == abs_foo
-          raise(CovLoupe::CoverageDataError, 'corrupt data')
-        else
-          method.call(coverage_map, absolute, **kwargs)
-        end
-      end
-
-      totals = model.project_totals(raise_on_stale: false)
-
-      aggregate_failures do
-        # Only one file (bar.rb) should be included in totals
-        expect(totals['files']['total']).to eq(1)
-        expect(totals['excluded_files']).to include('skipped' => 1)
-      end
-    end
-
-    it 'includes all exclusion types in metadata when raise_on_stale is false' do
-      abs_foo = File.expand_path('lib/foo.rb', root)
-
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      cov = model.instance_variable_get(:@cov)
-      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      # Stub one file to be skipped
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
-        |method, coverage_map, absolute, **kwargs|
-        if absolute == abs_foo
-          raise(CovLoupe::FileError, 'file error')
-        else
-          method.call(coverage_map, absolute, **kwargs)
-        end
-      end
-
-      totals = model.project_totals(raise_on_stale: false)
-
-      expect(totals['excluded_files']).to include(
-        'skipped' => 1,
-        'missing_tracked' => 0,
-        'length_mismatch' => 0,
-        'unreadable' => 0
-      )
+      expect(totals['tracking']).to include('enabled' => true)
+      expect(totals['files']['without_coverage']).to include('total' => 1)
+      expect(totals['files']['without_coverage']['by_type'])
+        .to include('missing_from_coverage' => 1)
     end
   end
 

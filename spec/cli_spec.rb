@@ -56,20 +56,18 @@ RSpec.describe CovLoupe::CoverageCLI do
 
     it 'prints totals as JSON' do
       with_json_output('totals') do |data|
-        expect(data['lines']).to include('total' => 6, 'covered' => 3, 'uncovered' => 3)
-        expect(data['files']).to include('total' => 2)
-        expect(data['files']['ok'] + data['files']['stale']).to eq(data['files']['total'])
-
-        # Verify excluded_files metadata is present
-        expect(data).to have_key('excluded_files')
-        expect(data['excluded_files']).to include(
-          'skipped' => 0,
-          'missing_tracked' => 1,  # uncovered_file.rb in fixture
-          'newer' => 0,
-          'deleted' => 0,
-          'length_mismatch' => 0,
-          'unreadable' => 0
+        expect(data['lines']).to include(
+          'total' => 6,
+          'covered' => 3,
+          'uncovered' => 3,
+          'percent_covered' => be_within(0.01).of(50.0)
         )
+        expect(data['tracking']).to include('enabled' => true)
+        expect(data['files']).to include('total' => 3)
+        expect(data['files']['with_coverage']).to include('total' => 2, 'ok' => 2)
+        expect(data['files']['without_coverage']).to include('total' => 1)
+        expect(data['files']['without_coverage']['by_type'])
+          .to include('missing_from_coverage' => 1)
       end
     end
   end

@@ -11,10 +11,8 @@ module CovLoupe
         Use this when you want aggregated coverage counts for the entire project.
         It reports covered/total lines, uncovered line counts, and the overall average percentage.
         Inputs: optional project root, alternate .resultset path, raise_on_stale flag, tracked_globs, and error mode.
-        Output: JSON {"lines":{"total","covered","uncovered"},"percentage":Float,"files":{"total","ok","stale"},"excluded_files":{"skipped","missing_tracked","newer","deleted","length_mismatch","unreadable"}}.
-        The excluded_files object shows counts of files that were excluded from totals due to errors, staleness, or tracking issues.
+        Output: JSON {"lines":{"total","covered","uncovered","percent_covered"},"tracking":{"enabled","globs"},"files":{"total","with_coverage","without_coverage"}}.
         When raise_on_stale is enabled, the tool will raise an error immediately if any files have coverage data errors or staleness issues.
-        When raise_on_stale is disabled, excluded files are skipped and their counts are reported in excluded_files.
         Example: "Give me total/covered/uncovered line counts and the overall coverage percent."
       DESC
 

@@ -20,56 +20,82 @@ module CovLoupe
 
         lines = payload['lines']
         files = payload['files']
-        excluded = payload['excluded_files']
+        tracking = payload['tracking']
+        with_coverage = files['with_coverage']
+        without_coverage = files['without_coverage']
 
-        # Table format
+        if tracking && tracking['enabled']
+          puts 'Tracked globs:'
+          tracking['globs'].each { |glob| puts "  - #{glob}" }
+        else
+          puts 'Tracked globs: (tracking disabled)'
+        end
+        puts
+
+        puts 'Totals'
         headers = ['Metric', 'Total', 'Covered', 'Uncovered', '%']
+        file_ok = with_coverage['ok']
+        file_uncovered = files['total'] - file_ok
         rows = [
           [
             'Lines',
             lines['total'].to_s,
             lines['covered'].to_s,
             lines['uncovered'].to_s,
-            format('%.2f%%', payload['percentage'])
+            format('%.2f%%', lines['percent_covered'])
           ],
           [
             'Files',
             files['total'].to_s,
-            files['ok'].to_s,
-            files['stale'].to_s,
+            file_ok.to_s,
+            file_uncovered.to_s,
             ''
           ]
         ]
-
-        # Add excluded files rows if any exclusions exist
-        total_excluded = excluded.values.sum
-        if total_excluded > 0
-          rows << [
-            'Excluded',
-            total_excluded.to_s,
-            '',
-            '',
-            ''
-          ]
-
-          # Add breakdown rows for each exclusion type with non-zero count
-          [
-            ['  Skipped', excluded['skipped']],
-            ['  Missing', excluded['missing_tracked']],
-            ['  Newer', excluded['newer']],
-            ['  Deleted', excluded['deleted']],
-            ['  Line mismatch', excluded['length_mismatch']],
-            ['  Unreadable', excluded['unreadable']]
-          ].each do |label, count|
-            rows << [label, count.to_s, '', '', ''] if count > 0
-          end
-        end
 
         puts TableFormatter.format(
           headers: headers,
           rows: rows,
           alignments: [:left, :right, :right, :right, :right]
         )
+        with_coverage_line = format_with_coverage_line(with_coverage)
+        stale_line = format_stale_breakdown(with_coverage['stale']['by_type'])
+        without_coverage_line, without_breakdown_line =
+          format_without_coverage_lines(without_coverage)
+
+        puts <<~BREAKDOWN
+
+          File breakdown:
+          #{with_coverage_line}
+          #{stale_line}
+          #{without_coverage_line}
+          #{without_breakdown_line}
+        BREAKDOWN
+      end
+
+      private def format_with_coverage_line(with_coverage)
+        stale = with_coverage['stale']
+        "  With coverage: #{with_coverage['total']} total, #{with_coverage['ok']} ok, #{stale['total']} stale"
+      end
+
+      private def format_stale_breakdown(stale_by_type)
+        '    Stale: missing on disk = ' \
+          "#{stale_by_type['missing_from_disk']}, " \
+          "newer than coverage = #{stale_by_type['newer']}, " \
+          "line mismatch = #{stale_by_type['length_mismatch']}, " \
+          "unreadable = #{stale_by_type['unreadable']}"
+      end
+
+      private def format_without_coverage_lines(without_coverage)
+        return [nil, nil] unless without_coverage
+
+        without_by_type = without_coverage['by_type']
+        without_coverage_line = "  Without coverage: #{without_coverage['total']} total"
+        without_breakdown_line = '    Missing from coverage = ' \
+          "#{without_by_type['missing_from_coverage']}, " \
+          "unreadable = #{without_by_type['unreadable']}, " \
+          "skipped (errors) = #{without_by_type['skipped']}"
+        [without_coverage_line, without_breakdown_line]
       end
     end
   end

@@ -15,6 +15,7 @@ This document describes the breaking changes introduced in version 4.0.0. These 
   - [CoverageLineResolver Now Requires `root:` and `volume_case_sensitive:`](#coveragelineresolver-now-requires-root-and-volume_case_sensitive)
   - [Method Renamed](#method-renamed)
   - [Return Type Changed: `list` Now Returns a Hash](#return-type-changed-list-now-returns-a-hash)
+  - [Return Type Changed: `project_totals` Schema Updated](#return-type-changed-project_totals-schema-updated)
   - [Logger Initialization Changed](#logger-initialization-changed)
 - [Deleted Files Now Raise `FileNotFoundError`](#deleted-files-now-raise-filenotfounderror)
 - [Staleness Check Errors Now Return 'E' Marker](#staleness-check-errors-now-return-e-marker)
@@ -201,6 +202,43 @@ table = model.format_table(nil)
 result = model.list
 table = model.format_table(result)  # This will fail
 ```
+
+### Return Type Changed: `project_totals` Schema Updated
+
+**Breaking Change**: `CoverageModel#project_totals` now returns a structured hash with
+explicit `lines`, `tracking`, and `files` sections. The top-level `percentage` and
+`excluded_files` fields were removed.
+
+#### Old Behavior (v3.x)
+```ruby
+totals = model.project_totals
+# => {
+#   "lines" => { "total" => 123, "covered" => 100, "uncovered" => 23 },
+#   "percentage" => 81.3,
+#   "files" => { "total" => 4, "ok" => 4, "stale" => 0 },
+#   "excluded_files" => { ... }
+# }
+```
+
+#### New Behavior (v4.x)
+```ruby
+totals = model.project_totals
+# => {
+#   "lines" => { "total" => 123, "covered" => 100, "uncovered" => 23, "percent_covered" => 81.3 },
+#   "tracking" => { "enabled" => true, "globs" => ["lib/**/*.rb"] },
+#   "files" => {
+#     "total" => 4,
+#     "with_coverage" => { "total" => 4, "ok" => 4, "stale" => { "total" => 0, "by_type" => { ... } } }
+#   }
+# }
+```
+
+#### Migration Steps
+- Replace `totals['percentage']` with `totals['lines']['percent_covered']`.
+- Replace `totals['files']['ok']` and `totals['files']['stale']` with
+  `totals['files']['with_coverage']['ok']` and `totals['files']['with_coverage']['stale']['total']`.
+- If you relied on `excluded_files`, use `files.with_coverage.stale.by_type` and
+  `files.without_coverage.by_type` (present only when tracking is enabled).
 
 ### Logger Initialization Changed
 

@@ -130,46 +130,24 @@ module CovLoupe
     def project_totals(
       tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
     )
-      # NOTE: When raise_on_stale is true, list() will raise immediately for
-      # skipped/newer/deleted files, so the excluded_files metadata will only
-      # be present when raise_on_stale is false.
       list_result = list(sort_order: :ascending, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
 
       rows = list_result['files']
 
-      # Compute line totals from only non-stale rows
       included_rows = rows.reject { |row| row['stale'] }
-      line_totals = totals_from_rows(included_rows)
+      line_totals = line_totals_from_rows(included_rows)
 
-      # Compute file counts separately:
-      # - Exclude files with error statuses ('L', 'E') from totals entirely
-      #   (they're already counted in excluded_files)
-      # - Count only 'T' (timestamp stale) files as "stale"
-      # - Count false/nil as "ok"
-      countable_rows = rows.reject { |row| ['L', 'E'].include?(row['stale']) }
-      total_files = countable_rows.length
-      stale_files = countable_rows.count { |row| row['stale'] == 'T' }
-      ok_files = total_files - stale_files
+      tracking = tracking_payload(tracked_globs)
+      with_coverage = with_coverage_payload(rows)
+      without_coverage = without_coverage_payload(list_result, tracking['enabled'])
+      files = files_payload(with_coverage, without_coverage)
 
-      # Override file counts to reflect accurate totals
-      line_totals['files'] = {
-        'total' => total_files,
-        'ok' => ok_files,
-        'stale' => stale_files
+      {
+        'lines' => line_totals,
+        'tracking' => tracking,
+        'files' => files
       }
-
-      line_totals.merge(
-        'excluded_files' => {
-          'skipped' => list_result['skipped_files'].length,
-          'missing_tracked' => list_result['missing_tracked_files'].length,
-          'newer' => list_result['newer_files'].length,
-          'deleted' => list_result['deleted_files'].length,
-          'length_mismatch' => list_result.fetch('length_mismatch_files', []).length,
-          'unreadable' => list_result.fetch('unreadable_files', []).length
-        },
-        'timestamp_status' => list_result.fetch('timestamp_status', :ok)
-      )
     end
 
     def staleness_for(path)
@@ -347,26 +325,98 @@ module CovLoupe
       raise FileNotFoundError, "File not found: #{path}"
     end
 
-    private def totals_from_rows(rows)
+    private def line_totals_from_rows(rows)
       covered = rows.sum { |row| row['covered'].to_i }
       total = rows.sum { |row| row['total'].to_i }
       uncovered = total - covered
-      percentage = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
-      stale_count = rows.count { |row| row['stale'] }
-      files_total = rows.length
+      percent_covered = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
 
       {
-        'lines' => {
-          'covered' => covered,
-          'uncovered' => uncovered,
-          'total' => total
-        },
-        'percentage' => percentage,
-        'files' => {
-          'total' => files_total,
-          'ok' => files_total - stale_count,
-          'stale' => stale_count
+        'covered' => covered,
+        'uncovered' => uncovered,
+        'total' => total,
+        'percent_covered' => percent_covered
+      }
+    end
+
+    private def tracking_payload(tracked_globs)
+      patterns = GlobUtils.normalize_patterns(tracked_globs)
+      {
+        'enabled' => patterns.any?,
+        'globs' => patterns
+      }
+    end
+
+    private def with_coverage_payload(rows)
+      breakdown = stale_breakdown(rows)
+      stale_by_type = breakdown[:stale_by_type]
+      stale_total = stale_by_type.values.sum
+
+      {
+        'total' => rows.length,
+        'ok' => breakdown[:ok],
+        'stale' => {
+          'total' => stale_total,
+          'by_type' => stale_by_type
         }
+      }
+    end
+
+    private def without_coverage_payload(list_result, tracking_enabled)
+      return nil unless tracking_enabled
+
+      missing_from_coverage = Array(list_result['missing_tracked_files']).length
+      skipped = Array(list_result['skipped_files']).length
+      by_type = {
+        'missing_from_coverage' => missing_from_coverage,
+        'unreadable' => 0,
+        'skipped' => skipped
+      }
+      {
+        'total' => by_type.values.sum,
+        'by_type' => by_type
+      }
+    end
+
+    private def files_payload(with_coverage, without_coverage)
+      total = with_coverage['total']
+      total += without_coverage['total'] if without_coverage
+
+      files = {
+        'total' => total,
+        'with_coverage' => with_coverage
+      }
+      files['without_coverage'] = without_coverage if without_coverage
+      files
+    end
+
+    private def stale_breakdown(rows)
+      stale_by_type = {
+        'missing_from_disk' => 0,
+        'newer' => 0,
+        'length_mismatch' => 0,
+        'unreadable' => 0
+      }
+      ok_files = 0
+
+      rows.each do |row|
+        case row['stale']
+        when false, nil
+          ok_files += 1
+        when 'M'
+          stale_by_type['missing_from_disk'] += 1
+        when 'T'
+          stale_by_type['newer'] += 1
+        when 'L'
+          stale_by_type['length_mismatch'] += 1
+        else # including 'E'
+          stale_by_type['unreadable'] += 1
+        end
+      end
+
+      {
+        ok: ok_files,
+        stale_by_type: stale_by_type
       }
     end
 

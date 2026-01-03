@@ -294,89 +294,73 @@ clp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 
 **Output (default format):**
 ```
+Tracked globs:
+  - lib/**/*.rb
+  - app/**/*.rb
+  - src/**/*.rb
+
+Totals
 ┌──────────┬───────┬─────────┬───────────┬────────┐
 │ Metric   │ Total │ Covered │ Uncovered │      % │
 ├──────────┼───────┼─────────┼───────────┼────────┤
 │ Lines    │    47 │      38 │         9 │ 80.85% │
 │ Files    │     7 │       7 │         0 │        │
 └──────────┴───────┴─────────┴───────────┴────────┘
+
+File breakdown:
+  With coverage: 7 total, 7 ok, 0 stale
+    Stale: missing on disk = 0, newer than coverage = 0, line mismatch = 0, unreadable = 0
+  Without coverage: 0 total
+    Missing from coverage = 0, unreadable = 0, skipped (errors) = 0
 ```
 
-**When files are excluded** (skipped due to errors or staleness):
+**Tracked globs (shown when tracking is enabled):**
 ```
-┌──────────┬───────┬─────────┬───────────┬────────┐
-│ Metric   │ Total │ Covered │ Uncovered │      % │
-├──────────┼───────┼─────────┼───────────┼────────┤
-│ Lines    │    90 │      85 │         5 │ 94.44% │
-│ Files    │     9 │       9 │         0 │        │
-│ Excluded │     3 │         │           │        │
-│  Skipped │     1 │         │           │        │
-│  Newer   │     2 │         │           │        │
-└──────────┴───────┴─────────┴───────────┴────────┘
+Tracked globs:
+  - lib/**/*.rb
+  - app/**/*.rb
 ```
-
-The excluded files breakdown shows:
-- **Excluded**: Total count of all excluded files
-- **Skipped**: Files with coverage data errors
-- **Newer**: Files modified after the coverage run
-- **Deleted**: Coverage entries for non-existent files
-- **Line mismatch**: Coverage entries whose line counts no longer match the source
-- **Unreadable**: Files that cannot be read due to permission/I/O errors
-- **Missing**: Tracked files with no coverage data
-
-Only non-zero exclusion types are shown.
 
 **Output (JSON format):**
 ```json
 {
-  "lines": { "total": 47, "covered": 38, "uncovered": 9 },
-  "percentage": 80.85,
-  "files": { "total": 7, "ok": 7, "stale": 0 },
-  "excluded_files": {
-    "skipped": 0,
-    "missing_tracked": 0,
-    "newer": 0,
-    "deleted": 0,
-    "length_mismatch": 0,
-    "unreadable": 0
+  "lines": { "total": 47, "covered": 38, "uncovered": 9, "percent_covered": 80.85 },
+  "tracking": { "enabled": true, "globs": ["lib/**/*.rb", "app/**/*.rb"] },
+  "files": {
+    "total": 7,
+    "with_coverage": {
+      "total": 7,
+      "ok": 7,
+      "stale": {
+        "total": 0,
+        "by_type": {
+          "missing_from_disk": 0,
+          "newer": 0,
+          "length_mismatch": 0,
+          "unreadable": 0
+        }
+      }
+    },
+    "without_coverage": {
+      "total": 0,
+      "by_type": {
+        "missing_from_coverage": 0,
+        "unreadable": 0,
+        "skipped": 0
+      }
+    }
   }
 }
 ```
-
-**Excluded files metadata:**
-
-The `excluded_files` object shows counts of files that were excluded from totals:
-- **`skipped`**: Files with coverage data errors (corrupt data, missing entries)
-- **`missing_tracked`**: Tracked files (via `-g` / `--tracked-globs`) that have no coverage data
-- **`newer`**: Files modified after the coverage run (timestamp mismatch)
-- **`deleted`**: Coverage entries for files that no longer exist on disk
-- **`length_mismatch`**: Coverage entries whose line counts no longer match source files
-- **`unreadable`**: Files that cannot be read due to permission or I/O errors
-
-When all counts are zero, no files were excluded and the totals represent complete data. Non-zero counts indicate partial totals that may be misleading without context.
-
-**Example with exclusions:**
-```json
-{
-  "lines": { "total": 90, "covered": 85, "uncovered": 5 },
-  "percentage": 94.44,
-  "files": { "total": 9, "ok": 9, "stale": 0 },
-  "excluded_files": {
-    "skipped": 1,
-    "missing_tracked": 0,
-    "newer": 2,
-    "deleted": 0,
-    "length_mismatch": 0,
-    "unreadable": 0
-  }
-}
-```
-In this example, the totals are based on 9 files, but 3 additional files (1 skipped + 2 newer) were excluded due to staleness or errors. The true project state includes 12 files, not 9.
 
 **Notes:**
+- `lines` are based on fresh coverage entries only.
+- `with_coverage.stale.by_type` uses readable labels: `missing_from_disk`, `newer`,
+  `length_mismatch`, `unreadable`.
+- `without_coverage` is only present when tracking is enabled (tracked globs provided).
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
 - Totals exclude stale files (`M`, `T`, `L`, `E`) so the aggregate reflects only fresh coverage data.
-- Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date (when enabled, errors are raised immediately and `excluded_files` won't be present in the output).
+- Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
 
 ### `version`
 

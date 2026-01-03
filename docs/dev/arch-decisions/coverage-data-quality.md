@@ -123,7 +123,7 @@ This allows:
 
 **Totals behavior**:
 - `project_totals` excludes any stale files (`M`, `T`, `L`, `E`) from aggregate counts.
-- Excluded totals are reported via `excluded_files` metadata so callers can reconcile what was omitted.
+- Totals include explicit `with_coverage`/`without_coverage` breakdowns so callers can reconcile what was omitted.
 
 #### Tracked Globs Feature
 

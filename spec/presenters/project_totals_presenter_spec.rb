@@ -14,9 +14,40 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:raw_totals) do
     {
-      'lines' => { 'total' => 100, 'covered' => 80, 'uncovered' => 20 },
-      'percentage' => 80.0,
-      'files' => { 'total' => 10, 'ok' => 9, 'stale' => 1 }
+      'lines' => {
+        'total' => 100,
+        'covered' => 80,
+        'uncovered' => 20,
+        'percent_covered' => 80.0
+      },
+      'tracking' => {
+        'enabled' => true,
+        'globs' => ['lib/**/*.rb']
+      },
+      'files' => {
+        'total' => 12,
+        'with_coverage' => {
+          'total' => 10,
+          'ok' => 9,
+          'stale' => {
+            'total' => 1,
+            'by_type' => {
+              'missing_from_disk' => 0,
+              'newer' => 1,
+              'length_mismatch' => 0,
+              'unreadable' => 0
+            }
+          }
+        },
+        'without_coverage' => {
+          'total' => 2,
+          'by_type' => {
+            'missing_from_coverage' => 2,
+            'unreadable' => 0,
+            'skipped' => 0
+          }
+        }
+      }
     }
   end
 
@@ -39,10 +70,15 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
     it 'returns project totals from the model' do
       result = presenter.absolute_payload
 
-      expect(result).to include('lines', 'percentage', 'files')
-      expect(result['lines']).to include('total' => 100, 'covered' => 80, 'uncovered' => 20)
-      expect(result['percentage']).to eq(80.0)
-      expect(result['files']).to include('total' => 10, 'ok' => 9, 'stale' => 1)
+      expect(result).to include('lines', 'tracking', 'files')
+      expect(result['lines']).to include(
+        'total' => 100,
+        'covered' => 80,
+        'uncovered' => 20,
+        'percent_covered' => 80.0
+      )
+      expect(result['tracking']).to include('enabled' => true)
+      expect(result['files']).to include('total' => 12)
     end
 
     it 'caches the result on subsequent calls' do
