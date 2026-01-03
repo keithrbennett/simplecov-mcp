@@ -186,9 +186,24 @@ RSpec.describe CovLoupe::ResultsetLoader do
       expect(messages.join).to include('[:invalid]')
     end
 
-    it 'returns zero for blank string timestamps' do
+    it 'logs warning and returns zero for blank string timestamps' do
+      messages = []
+      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
+
       value = loader.send(:normalize_coverage_timestamp, '   ', nil)
+
       expect(value).to eq(0)
+      expect(messages.join).to include('Coverage timestamp missing, defaulting to 0', '"   "')
+    end
+
+    it 'logs warning and returns zero for zero timestamps' do
+      messages = []
+      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
+
+      value = loader.send(:normalize_coverage_timestamp, 0, nil)
+
+      expect(value).to eq(0)
+      expect(messages.join).to include('Coverage timestamp missing, defaulting to 0', '0')
     end
   end
 

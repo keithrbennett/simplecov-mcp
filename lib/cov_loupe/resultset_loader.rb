@@ -100,37 +100,42 @@ module CovLoupe
 
     private def normalize_coverage_timestamp(timestamp_value, created_at_value)
       raw = timestamp_value.nil? ? created_at_value : timestamp_value
-      if raw.nil?
-        @logger.safe_log('Coverage timestamp missing, defaulting to 0. ' \
-                         'Time-based staleness checks will be disabled.')
-        return 0
+      return log_missing_timestamp if raw.nil?
+
+      timestamp = case raw
+                  when Integer
+                    raw
+                  when Float, Time
+                    raw.to_i
+                  when String
+                    str = raw.strip
+                    if str.match?(/\A-?\d+(\.\d+)?\z/)
+                      # Matches optional leading "-", digits, and an optional fractional part.
+                      str.to_f.to_i
+                    elsif str.empty?
+                      0
+                    else
+                      Time.parse(str).to_i
+                    end
+                  else
+                    log_timestamp_warning(raw)
+                    return 0
       end
 
-      case raw
-      when Integer
-        raw
-      when Float, Time
-        raw.to_i
-      when String
-        normalize_string_timestamp(raw)
-      else
-        log_timestamp_warning(raw)
-        0
-      end
+      timestamp = [timestamp.to_i, 0].max # change negative numbers to zero
+      log_missing_timestamp(raw) if timestamp.zero? # but log the original value
+      timestamp
     rescue => e
       log_timestamp_warning(raw, e)
       0
     end
 
-    private def normalize_string_timestamp(value)
-      str = value.strip
-      return 0 if str.empty?
-
-      if str.match?(/\A-?\d+(\.\d+)?\z/)
-        str.to_f.to_i
-      else
-        Time.parse(str).to_i
-      end
+    private def log_missing_timestamp(raw_value = nil)
+      message = 'Coverage timestamp missing, defaulting to 0. ' \
+                'Time-based staleness checks will be disabled.'
+      message = "#{message} (value: #{raw_value.inspect})" if raw_value
+      @logger.safe_log(message)
+      0
     end
 
     private def log_timestamp_warning(raw_value, error = nil)
