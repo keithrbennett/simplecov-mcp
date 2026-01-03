@@ -187,6 +187,8 @@ lib_totals = model.project_totals(tracked_globs: 'lib/**/*.rb')
 
 When `raise_on_stale: true` is set, the method raises on stale coverage instead of returning totals. Otherwise, totals exclude stale files (`M`, `T`, `L`, `E`) from line counts and report stale breakdowns under `files['with_coverage']['stale']`.
 
+Note: The `without_coverage` hash will only be present if `tracked_globs` were specified.
+
 ### `relativize(data)`
 
 Converts absolute file paths in coverage data to relative paths from project root.
@@ -250,7 +252,6 @@ Returns `Hash`:
   }
 }
 ```
-`without_coverage` is only present when tracking is enabled (tracked globs provided).
 
 ### `uncovered_for`
 
@@ -346,6 +347,8 @@ Returns `Hash`:
   }
 }
 ```
+
+Note: The `without_coverage` hash will only be present if `tracked_globs` were specified.
 
 ## Error Handling
 
