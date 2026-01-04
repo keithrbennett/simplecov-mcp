@@ -6,11 +6,16 @@ require_relative 'repositories/coverage_repository'
 
 module CovLoupe
   # Thread-safe singleton cache for ModelData instances.
-  # Entries are keyed by resultset_path and automatically invalidated when the file changes.
+  # Entries are keyed by [resultset_path, volume_case_sensitive] and automatically invalidated
+  # when the file changes.
   #
   # On every get() call, the cache checks the resultset file's signature (mtime/size/inode)
   # and digest (MD5) to ensure the data is current. If the file has changed, fresh data
   # is loaded automatically.
+  #
+  # The cache key includes volume_case_sensitive because path collision detection depends on
+  # whether the volume is case-sensitive. SimpleCov generates absolute paths, so different
+  # project roots can share cached data if they're on volumes with the same case-sensitivity.
   class ModelDataCache
     def initialize
       @entries = {}
@@ -27,10 +32,15 @@ module CovLoupe
     #
     # @param resultset_path [String] Absolute path to .resultset.json
     # @param root [String] Project root directory for path normalization
+    # @param volume_case_sensitive [Boolean] Whether the volume is case-sensitive
     # @return [ModelData] The cached or freshly loaded data
-    def get(resultset_path, root:)
+    def get(resultset_path, root:, volume_case_sensitive:)
       @mutex.synchronize do
-        entry = @entries[resultset_path]
+        # Cache key includes volume_case_sensitive because path collision detection
+        # depends on it. SimpleCov generates absolute paths, so different roots can
+        # share cached data if they're on volumes with the same case-sensitivity.
+        cache_key = [resultset_path, volume_case_sensitive]
+        entry = @entries[cache_key]
 
         # Compute current signature and digest
         signature = compute_signature(resultset_path)
@@ -48,7 +58,7 @@ module CovLoupe
 
         # Store with signature/digest if we computed them
         if signature && digest
-          @entries[resultset_path] = {
+          @entries[cache_key] = {
             data: data,
             signature: signature,
             digest: digest
