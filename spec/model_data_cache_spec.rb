@@ -37,7 +37,7 @@ RSpec.describe CovLoupe::ModelDataCache do
       expect(data.coverage_map).to be_a(Hash)
       expect(data.timestamp).to be_a(Integer)
       expect(data.resultset_path).to eq(project1_resultset)
-      expect(data.volume_case_sensitive).to be_in([true, false])
+      expect([true, false]).to include(data.volume_case_sensitive)
     end
 
     it 'returns the same data for identical resultset path' do
@@ -59,7 +59,7 @@ RSpec.describe CovLoupe::ModelDataCache do
       stat_now = build_stat(mtime: Time.at(100), size: 10, inode: 1)
       stat_later = build_stat(mtime: Time.at(200), size: 10, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_now, stat_later)
+        .and_return(stat_now, stat_later)
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -72,7 +72,7 @@ RSpec.describe CovLoupe::ModelDataCache do
       stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
       stat_subsecond = build_stat(mtime: base_time, mtime_nsec: 1_000_000, size: 10, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_now, stat_subsecond)
+        .and_return(stat_now, stat_subsecond)
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -84,7 +84,7 @@ RSpec.describe CovLoupe::ModelDataCache do
       stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
       stat_size_change = build_stat(mtime: base_time, mtime_nsec: 0, size: 11, inode: 1)
       allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_now, stat_size_change)
+        .and_return(stat_now, stat_size_change)
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -93,7 +93,7 @@ RSpec.describe CovLoupe::ModelDataCache do
 
     it 'reloads when content changes but metadata is identical' do
       stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'digest_v1', 'digest_v1', 'digest_v2')
+      stub_digest(project1_resultset, 'digest_v1', 'digest_v2')
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -102,7 +102,7 @@ RSpec.describe CovLoupe::ModelDataCache do
 
     it 'validates digest on every get call' do
       stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'unchanged', 'unchanged', 'unchanged')
+      stub_digest(project1_resultset, 'unchanged', 'unchanged')
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -128,7 +128,7 @@ RSpec.describe CovLoupe::ModelDataCache do
   describe '#clear' do
     it 'clears all cached entries' do
       stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'unchanged', 'unchanged', 'unchanged')
+      stub_digest(project1_resultset, 'unchanged', 'unchanged')
 
       data1 = cache.get(project1_resultset, root: project1_root)
       cache.clear

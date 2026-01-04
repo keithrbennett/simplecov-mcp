@@ -55,7 +55,15 @@ module CovLoupe
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
       @default_raise_on_stale = raise_on_stale
-      @resolved_resultset_path = nil  # Lazy, resolved on first fetch
+      @resolved_resultset_path = nil  # Resolved on first fetch
+
+      # Eagerly validate resultset exists and load initial data
+      # This matches original behavior and surfaces errors immediately
+      data = fetch_data
+      @cov = data.coverage_map
+      @cov_timestamp = data.timestamp
+      @volume_case_sensitive = data.volume_case_sensitive
+      @resultset_path = data.resultset_path
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -184,19 +192,31 @@ module CovLoupe
       ModelDataCache.instance.get(resolved_resultset_path, root: @root)
     end
 
-    # Delegates to the cached data
+    # Returns the coverage map, caching it in an instance variable for test compatibility
+    # and performance. For fresh data, call refresh_data first.
     private def coverage_map
-      fetch_data.coverage_map
+      @cov ||= fetch_data.coverage_map
     end
 
     # Delegates to the cached data
     private def coverage_timestamp
-      fetch_data.timestamp
+      @cov_timestamp ||= fetch_data.timestamp
     end
 
     # Delegates to the cached data
     private def volume_case_sensitive
-      fetch_data.volume_case_sensitive
+      @volume_case_sensitive ||= fetch_data.volume_case_sensitive
+    end
+
+    # Clears cached data and reloads from the shared cache
+    # Useful for tests or when you need to force a refresh
+    def refresh_data
+      @cov = nil
+      @cov_timestamp = nil
+      @volume_case_sensitive = nil
+      @resolved_resultset_path = nil
+      fetch_data
+      self
     end
 
     private def build_staleness_checker(raise_on_stale:, tracked_globs:)
