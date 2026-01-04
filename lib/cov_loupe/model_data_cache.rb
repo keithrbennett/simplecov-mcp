@@ -31,8 +31,9 @@ module CovLoupe
     #
     # @param resultset_path [String] Absolute path to .resultset.json
     # @param root [String] Project root directory for path normalization
+    # @param logger [Logger, nil] Logger instance for data loading operations
     # @return [ModelData] The cached or freshly loaded data
-    def get(resultset_path, root:)
+    def get(resultset_path, root:, logger: nil)
       @mutex.synchronize do
         # Cache key must include both resultset_path and root because
         # path normalization and case-sensitivity depend on the root
@@ -50,8 +51,8 @@ module CovLoupe
           return entry[:data]
         end
 
-        # Load fresh data
-        data = load_data(resultset_path, root)
+        # Load fresh data using the provided logger
+        data = load_data(resultset_path, root, logger)
 
         # Store with signature/digest if we computed them
         if signature && digest
@@ -71,11 +72,11 @@ module CovLoupe
       @mutex.synchronize { @entries.clear }
     end
 
-    private def load_data(resultset_path, root)
+    private def load_data(resultset_path, root, logger)
       repo = Repositories::CoverageRepository.new(
         root: root,
         resultset_path: resultset_path,
-        logger: CovLoupe.logger
+        logger: logger || CovLoupe.logger
       )
 
       ModelData.new(

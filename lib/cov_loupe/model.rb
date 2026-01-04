@@ -199,7 +199,7 @@ module CovLoupe
     # Fetches current ModelData from the shared cache
     # The cache automatically reloads if the resultset file has changed
     private def fetch_data
-      ModelDataCache.instance.get(resolved_resultset_path, root: @root)
+      ModelDataCache.instance.get(resolved_resultset_path, root: @root, logger: @logger)
     end
 
     # Returns the coverage map, caching it in an instance variable for test compatibility

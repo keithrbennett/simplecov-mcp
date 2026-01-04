@@ -152,4 +152,28 @@ RSpec.describe CovLoupe::ModelDataCache do
       threads.each(&:join)
     end
   end
+
+  describe 'per-model logger support' do
+    it 'uses the provided logger when loading fresh data' do
+      custom_logger = double('Logger')
+
+      # Verify logger is passed through to CoverageRepository
+      expect(CovLoupe::Repositories::CoverageRepository).to receive(:new)
+        .with(hash_including(logger: custom_logger))
+        .and_call_original
+
+      data = cache.get(project1_resultset, root: project1_root, logger: custom_logger)
+      expect(data).to be_a(CovLoupe::ModelData)
+    end
+
+    it 'falls back to CovLoupe.logger when no logger is provided' do
+      # Verify logger fallback to CovLoupe.logger
+      expect(CovLoupe::Repositories::CoverageRepository).to receive(:new)
+        .with(hash_including(logger: CovLoupe.logger))
+        .and_call_original
+
+      data = cache.get(project1_resultset, root: project1_root)
+      expect(data).to be_a(CovLoupe::ModelData)
+    end
+  end
 end
