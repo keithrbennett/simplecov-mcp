@@ -4,7 +4,6 @@ require 'mcp'
 require 'json'
 require_relative 'errors'
 require_relative 'error_handler'
-require_relative 'model_cache'
 require_relative 'model'
 require_relative 'presenters/coverage_payload_presenter'
 
@@ -151,18 +150,16 @@ module CovLoupe
 
     # Creates and configures a CoverageModel instance, returning both the model and the configuration.
     # Useful when the tool needs access to the resolved configuration (e.g., root, raise_on_stale).
+    #
+    # Models are now lightweight (data is loaded lazily via ModelDataCache), so we create
+    # a fresh instance on each call rather than caching at the model level.
+    #
     # @param server_context [AppContext] The server context
     # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [Array<CoverageModel, Hash>] The configured model and the configuration hash
-    # Creates a CoverageModel and returns it with the resolved config.
-    # In MCP mode, reuses a cached model if the resultset file has not changed.
     def self.create_configured_model(server_context:, **model_option_overrides)
       config = model_config_for(server_context: server_context, **model_option_overrides)
-      cached_model = cached_model_for(server_context, config)
-      return [cached_model, config] if cached_model
-
       model = CoverageModel.new(**config)
-      store_cached_model(server_context, config, model)
       [model, config]
     end
 
@@ -217,27 +214,5 @@ module CovLoupe
         .downcase
     end
     private_class_method :payload_method_for, :json_name_for, :underscore
-
-    # Returns a cached model if it is safe to reuse for the current config.
-    def self.cached_model_for(server_context, config)
-      return unless server_context&.mcp_mode?
-
-      cache = server_context.model_cache
-      return if cache.nil?
-
-      cache.fetch(config)
-    end
-    private_class_method :cached_model_for
-
-    # Stores the model alongside the resultset mtime so we can invalidate on change.
-    def self.store_cached_model(server_context, config, model)
-      return unless server_context&.mcp_mode?
-
-      cache = server_context.model_cache
-      return if cache.nil?
-
-      cache.store(config, model)
-    end
-    private_class_method :store_cached_model
   end
 end
