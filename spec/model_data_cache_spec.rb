@@ -151,6 +151,26 @@ RSpec.describe CovLoupe::ModelDataCache do
       end
       threads.each(&:join)
     end
+
+    it 'ensures singleton instance creation is thread-safe' do
+      # Reset the singleton to test concurrent initialization
+      described_class.instance_variable_set(:@instance, nil)
+      described_class.instance_variable_set(:@instance_mutex, nil)
+
+      instances = []
+      mutex = Mutex.new
+
+      threads = 10.times.map do
+        Thread.new do
+          instance = described_class.instance
+          mutex.synchronize { instances << instance }
+        end
+      end
+      threads.each(&:join)
+
+      # All threads should get the exact same instance object
+      expect(instances.uniq.size).to eq(1)
+    end
   end
 
   describe 'per-model logger support' do

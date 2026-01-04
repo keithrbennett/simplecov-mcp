@@ -21,9 +21,12 @@ module CovLoupe
       @mutex = Mutex.new
     end
 
-    # Returns the singleton instance
+    # Returns the singleton instance with thread-safe initialization
     def self.instance
-      @instance ||= new
+      @instance_mutex ||= Mutex.new
+      @instance_mutex.synchronize do
+        @instance ||= new
+      end
     end
 
     # Fetches ModelData for the given resultset path.
