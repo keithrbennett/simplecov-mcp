@@ -5,32 +5,43 @@ require_relative 'model_cache'
 
 module CovLoupe
   # Encapsulates per-request configuration such as error handling and logging.
-  class AppContext
-    attr_reader :error_handler, :log_target, :mode, :app_config, :logger, :model_cache
-
-    # @param model_cache [ModelCache] Optional cache used by MCP tools to reuse CoverageModel instances.
+  AppContext = Data.define(:error_handler, :log_target, :mode, :app_config, :model_cache,
+    :logger) do
     def initialize(error_handler:, log_target: nil, mode: :library, app_config: nil,
-      model_cache: nil)
-      @error_handler = error_handler
-      @log_target = log_target
-      @mode = mode
-      @app_config = app_config
-      @model_cache = model_cache || ModelCache.new
-      @logger = Logger.new(target: log_target, mode: mode)
+      model_cache: nil, logger: nil)
+      model_cache ||= ModelCache.new
+      logger ||= Logger.new(target: log_target, mode: mode)
+      super
     end
 
-    def with_error_handler(handler)
-      self.class.new(error_handler: handler, log_target: log_target, mode: mode,
-        app_config: app_config, model_cache: model_cache)
+    # Overrides Data#with to handle derived state.
+    #
+    # Since the `logger` depends on `log_target` and `mode`, we must ensure
+    # it is regenerated if either of those fields are changed. Otherwise,
+    # the new instance would point to the old logger (e.g. logging to the
+    # wrong file).
+    def with(**kwargs)
+      target_changed = kwargs.key?(:log_target) && kwargs[:log_target] != log_target
+      mode_changed = kwargs.key?(:mode) && kwargs[:mode] != mode
+
+      if target_changed || mode_changed
+        target = kwargs.fetch(:log_target, log_target)
+        new_mode = kwargs.fetch(:mode, mode)
+        kwargs[:logger] = Logger.new(target: target, mode: new_mode)
+      end
+      super
     end
 
-    def with_log_target(target)
-      self.class.new(error_handler: error_handler, log_target: target, mode: mode,
-        app_config: app_config, model_cache: model_cache)
+    def mcp_mode?
+      mode == :mcp
     end
 
-    def mcp_mode? = mode == :mcp
-    def cli_mode? = mode == :cli
-    def library_mode? = mode == :library
+    def cli_mode?
+      mode == :cli
+    end
+
+    def library_mode?
+      mode == :library
+    end
   end
 end

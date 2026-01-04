@@ -116,7 +116,7 @@ RSpec.describe 'Logging Fallback Behavior' do
           mode: :library
         )
         with_stringio_logger(mode: :library) do |logger, io|
-          context.instance_variable_set(:@logger, logger)
+          context = context.with(logger: logger)
 
           stderr_output = nil
           CovLoupe.with_context(context) do

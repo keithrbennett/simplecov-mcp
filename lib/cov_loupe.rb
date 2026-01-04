@@ -17,6 +17,26 @@ require_relative 'cov_loupe/coverage_reporter'
 
 module CovLoupe
   class << self
+    # === Context Management and Thread Safety ===
+    #
+    # CovLoupe manages configuration (logging, error handling) via `AppContext` objects.
+    # The resolution strategy is:
+    # 1. Thread-local: Use `Thread.current[:cov_loupe_context]` if set.
+    # 2. Global default: Fall back to `@internal_default_context`.
+    #
+    # This design supports both simple CLI usage (one global context) and multi-threaded
+    # library usage (per-thread contexts).
+    #
+    # Thread Safety:
+    # - `mutex` protects all reads/writes to `@internal_default_context`.
+    # - `default_log_file=` atomically updates the global default. Threads using the
+    #   default (nil thread-local context) will immediately see the new value.
+    # - `active_log_file=` creates or updates a *thread-local* context, isolating
+    #   changes to the current thread.
+    #
+    # This separation ensures that changing the global default is safe and predictable,
+    # while allowing threads to diverge when necessary without race conditions.
+
     THREAD_CONTEXT_KEY = :cov_loupe_context
     private_constant :THREAD_CONTEXT_KEY
 
@@ -81,13 +101,10 @@ module CovLoupe
     end
 
     def default_log_file=(value)
-      previous_default = default_context
-      @default_context = previous_default.with_log_target(value)
-      active = Thread.current[THREAD_CONTEXT_KEY]
-      if active.nil? || active.log_target == previous_default.log_target
-        Thread.current[THREAD_CONTEXT_KEY] = @default_context
+      mutex.synchronize do
+        previous_default = internal_default_context
+        @internal_default_context = previous_default.with(log_target: value)
       end
-      value # rubocop:disable Lint/Void -- return assigned log target for symmetry
     end
 
     def active_log_file
@@ -97,11 +114,11 @@ module CovLoupe
     def active_log_file=(value)
       current = Thread.current[THREAD_CONTEXT_KEY]
       Thread.current[THREAD_CONTEXT_KEY] = if current
-        current.with_log_target(value)
+        current.with(log_target: value)
       else
-        default_context.with_log_target(value)
+        base = mutex.synchronize { internal_default_context }
+        base.with(log_target: value)
       end
-      value # rubocop:disable Lint/Void -- return assigned log target for symmetry
     end
 
     def error_handler
@@ -109,7 +126,10 @@ module CovLoupe
     end
 
     def error_handler=(handler)
-      @default_context = default_context.with_error_handler(handler)
+      mutex.synchronize do
+        previous_default = internal_default_context
+        @internal_default_context = previous_default.with(error_handler: handler)
+      end
     end
 
     def logger
@@ -123,8 +143,16 @@ module CovLoupe
       @windows = RUBY_PLATFORM.match?(/mingw|mswin|cygwin/)
     end
 
+    private def mutex
+      @mutex ||= Mutex.new
+    end
+
     private def default_context
-      @default_context ||= AppContext.new(
+      mutex.synchronize { internal_default_context }
+    end
+
+    private def internal_default_context
+      @internal_default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,
         log_target: nil
       )
