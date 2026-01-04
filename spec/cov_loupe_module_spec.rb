@@ -33,10 +33,12 @@ RSpec.describe CovLoupe do
     end
 
     it 'exits with code 2 and shows friendly error for invalid options' do
-      expect do
-        described_class.run(%w[--invalid-option])
-      end.to raise_error(SystemExit) do |error|
-        expect(error.status).to eq(2)
+      silence_output do
+        expect do
+          described_class.run(%w[--invalid-option])
+        end.to raise_error(SystemExit) do |error|
+          expect(error.status).to eq(2)
+        end
       end
     end
   end

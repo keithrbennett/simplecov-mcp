@@ -36,25 +36,25 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       allow(Open3).to receive(:capture2)
         .with(*run_list_args)
         .and_return([run_json, instance_double(Process::Status, success?: true)])
-
-      # Suppress stdout
-      allow($stdout).to receive(:puts)
-      allow($stdout).to receive(:print)
     end
 
     it 'fetches and displays the latest CI run details' do
-      script.call
-      expect($stdout).to have_received(:puts).with(/Fetching latest CI run/)
-      expect($stdout).to have_received(:puts).with(/Title:\s+Test Run/)
-      expect($stdout).to have_received(:puts).with(/Status:.*SUCCESS/)
+      silence_output do
+        script.call
+        expect($stdout.string).to match(/Fetching latest CI run/)
+        expect($stdout.string).to match(/Title:\s+Test Run/)
+        expect($stdout.string).to match(/Status:.*SUCCESS/)
+      end
     end
 
     context 'when no runs are found' do
       let(:run_json) { '[]' }
 
       it 'notifies the user and exits gracefully' do
-        script.call
-        expect($stdout).to have_received(:puts).with("No workflow runs found for branch '#{branch}'.")
+        silence_output do
+          script.call
+          expect($stdout.string).to include("No workflow runs found for branch '#{branch}'.")
+        end
       end
     end
 
@@ -66,8 +66,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'warns and exits with error code 1' do
-        expect { script.call }.to raise_error(SystemExit) do |e|
-          expect(e.status).to eq(1)
+        silence_output do
+          expect { script.call }.to raise_error(SystemExit) do |e|
+            expect(e.status).to eq(1)
+          end
+          expect($stderr.string).to include(
+            "Failed to fetch runs. Ensure 'gh' is installed and you are authenticated."
+          )
         end
       end
     end
@@ -91,7 +96,9 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'attempts to fetch failure logs' do
-        script.call
+        silence_output do
+          script.call
+        end
         expect(script).to have_received(:system).with(*%w[gh run view 654321 --log-failed])
       end
     end
@@ -111,9 +118,11 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'shows in-progress message with watch command' do
-        script.call
-        expect($stdout).to have_received(:puts).with(/Build is currently running/)
-        expect($stdout).to have_received(:puts).with(/gh run watch 789012/)
+        silence_output do
+          script.call
+          expect($stdout.string).to match(/Build is currently running/)
+          expect($stdout.string).to match(/gh run watch 789012/)
+        end
       end
     end
 
@@ -132,8 +141,10 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'shows queued message' do
-        script.call
-        expect($stdout).to have_received(:puts).with(/Build is queued/)
+        silence_output do
+          script.call
+          expect($stdout.string).to match(/Build is queued/)
+        end
       end
     end
 
@@ -152,8 +163,10 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'displays cancelled status with yellow color' do
-        script.call
-        expect($stdout).to have_received(:puts).with(/Status:.*CANCELLED/)
+        silence_output do
+          script.call
+          expect($stdout.string).to match(/Status:.*CANCELLED/)
+        end
       end
     end
 
@@ -172,8 +185,10 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'displays the status with default white color' do
-        script.call
-        expect($stdout).to have_received(:puts).with(/Status:.*UNKNOWN_STATUS/)
+        silence_output do
+          script.call
+          expect($stdout.string).to match(/Status:.*UNKNOWN_STATUS/)
+        end
       end
     end
   end

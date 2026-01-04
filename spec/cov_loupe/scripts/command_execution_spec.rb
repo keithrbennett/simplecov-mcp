@@ -20,8 +20,11 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
         allow(Open3).to receive(:popen2e).and_yield(nil, [], thread_double)
 
-        expect { executor.run_command('false', print_output: true) }
-          .to raise_error(SystemExit)
+        silence_output do
+          expect { executor.run_command('false', print_output: true) }
+            .to raise_error(SystemExit)
+          expect($stderr.string).to include('Command failed: false')
+        end
       end
     end
 
@@ -30,10 +33,13 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
         status_double = instance_double(Process::Status, success?: false)
         allow(Open3).to receive(:capture2).and_return(['', status_double])
 
-        expect { executor.run_command('false', print_output: false) }
-          .to raise_error(SystemExit) do |error|
-            expect(error.status).to eq(1)
-          end
+        silence_output do
+          expect { executor.run_command('false', print_output: false) }
+            .to raise_error(SystemExit) do |error|
+              expect(error.status).to eq(1)
+            end
+          expect($stderr.string).to include('Error running: false')
+        end
       end
     end
 
@@ -44,16 +50,20 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
         allow(Open3).to receive(:popen2e).and_yield(nil, ['output'], thread_double)
 
-        result = executor.run_command('false', print_output: true, fail_on_error: false)
-        expect(result).to eq('output')
+        silence_output do
+          expect(executor.run_command('false', print_output: true, fail_on_error: false))
+            .to eq('output')
+        end
       end
 
       it 'does not raise an error for captured commands' do
         status_double = instance_double(Process::Status, success?: false)
         allow(Open3).to receive(:capture2).and_return(['output', status_double])
 
-        result = executor.run_command('false', print_output: false, fail_on_error: false)
-        expect(result).to eq('output')
+        silence_output do
+          expect(executor.run_command('false', print_output: false, fail_on_error: false))
+            .to eq('output')
+        end
       end
     end
   end

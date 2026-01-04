@@ -110,8 +110,8 @@ RSpec.configure do |config|
 
   # Suppress logging during tests by redirecting to /dev/null
   # This is cheap and doesn't break tests that verify logging behavior
-  CovLoupe.default_log_file = 'stderr'
-  CovLoupe.active_log_file = 'stderr'
+  CovLoupe.default_log_file = File::NULL
+  CovLoupe.active_log_file = File::NULL
 
   # Reset log file after each test to ensure tests that change it don't pollute others
   config.after do

@@ -40,10 +40,6 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       allow(fake_gem).to receive(:exist?).and_return(true)
       allow(described_class::ROOT).to receive(:join).with('cov-loupe-1.2.3.gem')
         .and_return(fake_gem)
-
-      # Stub puts to avoid noise
-      allow($stdout).to receive(:puts)
-      allow($stdout).to receive(:print)
     end
 
     # Helper to mock run! output for specific commands
@@ -113,18 +109,28 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       # 6. Gem build
       mock_command(%w[gem build cov-loupe.gemspec], '')
 
-      expect { script.call }.not_to raise_error
-      expect($stdout).to have_received(:puts).with('✓ Gem built successfully')
+      silence_output do
+        expect { script.call }.not_to raise_error
+        expect($stdout.string).to include('✓ Gem built successfully')
+      end
     end
 
     it 'aborts if git is not clean' do
       mock_commands(git_clean_commands(status: 'M lib/foo.rb'))
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include(
+          'Uncommitted changes present. Commit or stash before releasing.'
+        )
+      end
     end
 
     it 'aborts if not on main branch' do
       mock_commands(git_clean_commands + branch_commands('feature-branch'))
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include('Releases must be cut from the main branch.')
+      end
     end
 
     it 'aborts if local is behind remote' do
@@ -134,7 +140,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha1') # base == local (behind)
       )
 
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include('Local main is behind origin. Pull before releasing.')
+      end
     end
 
     it 'aborts if local is ahead of remote' do
@@ -144,7 +153,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha2') # base == remote (ahead)
       )
 
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include('Local main is ahead of origin. Push before releasing.')
+      end
     end
 
     it 'aborts if local has diverged from remote' do
@@ -154,7 +166,12 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha3') # base != local and != remote (diverged)
       )
 
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include(
+          'Local main has diverged from origin. Reconcile before releasing.'
+        )
+      end
     end
 
     it 'aborts if release notes are missing' do
@@ -170,7 +187,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       # Override release notes to not include the expected header
       allow(release_notes).to receive(:read).and_return("## v1.0.0\n\n- Old changes")
 
-      expect { script.call }.to raise_error(SystemExit)
+      silence_output do
+        expect { script.call }.to raise_error(SystemExit)
+        expect($stderr.string).to include("Add a '## v1.2.3' section to RELEASE_NOTES.md before releasing.")
+      end
     end
   end
 end
