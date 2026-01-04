@@ -722,6 +722,60 @@ reporter = CoverageReporter.new(model)
 reporter.generate_markdown_report("coverage_report.md")
 ```
 
+### Per-Model Context (Advanced)
+
+By default, all `CoverageModel` instances share the global context for error handling and logging. For advanced scenarios where you need different models with different logging or error handling configurations in the same process, you can pass a custom context to each model.
+
+```ruby
+require "cov_loupe"
+
+# Scenario: Analyzing coverage for multiple projects in one script
+
+# Project A: Detailed logging for debugging
+context_a = CovLoupe.create_context(
+  error_handler: CovLoupe::ErrorHandlerFactory.for_library,
+  log_target: 'project_a_coverage.log'
+)
+
+model_a = CovLoupe::CoverageModel.new(
+  root: '/path/to/project_a',
+  resultset: '/path/to/project_a/coverage/.resultset.json',
+  context: context_a
+)
+
+# Project B: Different log file
+context_b = context_a.with(log_target: 'project_b_coverage.log')
+
+model_b = CovLoupe::CoverageModel.new(
+  root: '/path/to/project_b',
+  resultset: '/path/to/project_b/coverage/.resultset.json',
+  context: context_b
+)
+
+# Each model logs to its own file
+summary_a = model_a.summary_for('lib/foo.rb')  # Logs to project_a_coverage.log
+summary_b = model_b.summary_for('lib/bar.rb')  # Logs to project_b_coverage.log
+
+# You can also change a model's context at runtime
+model_a.context = CovLoupe.context  # Switch to global context
+```
+
+**When to use per-model contexts:**
+- Managing coverage for multiple projects in one script
+- Different error handling strategies per model
+- Separate log files for different data sources
+- Testing scenarios requiring isolated configurations
+
+**Simple use case (most common):**
+```ruby
+# For most use cases, just configure the global context once
+CovLoupe.error_handler = CovLoupe::ErrorHandlerFactory.for_library
+CovLoupe.default_log_file = 'coverage_analysis.log'
+
+# All models automatically use the global context
+model = CovLoupe::CoverageModel.new
+```
+
 ## Staleness Detection
 
 The `list` method returns a `'stale'` field for each file with one of these values:

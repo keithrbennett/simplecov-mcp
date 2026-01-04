@@ -102,6 +102,8 @@ summary = model.summary_for("lib/cov_loupe/model.rb")
 # => { "file" => "lib/cov_loupe/model.rb", "summary" => { "covered" => 114, "total" => 118, "percentage" => 96.61 } }
 ```
 
+For advanced use cases, multiple models can each have their own data source and log file. See [Library API](docs/user/LIBRARY_API.md#per-model-context-advanced) for details.
+
 **MCP Server:**
 See [MCP Integration Guide](docs/user/MCP_INTEGRATION.md) for AI assistant setup.
 
