@@ -57,11 +57,6 @@ module CovLoupe
       @default_raise_on_stale = raise_on_stale
       @resolved_resultset_path = nil  # Resolved on first fetch
 
-      # Compute volume case sensitivity before loading data
-      # This is used as part of the cache key to enable cache sharing across
-      # different roots on the same volume type
-      @volume_case_sensitive = PathUtils.volume_case_sensitive?(@root)
-
       # Eagerly validate resultset exists and load initial data
       # This matches original behavior and surfaces errors immediately
       begin
@@ -74,6 +69,11 @@ module CovLoupe
       rescue => e
         raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
       end
+
+      # Compute volume case sensitivity based on this model's root directory
+      # This is not cached because different models may use the same resultset
+      # with different root directories on different volumes
+      @volume_case_sensitive = PathUtils.volume_case_sensitive?(@root)
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -199,11 +199,7 @@ module CovLoupe
     # Fetches current ModelData from the shared cache
     # The cache automatically reloads if the resultset file has changed
     private def fetch_data
-      ModelDataCache.instance.get(
-        resolved_resultset_path,
-        root: @root,
-        volume_case_sensitive: @volume_case_sensitive
-      )
+      ModelDataCache.instance.get(resolved_resultset_path, root: @root)
     end
 
     # Returns the coverage map, caching it in an instance variable for test compatibility
