@@ -173,7 +173,9 @@ module CovLoupe
 
     # Lazily resolves the resultset path on first access
     private def resolved_resultset_path
-      @resolved_resultset_path ||= Resolvers::ResolverHelpers.find_resultset(@root, resultset: @resultset_arg)
+      @resolved_resultset_path ||= Resolvers::ResolverHelpers.find_resultset(
+        @root, resultset: @resultset_arg
+      )
     end
 
     # Fetches current ModelData from the shared cache

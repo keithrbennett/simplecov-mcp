@@ -10,9 +10,5 @@ module CovLoupe
   # @attr_reader timestamp [Integer] Latest timestamp from coverage suites
   # @attr_reader resultset_path [String] Absolute path to the .resultset.json file
   # @attr_reader volume_case_sensitive [Boolean] Whether the volume is case-sensitive
-  ModelData = Data.define(:coverage_map, :timestamp, :resultset_path, :volume_case_sensitive) do
-    def initialize(coverage_map:, timestamp:, resultset_path:, volume_case_sensitive:)
-      super
-    end
-  end
+  ModelData = Data.define(:coverage_map, :timestamp, :resultset_path, :volume_case_sensitive)
 end
