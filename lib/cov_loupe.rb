@@ -105,6 +105,7 @@ module CovLoupe
         previous_default = internal_default_context
         @internal_default_context = previous_default.with(log_target: value)
       end
+      value # rubocop:disable Lint/Void -- Setter should return assigned value for direct calls.
     end
 
     def active_log_file
