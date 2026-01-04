@@ -37,7 +37,7 @@ RSpec.describe CovLoupe::ModelDataCache do
       expect(data.coverage_map).to be_a(Hash)
       expect(data.timestamp).to be_a(Integer)
       expect(data.resultset_path).to eq(project1_resultset)
-      expect([true, false]).to include(data.volume_case_sensitive)
+      expect(data.volume_case_sensitive).to be(true).or be(false)
     end
 
     it 'returns the same data for identical resultset path' do

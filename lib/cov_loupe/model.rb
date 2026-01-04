@@ -194,6 +194,7 @@ module CovLoupe
 
     # Returns the coverage map, caching it in an instance variable for test compatibility
     # and performance. For fresh data, call refresh_data first.
+    # rubocop:disable Naming/MemoizedInstanceVariableName
     private def coverage_map
       @cov ||= fetch_data.coverage_map
     end
@@ -202,6 +203,7 @@ module CovLoupe
     private def coverage_timestamp
       @cov_timestamp ||= fetch_data.timestamp
     end
+    # rubocop:enable Naming/MemoizedInstanceVariableName
 
     # Delegates to the cached data
     private def volume_case_sensitive
