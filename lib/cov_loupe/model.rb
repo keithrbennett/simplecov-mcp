@@ -174,7 +174,7 @@ module CovLoupe
     private def volume_case_sensitive
       return @volume_case_sensitive if defined?(@volume_case_sensitive)
 
-      @volume_case_sensitive = Resolvers::ResolverHelpers.volume_case_sensitive?(@root)
+      @volume_case_sensitive = PathUtils.volume_case_sensitive?(@root)
     end
 
     private def load_coverage_data

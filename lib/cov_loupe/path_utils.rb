@@ -152,11 +152,69 @@ module CovLoupe
       File.join(*components)
     end
 
-    # Checks if volume is case-sensitive
+    # Detects whether the volume at the given path is case-sensitive.
+    # Prefer using an existing file (via File.identical?) to avoid writing;
+    # fall back to a temporary file if no suitable file exists.
     #
-    # @return [Boolean] true if volume is case-sensitive
-    def self.volume_case_sensitive?
-      @volume_case_sensitive ||= !windows?
+    # @param path [String, nil] directory path to test (defaults to current directory)
+    # @return [Boolean] true if case-sensitive, false if case-insensitive or on error
+    def self.volume_case_sensitive?(path = nil)
+      require 'securerandom'
+      require 'fileutils'
+
+      test_path = path ? File.absolute_path(path) : Dir.pwd
+      abs_path = File.absolute_path(test_path)
+
+      # Check cache first
+      @volume_case_sensitivity_cache ||= {}
+      if @volume_case_sensitivity_cache.key?(abs_path)
+        return @volume_case_sensitivity_cache[abs_path]
+      end
+
+      # Return false if directory doesn't exist
+      return false unless File.directory?(abs_path)
+
+      # Try to use an existing file to avoid filesystem writes
+      existing_file = Dir.children(abs_path).find do |name|
+        name.match?(/[A-Za-z]/) && File.file?(File.join(abs_path, name))
+      end
+
+      result = if existing_file
+        original = File.join(abs_path, existing_file)
+        alternate = original.tr('A-Za-z', 'a-zA-Z')
+
+        if File.exist?(alternate)
+          # Same file -> case-insensitive, different files -> case-sensitive
+          !File.identical?(original, alternate)
+        else
+          true
+        end
+      else
+        # No suitable existing file; create a temporary test file
+        test_file = nil
+        while test_file.nil?
+          candidate = File.join(abs_path, "CovLoupe_CaseSensitivity_Test_#{SecureRandom.hex(16)}.tmp")
+          variants = [candidate, candidate.upcase, candidate.downcase]
+          test_file = candidate if variants.none? { |v| File.exist?(v) }
+        end
+
+        begin
+          FileUtils.touch(test_file)
+          variants = [test_file, test_file.upcase, test_file.downcase]
+          # Test if exactly one variant exists (case-sensitive) vs all exist (case-insensitive)
+          variants.one? { |variant| File.exist?(variant) }
+        ensure
+          # Clean up all potential variants
+          [test_file, test_file.upcase, test_file.downcase].each do |variant|
+            FileUtils.rm_f(variant)
+          end
+        end
+      end
+
+      @volume_case_sensitivity_cache[abs_path] = result
+    rescue SystemCallError, IOError
+      # Can't detect from filesystem, assume case-insensitive to be conservative
+      false
     end
 
     # Returns root path with trailing separator for prefix matching

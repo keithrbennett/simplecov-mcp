@@ -495,17 +495,58 @@ RSpec.describe CovLoupe::PathUtils do
   end
 
   describe '.volume_case_sensitive?' do
-    it 'caches result' do
-      # Call twice to ensure caching works
-      result1 = described_class.volume_case_sensitive?
-      result2 = described_class.volume_case_sensitive?
+    let(:test_dir) { Dir.mktmpdir("cov_loupe_volume_test_#{SecureRandom.hex(8)}") }
+
+    before do
+      # Clear the cache before each test to ensure isolation
+      described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
+    end
+
+    after do
+      FileUtils.rm_rf(test_dir)
+    end
+
+    it 'returns a boolean value' do
+      result = described_class.volume_case_sensitive?(test_dir)
+      expect([true, false].include?(result)).to be(true)
+    end
+
+    it 'uses current directory when no path provided' do
+      result = described_class.volume_case_sensitive?
+      expect([true, false].include?(result)).to be(true)
+    end
+
+    it 'caches result per path' do
+      # Call twice to ensure caching works for same path
+      result1 = described_class.volume_case_sensitive?(test_dir)
+      result2 = described_class.volume_case_sensitive?(test_dir)
       expect(result1).to eq(result2)
     end
 
-    it 'detects case sensitivity based on platform' do
-      # Just verify it returns a boolean and doesn't crash
-      result = described_class.volume_case_sensitive?
-      expect([true, false].include?(result)).to be true
+    it 'returns consistent results when called multiple times' do
+      # Write 2 files whose names differ only in case
+      %w[SampleFile.txt sAMPLEfILE.TXT]
+        .map { |filename| File.join(test_dir, filename) }
+        .each { |filespec| FileUtils.touch(filespec) }
+
+      test_count = 3
+      results = Array.new(test_count) { described_class.volume_case_sensitive?(test_dir) }
+      expect(results.size).to eq(test_count)
+      expect(results.uniq.size).to eq(1) # All results should be identical
+    end
+
+    it 'reports case sensitivity based on actual case-variant files' do
+      filename = 'SampleFile.txt'
+      original = File.join(test_dir, filename)
+      FileUtils.touch(original)
+      alternate = File.join(test_dir, filename.tr('A-Za-z', 'a-zA-Z'))
+
+      if File.exist?(alternate) && File.identical?(original, alternate)
+        expect(described_class.volume_case_sensitive?(test_dir)).to be(false)
+      else
+        FileUtils.touch(alternate) unless File.exist?(alternate)
+        expect(described_class.volume_case_sensitive?(test_dir)).to be(true)
+      end
     end
   end
 

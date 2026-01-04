@@ -109,7 +109,7 @@ lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path)
 
 # New
 root = '/path/to/project'
-volume_case_sensitive = CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?(root)
+volume_case_sensitive = CovLoupe::PathUtils.volume_case_sensitive?(root)
 resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data, root: root, volume_case_sensitive: volume_case_sensitive)
 lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path, root: root, volume_case_sensitive: volume_case_sensitive)
 ```

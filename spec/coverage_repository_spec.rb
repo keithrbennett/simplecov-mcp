@@ -12,9 +12,9 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
 
   # Helper to set up volume case sensitivity mocking and resultset with custom coverage data
   def setup_volume_and_coverage(case_sensitive:, coverage_data:)
-    # Mock volume_case_sensitive? to return the specified value
-    allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:volume_case_sensitive?)
-      .with(anything)
+    # Mock volume_case_sensitive? to return the specified value for any arguments
+    # (can be called with a path or with no args, defaulting to Dir.pwd)
+    allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?)
       .and_return(case_sensitive)
 
     # Set up the resultset with the provided coverage data

@@ -64,7 +64,7 @@ module CovLoupe
       private def detect_volume_case_sensitivity
         return false unless File.directory?(@root)
 
-        Resolvers::ResolverHelpers.volume_case_sensitive?(@root)
+        PathUtils.volume_case_sensitive?(@root)
       rescue SystemCallError, IOError
         # Can't detect from filesystem, assume case-insensitive to be conservative
         false

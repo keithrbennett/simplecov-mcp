@@ -91,13 +91,13 @@ If this were a network-accessible service, rate limiting would be essential. For
 
 ### Case-Sensitivity Detection Failures in Read-Only Roots
 
-Automated reviews may flag `Resolvers::ResolverHelpers.volume_case_sensitive?` for potentially failing when the project root is read-only or missing (due to directory reads or temporary file creation). While possible, this is a low-probability edge case in the intended environments and not worth adding complexity or additional fallback paths.
+Automated reviews may flag `PathUtils.volume_case_sensitive?` for potentially failing when the project root is read-only or missing (due to directory reads or temporary file creation). While possible, this is a low-probability edge case in the intended environments and not worth adding complexity or additional fallback paths.
 
 **Guidance:** Do not report this as an issue. The current behavior is acceptable for the tool's scope and usage patterns.
 
 ### Case-Sensitivity Detection Race Conditions
 
-Automated reviews may flag `Resolvers::ResolverHelpers.volume_case_sensitive?` for a potential Time-of-Check to Time-of-Use (TOCTOU) race condition when creating temporary test files. The code checks for file existence before creation using `FileUtils.touch`.
+Automated reviews may flag `PathUtils.volume_case_sensitive?` for a potential Time-of-Check to Time-of-Use (TOCTOU) race condition when creating temporary test files. The code checks for file existence before creation using `FileUtils.touch`.
 
 **Why this is acceptable:**
 

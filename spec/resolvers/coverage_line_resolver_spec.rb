@@ -201,7 +201,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'does not normalize on case-sensitive volumes' do
-        skip 'Test requires case-sensitive volume' unless CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?('.')
+        skip 'Test requires case-sensitive volume' unless CovLoupe::PathUtils.volume_case_sensitive?('.')
 
         # Ensure no slash normalization either (non-Windows)
         allow(CovLoupe).to receive(:windows?).and_return(false)
@@ -220,7 +220,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       end
 
       it 'normalizes case on case-insensitive volumes' do
-        skip 'Test requires case-insensitive volume' if CovLoupe::Resolvers::ResolverHelpers.volume_case_sensitive?('.')
+        skip 'Test requires case-insensitive volume' if CovLoupe::PathUtils.volume_case_sensitive?('.')
 
         # Ensure no slash normalization (non-Windows)
         allow(CovLoupe).to receive(:windows?).and_return(false)
