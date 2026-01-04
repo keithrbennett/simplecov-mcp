@@ -36,9 +36,9 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do |_stdout, stderr|
+          silence_output do
             CovLoupe.logger.info('test message')
-            stderr_output = stderr.string
+            stderr_output = $stderr.string
           end
         end
 
@@ -59,15 +59,15 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do |_stdout, stderr|
+          silence_output do
             # First failure
             CovLoupe.logger.info('first failure')
-            first_stderr = stderr.string.dup
-            stderr.reopen(StringIO.new) # clear stderr buffer
+            first_stderr = $stderr.string.dup
+            $stderr.reopen(StringIO.new) # clear stderr buffer
 
             # Second failure
             CovLoupe.logger.info('second failure')
-            second_stderr = stderr.string
+            second_stderr = $stderr.string
 
             stderr_output = first_stderr + second_stderr
           end
@@ -95,9 +95,9 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do |_stdout, stderr|
+          silence_output do
             CovLoupe.logger.info('test message')
-            stderr_output = stderr.string
+            stderr_output = $stderr.string
           end
         end
 
@@ -120,9 +120,9 @@ RSpec.describe 'Logging Fallback Behavior' do
 
           stderr_output = nil
           CovLoupe.with_context(context) do
-            silence_output do |_stdout, stderr|
+            silence_output do
               CovLoupe.logger.info('test message')
-              stderr_output = stderr.string
+              stderr_output = $stderr.string
             end
           end
 
@@ -161,9 +161,9 @@ RSpec.describe 'Logging Fallback Behavior' do
       logger.instance_variable_set(:@logger, mock_stdlib_logger)
 
       stderr_output = nil
-      silence_output do |_stdout, stderr|
+      silence_output do
         logger.info('test message')
-        stderr_output = stderr.string
+        stderr_output = $stderr.string
       end
 
       expect(stderr_output).to include("Warning: Logging failed. See #{fallback_file} for details.")

@@ -7,15 +7,15 @@ module CLITestHelpers
     cli = CovLoupe::CoverageCLI.new
     status = nil
     out_str = err_str = nil
-    silence_output do |out, err|
+    silence_output do
       begin
         cli.run(argv.flatten)
         status = 0
       rescue SystemExit => e
         status = e.status
       end
-      out_str = out.string
-      err_str = err.string
+      out_str = $stdout.string
+      err_str = $stderr.string
     end
     [out_str, err_str, status]
   end

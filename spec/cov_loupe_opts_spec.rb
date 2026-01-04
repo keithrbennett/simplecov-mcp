@@ -118,11 +118,11 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       # Run with --help which should produce help output
       output = nil
-      silence_output do |out, err|
+      silence_output do
         swallow_system_exit do
           CovLoupe.run(['--help'])
         end
-        output = out.string + err.string
+        output = $stdout.string + $stderr.string
       end
 
       # Verify CLI actually ran by checking for help text
@@ -149,9 +149,9 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       # Capture output to verify MCP server response
       output = nil
-      silence_output do |out, err|
+      silence_output do
         CovLoupe.run(%w[--mode mcp])
-        output = out.string + err.string
+        output = $stdout.string + $stderr.string
       end
 
       # Verify MCP server ran by checking for JSON-RPC response

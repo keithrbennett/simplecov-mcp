@@ -20,9 +20,9 @@ module TestIOHelpers
   # @return [String] The captured output
   def capture_command_output(command, args)
     output = nil
-    silence_output do |stdout, _stderr|
+    silence_output do
       command.execute(args.dup)
-      output = stdout.string
+      output = $stdout.string
     end
     output
   end

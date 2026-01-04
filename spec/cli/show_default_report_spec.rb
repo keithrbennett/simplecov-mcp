@@ -55,9 +55,9 @@ RSpec.describe CovLoupe::CoverageCLI do
 
       it 'prints a warning to stderr listing the skipped file' do
         warnings = nil
-        silence_output do |stdout, stderr|
-          cli.show_default_report(sort_order: :ascending, output: stdout)
-          warnings = stderr.string
+        silence_output do
+          cli.show_default_report(sort_order: :ascending, output: $stdout)
+          warnings = $stderr.string
         end
 
         expect(warnings).to include('WARNING: 1 coverage row skipped due to errors')
@@ -69,8 +69,8 @@ RSpec.describe CovLoupe::CoverageCLI do
         cli.config.raise_on_stale = true
 
         expect do
-          silence_output do |stdout, _stderr|
-            cli.show_default_report(sort_order: :ascending, output: stdout)
+          silence_output do
+            cli.show_default_report(sort_order: :ascending, output: $stdout)
           end
         end.to raise_error(CovLoupe::CoverageDataError, /corrupt data/)
       end
@@ -102,9 +102,9 @@ RSpec.describe CovLoupe::CoverageCLI do
 
       it 'prints the deleted files section in the exclusions summary' do
         output = nil
-        silence_output do |stdout, _stderr|
-          cli.show_default_report(sort_order: :ascending, output: stdout)
-          output = stdout.string
+        silence_output do
+          cli.show_default_report(sort_order: :ascending, output: $stdout)
+          output = $stdout.string
         end
 
         expect(output).to include(
