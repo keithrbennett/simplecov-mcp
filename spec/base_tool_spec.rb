@@ -166,7 +166,7 @@ RSpec.describe CovLoupe::BaseTool do
   describe '.create_configured_model' do
     let(:context) { mcp_server_context }
 
-    it 'reuses cached models when the resultset timestamp is unchanged' do
+    it 'creates fresh model instances each time' do
       Dir.mktmpdir do |root|
         mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
         resultset_path = File.join(root, 'coverage', '.resultset.json')
@@ -177,27 +177,26 @@ RSpec.describe CovLoupe::BaseTool do
         model1, = described_class.create_configured_model(server_context: context, root: root)
         model2, = described_class.create_configured_model(server_context: context, root: root)
 
-        expect(model2).to be(model1)
+        # Models are different objects (not cached at model level)
+        expect(model2).not_to be(model1)
+        # But they share the same underlying cached data
+        expect(model2.instance_variable_get(:@cov)).to eq(model1.instance_variable_get(:@cov))
       end
     end
 
-    it 'refreshes cached models when the resultset timestamp changes' do
+    it 'models share cached data when resultset is unchanged' do
       Dir.mktmpdir do |root|
         mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP)
         resultset_path = File.join(root, 'coverage', '.resultset.json')
 
-        stat_old = double('File::Stat', mtime: Time.at(100), size: 1, ino: 1)
-        stat_new = double('File::Stat', mtime: Time.at(200), size: 1, ino: 1)
-        stub_resultset_stat(resultset_path, mtime: Time.at(100),
-          sequence: [stat_old, stat_new, stat_new])
-        stub_resultset_digest(
-          resultset_path, sequence: ['digest1', 'digest1', 'digest2', 'digest2']
-        )
+        stub_resultset_stat(resultset_path, mtime: Time.at(100))
+        stub_resultset_digest(resultset_path)
 
         model1, = described_class.create_configured_model(server_context: context, root: root)
         model2, = described_class.create_configured_model(server_context: context, root: root)
 
-        expect(model2).not_to be(model1)
+        # Data is shared from ModelDataCache
+        expect(model1.instance_variable_get(:@cov)).to be(model2.instance_variable_get(:@cov))
       end
     end
   end

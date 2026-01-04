@@ -3,15 +3,14 @@
 # MCP Tool shared examples and helpers
 module MCPToolTestHelpers
   def null_server_context
-    instance_double('ServerContext', app_config: nil, mcp_mode?: false, model_cache: nil)
+    instance_double('ServerContext', app_config: nil, mcp_mode?: false)
   end
 
-  def mcp_server_context(cache: nil, app_config: nil)
+  def mcp_server_context(app_config: nil)
     instance_double(
       'ServerContext',
       app_config: app_config,
-      mcp_mode?: true,
-      model_cache: cache || CovLoupe::ModelCache.new
+      mcp_mode?: true
     )
   end
 

@@ -321,8 +321,9 @@ RSpec.describe CovLoupe::CoverageModel do
         |original, search_root, resultset: nil|
         is_root = File.absolute_path(search_root) == File.absolute_path(root)
         is_empty = resultset.nil? || resultset.to_s.empty?
+        is_target = resultset.to_s == resultset_path
 
-        if is_root && is_empty
+        if is_root && (is_empty || is_target)
           resultset_path
         else
           original.call(search_root, resultset: resultset)

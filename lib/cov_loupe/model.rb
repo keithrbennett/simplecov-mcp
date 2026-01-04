@@ -13,7 +13,8 @@ require_relative 'coverage_table_formatter'
 require_relative 'coverage_calculator'
 require_relative 'resolvers/resolver_helpers'
 require_relative 'glob_utils'
-require_relative 'repositories/coverage_repository'
+require_relative 'model_data_cache'
+require_relative 'path_utils'
 
 module CovLoupe
   class CoverageModel
@@ -30,7 +31,7 @@ module CovLoupe
 
     DEFAULT_SORT_ORDER = :descending
 
-    attr_reader :relativizer, :skipped_rows
+    attr_reader :relativizer, :skipped_rows, :volume_case_sensitive
 
     # Create a CoverageModel
     #
@@ -54,8 +55,25 @@ module CovLoupe
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
       @default_raise_on_stale = raise_on_stale
+      @resolved_resultset_path = nil  # Resolved on first fetch
 
-      load_coverage_data
+      # Eagerly validate resultset exists and load initial data
+      # This matches original behavior and surfaces errors immediately
+      begin
+        data = fetch_data
+        @cov = data.coverage_map
+        @cov_timestamp = data.timestamp
+        @resultset_path = data.resultset_path
+      rescue CovLoupe::Error
+        raise # Re-raise our own errors as-is
+      rescue => e
+        raise ErrorHandler.new.convert_standard_error(e, context: :coverage_loading)
+      end
+
+      # Compute volume case sensitivity based on this model's root directory
+      # This is not cached because different models may use the same resultset
+      # with different root directories on different volumes
+      @volume_case_sensitive = PathUtils.volume_case_sensitive?(@root)
     end
 
     # Returns { 'file' => <absolute_path>, 'lines' => [hits|nil,...] }
@@ -152,7 +170,7 @@ module CovLoupe
 
     def staleness_for(path)
       file_abs = File.expand_path(path, @root)
-      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(coverage_map, file_abs, root: @root,
         volume_case_sensitive: volume_case_sensitive)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
         .stale_for_file?(file_abs, coverage_lines)
@@ -171,36 +189,55 @@ module CovLoupe
       CoverageTableFormatter.format(rows)
     end
 
-    private def volume_case_sensitive
-      return @volume_case_sensitive if defined?(@volume_case_sensitive)
-
-      @volume_case_sensitive = PathUtils.volume_case_sensitive?(@root)
+    # Lazily resolves the resultset path on first access
+    private def resolved_resultset_path
+      @resolved_resultset_path ||= Resolvers::ResolverHelpers.find_resultset(
+        @root, resultset: @resultset_arg
+      )
     end
 
-    private def load_coverage_data
-      repo = Repositories::CoverageRepository.new(
-        root: @root,
-        resultset_path: @resultset_arg,
-        logger: @logger
-      )
-      @cov = repo.coverage_map or raise(CoverageDataError, "No 'coverage' key found in resultset file: #{repo.resultset_path}")
-      @cov_timestamp = repo.timestamp
-      @resultset_path = repo.resultset_path # Store resolved path for StalenessChecker
+    # Fetches current ModelData from the shared cache
+    # The cache automatically reloads if the resultset file has changed
+    private def fetch_data
+      ModelDataCache.instance.get(resolved_resultset_path, root: @root)
+    end
+
+    # Returns the coverage map, caching it in an instance variable for test compatibility
+    # and performance. For fresh data, call refresh_data first.
+    # rubocop:disable Naming/MemoizedInstanceVariableName
+    private def coverage_map
+      @cov ||= fetch_data.coverage_map
+    end
+
+    # Delegates to the cached data
+    private def coverage_timestamp
+      @cov_timestamp ||= fetch_data.timestamp
+    end
+    # rubocop:enable Naming/MemoizedInstanceVariableName
+
+    # Clears cached data and reloads from the shared cache
+    # Useful for tests or when you need to force a refresh
+    def refresh_data
+      @cov = nil
+      @cov_timestamp = nil
+      @resolved_resultset_path = nil
+      fetch_data
+      self
     end
 
     private def build_staleness_checker(raise_on_stale:, tracked_globs:)
       StalenessChecker.new(
         root: @root,
-        resultset: @resultset_path,
+        resultset: resolved_resultset_path,
         mode: raise_on_stale ? :error : :off,
         tracked_globs: tracked_globs,
-        timestamp: @cov_timestamp
+        timestamp: coverage_timestamp
       )
     end
 
     private def build_list_rows(tracked_globs:, raise_on_stale:)
       coverage_lines_by_path = {}
-      rows = @cov.filter_map do |abs_path, entry|
+      rows = coverage_map.filter_map do |abs_path, entry|
         # Extract lines directly from the entry to avoid O(n^2) resolver scans
         coverage_lines = coverage_lines_for_listing(abs_path, entry, raise_on_stale)
         next unless coverage_lines
@@ -229,7 +266,7 @@ module CovLoupe
       return lines if lines
 
       # Fallback to resolver for malformed entries
-      Resolvers::ResolverHelpers.lookup_lines(@cov, abs_path, root: @root,
+      Resolvers::ResolverHelpers.lookup_lines(coverage_map, abs_path, root: @root,
         volume_case_sensitive: volume_case_sensitive)
     rescue FileError, CoverageDataError => e
       raise e if raise_on_stale
@@ -245,7 +282,7 @@ module CovLoupe
 
     private def project_staleness_report(tracked_globs:, raise_on_stale:, coverage_lines_by_path:)
       # Filter coverage files to match the same scope as tracked_globs
-      coverage_files = GlobUtils.filter_paths(@cov.keys, tracked_globs, root: @root)
+      coverage_files = GlobUtils.filter_paths(coverage_map.keys, tracked_globs, root: @root)
 
       # Filter coverage_lines_by_path to the same scope to ensure length-mismatch
       # checks only apply to files within the tracked_globs scope
@@ -303,7 +340,7 @@ module CovLoupe
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.expand_path(path, @root)
-      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(@cov, file_abs, root: @root,
+      coverage_lines = Resolvers::ResolverHelpers.lookup_lines(coverage_map, file_abs, root: @root,
         volume_case_sensitive: volume_case_sensitive)
 
       if coverage_lines.nil?

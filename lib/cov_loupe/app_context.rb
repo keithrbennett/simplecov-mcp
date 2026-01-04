@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 require_relative 'logger'
-require_relative 'model_cache'
 
 module CovLoupe
   # Encapsulates per-request configuration such as error handling and logging.
-  AppContext = Data.define(:error_handler, :log_target, :mode, :app_config, :model_cache,
-    :logger) do
-    def initialize(error_handler:, log_target: nil, mode: :library, app_config: nil,
-      model_cache: nil, logger: nil)
-      model_cache ||= ModelCache.new
+  AppContext = Data.define(:error_handler, :log_target, :mode, :app_config, :logger) do
+    def initialize(error_handler:, log_target: nil, mode: :library, app_config: nil, logger: nil)
       logger ||= Logger.new(target: log_target, mode: mode)
       super
     end

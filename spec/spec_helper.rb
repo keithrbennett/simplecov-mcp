@@ -85,8 +85,12 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
     .and_return(JSON.generate(fake_resultset_hash))
   allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
     .and_wrap_original do |method, search_root, resultset: nil|
-    if File.absolute_path(search_root) == abs_root && (resultset.nil? || resultset.to_s.empty?)
-      File.join(abs_root, 'coverage', '.resultset.json')
+    mock_path = File.join(abs_root, 'coverage', '.resultset.json')
+    is_mock_target = resultset.nil? || resultset.to_s.empty? ||
+                     File.absolute_path(resultset.to_s) == File.absolute_path(mock_path)
+
+    if File.absolute_path(search_root) == abs_root && is_mock_target
+      mock_path
     else
       method.call(search_root, resultset: resultset)
     end
@@ -112,6 +116,10 @@ RSpec.configure do |config|
   # Reset log file after each test to ensure tests that change it don't pollute others
   config.after do
     CovLoupe.active_log_file = File::NULL
+  end
+
+  config.before do
+    CovLoupe::ModelDataCache.instance.clear
   end
 
   config.include TestIOHelpers

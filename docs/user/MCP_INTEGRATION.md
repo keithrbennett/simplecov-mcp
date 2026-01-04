@@ -163,7 +163,7 @@ When the MCP server starts, you can pass CLI options via the startup command. Th
 
 CLI-only presentation flags (`-f/--format`, `-s/--source`, `-c/--context-lines`, `-C/--color`, and CLI `-o/--sort-order` defaults) never flow into MCP. Pass `sort_order` explicitly in each tool request when you need non-default ordering.
 
-**Model caching:** MCP mode caches the `CoverageModel` between requests when the resolved `.resultset.json` path and file mtime are unchanged, replacing the model when the resultset changes.
+**Data caching:** Coverage data is cached in a global singleton (`ModelDataCache`) and shared across all `CoverageModel` instances. When the resultset file changes (based on file signature and MD5 digest), the cache automatically reloads fresh data. Model instances themselves are lightweight and created fresh for each tool request.
 
 ### Common Parameters
 

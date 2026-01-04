@@ -114,7 +114,7 @@ resolver = CovLoupe::Resolvers::CoverageLineResolver.new(cov_data, root: root, v
 lines = CovLoupe::Resolvers::ResolverHelpers.lookup_lines(cov_data, abs_path, root: root, volume_case_sensitive: volume_case_sensitive)
 ```
 
-**Note**: If you're using `CoverageModel` (recommended), this is handled automatically - the model lazily detects volume case-sensitivity on first use and passes it to resolvers internally.
+**Note**: If you're using `CoverageModel` (recommended), this is handled automatically - the model detects volume case-sensitivity during initialization based on the project root and passes it to resolvers internally.
 
 ### Method Renamed
 

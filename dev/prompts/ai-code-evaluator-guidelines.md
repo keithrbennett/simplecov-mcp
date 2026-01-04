@@ -107,9 +107,16 @@ Automated reviews may flag `PathUtils.volume_case_sensitive?` for a potential Ti
 
 **Guidance:** Do not flag this as a race condition or security defect. The use of `SecureRandom` makes this a non-issue in practice.
 
-### Unbounded MCP Model Cache Growth
+### Unbounded ModelDataCache Growth
 
-The MCP `ModelCache` stores cached `CoverageModel` instances without a cap. In theory, a long-lived MCP server used across many projects could accumulate entries. In practice, the MCP server is typically short-lived and used for a small set of projects, so adding eviction logic adds complexity without meaningful benefit.
+The `ModelDataCache` singleton stores coverage data (`ModelData` instances) keyed by resultset path without a size cap. In theory, a long-lived MCP server analyzing many different projects could accumulate entries. In practice:
+
+1. The cache is keyed by resultset path, not by project or model configuration
+2. Multiple models using the same resultset share a single cache entry
+3. MCP servers are typically short-lived and used for a small set of projects
+4. The cache automatically evicts stale data when resultset files change
+
+Adding eviction logic (LRU, TTL, size limits) would add complexity without meaningful benefit for the tool's intended use case.
 
 **Guidance:** Do not report this as an issue. The current behavior is a reasonable tradeoff for simplicity.
 
