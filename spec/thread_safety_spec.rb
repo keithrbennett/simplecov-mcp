@@ -4,6 +4,13 @@ require 'spec_helper'
 
 RSpec.describe 'Thread Safety' do
   describe 'Global Configuration' do
+    before do
+      # Stub logger creation to prevent file creation during thread safety tests
+      mock_logger = instance_double(
+        CovLoupe::Logger, info: nil, warn: nil, error: nil, safe_log: nil)
+      allow(CovLoupe::Logger).to receive(:new).and_return(mock_logger)
+    end
+
     it 'handles concurrent default_log_file= safely' do
       # Reset state
       CovLoupe.default_log_file = nil
@@ -17,6 +24,9 @@ RSpec.describe 'Thread Safety' do
         end
       end
       threads.each(&:join)
+
+      # Reset to avoid file creation in spec_helper's after hook
+      CovLoupe.default_log_file = File::NULL
     end
 
     it 'handles concurrent error_handler= safely' do
@@ -59,6 +69,9 @@ RSpec.describe 'Thread Safety' do
       t2.join
 
       expect(CovLoupe.default_log_file).to eq('default.log')
+
+      # Reset to avoid file creation in spec_helper's after hook
+      CovLoupe.default_log_file = File::NULL
     end
   end
 end
