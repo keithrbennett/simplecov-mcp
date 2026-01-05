@@ -97,11 +97,11 @@ module CovLoupe
         config.raise_on_stale = BooleanType.parse(value)
       end
       parser.on('-g', '--tracked-globs x,y,z', Array,
-        'Globs for filtering files (list/totals subcommands)',
-        'Default: lib/**/*.rb,app/**/*.rb,src/**/*.rb',
-        'Use empty string to disable: --tracked-globs ""') do |value|
-        # Convert [""] to [] to explicitly disable defaults
-        config.tracked_globs = value == [''] ? [] : value
+        'Used to exclude unwanted results and/or include files with or without coverage data',
+        'Default: [] (shows all files in resultset)',
+        'Best practice: match your SimpleCov track_files patterns',
+        'Example: --tracked-globs lib/**/*.rb,app/**/*.rb') do |value|
+        config.tracked_globs = value
       end
       parser.on('-h', '--help', 'Show help') do
         puts parser

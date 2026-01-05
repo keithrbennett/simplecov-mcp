@@ -504,27 +504,61 @@ clp --raise-on-stale false
 
 Comma-separated glob patterns for files that should be tracked.
 
-**Default:** `lib/**/*.rb,app/**/*.rb,src/**/*.rb`
+**Default:** `[]` (empty - shows all files in the resultset)
 
-When not specified, cov-loupe automatically tracks common Ruby source directories. This helps detect files that should have coverage but don't (e.g., new files not yet loaded by tests).
+**Why no default patterns?**
+1. **Transparency** - Shows all coverage data without hiding files that don't match assumptions
+2. **Avoids false positives** - Broad patterns like `**/*.rb` flag migrations, bin scripts, etc. as "missing"
+3. **Project variety** - Coverage patterns vary by project structure (lib/, app/, src/, config/, etc.)
 
-```sh
-# Use defaults (lib/**/*.rb, app/**/*.rb, src/**/*.rb)
-clp list
+**Important:** Files lacking any coverage at all (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs` to match the files you expect to have coverage.
 
-# Override with custom patterns
-clp -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
+**Best practice:** Match your SimpleCov configuration by setting `COV_LOUPE_OPTS`:
 
-# Explicitly disable tracking (only show files with coverage)
-clp -g "" list
+```ruby
+# In spec_helper.rb or similar
+SimpleCov.start do
+  add_filter '/spec/'
+  add_filter '/test/'
+  track_files 'lib/**/*.rb'
+  track_files 'app/**/*.rb'
+end
 ```
 
-Used to:
-- Detect new files not yet in coverage (shown in `missing_tracked_files`)
-- Filter `list`/`totals` output to specific patterns
-- Work with `-S` / `--raise-on-stale` to catch missing coverage
+```sh
+# In your shell config (.bashrc, .zshrc, etc.)
+# Match the track_files patterns above
+export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
+```
 
-**To disable defaults:** Use an empty string `--tracked-globs ""`
+**Usage:**
+
+```sh
+# Use environment variable for project-wide default
+export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
+clp list  # Uses globs from env var
+
+# Or specify per-command
+clp -g "lib/api/**/*.rb" list
+
+# Multiple patterns
+clp -g "lib/**/*.rb,app/models/**/*.rb" list
+
+# Export for CI (with globs to match SimpleCov)
+clp -g "lib/**/*.rb,app/**/*.rb" -fJ list > coverage.json
+```
+
+**Use cases:**
+- **Exclude unwanted results** - Narrow focus to a subsystem or layer
+- **Include files without coverage** - Report files that should be tracked but aren't in the resultset
+- **CI validation** - Use with `-S`/`--raise-on-stale` to catch coverage gaps
+
+**Important:** The `missing_from_result` array only includes files that:
+1. Match the tracked globs
+2. Exist in the filesystem
+3. Are NOT in the coverage resultset
+
+Without globs, this array is empty (no expectations = no violations).
 
 ### `-l, --log-file PATH`
 

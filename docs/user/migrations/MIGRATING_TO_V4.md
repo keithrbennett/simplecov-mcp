@@ -11,6 +11,7 @@ This document describes the breaking changes introduced in version 4.0.0. These 
   - [Unified Stale Coverage Enforcement](#unified-stale-coverage-enforcement)
   - [`--raise-on-stale` / `-S` - Explicit Value Required](#raise-on-stale-s-explicit-value-required)
   - [`--color` / `-C` - Explicit Value Required](#color-c-explicit-value-required)
+  - [`--tracked-globs` Default Changed to Empty Array](#tracked-globs-default-changed-to-empty-array)
 - [Ruby API Changes](#ruby-api-changes)
   - [CoverageLineResolver Now Requires `root:` and `volume_case_sensitive:`](#coveragelineresolver-now-requires-root-and-volume_case_sensitive)
   - [Method Renamed](#method-renamed)
@@ -92,6 +93,78 @@ The staleness checking logic has been unified into a single flag that raises an 
 *   **New (required)**: `--color true`, `-C true`, `--color=on`, etc.
 
 These changes improve consistency between short and long flag forms and eliminate ambiguous behavior where long-form bare flags would fail but short-form bare flags would succeed.
+
+### ⚠️ `--tracked-globs` Default Changed to Empty Array
+
+**BREAKING**: The `--tracked-globs` CLI option and `tracked_globs:` Ruby API parameter now default to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`.
+
+This affects both:
+- **CLI**: `cov-loupe list` (without `--tracked-globs`)
+- **Ruby API**: `CoverageModel.new(root: '.')` (without `tracked_globs:`)
+
+#### Previous Behavior (v4.x early versions)
+- `--tracked-globs` defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb`
+- Files outside these patterns were silently excluded from output
+- `missing_from_result` included any tracked files not in coverage
+
+#### New Behavior (v4.x current)
+- `--tracked-globs` defaults to `[]` (empty)
+- Shows all files in the resultset without filtering
+- No files are flagged as missing unless you explicitly set globs
+
+#### Rationale
+
+The previous default caused three problems:
+1. **Silent exclusions**: Coverage results for files not matching the default patterns (e.g., `config/`, custom directories) were hidden
+2. **False positives**: Files like migrations, bin scripts, etc. were incorrectly flagged as "missing"
+3. **Wrong assumptions**: Not all projects use `lib/` and `app/` - some use `src/`, others have custom structures
+
+The new default shows all coverage data transparently without making assumptions about your project structure.
+
+#### Migration Steps
+
+**For CLI usage** (if you want the old filtering behavior with `lib/**/*.rb,app/**/*.rb,src/**/*.rb`):
+
+Set `COV_LOUPE_OPTS` to match your SimpleCov `track_files` configuration:
+
+```ruby
+# In spec_helper.rb or similar
+SimpleCov.start do
+  add_filter '/spec/'
+  track_files 'lib/**/*.rb'
+  track_files 'app/**/*.rb'
+end
+```
+
+```sh
+# In your shell config (.bashrc, .zshrc, etc.)
+export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
+```
+
+**For Ruby API usage** (if you want the old filtering behavior with `lib/**/*.rb,app/**/*.rb,src/**/*.rb`):
+
+Explicitly pass `tracked_globs:` when creating the model:
+
+```ruby
+# Old (relied on default)
+model = CovLoupe::CoverageModel.new(root: '.')
+result = model.list  # Used default globs
+
+# New (explicit globs to match old behavior)
+model = CovLoupe::CoverageModel.new(
+  root: '.',
+  tracked_globs: ['lib/**/*.rb', 'app/**/*.rb']
+)
+result = model.list  # Uses explicit globs
+```
+
+**If you're fine with seeing all files in the resultset (and _only_ files in the resultset)** (no action needed):
+- The new default shows all files that have coverage data
+- No filtering applied, but also no detection of files lacking coverage data
+
+#### Important Note
+
+**Files lacking any coverage at all** (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs` to match the files you expect to have coverage.
 
 [↑ Back to top](#table-of-contents)
 

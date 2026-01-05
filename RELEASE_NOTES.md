@@ -49,14 +49,20 @@
   - **New**: File with 101 lines matching 100 coverage lines → reported as stale (length mismatch)
   - **Impact**: More conservative staleness detection may flag some files that were previously considered fresh. This is intentional to prevent false negatives.
   - **Rationale**: Prioritizes accuracy over convenience. Better to flag a file as stale and re-run tests than to miss actual code changes.
+- **⚠️ `--tracked-globs` default changed to empty array**: The `--tracked-globs` CLI option and `tracked_globs:` Ruby API parameter now default to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. This prevents silently excluding coverage results that don't match assumed project patterns and avoids false positives when detecting missing files.
+  - **Old**: Defaults to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` - files outside these patterns were excluded from output
+  - **New**: Defaults to `[]` (empty) - shows all files in the resultset without filtering
+  - **Affects**: Both CLI (`cov-loupe list`) and Ruby API (`CoverageModel.new`)
+  - **Impact**: Users who relied on automatic filtering or missing-file detection will need to explicitly set `--tracked-globs`
+  - **Migration (CLI)**: Set `COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"` in your shell config to match your SimpleCov `track_files` patterns
+  - **Migration (Ruby API)**: Pass `tracked_globs: ['lib/**/*.rb', 'app/**/*.rb']` explicitly to `CoverageModel.new`
+  - **Rationale**:
+    - **Transparency**: Shows all coverage data without hiding files that don't match assumptions
+    - **No false positives**: Broad patterns flag migrations, bin scripts, etc. as "missing"
+    - **Project variety**: Different projects use different structures (lib/, app/, src/, config/, etc.)
+  - **Important**: Files lacking any coverage at all (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs`
 
 ### ✨ Enhancements
-
-- **Default tracked globs for common Ruby projects**: The `--tracked-globs` option now defaults to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` when not explicitly provided. This automatically detects files that should have coverage but don't (e.g., new files not yet loaded by tests), making it easier to catch missing coverage without manual configuration.
-
-  **Breaking change behavior:** Previously, omitting `--tracked-globs` meant "don't track anything" (only show files with coverage). Now it means "track common Ruby source directories". To restore the old behavior, explicitly pass an empty string: `--tracked-globs ""`.
-
-  **Why this matters:** Before this change, copying a file like `model_2.rb` to `lib/` wouldn't appear anywhere unless you explicitly set `--tracked-globs`. Now it will automatically appear in the "Missing" exclusion category in totals output, helping you catch gaps in coverage.
 
 - **Project totals now include coverage breakdowns**: The `totals` subcommand and `coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
 

@@ -62,12 +62,9 @@ RSpec.describe CovLoupe::CoverageCLI do
           'uncovered' => 3,
           'percent_covered' => be_within(0.01).of(50.0)
         )
-        expect(data['tracking']).to include('enabled' => true)
-        expect(data['files']).to include('total' => 3)
+        expect(data['tracking']).to include('enabled' => false)
+        expect(data['files']).to include('total' => 2)
         expect(data['files']['with_coverage']).to include('total' => 2, 'ok' => 2)
-        expect(data['files']['without_coverage']).to include('total' => 1)
-        expect(data['files']['without_coverage']['by_type'])
-          .to include('missing_from_coverage' => 1)
       end
     end
   end

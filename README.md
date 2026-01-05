@@ -203,12 +203,34 @@ cov-loupe -o d list           # -o = --sort-order, d = descending (worst at end)
 cov-loupe list | less         # display table in pager, best files first (worst at end)
 cov-loupe list | head -10     # truncate the table
 
-# Specific directory
+# Filter to specific patterns (see COV_LOUPE_OPTS best practice below)
 cov-loupe -g "lib/cov_loupe/tools/**/*.rb" list  # -g = --tracked-globs
 
 # Export for analysis
 cov-loupe -fJ list > coverage-report.json
 ```
+
+### Best Practice: Match SimpleCov Configuration
+
+For accurate coverage tracking and validation, set `COV_LOUPE_OPTS` to match your SimpleCov `track_files` patterns:
+
+```ruby
+# In spec_helper.rb or rails_helper.rb
+SimpleCov.start do
+  add_filter '/spec/'
+  track_files 'lib/**/*.rb'
+  track_files 'app/**/*.rb'
+end
+```
+
+```sh
+# In your shell config (.bashrc, .zshrc, etc.)
+export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
+```
+
+This ensures `list` and `totals` output matches SimpleCov's scope and `missing_from_result` reports meaningful gaps.
+
+**Note:** By default, `--tracked-globs` is empty (shows all files in the resultset). This prevents silently hiding coverage data that doesn't match assumed patterns.
 
 ### Working with JSON Output
 

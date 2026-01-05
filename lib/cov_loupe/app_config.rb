@@ -37,9 +37,9 @@ module CovLoupe
       show_version: false,
       mode: :cli
     )
-      # Apply default tracked globs if not explicitly provided
-      # nil = use defaults, [] or [""] = explicitly no globs
-      tracked_globs = Constants::DEFAULT_TRACKED_GLOBS.dup if tracked_globs.nil?
+      # Default to empty array (show all files in resultset and don't look for files lacking coverage data)
+      # Users should set COV_LOUPE_OPTS to match SimpleCov track_files patterns
+      tracked_globs = [] if tracked_globs.nil?
       super
     end
 
