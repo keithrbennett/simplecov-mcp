@@ -228,7 +228,7 @@ end
 export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
 ```
 
-This ensures `list` and `totals` output matches SimpleCov's scope and `missing_from_result` reports meaningful gaps.
+This ensures `list` and `totals` output matches SimpleCov's scope and `missing_tracked_files` (in `list`) / `missing_from_coverage` (in `totals`) report meaningful gaps.
 
 **Note:** By default, `--tracked-globs` is empty (shows all files in the resultset). This prevents silently hiding coverage data that doesn't match assumed patterns.
 

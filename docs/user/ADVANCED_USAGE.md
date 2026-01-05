@@ -419,14 +419,14 @@ For platform-specific integration examples (GitHub Actions, GitLab CI, Jenkins, 
 
 **Why opt-in filtering?**
 - **Coverage results are not hidden** - Results are not excluded because their filespecs did not match default tracked globs
-- **Meaningful validation** - `missing_from_result` only flags files you explicitly expect to have coverage
+- **Meaningful validation** - `missing_tracked_files` only flags files you explicitly expect to have coverage
 - **Project flexibility** - Different projects use different directory structures
 
 **Important:** Files lacking any coverage at all (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs` to match the files you expect to have coverage.
 
 **Two purposes of tracked globs:**
 1. **Exclude unwanted results** - Only show files from the resultset that match the patterns
-2. **Include files with or without coverage** - Report files that match the patterns but aren't in the resultset (reported in `missing_from_result`)
+2. **Include files with or without coverage** - Report files that match the patterns but aren't in the resultset (reported in `missing_tracked_files` for `list`, `missing_from_coverage` for `totals`)
 
 **Best practice:** Set `COV_LOUPE_OPTS` to match your SimpleCov `track_files` configuration:
 
@@ -446,7 +446,7 @@ export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
 
 This alignment ensures:
 - `list` and `totals` output matches SimpleCov's scope
-- `missing_from_result` reports files that SimpleCov should track but hasn't measured
+- `missing_tracked_files` (in `list`) reports files that SimpleCov should track but hasn't measured
 - No surprises from default patterns that don't match your project
 
 ### Pattern Syntax

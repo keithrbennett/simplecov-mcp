@@ -49,13 +49,13 @@
   - **New**: File with 101 lines matching 100 coverage lines → reported as stale (length mismatch)
   - **Impact**: More conservative staleness detection may flag some files that were previously considered fresh. This is intentional to prevent false negatives.
   - **Rationale**: Prioritizes accuracy over convenience. Better to flag a file as stale and re-run tests than to miss actual code changes.
-- **⚠️ `--tracked-globs` default changed to empty array**: The `--tracked-globs` CLI option and `tracked_globs:` Ruby API parameter now default to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. This prevents silently excluding coverage results that don't match assumed project patterns and avoids false positives when detecting missing files.
-  - **Old**: Defaults to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` - files outside these patterns were excluded from output
-  - **New**: Defaults to `[]` (empty) - shows all files in the resultset without filtering
-  - **Affects**: Both CLI (`cov-loupe list`) and Ruby API (`CoverageModel.new`)
-  - **Impact**: Users who relied on automatic filtering or missing-file detection will need to explicitly set `--tracked-globs`
+- **⚠️ `--tracked-globs` default changed to empty array**: The `--tracked-globs` CLI option now defaults to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. The Ruby API also changed from `nil` to `[]` for consistency (both behave identically, so no functional change). This prevents silently excluding coverage results that don't match assumed project patterns and avoids false positives when detecting missing files.
+  - **Old**: CLI defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` - files outside these patterns were excluded from output
+  - **New**: CLI and Ruby API default to `[]` (empty) - shows all files in the resultset without filtering
+  - **Affects**: CLI (`cov-loupe list`) and Ruby API signature (`CoverageModel.new` - behavior unchanged, only default parameter value changed for consistency)
+  - **Impact**: CLI users who relied on automatic filtering or missing-file detection will need to explicitly set `--tracked-globs`
   - **Migration (CLI)**: Set `COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"` in your shell config to match your SimpleCov `track_files` patterns
-  - **Migration (Ruby API)**: Pass `tracked_globs: ['lib/**/*.rb', 'app/**/*.rb']` explicitly to `CoverageModel.new`
+  - **Migration (Ruby API)**: No action needed - behavior unchanged (nil and [] both normalize to empty array)
   - **Rationale**:
     - **Transparency**: Shows all coverage data without hiding files that don't match assumptions
     - **No false positives**: Broad patterns flag migrations, bin scripts, etc. as "missing"

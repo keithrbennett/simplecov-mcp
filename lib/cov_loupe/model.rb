@@ -40,9 +40,9 @@ module CovLoupe
     # - resultset: path or directory to .resultset.json
     # - raise_on_stale: boolean (default false). When true, raises
     #   stale errors if sources are newer than coverage or line counts mismatch.
-    # - tracked_globs: only used for list project-level staleness.
+    # - tracked_globs: array of glob patterns (default []). Used for filtering and tracking.
     # - logger: logger instance (defaults to CovLoupe.logger)
-    def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil,
+    def initialize(root: '.', resultset: nil, raise_on_stale: false, tracked_globs: [],
       logger: nil)
       @root = File.expand_path(root || '.')
       @resultset_arg = resultset

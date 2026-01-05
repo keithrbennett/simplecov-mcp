@@ -21,7 +21,7 @@ require "cov_loupe"
 # - root: "."
 # - resultset: resolved from common paths under root
 # - raise_on_stale: false (don't raise on stale data)
-# - tracked_globs: nil (no project-level file-set checks)
+# - tracked_globs: [] (no project-level file-set checks)
 model = CovLoupe::CoverageModel.new
 
 # Custom configuration (non-default values):
@@ -46,7 +46,7 @@ raw = model.raw_for(target)
 
 ## Method Reference
 
-### `list(sort_order: :descending, raise_on_stale: nil, tracked_globs: nil)`
+### `list(sort_order: :descending, raise_on_stale: nil, tracked_globs: [])`
 
 Returns coverage summary for all files in the resultset.
 
@@ -162,7 +162,7 @@ lib_table = model.format_table(lib_files, sort_order: :descending)
 puts lib_table
 ```
 
-### `project_totals(tracked_globs: nil, raise_on_stale: nil)`
+### `project_totals(tracked_globs: [], raise_on_stale: nil)`
 
 Returns aggregated coverage totals across all files.
 

@@ -96,16 +96,16 @@ These changes improve consistency between short and long flag forms and eliminat
 
 ### ⚠️ `--tracked-globs` Default Changed to Empty Array
 
-**BREAKING**: The `--tracked-globs` CLI option and `tracked_globs:` Ruby API parameter now default to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`.
+**BREAKING**: The `--tracked-globs` CLI option now defaults to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. The Ruby API (`CoverageModel`) now also defaults `tracked_globs:` to `[]` (previously `nil`, which behaved the same).
 
-This affects both:
+This affects:
 - **CLI**: `cov-loupe list` (without `--tracked-globs`)
-- **Ruby API**: `CoverageModel.new(root: '.')` (without `tracked_globs:`)
+- **Ruby API**: `CoverageModel.new` (for consistency, though behavior is unchanged)
 
 #### Previous Behavior (v4.x early versions)
-- `--tracked-globs` defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb`
-- Files outside these patterns were silently excluded from output
-- `missing_from_result` included any tracked files not in coverage
+- `--tracked-globs` CLI option defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb`
+- Files outside these patterns were silently excluded from CLI output
+- `missing_tracked_files` (in `list`) included any tracked files not in coverage
 
 #### New Behavior (v4.x current)
 - `--tracked-globs` defaults to `[]` (empty)
@@ -141,16 +141,16 @@ end
 export COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"
 ```
 
-**For Ruby API usage** (if you want the old filtering behavior with `lib/**/*.rb,app/**/*.rb,src/**/*.rb`):
+**For Ruby API usage**:
 
-Explicitly pass `tracked_globs:` when creating the model:
+No functional changes needed, but the default signature has changed for consistency. The Ruby API now defaults `tracked_globs: []` (previously `nil`). Both behave identically, so existing code works unchanged:
 
 ```ruby
-# Old (relied on default)
+# Default behavior (behavior unchanged, signature updated for consistency)
 model = CovLoupe::CoverageModel.new(root: '.')
-result = model.list  # Used default globs
+result = model.list  # tracked_globs: [] → no filtering
 
-# New (explicit globs to match old behavior)
+# Explicit globs for filtering and tracking
 model = CovLoupe::CoverageModel.new(
   root: '.',
   tracked_globs: ['lib/**/*.rb', 'app/**/*.rb']
@@ -158,7 +158,7 @@ model = CovLoupe::CoverageModel.new(
 result = model.list  # Uses explicit globs
 ```
 
-**If you're fine with seeing all files in the resultset (and _only_ files in the resultset)** (no action needed):
+**If you're fine with seeing all files in the resultset (and _only_ files in the resultset)** (no action needed for CLI or Ruby API):
 - The new default shows all files that have coverage data
 - No filtering applied, but also no detection of files lacking coverage data
 

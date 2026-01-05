@@ -42,7 +42,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
       root: root,
       resultset: nil,
       raise_on_stale: true,
-      tracked_globs: nil
+      tracked_globs: []
     ).and_return(model)
     allow(model).to receive(:format_table).and_return('Mock table output')
 
@@ -52,7 +52,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
       root: root,
       resultset: nil,
       raise_on_stale: true,
-      tracked_globs: nil
+      tracked_globs: []
     )
     expect(model).to have_received(:format_table)
   end

@@ -553,7 +553,7 @@ clp -g "lib/**/*.rb,app/**/*.rb" -fJ list > coverage.json
 - **Include files without coverage** - Report files that should be tracked but aren't in the resultset
 - **CI validation** - Use with `-S`/`--raise-on-stale` to catch coverage gaps
 
-**Important:** The `missing_from_result` array only includes files that:
+**Important:** The `missing_tracked_files` array (in `list` output) only includes files that:
 1. Match the tracked globs
 2. Exist in the filesystem
 3. Are NOT in the coverage resultset

@@ -23,9 +23,10 @@ module CovLoupe
       -m --mode
     ].freeze
 
-    # Default glob patterns for tracking files that should have coverage.
-    # Used when --tracked-globs is not explicitly provided.
-    # Covers common Ruby project structures:
+    # Common glob patterns for Ruby projects (REFERENCE ONLY - not used as defaults).
+    # These patterns were previously used as defaults for --tracked-globs but are no longer
+    # automatically applied. Users should explicitly set tracked_globs to match their
+    # SimpleCov configuration. These patterns are kept as a reference for common setups:
     # - lib/**/*.rb: Standard gem structure
     # - app/**/*.rb: Rails applications
     # - src/**/*.rb: Alternative source directory

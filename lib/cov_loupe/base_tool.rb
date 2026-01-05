@@ -165,7 +165,7 @@ module CovLoupe
 
     # Default configuration when no context or explicit params are provided
     def self.default_model_options
-      { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: nil }
+      { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: [] }
     end
 
     # Runs a file-based tool request by deriving payload method and JSON name from the tool class.
