@@ -8,8 +8,11 @@ module CovLoupe
     DEFAULT_LOG_FILESPEC = './cov_loupe.log'
     FALLBACK_LOG_FILE = 'COV-LOUPE-LOG-ERROR.log'
 
+    attr_reader :target
+
     def initialize(target:, mode: :library)
       @mode = mode
+      @target = target
       @init_error = nil
       @stderr_warning_emitted = false
 
@@ -50,18 +53,16 @@ module CovLoupe
     end
 
     private def build_logger(target)
-      io = case target
-           when 'stdout' then $stdout
-           when 'stderr' then $stderr
-           else
-             path = target || DEFAULT_LOG_FILESPEC
-             File.open(File.expand_path(path), 'a').tap { |f| f.sync = true }
+      io_or_path = case target
+                   when 'stdout' then $stdout
+                   when 'stderr' then $stderr
+                   else
+                     path = target || DEFAULT_LOG_FILESPEC
+                     File.expand_path(path)
       end
 
-      ::Logger.new(io).tap do |l|
-        l.formatter = proc do |severity, datetime, _progname, msg|
-          "[#{datetime.iso8601}] #{severity}: #{msg}\n"
-        end
+      ::Logger.new(io_or_path).tap do |l|
+        l.formatter = ->(severity, datetime, _progname, msg) { "[#{datetime.iso8601}] #{severity}: #{msg}\n" }
       end
     end
 
