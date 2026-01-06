@@ -45,16 +45,18 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         expect(lines).to eq([1, 0, 1])
       end
 
-      it 'matches via basename fallback when absolute path does not start with root' do
+      it 'raises FileError when absolute path does not start with root and no exact match' do
         cov_data = {
           'lib/baz.rb' => { 'lines' => [1, 1] }
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
 
-        # Previously this raised FileError because stripping logic failed.
-        # Now it should match via basename fallback.
-        expect(resolver.lookup_lines('/other/directory/lib/baz.rb')).to eq([1, 1])
+        # Basename fallback has been removed to prevent silent data corruption.
+        # This now raises FileError as expected.
+        expect do
+          resolver.lookup_lines('/other/directory/lib/baz.rb')
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
     end
 

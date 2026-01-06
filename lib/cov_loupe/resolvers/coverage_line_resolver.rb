@@ -7,10 +7,9 @@ module CovLoupe
     # Finds a SimpleCov line coverage array for a given file path.
     #
     # This is a string-based resolver: it does not touch the filesystem. It
-    # looks up keys in the coverage map using a few heuristics:
+    # looks up keys in the coverage map using two strategies:
     # 1) exact match on the provided path
     # 2) match after stripping the configured root prefix
-    # 3) match by basename when the full path is unknown
     class CoverageLineResolver
       # @param cov_data [Hash] coverage data map keyed by file path
       # @param root [String, nil] project root used for path stripping
@@ -36,10 +35,6 @@ module CovLoupe
         stripped_match = find_stripped_match(normalized_path)
         return stripped_match if stripped_match
 
-        # Finally try matching by basename
-        basename_match = find_basename_match(normalized_path)
-        return basename_match if basename_match
-
         raise_not_found_error(file_abs)
       end
 
@@ -58,22 +53,6 @@ module CovLoupe
 
         relative_path = normalized_file[(normalized_root.length + 1)..]
         fetch_lines_for_path(relative_path)
-      end
-
-      # Fallback to matching by basename when full path is unknown.
-      private def find_basename_match(file_abs)
-        target_basename = basename_for(file_abs)
-
-        # Look for any key that ends with /target_basename or is exactly target_basename
-        match_keys = cov_data.each_key.select do |key|
-          normalized_key = normalize_path(key)
-          normalized_key == target_basename || normalized_key.end_with?("/#{target_basename}")
-        end
-
-        return fetch_lines_for_path(match_keys.first) if match_keys.length == 1
-        return if match_keys.empty?
-
-        raise FileError, "Multiple coverage entries match basename #{target_basename}: #{match_keys.join(', ')}"
       end
 
       # Fetch lines for a path, resolving normalized separators when needed.
@@ -124,11 +103,6 @@ module CovLoupe
       # Normalize a path using centralized PathUtils
       private def normalize_path(path)
         PathUtils.normalize(path, normalize_case: @normalize_case)
-      end
-
-      # Derive a basename from normalized path.
-      private def basename_for(path)
-        PathUtils.basename(path, normalize_case: @normalize_case)
       end
 
       private def raise_not_found_error(file_abs)

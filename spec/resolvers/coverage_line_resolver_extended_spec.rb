@@ -6,8 +6,8 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
   describe '#lookup_lines extended' do
     let(:root) { '/project' }
 
-    context 'with basename fallback' do
-      it 'finds coverage data when only basename matches' do
+    context 'when basename matches but path does not' do
+      it 'raises FileError when only basename matches (no basename fallback)' do
         abs_path = '/project/lib/foo.rb'
         # Data is stored under a different path but same filename
         cov_data = {
@@ -15,12 +15,14 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
-        lines = resolver.lookup_lines(abs_path)
 
-        expect(lines).to eq([1, 0, 1])
+        # Basename matching has been removed to prevent silent data corruption
+        expect do
+          resolver.lookup_lines(abs_path)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
 
-      it 'prioritizes exact match over basename match' do
+      it 'returns exact match when both basename and path match' do
         abs_path = '/project/lib/foo.rb'
         cov_data = {
           '/project/lib/foo.rb' => { 'lines' => [1, 1, 1] },
@@ -33,7 +35,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         expect(lines).to eq([1, 1, 1])
       end
 
-      it 'raises error if multiple files match the basename (ambiguous)' do
+      it 'raises FileError when path does not match despite basename collision' do
         abs_path = '/project/lib/common.rb'
         cov_data = {
           '/path/a/common.rb' => { 'lines' => [1] },
@@ -43,7 +45,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
         expect do
           resolver.lookup_lines(abs_path)
-        end.to raise_error(CovLoupe::FileError, /Multiple coverage entries match basename/)
+        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
       end
     end
 

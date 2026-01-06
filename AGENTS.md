@@ -157,7 +157,6 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
 ### Path Resolution Strategy
 1. Attempt exact absolute path matches within the coverage data.
 2. Retry using paths without the working-directory prefix.
-3. Fall back to basename (filename-only) matching.
 
 ### Resultset Discovery
 - The tool locates `.resultset.json` by checking default paths or by honoring explicit CLI/MCP arguments. See [Configuring the Resultset](README.md#configuring-the-resultset) for details.

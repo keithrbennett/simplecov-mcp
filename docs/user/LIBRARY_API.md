@@ -75,7 +75,7 @@ model.list(raise_on_stale: true)
 Returns coverage summary for a specific file.
 
 **Parameters:**
-- `path` (String): File path (absolute, relative to root, or basename)
+- `path` (String): File path (absolute or relative to root)
 
 **Returns:** `Hash` - See [summary_for return type](#summary_for)
 
@@ -92,7 +92,7 @@ summary = model.summary_for(target)
 Returns list of uncovered line numbers for a specific file.
 
 **Parameters:**
-- `path` (String): File path (absolute, relative to root, or basename)
+- `path` (String): File path (absolute or relative to root)
 
 **Returns:** `Hash` - See [uncovered_for return type](#uncovered_for)
 
@@ -109,7 +109,7 @@ uncovered = model.uncovered_for("lib/foo.rb")
 Returns per-line coverage details with hit counts.
 
 **Parameters:**
-- `path` (String): File path (absolute, relative to root, or basename)
+- `path` (String): File path (absolute or relative to root)
 
 **Returns:** `Hash` - See [detailed_for return type](#detailed_for)
 
@@ -126,7 +126,7 @@ detailed = model.detailed_for("lib/foo.rb")
 Returns raw SimpleCov lines array for a specific file.
 
 **Parameters:**
-- `path` (String): File path (absolute, relative to root, or basename)
+- `path` (String): File path (absolute or relative to root)
 
 **Returns:** `Hash` - See [raw_for return type](#raw_for)
 

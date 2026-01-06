@@ -160,12 +160,12 @@ end
 
 ## Advanced Path Resolution
 
-### Multi-Strategy Path Matching
+### Path Matching Strategy
 
-Path resolution order:
+Path resolution uses two strategies in order:
 
-1. **Exact absolute path match**
-2. **Relative path resolution from root**
+1. **Exact absolute path match** - Direct lookup using the full path
+2. **Relative path resolution** - Strips project root and retries with relative path
 
 ```ruby
 model = CovLoupe::CoverageModel.new(root: '/path/to/project')

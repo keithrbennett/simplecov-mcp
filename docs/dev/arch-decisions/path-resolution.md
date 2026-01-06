@@ -39,7 +39,6 @@ Specifically:
 - Keep path resolution focused on same-OS scenarios:
   - Exact absolute path matching
   - Relative path matching (stripping project root)
-  - Basename fallback (with ambiguity detection)
 - Trust that paths in coverage data use the native separator for the OS where cov-loupe runs
 
 ### Consequences
@@ -56,7 +55,7 @@ Specifically:
   - Users who encounter this should re-run tests in their current environment
 
 **No impact on:**
-- Same-OS path resolution (absolute, relative, basename fallback)
+- Same-OS path resolution (absolute, relative)
 - Normal development workflows
 - CI/CD integration
 - Docker/container-based development
