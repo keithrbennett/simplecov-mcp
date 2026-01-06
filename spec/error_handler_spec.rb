@@ -15,16 +15,14 @@ RSpec.describe CovLoupe::ErrorHandler do
   end
 
   it 'maps filesystem errors to friendly custom errors' do
-    e = handler.convert_standard_error(Errno::EISDIR.new('Is a directory @ rb_sysopen - a_dir'))
-    expect(e).to be_a(CovLoupe::NotAFileError)
-
-    e = handler.convert_standard_error(
-      Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.txt')
-    )
-    expect(e).to be_a(CovLoupe::FileNotFoundError)
-
-    e = handler.convert_standard_error(Errno::EACCES.new('Permission denied @ rb_sysopen - secret'))
-    expect(e).to be_a(CovLoupe::FilePermissionError)
+    [
+      { error: Errno::EISDIR.new('Is a directory'), expected: CovLoupe::NotAFileError },
+      { error: Errno::ENOENT.new('No such file'), expected: CovLoupe::FileNotFoundError },
+      { error: Errno::EACCES.new('Permission denied'), expected: CovLoupe::FilePermissionError }
+    ].each do |tc|
+      e = handler.convert_standard_error(tc[:error])
+      expect(e).to be_a(tc[:expected])
+    end
   end
 
   describe 'additional file and data error mappings' do
@@ -216,46 +214,52 @@ RSpec.describe CovLoupe::ErrorHandler do
   end
 
   describe '#handle_error with context parameter' do
-    it 'converts Errno::ENOENT to ResultsetNotFoundError when context is :coverage_loading' do
-      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - .resultset.json')
-
-      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
-        .to raise_error(CovLoupe::ResultsetNotFoundError, 'Coverage data not found')
-    end
-
-    it 'converts Errno::ENOENT to FileNotFoundError when context is :general' do
-      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
-
-      expect { handler.handle_error(error, context: :general, reraise: true) }
-        .to raise_error(CovLoupe::FileNotFoundError)
-    end
-
-    it 'converts Errno::ENOENT to FileNotFoundError when context is nil' do
-      error = Errno::ENOENT.new('No such file or directory @ rb_sysopen - missing.rb')
-
-      expect { handler.handle_error(error, reraise: true) }
-        .to raise_error(CovLoupe::FileNotFoundError)
-    end
-
-    it 'converts Errno::EACCES with coverage-specific message when context is :coverage_loading' do
-      error = Errno::EACCES.new('Permission denied @ rb_sysopen - .resultset.json')
-
-      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
-        .to raise_error(CovLoupe::FilePermissionError, /Permission denied reading coverage data/)
-    end
-
-    it 'converts ArgumentError with coverage-specific message when context is :coverage_loading' do
-      error = ArgumentError.new('invalid path')
-
-      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
-        .to raise_error(CovLoupe::CoverageDataError, /Invalid path in coverage data/)
-    end
-
-    it 'converts NoMethodError with coverage-specific message when context is :coverage_loading' do
-      error = NoMethodError.new("undefined method `each' for nil:NilClass")
-
-      expect { handler.handle_error(error, context: :coverage_loading, reraise: true) }
-        .to raise_error(CovLoupe::CoverageDataError, /Invalid coverage data structure/)
+    [
+      {
+        desc: 'converts Errno::ENOENT to ResultsetNotFoundError when context is :coverage_loading',
+        error: Errno::ENOENT.new('missing .resultset.json'),
+        context: :coverage_loading,
+        expected: CovLoupe::ResultsetNotFoundError,
+        msg: 'Coverage data not found'
+      },
+      {
+        desc: 'converts Errno::ENOENT to FileNotFoundError when context is :general',
+        error: Errno::ENOENT.new('missing file'),
+        context: :general,
+        expected: CovLoupe::FileNotFoundError
+      },
+      {
+        desc: 'converts Errno::ENOENT to FileNotFoundError when context is nil',
+        error: Errno::ENOENT.new('missing file'),
+        context: nil,
+        expected: CovLoupe::FileNotFoundError
+      },
+      {
+        desc: 'converts Errno::EACCES with context message when context is :coverage_loading',
+        error: Errno::EACCES.new('permission denied'),
+        context: :coverage_loading,
+        expected: CovLoupe::FilePermissionError,
+        msg: /Permission denied reading coverage data/
+      },
+      {
+        desc: 'converts ArgumentError with context message when context is :coverage_loading',
+        error: ArgumentError.new('invalid path'),
+        context: :coverage_loading,
+        expected: CovLoupe::CoverageDataError,
+        msg: /Invalid path in coverage data/
+      },
+      {
+        desc: 'converts NoMethodError with context message when context is :coverage_loading',
+        error: NoMethodError.new("undefined method `each'"),
+        context: :coverage_loading,
+        expected: CovLoupe::CoverageDataError,
+        msg: /Invalid coverage data structure/
+      }
+    ].each do |tc|
+      it tc[:desc] do
+        expect { handler.handle_error(tc[:error], context: tc[:context], reraise: true) }
+          .to raise_error(tc[:expected], tc[:msg])
+      end
     end
   end
 end
