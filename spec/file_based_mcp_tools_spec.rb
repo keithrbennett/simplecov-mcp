@@ -32,7 +32,7 @@ RSpec.describe 'File-based MCP Tools' do
           model_method: config[:model_method],
           mock_data: config[:mock_data],
           file_path: 'lib/example.rb',
-          staleness: false
+          staleness: :ok
         )
 
         expect do
@@ -51,7 +51,7 @@ RSpec.describe 'File-based MCP Tools' do
         stub_coverage_model(
           model_method: config[:model_method],
           mock_data: config[:mock_data],
-          staleness: false
+          staleness: :ok
         )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
@@ -84,7 +84,7 @@ RSpec.describe 'File-based MCP Tools' do
         stub_coverage_model(
           model_method: config[:model_method],
           mock_data: config[:mock_data],
-          staleness: false
+          staleness: :ok
         )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)

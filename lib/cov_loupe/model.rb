@@ -130,7 +130,7 @@ module CovLoupe
       length_mismatch_files = Array(project_staleness_details[:length_mismatch_files]).uniq
       unreadable_files = Array(project_staleness_details[:unreadable_files]).uniq
       rows.each do |row|
-        row['stale'] = file_statuses.fetch(row['file'], false)
+        row['stale'] = file_statuses.fetch(row['file'], :ok)
       end
 
       {
@@ -250,9 +250,9 @@ module CovLoupe
           'total' => summary['total'],
           'percentage' => summary['percentage'],
 
-          # We set 'stale' => false as a placeholder, then in list we overwrite it
+          # We set 'stale' => :ok as a placeholder, then in list we overwrite it
           # with the true status from the project report.
-          'stale' => false
+          'stale' => :ok
         }
       end
 

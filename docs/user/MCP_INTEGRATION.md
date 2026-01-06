@@ -183,22 +183,22 @@ These tools analyze individual files. All require `path` parameter.
 
 **`coverage_summary_tool`** - Covered/total/percentage summary
 ```json
-{"file": "...", "summary": {"covered": 12, "total": 14, "percentage": 85.71}, "stale": false}
+{"file": "...", "summary": {"covered": 12, "total": 14, "percentage": 85.71}, "stale": "ok"}
 ```
 
 **`uncovered_lines_tool`** - List uncovered line numbers
 ```json
-{"file": "...", "uncovered": [5, 9, 12], "summary": {...}, "stale": false}
+{"file": "...", "uncovered": [5, 9, 12], "summary": {...}, "stale": "ok"}
 ```
 
 **`coverage_detailed_tool`** - Per-line hit counts
 ```json
-{"file": "...", "lines": [{"line": 1, "hits": 1, "covered": true}, ...], "summary": {...}, "stale": false}
+{"file": "...", "lines": [{"line": 1, "hits": 1, "covered": true}, ...], "summary": {...}, "stale": "ok"}
 ```
 
 **`coverage_raw_tool`** - Raw SimpleCov lines array
 ```json
-{"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": false}
+{"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": "ok"}
 ```
 
 **Staleness values:** `:ok` (fresh), `:missing` (missing), `:newer` (timestamp), `:length_mismatch` (length), `:error` (staleness check error)

@@ -368,7 +368,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
         # Custom rows
         custom = [{ 'file' => 'test.rb', 'percentage' => 100, 'covered' => 1, 'total' => 1,
-                    'stale' => false }]
+                    'stale' => :ok }]
         expect(model.format_table(custom)).to include('test.rb')
 
         # Sorting: Ascending (bar before foo)

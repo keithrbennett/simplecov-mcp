@@ -25,7 +25,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
       model_method: model_method,
       mock_data: mock_data,
       file_path: 'lib/foo.rb',
-      staleness: false
+      staleness: :ok
     )
   end
 
@@ -41,7 +41,7 @@ RSpec.shared_examples 'a file-based MCP tool' do |config|
     end
 
     expect(data).to have_key('stale')
-    expect(data['stale']).to be(false)
+    expect(data['stale']).to eq('ok')
 
     # Run tool-specific validations if provided
     if additional_validations
@@ -78,7 +78,7 @@ FILE_BASED_TOOL_CONFIGS = {
         stub_coverage_model(
           model_method: :summary_for,
           mock_data: config[:mock_data],
-          staleness: false
+          staleness: :ok
         )
         setup_mcp_response_stub
 
@@ -125,7 +125,7 @@ FILE_BASED_TOOL_CONFIGS = {
         stub_coverage_model(
           model_method: :uncovered_for,
           mock_data: config[:mock_data],
-          staleness: false
+          staleness: :ok
         )
         setup_mcp_response_stub
 

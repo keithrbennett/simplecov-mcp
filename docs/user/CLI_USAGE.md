@@ -133,7 +133,7 @@ clp summary app/models/order.rb -s full  # -s = --source
     "total": 7,
     "percentage": 85.71
   },
-  "stale": false
+  "stale": "ok"
 }
 ```
 
@@ -246,7 +246,7 @@ File: app/models/order.rb
     "total": 7,
     "percentage": 85.71
   },
-  "stale": false
+  "stale": "ok"
 }
 ```
 
@@ -273,7 +273,7 @@ File: app/models/order.rb
 {
   "file": "app/models/order.rb",
   "lines": [null, null, null, null, null, 1, 1, 1, null, null, 1, 1, null, null, 1, 0, null, null, null, null],
-  "stale": false
+  "stale": "ok"
 }
 ```
 
@@ -676,7 +676,7 @@ Machine-readable output. Paths are relative to project root.
     "total": 7,
     "percentage": 85.71
   },
-  "stale": false
+  "stale": "ok"
 }
 ```
 

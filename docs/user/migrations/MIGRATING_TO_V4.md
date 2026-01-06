@@ -444,7 +444,7 @@ result = model.list
 # :newer - Timestamp mismatch
 # :length_mismatch - Line count mismatch
 # :error - Error during staleness check
-# false - Fresh coverage data
+# :ok - Fresh coverage data
 ```
 
 ### Rationale
@@ -502,7 +502,7 @@ when :missing then handle_missing
 when :newer then handle_timestamp
 when :length_mismatch then handle_length
 when :error then handle_error
-when false then handle_fresh
+when :ok then handle_fresh
 end
 
 # Or use to_s for backward compatibility
@@ -511,7 +511,7 @@ when 'missing' then handle_missing
 when 'newer' then handle_timestamp
 when 'length_mismatch' then handle_length
 when 'error' then handle_error
-when '' then handle_fresh  # false.to_s returns ''
+when 'ok' then handle_fresh  # :ok.to_s returns 'ok'
 end
 ```
 
@@ -551,7 +551,7 @@ Staleness: missing = Missing file, newer = Timestamp mismatch, length_mismatch =
 
 | Status | v3.x (String) | v4.x (Symbol) | Description |
 |--------|----------------|------------------|-------------|
-| Fresh | `false` | `false` | Coverage data is current |
+| Fresh | `false` | `:ok` | Coverage data is current |
 | Missing file | `'M'` | `:missing` | File no longer exists on disk |
 | Timestamp mismatch | `'T'` | `:newer` | File modified after coverage was generated |
 | Line count mismatch | `'L'` | `:length_mismatch` | Source file line count differs from coverage data |

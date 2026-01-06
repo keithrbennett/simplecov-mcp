@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::Presenters::CoveragePayloadPresenter do
         'file' => '/abs/path/lib/foo.rb',
         'summary' => { 'covered' => 8, 'total' => 10, 'percentage' => 80.0 }
       },
-      stale: false,
+      stale: :ok,
       expected_keys: ['summary']
     },
     {

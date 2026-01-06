@@ -314,7 +314,8 @@ module CovLoupe
     #
     # The logic: newer &&= !len_mismatch && !read_error means:
     # - If len_mismatch or read_error is true, set newer to false (those take precedence)
-    # - This way, staleness is categorized as either 'T' (time-based), 'L' (length-based), or 'E' (error), not multiple
+    # - This way, staleness is categorized as either :newer (time-based), :length_mismatch (length-based),
+    #   or :error (read error), not multiple
     private def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch, read_error)
       return false if coverage_ts.to_i <= 0
 

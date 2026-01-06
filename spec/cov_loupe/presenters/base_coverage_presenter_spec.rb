@@ -31,16 +31,16 @@ RSpec.describe CovLoupe::Presenters::BaseCoveragePresenter do
       end
     end
     let(:presenter) { concrete_class.new(model: model, path: path) }
-    let(:payload_with_stale) { { 'file' => path, 'data' => 'test', 'stale' => false } }
+    let(:payload_with_stale) { { 'file' => path, 'data' => 'test', 'stale' => :ok } }
 
     before do
-      allow(model).to receive(:staleness_for).with(path).and_return(false)
+      allow(model).to receive(:staleness_for).with(path).and_return(:ok)
       allow(model).to receive(:relativize).with(payload_with_stale).and_return(payload_with_stale)
     end
 
     describe '#absolute_payload' do
       it 'merges stale status into payload' do
-        expect(presenter.absolute_payload).to include('stale' => false)
+        expect(presenter.absolute_payload).to include('stale' => :ok)
         expect(presenter.absolute_payload).to include('data' => 'test')
       end
 
@@ -66,7 +66,7 @@ RSpec.describe CovLoupe::Presenters::BaseCoveragePresenter do
 
     describe '#stale' do
       it 'delegates to absolute_payload' do
-        expect(presenter.stale).to be(false)
+        expect(presenter.stale).to eq(:ok)
       end
     end
 

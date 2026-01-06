@@ -84,7 +84,7 @@ module CovLoupe
 
       private def build_counts(files)
         total = files.length
-        stale = files.count { |f| f['stale'] }
+        stale = files.count { |f| f['stale'] && f['stale'] != :ok }
         { 'total' => total, 'ok' => total - stale, 'stale' => stale }
       end
     end

@@ -30,7 +30,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'lines' => [1, 1, 1],
-            'stale' => false
+            'stale' => :ok
           },
           relative_path: 'lib/perfect.rb'
         )
