@@ -27,6 +27,47 @@ RSpec.describe CovLoupe::ErrorHandler do
     expect(e).to be_a(CovLoupe::FilePermissionError)
   end
 
+  describe 'additional file and data error mappings' do
+    [
+      {
+        error: Errno::ENOSPC.new('No space left on device'),
+        expected: CovLoupe::FileError,
+        msg: 'No space left on device'
+      },
+      {
+        error: Errno::EROFS.new('Read-only file system'),
+        expected: CovLoupe::FilePermissionError,
+        msg: 'Read-only file system'
+      },
+      {
+        error: Errno::EMFILE.new('Too many open files'),
+        expected: CovLoupe::FileError,
+        msg: 'Too many open files'
+      },
+      {
+        error: IOError.new('Input/output error'),
+        expected: CovLoupe::FileError,
+        msg: 'Input/output error'
+      },
+      {
+        error: EncodingError.new('incompatible encoding'),
+        expected: CovLoupe::CoverageDataError,
+        msg: 'Invalid encoding in coverage data'
+      },
+      {
+        error: RangeError.new('float domain error'),
+        expected: CovLoupe::CoverageDataError,
+        msg: 'Numeric overflow or range error'
+      }
+    ].each do |spec|
+      it "maps #{spec[:error].class} to #{spec[:expected]}" do
+        e = handler.convert_standard_error(spec[:error])
+        expect(e).to be_a(spec[:expected])
+        expect(e.message).to include(spec[:msg])
+      end
+    end
+  end
+
   it 'maps JSON::ParserError to CoverageDataError' do
     e = handler.convert_standard_error(JSON::ParserError.new('unexpected token'))
     expect(e).to be_a(CovLoupe::CoverageDataError)

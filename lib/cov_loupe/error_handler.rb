@@ -47,8 +47,16 @@ module CovLoupe
       when Errno::EISDIR
         filename = extract_filename(error.message)
         NotAFileError.new("Expected file but found directory: #{filename}", error)
+      when Errno::EMFILE, Errno::ENOSPC, IOError
+        FileError.new(error.message, error)
+      when Errno::EROFS
+        FilePermissionError.new(error.message, error)
       when JSON::ParserError
         CoverageDataError.new("Invalid coverage data format: #{error.message}", error)
+      when EncodingError
+        CoverageDataError.new("Invalid encoding in coverage data: #{error.message}", error)
+      when RangeError
+        CoverageDataError.new("Numeric overflow or range error: #{error.message}", error)
       when TypeError
         CoverageDataError.new("Invalid coverage data structure: #{error.message}", error)
       when ArgumentError
