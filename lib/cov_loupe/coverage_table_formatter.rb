@@ -83,15 +83,12 @@ module CovLoupe
     # @param widths [Hash] Column widths
     # @return [String] Data row
     private_class_method def self.data_row(file_data, widths)
-      stale_text_str = file_data['stale'] ? file_data['stale'].to_s : ''
-      Kernel.format(
-        "│ %-#{widths[:file]}s │ %#{widths[:pct] - 1}.2f%% │ %#{widths[:covered]}d │ %#{widths[:total]}d │ %#{widths[:stale]}s │",
-        file_data['file'],
-        file_data['percentage'],
-        file_data['covered'],
-        file_data['total'],
-        stale_text_str.center(widths[:stale])
-      )
+      fd = file_data
+      ws = widths
+      is_stale = fd['stale'] && fd['stale'] != :ok
+      stale_str = is_stale ? fd['stale'].to_s.center(ws[:stale]) : ''
+      format_str = "│ %-#{ws[:file]}s │ %#{ws[:pct] - 1}.2f%% │ %#{ws[:covered]}d │ %#{ws[:total]}d │ %#{ws[:stale]}s │"
+      Kernel.format(format_str, fd['file'], fd['percentage'], fd['covered'], fd['total'], stale_str)
     end
 
     # Generate summary counts footer

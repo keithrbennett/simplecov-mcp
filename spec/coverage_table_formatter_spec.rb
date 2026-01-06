@@ -118,6 +118,41 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
 
         expect(output).not_to include('Staleness:')
       end
+
+      it 'displays blank for :ok staleness status (regression test for issue #4)' do
+        ok_rows = [
+          {
+            'file' => 'lib/foo.rb',
+            'percentage' => 100.0,
+            'covered' => 10,
+            'total' => 10,
+            'stale' => :ok
+          },
+          {
+            'file' => 'lib/bar.rb',
+            'percentage' => 80.0,
+            'covered' => 8,
+            'total' => 10,
+            'stale' => :ok
+          }
+        ]
+
+        output = described_class.format(ok_rows)
+
+        # Extract data rows (lines with file paths, excluding header and footer)
+        data_lines = output.split("\n").select do |line|
+          line.include?('│') && !line.include?('File') && !line.include?('─')
+        end
+
+        # The table data rows should not display "ok" in the stale column
+        # This would fail if the formatter reverted to displaying the symbol name
+        data_lines.each do |line|
+          expect(line).not_to include(' ok ')
+        end
+
+        # But the summary footer should still mention "ok 2"
+        expect(output).to include('Files: total 2, ok 2, stale 0')
+      end
     end
 
     context 'with empty rows' do
