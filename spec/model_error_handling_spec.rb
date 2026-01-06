@@ -321,6 +321,58 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         model.list(raise_on_stale: true)
       end.to raise_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
     end
+
+    it 'checks staleness before raising data errors when raise_on_stale is true' do
+      # This test verifies that staleness checking happens even when there are data errors
+      # If file A has corrupt data and file B is stale, staleness error should be raised first
+      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP)
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+
+      # Make foo.rb have corrupt data, but bar.rb is valid and will be stale due to old timestamp
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'), any_args)
+        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
+
+      # Should raise staleness error first (bar.rb is newer than very old timestamp)
+      # not the data error from foo.rb
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError) do |error|
+        # Verify that staleness was actually detected
+        expect(error.newer_files).not_to be_empty
+      end
+    end
+
+    it 'raises data error if no staleness issues when raise_on_stale is true' do
+      # This test verifies that data errors ARE raised when there are no staleness issues
+      # Use accurate coverage data (correct line counts: foo.rb: 6 lines, bar.rb: 5 lines)
+      accurate_coverage = {
+        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
+      }
+      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: accurate_coverage)
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+
+      # Make foo.rb have corrupt data, but coverage timestamp is current (not stale)
+      foo_path = File.expand_path('lib/foo.rb', root)
+      cov = model.instance_variable_get(:@cov)
+      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+        .with(anything, include('/lib/foo.rb'), any_args)
+        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
+
+      # Should raise the data error since there are no staleness issues
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::FileError, 'Corrupted coverage entry')
+    end
   end
 
   describe 'resolve method error handling' do

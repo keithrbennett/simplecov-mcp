@@ -118,15 +118,27 @@ module CovLoupe
       raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)
       @skipped_rows = []
+      # Build rows in lenient mode to collect all data even if some files have errors
+      # This ensures staleness checking can examine all files, not just the ones before
+      # the first error. We'll re-raise any errors after staleness checking if needed.
       rows, coverage_lines_by_path = build_list_rows(
         tracked_globs: tracked_globs,
-        raise_on_stale: raise_on_stale
+        raise_on_stale: false  # Always use lenient mode for row building
       )
       project_staleness_details = project_staleness_report(
         tracked_globs: tracked_globs,
-        raise_on_stale: raise_on_stale,
+        raise_on_stale: raise_on_stale,  # Honor raise_on_stale for staleness checks
         coverage_lines_by_path: coverage_lines_by_path
       )
+
+      # If raise_on_stale is true and there were any skipped files with errors,
+      # raise the first error encountered after staleness checking is complete
+      if raise_on_stale && @skipped_rows.any?
+        first_error = @skipped_rows.first
+        error_class = Object.const_get(first_error['error_class'])
+        raise error_class, first_error['error']
+      end
+
       file_statuses = project_staleness_details[:file_statuses] || {}
       length_mismatch_files = Array(project_staleness_details[:length_mismatch_files]).uniq
       unreadable_files = Array(project_staleness_details[:unreadable_files]).uniq
@@ -270,6 +282,8 @@ module CovLoupe
       Resolvers::ResolverHelpers.lookup_lines(coverage_map, abs_path, root: @root,
         volume_case_sensitive: volume_case_sensitive)
     rescue FileError, CoverageDataError => e
+      # When raise_on_stale is true, raise all errors immediately for strict validation
+      # When false, skip files with errors and report them in skipped_files for lenient mode
       raise e if raise_on_stale
 
       @logger.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
