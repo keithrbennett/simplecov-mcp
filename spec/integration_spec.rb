@@ -2,9 +2,6 @@
 
 require 'spec_helper'
 
-# Timeout for MCP server operations (increased for JRuby compatibility)
-MCP_TIMEOUT = 5
-
 RSpec.describe 'SimpleCov MCP Integration Tests' do
   include CLITestHelpers
 
@@ -62,25 +59,37 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'executes all major CLI commands without errors' do
       aggregate_failures 'CLI commands' do
-        # Test list command
-        list_output = run_cli_command('list')
-        expect(list_output).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
-        # Select only table rows (lines starting with │) that contain file paths
-        data_lines = list_output.lines.select do |line|
-          line.start_with?('│') && line.include?('lib/')
+        [
+          {
+            desc: 'list command',
+            args: ['list'],
+            expectations: ->(output) {
+              expect(output).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
+              data_lines = output.lines.select { |l| l.start_with?('│') && l.include?('lib/') }
+              expect(data_lines.first).to include('lib/foo.rb')
+              expect(data_lines.last).to include('lib/bar.rb')
+            }
+          },
+          {
+            desc: 'summary command',
+            args: ['summary', 'lib/foo.rb'],
+            expectations: ->(output) {
+              expect(output).to include('│', '66.67%', '2', '3')
+            }
+          },
+          {
+            desc: 'JSON output',
+            args: ['--format', 'json', 'summary', 'lib/foo.rb'],
+            expectations: ->(output) {
+              json_data = JSON.parse(output)
+              expect(json_data).to include('file', 'summary')
+              expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
+            }
+          }
+        ].each do |tc|
+          output = run_cli_command(*tc[:args])
+          tc[:expectations].call(output)
         end
-        expect(data_lines.first).to include('lib/foo.rb')
-        expect(data_lines.last).to include('lib/bar.rb')
-
-        # Test summary command
-        summary_output = run_cli_command('summary', 'lib/foo.rb')
-        expect(summary_output).to include('│', '66.67%', '2', '3')
-
-        # Test JSON output
-        json_output = run_cli_command('--format', 'json', 'summary', 'lib/foo.rb')
-        json_data = JSON.parse(json_output)
-        expect(json_data).to include('file', 'summary')
-        expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
       end
     end
 
@@ -106,38 +115,33 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'executes all MCP tools with real coverage data' do
       aggregate_failures 'MCP tools' do
-        # Test coverage summary tool
-        summary_response = CovLoupe::Tools::CoverageSummaryTool.call(
-          path: 'lib/foo.rb',
-          root: project_root,
-          resultset: coverage_dir,
-          server_context: server_context
-        )
-
-        data, _item = expect_mcp_text_json(summary_response, expected_keys: %w[file summary])
-        expect(data['summary']).to include('covered' => 2, 'total' => 3)
-
-        # Test raw coverage tool
-        raw_response = CovLoupe::Tools::CoverageRawTool.call(
-          path: 'lib/foo.rb',
-          root: project_root,
-          resultset: coverage_dir,
-          server_context: server_context
-        )
-
-        raw_data, _raw_item = expect_mcp_text_json(raw_response, expected_keys: %w[file lines])
-        expect(raw_data['lines']).to eq([nil, nil, 1, 0, nil, 2])
-
-        # Test all files tool
-        list_response = CovLoupe::Tools::ListTool.call(
-          root: project_root,
-          resultset: coverage_dir,
-          server_context: server_context
-        )
-
-        all_data, = expect_mcp_text_json(list_response, expected_keys: %w[files counts])
-        expect(all_data['files'].length).to eq(2)
-        expect(all_data['counts']['total']).to eq(2)
+        [
+          {
+            tool: CovLoupe::Tools::CoverageSummaryTool,
+            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            expected_keys: %w[file summary],
+            check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
+          },
+          {
+            tool: CovLoupe::Tools::CoverageRawTool,
+            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            expected_keys: %w[file lines],
+            check: ->(data) { expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2]) }
+          },
+          {
+            tool: CovLoupe::Tools::ListTool,
+            args: { root: project_root, resultset: coverage_dir },
+            expected_keys: %w[files counts],
+            check: ->(data) {
+              expect(data['files'].length).to eq(2)
+              expect(data['counts']['total']).to eq(2)
+            }
+          }
+        ].each do |tc|
+          response = tc[:tool].call(**tc[:args], server_context: server_context)
+          data, = expect_mcp_text_json(response, expected_keys: tc[:expected_keys])
+          tc[:check].call(data)
+        end
       end
     end
 
@@ -231,58 +235,10 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       { env: env, lib_path: lib_path, exe_path: exe_path, timeout: timeout }
     end
 
-    def run_mcp_json(request_hash, env: default_env, timeout: MCP_TIMEOUT)
+    def run_mcp_json(request_hash, env: default_env, timeout: 5)
       Spec::Support::McpRunner.call_json(
         request_hash, **runner_args(env: env, timeout: timeout)
       )
-    end
-
-    def jsonrpc_request(id, method, params = nil)
-      request = { jsonrpc: '2.0', id: id, method: method }
-      request[:params] = params if params
-      request
-    end
-
-    def jsonrpc_call(id, method, params = nil)
-      parse_jsonrpc(run_mcp_json(jsonrpc_request(id, method, params))[:stdout])
-    end
-
-    def jsonrpc_tool_call(id, name, arguments = {})
-      jsonrpc_call(id, 'tools/call', { name: name, arguments: arguments })
-    end
-
-    def parse_jsonrpc(output)
-      lines = output.to_s.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
-        .lines
-        .map(&:strip)
-        .reject(&:empty?)
-
-      lines.each do |line|
-        parsed = JSON.parse(line)
-        return parsed if parsed['jsonrpc'] == '2.0'
-      rescue JSON::ParserError
-        # Continue searching
-      end
-      raise "No valid JSON-RPC response found. Output: #{output}"
-    end
-
-    def expect_jsonrpc_result(response, id)
-      expect(response).to include('jsonrpc' => '2.0', 'id' => id)
-      expect(response).to have_key('result')
-      response['result']
-    end
-
-    def expect_jsonrpc_error(response, id)
-      expect(response).to include('jsonrpc' => '2.0', 'id' => id)
-      if response['error']
-        expect(response['error']).to have_key('message')
-      elsif response['result']
-        content = response['result']['content']
-        text = content.first['text']
-        expect(text.downcase).to match(/error|not found|required/)
-      else
-        raise 'Expected error or result with error message'
-      end
     end
 
     it 'starts MCP server and handles tool listing' do
@@ -305,46 +261,60 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     it 'executes coverage tools via JSON-RPC' do
       aggregate_failures do
-        # coverage_summary_tool
-        resp1 = jsonrpc_tool_call(
-          3,
-          'coverage_summary_tool',
-          { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir }
-        )
-        content = expect_jsonrpc_result(resp1, 3)['content']
-        data = JSON.parse(content.first['text'])
-        expect(data['summary']).to include('covered' => 2, 'total' => 3)
-
-        # list_tool
-        resp2 = jsonrpc_tool_call(4, 'list_tool', { root: project_root, resultset: coverage_dir })
-        content = expect_jsonrpc_result(resp2, 4)['content']
-        data = JSON.parse(content.first['text'])
-        expect(data['files'].length).to eq(2)
-
-        # uncovered_lines_tool
-        resp3 = jsonrpc_tool_call(
-          5,
-          'uncovered_lines_tool',
-          { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir }
-        )
-        content = expect_jsonrpc_result(resp3, 5)['content']
-        data = JSON.parse(content.first['text'])
-        expect(data['uncovered']).to eq([4])
+        [
+          {
+            id: 3,
+            name: 'coverage_summary_tool',
+            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
+          },
+          {
+            id: 4,
+            name: 'list_tool',
+            args: { root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['files'].length).to eq(2) }
+          },
+          {
+            id: 5,
+            name: 'uncovered_lines_tool',
+            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['uncovered']).to eq([4]) }
+          }
+        ].each do |tc|
+          resp = jsonrpc_tool_call(tc[:id], tc[:name], tc[:args])
+          content = expect_jsonrpc_result(resp, tc[:id])['content']
+          data = JSON.parse(content.first['text'])
+          tc[:check].call(data)
+        end
       end
     end
 
     it 'executes utility tools via JSON-RPC' do
       aggregate_failures do
-        # help_tool
-        resp1 = jsonrpc_tool_call(6, 'help_tool')
-        content = expect_jsonrpc_result(resp1, 6)['content']
-        help_data = JSON.parse(content.first['text'])
-        expect(help_data['tools'].map { |t| t['tool'] }).to include('coverage_summary_tool')
-
-        # version_tool
-        resp2 = jsonrpc_tool_call(7, 'version_tool')
-        content = expect_jsonrpc_result(resp2, 7)['content']
-        expect(content.first['text']).to match(/CovLoupe version: \d+\.\d+/)
+        [
+          {
+            id: 6,
+            name: 'help_tool',
+            check: ->(data) {
+              tools = data['tools'].map { |t| t['tool'] }
+              expect(tools).to include('coverage_summary_tool')
+            }
+          },
+          {
+            id: 7,
+            name: 'version_tool',
+            check: ->(text) { expect(text).to match(/CovLoupe version: \d+\.\d+/) }
+          }
+        ].each do |tc|
+          resp = jsonrpc_tool_call(tc[:id], tc[:name])
+          content = expect_jsonrpc_result(resp, tc[:id])['content']
+          # version_tool returns plain text, help_tool returns JSON text
+          if tc[:name] == 'help_tool'
+            tc[:check].call(JSON.parse(content.first['text']))
+          else
+            tc[:check].call(content.first['text'])
+          end
+        end
       end
     end
 

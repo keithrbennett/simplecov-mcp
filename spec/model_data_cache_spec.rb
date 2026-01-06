@@ -12,24 +12,6 @@ RSpec.describe CovLoupe::ModelDataCache do
   # Clear the singleton cache before each test
   before { cache.clear }
 
-  def build_stat(mtime:, mtime_nsec: nil, size: 0, inode: 0)
-    stat = double('File::Stat', mtime: mtime, size: size, ino: inode)
-    return stat unless mtime_nsec
-
-    allow(stat).to receive(:mtime_nsec).and_return(mtime_nsec)
-    stat
-  end
-
-  def stub_unchanged_stat(path)
-    stat = build_stat(mtime: Time.at(100), mtime_nsec: 0, size: 10, inode: 1)
-    allow(File).to receive(:stat).with(path).and_return(stat)
-  end
-
-  def stub_digest(path, *digests)
-    allow(Digest::MD5).to receive(:file).with(path)
-      .and_return(*digests.map { |d| double(hexdigest: d) })
-  end
-
   describe '#get' do
     it 'returns ModelData with coverage data' do
       data = cache.get(project1_resultset, root: project1_root)
@@ -58,10 +40,10 @@ RSpec.describe CovLoupe::ModelDataCache do
     end
 
     it 'reloads data when resultset mtime changes' do
-      stat_now = build_stat(mtime: Time.at(100), size: 10, inode: 1)
-      stat_later = build_stat(mtime: Time.at(200), size: 10, inode: 1)
-      allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_later)
+      stat_now = double('File::Stat', mtime: Time.at(100), size: 10, ino: 1)
+      stat_later = double('File::Stat', mtime: Time.at(200), size: 10, ino: 1)
+
+      mock_file_stat(project1_resultset, mtime: Time.at(100), sequence: [stat_now, stat_later])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -71,10 +53,13 @@ RSpec.describe CovLoupe::ModelDataCache do
 
     it 'detects subsecond mtime changes' do
       base_time = Time.at(100)
-      stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
-      stat_subsecond = build_stat(mtime: base_time, mtime_nsec: 1_000_000, size: 10, inode: 1)
-      allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_subsecond)
+      stat_now = double('File::Stat', mtime: base_time, size: 10, ino: 1)
+      allow(stat_now).to receive(:mtime_nsec).and_return(0)
+
+      stat_subsecond = double('File::Stat', mtime: base_time, size: 10, ino: 1)
+      allow(stat_subsecond).to receive(:mtime_nsec).and_return(1_000_000)
+
+      mock_file_stat(project1_resultset, mtime: base_time, sequence: [stat_now, stat_subsecond])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -83,10 +68,13 @@ RSpec.describe CovLoupe::ModelDataCache do
 
     it 'reloads when size changes within the same second' do
       base_time = Time.at(100)
-      stat_now = build_stat(mtime: base_time, mtime_nsec: 0, size: 10, inode: 1)
-      stat_size_change = build_stat(mtime: base_time, mtime_nsec: 0, size: 11, inode: 1)
-      allow(File).to receive(:stat).with(project1_resultset)
-        .and_return(stat_now, stat_size_change)
+      stat_now = double('File::Stat', mtime: base_time, size: 10, ino: 1)
+      allow(stat_now).to receive(:mtime_nsec).and_return(0)
+
+      stat_size_change = double('File::Stat', mtime: base_time, size: 11, ino: 1)
+      allow(stat_size_change).to receive(:mtime_nsec).and_return(0)
+
+      mock_file_stat(project1_resultset, mtime: base_time, sequence: [stat_now, stat_size_change])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -94,8 +82,8 @@ RSpec.describe CovLoupe::ModelDataCache do
     end
 
     it 'reloads when content changes but metadata is identical' do
-      stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'digest_v1', 'digest_v2')
+      mock_file_stat(project1_resultset, mtime: Time.at(100), mtime_nsec: 0, size: 10, ino: 1)
+      mock_file_digest(project1_resultset, sequence: %w[digest_v1 digest_v2])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -103,8 +91,8 @@ RSpec.describe CovLoupe::ModelDataCache do
     end
 
     it 'validates digest on every get call' do
-      stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'unchanged', 'unchanged')
+      mock_file_stat(project1_resultset, mtime: Time.at(100), mtime_nsec: 0, size: 10, ino: 1)
+      mock_file_digest(project1_resultset, digest: 'unchanged', sequence: %w[unchanged unchanged])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       data2 = cache.get(project1_resultset, root: project1_root)
@@ -119,7 +107,7 @@ RSpec.describe CovLoupe::ModelDataCache do
     end
 
     it 'handles digest computation failures gracefully' do
-      stub_unchanged_stat(project1_resultset)
+      mock_file_stat(project1_resultset, mtime: Time.at(100), mtime_nsec: 0, size: 10, ino: 1)
       allow(Digest::MD5).to receive(:file).with(project1_resultset).and_raise(Errno::EACCES)
 
       # Should load data but not cache it
@@ -129,8 +117,8 @@ RSpec.describe CovLoupe::ModelDataCache do
 
   describe '#clear' do
     it 'clears all cached entries' do
-      stub_unchanged_stat(project1_resultset)
-      stub_digest(project1_resultset, 'unchanged', 'unchanged')
+      mock_file_stat(project1_resultset, mtime: Time.at(100), mtime_nsec: 0, size: 10, ino: 1)
+      mock_file_digest(project1_resultset, digest: 'unchanged', sequence: %w[unchanged unchanged])
 
       data1 = cache.get(project1_resultset, root: project1_root)
       cache.clear

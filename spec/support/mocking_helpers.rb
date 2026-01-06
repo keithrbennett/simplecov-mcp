@@ -59,4 +59,41 @@ module MockingHelpers
 
     model
   end
+
+  # Stub File.stat for a given path
+  # @param path [String] The path to stub
+  # @param mtime [Time] The modification time
+  # @param size [Integer] The file size (default: 1)
+  # @param ino [Integer] The inode number (default: 1)
+  # @param mtime_nsec [Integer, nil] The nanosecond part of mtime (optional)
+  # @param sequence [Array<File::Stat>, nil] Sequence of return values (overrides single return)
+  def mock_file_stat(path, mtime:, size: 1, ino: 1, mtime_nsec: nil, sequence: nil)
+    stat = double('File::Stat', mtime: mtime, size: size, ino: ino)
+    allow(stat).to receive(:mtime_nsec).and_return(mtime_nsec) if mtime_nsec
+
+    allow(File).to receive(:stat).and_call_original
+    stub = allow(File).to receive(:stat).with(path)
+
+    if sequence
+      stub.and_return(*sequence)
+    else
+      stub.and_return(stat)
+    end
+    stat
+  end
+
+  # Stub Digest::MD5.file for a given path
+  # @param path [String] The path to stub
+  # @param digest [String] The hexdigest to return (default: 'test_digest')
+  # @param sequence [Array<String>, nil] Sequence of digests to return
+  def mock_file_digest(path, digest: 'test_digest', sequence: nil)
+    allow(Digest::MD5).to receive(:file).and_call_original
+    stub = allow(Digest::MD5).to receive(:file).with(path)
+
+    if sequence
+      stub.and_return(*sequence.map { |d| double(hexdigest: d) })
+    else
+      stub.and_return(double(hexdigest: digest))
+    end
+  end
 end

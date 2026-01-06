@@ -128,6 +128,7 @@ RSpec.configure do |config|
   config.include MockingHelpers
   config.include ControlFlowHelpers
   config.include ResultsetMockHelpers
+  config.include Spec::Support::McpIntegrationHelpers
 end
 
 # Custom matchers
