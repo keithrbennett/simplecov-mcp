@@ -46,7 +46,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
       before { cli_context.config.format = :json }
 
       it 'emits JSON with specific line data' do
-        stub_staleness_check('L') # Needed for stale data
+        stub_staleness_check(:length_mismatch) # Needed for stale data
 
         output = capture_command_output(command, ['lib/foo.rb'])
 
@@ -55,12 +55,12 @@ RSpec.describe CovLoupe::Commands::RawCommand do
         expect(payload['lines']).to be_an(Array)
         expect(payload['lines'][2]).to eq(1) # specific value
         expect(payload['lines'][3]).to eq(0) # specific value
-        expect(payload['stale']).to eq('L')
+        expect(payload['stale']).to eq('length_mismatch')
       end
     end
 
     context 'with stale data (other formats)' do
-      before { stub_staleness_check('L') }
+      before { stub_staleness_check(:length_mismatch) }
 
       # Use an array for expected_json_keys as we don't need exact value matching for these generic format tests
       it_behaves_like 'a command with formatted output', %w[lib/foo.rb], %w[file lines stale]

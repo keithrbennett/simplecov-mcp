@@ -30,7 +30,7 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
         'covered' => 1,
         'total' => 6,
         'percentage' => 16.67,
-        'stale' => 'L'
+        'stale' => :length_mismatch
       }
     ]
   end

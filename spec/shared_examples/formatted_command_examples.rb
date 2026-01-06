@@ -17,7 +17,9 @@ RSpec.shared_examples 'a command with formatted output' do |command_args, expect
         expected_json_keys.each do |k, v|
           expect(json).to have_key(k)
           # Skip deep comparison if v is nil, just check key existence
-          expect(json[k]).to eq(v) if v
+          # Convert symbols to strings for JSON comparison
+          expected_value = v.is_a?(Symbol) ? v.to_s : v
+          expect(json[k]).to eq(expected_value) if v
         end
       end
     end

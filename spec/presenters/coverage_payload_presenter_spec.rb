@@ -24,7 +24,7 @@ RSpec.describe CovLoupe::Presenters::CoveragePayloadPresenter do
         'file' => '/abs/path/lib/foo.rb',
         'lines' => [1, 0, nil, 2]
       },
-      stale: 'L',
+      stale: :length_mismatch,
       expected_keys: ['lines']
     },
     {
@@ -39,7 +39,7 @@ RSpec.describe CovLoupe::Presenters::CoveragePayloadPresenter do
         ],
         'summary' => { 'covered' => 1, 'total' => 2, 'percentage' => 50.0 }
       },
-      stale: 'L',
+      stale: :length_mismatch,
       expected_keys: %w[lines summary]
     },
     {
@@ -51,7 +51,7 @@ RSpec.describe CovLoupe::Presenters::CoveragePayloadPresenter do
         'uncovered' => [2, 4],
         'summary' => { 'covered' => 2, 'total' => 4, 'percentage' => 50.0 }
       },
-      stale: 'M',
+      stale: :missing,
       expected_keys: %w[uncovered summary]
     }
   ].each do |config|

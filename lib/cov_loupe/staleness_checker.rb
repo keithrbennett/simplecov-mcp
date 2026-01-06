@@ -53,7 +53,7 @@ module CovLoupe
 
     # Compute the staleness status for a specific file relative to coverage.
     # Ignores mode and never raises. Returns a symbol:
-    # - :ok - file is not stale
+    # - :ok - file is not stale (fresh)
     # - :missing - the file is missing/deleted
     # - :newer - the file mtime is newer than the coverage timestamp
     # - :length_mismatch - the source line count differs from coverage lines array length
