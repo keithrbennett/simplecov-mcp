@@ -171,47 +171,50 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'RuntimeError handling from find_resultset' do
-    it 'wraps RuntimeError as UnknownError' do
-      # Mock find_resultset to raise RuntimeError (simulating missing resultset)
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
-        RuntimeError.new('Specified resultset not found: /nonexistent/path/.resultset.json')
-      )
+    [
+      {
+        desc: 'wraps RuntimeError as UnknownError',
+        error_msg: 'Specified resultset not found: /nonexistent/path/.resultset.json',
+        resultset: '/nonexistent/path'
+      },
+      {
+        desc: 'wraps RuntimeError with generic messages',
+        error_msg: 'Something went wrong during resultset lookup',
+        resultset: FIXTURE_PROJECT1_RESULTSET_PATH
+      },
+      {
+        desc: 'wraps RuntimeError without "resultset" in message',
+        error_msg: 'Some completely unrelated runtime error',
+        resultset: FIXTURE_PROJECT1_RESULTSET_PATH
+      }
+    ].each do |tc|
+      it tc[:desc] do
+        allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
+          RuntimeError.new(tc[:error_msg])
+        )
 
-      expect do
-        described_class.new(root: root, resultset: '/nonexistent/path')
-      end.to raise_error(CovLoupe::UnknownError) do |error|
-        expect(error.message).to include('Specified resultset not found')
-      end
-    end
-
-    it 'wraps RuntimeError with generic messages' do
-      # Test RuntimeError with any generic message that includes 'resultset'
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
-        RuntimeError.new('Something went wrong during resultset lookup')
-      )
-
-      expect do
-        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-      end.to raise_error(CovLoupe::UnknownError) do |error|
-        expect(error.message).to include('Something went wrong during resultset lookup')
-      end
-    end
-
-    it 'wraps RuntimeError without "resultset" in message' do
-      # Test RuntimeError that does NOT contain 'resultset' in its message
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
-        RuntimeError.new('Some completely unrelated runtime error')
-      )
-
-      expect do
-        described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-      end.to raise_error(CovLoupe::UnknownError) do |error|
-        expect(error.message).to include('Some completely unrelated runtime error')
+        expect do
+          described_class.new(root: root, resultset: tc[:resultset])
+        end.to raise_error(CovLoupe::UnknownError) do |error|
+          expect(error.message).to include(tc[:error_msg])
+        end
       end
     end
   end
 
   describe 'list error handling' do
+    def setup_malformed_coverage(model, file_path, exception_class, exception_message)
+      # Make the entry malformed for file_path so it falls back to the resolver
+      abs_path = File.expand_path(file_path, root)
+      cov = model.instance_variable_get(:@cov)
+      cov[abs_path] = 'malformed_entry' # Not a Hash with 'lines' key
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+        .with(anything, include(file_path), any_args)
+        .and_raise(exception_class.new(exception_message))
+    end
+
     it 'skips files that raise FileError during coverage lookup' do
       # This exercises the `next` statement in the list loop when FileError is raised
 
@@ -225,16 +228,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         logger: mock_logger)
 
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      # Mock lookup_lines to raise FileError for one specific file
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
 
       # Should not raise, just skip the problematic file
       list_result = model.list(raise_on_stale: false)
@@ -261,15 +255,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
         logger: mock_logger)
 
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::CorruptCoverageDataError,
+        'Corrupted coverage entry')
 
       list_result = model.list(raise_on_stale: false)
       files = list_result['files']
@@ -289,15 +276,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'raises FileError when raise_on_stale is true and file lookup fails' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::FileError.new('Missing file'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Missing file')
 
       expect do
         model.list(raise_on_stale: true)
@@ -307,15 +286,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::CorruptCoverageDataError.new('Corrupted coverage entry'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::CorruptCoverageDataError,
+        'Corrupted coverage entry')
 
       expect do
         model.list(raise_on_stale: true)
@@ -329,14 +301,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
       # Make foo.rb have corrupt data, but bar.rb is valid and will be stale due to old timestamp
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
 
       # Should raise staleness error first (bar.rb is newer than very old timestamp)
       # not the data error from foo.rb
@@ -359,14 +324,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
       # Make foo.rb have corrupt data, but coverage timestamp is current (not stale)
-      foo_path = File.expand_path('lib/foo.rb', root)
-      cov = model.instance_variable_get(:@cov)
-      cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include('/lib/foo.rb'), any_args)
-        .and_raise(CovLoupe::FileError.new('Corrupted coverage entry'))
+      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
 
       # Should raise the data error since there are no staleness issues
       expect do
