@@ -467,7 +467,18 @@ module CovLoupe
       return unless entry.is_a?(Hash)
 
       lines = entry['lines']
-      lines.is_a?(Array) ? lines : nil
+      unless lines.is_a?(Array)
+        @logger.safe_log("Invalid coverage lines encountered (not an array): #{lines.class}") if lines
+        return nil
+      end
+
+      # Validate all elements
+      unless lines.all? { |v| v.nil? || v.is_a?(Integer) }
+        @logger.safe_log("Invalid coverage lines encountered (contains non-integers): #{lines.inspect}")
+        return nil
+      end
+
+      lines
     end
   end
 end

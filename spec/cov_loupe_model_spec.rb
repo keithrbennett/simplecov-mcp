@@ -470,4 +470,30 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(file_basenames).to eq(['alpha.rb', 'middle.rb', 'zebra.rb'])
     end
   end
+
+  describe '#extract_lines_from_entry' do
+    let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: true) }
+    let(:model_with_logger) { described_class.new(root: root, logger: mock_logger) }
+
+    it 'returns nil and logs warning for entries with non-integer/nil values in lines array' do
+      bad_entry = { 'lines' => ['foo', 3.5, {}, nil] }
+
+      expect(mock_logger).to receive(:safe_log)
+        .with(/Invalid coverage lines encountered \(contains non-integers\)/)
+      expect(model_with_logger.send(:extract_lines_from_entry, bad_entry)).to be_nil
+    end
+
+    it 'returns the array for valid entries' do
+      good_entry = { 'lines' => [1, 0, nil, 2] }
+      expect(model_with_logger.send(:extract_lines_from_entry, good_entry)).to eq([1, 0, nil, 2])
+    end
+
+    it 'returns nil and logs warning when lines is not an array' do
+      bad_entry = { 'lines' => 'not an array' }
+
+      expect(mock_logger).to receive(:safe_log)
+        .with(/Invalid coverage lines encountered \(not an array\)/)
+      expect(model_with_logger.send(:extract_lines_from_entry, bad_entry)).to be_nil
+    end
+  end
 end
