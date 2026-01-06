@@ -220,91 +220,68 @@ RSpec.describe CovLoupe do
     end
 
     describe 'large file list truncation' do
-      it 'shows all files when there are 10 or fewer deleted files' do
-        deleted_files = (1..10).map { |i| "deleted_file_#{i}.rb" }
-        error = described_class.new(
-          'Test error',
-          nil,
-          cov_timestamp: 1000,
-          deleted_files: deleted_files
-        )
+      [
+        {
+          type: :deleted,
+          key: :deleted_files,
+          desc: 'deleted or moved in project',
+          label: 'Coverage-only files'
+        },
+        {
+          type: :missing,
+          key: :missing_files,
+          desc: 'new in project, not in coverage',
+          label: 'Missing files'
+        },
+        {
+          type: :newer,
+          key: :newer_files,
+          desc: nil, # newer_files doesn't have a description in the header line
+          label: 'Newer files'
+        }
+      ].each do |file_type|
+        it "shows all files when there are 10 or fewer #{file_type[:type]} files" do
+          files = (1..10).map { |i| "#{file_type[:type]}_file_#{i}.rb" }
+          error_params = {
+            cov_timestamp: 1000,
+            file_type[:key] => files
+          }
+          error = described_class.new('Test error', nil, **error_params)
 
-        message = error.user_friendly_message
-        expect(message).to include('Coverage-only files (deleted or moved in project, 10):')
-        expect_listed_files(message, deleted_files)
-        expect(message).not_to include('...')
-      end
+          message = error.user_friendly_message
+          header = if file_type[:desc]
+            "#{file_type[:label]} (#{file_type[:desc]}, 10):"
+          else
+            "#{file_type[:label]} (10):"
+          end
+          expect(message).to include(header)
+          expect_listed_files(message, files)
+          expect(message).not_to include('...')
+        end
 
-      it 'truncates and shows ellipsis when there are more than 10 deleted files' do
-        deleted_files = (1..15).map { |i| "deleted_file_#{i}.rb" }
-        error = described_class.new(
-          'Test error',
-          nil,
-          cov_timestamp: 1000,
-          deleted_files: deleted_files
-        )
+        it "truncates and shows ellipsis when there are more than 10 #{file_type[:type]} files" do
+          count = 15
+          files = (1..count).map { |i| "#{file_type[:type]}_file_#{i}.rb" }
+          error_params = {
+            cov_timestamp: 1000,
+            file_type[:key] => files
+          }
+          error = described_class.new('Test error', nil, **error_params)
 
-        message = error.user_friendly_message
-        expect(message).to include('Coverage-only files (deleted or moved in project, 15):')
-        # Should show first 10 files
-        expect_listed_files(message, deleted_files[0..9])
-        # Should not show files beyond 10
-        expect_absent_files(message, deleted_files[10..14])
-        # Should show ellipsis
-        expect(message).to include('...')
-      end
-
-      it 'shows all files when there are 10 or fewer missing files' do
-        missing_files = (1..10).map { |i| "missing_file_#{i}.rb" }
-        error = described_class.new(
-          'Test error',
-          nil,
-          cov_timestamp: 1000,
-          missing_files: missing_files
-        )
-
-        message = error.user_friendly_message
-        expect(message).to include('Missing files (new in project, not in coverage, 10):')
-        expect_listed_files(message, missing_files)
-        expect(message).not_to include('...')
-      end
-
-      it 'truncates and shows ellipsis when there are more than 10 missing files' do
-        missing_files = (1..12).map { |i| "missing_file_#{i}.rb" }
-        error = described_class.new(
-          'Test error',
-          nil,
-          cov_timestamp: 1000,
-          missing_files: missing_files
-        )
-
-        message = error.user_friendly_message
-        expect(message).to include('Missing files (new in project, not in coverage, 12):')
-        # Should show first 10 files
-        expect_listed_files(message, missing_files[0..9])
-        # Should not show files beyond 10
-        expect_absent_files(message, [missing_files[11]])
-        # Should show ellipsis
-        expect(message).to include('...')
-      end
-
-      it 'truncates and shows ellipsis when there are more than 10 newer files' do
-        newer_files = (1..20).map { |i| "newer_file_#{i}.rb" }
-        error = described_class.new(
-          'Test error',
-          nil,
-          cov_timestamp: 1000,
-          newer_files: newer_files
-        )
-
-        message = error.user_friendly_message
-        expect(message).to include('Newer files (20):')
-        # Should show first 10 files
-        expect_listed_files(message, newer_files[0..9])
-        # Should not show files beyond 10
-        expect_absent_files(message, newer_files[10..19])
-        # Should show ellipsis
-        expect(message).to include('...')
+          message = error.user_friendly_message
+          header = if file_type[:desc]
+            "#{file_type[:label]} (#{file_type[:desc]}, #{count}):"
+          else
+            "#{file_type[:label]} (#{count}):"
+          end
+          expect(message).to include(header)
+          # Should show first 10 files
+          expect_listed_files(message, files[0..9])
+          # Should not show files beyond 10
+          expect_absent_files(message, files[10..14])
+          # Should show ellipsis
+          expect(message).to include('...')
+        end
       end
     end
   end

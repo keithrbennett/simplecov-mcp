@@ -102,14 +102,11 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
           mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
         end
 
-        it 'raises CoverageDataError with details about colliding keys' do
-          expect { repo }.to raise_error(CovLoupe::CoverageDataError,
-            /Duplicate paths detected after normalization/)
-        end
-
-        it 'includes both original keys in the error message' do
-          expect { repo }.to raise_error(CovLoupe::CoverageDataError,
-            /#{Regexp.escape(rel_foo_path)}/)
+        it 'raises CoverageDataError with details about colliding keys including originals' do
+          expect { repo }.to raise_error(CovLoupe::CoverageDataError) do |error|
+            expect(error.message).to match(/Duplicate paths detected after normalization/)
+            expect(error.message).to match(/#{Regexp.escape(rel_foo_path)}/)
+          end
         end
       end
 
@@ -131,20 +128,14 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
           mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
         end
 
-        it 'raises CoverageDataError listing all collisions' do
+        it 'raises CoverageDataError listing all collisions in JSON format' do
           expect do
             repo
           end.to raise_error(CovLoupe::CoverageDataError) do |error|
             # Verify both files appear in the error message
             expect(error.message).to include('lib/foo.rb')
             expect(error.message).to include('lib/bar.rb')
-          end
-        end
 
-        it 'formats error message as parseable JSON with normalized paths and original keys' do
-          expect do
-            repo
-          end.to raise_error(CovLoupe::CoverageDataError) do |error|
             # Verify the error message contains valid JSON
             # Example: "/full/path/lib/foo.rb": ["lib/foo.rb", "/full/path/lib/foo.rb"]
             json_match = error.message.match(/\{.*\}/m)
@@ -176,13 +167,9 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
           setup_volume_and_coverage(case_sensitive: false, coverage_data: coverage_data)
         end
 
-        it 'raises CoverageDataError detecting case collision' do
-          expect { repo }.to raise_error(CovLoupe::CoverageDataError,
-            /Duplicate paths detected after normalization/)
-        end
-
-        it 'includes both original case variants in the error message' do
+        it 'raises CoverageDataError detecting case collision with original variants' do
           expect { repo }.to raise_error(CovLoupe::CoverageDataError) do |error|
+            expect(error.message).to match(/Duplicate paths detected after normalization/)
             expect(error.message).to include('foo.rb')
             expect(error.message).to include('Foo.rb')
           end
