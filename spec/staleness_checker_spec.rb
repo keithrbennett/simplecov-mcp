@@ -147,34 +147,33 @@ RSpec.describe CovLoupe::StalenessChecker do
         tracked_globs: nil, timestamp: Time.now)
     end
 
-    it 'returns :error and raises FileError when File.file? fails' do
-      file = File.join(tmpdir, 'lib', 'test.rb')
-      write_file(file, %w[a b])
-      coverage_lines = [1, 1]
+    [
+      {
+        method: :file?,
+        error_class: Errno::EACCES,
+        error_msg: 'Permission denied'
+      },
+      {
+        method: :mtime,
+        error_class: Errno::EACCES,
+        error_msg: 'Permission denied'
+      }
+    ].each do |tc|
+      it "returns :error and raises FileError when File.#{tc[:method]} fails" do
+        file = File.join(tmpdir, 'lib', 'test.rb')
+        write_file(file, %w[a b])
+        coverage_lines = [1, 1]
 
-      allow(File).to receive(:file?).and_call_original
-      allow(File).to receive(:file?).with(file).and_raise(Errno::EACCES.new('Permission denied'))
+        allow(File).to receive(tc[:method]).and_call_original
+        allow(File).to receive(tc[:method]).with(file)
+          .and_raise(tc[:error_class].new(tc[:error_msg]))
 
-      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
-      expect(details[:read_error]).to be true
-      expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
-      expect { checker.check_file!(file, coverage_lines) }
-        .to raise_error(CovLoupe::FileError, /Error reading file/)
-    end
-
-    it 'returns :error and raises FileError when File.mtime fails' do
-      file = File.join(tmpdir, 'lib', 'test.rb')
-      write_file(file, %w[a b])
-      coverage_lines = [1, 1]
-
-      allow(File).to receive(:mtime).and_call_original
-      allow(File).to receive(:mtime).with(file).and_raise(Errno::EACCES.new('Permission denied'))
-
-      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
-      expect(details[:read_error]).to be true
-      expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
-      expect { checker.check_file!(file, coverage_lines) }
-        .to raise_error(CovLoupe::FileError, /Error reading file/)
+        details = checker.send(:compute_file_staleness_details, file, coverage_lines)
+        expect(details[:read_error]).to be true
+        expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
+        expect { checker.check_file!(file, coverage_lines) }
+          .to raise_error(CovLoupe::FileError, /Error reading file/)
+      end
     end
   end
 
@@ -188,35 +187,19 @@ RSpec.describe CovLoupe::StalenessChecker do
       expect(checker.send(:safe_count_lines, file)).to eq(0)
     end
 
-    it 'returns :read_error on permission denied (EACCES)' do
-      file = File.join(tmpdir, 'test.rb')
-      File.write(file, "line1\nline2\n")
+    [
+      { error: Errno::EACCES.new('Permission denied'), desc: 'permission denied (EACCES)' },
+      { error: Errno::EPERM.new('Operation not permitted'), desc: 'permission denied (EPERM)' },
+      { error: IOError.new('IO error'), desc: 'IO errors' }
+    ].each do |tc|
+      it "returns :read_error on #{tc[:desc]}" do
+        file = File.join(tmpdir, 'test.rb')
+        File.write(file, "line1\nline2\n")
 
-      # Mock File.foreach to raise permission error
-      allow(File).to receive(:foreach).with(file).and_raise(Errno::EACCES.new('Permission denied'))
+        allow(File).to receive(:foreach).with(file).and_raise(tc[:error])
 
-      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
-    end
-
-    it 'returns :read_error on permission denied (EPERM)' do
-      file = File.join(tmpdir, 'test.rb')
-      File.write(file, "line1\nline2\n")
-
-      # Mock File.foreach to raise permission error
-      allow(File).to receive(:foreach).with(file)
-        .and_raise(Errno::EPERM.new('Operation not permitted'))
-
-      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
-    end
-
-    it 'returns :read_error on IO errors' do
-      file = File.join(tmpdir, 'test.rb')
-      File.write(file, "line1\nline2\n")
-
-      # Mock File.foreach to raise an IO error
-      allow(File).to receive(:foreach).with(file).and_raise(IOError.new('IO error'))
-
-      expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
+        expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
+      end
     end
 
     it 'counts lines correctly for file with final newline' do

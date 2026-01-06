@@ -7,6 +7,27 @@ RSpec.describe CovLoupe::CoverageModel do
 
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
 
+  def stub_staleness_checker(
+    newer_files: [], missing_files: [], deleted_files: [], length_mismatch_files: [],
+    unreadable_files: [], file_statuses: {}, timestamp_status: :ok
+  )
+    checker = instance_double(
+      CovLoupe::StalenessChecker,
+      off?: false
+    )
+
+    allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
+    allow(checker).to receive(:check_project_with_lines!).and_return(
+      newer_files: newer_files,
+      missing_files: missing_files,
+      deleted_files: deleted_files,
+      length_mismatch_files: length_mismatch_files,
+      unreadable_files: unreadable_files,
+      file_statuses: file_statuses,
+      timestamp_status: timestamp_status
+    )
+  end
+
   describe 'initialization error handling' do
     it 'raises FileError when File.read raises Errno::ENOENT directly' do
       # Stub find_resultset to return a path, but File.read to raise ENOENT
@@ -60,26 +81,6 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'list' do
-    def stub_staleness_checker(
-      newer_files: [], missing_files: [], deleted_files: [], length_mismatch_files: [],
-      unreadable_files: [], file_statuses: {}
-    )
-      checker = instance_double(
-        CovLoupe::StalenessChecker,
-        off?: false
-      )
-
-      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
-      allow(checker).to receive(:check_project_with_lines!).and_return(
-        newer_files: newer_files,
-        missing_files: missing_files,
-        deleted_files: deleted_files,
-        length_mismatch_files: length_mismatch_files,
-        unreadable_files: unreadable_files,
-        file_statuses: file_statuses
-      )
-    end
-
     it 'returns a hash with correct keys' do
       result = model.list
       expect(result).to be_a(Hash)
@@ -202,14 +203,7 @@ RSpec.describe CovLoupe::CoverageModel do
       abs_foo = File.expand_path('lib/foo.rb', root)
       abs_bar = File.expand_path('lib/bar.rb', root)
 
-      checker = instance_double(CovLoupe::StalenessChecker)
-      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
-      allow(checker).to receive(:check_project_with_lines!).and_return(
-        newer_files: [],
-        missing_files: [],
-        deleted_files: [],
-        length_mismatch_files: [],
-        unreadable_files: [],
+      stub_staleness_checker(
         file_statuses: {
           abs_foo => :ok,
           abs_bar => :newer
@@ -236,12 +230,7 @@ RSpec.describe CovLoupe::CoverageModel do
       abs_foo = File.expand_path('lib/foo.rb', root)
       abs_bar = File.expand_path('lib/bar.rb', root)
 
-      checker = instance_double(CovLoupe::StalenessChecker)
-      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
-      allow(checker).to receive(:check_project_with_lines!).and_return(
-        newer_files: [],
-        missing_files: [],
-        deleted_files: [],
+      stub_staleness_checker(
         length_mismatch_files: [abs_bar],
         unreadable_files: [abs_foo],
         file_statuses: {
@@ -294,18 +283,11 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'increments missing_from_disk count for files with :missing status' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
-      checker = instance_double(CovLoupe::StalenessChecker, off?: false)
-      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
-      allow(checker).to receive(:check_project_with_lines!).and_return(
-        newer_files: [],
-        missing_files: [],
+      stub_staleness_checker(
         deleted_files: [abs_foo],
-        length_mismatch_files: [],
-        unreadable_files: [],
         file_statuses: {
           abs_foo => :missing
-        },
-        timestamp_status: :ok
+        }
       )
 
       totals = model.project_totals
