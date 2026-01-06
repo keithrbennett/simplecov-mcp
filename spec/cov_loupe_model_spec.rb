@@ -290,6 +290,30 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(totals['files']['without_coverage']['by_type'])
         .to include('missing_from_coverage' => 1)
     end
+
+    it 'increments missing_from_disk count for files with :missing status' do
+      abs_foo = File.expand_path('lib/foo.rb', root)
+
+      checker = instance_double(CovLoupe::StalenessChecker, off?: false)
+      allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
+      allow(checker).to receive(:check_project_with_lines!).and_return(
+        newer_files: [],
+        missing_files: [],
+        deleted_files: [abs_foo],
+        length_mismatch_files: [],
+        unreadable_files: [],
+        file_statuses: {
+          abs_foo => :missing
+        },
+        timestamp_status: :ok
+      )
+
+      totals = model.project_totals
+
+      expect(totals['files']['with_coverage']['stale']['by_type']).to include(
+        'missing_from_disk' => 1
+      )
+    end
   end
 
   describe 'resultset directory handling' do
@@ -468,6 +492,35 @@ RSpec.describe CovLoupe::CoverageModel do
       # All files have 50% coverage, so they should be sorted alphabetically
       file_basenames = files.map { |f| File.basename(f['file']) }
       expect(file_basenames).to eq(['alpha.rb', 'middle.rb', 'zebra.rb'])
+    end
+  end
+
+  describe '#refresh_data' do
+    let(:fake_data) do
+      instance_double(CovLoupe::ModelData, coverage_map: { 'a' => 1 }, timestamp: 123,
+        resultset_path: 'p')
+    end
+
+    before do
+      allow(CovLoupe::ModelDataCache.instance).to receive(:get).and_return(fake_data)
+    end
+
+    it 'clears cached data and reloads' do
+      # Initial load
+      expect(model.instance_variable_get(:@cov)).to eq({ 'a' => 1 })
+
+      model.refresh_data
+
+      # refresh_data sets @cov to nil
+      expect(model.instance_variable_get(:@cov)).to be_nil
+
+      # Accessing coverage_map should repopulate it
+      expect(model.send(:coverage_map)).to eq({ 'a' => 1 })
+      expect(model.instance_variable_get(:@cov)).to eq({ 'a' => 1 })
+    end
+
+    it 'returns self' do
+      expect(model.refresh_data).to eq(model)
     end
   end
 

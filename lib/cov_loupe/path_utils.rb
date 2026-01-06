@@ -181,7 +181,8 @@ module CovLoupe
 
       result = if existing_file
         original = File.join(abs_path, existing_file)
-        alternate = original.tr('A-Za-z', 'a-zA-Z')
+        alternate_name = existing_file.tr('A-Za-z', 'a-zA-Z')
+        alternate = File.join(abs_path, alternate_name)
 
         if File.exist?(alternate)
           # Same file -> case-insensitive, different files -> case-sensitive

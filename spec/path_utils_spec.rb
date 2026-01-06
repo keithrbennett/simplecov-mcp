@@ -89,6 +89,22 @@ RSpec.describe CovLoupe::PathUtils do
         result = described_class.relativize(different_drive_path, unix_root)
         expect(result).to eq(different_drive_path)
       end
+
+      it 'returns original path when relative_path_from raises ArgumentError' do
+        # Force an ArgumentError even when start_with? is true (simulating complex edge case)
+        allow(described_class).to receive(:normalized_start_with?).and_return(true)
+
+        path_to_fail = '/path/to/file'
+        allow(Pathname).to receive(:new).and_call_original
+        allow(Pathname).to receive(:new).with(path_to_fail).and_wrap_original do |m, arg|
+          obj = m.call(arg)
+          allow(obj).to receive(:relative_path_from).and_raise(ArgumentError)
+          obj
+        end
+
+        result = described_class.relativize(path_to_fail, '/path/to')
+        expect(result).to eq(path_to_fail)
+      end
     end
 
     context 'with input validation' do
@@ -547,6 +563,58 @@ RSpec.describe CovLoupe::PathUtils do
         FileUtils.touch(alternate) unless File.exist?(alternate)
         expect(described_class.volume_case_sensitive?(test_dir)).to be(true)
       end
+    end
+
+    it 'returns false on SystemCallError' do
+      allow(File).to receive(:absolute_path).and_raise(Errno::EACCES)
+      expect(described_class.volume_case_sensitive?(test_dir)).to be false
+    end
+
+    it 'returns false on IOError' do
+      allow(File).to receive(:absolute_path).and_raise(IOError)
+      expect(described_class.volume_case_sensitive?(test_dir)).to be false
+    end
+
+    it 'executes file comparison check when alternate case exists' do
+      # This test forces execution of line 188 by ensuring both case variants exist
+      filename = 'CheckLine188.txt'
+      original = File.join(test_dir, filename)
+      FileUtils.touch(original)
+      alternate = File.join(test_dir, filename.tr('A-Za-z', 'a-zA-Z'))
+      FileUtils.touch(alternate) # Ensure both exist
+
+      # Mock Dir.children to ensure we pick our file
+      allow(Dir).to receive(:children).and_wrap_original do |m, path|
+        if File.expand_path(path) == File.expand_path(test_dir)
+          [filename]
+        else
+          m.call(path)
+        end
+      end
+
+      # Verify line 188 execution
+      expect(File).to receive(:identical?).with(original, alternate).and_call_original
+
+      # Just run the method to trigger the code path
+      described_class.volume_case_sensitive?(test_dir)
+    end
+  end
+
+  describe '.root_prefix' do
+    it 'returns empty string for nil' do
+      expect(described_class.root_prefix(nil)).to eq('')
+    end
+
+    it 'returns empty string for empty string' do
+      expect(described_class.root_prefix('')).to eq('')
+    end
+
+    it 'appends separator if missing' do
+      expect(described_class.root_prefix('/path')).to eq("/path#{File::SEPARATOR}")
+    end
+
+    it 'keeps separator if present' do
+      expect(described_class.root_prefix("/path#{File::SEPARATOR}")).to eq("/path#{File::SEPARATOR}")
     end
   end
 

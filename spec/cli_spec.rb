@@ -186,4 +186,29 @@ RSpec.describe CovLoupe::CoverageCLI do
       expect(data['version']).to eq(CovLoupe::VERSION)
     end
   end
+
+  describe 'exclusions summary' do
+    it 'displays all types of exclusions' do
+      presenter_double = instance_double(
+        CovLoupe::Presenters::ProjectCoveragePresenter,
+        relative_newer_files: ['newer.rb'],
+        relative_length_mismatch_files: ['mismatch.rb'],
+        relative_unreadable_files: ['unreadable.rb'],
+        relative_missing_tracked_files: [],
+        relative_deleted_files: [],
+        relative_skipped_files: [],
+        relative_files: []
+      )
+      allow(CovLoupe::Presenters::ProjectCoveragePresenter)
+        .to receive(:new).and_return(presenter_double)
+
+      output = run_cli('list')
+
+      expect(output).to include(
+        'Files newer than coverage', 'newer.rb',
+        'Line count mismatches', 'mismatch.rb',
+        'Unreadable files', 'unreadable.rb'
+      )
+    end
+  end
 end

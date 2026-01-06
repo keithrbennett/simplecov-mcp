@@ -44,6 +44,17 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
       end
     end
 
+    context 'when volume sensitivity detection fails' do
+      before do
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?).and_call_original
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?).with(root).and_raise(IOError)
+      end
+
+      it 'falls back to case-insensitive (false)' do
+        expect(repo.instance_variable_get(:@volume_case_sensitive)).to be false
+      end
+    end
+
     context 'when loading fails' do
       let(:resultset_arg) { '/nonexistent/path' }
 
