@@ -153,7 +153,7 @@ module CovLoupe
 
       rows = list_result['files']
 
-      included_rows = rows.reject { |row| row['stale'] }
+      included_rows = rows.reject { |row| row['stale'] && row['stale'] != :ok }
       line_totals = line_totals_from_rows(included_rows)
 
       tracking = tracking_payload(tracked_globs)
@@ -173,10 +173,10 @@ module CovLoupe
       coverage_lines = Resolvers::ResolverHelpers.lookup_lines(coverage_map, file_abs, root: @root,
         volume_case_sensitive: volume_case_sensitive)
       build_staleness_checker(raise_on_stale: false, tracked_globs: nil)
-        .stale_for_file?(file_abs, coverage_lines)
+        .file_staleness_status(file_abs, coverage_lines)
     rescue => e
       @logger.safe_log("Failed to check staleness for #{path}: #{e.message}")
-      'E'
+      :error
     end
 
     # Returns formatted table string for all files coverage data
@@ -438,15 +438,15 @@ module CovLoupe
 
       rows.each do |row|
         case row['stale']
-        when false, nil
+        when :ok
           ok_files += 1
-        when 'M'
+        when :missing
           stale_by_type['missing_from_disk'] += 1
-        when 'T'
+        when :newer
           stale_by_type['newer'] += 1
-        when 'L'
+        when :length_mismatch
           stale_by_type['length_mismatch'] += 1
-        else # including 'E'
+        when :error
           stale_by_type['unreadable'] += 1
         end
       end

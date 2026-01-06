@@ -51,20 +51,21 @@ module CovLoupe
       end
     end
 
-    # Compute whether a specific file appears stale relative to coverage.
-    # Ignores mode and never raises; returns true when:
-    # - the file is missing/deleted, or
-    # - the file mtime is newer than the coverage timestamp, or
-    # - the source line count differs from the coverage lines array length (when present), or
-    # - the file cannot be read due to permission or I/O errors.
-    def stale_for_file?(file_abs, coverage_lines)
+    # Compute the staleness status for a specific file relative to coverage.
+    # Ignores mode and never raises. Returns a symbol:
+    # - :ok - file is not stale
+    # - :missing - the file is missing/deleted
+    # - :newer - the file mtime is newer than the coverage timestamp
+    # - :length_mismatch - the source line count differs from coverage lines array length
+    # - :error - the file cannot be read due to permission or I/O errors
+    def file_staleness_status(file_abs, coverage_lines)
       d = compute_file_staleness_details(file_abs, coverage_lines)
-      return 'E' if d[:read_error]
-      return 'M' unless d[:exists]
-      return 'T' if d[:newer]
-      return 'L' if d[:len_mismatch]
+      return :error if d[:read_error]
+      return :missing unless d[:exists]
+      return :newer if d[:newer]
+      return :length_mismatch if d[:len_mismatch]
 
-      false
+      :ok
     end
 
     # Compute and return project staleness details (newer, missing, deleted files).
@@ -117,15 +118,15 @@ module CovLoupe
       coverage_lines_by_path.each do |abs_path, coverage_lines|
         details = compute_file_staleness_details(abs_path, coverage_lines)
         status = if details[:read_error]
-          'E'
+          :error
         elsif !details[:exists]
-          'M'
+          :missing
         elsif details[:newer]
-          'T'
+          :newer
         elsif details[:len_mismatch]
-          'L'
+          :length_mismatch
         else
-          false
+          :ok
         end
         file_statuses[abs_path] = status
         unreadable << rel(abs_path) if details[:read_error]

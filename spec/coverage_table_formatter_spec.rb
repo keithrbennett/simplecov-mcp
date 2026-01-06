@@ -13,21 +13,21 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
             'percentage' => 100.0,
             'covered' => 10,
             'total' => 10,
-            'stale' => false
+            'stale' => :ok
           },
           {
             'file' => 'lib/bar.rb',
             'percentage' => 50.0,
             'covered' => 5,
             'total' => 10,
-            'stale' => 'M'
+            'stale' => :missing
           },
           {
             'file' => 'lib/baz.rb',
             'percentage' => 75.0,
             'covered' => 15,
             'total' => 20,
-            'stale' => 'T'
+            'stale' => :newer
           }
         ]
       end
@@ -87,7 +87,7 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'includes stale indicators' do
         output = described_class.format(rows)
 
-        expect(output).to include('M', 'T')  # Missing file, Timestamp mismatch
+        expect(output).to include('missing', 'newer')  # Missing file, Timestamp mismatch
       end
 
       it 'includes summary counts footer' do
@@ -99,8 +99,7 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'includes staleness legend when stale files present' do
         output = described_class.format(rows)
 
-        staleness_msg = 'Staleness: E = Error checking, M = Missing file, ' \
-                        'T = Timestamp (source newer), L = Line count mismatch'
+        staleness_msg = 'Staleness: error, missing, newer, length_mismatch'
         expect(output).to include(staleness_msg)
       end
 
@@ -111,7 +110,7 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
             'percentage' => 100.0,
             'covered' => 10,
             'total' => 10,
-            'stale' => false
+            'stale' => :ok
           }
         ]
 
@@ -137,14 +136,14 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
             'percentage' => 100.0,
             'covered' => 10,
             'total' => 10,
-            'stale' => false
+            'stale' => :ok
           },
           {
             'file' => 'very/long/path/to/some/deeply/nested/file.rb',
             'percentage' => 50.0,
             'covered' => 5,
             'total' => 10,
-            'stale' => false
+            'stale' => :ok
           }
         ]
       end
@@ -169,14 +168,14 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
             'percentage' => 99.99,
             'covered' => 9999,
             'total' => 10_000,
-            'stale' => false
+            'stale' => :ok
           },
           {
             'file' => 'file2.rb',
             'percentage' => 1.0,
             'covered' => 1,
             'total' => 100,
-            'stale' => false
+            'stale' => :ok
           }
         ]
       end

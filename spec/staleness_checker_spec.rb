@@ -19,7 +19,7 @@ RSpec.describe CovLoupe::StalenessChecker do
     coverage_lines:,
     timestamp:,
     expected_details:,
-    expected_stale_char:,
+    expected_stale_status:,
     expected_error:
   |
     it description do
@@ -48,7 +48,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         end
       end
 
-      expect(checker.stale_for_file?(file, coverage_lines)).to eq(expected_stale_char)
+      expect(checker.file_staleness_status(file, coverage_lines)).to eq(expected_stale_status)
 
       if expected_error
         expect { checker.check_file!(file, coverage_lines) }.to raise_error(expected_error)
@@ -73,7 +73,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_char: 'T',
+      expected_stale_status: :newer,
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -90,7 +90,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_char: 'L',
+      expected_stale_status: :length_mismatch,
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -105,7 +105,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: nil,
         coverage_timestamp: :any
       },
-      expected_stale_char: 'M',
+      expected_stale_status: :missing,
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -120,7 +120,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_char: false,
+      expected_stale_status: :ok,
       expected_error: nil
 
     it_behaves_like 'a staleness check',
@@ -137,7 +137,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: 0
       },
-      expected_stale_char: false,
+      expected_stale_status: :ok,
       expected_error: nil
   end
 
@@ -147,7 +147,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         tracked_globs: nil, timestamp: Time.now)
     end
 
-    it 'returns E and raises FileError when File.file? fails' do
+    it 'returns :error and raises FileError when File.file? fails' do
       file = File.join(tmpdir, 'lib', 'test.rb')
       write_file(file, %w[a b])
       coverage_lines = [1, 1]
@@ -157,12 +157,12 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, coverage_lines)
       expect(details[:read_error]).to be true
-      expect(checker.stale_for_file?(file, coverage_lines)).to eq('E')
+      expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
       expect { checker.check_file!(file, coverage_lines) }
         .to raise_error(CovLoupe::FileError, /Error reading file/)
     end
 
-    it 'returns E and raises FileError when File.mtime fails' do
+    it 'returns :error and raises FileError when File.mtime fails' do
       file = File.join(tmpdir, 'lib', 'test.rb')
       write_file(file, %w[a b])
       coverage_lines = [1, 1]
@@ -172,7 +172,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.send(:compute_file_staleness_details, file, coverage_lines)
       expect(details[:read_error]).to be true
-      expect(checker.stale_for_file?(file, coverage_lines)).to eq('E')
+      expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
       expect { checker.check_file!(file, coverage_lines) }
         .to raise_error(CovLoupe::FileError, /Error reading file/)
     end
@@ -410,7 +410,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.check_project_with_lines!(coverage_map, coverage_files: [test_file])
       expect(details[:unreadable_files]).to include('test.rb')
-      expect(details[:file_statuses][test_file]).to eq('E')
+      expect(details[:file_statuses][test_file]).to eq(:error)
     end
 
     it 'raises error in error mode when unreadable files are present' do

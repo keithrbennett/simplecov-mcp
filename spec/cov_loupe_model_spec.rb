@@ -211,8 +211,8 @@ RSpec.describe CovLoupe::CoverageModel do
         length_mismatch_files: [],
         unreadable_files: [],
         file_statuses: {
-          abs_foo => false,
-          abs_bar => 'T'
+          abs_foo => :ok,
+          abs_bar => :newer
         }
       )
 
@@ -245,8 +245,8 @@ RSpec.describe CovLoupe::CoverageModel do
         length_mismatch_files: [abs_bar],
         unreadable_files: [abs_foo],
         file_statuses: {
-          abs_bar => 'L',
-          abs_foo => 'E'
+          abs_bar => :length_mismatch,
+          abs_foo => :error
         }
       )
 
@@ -438,7 +438,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
       result = model_with_logger.staleness_for('lib/foo.rb')
 
-      expect(result).to eq('E')
+      expect(result).to eq(:error)
       expect(logger).to have_received(:safe_log).with(/Failed to check staleness/)
     end
   end

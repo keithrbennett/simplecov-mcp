@@ -19,7 +19,7 @@ This document describes the breaking changes introduced in version 4.0.0. These 
   - [Return Type Changed: `project_totals` Schema Updated](#return-type-changed-project_totals-schema-updated)
   - [Logger Initialization Changed](#logger-initialization-changed)
 - [Deleted Files Now Raise `FileNotFoundError`](#deleted-files-now-raise-filenotfounderror)
-- [Staleness Check Errors Now Return 'E' Marker](#staleness-check-errors-now-return-e-marker)
+- [Staleness Indicators Changed from Strings to Symbols](#staleness-indicators-changed-from-strings-to-symbols)
 - [Removed Branch-Only Coverage Support](#removed-branch-only-coverage-support)
 - [Getting Help](#getting-help)
 
@@ -417,97 +417,145 @@ end
 
 ---
 
-## Staleness Check Errors Now Return 'E' Marker
+## Staleness Indicators Changed from Strings to Symbols
 
-**Breaking Change**: When staleness checking itself fails (e.g., file permission errors, resolver failures), the `stale` field now returns `'E'` instead of `false`.
+**Breaking Change**: Staleness indicators in the `stale` field now use Ruby symbols instead of single-character strings.
 
 ### Previous Behavior (v3.x)
 ```ruby
-# Staleness check fails due to permission error or other exception
-model = CovLoupe::CoverageModel.new(root: '.')
 result = model.list
-# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => false, ... }], ... }
+# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => 'M', ... }], ... }
 
-# Error was logged but stale field returned false (indistinguishable from fresh files)
-if result['files'][0]['stale']
-  puts "Stale file"
-else
-  puts "Fresh file"  # This executes - misleading!
-end
+# Staleness was indicated by strings:
+# 'M' - Missing file
+# 'T' - Timestamp mismatch
+# 'L' - Line count mismatch
+# 'E' - Error during staleness check
+# false - Fresh coverage data
 ```
 
 ### New Behavior (v4.x)
 ```ruby
-# Staleness check fails due to permission error or other exception
-model = CovLoupe::CoverageModel.new(root: '.')
 result = model.list
-# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => 'E', ... }], ... }
+# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => :missing, ... }], ... }
 
-# Error is logged and stale field returns 'E' (explicitly indicates error)
-if result['files'][0]['stale']
-  puts "Stale or error"  # This executes - correct!
-end
+# Staleness is now indicated by symbols:
+# :missing - Missing file
+# :newer - Timestamp mismatch
+# :length_mismatch - Line count mismatch
+# :error - Error during staleness check
+# false - Fresh coverage data
 ```
 
 ### Rationale
 
-The previous behavior made it impossible to distinguish between:
-1. Successfully checked and found fresh (`false`)
-2. Failed to check due to errors (`false`)
-
-Returning `'E'` makes staleness check failures explicit and consistent with other staleness markers (`'M'`, `'T'`, `'L'`).
+Symbols are more idiomatic in Ruby for enumerated values and provide:
+- **Better performance**: Symbols are interned, so comparisons are faster
+- **Clearer semantics**: Symbols represent categories/concepts, not text
+- **Consistency**: Aligns with Ruby conventions for status indicators
+- **Type safety**: Symbol vs String distinction catches bugs
 
 ### Impact
 
 This affects code that:
-- **Checks equality**: `stale == false` will no longer match errors
-- **Uses truthiness**: `if stale` behavior reverses (was false, now truthy string)
-- **Pattern matches**: Case statements need to handle `'E'` value
-- **Type checks**: `stale.is_a?(String)` changes from false to true
+- **Checks equality with string literals**: `stale == 'M'` will no longer match
+- **Uses string pattern matching**: Case statements with string patterns need updating
+- **Serializes to JSON**: Symbols are converted to strings in JSON output
+- **Type checks**: `stale.is_a?(Symbol)` instead of `stale.is_a?(String)`
 
-**Frequency**: Rare - only occurs when staleness checking fails (not normal staleness detection).
+**Frequency**: High - affects any code that checks staleness status.
 
 ### Migration
 
-**If you check for fresh files with equality**:
+**If you check equality with string literals**:
 ```ruby
 # Old
-if file['stale'] == false
-  # file is fresh
+if file['stale'] == 'M'
+  puts "File is missing"
 end
 
-# New - explicitly check for false
-if file['stale'] == false
-  # file is fresh (error cases now excluded)
+# New - use symbols
+if file['stale'] == :missing
+  puts "File is missing"
 end
 
-# Or check for any staleness including errors
-if file['stale']
-  # file is stale or had error checking
+# Or use string comparison (less efficient but works with both versions)
+if file['stale'].to_s == 'missing'
+  puts "File is missing"
 end
 ```
 
-**If you use truthiness checks**:
+**If you use case statements with string patterns**:
 ```ruby
-# Old (ambiguous - errors treated as fresh)
-unless payload['stale']
-  # process fresh files
+# Old
+case file['stale']
+when 'M' then handle_missing
+when 'T' then handle_timestamp
+when 'L' then handle_length
+when 'E' then handle_error
+when false then handle_fresh
 end
 
-# New (recommended - be explicit)
-if payload['stale'] == false
-  # process only confirmed fresh files
-elsif payload['stale'] == 'E'
-  # handle staleness check errors
-else
-  # handle other staleness types ('M', 'T', 'L')
+# New - use symbols
+case file['stale']
+when :missing then handle_missing
+when :newer then handle_timestamp
+when :length_mismatch then handle_length
+when :error then handle_error
+when false then handle_fresh
+end
+
+# Or use to_s for backward compatibility
+case file['stale'].to_s
+when 'missing' then handle_missing
+when 'newer' then handle_timestamp
+when 'length_mismatch' then handle_length
+when 'error' then handle_error
+when '' then handle_fresh  # false.to_s returns ''
 end
 ```
 
-**Table output includes 'E' in legend**:
+**If you check for any staleness**:
+```ruby
+# Old (works for both versions)
+if file['stale']
+  puts "Stale file (#{file['stale']})"
+end
+
+# New - explicit type check
+if file['stale'].is_a?(Symbol)
+  puts "Stale file (#{file['stale']})"
+end
+
+# Or use the same approach (works for both versions)
+if file['stale']
+  puts "Stale file (#{file['stale']})"
+end
 ```
-Staleness: E = Error checking, M = Missing file, T = Timestamp (source newer), L = Line count mismatch
+
+**JSON serialization note**: When serializing to JSON (CLI, MCP, etc.), symbols are automatically converted to strings:
+```ruby
+# In Ruby
+file['stale']  # => :missing
+
+# In JSON output
+{ "file": "lib/foo.rb", "stale": "missing" }
 ```
+
+**Table output legend updated**:
+```
+Staleness: missing = Missing file, newer = Timestamp mismatch, length_mismatch = Line count mismatch, error = Check failed
+```
+
+### Complete Staleness Value Reference
+
+| Status | v3.x (String) | v4.x (Symbol) | Description |
+|--------|----------------|------------------|-------------|
+| Fresh | `false` | `false` | Coverage data is current |
+| Missing file | `'M'` | `:missing` | File no longer exists on disk |
+| Timestamp mismatch | `'T'` | `:newer` | File modified after coverage was generated |
+| Line count mismatch | `'L'` | `:length_mismatch` | Source file line count differs from coverage data |
+| Check error | `'E'` | `:error` | Staleness check failed (permissions, I/O errors, etc.) |
 
 [↑ Back to top](#table-of-contents)
 

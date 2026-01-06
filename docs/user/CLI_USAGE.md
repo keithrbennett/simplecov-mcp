@@ -90,7 +90,7 @@ Default sort order is descending (highest coverage first) so the lowest-coverage
 Files: total 7, ok 7, stale 0
 ```
 
-**Stale indicators:** M (missing file), T (timestamp mismatch), L (line count mismatch), E (staleness check error)
+**Stale indicators:** missing (missing file), newer (timestamp mismatch), length_mismatch (line count mismatch), error (staleness check error)
 
 ### `summary <path>`
 
@@ -359,7 +359,7 @@ Tracked globs:
   `length_mismatch`, `unreadable`.
 - `without_coverage` is only present when tracking is enabled (tracked globs provided).
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
-- Totals exclude stale files (`M`, `T`, `L`, `E`) so the aggregate reflects only fresh coverage data.
+- Totals exclude stale files (`:missing`, `:newer`, `:length_mismatch`, `:error`) so the aggregate reflects only fresh coverage data.
 - Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
 
 ### `version`
@@ -494,10 +494,10 @@ clp --raise-on-stale false
 ```
 
 **Staleness conditions:**
-- **M** (Missing): Source file no longer exists on disk
-- **T** (Timestamp): Source file modified after coverage was generated
-- **L** (Length): Source file line count differs from coverage data
-- **E** (Error): Staleness check failed due to permission or I/O errors
+- **:missing** (Missing): Source file no longer exists on disk
+- **:newer** (Timestamp): Source file modified after coverage was generated
+- **:length_mismatch** (Length): Source file line count differs from coverage data
+- **:error** (Error): Staleness check failed due to permission or I/O errors
 - Tracked files missing from coverage (with --tracked-globs)
 
 ### `-g, --tracked-globs PATTERNS`
@@ -681,10 +681,10 @@ Machine-readable output. Paths are relative to project root.
 ```
 
 **Staleness values:**
-- `false` - Coverage data is current
-- `"M"` - File missing (no longer exists on disk)
-- `"T"` - Timestamp mismatch (file modified after coverage)
-- `"L"` - Length mismatch (line count differs)
+- `:ok` - Coverage data is current
+- `:missing` - File missing (no longer exists on disk)
+- `:newer` - Timestamp mismatch (file modified after coverage)
+- `:length_mismatch` - Length mismatch (line count differs)
 
 ### Source Display
 
@@ -821,7 +821,7 @@ clp -S true
 clp -S true -g "lib/payments/**/*.rb,lib/ops/jobs/**/*.rb" list
 
 # See which files are stale (don't error)
-clp list  # Stale column shows M/T/L/E markers
+clp list  # Stale column shows missing/newer/length_mismatch/error markers
 ```
 
 ### Source Code Display

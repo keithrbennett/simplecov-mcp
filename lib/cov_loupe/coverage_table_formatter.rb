@@ -19,10 +19,9 @@ module CovLoupe
       rows.each { |file_data| lines << data_row(file_data, widths) }
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
-      if rows.any? { |f| f['stale'] }
+      if rows.any? { |f| f['stale'] && f['stale'] != :ok }
         lines <<
-          'Staleness: E = Error checking, M = Missing file, ' \
-          'T = Timestamp (source newer), L = Line count mismatch'
+          'Staleness: error, missing, newer, length_mismatch'
       end
       lines.join("\n")
     end
@@ -101,7 +100,7 @@ module CovLoupe
     # @return [String] Summary line
     private_class_method def self.summary_counts(rows)
       total = rows.length
-      stale_count = rows.count { |f| f['stale'] }
+      stale_count = rows.count { |f| f['stale'] && f['stale'] != :ok }
       ok_count = total - stale_count
       "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
     end
