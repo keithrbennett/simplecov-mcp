@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'stale_status'
+
 module CovLoupe
   # Formats coverage data as a table with box-drawing characters
   # Extracted from CoverageModel to separate presentation from domain logic
@@ -19,7 +21,7 @@ module CovLoupe
       rows.each { |file_data| lines << data_row(file_data, widths) }
       lines << border_line(widths, '└', '┴', '┘')
       lines << summary_counts(rows)
-      if rows.any? { |f| f['stale'] && f['stale'] != :ok }
+      if rows.any? { |f| StaleStatus.stale?(f['stale']) }
         lines <<
           'Staleness: error, missing, newer, length_mismatch'
       end
@@ -85,7 +87,7 @@ module CovLoupe
     private_class_method def self.data_row(file_data, widths)
       fd = file_data
       ws = widths
-      is_stale = fd['stale'] && fd['stale'] != :ok
+      is_stale = StaleStatus.stale?(fd['stale'])
       stale_str = is_stale ? fd['stale'].to_s.center(ws[:stale]) : ''
       format_str = "│ %-#{ws[:file]}s │ %#{ws[:pct] - 1}.2f%% │ %#{ws[:covered]}d │ %#{ws[:total]}d │ %#{ws[:stale]}s │"
       Kernel.format(format_str, fd['file'], fd['percentage'], fd['covered'], fd['total'], stale_str)
@@ -97,7 +99,7 @@ module CovLoupe
     # @return [String] Summary line
     private_class_method def self.summary_counts(rows)
       total = rows.length
-      stale_count = rows.count { |f| f['stale'] && f['stale'] != :ok }
+      stale_count = rows.count { |f| StaleStatus.stale?(f['stale']) }
       ok_count = total - stale_count
       "Files: total #{total}, ok #{ok_count}, stale #{stale_count}"
     end

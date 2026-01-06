@@ -7,6 +7,7 @@ require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 re
 require_relative 'errors'
 require_relative 'error_handler'
 require_relative 'staleness_checker'
+require_relative 'stale_status'
 require_relative 'path_relativizer'
 require_relative 'resultset_loader'
 require_relative 'coverage_table_formatter'
@@ -153,7 +154,7 @@ module CovLoupe
 
       rows = list_result['files']
 
-      included_rows = rows.reject { |row| row['stale'] && row['stale'] != :ok }
+      included_rows = rows.reject { |row| StaleStatus.stale?(row['stale']) }
       line_totals = line_totals_from_rows(included_rows)
 
       tracking = tracking_payload(tracked_globs)

@@ -2,6 +2,8 @@
 
 require_relative 'payload_caching'
 
+require_relative '../stale_status'
+
 module CovLoupe
   module Presenters
     # Provides repository-wide coverage summaries shared by CLI and MCP surfaces.
@@ -84,7 +86,7 @@ module CovLoupe
 
       private def build_counts(files)
         total = files.length
-        stale = files.count { |f| f['stale'] && f['stale'] != :ok }
+        stale = files.count { |f| StaleStatus.stale?(f['stale']) }
         { 'total' => total, 'ok' => total - stale, 'stale' => stale }
       end
     end
