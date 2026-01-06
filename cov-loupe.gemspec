@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
     ┃                                                                           ┃
     ┃  ⚠️  MCP MODE NOW REQUIRES -m/--mode mcp FLAG (AUTO-DETECTION REMOVED)    ┃
     ┃                                                                           ┃
-    ┃  If you use cov-loupe as an MCP server, you MUST update your config.     ┃
+    ┃  If you use cov-loupe as an MCP server, you MUST update your config.      ┃
     ┃  Without -m mcp, the server will run in CLI mode and hang.                ┃
     ┃                                                                           ┃
     ┃  📖 Migration instructions: docs/user/migrations/MIGRATING_TO_V4.md       ┃
