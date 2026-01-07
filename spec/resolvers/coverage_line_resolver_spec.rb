@@ -61,79 +61,69 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
     end
 
     context 'when handling errors' do
-      it 'raises FileError when file is not found in coverage data' do
-        cov_data = {
-          '/project/lib/foo.rb' => { 'lines' => [1, 0] }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
-
-        expect do
-          resolver.lookup_lines('/project/lib/missing.rb')
-        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
-      end
-
-      it 'raises FileError when coverage data is empty' do
-        resolver = described_class.new({}, root: root, volume_case_sensitive: true)
-
-        expect do
-          resolver.lookup_lines('/any/path.rb')
-        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
-      end
-
-      it 'raises CorruptCoverageDataError when entry exists but has no valid lines' do
-        cov_data = {
-          '/project/lib/foo.rb' => { 'other_key' => 'value' }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
-
-        expect do
-          resolver.lookup_lines('/project/lib/foo.rb')
-        end.to raise_error(CovLoupe::CorruptCoverageDataError,
-          /Entry for .* has no valid lines/)
-      end
-
-      it 'raises CorruptCoverageDataError for branch-only coverage (no lines array)' do
-        cov_data = {
+      let(:cov_data) do
+        {
+          '/project/lib/foo.rb' => { 'other_key' => 'value' },
           '/project/lib/branch_only.rb' => {
             'branches' => { '[:if, 0, 1, 0, 1, 4]' => { '[:then, 1, 1, 0, 1, 4]' => 1 } }
           }
         }
+      end
 
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
+      [
+        {
+          desc: 'raises FileError when file is not found in coverage data',
+          path: '/project/lib/missing.rb',
+          error: CovLoupe::FileError,
+          msg: /No coverage entry found/
+        },
+        {
+          desc: 'raises FileError when coverage data is empty',
+          path: '/any/path.rb',
+          empty_cov: true,
+          error: CovLoupe::FileError,
+          msg: /No coverage entry found/
+        },
+        {
+          desc: 'raises CorruptCoverageDataError when entry exists but has no valid lines',
+          path: '/project/lib/foo.rb',
+          error: CovLoupe::CorruptCoverageDataError,
+          msg: /Entry for .* has no valid lines/
+        },
+        {
+          desc: 'raises CorruptCoverageDataError for branch-only coverage (no lines array)',
+          path: '/project/lib/branch_only.rb',
+          error: CovLoupe::CorruptCoverageDataError,
+          msg: /Entry for .* has no valid lines/
+        }
+      ].each do |tc|
+        it tc[:desc] do
+          data = tc[:empty_cov] ? {} : cov_data
+          resolver = described_class.new(data, root: root, volume_case_sensitive: true)
 
-        expect do
-          resolver.lookup_lines('/project/lib/branch_only.rb')
-        end.to raise_error(CovLoupe::CorruptCoverageDataError,
-          /Entry for .* has no valid lines/)
+          expect do
+            resolver.lookup_lines(tc[:path])
+          end.to raise_error(tc[:error], tc[:msg])
+        end
       end
     end
 
     context 'with volume-specific path normalization' do
-      it 'applies case-sensitive matching when volume_case_sensitive is true' do
-        cov_data = {
-          '/project/lib/Foo.rb' => { 'lines' => [1, 0] }
-        }
+      [
+        { sensitive: true, desc: 'case-sensitive', raises: true },
+        { sensitive: false, desc: 'case-insensitive', raises: false }
+      ].each do |tc|
+        it "applies #{tc[:desc]} matching when volume_case_sensitive is #{tc[:sensitive]}" do
+          cov_data = { '/project/lib/Foo.rb' => { 'lines' => [1, 0] } }
+          resolver = described_class.new(cov_data, root: root, volume_case_sensitive: tc[:sensitive])
 
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
-
-        # On case-sensitive volumes, different casing = different file
-        expect do
-          resolver.lookup_lines('/project/lib/foo.rb')
-        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
-      end
-
-      it 'applies case-insensitive matching when volume_case_sensitive is false' do
-        cov_data = {
-          '/project/lib/Foo.rb' => { 'lines' => [1, 0] }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
-
-        # On case-insensitive volumes, different casing = same file
-        lines = resolver.lookup_lines('/project/lib/foo.rb')
-        expect(lines).to eq([1, 0])
+          if tc[:raises]
+            expect { resolver.lookup_lines('/project/lib/foo.rb') }
+              .to raise_error(CovLoupe::FileError, /No coverage entry found/)
+          else
+            expect(resolver.lookup_lines('/project/lib/foo.rb')).to eq([1, 0])
+          end
+        end
       end
     end
 
@@ -172,73 +162,53 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
     end
 
     context 'with path normalization' do
-      it 'normalizes backslashes on Windows' do
-        # Windows needs backslash normalization
-        allow(CovLoupe).to receive(:windows?).and_return(true)
-
-        cov_data = {
-          'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] }
+      [
+        {
+          desc: 'normalizes backslashes on Windows',
+          windows: true, sensitive: true,
+          data: { 'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] } },
+          lookup: 'lib\\utils\\Helper.rb',
+          expected: [10, 20, 30]
+        },
+        {
+          desc: 'normalizes both slashes and case on Windows with case-insensitive filesystem',
+          windows: true, sensitive: false,
+          data: { 'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] } },
+          lookup: 'lib\\utils\\HELPER.rb',
+          expected: [10, 20, 30]
+        },
+        {
+          desc: 'does not normalize on case-sensitive volumes',
+          windows: false, sensitive: true,
+          data: { 'lib/Helper.rb' => { 'lines' => [1, 2] } },
+          lookup: 'lib\\helper.rb',
+          error: CovLoupe::FileError,
+          skip_if_insensitive: true
+        },
+        {
+          desc: 'normalizes case on case-insensitive volumes',
+          windows: false, sensitive: false,
+          data: { 'lib/Helper.rb' => { 'lines' => [1, 2, 3] } },
+          lookup: 'lib/HELPER.rb',
+          expected: [1, 2, 3],
+          skip_if_sensitive: true
         }
+      ].each do |tc|
+        it tc[:desc] do
+          skip 'Test requires case-sensitive volume' if tc[:skip_if_insensitive] && !CovLoupe::PathUtils.volume_case_sensitive?('.')
+          skip 'Test requires case-insensitive volume' if tc[:skip_if_sensitive] && CovLoupe::PathUtils.volume_case_sensitive?('.')
 
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
+          allow(CovLoupe).to receive(:windows?).and_return(tc[:windows])
 
-        # Windows path with backslashes (but case-sensitive volume)
-        lines = resolver.lookup_lines('lib\\utils\\Helper.rb')
-        expect(lines).to eq([10, 20, 30])
-      end
+          resolver = described_class.new(tc[:data], root: root, volume_case_sensitive: tc[:sensitive])
 
-      it 'normalizes both slashes and case on Windows with case-insensitive filesystem' do
-        # Windows with case-insensitive volume needs both normalizations
-        allow(CovLoupe).to receive(:windows?).and_return(true)
-
-        cov_data = {
-          'lib/utils/Helper.rb' => { 'lines' => [10, 20, 30] }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
-
-        # Windows path with backslashes and different casing
-        lines = resolver.lookup_lines('lib\\utils\\HELPER.rb')
-        expect(lines).to eq([10, 20, 30])
-      end
-
-      it 'does not normalize on case-sensitive volumes' do
-        skip 'Test requires case-sensitive volume' unless CovLoupe::PathUtils.volume_case_sensitive?('.')
-
-        # Ensure no slash normalization either (non-Windows)
-        allow(CovLoupe).to receive(:windows?).and_return(false)
-
-        cov_data = {
-          'lib/Helper.rb' => { 'lines' => [1, 2] }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
-
-        # On case-sensitive volumes, backslashes are literal characters (not separators)
-        # and case matters, so this should not match
-        expect do
-          resolver.lookup_lines('lib\\helper.rb')
-        end.to raise_error(CovLoupe::FileError, /No coverage entry found/)
-      end
-
-      it 'normalizes case on case-insensitive volumes' do
-        skip 'Test requires case-insensitive volume' if CovLoupe::PathUtils.volume_case_sensitive?('.')
-
-        # Ensure no slash normalization (non-Windows)
-        allow(CovLoupe).to receive(:windows?).and_return(false)
-
-        cov_data = {
-          'lib/Helper.rb' => { 'lines' => [1, 2, 3] }
-        }
-
-        resolver = described_class.new(cov_data, root: root, volume_case_sensitive: false)
-
-        # On case-insensitive volumes, different casing should match
-        lines = resolver.lookup_lines('lib/helper.rb')
-        expect(lines).to eq([1, 2, 3])
-
-        lines = resolver.lookup_lines('lib/HELPER.rb')
-        expect(lines).to eq([1, 2, 3])
+          if tc[:error]
+            expect { resolver.lookup_lines(tc[:lookup]) }
+              .to raise_error(tc[:error], /No coverage entry found/)
+          else
+            expect(resolver.lookup_lines(tc[:lookup])).to eq(tc[:expected])
+          end
+        end
       end
     end
   end

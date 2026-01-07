@@ -422,4 +422,26 @@ RSpec.describe CovLoupe::StalenessChecker do
       expect { checker.check_project!(coverage_map) }.not_to raise_error
     end
   end
+
+  context 'when performing additional checks' do
+    it 'flags deleted files present only in coverage' do
+      checker = described_class.new(root: tmpdir, resultset: nil,
+        mode: :error, timestamp: Time.now.to_i)
+      coverage_map = {
+        File.join(tmpdir, 'lib', 'does_not_exist_anymore.rb') => { 'lines' => [1] }
+      }
+      expect do
+        checker.check_project!(coverage_map)
+      end.to raise_error(CovLoupe::CoverageDataProjectStaleError)
+    end
+
+    it 'does not raise for empty tracked_globs when nothing else is stale' do
+      checker = described_class.new(root: tmpdir, resultset: nil,
+        mode: :error,
+        tracked_globs: [], timestamp: Time.now.to_i)
+      expect do
+        checker.check_project!({})
+      end.not_to raise_error
+    end
+  end
 end
