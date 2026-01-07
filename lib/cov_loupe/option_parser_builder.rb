@@ -71,7 +71,7 @@ module CovLoupe
       end
       parser.on(
         '-f', '--format FORMAT', String,
-        'Output format: t[able]|j[son]|pretty-json|y[aml]|a[wesome-print] (default: table)'
+        'Output format: t[able]|j[son]|pretty-json|y[aml]|a[mazing_print] (default: table)'
       ) do |value|
         config.format = normalize_format(value)
       end

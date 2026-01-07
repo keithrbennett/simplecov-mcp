@@ -135,7 +135,7 @@ simplecov-mcp -f J list                  # Short form for pretty-json
 - `json` or `j` - Single-line JSON
 - `pretty-json` or `J` - Pretty-printed JSON
 - `yaml` or `y` - YAML format
-- `awesome-print` or `ap` - Colored awesome_print format (requires `awesome_print` gem)
+- `awesome_print` or `ap` - Colored awesome_print format (requires `awesome_print` gem)
 
 **Migration:** Replace `--json` with `--format json` (or `-f j`). Replace `--pretty-json` with `--format pretty-json` (or `-f J`).
 
