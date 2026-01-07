@@ -40,7 +40,8 @@ module CovLoupe
       max_total = rows.map { |f| f['total'].to_s.length }.max
       covered_width = [max_covered, 'Covered'.length].max + 2
       total_width = [max_total, 'Total'.length].max + 2
-      stale_width = 'Stale'.length
+      max_stale_label = rows.map { |f| StaleStatus.stale?(f['stale']) ? f['stale'].to_s.length : 0 }.max.to_i
+      stale_width = [max_stale_label, 'Stale'.length].max
       {
         file: file_width,
         pct: pct_width,

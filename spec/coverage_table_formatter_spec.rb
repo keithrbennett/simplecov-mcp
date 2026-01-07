@@ -221,5 +221,61 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
         expect(output).to include('9999', '10000', '99.99%', '1.00%')
       end
     end
+
+    context 'with long staleness labels' do
+      let(:rows) do
+        [
+          {
+            'file' => 'lib/foo.rb',
+            'percentage' => 100.0,
+            'covered' => 10,
+            'total' => 10,
+            'stale' => :ok
+          },
+          {
+            'file' => 'lib/bar.rb',
+            'percentage' => 50.0,
+            'covered' => 5,
+            'total' => 10,
+            'stale' => :missing
+          },
+          {
+            'file' => 'lib/baz.rb',
+            'percentage' => 75.0,
+            'covered' => 15,
+            'total' => 20,
+            'stale' => :length_mismatch
+          }
+        ]
+      end
+
+      it 'adjusts stale column width to accommodate longest staleness label' do
+        output = described_class.format(rows)
+
+        # All rows should have the same total width
+        lines = output.split("\n")
+        data_lines = lines.select { |line| line.include?('│') }
+        widths = data_lines.map(&:length).uniq
+
+        expect(widths.size).to eq(1), 'All table rows should have the same width'
+      end
+
+      it 'displays the full length_mismatch label without overflow' do
+        output = described_class.format(rows)
+
+        expect(output).to include('length_mismatch')
+      end
+
+      it 'maintains proper table alignment with long labels' do
+        output = described_class.format(rows)
+
+        # Extract border lines (they should all be the same length)
+        lines = output.split("\n")
+        border_lines = lines.select { |line| line.include?('─') }
+        border_widths = border_lines.map(&:length).uniq
+
+        expect(border_widths.size).to eq(1), 'All border lines should have the same width'
+      end
+    end
   end
 end
