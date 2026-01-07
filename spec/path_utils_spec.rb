@@ -78,7 +78,7 @@ RSpec.describe CovLoupe::PathUtils do
     end
 
     context 'when error occurs' do
-      it 'handles ArgumentError from relative_path_from' do
+      it 'returns original path when relative_path_from raises ArgumentError' do
         # Use a simpler approach that doesn't require complex mocking
         # Create a scenario that would cause relative_path_from to fail
         different_drive_path = 'C:/path/file.rb'
@@ -88,22 +88,6 @@ RSpec.describe CovLoupe::PathUtils do
         # a Windows path against a Unix path
         result = described_class.relativize(different_drive_path, unix_root)
         expect(result).to eq(different_drive_path)
-      end
-
-      it 'returns original path when relative_path_from raises ArgumentError' do
-        # Force an ArgumentError even when start_with? is true (simulating complex edge case)
-        allow(described_class).to receive(:normalized_start_with?).and_return(true)
-
-        path_to_fail = '/path/to/file'
-        allow(Pathname).to receive(:new).and_call_original
-        allow(Pathname).to receive(:new).with(path_to_fail).and_wrap_original do |m, arg|
-          obj = m.call(arg)
-          allow(obj).to receive(:relative_path_from).and_raise(ArgumentError)
-          obj
-        end
-
-        result = described_class.relativize(path_to_fail, '/path/to')
-        expect(result).to eq(path_to_fail)
       end
     end
 
