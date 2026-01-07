@@ -371,4 +371,79 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       end
     end
   end
+
+  describe 'malformed coverage line array validation' do
+    let(:malformed_lines) { [1, 0, 'invalid', 2] }
+
+    def setup_malformed_lines(model, file_path, malformed_lines)
+      # Make extract_lines_from_entry return nil so it falls back to resolver
+      abs_path = File.expand_path(file_path, root)
+      cov = model.instance_variable_get(:@cov)
+      cov[abs_path] = { 'lines' => malformed_lines }
+    end
+
+    [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
+      it "#{method} raises CoverageDataError for malformed lines arrays" do
+        model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+        setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+
+        expect do
+          model.send(method, 'lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError) do |error|
+          expect(error.message).to include('Invalid coverage line array', 'non-integer elements', 'invalid')
+        end
+      end
+    end
+
+    it 'list raises CoverageDataError when raise_on_stale is true' do
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+      setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+
+      expect do
+        model.list(raise_on_stale: true)
+      end.to raise_error(CovLoupe::CoverageDataError) do |error|
+        expect(error.message).to include('Invalid coverage line array', 'non-integer elements')
+      end
+    end
+
+    it 'list skips files with malformed lines when raise_on_stale is false' do
+      mock_logger = instance_double(CovLoupe::Logger)
+      expect(mock_logger).to receive(:safe_log)
+        .with(a_string_including('Skipping coverage row', 'Invalid coverage line array')).once
+
+      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+        logger: mock_logger)
+      setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+
+      list_result = model.list(raise_on_stale: false)
+      files = list_result['files']
+
+      file_names = files.map { |r| File.basename(r['file']) }
+      expect(file_names).to include('bar.rb')
+      expect(file_names).not_to include('foo.rb')
+      expect(list_result['skipped_files']).to contain_exactly(
+        hash_including(
+          'file' => File.expand_path('lib/foo.rb', root),
+          'error_class' => 'CovLoupe::CoverageDataError'
+        )
+      )
+    end
+
+    [
+      { desc: 'strings', lines: [1, 0, 'string', 2] },
+      { desc: 'floats', lines: [1, 0, 3.14, 2] },
+      { desc: 'booleans', lines: [1, 0, true, 2] },
+      { desc: 'hashes', lines: [1, 0, { 'key' => 'val' }, 2] },
+      { desc: 'arrays', lines: [1, 0, [1, 2], 2] }
+    ].each do |tc|
+      it "summary_for rejects lines arrays containing #{tc[:desc]}" do
+        model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+        setup_malformed_lines(model, 'lib/foo.rb', tc[:lines])
+
+        expect do
+          model.summary_for('lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
+      end
+    end
+  end
 end

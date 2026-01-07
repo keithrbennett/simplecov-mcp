@@ -472,7 +472,9 @@ module CovLoupe
     end
 
     # Extract coverage lines from a SimpleCov entry.
-    # Returns nil if the entry is not a valid Hash or does not contain a lines array.
+    # Returns nil if the entry is not a valid Hash, does not contain a lines array,
+    # or contains invalid elements. Invalid entries trigger fallback to the resolver,
+    # which performs centralized validation and error handling.
     #
     # @param entry [Hash, Object] coverage entry from the resultset
     # @return [Array<Integer, nil>, nil] SimpleCov-style line coverage array or nil
@@ -485,11 +487,9 @@ module CovLoupe
         return nil
       end
 
-      # Validate all elements
-      unless lines.all? { |v| v.nil? || v.is_a?(Integer) }
-        @logger.safe_log("Invalid coverage lines encountered (contains non-integers): #{lines.inspect}")
-        return nil
-      end
+      # Validate all elements - return nil to trigger resolver fallback on validation failure
+      # The resolver will raise CoverageDataError with a detailed message
+      return nil unless lines.all? { |v| v.nil? || v.is_a?(Integer) }
 
       lines
     end

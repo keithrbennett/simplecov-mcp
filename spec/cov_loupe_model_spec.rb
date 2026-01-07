@@ -510,11 +510,11 @@ RSpec.describe CovLoupe::CoverageModel do
     let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: true) }
     let(:model_with_logger) { described_class.new(root: root, logger: mock_logger) }
 
-    it 'returns nil and logs warning for entries with non-integer/nil values in lines array' do
+    it 'returns nil for entries with non-integer/nil values in lines array (triggers resolver fallback)' do
       bad_entry = { 'lines' => ['foo', 3.5, {}, nil] }
 
-      expect(mock_logger).to receive(:safe_log)
-        .with(/Invalid coverage lines encountered \(contains non-integers\)/)
+      # extract_lines_from_entry silently returns nil to trigger resolver fallback
+      # The resolver will perform centralized validation and raise CoverageDataError
       expect(model_with_logger.send(:extract_lines_from_entry, bad_entry)).to be_nil
     end
 

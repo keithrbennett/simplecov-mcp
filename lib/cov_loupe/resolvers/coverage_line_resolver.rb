@@ -111,13 +111,25 @@ module CovLoupe
 
       # Entry may store exact line coverage.
       #
-      # Returning nil tells callers to keep searching; the resolver will raise
-      # a FileError if no variant yields coverage data.
+      # Validates that the entry contains a properly-formed lines array
+      # with only Integer or nil elements.
+      #
+      # @raise [CoverageDataError] if lines array contains invalid elements
+      # @return [Array<Integer, nil>, nil] validated lines array or nil if entry lacks lines
       private def lines_from_entry(entry)
         return unless entry.is_a?(Hash)
 
         lines = entry['lines']
-        lines.is_a?(Array) ? lines : nil
+        return nil unless lines.is_a?(Array)
+
+        # Validate all elements are Integer or nil
+        invalid_elements = lines.reject { |v| v.nil? || v.is_a?(Integer) }
+        unless invalid_elements.empty?
+          raise CoverageDataError,
+            "Invalid coverage line array: contains non-integer elements: #{invalid_elements.inspect}"
+        end
+
+        lines
       end
     end
   end
