@@ -22,7 +22,6 @@ module CovLoupe
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
     RELATIVIZER_ARRAY_KEYS = %w[
       newer_files
-      missing_files
       deleted_files
       missing_tracked_files
       skipped_files

@@ -55,7 +55,6 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
         scalar_keys: %w[file file_path],
         array_keys: %w[
           newer_files
-          missing_files
           deleted_files
           missing_tracked_files
           skipped_files
