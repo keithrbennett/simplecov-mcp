@@ -183,6 +183,58 @@ RSpec.describe CovLoupe::PathUtils do
       end
     end
 
+    context 'with cross-volume scenarios' do
+      before do
+        # Stub volume_case_sensitive? to return different values for different paths
+        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |_m, path|
+          # Simulate: C:/ paths are case-insensitive, D:/ paths are case-sensitive
+          case path
+          when %r{^C:/}i
+            false
+          when %r{^D:/}i
+            true
+          else
+            # Fall through to original behavior for other paths
+            path ? File.directory?(path) : true
+          end
+        end
+
+        # Stub expand to handle cross-volume scenarios
+        allow(described_class).to receive(:expand).and_wrap_original do |m, path, base = nil|
+          if path&.match?(%r{^[A-Za-z]:[/\\]})
+            # Already absolute Windows path
+            path.tr('\\', '/')
+          elsif path&.start_with?('/')
+            # Already absolute Unix path
+            path
+          elsif base
+            # Relative path with base
+            "#{base}/#{path}".tr('\\', '/')
+          else
+            m.call(path, base)
+          end
+        end
+      end
+
+      it 'uses root volume case-sensitivity for path normalization' do
+        # When root is on C:/ (case-insensitive), relativize should work case-insensitively
+        result = described_class.relativize('C:/Project/lib/file.rb', 'C:/project')
+        expect(result).to eq('lib/file.rb')
+      end
+
+      it 'respects case-sensitive volume when root is on D:/' do
+        # When root is on D:/ (case-sensitive), relativize should work case-sensitively
+        result = described_class.relativize('D:/project/lib/file.rb', 'D:/project')
+        expect(result).to eq('lib/file.rb')
+      end
+
+      it 'returns original path when case does not match on case-sensitive volume' do
+        # When root is on D:/ (case-sensitive), paths with different case should not relativize
+        result = described_class.relativize('D:/Project/lib/file.rb', 'D:/project')
+        expect(result).to eq('D:/Project/lib/file.rb')
+      end
+    end
+
     context 'with mixed separators on Windows' do
       let(:windows_root) { 'C:/Users/user/project' }
 
@@ -659,6 +711,42 @@ RSpec.describe CovLoupe::PathUtils do
 
       it 'returns false when path does not start with prefix' do
         result = described_class.normalized_start_with?('/tmp/file.rb', '/home/user/project')
+        expect(result).to be false
+      end
+    end
+
+    context 'with root parameter for cross-volume scenarios' do
+      before do
+        # Stub volume_case_sensitive? to return different values for different volumes
+        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |m, path|
+          # Simulate: C:/ is case-insensitive, D:/ is case-sensitive
+          if path&.start_with?('C:/')
+            false
+          elsif path&.start_with?('D:/')
+            true
+          else
+            m.call(path)
+          end
+        end
+      end
+
+      it 'uses root volume case-sensitivity when root is provided' do
+        # When root is on C:/ (case-insensitive), paths should match case-insensitively
+        result = described_class.normalized_start_with?(
+          'C:/Project/lib/file.rb',
+          'C:/project',
+          root: 'C:/project'
+        )
+        expect(result).to be true
+      end
+
+      it 'respects different volume case-sensitivity' do
+        # When root is on D:/ (case-sensitive), paths should match case-sensitively
+        result = described_class.normalized_start_with?(
+          'D:/Project/lib/file.rb',
+          'D:/project',
+          root: 'D:/project'
+        )
         expect(result).to be false
       end
     end
