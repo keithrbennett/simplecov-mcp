@@ -155,11 +155,11 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   describe 'version reporting' do
     [
-      { desc: 'version command (text)', args: ['version'], match: /#{CovLoupe::VERSION}/ },
-      { desc: 'version option (text)', args: ['-v'], match: /#{CovLoupe::VERSION}/ },
-      { desc: 'version command (JSON)', args: ['--format', 'json', 'version'], json: true },
-      { desc: 'version option (JSON)', args: ['-v', '--format', 'json'], json: true },
-      { desc: 'version command with other flags', args: ['--color=false', 'version'], match: /#{CovLoupe::VERSION}/ }
+      { desc:  'version command (text)',           args: ['version'],                     match: /#{CovLoupe::VERSION}/ },
+      { desc:  'version option (text)',            args: ['-v'],                          match: /#{CovLoupe::VERSION}/ },
+      { desc:  'version command (JSON)',           args: ['--format', 'json', 'version'], json:  true },
+      { desc:  'version option (JSON)',            args: ['-v', '--format', 'json'],      json:  true },
+      { desc:  'version command with other flags', args: ['--color=false', 'version'],    match: /#{CovLoupe::VERSION}/ }
     ].each do |tc|
       it "handles #{tc[:desc]}" do
         output = run_cli(*tc[:args])
@@ -169,7 +169,7 @@ RSpec.describe CovLoupe::CoverageCLI do
         else
           expect(output).to match(tc[:match])
           expect(output).to include('│') # Table format
-          expect(output).not_to include('{') unless tc[:args].include?('--format') # Basic check for text format
+          expect(output).not_to include('{', '}') unless tc[:args].include?('--format') # Basic check for text format
         end
       end
     end

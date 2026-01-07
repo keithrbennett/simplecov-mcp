@@ -156,10 +156,26 @@ RSpec.describe CovLoupe::ResultsetLoader do
     end
 
     [
-      { desc: 'invalid timestamp strings', input: 'not-a-timestamp', msg: 'not-a-timestamp' },
-      { desc: 'unsupported types', input: [:invalid], msg: '[:invalid]' },
-      { desc: 'blank string timestamps', input: '   ', msg: '"   "' },
-      { desc: 'zero timestamps', input: 0, msg: '0' }
+      {
+        desc: 'invalid timestamp strings',
+        input: 'not-a-timestamp',
+        msgs: ['Coverage resultset timestamp could not be parsed', 'not-a-timestamp']
+      },
+      {
+        desc: 'unsupported types',
+        input: [:invalid],
+        msgs: ['Coverage resultset timestamp could not be parsed', '[:invalid]']
+      },
+      {
+        desc: 'blank string timestamps',
+        input: '   ',
+        msgs: ['Coverage timestamp missing, defaulting to 0', '"   "']
+      },
+      {
+        desc: 'zero timestamps',
+        input: 0,
+        msgs: ['Coverage timestamp missing, defaulting to 0', '0']
+      }
     ].each do |tc|
       it "logs warning and returns zero for #{tc[:desc]}" do
         messages = []
@@ -168,7 +184,9 @@ RSpec.describe CovLoupe::ResultsetLoader do
         value = loader.send(:normalize_coverage_timestamp, tc[:input], nil)
 
         expect(value).to eq(0)
-        expect(messages.join).to include(tc[:msg])
+        tc[:msgs].each do |msg|
+          expect(messages.join).to include(msg)
+        end
       end
     end
   end
