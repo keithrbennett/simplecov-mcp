@@ -115,7 +115,8 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
       ].each do |tc|
         it "applies #{tc[:desc]} matching when volume_case_sensitive is #{tc[:sensitive]}" do
           cov_data = { '/project/lib/Foo.rb' => { 'lines' => [1, 0] } }
-          resolver = described_class.new(cov_data, root: root, volume_case_sensitive: tc[:sensitive])
+          resolver = described_class.new(cov_data, root: root,
+            volume_case_sensitive: tc[:sensitive])
 
           if tc[:raises]
             expect { resolver.lookup_lines('/project/lib/foo.rb') }
@@ -200,7 +201,8 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
 
           allow(CovLoupe).to receive(:windows?).and_return(tc[:windows])
 
-          resolver = described_class.new(tc[:data], root: root, volume_case_sensitive: tc[:sensitive])
+          resolver = described_class.new(tc[:data], root: root,
+            volume_case_sensitive: tc[:sensitive])
 
           if tc[:error]
             expect { resolver.lookup_lines(tc[:lookup]) }
