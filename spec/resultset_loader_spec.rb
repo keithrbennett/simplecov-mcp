@@ -143,67 +143,33 @@ RSpec.describe CovLoupe::ResultsetLoader do
     let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: nil) }
     let(:loader) { described_class.new(resultset_path: 'dummy', logger: mock_logger) }
 
-    it 'handles float timestamps' do
-      value = loader.send(:normalize_coverage_timestamp, 123.9, nil)
-      expect(value).to eq(123)
+    [
+      { desc: 'float timestamps', input: 123.9, expected: 123 },
+      { desc: 'Time objects', input: Time.at(456), expected: 456 },
+      { desc: 'numeric string timestamps', input: '789.42', expected: 789 },
+      { desc: 'created_at fallback', input: nil, created_at: 321, expected: 321 }
+    ].each do |tc|
+      it "handles #{tc[:desc]}" do
+        value = loader.send(:normalize_coverage_timestamp, tc[:input], tc[:created_at])
+        expect(value).to eq(tc[:expected])
+      end
     end
 
-    it 'handles Time objects' do
-      time = Time.at(456)
-      value = loader.send(:normalize_coverage_timestamp, time, nil)
-      expect(value).to eq(456)
-    end
+    [
+      { desc: 'invalid timestamp strings', input: 'not-a-timestamp', msg: 'not-a-timestamp' },
+      { desc: 'unsupported types', input: [:invalid], msg: '[:invalid]' },
+      { desc: 'blank string timestamps', input: '   ', msg: '"   "' },
+      { desc: 'zero timestamps', input: 0, msg: '0' }
+    ].each do |tc|
+      it "logs warning and returns zero for #{tc[:desc]}" do
+        messages = []
+        allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
 
-    it 'parses numeric string timestamps' do
-      value = loader.send(:normalize_coverage_timestamp, '789.42', nil)
-      expect(value).to eq(789)
-    end
+        value = loader.send(:normalize_coverage_timestamp, tc[:input], nil)
 
-    it 'falls back to created_at when timestamp missing' do
-      value = loader.send(:normalize_coverage_timestamp, nil, 321)
-      expect(value).to eq(321)
-    end
-
-    it 'logs warning and returns zero for invalid timestamp strings' do
-      messages = []
-      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
-
-      value = loader.send(:normalize_coverage_timestamp, 'not-a-timestamp', nil)
-
-      expect(value).to eq(0)
-      expect(messages.join).to include('Coverage resultset timestamp could not be parsed')
-      expect(messages.join).to include('not-a-timestamp')
-    end
-
-    it 'logs warning and returns zero for unsupported types' do
-      messages = []
-      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
-
-      value = loader.send(:normalize_coverage_timestamp, [:invalid], nil)
-
-      expect(value).to eq(0)
-      expect(messages.join).to include('Coverage resultset timestamp could not be parsed')
-      expect(messages.join).to include('[:invalid]')
-    end
-
-    it 'logs warning and returns zero for blank string timestamps' do
-      messages = []
-      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
-
-      value = loader.send(:normalize_coverage_timestamp, '   ', nil)
-
-      expect(value).to eq(0)
-      expect(messages.join).to include('Coverage timestamp missing, defaulting to 0', '"   "')
-    end
-
-    it 'logs warning and returns zero for zero timestamps' do
-      messages = []
-      allow(mock_logger).to receive(:safe_log) { |msg| messages << msg }
-
-      value = loader.send(:normalize_coverage_timestamp, 0, nil)
-
-      expect(value).to eq(0)
-      expect(messages.join).to include('Coverage timestamp missing, defaulting to 0', '0')
+        expect(value).to eq(0)
+        expect(messages.join).to include(tc[:msg])
+      end
     end
   end
 
