@@ -4,6 +4,7 @@ require_relative 'option_normalizers'
 require_relative 'version'
 require_relative 'boolean_type'
 require_relative 'constants'
+require_relative 'errors'
 
 module CovLoupe
   class OptionParserBuilder
@@ -84,6 +85,8 @@ module CovLoupe
       end
       parser.on('-c', '--context-lines N', Integer,
         'Context lines around uncovered lines (non-negative, default: 2)') do |value|
+        raise UsageError, 'Context lines cannot be negative' if value.negative?
+
         config.source_context = value
       end
       parser.on('-C', '--color BOOLEAN', BooleanType::IS_BOOLEAN_STRING_VALUE,

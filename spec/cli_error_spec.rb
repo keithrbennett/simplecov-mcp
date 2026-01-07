@@ -158,6 +158,12 @@ RSpec.describe CovLoupe::CoverageCLI do
       expect(status).to eq(1)
       expect(err).to include('Error: invalid option: --no-such-option')
     end
+
+    it 'rejects negative context-lines with friendly error' do
+      _out, err, status = run_cli_with_status('--context-lines', '-1', 'summary', 'lib/foo.rb')
+      expect(status).to eq(1)
+      expect(err).to include('Context lines cannot be negative')
+    end
   end
 
   describe 'subcommand error handling' do
