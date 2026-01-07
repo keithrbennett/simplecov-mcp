@@ -153,37 +153,25 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
   end
 
-  describe 'version command' do
-    it 'prints version as plain text by default' do
-      output = run_cli('version')
-      expect(output).to include('│', CovLoupe::VERSION) # Table format
-      expect(output).not_to include('{')
-      expect(output).not_to include('}')
-    end
-
-    it 'prints version as JSON when --json flag is used' do
-      output = run_cli('--format', 'json', 'version')
-      data = JSON.parse(output)
-      expect(data).to have_key('version')
-      expect(data['version']).to eq(CovLoupe::VERSION)
-    end
-
-    it 'works with version command and other flags' do
-      output = run_cli('--color=false', 'version')
-      expect(output).to include('│', CovLoupe::VERSION) # Table format
-    end
-  end
-
-  describe 'version option (-v)' do
-    it 'prints the same version info as the version subcommand' do
-      output = run_cli('-v')
-      expect(output).to include('│', CovLoupe::VERSION) # Table format
-    end
-
-    it 'respects --json when -v is used' do
-      output = run_cli('-v', '--format', 'json')
-      data = JSON.parse(output)
-      expect(data['version']).to eq(CovLoupe::VERSION)
+  describe 'version reporting' do
+    [
+      { desc: 'version command (text)', args: ['version'], match: /#{CovLoupe::VERSION}/ },
+      { desc: 'version option (text)', args: ['-v'], match: /#{CovLoupe::VERSION}/ },
+      { desc: 'version command (JSON)', args: ['--format', 'json', 'version'], json: true },
+      { desc: 'version option (JSON)', args: ['-v', '--format', 'json'], json: true },
+      { desc: 'version command with other flags', args: ['--color=false', 'version'], match: /#{CovLoupe::VERSION}/ }
+    ].each do |tc|
+      it "handles #{tc[:desc]}" do
+        output = run_cli(*tc[:args])
+        if tc[:json]
+          data = JSON.parse(output)
+          expect(data['version']).to eq(CovLoupe::VERSION)
+        else
+          expect(output).to match(tc[:match])
+          expect(output).to include('│') # Table format
+          expect(output).not_to include('{') unless tc[:args].include?('--format') # Basic check for text format
+        end
+      end
     end
   end
 
