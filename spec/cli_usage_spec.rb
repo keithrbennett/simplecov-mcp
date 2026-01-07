@@ -38,25 +38,20 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'misplaced global options detection' do
-    it 'detects misplaced --format option after subcommand' do
-      _out, err, status = run_fixture_cli_with_status('list', '--format', 'json')
-      expect(status).to eq(1)
-      expect(err).to include('Global option(s) must come BEFORE the subcommand')
-      expect(err).to include('--format')
-    end
-
-    it 'detects misplaced --format=value option after subcommand' do
-      _out, err, status = run_fixture_cli_with_status('summary', 'lib/foo.rb', '--format=json')
-      expect(status).to eq(1)
-      expect(err).to include('Global option(s) must come BEFORE the subcommand')
-      expect(err).to include('--format=json')
-    end
-
-    it 'detects misplaced --resultset=value option' do
-      _out, err, status = run_fixture_cli_with_status('list', '--resultset=path/to/file')
-      expect(status).to eq(1)
-      expect(err).to include('Global option(s) must come BEFORE the subcommand')
-      expect(err).to include('--resultset=')
+    [
+      { args: ['list', '--format', 'json'],               expected: '--format' },
+      { args: ['summary', 'lib/foo.rb', '--format=json'], expected: '--format=json' },
+      { args: ['list', '--resultset=path/to/file'],       expected: '--resultset=' },
+      { args: ['list', '--mode', 'mcp'],                  expected: '--mode' },
+      { args: ['list', '-m', 'cli'],                      expected: '-m' },
+      { args: ['summary', 'lib/foo.rb', '--mode=mcp'],    expected: '--mode=mcp' }
+    ].each do |test_case|
+      it "detects misplaced #{test_case[:expected]} option after subcommand" do
+        _out, err, status = run_fixture_cli_with_status(*test_case[:args])
+        expect(status).to eq(1)
+        expect(err).to include('Global option(s) must come BEFORE the subcommand')
+        expect(err).to include(test_case[:expected])
+      end
     end
   end
 

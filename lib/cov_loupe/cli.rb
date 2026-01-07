@@ -158,7 +158,7 @@ module CovLoupe
       # Global options that users commonly place after subcommands by mistake
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
                           -c --context-lines -S --raise-on-stale -g --tracked-globs
-                          -l --log-file --error-mode --color]
+                          -l --log-file --error-mode --color -m --mode]
 
       misplaced = args.select do |arg|
         # Extract base option (e.g., --format from --format=json)
