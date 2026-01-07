@@ -6,6 +6,7 @@ require 'cov_loupe/glob_utils'
 RSpec.describe CovLoupe::GlobUtils do
   before do
     described_class.instance_variable_set(:@fn_normalize_path_separators, nil)
+    CovLoupe::PathUtils.instance_variable_set(:@volume_case_sensitivity_cache, nil)
   end
 
   describe '.normalize_patterns' do
@@ -104,6 +105,113 @@ RSpec.describe CovLoupe::GlobUtils do
     it 'does not match dotfiles with * by default' do
       patterns = ['/root/*']
       expect(described_class.matches_any_pattern?('/root/.hidden', patterns)).to be false
+    end
+
+    context 'when on case-insensitive filesystems' do
+      before do
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?).and_return(false)
+      end
+
+      it 'matches patterns regardless of case in path' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/LIB/foo.rb', patterns)).to be true
+        expect(described_class.matches_any_pattern?('/root/Lib/foo.rb', patterns)).to be true
+      end
+
+      it 'matches patterns regardless of case in pattern' do
+        patterns = ['/ROOT/LIB/*.RB']
+        expect(described_class.matches_any_pattern?('/root/lib/foo.rb', patterns)).to be true
+      end
+
+      it 'matches patterns with mixed case in filename' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/lib/FooBar.rb', patterns)).to be true
+        expect(described_class.matches_any_pattern?('/root/lib/FOOBAR.RB', patterns)).to be true
+      end
+
+      it 'matches recursive patterns regardless of case' do
+        patterns = ['/root/**/*.rb']
+        expect(described_class.matches_any_pattern?('/root/LIB/Deeply/NESTED/file.rb',
+          patterns)).to be true
+      end
+    end
+
+    context 'when on case-sensitive filesystems' do
+      before do
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?)
+          .and_return(true)
+      end
+
+      it 'does not match patterns with different case in path' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/LIB/foo.rb', patterns)).to be false
+        expect(described_class.matches_any_pattern?('/root/Lib/foo.rb', patterns)).to be false
+      end
+
+      it 'does not match patterns with different case in pattern' do
+        patterns = ['/ROOT/LIB/*.RB']
+        expect(described_class.matches_any_pattern?('/root/lib/foo.rb', patterns)).to be false
+      end
+
+      it 'matches patterns with exact case match' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/lib/foo.rb', patterns)).to be true
+      end
+
+      it 'does not match simple patterns with different case' do
+        patterns = ['/root/LIB/*.rb']
+        expect(CovLoupe::PathUtils).to receive(:volume_case_sensitive?)
+          .at_least(:once).and_return(true)
+        expect(described_class.matches_any_pattern?('/root/lib/file.rb',
+          patterns)).to be false
+      end
+    end
+
+    context 'when volume case-sensitivity detection fails' do
+      before do
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?)
+          .and_raise(SystemCallError.new('test error', 1))
+      end
+
+      it 'defaults to case-insensitive matching for safety' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/LIB/foo.rb', patterns)).to be true
+      end
+    end
+
+    context 'when volume case-sensitivity detection raises IOError' do
+      before do
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?)
+          .and_raise(IOError.new('test error'))
+      end
+
+      it 'defaults to case-insensitive matching for safety' do
+        patterns = ['/root/lib/*.rb']
+        expect(described_class.matches_any_pattern?('/root/LIB/foo.rb', patterns)).to be true
+      end
+    end
+
+    context 'with Windows-style paths' do
+      before do
+        allow(File).to receive(:directory?).and_call_original
+        allow(File).to receive(:directory?).with('C:/nonexistent/path/file.rb').and_return(false)
+        allow(File).to receive(:directory?).with('C:/nonexistent/path').and_return(false)
+        allow(File).to receive(:directory?).with('C:/nonexistent').and_return(false)
+        allow(File).to receive(:directory?).with('C:/').and_return(true)
+
+        allow(File).to receive(:dirname).and_call_original
+        allow(File).to receive(:dirname).with('C:/nonexistent/path/file.rb').and_return('C:/nonexistent/path')
+        allow(File).to receive(:dirname).with('C:/nonexistent/path').and_return('C:/nonexistent')
+        allow(File).to receive(:dirname).with('C:/nonexistent').and_return('C:/')
+        allow(File).to receive(:dirname).with('C:/').and_return('C:/')
+
+        allow(CovLoupe::PathUtils).to receive(:volume_case_sensitive?).with('C:/').and_return(false)
+      end
+
+      it 'finds root directory on Windows paths without infinite loop' do
+        patterns = ['C:/nonexistent/**/*.rb']
+        expect(described_class.matches_any_pattern?('C:/nonexistent/path/file.rb', patterns)).to be true
+      end
     end
   end
 

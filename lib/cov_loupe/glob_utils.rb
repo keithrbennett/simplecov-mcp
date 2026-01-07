@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'path_utils'
+
 module CovLoupe
   module GlobUtils
     GLOB_MATCH_FLAGS = File::FNM_PATHNAME | File::FNM_EXTGLOB
@@ -34,6 +36,7 @@ module CovLoupe
     # Tests if a file path matches any of the given absolute glob patterns.
     # Uses File.fnmatch? for pure string matching without filesystem access.
     # Normalizes paths to forward slashes on Windows for cross-platform compatibility.
+    # Automatically handles case-insensitive filesystems by detecting volume case-sensitivity.
     #
     # @param abs_path [String] absolute file path to test
     # @param patterns [Array<String>] absolute glob patterns
@@ -41,9 +44,29 @@ module CovLoupe
     module_function def matches_any_pattern?(abs_path, patterns)
       normalizer = fn_normalize_path_separators
       normalized_path = normalizer.call(abs_path)
+
+      # Determine match flags based on volume case-sensitivity
+      # Find first existing parent directory to test volume properties
+      test_dir = abs_path
+      until File.directory?(test_dir)
+        parent = File.dirname(test_dir)
+        break if parent == test_dir # Reached root (works on Windows and Unix)
+
+        test_dir = parent
+      end
+
+      flags = GLOB_MATCH_FLAGS
+      begin
+        # Add case-insensitive matching for case-insensitive volumes
+        flags |= File::FNM_CASEFOLD unless PathUtils.volume_case_sensitive?(test_dir)
+      rescue SystemCallError, IOError
+        # If we can't detect case sensitivity, assume case-insensitive to be conservative
+        flags |= File::FNM_CASEFOLD
+      end
+
       patterns.any? do |pattern|
         normalized_pattern = normalizer.call(pattern)
-        File.fnmatch?(normalized_pattern, normalized_path, GLOB_MATCH_FLAGS)
+        File.fnmatch?(normalized_pattern, normalized_path, flags)
       end
     end
 
