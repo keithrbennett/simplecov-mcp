@@ -280,6 +280,23 @@ RSpec.describe CovLoupe::CoverageModel do
         .to include('missing_from_coverage' => 1)
     end
 
+    it 'counts unreadable tracked files in without_coverage breakdown' do
+      abs_unreadable = File.expand_path('lib/unreadable.rb', root)
+
+      stub_staleness_checker(
+        unreadable_files: [abs_unreadable]
+      )
+
+      totals = model.project_totals(tracked_globs: ['lib/**/*.rb'])
+
+      aggregate_failures do
+        expect(totals['tracking']).to include('enabled' => true)
+        expect(totals['files']['without_coverage']).to include('total' => 1)
+        expect(totals['files']['without_coverage']['by_type'])
+          .to include('unreadable' => 1)
+      end
+    end
+
     it 'increments missing_from_disk count for files with :missing status' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 

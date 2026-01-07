@@ -418,9 +418,10 @@ module CovLoupe
 
       missing_from_coverage = Array(list_result['missing_tracked_files']).length
       skipped = Array(list_result['skipped_files']).length
+      unreadable = Array(list_result['unreadable_files']).length
       by_type = {
         'missing_from_coverage' => missing_from_coverage,
-        'unreadable' => 0,
+        'unreadable' => unreadable,
         'skipped' => skipped
       }
       {
