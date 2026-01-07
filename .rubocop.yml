@@ -68,7 +68,7 @@ Layout/LineEndStringConcatenationIndentation:
   Enabled: false  # Allow indented continuation style for backslash string concatenation
 
 Layout/LineLength:
-  Max: 100
+  Max: 110
   AllowedPatterns:
     - '\s*#'  # Allow long comment lines
     - '^\s*\#.*http'  # Allow URLs in comments
