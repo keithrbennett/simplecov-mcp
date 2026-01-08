@@ -21,6 +21,7 @@ AllCops:
     - 'bin/**/*'
     - 'node_modules/**/*'
     - 'screencast/**/*'  # Utility scripts for demos
+    - 'spec/fixtures/**/*'  # Test fixture files
 
 # ===== Layout & Formatting =====
 

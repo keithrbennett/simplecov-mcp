@@ -22,9 +22,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
           cli.send(:run, env_opts + %w[summary lib/foo.rb])
         end
       end
-    rescue CovLoupe::Error => e
+    rescue CovLoupe::Error
       # Expected to fail due to missing file, but options should be parsed
-      puts "DEBUG: Caught exception: #{e.class}: #{e.message}" if ENV['DEBUG']
     ensure
       expect(cli.config.error_mode).to eq(:off)
       expect(cli.config.format).to eq(:json)
