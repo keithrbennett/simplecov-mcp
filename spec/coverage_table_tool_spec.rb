@@ -138,18 +138,208 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
   end
 
   describe 'CLI context parity' do
-    it 'includes exclusions summary when tracked files are missing' do
-      output = described_class.call(
-        root: root,
-        tracked_globs: ['lib/**/*.rb'],
-        server_context: server_context
-      ).payload.first['text']
+    describe 'exclusion scenarios' do
+      let(:model) { instance_double(CovLoupe::CoverageModel) }
+      let(:relativizer) { instance_double(CovLoupe::PathRelativizer) }
+      let(:presenter) { instance_double(CovLoupe::Presenters::ProjectCoveragePresenter) }
+      let(:presenter_data) do
+        {
+          relative_files: [],
+          relative_missing_tracked_files: [],
+          relative_newer_files: [],
+          relative_deleted_files: [],
+          relative_length_mismatch_files: [],
+          relative_unreadable_files: [],
+          relative_skipped_files: []
+        }
+      end
 
-      # Should include the exclusions summary for missing tracked file
-      expect(output).to include('Files excluded from coverage:')
-      expect(output).to include('Missing tracked files')
-      expect(output).to include('lib/uncovered_file.rb')
-      expect(output).to include('Run with --raise-on-stale to exit when files are excluded.')
+      before do
+        allow(model).to receive_messages(
+          relativizer: relativizer,
+          skipped_rows: [],
+          format_table: 'Mock table'
+        )
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+        allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+        allow(presenter).to receive_messages(**presenter_data)
+      end
+
+      it 'includes exclusions summary when tracked files are missing' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(relative_missing_tracked_files: ['lib/uncovered_file.rb'])
+        )
+
+        output = described_class.call(
+          root: root,
+          tracked_globs: ['lib/**/*.rb'],
+          server_context: server_context
+        ).payload.first['text']
+
+        # Should include the exclusions summary for missing tracked file
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Missing tracked files',
+          'lib/uncovered_file.rb',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes exclusions summary for files newer than coverage data' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(relative_newer_files: ['lib/newer_file.rb'])
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Files newer than coverage',
+          '(1)',
+          'lib/newer_file.rb',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes exclusions summary for deleted files with coverage' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(relative_deleted_files: ['lib/deleted_file.rb', 'lib/another_deleted.rb'])
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Deleted files with coverage',
+          '(2)',
+          'lib/deleted_file.rb',
+          'lib/another_deleted.rb',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes exclusions summary for line count mismatches' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(relative_length_mismatch_files: ['lib/mismatch_file.rb'])
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Line count mismatches',
+          '(1)',
+          'lib/mismatch_file.rb',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes exclusions summary for unreadable files' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(relative_unreadable_files: ['lib/permission_denied.rb'])
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Unreadable files',
+          '(1)',
+          'lib/permission_denied.rb',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes exclusions summary for files skipped due to errors' do
+        allow(relativizer).to receive(:relativize_path)
+          .with('/some/path/bad_file.rb')
+          .and_return('bad_file.rb')
+        allow(relativizer).to receive(:relativize_path)
+          .with('/some/path/another_bad.rb')
+          .and_return('another_bad.rb')
+        allow(presenter).to receive_messages(
+          presenter_data.merge(
+            relative_skipped_files: [
+              { 'file' => '/some/path/bad_file.rb', 'error' => 'Invalid coverage data' },
+              { 'file' => '/some/path/another_bad.rb', 'error' => 'Corrupt entry' }
+            ]
+          )
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Files skipped due to errors',
+          '(2)',
+          'bad_file.rb: Invalid coverage data',
+          'another_bad.rb: Corrupt entry',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'includes all exclusion types in a single summary' do
+        allow(relativizer).to receive(:relativize_path).with('/some/path/skipped.rb').and_return('skipped.rb')
+        allow(presenter).to receive_messages(
+          presenter_data.merge(
+            relative_missing_tracked_files: ['lib/missing.rb'],
+            relative_newer_files: ['lib/newer.rb'],
+            relative_deleted_files: ['lib/deleted.rb'],
+            relative_length_mismatch_files: ['lib/mismatch.rb'],
+            relative_unreadable_files: ['lib/unreadable.rb'],
+            relative_skipped_files: [{ 'file' => '/some/path/skipped.rb', 'error' => 'Error' }]
+          )
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        # Should include all exclusion types
+        expect(output).to include(
+          'Files excluded from coverage:',
+          'Missing tracked files',
+          'Files newer than coverage',
+          'Deleted files with coverage',
+          'Line count mismatches',
+          'Unreadable files',
+          'Files skipped due to errors',
+          'Run with --raise-on-stale to exit when files are excluded.'
+        )
+      end
+
+      it 'accurately counts files in each exclusion category' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(
+            relative_missing_tracked_files: ['lib/missing1.rb', 'lib/missing2.rb', 'lib/missing3.rb'],
+            relative_newer_files: ['lib/newer.rb']
+          )
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        # Should show correct counts
+        expect(output).to include('Missing tracked files (3)', 'Files newer than coverage (1)')
+      end
     end
 
     it 'does not include exclusions summary when there are no exclusions' do
