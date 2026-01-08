@@ -644,6 +644,66 @@ RSpec.describe CovLoupe::PathUtils do
       # Just run the method to trigger the code path
       described_class.volume_case_sensitive?(test_dir)
     end
+
+    it 'handles empty directory by creating and cleaning up temporary test file' do
+      # This test covers the edge case (line 288) where no suitable existing file
+      # is found, requiring creation of a temporary test file
+      empty_dir = Dir.mktmpdir("cov_loupe_empty_#{SecureRandom.hex(8)}")
+
+      begin
+        # Verify directory is empty
+        expect(Dir.children(empty_dir)).to be_empty
+
+        # Get initial state
+        files_before = Dir.children(empty_dir)
+
+        # Call the method - this should trigger the temporary file creation path
+        result = described_class.volume_case_sensitive?(empty_dir)
+
+        # Verify result is a boolean
+        expect([true, false].include?(result)).to be(true)
+
+        # Verify no temporary files are left behind
+        files_after = Dir.children(empty_dir)
+        expect(files_after).to eq(files_before)
+        expect(files_after).to be_empty
+      ensure
+        # Clean up the empty directory
+        FileUtils.rm_rf(empty_dir)
+      end
+    end
+
+    it 'handles directory with only non-alphabetic filenames' do
+      # This tests the edge case where directory exists but has no files with
+      # alphabetic characters, forcing temporary file creation
+      dir_with_numbers = Dir.mktmpdir("cov_loupe_numbers_#{SecureRandom.hex(8)}")
+
+      begin
+        # Create files with only numbers (no alphabetic characters)
+        FileUtils.touch(File.join(dir_with_numbers, '12345'))
+        FileUtils.touch(File.join(dir_with_numbers, '67890'))
+
+        # Verify no alphabetic files exist
+        files = Dir.children(dir_with_numbers)
+        expect(files.any? { |f| f.match?(/[A-Za-z]/) }).to be false
+
+        # Clear cache to ensure fresh detection
+        described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
+
+        # Call the method
+        result = described_class.volume_case_sensitive?(dir_with_numbers)
+
+        # Verify result is a boolean
+        expect([true, false].include?(result)).to be(true)
+
+        # Verify no extra files were created
+        files_after = Dir.children(dir_with_numbers)
+        expect(files_after.size).to eq(files.size)
+        expect(files_after.sort).to eq(files.sort)
+      ensure
+        FileUtils.rm_rf(dir_with_numbers)
+      end
+    end
   end
 
   describe '.root_prefix' do
