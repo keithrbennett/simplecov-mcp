@@ -95,8 +95,9 @@ module CovLoupe
       end
 
       private def raise_not_found_error
-        raise ResultsetNotFoundError,
-          "Could not find .resultset.json under #{@root.inspect}; run tests or set --resultset option"
+        message = "Could not find .resultset.json under #{@root.inspect}; run tests or set --resultset option"
+        CovLoupe.logger.error(message) if CovLoupe.logger
+        raise ResultsetNotFoundError, message
       end
     end
   end

@@ -44,6 +44,7 @@ module CovLoupe
       )
 
       CovLoupe.with_context(context) do
+        log_cli_params
         if @cmd
           run_subcommand(@cmd, @cmd_args)
         else
@@ -56,6 +57,21 @@ module CovLoupe
       with_context_if_available(context) { handle_option_parser_error(e, argv: argv) }
     rescue CovLoupe::Error => e
       with_context_if_available(context) { handle_user_facing_error(e) }
+    end
+
+    private def log_cli_params
+      # Log CLI parameters for transparency
+      if CovLoupe.logger
+        params = { mode: :cli, subcommand: @cmd || 'default' }
+        params[:root] = config.root if config.root
+        params[:resultset] = config.resultset if config.resultset
+        params[:format] = config.format if config.format
+        params[:sort_order] = config.sort_order if config.sort_order
+        params[:raise_on_stale] = config.raise_on_stale if config.raise_on_stale
+        params[:tracked_globs] = config.tracked_globs if config.tracked_globs&.any?
+        params[:error_mode] = config.error_mode if config.error_mode
+        CovLoupe.logger.info("CLI parameters: #{params.inspect}")
+      end
     end
 
     def show_default_report(sort_order: :descending, output: $stdout)
