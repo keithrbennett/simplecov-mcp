@@ -65,7 +65,7 @@ For each instance of complex or unclear logic:
 - **Follow guidelines:** Respect decisions documented in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md`
 - **Maintain behavior:** Do not change functionality
 - **Add tests:** Ensure adequate test coverage for any refactored code
-- **Rubocop compliance:** Run `rubocop` (or `rubocop --cache false` in sandboxed environments)
+- **Rubocop compliance:** Run `rubocop` (or `rubocop --cache false` in sandboxed environments) when feasible
 - **Preserve intent:** Maintain the original purpose and behavior
 
 ## Examples
@@ -130,4 +130,4 @@ end
 
 Make changes directly to the code files. No separate report is needed unless you want to summarize the improvements made.
 
-When committing changes, use clear commit messages that explain what was simplified or documented and why.
+Do not run `git commit`. If the user asks for a commit, suggest a concise message that explains what was simplified or documented and why.

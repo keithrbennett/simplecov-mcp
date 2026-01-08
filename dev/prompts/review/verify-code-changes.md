@@ -23,7 +23,15 @@ I need you to test that the intention of a code change was accomplished successf
   - Test code added
   - Documentation task
 
-If I do not give you the arguments in this prompt, ask me for them:
+If I do not give you the compare point in this prompt, ask me for them.
+
+If I do not give you the intent to examine, use the commit message(s) and say that
+you are doing that so I can be prodded in case that was not my intent.
+
+Be mindful of the signal to noise ratio. Do not add anything to the report
+unless it adds value to the reader. Here is an example of a time wasting comment:
+
+"Approach X could have been used, but the current implementation is a better fit."
 
 ----
 
