@@ -4,6 +4,7 @@ require 'json'
 require 'time'
 require 'pathname'
 require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 requires explicit require for set; RuboCop targets 3.2
+require 'optparse'
 
 require_relative 'cov_loupe/version'
 require_relative 'cov_loupe/config/app_context'
@@ -41,12 +42,12 @@ module CovLoupe
     private_constant :THREAD_CONTEXT_KEY
 
     def run(argv)
-      # Prepend environment options once at entry point
-      full_argv = extract_env_opts + argv
-
       # Parse config to determine mode
       require_relative 'cov_loupe/config/config_parser'
+
       begin
+        # Prepend environment options once at entry point
+        full_argv = extract_env_opts + argv
         config = ConfigParser.parse(full_argv.dup)
       rescue OptionParser::ParseError, ConfigurationError => e
         warn "Error: #{e.message}"
