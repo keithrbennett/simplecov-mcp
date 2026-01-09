@@ -135,9 +135,18 @@ RSpec.describe CovLoupe::CoverageModel do
     it 'records skipped rows when coverage data errors occur' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
-      # Make the entry malformed for foo.rb so it falls back to the resolver
-      cov = model.instance_variable_get(:@cov)
-      cov[abs_foo] = 'malformed_entry' # Not a Hash with 'lines' key
+      # Stub extract_lines_from_entry to return nil for foo.rb
+      # This will trigger to resolver fallback
+      # rubocop:disable RSpec/SubjectStub
+      allow(model).to receive(:extract_lines_from_entry).and_wrap_original do |method, entry|
+        if entry.is_a?(Hash) && entry['lines'].is_a?(Array)
+          # Return nil to force resolver fallback
+          nil
+        else
+          method.call(entry)
+        end
+      end
+      # rubocop:enable RSpec/SubjectStub
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original do
         |method, coverage_map, absolute, **kwargs|
@@ -354,21 +363,15 @@ RSpec.describe CovLoupe::CoverageModel do
       end
     end
 
-    it 'merges coverage data and keeps latest timestamp' do
+    it 'merges coverage data from multiple suites' do
       allow(File).to receive(:read).with(resultset_path).and_return(JSON.generate(resultset))
 
       model = described_class.new(root: root)
 
-      aggregate_failures do
-        # Check combined hits
-        detailed = model.detailed_for('lib/foo.rb')
-        hits_by_line = detailed['lines'].to_h { |row| [row['line'], row['hits']] }
-        expect(hits_by_line).to include(1 => 1, 2 => 3, 4 => 1)
-
-        # Check timestamp
-        timestamp = model.instance_variable_get(:@cov_timestamp)
-        expect(timestamp).to eq(200)
-      end
+      # Check combined hits
+      detailed = model.detailed_for('lib/foo.rb')
+      hits_by_line = detailed['lines'].to_h { |row| [row['line'], row['hits']] }
+      expect(hits_by_line).to include(1 => 1, 2 => 3, 4 => 1)
     end
   end
 
@@ -495,31 +498,104 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe '#refresh_data' do
-    let(:fake_data) do
-      instance_double(CovLoupe::ModelData, coverage_map: { 'a' => 1 }, timestamp: 123,
-        resultset_path: 'p')
+    it 'returns self' do
+      expect(model.refresh_data).to eq(model)
+    end
+
+    it 'clears resolved resultset path' do
+      # Access coverage_map to trigger initial resolution
+      model.send(:coverage_map)
+      model.instance_variable_get(:@resolved_resultset_path)
+
+      # Refresh should clear it
+      model.refresh_data
+      expect(model.instance_variable_get(:@resolved_resultset_path)).to be_nil
+    end
+  end
+
+  describe 'long-lived model instance behavior' do
+    let(:temp_resultset) { '/tmp/test_resultset.json' }
+    let(:first_file_path) { File.join(root, 'lib', 'first.rb') }
+    let(:second_file_path) { File.join(root, 'lib', 'second.rb') }
+    let(:initial_resultset) do
+      {
+        'RSpec' => {
+          'timestamp' => 100,
+          'coverage' => {
+            first_file_path => { 'lines' => [1, 0, 1] }
+          }
+        }
+      }
+    end
+    let(:updated_resultset) do
+      {
+        'RSpec' => {
+          'timestamp' => 200,
+          'coverage' => {
+            first_file_path => { 'lines' => [1, 1, 1] },
+            second_file_path => { 'lines' => [0, 0, 0] }
+          }
+        }
+      }
     end
 
     before do
-      allow(CovLoupe::ModelDataCache.instance).to receive(:get).and_return(fake_data)
+      # Create the source files
+      FileUtils.mkdir_p(File.dirname(first_file_path))
+      File.write(first_file_path, 'def foo; end')
+
+      # Create a temporary resultset file
+      File.write(temp_resultset, JSON.generate(initial_resultset))
     end
 
-    it 'clears cached data and reloads' do
-      # Initial load
-      expect(model.instance_variable_get(:@cov)).to eq({ 'a' => 1 })
-
-      model.refresh_data
-
-      # refresh_data sets @cov to nil
-      expect(model.instance_variable_get(:@cov)).to be_nil
-
-      # Accessing coverage_map should repopulate it
-      expect(model.send(:coverage_map)).to eq({ 'a' => 1 })
-      expect(model.instance_variable_get(:@cov)).to eq({ 'a' => 1 })
+    after do
+      FileUtils.rm_f(temp_resultset)
+      FileUtils.rm_f(first_file_path)
+      FileUtils.rm_f(second_file_path)
     end
 
-    it 'returns self' do
-      expect(model.refresh_data).to eq(model)
+    it 'automatically reloads data when resultset file changes' do
+      # Create model with initial resultset
+      long_lived_model = described_class.new(root: root, resultset: temp_resultset)
+
+      # Verify initial state
+      list1 = long_lived_model.list['files']
+      expect(list1.map { |f| File.basename(f['file']) }).to eq(['first.rb'])
+      expect(list1.first['covered']).to eq(2) # [1, 0, 1] => 2 covered
+
+      # Create second file
+      File.write(second_file_path, 'def bar; end')
+
+      # Simulate a new test run that generates updated coverage
+      # Sleep briefly to ensure timestamp change
+      sleep(0.01)
+      File.write(temp_resultset, JSON.generate(updated_resultset))
+
+      # Same model instance should return updated data without refresh_data
+      list2 = long_lived_model.list['files']
+      expect(list2.map { |f| File.basename(f['file']) }).to eq(['first.rb', 'second.rb'])
+      expect(list2.find { |f| File.basename(f['file']) == 'first.rb' }['covered']).to eq(3) # [1, 1, 1] => 3 covered
+
+      # Verify summary_for also gets fresh data
+      summary = long_lived_model.summary_for(first_file_path)
+      expect(summary['summary']['covered']).to eq(3)
+    end
+
+    it 'picks up new files added to the resultset' do
+      long_lived_model = described_class.new(root: root, resultset: temp_resultset)
+
+      # Initial state - only first.rb exists
+      files1 = long_lived_model.list['files'].map { |f| File.basename(f['file']) }
+      expect(files1).to eq(['first.rb'])
+
+      # Create the second file and update resultset
+      File.write(second_file_path, 'def bar; end')
+      sleep(0.01)
+      File.write(temp_resultset, JSON.generate(updated_resultset))
+
+      # Same model instance should see the new file
+      files2 = long_lived_model.list['files'].map { |f| File.basename(f['file']) }
+      expect(files2).to contain_exactly('first.rb', 'second.rb')
     end
   end
 

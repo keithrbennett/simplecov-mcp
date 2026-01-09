@@ -36,21 +36,27 @@ RSpec.describe CovLoupe::CoverageCLI do
       before do
         cli.config.format = :table
 
-        # Make the entry malformed for foo.rb so it falls back to the resolver
-        # This needs to be done after the model is created, so we'll use a callback
+        # Stub CoverageModel to trigger resolver fallback for foo.rb
         allow(CovLoupe::CoverageModel).to receive(:new).and_wrap_original do |method, **kwargs|
           model = method.call(**kwargs)
-          cov = model.instance_variable_get(:@cov)
-          cov[foo_path] = 'malformed_entry' # Not a Hash with 'lines' key
+          foo_entry = model.send(:coverage_map)[foo_path]
+
+          allow(model).to receive(:extract_lines_from_entry).and_wrap_original do |m, entry|
+            # Only trigger resolver fallback for foo.rb by returning nil
+            if entry.equal?(foo_entry)
+              nil  # Trigger resolver fallback for foo.rb
+            else
+              m.call(entry)
+            end
+          end
+
           model
         end
 
-        allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_wrap_original \
-        do |method, coverage_map, abs_path, **kwargs|
-          raise CovLoupe::CoverageDataError, 'corrupt data' if abs_path == foo_path
-
-          method.call(coverage_map, abs_path, **kwargs)
-        end
+        allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
+        allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+          .with(anything, foo_path, any_args)
+          .and_raise(CovLoupe::CoverageDataError, 'corrupt data')
       end
 
       it 'prints a warning to stderr listing the skipped file' do

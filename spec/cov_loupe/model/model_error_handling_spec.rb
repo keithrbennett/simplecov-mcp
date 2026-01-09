@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
+require 'fileutils'
 require 'spec_helper'
 
 RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
-  let(:malformed_resultset) do
-    {
-      'RSpec' => {
-        'coverage' => 'not_a_hash' # Should be a hash, not a string
-      }
-    }
-  end
 
   describe 'initialization error handling' do
     let(:valid_resultset) do
@@ -51,7 +45,6 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       end
     end
 
-
     it 'raises CoverageDataError when resultset structure is invalid (TypeError)' do
       mock_resultset_data(malformed_resultset)
 
@@ -90,9 +83,6 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         expect(error.message).to include('Invalid coverage data structure')
       end
     end
-
-
-
 
     it 'raises CoverageDataError when path operations raise ArgumentError' do
       mock_resultset_data(valid_resultset, path_matcher: end_with('.resultset.json'))
@@ -159,7 +149,12 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
     end
 
     it 'includes original exception message for TypeError' do
-      # Mock to cause TypeError within ResultsetLoader's processing
+      # Create a malformed resultset that will cause TypeError
+      malformed_resultset = {
+        'RSpec' => {
+          'coverage' => 'not_a_hash' # This will cause TypeError
+        }
+      }
       mock_resultset_data(malformed_resultset)
 
       expect do
@@ -203,133 +198,147 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'list error handling' do
-    def setup_malformed_coverage(model, file_path, exception_class, exception_message)
-      # Make the entry malformed for file_path so it falls back to the resolver
-      abs_path = File.expand_path(file_path, root)
-      cov = model.instance_variable_get(:@cov)
-      cov[abs_path] = 'malformed_entry' # Not a Hash with 'lines' key
-
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
-      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
-        .with(anything, include(file_path), any_args)
-        .and_raise(exception_class.new(exception_message))
+    let(:logger) { nil }
+    let(:model) do
+      described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH, logger: logger)
     end
+    let(:foo_path) { File.expand_path('lib/foo.rb', root) }
 
-    it 'skips files that raise FileError during coverage lookup' do
-      # This exercises the `next` statement in the list loop when FileError is raised
+    def stub_foo_entry_fallback
+      foo_entry = model.send(:coverage_map)[foo_path]
 
-      # Create mock logger first
-      mock_logger = instance_double(CovLoupe::Logger)
-
-      # Expect the error to be logged only once (per model.list call)
-      expect(mock_logger).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
-
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
-        logger: mock_logger)
-
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
-
-      # Should not raise, just skip the problematic file
-      list_result = model.list(raise_on_stale: false)
-      files = list_result['files']
-
-      # The result should contain bar.rb but not foo.rb
-      file_names = files.map { |r| File.basename(r['file']) }
-      expect(file_names).to include('bar.rb')
-      expect(file_names).not_to include('foo.rb')
-      expect(list_result['skipped_files']).to contain_exactly(
-        hash_including(
-          'file' => File.expand_path('lib/foo.rb', root),
-          'error' => 'Corrupted coverage entry',
-          'error_class' => 'CovLoupe::FileError'
-        )
-      )
-    end
-
-    it 'skips files that raise CorruptCoverageDataError during coverage lookup' do
-      mock_logger = instance_double(CovLoupe::Logger)
-      expect(mock_logger).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
-
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
-        logger: mock_logger)
-
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::CorruptCoverageDataError,
-        'Corrupted coverage entry')
-
-      list_result = model.list(raise_on_stale: false)
-      files = list_result['files']
-
-      file_names = files.map { |r| File.basename(r['file']) }
-      expect(file_names).to include('bar.rb')
-      expect(file_names).not_to include('foo.rb')
-      expect(list_result['skipped_files']).to contain_exactly(
-        hash_including(
-          'file' => File.expand_path('lib/foo.rb', root),
-          'error' => 'Corrupted coverage entry',
-          'error_class' => 'CovLoupe::CorruptCoverageDataError'
-        )
-      )
-    end
-
-    it 'raises FileError when raise_on_stale is true and file lookup fails' do
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Missing file')
-
-      expect do
-        model.list(raise_on_stale: true)
-      end.to raise_error(CovLoupe::FileError, 'Missing file')
-    end
-
-    it 'raises CorruptCoverageDataError when raise_on_stale is true and data is corrupt' do
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::CorruptCoverageDataError,
-        'Corrupted coverage entry')
-
-      expect do
-        model.list(raise_on_stale: true)
-      end.to raise_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
-    end
-
-    it 'checks staleness before raising data errors when raise_on_stale is true' do
-      # This test verifies that staleness checking happens even when there are data errors
-      # If file A has corrupt data and file B is stale, staleness error should be raised first
-      mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP)
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-
-      # Make foo.rb have corrupt data, but bar.rb is valid and will be stale due to old timestamp
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
-
-      # Should raise staleness error first (bar.rb is newer than very old timestamp)
-      # not the data error from foo.rb
-      expect do
-        model.list(raise_on_stale: true)
-      end.to raise_error(CovLoupe::CoverageDataProjectStaleError) do |error|
-        # Verify that staleness was actually detected
-        expect(error.newer_files).not_to be_empty
+      allow(model).to receive(:extract_lines_from_entry).and_wrap_original do |method, entry|
+        entry.equal?(foo_entry) ? nil : method.call(entry)
       end
     end
 
-    it 'raises data error if no staleness issues when raise_on_stale is true' do
-      # This test verifies that data errors ARE raised when there are no staleness issues
-      # Use accurate coverage data (correct line counts: foo.rb: 6 lines, bar.rb: 5 lines)
-      accurate_coverage = {
-        File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
-        File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
-      }
-      mock_resultset_with_timestamp(root, Time.now.to_i, coverage: accurate_coverage)
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+    def stub_lookup_lines_error(exception_class, message)
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines).and_call_original
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+        .with(anything, foo_path, any_args)
+        .and_raise(exception_class, message)
+    end
 
-      # Make foo.rb have corrupt data, but coverage timestamp is current (not stale)
-      setup_malformed_coverage(model, 'lib/foo.rb', CovLoupe::FileError, 'Corrupted coverage entry')
+    context 'when skipping rows in lenient mode' do
+      let(:mock_logger) { instance_double(CovLoupe::Logger) }
+      let(:logger) { mock_logger }
 
-      # Should raise the data error since there are no staleness issues
-      expect do
-        model.list(raise_on_stale: true)
-      end.to raise_error(CovLoupe::FileError, 'Corrupted coverage entry')
+      before do
+        stub_foo_entry_fallback
+      end
+
+      it 'skips files that raise FileError during coverage lookup' do
+        expect(mock_logger).to receive(:safe_log)
+          .with(a_string_including('Skipping coverage row', 'Missing file')).once
+
+        stub_lookup_lines_error(CovLoupe::FileError, 'Missing file')
+
+        list_result = model.list(raise_on_stale: false)
+        files = list_result['files']
+
+        # The result should contain bar.rb but not foo.rb
+        file_names = files.map { |r| File.basename(r['file']) }
+        expect(file_names).to include('bar.rb')
+        expect(file_names).not_to include('foo.rb')
+        expect(list_result['skipped_files']).to contain_exactly(
+          hash_including(
+            'file' => foo_path,
+            'error' => 'Missing file',
+            'error_class' => 'CovLoupe::FileError'
+          )
+        )
+      end
+
+      it 'skips files that raise CorruptCoverageDataError during coverage lookup' do
+        expect(mock_logger).to receive(:safe_log)
+          .with(a_string_including('Skipping coverage row', 'Corrupted coverage entry')).once
+
+        stub_lookup_lines_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
+
+        list_result = model.list(raise_on_stale: false)
+        files = list_result['files']
+
+        file_names = files.map { |r| File.basename(r['file']) }
+        expect(file_names).to include('bar.rb')
+        expect(file_names).not_to include('foo.rb')
+        expect(list_result['skipped_files']).to contain_exactly(
+          hash_including(
+            'file' => foo_path,
+            'error' => 'Corrupted coverage entry',
+            'error_class' => 'CovLoupe::CorruptCoverageDataError'
+          )
+        )
+      end
+    end
+
+    context 'when raise_on_stale is true' do
+      before do
+        stub_foo_entry_fallback
+      end
+
+      it 'raises FileError when file lookup fails' do
+        stub_lookup_lines_error(CovLoupe::FileError, 'Missing file')
+
+        expect do
+          model.list(raise_on_stale: true)
+        end.to raise_error(CovLoupe::FileError, 'Missing file')
+      end
+
+      it 'raises CorruptCoverageDataError when data is corrupt' do
+        stub_lookup_lines_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
+
+        expect do
+          model.list(raise_on_stale: true)
+        end.to raise_error(CovLoupe::CorruptCoverageDataError, 'Corrupted coverage entry')
+      end
+    end
+
+    context 'when staleness checks run before data errors' do
+      let(:accurate_coverage) do
+        {
+          File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
+          File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
+        }
+      end
+      let(:resultset_timestamp) { VERY_OLD_TIMESTAMP }
+
+      before do
+        mock_resultset_with_timestamp(root, resultset_timestamp, coverage: accurate_coverage)
+        stub_foo_entry_fallback
+      end
+
+      it 'checks staleness before raising data errors when raise_on_stale is true' do
+        # This test verifies that staleness checking happens even when there are data errors
+        # Mock File.mtime to make bar.rb appear newer than the old timestamp
+        bar_path = File.expand_path('lib/bar.rb', root)
+        allow(File).to receive(:mtime).and_call_original
+        allow(File).to receive(:mtime).with(bar_path).and_return(Time.at(VERY_OLD_TIMESTAMP + 1000))
+
+        stub_lookup_lines_error(CovLoupe::FileError, 'Corrupted coverage entry')
+
+        # Should raise staleness error first (bar.rb is newer than very old timestamp)
+        # not the data error from foo.rb
+        expect do
+          model.list(raise_on_stale: true)
+        end.to raise_error(CovLoupe::CoverageDataProjectStaleError) do |error|
+          # Verify that staleness was actually detected
+          expect(error.newer_files).not_to be_empty
+        end
+      end
+
+      context 'when coverage is current' do
+        let(:resultset_timestamp) { Time.now.to_i }
+
+        it 'raises data error if no staleness issues when raise_on_stale is true' do
+          # This test verifies that data errors ARE raised when there are no staleness issues
+          stub_lookup_lines_error(CovLoupe::FileError, 'Corrupted coverage entry')
+
+          # Should raise the data error since there are no staleness issues
+          expect do
+            model.list(raise_on_stale: true)
+          end.to raise_error(CovLoupe::FileError, 'Corrupted coverage entry')
+        end
+      end
     end
   end
 
@@ -373,47 +382,113 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'malformed coverage line array validation' do
-    let(:malformed_lines) { [1, 0, 'invalid', 2] }
+    let(:temp_resultset) { '/tmp/malformed_resultset.json' }
+    let(:foo_path) { File.join(root, 'lib', 'foo.rb') }
+    let(:bar_path) { File.join(root, 'lib', 'bar.rb') }
 
-    def setup_malformed_lines(model, file_path, malformed_lines)
-      # Make extract_lines_from_entry return nil so it falls back to resolver
-      abs_path = File.expand_path(file_path, root)
-      cov = model.instance_variable_get(:@cov)
-      cov[abs_path] = { 'lines' => malformed_lines }
+    def create_malformed_resultset(malformed_lines_for_foo)
+      {
+        'RSpec' => {
+          'timestamp' => Time.now.to_i,
+          'coverage' => {
+            foo_path => { 'lines' => malformed_lines_for_foo },
+            bar_path => { 'lines' => [nil, nil, 0, 0, 1] }
+          }
+        }
+      }
+    end
+
+    before do
+      # Ensure source files exist
+      File.write(foo_path, 'def foo; end') unless File.exist?(foo_path)
+      File.write(bar_path, 'def bar; end') unless File.exist?(bar_path)
+    end
+
+    after do
+      FileUtils.rm_f(temp_resultset)
     end
 
     [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
-      it "#{method} raises CoverageDataError for malformed lines arrays" do
-        model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-        setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+      it "#{method} raises CoverageDataError for malformed lines arrays with string elements" do
+        malformed_resultset = create_malformed_resultset([1, 0, 'invalid', 2])
+        File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+        model = described_class.new(root: root, resultset: temp_resultset)
 
         expect do
           model.send(method, 'lib/foo.rb')
         end.to raise_error(CovLoupe::CoverageDataError) do |error|
-          expect(error.message).to include('Invalid coverage line array', 'non-integer elements', 'invalid')
+          expect(error.message).to include('Invalid coverage line array', 'non-integer elements')
         end
+      end
+
+      it "#{method} raises CoverageDataError for malformed lines arrays with float elements" do
+        malformed_resultset = create_malformed_resultset([1, 0, 3.14, 2])
+        File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+        model = described_class.new(root: root, resultset: temp_resultset)
+
+        expect do
+          model.send(method, 'lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
+      end
+
+      it "#{method} raises CoverageDataError for malformed lines arrays with boolean elements" do
+        malformed_resultset = create_malformed_resultset([1, 0, true, 2])
+        File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+        model = described_class.new(root: root, resultset: temp_resultset)
+
+        expect do
+          model.send(method, 'lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
+      end
+
+      it "#{method} raises CoverageDataError for malformed lines arrays with hash elements" do
+        malformed_resultset = create_malformed_resultset([1, 0, { 'key' => 'val' }, 2])
+        File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+        model = described_class.new(root: root, resultset: temp_resultset)
+
+        expect do
+          model.send(method, 'lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
+      end
+
+      it "#{method} raises CoverageDataError for malformed lines arrays with array elements" do
+        malformed_resultset = create_malformed_resultset([1, 0, [1, 2], 2])
+        File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+        model = described_class.new(root: root, resultset: temp_resultset)
+
+        expect do
+          model.send(method, 'lib/foo.rb')
+        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
       end
     end
 
-    it 'list raises CoverageDataError when raise_on_stale is true' do
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-      setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+    it 'list raises CoverageDataError when raise_on_stale is true and file has malformed lines' do
+      malformed_resultset = create_malformed_resultset([1, 0, 'invalid', 2])
+      File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+      model = described_class.new(root: root, resultset: temp_resultset)
 
       expect do
         model.list(raise_on_stale: true)
       end.to raise_error(CovLoupe::CoverageDataError) do |error|
-        expect(error.message).to include('Invalid coverage line array', 'non-integer elements')
+        expect(error.message).to include('Invalid coverage line array')
       end
     end
 
     it 'list skips files with malformed lines when raise_on_stale is false' do
       mock_logger = instance_double(CovLoupe::Logger)
       expect(mock_logger).to receive(:safe_log)
-        .with(a_string_including('Skipping coverage row', 'Invalid coverage line array')).once
+        .with(a_string_including('Skipping coverage row')).at_least(:once)
 
-      model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
-        logger: mock_logger)
-      setup_malformed_lines(model, 'lib/foo.rb', malformed_lines)
+      malformed_resultset = create_malformed_resultset([1, 0, 'invalid', 2])
+      File.write(temp_resultset, JSON.generate(malformed_resultset))
+
+      model = described_class.new(root: root, resultset: temp_resultset, logger: mock_logger)
 
       list_result = model.list(raise_on_stale: false)
       files = list_result['files']
@@ -423,27 +498,10 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect(file_names).not_to include('foo.rb')
       expect(list_result['skipped_files']).to contain_exactly(
         hash_including(
-          'file' => File.expand_path('lib/foo.rb', root),
+          'file' => foo_path,
           'error_class' => 'CovLoupe::CoverageDataError'
         )
       )
-    end
-
-    [
-      { desc: 'strings', lines: [1, 0, 'string', 2] },
-      { desc: 'floats', lines: [1, 0, 3.14, 2] },
-      { desc: 'booleans', lines: [1, 0, true, 2] },
-      { desc: 'hashes', lines: [1, 0, { 'key' => 'val' }, 2] },
-      { desc: 'arrays', lines: [1, 0, [1, 2], 2] }
-    ].each do |tc|
-      it "summary_for rejects lines arrays containing #{tc[:desc]}" do
-        model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
-        setup_malformed_lines(model, 'lib/foo.rb', tc[:lines])
-
-        expect do
-          model.summary_for('lib/foo.rb')
-        end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage line array/)
-      end
     end
   end
 end

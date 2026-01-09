@@ -61,8 +61,6 @@ module CovLoupe
       # This matches original behavior and surfaces errors immediately
       begin
         data = fetch_data
-        @cov = data.coverage_map
-        @cov_timestamp = data.timestamp
         @resultset_path = data.resultset_path
       rescue CovLoupe::Error
         raise # Re-raise our own errors as-is
@@ -214,26 +212,23 @@ module CovLoupe
       ModelDataCache.instance.get(resolved_resultset_path, root: @root, logger: @logger)
     end
 
-    # Returns the coverage map, caching it in an instance variable for test compatibility
-    # and performance. For fresh data, call refresh_data first.
-    # rubocop:disable Naming/MemoizedInstanceVariableName
+    # Returns the coverage map by delegating to ModelDataCache.
+    # The cache automatically reloads if the resultset file has changed.
     private def coverage_map
-      @cov ||= fetch_data.coverage_map
+      fetch_data.coverage_map
     end
 
-    # Delegates to the cached data
+    # Returns the timestamp by delegating to ModelDataCache.
+    # The cache automatically reloads if the resultset file has changed.
     private def coverage_timestamp
-      @cov_timestamp ||= fetch_data.timestamp
+      fetch_data.timestamp
     end
-    # rubocop:enable Naming/MemoizedInstanceVariableName
 
-    # Clears cached data and reloads from the shared cache
-    # Useful for tests or when you need to force a refresh
+    # Clears the resolved resultset path to allow re-resolution.
+    # ModelDataCache automatically handles resultset file changes on each access,
+    # so explicit refresh is rarely needed. This method is primarily for testing.
     def refresh_data
-      @cov = nil
-      @cov_timestamp = nil
       @resolved_resultset_path = nil
-      fetch_data
       self
     end
 

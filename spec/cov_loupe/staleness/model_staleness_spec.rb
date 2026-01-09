@@ -171,7 +171,21 @@ RSpec.describe CovLoupe::CoverageModel do
 
       model = described_class.new(root: root, raise_on_stale: false)
 
-      expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at.to_i)
+      # Verify that the timestamp is correctly parsed by checking staleness behavior
+      # When coverage timestamp is in the past and file is newer, it should be stale
+      # Since created_at is in 2024 and files are current, they should be newer
+      foo_path = File.join(root, 'lib', 'foo.rb')
+
+      # Make coverage older than file by mocking file mtime to be newer
+      current_time = Time.now
+      allow(File).to receive(:mtime).and_wrap_original do |m, path|
+        path.to_s == foo_path ? current_time : m.call(path)
+      end
+
+      # With raise_on_stale: true, should raise because file is newer
+      expect do
+        model.summary_for('lib/foo.rb', raise_on_stale: true)
+      end.to raise_error(CovLoupe::CoverageDataStaleError, /stale/i)
     end
 
     it 'propagates parsed created_at timestamps into stale errors' do
@@ -185,10 +199,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
       model = described_class.new(root: root, raise_on_stale: true)
 
-      expect(model.instance_variable_get(:@cov_timestamp)).to eq(created_at_time.to_i)
       expect do
         model.summary_for('lib/foo.rb')
       end.to raise_error(CovLoupe::CoverageDataStaleError) { |error|
+        # Verify the error includes coverage timestamp information
         expect(error.cov_timestamp).to eq(created_at_time.to_i)
       }
     end
