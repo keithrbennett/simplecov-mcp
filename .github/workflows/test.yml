@@ -17,6 +17,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         ruby-version: ['3.2', '3.3', '3.4', '4.0']
+        include:
+          # Test JRuby on Linux only (not available on Windows/macOS in CI)
+          - os: ubuntu-latest
+            ruby-version: jruby
     
     steps:
     - uses: actions/checkout@v4
