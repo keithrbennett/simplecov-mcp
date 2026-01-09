@@ -359,7 +359,7 @@ Tracked globs:
   `length_mismatch`, `unreadable`.
 - `without_coverage` is only present when tracking is enabled (tracked globs provided).
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
-- Totals exclude stale files (`:missing`, `:newer`, `:length_mismatch`, `:error`) so the aggregate reflects only fresh coverage data.
+- Totals exclude stale files (`"missing"`, `"newer"`, `"length_mismatch"`, `"error"`) so the aggregate reflects only fresh coverage data.
 - Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
 
 ### `version`
@@ -494,10 +494,10 @@ clp --raise-on-stale false
 ```
 
 **Staleness conditions:**
-- **:missing** (Missing): Source file no longer exists on disk
-- **:newer** (Timestamp): Source file modified after coverage was generated
-- **:length_mismatch** (Length): Source file line count differs from coverage data
-- **:error** (Error): Staleness check failed due to permission or I/O errors
+- **"missing"** (Missing): Source file no longer exists on disk
+- **"newer"** (Timestamp): Source file modified after coverage was generated
+- **"length_mismatch"** (Length): Source file line count differs from coverage data
+- **"error"** (Error): Staleness check failed due to permission or I/O errors
 - Tracked files missing from coverage (with --tracked-globs)
 
 ### `-g, --tracked-globs PATTERNS`
@@ -681,10 +681,10 @@ Machine-readable output. Paths are relative to project root.
 ```
 
 **Staleness values:**
-- `:ok` - Coverage data is current
-- `:missing` - File missing (no longer exists on disk)
-- `:newer` - Timestamp mismatch (file modified after coverage)
-- `:length_mismatch` - Length mismatch (line count differs)
+- `"ok"` - Coverage data is current
+- `"missing"` - File missing (no longer exists on disk)
+- `"newer"` - Timestamp mismatch (file modified after coverage)
+- `"length_mismatch"` - Length mismatch (line count differs)
 
 ### Source Display
 

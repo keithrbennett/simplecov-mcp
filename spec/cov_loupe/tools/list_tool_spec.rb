@@ -17,9 +17,9 @@ RSpec.describe CovLoupe::Tools::ListTool do
     payload = {
       'files' => [
         { 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
-          'stale' => :ok },
+          'stale' => 'ok' },
         { 'file' => 'lib/bar.rb', 'percentage' => 50.0,  'covered' => 5,  'total' => 10,
-          'stale' => :missing }
+          'stale' => 'missing' }
       ],
       'counts' => { 'total' => 2, 'ok' => 1, 'stale' => 1 },
       'skipped_files' => [],

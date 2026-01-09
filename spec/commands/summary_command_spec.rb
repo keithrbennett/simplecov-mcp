@@ -24,7 +24,7 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
       end
 
       it 'marks stale files with a Yes indicator' do
-        stub_staleness_check(:length_mismatch)
+        stub_staleness_check('length_mismatch')
 
         output = capture_command_output(command, ['lib/foo.rb'])
 
@@ -57,7 +57,7 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
     end
 
     context 'with stale data' do
-      before { stub_staleness_check(:length_mismatch) }
+      before { stub_staleness_check('length_mismatch') }
 
       it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
         %w[file summary stale]

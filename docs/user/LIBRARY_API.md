@@ -61,7 +61,7 @@ Returns coverage summary for all files in the resultset.
 ```ruby
 list_result = model.list
 files = list_result['files']
-# => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => :ok }, ... ]
+# => [ { 'file' => '/abs/path/lib/foo.rb', 'covered' => 12, 'total' => 14, 'percentage' => 85.71, 'stale' => "ok" }, ... ]
 
 # Get worst coverage first
 worst_files = model.list(sort_order: :ascending)['files'].first(10)
@@ -226,7 +226,7 @@ Returns `Hash` with file data and staleness metadata:
       'covered' => Integer,   # Number of covered lines
       'total' => Integer,     # Total relevant lines
       'percentage' => Float,  # Coverage percentage (0.00-100.00)
-      'stale' => Symbol  # Staleness indicator: :ok, :error, :missing, :newer, or :length_mismatch
+      'stale' => String  # Staleness indicator: "ok", "error", "missing", "newer", or "length_mismatch"
     }
   ],
   'skipped_files' => Array<String>,        # Files skipped due to coverage errors
@@ -780,11 +780,11 @@ model = CovLoupe::CoverageModel.new
 
 The `list` method returns a `'stale'` field for each file with one of these values:
 
-- `:ok` - Coverage data is current
-- `:missing` - **Missing**: File no longer exists on disk
-- `:newer` - **Timestamp**: File modified more recently than coverage data
-- `:length_mismatch` - **Length**: Source file line count differs from coverage data
-- `:error` - **Error**: Staleness check failed
+- `"ok"` - Coverage data is current
+- `"missing"` - **Missing**: File no longer exists on disk
+- `"newer"` - **Timestamp**: File modified more recently than coverage data
+- `"length_mismatch"` - **Length**: Source file line count differs from coverage data
+- `"error"` - **Error**: Staleness check failed
 
 **Note:** Per-file methods (`summary_for`, `uncovered_for`, `detailed_for`, `raw_for`) do not include staleness information in their return values. To check staleness for individual files, use `list` and filter the results.
 

@@ -9,7 +9,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
   def stub_staleness_checker(
     newer_files: [], missing_files: [], deleted_files: [], length_mismatch_files: [],
-    unreadable_files: [], file_statuses: {}, timestamp_status: :ok
+    unreadable_files: [], file_statuses: {}, timestamp_status: 'ok'
   )
     checker = instance_double(
       CovLoupe::StalenessChecker,
@@ -205,8 +205,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
       stub_staleness_checker(
         file_statuses: {
-          abs_foo => :ok,
-          abs_bar => :newer
+          abs_foo => 'ok',
+          abs_bar => 'newer'
         }
       )
 
@@ -234,8 +234,8 @@ RSpec.describe CovLoupe::CoverageModel do
         length_mismatch_files: [abs_bar],
         unreadable_files: [abs_foo],
         file_statuses: {
-          abs_bar => :length_mismatch,
-          abs_foo => :error
+          abs_bar => 'length_mismatch',
+          abs_foo => 'error'
         }
       )
 
@@ -297,13 +297,13 @@ RSpec.describe CovLoupe::CoverageModel do
       end
     end
 
-    it 'increments missing_from_disk count for files with :missing status' do
+    it 'increments missing_from_disk count for files with \"missing\" status' do
       abs_foo = File.expand_path('lib/foo.rb', root)
 
       stub_staleness_checker(
         deleted_files: [abs_foo],
         file_statuses: {
-          abs_foo => :missing
+          abs_foo => 'missing'
         }
       )
 
@@ -391,7 +391,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
         # Custom rows
         custom = [{ 'file' => 'test.rb', 'percentage' => 100, 'covered' => 1, 'total' => 1,
-                    'stale' => :ok }]
+                    'stale' => 'ok' }]
         expect(model.format_table(custom)).to include('test.rb')
 
         # Sorting: Ascending (bar before foo)
@@ -461,7 +461,7 @@ RSpec.describe CovLoupe::CoverageModel do
 
       result = model_with_logger.staleness_for('lib/foo.rb')
 
-      expect(result).to eq(:error)
+      expect(result).to eq('error')
       expect(logger).to have_received(:safe_log).with(/Failed to check staleness/)
     end
   end

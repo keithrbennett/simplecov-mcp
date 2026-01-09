@@ -39,26 +39,26 @@ We implemented a **staleness detection system** with configurable error modes th
 
 #### Four Staleness Types
 
-The `StalenessChecker` class (defined in `lib/cov_loupe/staleness_checker.rb`) detects four distinct types of staleness:
+The `StalenessChecker` class (defined in `lib/cov_loupe/staleness/staleness_checker.rb`) detects four distinct types of staleness:
 
-1. **Type :error (Error)**: The staleness check itself failed
+1. **Type "error" (Error)**: The staleness check itself failed
    - Returned by `CoverageModel#staleness_for` when an exception is raised during staleness checking
    - Example: File permission errors, resolver failures, or other unexpected issues
-   - The error is logged but execution continues with an :error symbol instead of crashing
+   - The error is logged but execution continues with an "error" status instead of crashing
 
-2. **Type :missing (Missing)**: The source file exists in coverage but is now deleted/missing
+2. **Type "missing" (Missing)**: The source file exists in coverage but is now deleted/missing
    - Returned by `file_staleness_status` when `File.file?(file_abs)` returns false
    - Example: File was deleted after tests ran
 
-3. **Type :newer (Timestamp)**: The source file's mtime is newer than coverage timestamp
+3. **Type "newer" (Timestamp)**: The source file's mtime is newer than coverage timestamp
    - Detected by comparing `File.mtime(file_abs)` with coverage timestamp
    - Example: File was edited after tests ran
 
-4. **Type :length_mismatch (Length)**: The source file line count doesn't match the coverage lines array length
+4. **Type "length_mismatch" (Length)**: The source file line count doesn't match the coverage lines array length
    - Detected by comparing `File.foreach(path).count` with `coverage_lines.length`
    - Example: Lines were added/removed without changing mtime (rare but possible with version control)
 
-5. **Type :ok (Not stale)**: The file is not stale
+5. **Type "ok" (Not stale)**: The file is not stale
    - Returned when none of the above staleness conditions apply
    - Indicates the coverage data is current and accurate
 
@@ -102,7 +102,7 @@ end
 The checker supports two modes, configured when instantiating `StalenessChecker`:
 
 - **`:off`** (default): Staleness is detected but only reported in responses, never raises errors
-- **`:error`**: Staleness raises `CoverageDataStaleError` or `CoverageDataProjectStaleError`
+- **"error"**: Staleness raises `CoverageDataStaleError` or `CoverageDataProjectStaleError`
 
 This allows:
 - Interactive tools to show warnings without crashing
@@ -113,7 +113,7 @@ This allows:
 
 **File-level** (`check_file!` and `file_staleness_status`):
 - Checks a single file's staleness
-- Returns one of the staleness status symbols (:ok, :missing, :newer, :length_mismatch, :error)
+- Returns one of the staleness status strings ("ok", "missing", "newer", "length_mismatch", "error")
 - Used by single-file tools (summary, detailed, uncovered)
 
 **Project-level** (`check_project!`):
@@ -126,7 +126,7 @@ This allows:
 - Used by `list_tool` and `coverage_table_tool`
 
 **Totals behavior**:
-- `project_totals` excludes any stale files (:missing, :newer, :length_mismatch, :error) from aggregate counts.
+- `project_totals` excludes any stale files ("missing", "newer", "length_mismatch", "error") from aggregate counts.
 - Totals include explicit `with_coverage`/`without_coverage` breakdowns so callers can reconcile what was omitted.
 - **Note**: In the `without_coverage` payload, the `unreadable` count is currently hardcoded to `0`. This is consistent with the current `StalenessChecker` implementation, which does not explicitly scan for unreadable files among untracked or missing files, so this placeholder adheres to the schema and current capabilities.
 
@@ -175,7 +175,7 @@ before merging resultsets.
 
 #### Edge Cases Handled
 
-1. **Deleted files**: Appear as :missing type staleness
+1. **Deleted files**: Appear as "missing" type staleness
 2. **Empty files**: `cov_len.positive?` guard prevents false positives
 3. **No coverage timestamp**: Defaults to 0, effectively disabling timestamp checks
 

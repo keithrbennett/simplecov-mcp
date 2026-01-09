@@ -437,14 +437,14 @@ result = model.list
 ### New Behavior (v4.x)
 ```ruby
 result = model.list
-# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => :missing, ... }], ... }
+# => { 'files' => [{ 'file' => 'lib/foo.rb', 'stale' => "missing", ... }], ... }
 
 # Staleness is now indicated by symbols:
-# :missing - Missing file
-# :newer - Timestamp mismatch
-# :length_mismatch - Line count mismatch
-# :error - Error during staleness check
-# :ok - Fresh coverage data
+# "missing" - Missing file
+# "newer" - Timestamp mismatch
+# "length_mismatch" - Line count mismatch
+# "error" - Error during staleness check
+# "ok" - Fresh coverage data
 ```
 
 ### Rationale
@@ -475,7 +475,7 @@ if file['stale'] == 'M'
 end
 
 # New - use symbols
-if file['stale'] == :missing
+if file['stale'] == 'missing'
   puts "File is missing"
 end
 
@@ -498,11 +498,11 @@ end
 
 # New - use symbols
 case file['stale']
-when :missing then handle_missing
-when :newer then handle_timestamp
-when :length_mismatch then handle_length
-when :error then handle_error
-when :ok then handle_fresh
+when 'missing' then handle_missing
+when 'newer' then handle_timestamp
+when 'length_mismatch' then handle_length
+when 'error' then handle_error
+when 'ok' then handle_fresh
 end
 
 # Or use to_s for backward compatibility
@@ -511,7 +511,7 @@ when 'missing' then handle_missing
 when 'newer' then handle_timestamp
 when 'length_mismatch' then handle_length
 when 'error' then handle_error
-when 'ok' then handle_fresh  # :ok.to_s returns 'ok'
+when 'ok' then handle_fresh
 end
 ```
 
@@ -536,7 +536,7 @@ end
 **JSON serialization note**: When serializing to JSON (CLI, MCP, etc.), symbols are automatically converted to strings:
 ```ruby
 # In Ruby
-file['stale']  # => :missing
+file['stale']  # => "missing"
 
 # In JSON output
 { "file": "lib/foo.rb", "stale": "missing" }
@@ -551,11 +551,11 @@ Staleness: missing = Missing file, newer = Timestamp mismatch, length_mismatch =
 
 | Status | v3.x (String) | v4.x (Symbol) | Description |
 |--------|----------------|------------------|-------------|
-| Fresh | `false` | `:ok` | Coverage data is current |
-| Missing file | `'M'` | `:missing` | File no longer exists on disk |
-| Timestamp mismatch | `'T'` | `:newer` | File modified after coverage was generated |
-| Line count mismatch | `'L'` | `:length_mismatch` | Source file line count differs from coverage data |
-| Check error | `'E'` | `:error` | Staleness check failed (permissions, I/O errors, etc.) |
+| Fresh | `false` | `"ok"` | Coverage data is current |
+| Missing file | `'M'` | `"missing"` | File no longer exists on disk |
+| Timestamp mismatch | `'T'` | `"newer"` | File modified after coverage was generated |
+| Line count mismatch | `'L'` | `"length_mismatch"` | Source file line count differs from coverage data |
+| Check error | `'E'` | `"error"` | Staleness check failed (permissions, I/O errors, etc.) |
 
 [↑ Back to top](#table-of-contents)
 

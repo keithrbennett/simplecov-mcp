@@ -201,7 +201,7 @@ These tools analyze individual files. All require `path` parameter.
 {"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": "ok"}
 ```
 
-**Staleness values:** `:ok` (fresh), `:missing` (missing), `:newer` (timestamp), `:length_mismatch` (length), `:error` (staleness check error)
+**Staleness values:** `"ok"` (fresh), `"missing"` (missing), `"newer"` (timestamp), `"length_mismatch"` (length), `"error"` (staleness check error)
 
 #### Project-Wide Tools
 

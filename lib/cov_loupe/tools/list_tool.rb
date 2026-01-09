@@ -12,7 +12,7 @@ module CovLoupe
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
         Inputs: optional project root, alternate .resultset path, sort order, raise_on_stale flag, and tracked_globs to alert on new files.
-        Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...], "length_mismatch_files": [...], "unreadable_files": [...]} sorted as requested. "stale" is :ok, :missing, :newer, :length_mismatch, or :error (serialized as strings in JSON output).
+        Output: JSON {"files": [{"file","covered","total","percentage","stale"}, ...], "counts": {"total", "ok", "stale"}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...], "length_mismatch_files": [...], "unreadable_files": [...]} sorted as requested. "stale" is "ok", "missing", "newer", "length_mismatch", or "error".
         Examples: "List files with the lowest coverage"; "Show repo coverage sorted descending".
       DESC
       input_schema(**coverage_schema(

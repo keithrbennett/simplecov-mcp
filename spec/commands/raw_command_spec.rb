@@ -30,7 +30,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
           absolute_payload: {
             'file' => 'lib/perfect.rb',
             'lines' => [1, 1, 1],
-            'stale' => :ok
+            'stale' => 'ok'
           },
           relative_path: 'lib/perfect.rb'
         )
@@ -46,7 +46,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
       before { cli_context.config.format = :json }
 
       it 'emits JSON with specific line data' do
-        stub_staleness_check(:length_mismatch) # Needed for stale data
+        stub_staleness_check('length_mismatch') # Needed for stale data
 
         output = capture_command_output(command, ['lib/foo.rb'])
 
@@ -60,7 +60,7 @@ RSpec.describe CovLoupe::Commands::RawCommand do
     end
 
     context 'with stale data (other formats)' do
-      before { stub_staleness_check(:length_mismatch) }
+      before { stub_staleness_check('length_mismatch') }
 
       # Use an array for expected_json_keys as we don't need exact value matching for these generic format tests
       it_behaves_like 'a command with formatted output', %w[lib/foo.rb], %w[file lines stale]

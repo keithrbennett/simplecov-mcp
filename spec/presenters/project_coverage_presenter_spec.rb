@@ -23,14 +23,14 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
         'covered' => 5,
         'total' => 6,
         'percentage' => 83.33,
-        'stale' => :ok
+        'stale' => 'ok'
       },
       {
         'file' => '/abs/path/lib/bar.rb',
         'covered' => 1,
         'total' => 6,
         'percentage' => 16.67,
-        'stale' => :length_mismatch
+        'stale' => 'length_mismatch'
       }
     ]
   end

@@ -21,8 +21,10 @@ OPTION_TESTS = {
 }.freeze
 
 RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
-  let(:subcommands) { %w[list summary raw uncovered detailed totals validate version] }
   subject(:helper) { described_class.new(subcommands) }
+
+  let(:subcommands) { %w[list summary raw uncovered detailed totals validate version] }
+
 
   # Helper method to capture stderr output
   def capture_stderr

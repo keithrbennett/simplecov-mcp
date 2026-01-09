@@ -3,6 +3,7 @@
 require_relative 'base_command'
 require_relative '../presenters/coverage_payload_presenter'
 require_relative '../formatters/table_formatter'
+require_relative '../staleness/stale_status'
 
 module CovLoupe
   module Commands
@@ -19,7 +20,7 @@ module CovLoupe
 
           # Table format with box-drawing
           headers = ['File', '%', 'Covered', 'Total', 'Stale']
-          stale_marker = data['stale'] ? 'Yes' : ''
+          stale_marker = StaleStatus.stale?(data['stale']) ? 'Yes' : ''
           rows = [[
             relative_path,
             format('%.2f%%', summary['percentage']),

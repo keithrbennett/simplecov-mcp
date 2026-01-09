@@ -33,7 +33,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     model = instance_double(CovLoupe::CoverageModel)
     files = [
       { 'file' => "#{root}/lib/foo.rb", 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
-        'stale' => :ok }
+        'stale' => 'ok' }
     ]
     payload = {
       'files' => files,

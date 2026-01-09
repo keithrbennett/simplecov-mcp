@@ -142,7 +142,7 @@ module CovLoupe
       length_mismatch_files = Array(project_staleness_details[:length_mismatch_files]).uniq
       unreadable_files = Array(project_staleness_details[:unreadable_files]).uniq
       rows.each do |row|
-        row['stale'] = file_statuses.fetch(row['file'], :ok)
+        row['stale'] = file_statuses.fetch(row['file'], 'ok')
       end
 
       {
@@ -188,7 +188,7 @@ module CovLoupe
         .file_staleness_status(file_abs, coverage_lines)
     rescue => e
       @logger.safe_log("Failed to check staleness for #{path}: #{e.message}")
-      :error
+      'error'
     end
 
     # Returns formatted table string for all files coverage data
@@ -262,9 +262,9 @@ module CovLoupe
           'total' => summary['total'],
           'percentage' => summary['percentage'],
 
-          # We set 'stale' => :ok as a placeholder, then in list we overwrite it
+          # We set 'stale' => 'ok' as a placeholder, then in list we overwrite it
           # with the true status from the project report.
-          'stale' => :ok
+          'stale' => 'ok'
         }
       end
 
@@ -453,15 +453,15 @@ module CovLoupe
 
       rows.each do |row|
         case row['stale']
-        when :ok
+        when 'ok'
           ok_files += 1
-        when :missing
+        when 'missing'
           stale_by_type['missing_from_disk'] += 1
-        when :newer
+        when 'newer'
           stale_by_type['newer'] += 1
-        when :length_mismatch
+        when 'length_mismatch'
           stale_by_type['length_mismatch'] += 1
-        when :error
+        when 'error'
           stale_by_type['unreadable'] += 1
         end
       end

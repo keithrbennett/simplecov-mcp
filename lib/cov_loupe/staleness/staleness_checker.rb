@@ -52,20 +52,20 @@ module CovLoupe
     end
 
     # Compute the staleness status for a specific file relative to coverage.
-    # Ignores mode and never raises. Returns a symbol:
-    # - :ok - file is not stale (fresh)
-    # - :missing - the file is missing/deleted
-    # - :newer - the file mtime is newer than the coverage timestamp
-    # - :length_mismatch - the source line count differs from coverage lines array length
-    # - :error - the file cannot be read due to permission or I/O errors
+    # Ignores mode and never raises. Returns a String:
+    # - 'ok' - file is not stale (fresh)
+    # - 'missing' - the file is missing/deleted
+    # - 'newer' - the file mtime is newer than the coverage timestamp
+    # - 'length_mismatch' - the source line count differs from coverage lines array length
+    # - 'error' - the file cannot be read due to permission or I/O errors
     def file_staleness_status(file_abs, coverage_lines)
       d = compute_file_staleness_details(file_abs, coverage_lines)
-      return :error if d[:read_error]
-      return :missing unless d[:exists]
-      return :newer if d[:newer]
-      return :length_mismatch if d[:len_mismatch]
+      return 'error' if d[:read_error]
+      return 'missing' unless d[:exists]
+      return 'newer' if d[:newer]
+      return 'length_mismatch' if d[:len_mismatch]
 
-      :ok
+      'ok'
     end
 
     # Compute and return project staleness details (newer, missing, deleted files).
@@ -83,7 +83,7 @@ module CovLoupe
         missing_files: missing,
         deleted_files: deleted,
         unreadable_files: unreadable,
-        timestamp_status: ts.to_i > 0 ? :ok : :missing
+        timestamp_status: ts.to_i > 0 ? 'ok' : 'missing'
       }
 
       if @mode == :error && (newer.any? || missing.any? || deleted.any? || unreadable.any?)
@@ -118,15 +118,15 @@ module CovLoupe
       coverage_lines_by_path.each do |abs_path, coverage_lines|
         details = compute_file_staleness_details(abs_path, coverage_lines)
         status = if details[:read_error]
-          :error
+          'error'
         elsif !details[:exists]
-          :missing
+          'missing'
         elsif details[:newer]
-          :newer
+          'newer'
         elsif details[:len_mismatch]
-          :length_mismatch
+          'length_mismatch'
         else
-          :ok
+          'ok'
         end
         file_statuses[abs_path] = status
         unreadable << rel(abs_path) if details[:read_error]
@@ -145,7 +145,7 @@ module CovLoupe
         length_mismatch_files: length_mismatch,
         unreadable_files: unreadable,
         file_statuses: file_statuses,
-        timestamp_status: ts.to_i > 0 ? :ok : :missing
+        timestamp_status: ts.to_i > 0 ? 'ok' : 'missing'
       }
 
       if @mode == :error && [newer, missing, deleted, length_mismatch, unreadable].any?(&:any?)
@@ -314,8 +314,8 @@ module CovLoupe
     #
     # The logic: newer &&= !len_mismatch && !read_error means:
     # - If len_mismatch or read_error is true, set newer to false (those take precedence)
-    # - This way, staleness is categorized as either :newer (time-based), :length_mismatch (length-based),
-    #   or :error (read error), not multiple
+    # - This way, staleness is categorized as either 'newer' (time-based), 'length_mismatch' (length-based),
+    #   or 'error' (read error), not multiple
     private def check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch, read_error)
       return false if coverage_ts.to_i <= 0
 

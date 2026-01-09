@@ -73,7 +73,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_status: :newer,
+      expected_stale_status: 'newer',
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -90,7 +90,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_status: :length_mismatch,
+      expected_stale_status: 'length_mismatch',
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -105,7 +105,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: nil,
         coverage_timestamp: :any
       },
-      expected_stale_status: :missing,
+      expected_stale_status: 'missing',
       expected_error: CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
@@ -120,7 +120,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: :any
       },
-      expected_stale_status: :ok,
+      expected_stale_status: 'ok',
       expected_error: nil
 
     it_behaves_like 'a staleness check',
@@ -137,7 +137,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file_mtime: :any,
         coverage_timestamp: 0
       },
-      expected_stale_status: :ok,
+      expected_stale_status: 'ok',
       expected_error: nil
   end
 
@@ -159,7 +159,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         error_msg: 'Permission denied'
       }
     ].each do |tc|
-      it "returns :error and raises FileError when File.#{tc[:method]} fails" do
+      it "returns 'error' and raises FileError when File.#{tc[:method]} fails" do
         file = File.join(tmpdir, 'lib', 'test.rb')
         write_file(file, %w[a b])
         coverage_lines = [1, 1]
@@ -170,7 +170,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
         details = checker.send(:compute_file_staleness_details, file, coverage_lines)
         expect(details[:read_error]).to be true
-        expect(checker.file_staleness_status(file, coverage_lines)).to eq(:error)
+        expect(checker.file_staleness_status(file, coverage_lines)).to eq('error')
         expect { checker.check_file!(file, coverage_lines) }
           .to raise_error(CovLoupe::FileError, /Error reading file/)
       end
@@ -338,7 +338,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.check_project!(coverage_map)
       expect(details[:newer_files]).to be_empty
-      expect(details[:timestamp_status]).to eq(:missing)
+      expect(details[:timestamp_status]).to eq('missing')
     end
   end
 
@@ -393,7 +393,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       details = checker.check_project_with_lines!(coverage_map, coverage_files: [test_file])
       expect(details[:unreadable_files]).to include('test.rb')
-      expect(details[:file_statuses][test_file]).to eq(:error)
+      expect(details[:file_statuses][test_file]).to eq('error')
     end
 
     it 'raises error in error mode when unreadable files are present' do

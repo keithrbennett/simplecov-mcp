@@ -105,7 +105,7 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(result['files'].map { |f| f['file'] }).to eq([File.join(root, 'lib', 'foo.rb')])
       # foo.rb should not be marked as stale (no mismatch, and timestamp is current)
       foo_row = result['files'].find { |f| f['file'] == File.join(root, 'lib', 'foo.rb') }
-      expect(foo_row['stale']).to eq(:ok)
+      expect(foo_row['stale']).to eq('ok')
     end
 
     it 'raises error for length mismatch only when file is in tracked_globs scope' do

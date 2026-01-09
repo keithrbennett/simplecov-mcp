@@ -3,7 +3,7 @@
 # Helpers for mocking and stubbing objects in RSpec tests.
 module MockingHelpers
   # Stub staleness checking to return a specific value
-  # @param value [Symbol] The staleness value to return (:length_mismatch, :newer, :missing, :error, or :ok)
+  # @param value [String] The staleness value to return ("length_mismatch", "newer", "missing", "error", or "ok")
   def stub_staleness_check(value)
     checker_double = instance_double(CovLoupe::StalenessChecker)
     allow(checker_double).to receive_messages(
@@ -43,11 +43,11 @@ module MockingHelpers
   # @param model_method [Symbol] The method to stub (e.g., :summary_for, :raw_for)
   # @param mock_data [Hash] The data to return from the stubbed method
   # @param file_path [String] The file path argument for the stubbed method
-  # @param staleness [Symbol] The staleness value to return (default: :ok)
+  # @param staleness [String] The staleness value to return (default: "ok")
   # @param root [String] The root path for the relativizer (default: '/abs/path')
   # @return [RSpec::Mocks::InstanceVerifyingDouble] The stubbed model
   def stub_coverage_model(model_method:, mock_data:, file_path: 'lib/foo.rb',
-    staleness: :ok, root: '/abs/path')
+    staleness: 'ok', root: '/abs/path')
     model = instance_double(CovLoupe::CoverageModel)
     allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
     # Accept any keyword arguments (like raise_on_stale) in addition to the file path

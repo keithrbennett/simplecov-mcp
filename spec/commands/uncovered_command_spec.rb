@@ -46,7 +46,7 @@ RSpec.describe CovLoupe::Commands::UncoveredCommand do
     end
 
     context 'with stale data' do
-      before { stub_staleness_check(:length_mismatch) }
+      before { stub_staleness_check('length_mismatch') }
 
       it_behaves_like 'a command with formatted output', ['lib/foo.rb'],
         %w[file uncovered summary stale]
