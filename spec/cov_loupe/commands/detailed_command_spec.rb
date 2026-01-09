@@ -20,7 +20,7 @@ RSpec.describe CovLoupe::Commands::DetailedCommand do
       it 'prints the detailed coverage table' do
         output = capture_command_output(command, ['lib/foo.rb'])
 
-        expect(output).to include('File: lib/foo.rb', 'Line', 'Covered')
+        expect(output).to include('File: lib/foo.rb', 'Coverage: 2/3 lines (66.67%)', 'Line', 'Covered')
       end
 
       it 'prints annotated source when source_mode is enabled' do
@@ -29,6 +29,12 @@ RSpec.describe CovLoupe::Commands::DetailedCommand do
         output = capture_command_output(command, ['lib/foo.rb'])
 
         expect(output).to show_source_table_or_fallback
+      end
+
+      it 'prints stale status when data is stale' do
+        stub_staleness_check('length_mismatch')
+        output = capture_command_output(command, ['lib/foo.rb'])
+        expect(output).to include('Stale: length_mismatch')
       end
     end
 

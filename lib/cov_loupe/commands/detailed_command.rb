@@ -3,7 +3,7 @@
 require_relative 'base_command'
 require_relative '../formatters/source_formatter'
 require_relative '../presenters/coverage_payload_presenter'
-require_relative '../formatters/table_formatter'
+require_relative '../staleness/stale_status'
 
 module CovLoupe
   module Commands
@@ -16,7 +16,10 @@ module CovLoupe
           break if emit_structured_format_with_optional_source?(data, model, path)
 
           relative_path = presenter.relative_path
+          summary = data['summary']
           puts "File: #{relative_path}"
+          puts "Coverage: #{summary['covered']}/#{summary['total']} lines (#{format('%.2f%%', summary['percentage'])})"
+          puts "Stale: #{data['stale']}" if StaleStatus.stale?(data['stale'])
           puts
 
           # Table format with box-drawing
