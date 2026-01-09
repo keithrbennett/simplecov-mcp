@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module CovLoupe
+  require_relative '../staleness/stale_status'
+
   # Reports files with coverage below a specified threshold.
   # Useful for displaying low coverage files after test runs.
   #
@@ -24,7 +26,11 @@ module CovLoupe
 
       lines = ["\nLowest coverage files (< #{threshold}%):"]
       file_list.each do |f|
-        lines << format('  %5.1f%%  %s', f['percentage'], f['file'])
+        label = f['file']
+        if StaleStatus.stale?(f['stale'])
+          label = "#{label} (stale: #{f['stale']})"
+        end
+        lines << format('  %5.1f%%  %s', f['percentage'], label)
       end
       lines.join("\n")
     end

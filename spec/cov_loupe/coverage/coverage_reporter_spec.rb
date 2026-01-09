@@ -7,10 +7,14 @@ RSpec.describe CovLoupe::CoverageReporter do
   # Data is pre-sorted by percentage ascending (as model.list returns)
   let(:files_data) do
     [
-      { 'file' => '/project/lib/zero.rb',   'percentage' =>  0.0, 'covered' =>  0, 'total' => 10 },
-      { 'file' => '/project/lib/low.rb',    'percentage' => 25.0, 'covered' =>  5, 'total' => 20 },
-      { 'file' => '/project/lib/medium.rb', 'percentage' => 60.0, 'covered' => 12, 'total' => 20 },
-      { 'file' => '/project/lib/high.rb',   'percentage' => 95.0, 'covered' => 19, 'total' => 20 }
+      { 'file' => '/project/lib/zero.rb',   'percentage' =>  0.0, 'covered' =>  0, 'total' => 10,
+        'stale' => 'missing' },
+      { 'file' => '/project/lib/low.rb',    'percentage' => 25.0, 'covered' =>  5, 'total' => 20,
+        'stale' => 'ok' },
+      { 'file' => '/project/lib/medium.rb', 'percentage' => 60.0, 'covered' => 12, 'total' => 20,
+        'stale' => 'ok' },
+      { 'file' => '/project/lib/high.rb',   'percentage' => 95.0, 'covered' => 19, 'total' => 20,
+        'stale' => 'ok' }
     ]
   end
 
@@ -92,6 +96,13 @@ RSpec.describe CovLoupe::CoverageReporter do
       # lines[0] is empty (leading newline), lines[1] is header, lines[2..] are data
       expect(lines[2]).to match(/^\s+0\.0%/)
       expect(lines[3]).to match(/^\s+25\.0%/)
+    end
+
+    it 'marks stale files in the output' do
+      result = described_class.report(threshold: 80, count: 5, model: model)
+
+      expect(result).to include('lib/zero.rb (stale: missing)')
+      expect(result).not_to include('lib/low.rb (stale: ok)')
     end
   end
 
