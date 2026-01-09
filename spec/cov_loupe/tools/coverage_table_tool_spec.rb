@@ -341,6 +341,23 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
         # Should show correct counts
         expect(output).to include('Missing tracked files (3)', 'Files newer than coverage (1)')
       end
+
+      it 'includes timestamp warning when timestamps are missing' do
+        allow(presenter).to receive_messages(
+          presenter_data.merge(timestamp_status: 'missing')
+        )
+
+        output = described_class.call(
+          root: root,
+          server_context: server_context
+        ).payload.first['text']
+
+        expect(output).to include(
+          'WARNING: Coverage timestamps are missing.',
+          'Time-based staleness checks were skipped.',
+          'Files may appear "ok" even if source code is newer'
+        )
+      end
     end
 
     it 'does not include exclusions summary when there are no exclusions' do
