@@ -336,6 +336,30 @@ RSpec.describe CovLoupe::PathUtils do
         end
       end
     end
+
+    context 'when Pathname#relative_path_from raises ArgumentError' do
+      it 'returns the original path' do
+        path = '/home/user/project/lib/file.rb'
+        root = '/home/user/project'
+
+        # Ensure we get past the initial checks
+        allow(described_class).to receive(:normalized_start_with?).and_return(true)
+
+        # Stub normalize to return mixed absolute/relative paths.
+        # This causes Pathname#relative_path_from to raise ArgumentError
+        # because it requires both paths to be either absolute or relative.
+        allow(described_class).to receive(:normalize) do |p, **_args|
+          if p.to_s.include?('file.rb')
+            '/absolute/path/file.rb'
+          else
+            'relative/root'
+          end
+        end
+
+        result = described_class.relativize(path, root)
+        expect(result).to eq(path)
+      end
+    end
   end
 
   describe '.normalize' do
@@ -987,6 +1011,21 @@ RSpec.describe CovLoupe::PathUtils do
       it 'matches paths with exact casing' do
         result = described_class.normalized_start_with?(
           '/home/user/project/lib/file.rb',
+          '/home/user/project'
+        )
+        expect(result).to be true
+      end
+    end
+
+    context 'when error occurs during case sensitivity detection' do
+      before do
+        allow(described_class).to receive(:volume_case_sensitive?).and_raise(IOError)
+      end
+
+      it 'defaults to case-insensitive matching and returns true for case-mismatch' do
+        # Should behave like case-insensitive (normalize case)
+        result = described_class.normalized_start_with?(
+          '/HOME/USER/PROJECT/FILE.RB',
           '/home/user/project'
         )
         expect(result).to be true
