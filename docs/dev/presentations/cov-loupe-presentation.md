@@ -193,6 +193,7 @@ lib/cov_loupe
 ├── model.rb
 ├── path_relativizer.rb
 ├── staleness_checker.rb
+├── version.rb
 ├── tools
 │ ├── list_tool.rb
 │ ├── coverage_detailed_tool.rb
@@ -204,8 +205,7 @@ lib/cov_loupe
 │ ├── help_tool.rb
 │ ├── uncovered_lines_tool.rb
 │ └── version_tool.rb
-├── util.rb
-└── version.rb
+└── util.rb
 ```
 
 **Clean separation:** CLI ↔ Model ↔ MCP Tools

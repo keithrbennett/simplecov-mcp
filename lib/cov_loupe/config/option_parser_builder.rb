@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'option_normalizers'
-require_relative 'version'
+require_relative '../version'
 require_relative 'boolean_type'
 require_relative 'constants'
 require_relative '../errors/errors'
