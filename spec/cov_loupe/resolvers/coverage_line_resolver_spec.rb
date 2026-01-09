@@ -239,22 +239,17 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
           windows: false, sensitive: true,
           data: { 'lib/Helper.rb' => { 'lines' => [1, 2] } },
           lookup: 'lib\\helper.rb',
-          error: CovLoupe::FileError,
-          skip_if_insensitive: true
+          error: CovLoupe::FileError
         },
         {
           desc: 'normalizes case on case-insensitive volumes',
           windows: false, sensitive: false,
           data: { 'lib/Helper.rb' => { 'lines' => [1, 2, 3] } },
           lookup: 'lib/HELPER.rb',
-          expected: [1, 2, 3],
-          skip_if_sensitive: true
+          expected: [1, 2, 3]
         }
       ].each do |tc|
         it tc[:desc] do
-          skip 'Test requires case-sensitive volume' if tc[:skip_if_insensitive] && !CovLoupe::PathUtils.volume_case_sensitive?('.')
-          skip 'Test requires case-insensitive volume' if tc[:skip_if_sensitive] && CovLoupe::PathUtils.volume_case_sensitive?('.')
-
           allow(CovLoupe).to receive(:windows?).and_return(tc[:windows])
 
           resolver = described_class.new(tc[:data], root: root,
