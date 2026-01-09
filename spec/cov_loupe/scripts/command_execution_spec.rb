@@ -67,4 +67,55 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
       end
     end
   end
+
+  describe '#command_exists?' do
+    let(:cmd) { 'some_command' }
+
+    before do
+      allow(File).to receive_messages(exist?: false, executable?: false)
+    end
+
+    context 'when command is an executable file' do
+      it 'returns true' do
+        allow(File).to receive_messages(exist?: true, executable?: true)
+        expect(executor.command_exists?(cmd)).to be true
+      end
+    end
+
+    context 'when on Windows' do
+      before do
+        allow(Gem).to receive(:win_platform?).and_return(true)
+      end
+
+      it 'uses "where" to check for command' do
+        # We must stub the subject because command_exists? calls the system kernel method on itself.
+        # rubocop:disable RSpec/SubjectStub
+        allow(executor).to receive(:system).and_return(true)
+        # rubocop:enable RSpec/SubjectStub
+
+        expect(executor.command_exists?(cmd)).to be true
+        # rubocop:disable RSpec/SubjectStub
+        expect(executor).to have_received(:system).with('where', cmd, anything)
+        # rubocop:enable RSpec/SubjectStub
+      end
+    end
+
+    context 'when on non-Windows' do
+      before do
+        allow(Gem).to receive(:win_platform?).and_return(false)
+      end
+
+      it 'uses "which" to check for command' do
+        # We must stub the subject because command_exists? calls the system kernel method on itself.
+        # rubocop:disable RSpec/SubjectStub
+        allow(executor).to receive(:system).and_return(true)
+        # rubocop:enable RSpec/SubjectStub
+
+        expect(executor.command_exists?(cmd)).to be true
+        # rubocop:disable RSpec/SubjectStub
+        expect(executor).to have_received(:system).with('which', cmd, anything)
+        # rubocop:enable RSpec/SubjectStub
+      end
+    end
+  end
 end

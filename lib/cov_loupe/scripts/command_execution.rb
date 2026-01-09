@@ -39,7 +39,8 @@ module CovLoupe
       def command_exists?(cmd)
         return true if File.exist?(cmd) && File.executable?(cmd)
 
-        system('which', cmd, out: File::NULL, err: File::NULL)
+        checker = Gem.win_platform? ? 'where' : 'which'
+        system(checker, cmd, out: File::NULL, err: File::NULL)
       end
 
       private def run_streamed(cmd, fail_on_error:)
