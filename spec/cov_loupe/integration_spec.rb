@@ -231,11 +231,11 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       }
     end
 
-    def runner_args(env: default_env, timeout: 5)
+    def runner_args(env: default_env, timeout: INTEGRATION_TIMEOUT)
       { env: env, lib_path: lib_path, exe_path: exe_path, timeout: timeout }
     end
 
-    def run_mcp_json(request_hash, env: default_env, timeout: 5)
+    def run_mcp_json(request_hash, env: default_env, timeout: INTEGRATION_TIMEOUT)
       Spec::Support::McpRunner.call_json(
         request_hash, **runner_args(env: env, timeout: timeout)
       )

@@ -57,6 +57,9 @@ TEST_FILE_TIMESTAMP = 1_000
 # Used to verify log timestamps in tests
 TIMESTAMP_REGEX = /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}\]/
 
+# Default timeout for integration tests (longer on JRuby due to startup overhead)
+INTEGRATION_TIMEOUT = RUBY_PLATFORM.include?('java') ? 15 : 5
+
 # Helper method to mock resultset file reading with fake coverage data
 # @param root [String] The test root directory
 # @param timestamp [Integer] The timestamp to use in the fake resultset

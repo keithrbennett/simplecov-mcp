@@ -3,8 +3,6 @@
 module Spec
   module Support
     module McpIntegrationHelpers
-      MCP_TIMEOUT = 5
-
       def jsonrpc_request(id, method, params = nil)
         request = { jsonrpc: '2.0', id: id, method: method }
         request[:params] = params if params
