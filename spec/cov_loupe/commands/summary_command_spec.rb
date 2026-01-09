@@ -38,6 +38,24 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
 
         expect(output).to show_source_table_or_fallback
       end
+
+      it 'handles nil percentage gracefully' do
+        # Stub the presenter to return nil percentage
+        presenter_double = instance_double(CovLoupe::Presenters::CoveragePayloadPresenter)
+        allow(presenter_double).to receive_messages(
+          absolute_payload: {
+            'file' => 'lib/empty.rb',
+            'summary' => { 'covered' => 0, 'total' => 0, 'percentage' => nil },
+            'stale' => 'ok'
+          },
+          relative_path: 'lib/empty.rb'
+        )
+        allow(CovLoupe::Presenters::CoveragePayloadPresenter).to receive(:new).and_return(presenter_double)
+
+        output = capture_command_output(command, ['lib/empty.rb'])
+
+        expect(output).to include('n/a')
+      end
     end
 
     context 'with structured format and source data' do

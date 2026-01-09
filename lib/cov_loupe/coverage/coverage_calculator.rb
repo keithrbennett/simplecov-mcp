@@ -16,7 +16,7 @@ module CovLoupe
         total += 1
         covered += 1 if hits.to_i > 0
       end
-      percentage = total <= 0 ? 100.0 : (covered.to_f / total * 100.0).round(2)
+      percentage = total <= 0 ? nil : (covered.to_f / total * 100.0).round(2)
       { 'covered' => covered, 'total' => total, 'percentage' => percentage }
     end
 

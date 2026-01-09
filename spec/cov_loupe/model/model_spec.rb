@@ -497,6 +497,43 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
+  describe 'sort with nil percentage' do
+    it 'treats nil percentage as 100.0 (high coverage)' do
+      resultset = {
+        'RSpec' => {
+          'timestamp' => 100,
+          'coverage' => {
+            File.join(root, 'lib/empty.rb') => { 'lines' => [] },
+            File.join(root, 'lib/full.rb') => { 'lines' => [1] },
+            File.join(root, 'lib/none.rb') => { 'lines' => [0] }
+          }
+        }
+      }
+      # empty.rb -> nil (treated as 100.0)
+      # full.rb -> 100.0
+      # none.rb -> 0.0
+
+      allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
+        .and_return(File.join(Dir.tmpdir, 'test_resultset.json'))
+      allow(File).to receive(:read).with(File.join(Dir.tmpdir, 'test_resultset.json'))
+        .and_return(JSON.generate(resultset))
+
+      test_model = described_class.new(root: root)
+
+      # Descending: 100 first. empty (nil->100) and full (100) are tied.
+      # Tiebreaker is filename: empty.rb < full.rb.
+      # So empty.rb, full.rb, none.rb?
+      # Wait, comparator:
+      # percent_comparator.(a, b)
+      # If equal, a['file'] <=> b['file'] (ascending filename)
+
+      files = test_model.list(sort_order: :descending)['files']
+      basenames = files.map { |f| File.basename(f['file']) }
+
+      expect(basenames).to eq(['empty.rb', 'full.rb', 'none.rb'])
+    end
+  end
+
   describe '#refresh_data' do
     it 'returns self' do
       expect(model.refresh_data).to eq(model)

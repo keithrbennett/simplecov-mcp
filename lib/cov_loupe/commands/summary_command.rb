@@ -21,9 +21,11 @@ module CovLoupe
           # Table format with box-drawing
           headers = ['File', '%', 'Covered', 'Total', 'Stale']
           stale_marker = StaleStatus.stale?(data['stale']) ? 'Yes' : ''
+          percent_display = summary['percentage'] ? format('%.2f%%', summary['percentage']) : 'n/a'.rjust(6)
+
           rows = [[
             relative_path,
-            format('%.2f%%', summary['percentage']),
+            percent_display,
             summary['covered'].to_s,
             summary['total'].to_s,
             stale_marker

@@ -314,8 +314,8 @@ module CovLoupe
 
     private def sort_rows(rows, sort_order: :descending)
       percent_comparator = sort_order == :descending \
-        ? ->(a, b) { b['percentage'] <=> a['percentage'] }
-        : ->(a, b) { a['percentage'] <=> b['percentage'] }
+        ? ->(a, b) { (b['percentage'] || 100.0) <=> (a['percentage'] || 100.0) }
+        : ->(a, b) { (a['percentage'] || 100.0) <=> (b['percentage'] || 100.0) }
 
       comparator = ->(a, b) do
         percent_comp_result = percent_comparator.(a, b)

@@ -90,8 +90,14 @@ module CovLoupe
       ws = widths
       is_stale = StaleStatus.stale?(fd['stale'])
       stale_str = is_stale ? fd['stale'].to_s.center(ws[:stale]) : ''
-      format_str = "│ %-#{ws[:file]}s │ %#{ws[:pct] - 1}.2f%% │ %#{ws[:covered]}d │ %#{ws[:total]}d │ %#{ws[:stale]}s │"
-      Kernel.format(format_str, fd['file'], fd['percentage'], fd['covered'], fd['total'], stale_str)
+      pct_str = if fd['percentage']
+        Kernel.format("%#{ws[:pct] - 1}.2f%%", fd['percentage'])
+      else
+        'n/a'.rjust(ws[:pct])
+      end
+
+      format_str = "│ %-#{ws[:file]}s │ %s │ %#{ws[:covered]}d │ %#{ws[:total]}d │ %#{ws[:stale]}s │"
+      Kernel.format(format_str, fd['file'], pct_str, fd['covered'], fd['total'], stale_str)
     end
 
     # Generate summary counts footer

@@ -6,12 +6,12 @@ RSpec.describe CovLoupe::CoverageCalculator do
   describe '.summary' do
     it 'handles empty arrays' do
       expect(described_class.summary([]))
-        .to include('percentage' => 100.0, 'total' => 0, 'covered' => 0)
+        .to include('percentage' => nil, 'total' => 0, 'covered' => 0)
     end
 
     it 'handles arrays with only nils' do
       expect(described_class.summary([nil, nil]))
-        .to include('percentage' => 100.0, 'total' => 0, 'covered' => 0)
+        .to include('percentage' => nil, 'total' => 0, 'covered' => 0)
     end
 
     it 'coerces string values to integers' do

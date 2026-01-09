@@ -195,6 +195,27 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       end
     end
 
+    context 'with nil percentage' do
+      let(:rows) do
+        [
+          {
+            'file' => 'empty.rb',
+            'percentage' => nil,
+            'covered' => 0,
+            'total' => 0,
+            'stale' => 'ok'
+          }
+        ]
+      end
+
+      it 'displays "n/a" aligned to the right' do
+        output = described_class.format(rows)
+        # Check alignment: should be padded to 8 chars (default pct width)
+        # "     n/a"
+        expect(output).to include('     n/a')
+      end
+    end
+
     context 'with varying number lengths' do
       let(:rows) do
         [

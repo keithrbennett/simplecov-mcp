@@ -86,6 +86,25 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
           expect(output).to include('Missing from coverage = 1')
         end
       end
+
+      it 'handles nil percentage gracefully' do
+        presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
+        allow(presenter_double).to receive_messages(
+          absolute_payload: {
+            'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => nil },
+            'tracking' => { 'enabled' => false, 'globs' => [] },
+            'files' => { 'total' => 0,
+                         'with_coverage' => { 'total' => 0, 'ok' => 0,
+                                              'stale' => { 'total' => 0, 'by_type' => {} } } }
+          },
+          timestamp_status: 'ok'
+        )
+        allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new).and_return(presenter_double)
+
+        output = capture_command_output(command, [])
+
+        expect(output).to include('n/a')
+      end
     end
 
     it_behaves_like 'a command with formatted output', [], %w[lines tracking files]
