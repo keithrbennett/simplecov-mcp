@@ -217,15 +217,19 @@ clp detailed app/models/order.rb -s full  # -s = --source
 **Output (default format):**
 ```
 File: app/models/order.rb
-  Line    Hits  Covered
- -----    ----  -------
-     6       1    yes
-     7       1    yes
-     8       1    yes
-    11       1    yes
-    12       1    yes
-    15       1    yes
-    16       0     no
+Coverage: 6/7 lines (85.71%)
+
+┌──────┬──────┬─────────┐
+│ Line │ Hits │ Covered │
+├──────┼──────┼─────────┤
+│    6 │    1 │   yes   │
+│    7 │    1 │   yes   │
+│    8 │    1 │   yes   │
+│   11 │    1 │   yes   │
+│   12 │    1 │   yes   │
+│   15 │    1 │   yes   │
+│   16 │    0 │   no    │
+└──────┴──────┴─────────┘
 ```
 
 **Output (JSON format):**
