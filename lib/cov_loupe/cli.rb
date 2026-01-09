@@ -6,16 +6,14 @@ require_relative 'config/option_parser_builder'
 require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
-require_relative 'config/constants'
 require_relative 'presenters/project_coverage_presenter'
 
 module CovLoupe
   class CoverageCLI
     HORIZONTAL_RULE = '-' * 79
 
-    # Reference shared constants to avoid duplication with ModeDetector
-    SUBCOMMANDS = Constants::SUBCOMMANDS
-    OPTIONS_EXPECTING_ARGUMENT = Constants::OPTIONS_EXPECTING_ARGUMENT
+    # Valid CLI subcommands.
+    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
 
     attr_reader :config
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'constants'
-
 module CovLoupe
   # Configuration container for application options (used by both CLI and MCP modes)
   # Uses Struct for simplicity and built-in functionality

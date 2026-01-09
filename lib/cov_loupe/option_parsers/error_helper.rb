@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../config/constants'
 
 module CovLoupe
   module OptionParsers
     class ErrorHelper
-      # Reference shared constant to avoid duplication
-      SUBCOMMANDS = Constants::SUBCOMMANDS
-
-      def initialize(subcommands = SUBCOMMANDS)
+      def initialize(subcommands)
         @subcommands = subcommands
       end
 
