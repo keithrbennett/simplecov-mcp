@@ -142,8 +142,8 @@ RSpec.describe CovLoupe::ModelDataCache do
 
     it 'ensures singleton instance creation is thread-safe' do
       # Reset the singleton to test concurrent initialization
+      # Note: INSTANCE_MUTEX constant cannot and should not be reset
       described_class.instance_variable_set(:@instance, nil)
-      described_class.instance_variable_set(:@instance_mutex, nil)
 
       instances = []
       mutex = Mutex.new

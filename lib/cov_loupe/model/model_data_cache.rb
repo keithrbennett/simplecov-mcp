@@ -16,6 +16,10 @@ module CovLoupe
   # case-sensitivity detection depend on the root directory. Two models with the same
   # resultset but different roots may have different normalized coverage maps.
   class ModelDataCache
+    # Mutex for thread-safe singleton initialization.
+    # Using a constant ensures it cannot be reset, avoiding race conditions in JRuby.
+    INSTANCE_MUTEX = Mutex.new
+
     def initialize
       @entries = {}
       @mutex = Mutex.new
@@ -23,8 +27,7 @@ module CovLoupe
 
     # Returns the singleton instance with thread-safe initialization
     def self.instance
-      @instance_mutex ||= Mutex.new
-      @instance_mutex.synchronize do
+      INSTANCE_MUTEX.synchronize do
         @instance ||= new
       end
     end
