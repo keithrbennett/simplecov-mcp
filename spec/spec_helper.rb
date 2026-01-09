@@ -105,7 +105,7 @@ end
 
 # Automatically require all files in spec/support and spec/shared_examples
 Dir[File.join(__dir__, 'support', '**', '*.rb')].each { |f| require f }
-Dir[File.join(__dir__, 'shared_examples', '**', '*.rb')].each { |f| require f }
+Dir[File.join(__dir__, 'cov_loupe', 'shared_examples', '**', '*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
   config.example_status_persistence_file_path = '.rspec_status'

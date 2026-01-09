@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe 'CovLoupe::VERSION' do
-  let(:version_file) { File.expand_path('../../../lib/cov_loupe/version.rb', __dir__) }
-  let(:gemspec_file) { File.expand_path('../../../cov-loupe.gemspec', __dir__) }
+  let(:version_file) { File.expand_path('../../lib/cov_loupe/version.rb', __dir__) }
+  let(:gemspec_file) { File.expand_path('../../cov-loupe.gemspec', __dir__) }
   let(:semver_regex) do
     %r{\A
       (?<major>0|[1-9]\d*)\.
