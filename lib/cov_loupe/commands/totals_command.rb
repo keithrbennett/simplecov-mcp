@@ -36,13 +36,14 @@ module CovLoupe
         headers = ['Metric', 'Total', 'Covered', 'Uncovered', '%']
         file_ok = with_coverage['ok']
         file_uncovered = files['total'] - file_ok
+        percent_display = lines['percent_covered'].nil? ? 'N/A' : format('%.2f%%', lines['percent_covered'])
         rows = [
           [
             'Lines',
             lines['total'].to_s,
             lines['covered'].to_s,
             lines['uncovered'].to_s,
-            format('%.2f%%', lines['percent_covered'])
+            percent_display
           ],
           [
             'Files',

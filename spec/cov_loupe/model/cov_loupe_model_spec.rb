@@ -246,7 +246,7 @@ RSpec.describe CovLoupe::CoverageModel do
           'total' => 0,
           'covered' => 0,
           'uncovered' => 0,
-          'percent_covered' => 100.0
+          'percent_covered' => nil
         )
         expect(totals['files']).to include('total' => 2)
         expect(totals['files']['with_coverage']['stale']).to include('total' => 2)

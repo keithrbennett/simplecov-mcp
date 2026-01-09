@@ -380,7 +380,7 @@ module CovLoupe
       covered = rows.sum { |row| row['covered'].to_i }
       total = rows.sum { |row| row['total'].to_i }
       uncovered = total - covered
-      percent_covered = total.zero? ? 100.0 : ((covered.to_f * 100.0 / total) * 100).round / 100.0
+      percent_covered = total.zero? ? nil : ((covered.to_f * 100.0 / total) * 100).round / 100.0
 
       {
         'covered' => covered,
