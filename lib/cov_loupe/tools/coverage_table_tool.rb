@@ -60,6 +60,10 @@ module CovLoupe
             exclusions = format_exclusions_summary(presenter)
             table += exclusions unless exclusions.empty?
 
+            # Append timestamp warning (matching CLI behavior)
+            timestamp_warning = format_timestamp_warning(presenter)
+            table += timestamp_warning unless timestamp_warning.empty?
+
             # Append skipped rows warning (matching CLI behavior)
             skipped_warning = format_skipped_rows_warning(model)
             table += skipped_warning unless skipped_warning.empty?
@@ -117,6 +121,18 @@ module CovLoupe
 
           output << "\nRun with --raise-on-stale to exit when files are excluded."
           output.join("\n")
+        end
+
+        # Formats the timestamp warning matching CLI warn_missing_timestamps behavior
+        private def format_timestamp_warning(presenter)
+          return '' unless presenter.timestamp_status == 'missing'
+
+          <<~WARNING
+
+            WARNING: Coverage timestamps are missing. Time-based staleness checks were skipped.
+            Files may appear "ok" even if source code is newer than the coverage data.
+            Check your coverage tool configuration to ensure timestamps are recorded.
+          WARNING
         end
 
         # Formats the skipped rows warning matching CLI warn_skipped_rows behavior

@@ -185,7 +185,8 @@ RSpec.describe CovLoupe::CoverageCLI do
         relative_missing_tracked_files: [],
         relative_deleted_files: [],
         relative_skipped_files: [],
-        relative_files: []
+        relative_files: [],
+        timestamp_status: 'ok'
       )
       allow(CovLoupe::Presenters::ProjectCoveragePresenter)
         .to receive(:new).and_return(presenter_double)

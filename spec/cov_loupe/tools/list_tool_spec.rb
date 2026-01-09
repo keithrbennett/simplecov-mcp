@@ -27,7 +27,8 @@ RSpec.describe CovLoupe::Tools::ListTool do
       'newer_files' => [],
       'deleted_files' => [],
       'length_mismatch_files' => [],
-      'unreadable_files' => []
+      'unreadable_files' => [],
+      'timestamp_status' => 'ok'
     }
 
     presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
@@ -94,6 +95,54 @@ RSpec.describe CovLoupe::Tools::ListTool do
       text = response.payload.first['text']
       expect(text).to include('Error')
       expect(text).to include('invalid')
+    end
+  end
+
+  describe 'timestamp_status warnings' do
+    let(:setup_presenter_with_timestamp_status) do
+      ->(status) do
+        model = instance_double(CovLoupe::CoverageModel)
+        allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+
+        test_payload = {
+          'files' => [],
+          'counts' => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
+          'skipped_files' => [],
+          'missing_tracked_files' => [],
+          'newer_files' => [],
+          'deleted_files' => [],
+          'length_mismatch_files' => [],
+          'unreadable_files' => [],
+          'timestamp_status' => status
+        }
+
+        presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
+        allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+        allow(presenter).to receive(:relativized_payload).and_return(test_payload)
+      end
+    end
+
+    it 'includes warnings array when timestamp_status is missing' do
+      setup_presenter_with_timestamp_status.call('missing')
+
+      response = call_tool
+      data, _item = expect_mcp_text_json(response, expected_keys: %w[
+        files counts timestamp_status warnings
+      ])
+
+      expect(data['timestamp_status']).to eq('missing')
+      expect(data['warnings']).to be_an(Array)
+      expect(data['warnings']).to include(
+        'Coverage timestamps are missing. Time-based staleness checks were skipped.'
+      )
+    end
+
+    it 'does not include warnings array when timestamp_status is ok' do
+      response = call_tool
+      data, _item = expect_mcp_text_json(response)
+
+      expect(data['timestamp_status']).to eq('ok')
+      expect(data['warnings']).to be_nil
     end
   end
 end

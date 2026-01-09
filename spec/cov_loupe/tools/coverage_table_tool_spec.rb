@@ -150,7 +150,8 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
           relative_deleted_files: [],
           relative_length_mismatch_files: [],
           relative_unreadable_files: [],
-          relative_skipped_files: []
+          relative_skipped_files: [],
+          timestamp_status: 'ok'
         }
       end
 
@@ -365,7 +366,8 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
         relative_files: [], relative_missing_tracked_files: [],
         relative_newer_files: [], relative_deleted_files: [],
         relative_length_mismatch_files: [], relative_unreadable_files: [],
-        relative_skipped_files: []
+        relative_skipped_files: [],
+        timestamp_status: 'ok'
       )
 
       allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)

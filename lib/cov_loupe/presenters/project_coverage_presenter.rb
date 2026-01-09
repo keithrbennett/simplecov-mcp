@@ -59,6 +59,12 @@ module CovLoupe
         relativized_payload['unreadable_files']
       end
 
+      # Returns the timestamp status indicating whether coverage timestamps are available.
+      # Can be 'ok' (timestamps available) or 'missing' (no timestamps, staleness checks skipped).
+      def timestamp_status
+        relativized_payload['timestamp_status']
+      end
+
       private def compute_absolute_payload
         list_result = model.list(
           sort_order: sort_order,
@@ -72,6 +78,7 @@ module CovLoupe
         deleted_files = list_result['deleted_files']
         length_mismatch_files = list_result['length_mismatch_files']
         unreadable_files = list_result['unreadable_files']
+        timestamp_status = list_result['timestamp_status']
         {
           'files' => files,
           'skipped_files' => skipped_files,
@@ -80,6 +87,7 @@ module CovLoupe
           'deleted_files' => deleted_files,
           'length_mismatch_files' => length_mismatch_files,
           'unreadable_files' => unreadable_files,
+          'timestamp_status' => timestamp_status,
           'counts' => build_counts(files)
         }
       end

@@ -56,6 +56,9 @@ to the coverage snapshot and raises if stale. When it fails:
 If you only care about a subset of files, supply `-g` / `--tracked-globs` (CLI) or `tracked_globs:`
 (API) so new files outside those globs do not trigger staleness.
 
+**Note:** If you see warnings about missing timestamps, time-based staleness checks may be skipped.
+See [Timestamp Warnings](ADVANCED_USAGE.md#timestamp-warnings) for details.
+
 ### "No coverage data found for file"
 
 The model looks up files by absolute path, then by relative path (stripping the project root). If you still hit this error:

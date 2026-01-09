@@ -93,7 +93,7 @@ Staleness checking prevents using outdated coverage data. The behavior is contro
 ### File-Level Staleness
 
 A file is considered stale when any of the following are true:
-1. Source file modified after coverage generation
+1. Source file modified after coverage generation (requires timestamps - see [Timestamp Warnings](#timestamp-warnings))
 2. Line count differs from coverage array length
 3. File exists in coverage but deleted from filesystem
 
@@ -124,7 +124,7 @@ end
 Detects system-wide staleness issues:
 
 **Conditions Checked:**
-1. **Newer files** - Any tracked file modified after coverage
+1. **Newer files** - Any tracked file modified after coverage (requires timestamps - see [Timestamp Warnings](#timestamp-warnings))
 2. **Missing files** - Tracked files with no coverage data
 3. **Deleted files** - Coverage exists for non-existent files
 
@@ -154,6 +154,46 @@ rescue CovLoupe::CoverageDataProjectStaleError => e
   puts "Missing from coverage: #{e.missing_files.join(', ')}"
   puts "Deleted but in coverage: #{e.deleted_files.join(', ')}"
 end
+```
+
+### Timestamp Warnings
+
+When coverage data lacks timestamps (e.g., manually created resultsets or older SimpleCov versions), cov-loupe displays a warning in both CLI and MCP modes:
+
+```
+WARNING: Coverage timestamps are missing. Time-based staleness checks were skipped.
+Files may appear "ok" even if source code is newer than the coverage data.
+Check your coverage tool configuration to ensure timestamps are recorded.
+```
+
+**What this means:**
+- Time-based staleness checks (the `"newer"` indicator) cannot run without timestamps
+- Files modified after coverage collection won't be flagged as stale
+- Only line count mismatches and missing files will be detected
+- The `timestamp_status` field in JSON output will show `"missing"` instead of `"ok"`
+
+**Where it appears:**
+- **CLI table format:** After the coverage table in `list` output
+- **CLI JSON format:** After JSON output, and in the `timestamp_status` field
+- **MCP mode:** In `coverage_table_tool` output after the exclusions summary
+- **MCP JSON:** In the `timestamp_status` field of `list_tool` responses
+
+**How to fix:**
+
+Modern SimpleCov versions automatically include timestamps in `.resultset.json`. If you see this warning:
+
+1. Ensure SimpleCov is up to date (`gem update simplecov`)
+2. Regenerate coverage data (`bundle exec rspec`)
+3. If using custom resultset generation, ensure timestamps are included
+
+**Example timestamp in `.resultset.json`:**
+```json
+{
+  "RSpec": {
+    "coverage": { ... },
+    "timestamp": 1704067200
+  }
+}
 ```
 
 ---

@@ -47,7 +47,8 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
         'newer_files' => [],
         'deleted_files' => ['/abs/path/lib/deleted.rb'],
         'length_mismatch_files' => ['/abs/path/lib/bad_length.rb'],
-        'unreadable_files' => ['/abs/path/lib/unreadable.rb']
+        'unreadable_files' => ['/abs/path/lib/unreadable.rb'],
+        'timestamp_status' => 'ok'
       })
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(
@@ -72,6 +73,12 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
 
       expect(payload['files']).to eq(files)
       expect(payload['counts']).to eq({ 'total' => 2, 'ok' => 1, 'stale' => 1 })
+    end
+
+    it 'includes timestamp_status in the payload' do
+      payload = presenter.absolute_payload
+
+      expect(payload['timestamp_status']).to eq('ok')
     end
 
     it 'memoizes the computed payload' do
@@ -137,6 +144,34 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   describe '#relative_unreadable_files' do
     it 'returns the relativized unreadable files' do
       expect(presenter.relative_unreadable_files).to eq(['lib/unreadable.rb'])
+    end
+  end
+
+  describe '#timestamp_status' do
+    it 'returns the timestamp status from the model' do
+      expect(presenter.timestamp_status).to eq('ok')
+    end
+
+    context 'when timestamps are missing' do
+      before do
+        allow(model).to receive(:list).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
+          tracked_globs: tracked_globs).and_return({
+            'files' => files,
+            'skipped_files' => [],
+            'missing_tracked_files' => [],
+            'newer_files' => [],
+            'deleted_files' => [],
+            'length_mismatch_files' => [],
+            'unreadable_files' => [],
+            'timestamp_status' => 'missing'
+          })
+      end
+
+      it 'returns "missing"' do
+        # Clear memoized payload
+        presenter.instance_variable_set(:@absolute_payload, nil)
+        expect(presenter.timestamp_status).to eq('missing')
+      end
     end
   end
 end

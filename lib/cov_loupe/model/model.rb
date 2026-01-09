@@ -174,7 +174,8 @@ module CovLoupe
       {
         'lines' => line_totals,
         'tracking' => tracking,
-        'files' => files
+        'files' => files,
+        'timestamp_status' => list_result['timestamp_status']
       }
     end
 

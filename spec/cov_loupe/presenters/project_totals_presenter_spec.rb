@@ -47,7 +47,8 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
             'skipped' => 0
           }
         }
-      }
+      },
+      'timestamp_status' => 'ok'
     }
   end
 
@@ -175,6 +176,28 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
       result = presenter.relativized_payload
 
       expect(result['transformed']).to be(true)
+    end
+  end
+
+  describe '#timestamp_status' do
+    it 'returns the timestamp status from the payload' do
+      expect(presenter.timestamp_status).to eq('ok')
+    end
+
+    context 'when timestamps are missing' do
+      let(:raw_totals_missing_timestamps) do
+        raw_totals.merge('timestamp_status' => 'missing')
+      end
+
+      before do
+        allow(model).to receive(:project_totals)
+          .with(tracked_globs: ['lib/**/*.rb'], raise_on_stale: true)
+          .and_return(raw_totals_missing_timestamps)
+      end
+
+      it 'returns "missing"' do
+        expect(presenter.timestamp_status).to eq('missing')
+      end
     end
   end
 end

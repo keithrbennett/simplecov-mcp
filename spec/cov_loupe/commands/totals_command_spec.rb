@@ -34,41 +34,44 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       it 'shows file breakdown with stale and without coverage details' do
         # Mock the presenter to return data with stale and without coverage counts
         presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
-        allow(presenter_double).to receive(:absolute_payload).and_return(
-          'lines' => {
-            'total' => 6,
-            'covered' => 3,
-            'uncovered' => 3,
-            'percent_covered' => 50.0
-          },
-          'tracking' => {
-            'enabled' => true,
-            'globs' => ['lib/**/*.rb']
-          },
-          'files' => {
-            'total' => 4,
-            'with_coverage' => {
-              'total' => 3,
-              'ok' => 2,
-              'stale' => {
+        allow(presenter_double).to receive_messages(
+          absolute_payload: {
+            'lines' => {
+              'total' => 6,
+              'covered' => 3,
+              'uncovered' => 3,
+              'percent_covered' => 50.0
+            },
+            'tracking' => {
+              'enabled' => true,
+              'globs' => ['lib/**/*.rb']
+            },
+            'files' => {
+              'total' => 4,
+              'with_coverage' => {
+                'total' => 3,
+                'ok' => 2,
+                'stale' => {
+                  'total' => 1,
+                  'by_type' => {
+                    'missing_from_disk' => 0,
+                    'newer' => 1,
+                    'length_mismatch' => 0,
+                    'unreadable' => 0
+                  }
+                }
+              },
+              'without_coverage' => {
                 'total' => 1,
                 'by_type' => {
-                  'missing_from_disk' => 0,
-                  'newer' => 1,
-                  'length_mismatch' => 0,
-                  'unreadable' => 0
+                  'missing_from_coverage' => 1,
+                  'unreadable' => 0,
+                  'skipped' => 0
                 }
               }
-            },
-            'without_coverage' => {
-              'total' => 1,
-              'by_type' => {
-                'missing_from_coverage' => 1,
-                'unreadable' => 0,
-                'skipped' => 0
-              }
             }
-          }
+          },
+          timestamp_status: 'ok'
         )
         allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new)
           .and_return(presenter_double)
@@ -91,6 +94,67 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       expect do
         command.execute(%w[extra])
       end.to raise_error(CovLoupe::UsageError, include('totals'))
+    end
+
+    shared_examples 'timestamp warning display' do |timestamp_status, should_warn|
+      let(:base_payload) do
+        {
+          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => 0 },
+          'tracking' => { 'enabled' => false, 'globs' => [] },
+          'files' => {
+            'total' => 0,
+            'with_coverage' => {
+              'total' => 0,
+              'ok' => 0,
+              'stale' => {
+                'total' => 0,
+                'by_type' => {
+                  'missing_from_disk' => 0,
+                  'newer' => 0,
+                  'length_mismatch' => 0,
+                  'unreadable' => 0
+                }
+              }
+            }
+          }
+        }
+      end
+
+      before do
+        payload = base_payload.merge('timestamp_status' => timestamp_status)
+        presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
+        allow(presenter_double).to receive_messages(
+          absolute_payload: payload,
+          timestamp_status: timestamp_status
+        )
+        allow(CovLoupe::Presenters::ProjectTotalsPresenter).to receive(:new)
+          .and_return(presenter_double)
+      end
+
+      it "#{should_warn ? 'displays' : 'does not display'} a warning about missing timestamps" do
+        stderr_output = nil
+        silence_output do
+          command.execute([])
+          stderr_output = $stderr.string
+        end
+
+        if should_warn
+          expect(stderr_output).to include(
+            'WARNING: Coverage timestamps are missing',
+            'Time-based staleness checks were skipped'
+          )
+        else
+          expect(stderr_output).not_to include('WARNING: Coverage timestamps are missing')
+        end
+      end
+    end
+
+    context 'when timestamp_status is missing' do
+      it_behaves_like 'timestamp warning display', 'missing', true
+    end
+
+    context 'when timestamp_status is ok' do
+      it_behaves_like 'timestamp warning display', 'ok', false
     end
   end
 end

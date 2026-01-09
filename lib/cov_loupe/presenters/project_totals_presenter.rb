@@ -16,6 +16,12 @@ module CovLoupe
         @tracked_globs = tracked_globs
       end
 
+      # Returns the timestamp status indicating whether coverage timestamps are available.
+      # Can be 'ok' (timestamps available) or 'missing' (no timestamps, staleness checks skipped).
+      def timestamp_status
+        relativized_payload['timestamp_status']
+      end
+
       private def compute_absolute_payload
         model.project_totals(
           tracked_globs: tracked_globs,

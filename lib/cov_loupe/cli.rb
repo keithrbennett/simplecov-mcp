@@ -90,12 +90,14 @@ module CovLoupe
           tracked_globs: nil
         )
         show_exclusions_summary(presenter, output)
+        warn_missing_timestamps(presenter, output)
       else
         require_relative 'formatters/formatters'
         output.puts Formatters.format(presenter.relativized_payload, config.format)
       end
 
       warn_skipped_rows(model)
+      warn_missing_timestamps(presenter) unless config.format == :table
     end
 
     private def parse_options!(argv)
@@ -207,6 +209,17 @@ module CovLoupe
         warn "  - #{relative_path}: #{row['error']}"
       end
       warn 'Run again with --raise-on-stale to exit when rows are skipped.'
+    end
+
+    private def warn_missing_timestamps(presenter, output = $stderr)
+      return unless presenter.timestamp_status == 'missing'
+
+      output.puts <<~WARNING
+
+        WARNING: Coverage timestamps are missing. Time-based staleness checks were skipped.
+        Files may appear "ok" even if source code is newer than the coverage data.
+        Check your coverage tool configuration to ensure timestamps are recorded.
+      WARNING
     end
 
     private def show_exclusions_summary(presenter, output)
