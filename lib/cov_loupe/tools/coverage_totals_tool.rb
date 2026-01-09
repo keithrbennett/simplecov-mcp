@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../model'
+require_relative '../model/model'
 require_relative '../base_tool'
 require_relative '../presenters/project_totals_presenter'
 

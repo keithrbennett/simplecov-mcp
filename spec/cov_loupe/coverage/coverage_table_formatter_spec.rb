@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/coverage_table_formatter'
+require 'cov_loupe/coverage/coverage_table_formatter'
 
 RSpec.describe CovLoupe::CoverageTableFormatter do
   describe '.format' do

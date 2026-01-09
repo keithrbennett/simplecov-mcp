@@ -3,7 +3,7 @@
 require 'json'
 require 'time'
 
-require_relative 'errors'
+require_relative '../errors/errors'
 
 module CovLoupe
   class ResultsetLoader

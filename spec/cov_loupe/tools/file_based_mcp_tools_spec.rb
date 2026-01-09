@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require_relative 'shared_examples/file_based_mcp_tools'
+require_relative '../../shared_examples/file_based_mcp_tools'
 
 # Load all the tool classes that will be tested
 require 'cov_loupe/tools/coverage_summary_tool'

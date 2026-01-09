@@ -2,7 +2,7 @@
 
 require 'json'
 require_relative 'base_command'
-require_relative '../table_formatter'
+require_relative '../formatters/table_formatter'
 
 module CovLoupe
   module Commands

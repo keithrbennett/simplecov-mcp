@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'stale_status'
+require_relative '../staleness/stale_status'
 
 module CovLoupe
   # Formats coverage data as a table with box-drawing characters

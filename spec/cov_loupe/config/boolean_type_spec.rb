@@ -3,7 +3,7 @@
 # rubocop:disable Style/CaseEquality
 
 require 'spec_helper'
-require 'cov_loupe/boolean_type'
+require 'cov_loupe/config/boolean_type'
 
 RSpec.describe CovLoupe::BooleanType do
   describe 'Constants' do

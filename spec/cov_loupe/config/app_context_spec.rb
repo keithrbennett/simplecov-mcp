@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/app_context'
+require 'cov_loupe/config/app_context'
 
 RSpec.describe CovLoupe::AppContext do
   let(:error_handler) { instance_double(CovLoupe::ErrorHandler) }

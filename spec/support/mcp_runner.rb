@@ -23,7 +23,9 @@ module Spec
         stderr_str = ''
         status = nil
 
-        Open3.popen3(env, 'ruby', '-I', lib_path, exe_path) do |stdin, stdout, stderr, wait_thr|
+        cmd = ['bundle', 'exec', 'ruby', '-I', lib_path, exe_path]
+
+        Open3.popen3(env, *cmd) do |stdin, stdout, stderr, wait_thr|
           unless payload.nil?
             stdin.write(payload)
             stdin.write("\n") if !payload.empty? && !payload.end_with?("\n")

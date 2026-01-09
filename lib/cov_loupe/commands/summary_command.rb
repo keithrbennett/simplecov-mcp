@@ -2,7 +2,7 @@
 
 require_relative 'base_command'
 require_relative '../presenters/coverage_payload_presenter'
-require_relative '../table_formatter'
+require_relative '../formatters/table_formatter'
 
 module CovLoupe
   module Commands

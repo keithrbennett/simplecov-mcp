@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/glob_utils'
+require 'cov_loupe/paths/glob_utils'
 
 RSpec.describe CovLoupe::GlobUtils do
   before do

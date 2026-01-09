@@ -3,7 +3,7 @@
 
 require_relative '../base_tool'
 require_relative '../presenters/project_coverage_presenter'
-require_relative '../option_normalizers'
+require_relative '../config/option_normalizers'
 
 module CovLoupe
   module Tools

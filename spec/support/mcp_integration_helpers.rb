@@ -12,7 +12,8 @@ module Spec
       end
 
       def jsonrpc_call(id, method, params = nil)
-        parse_jsonrpc(run_mcp_json(jsonrpc_request(id, method, params))[:stdout])
+        result = run_mcp_json(jsonrpc_request(id, method, params))
+        parse_jsonrpc(result[:stdout])
       end
 
       def jsonrpc_tool_call(id, name, arguments = {})
@@ -31,7 +32,7 @@ module Spec
         rescue JSON::ParserError
           # Continue searching
         end
-        raise "No valid JSON-RPC response found. Output: #{output}"
+        raise "No valid JSON-RPC response found. Output: #{output.inspect}"
       end
 
       def expect_jsonrpc_result(response, id)

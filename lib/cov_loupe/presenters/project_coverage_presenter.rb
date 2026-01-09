@@ -2,7 +2,7 @@
 
 require_relative 'payload_caching'
 
-require_relative '../stale_status'
+require_relative '../staleness/stale_status'
 
 module CovLoupe
   module Presenters

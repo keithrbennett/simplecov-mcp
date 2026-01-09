@@ -57,7 +57,7 @@ RSpec.describe 'Error Mode System' do
 
         logged_message = test_logger.messages.join
         expect(logged_message).to include('Error in test: StandardError: Test error message')
-        expect(logged_message).to include('spec/error_mode_spec.rb') # Stack trace included
+        expect(logged_message).to include('spec/cov_loupe/errors/error_mode_spec.rb') # Stack trace included
       end
     end
   end

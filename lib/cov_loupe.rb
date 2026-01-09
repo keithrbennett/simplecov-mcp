@@ -5,15 +5,15 @@ require 'time'
 require 'pathname'
 require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 requires explicit require for set; RuboCop targets 3.2
 
-require_relative 'cov_loupe/version'
-require_relative 'cov_loupe/app_context'
-require_relative 'cov_loupe/errors'
-require_relative 'cov_loupe/error_handler'
-require_relative 'cov_loupe/error_handler_factory'
-require_relative 'cov_loupe/path_relativizer'
-require_relative 'cov_loupe/resultset_loader'
-require_relative 'cov_loupe/model'
-require_relative 'cov_loupe/coverage_reporter'
+require_relative 'cov_loupe/config/version'
+require_relative 'cov_loupe/config/app_context'
+require_relative 'cov_loupe/errors/errors'
+require_relative 'cov_loupe/errors/error_handler'
+require_relative 'cov_loupe/errors/error_handler_factory'
+require_relative 'cov_loupe/paths/path_relativizer'
+require_relative 'cov_loupe/loaders/resultset_loader'
+require_relative 'cov_loupe/model/model'
+require_relative 'cov_loupe/coverage/coverage_reporter'
 
 module CovLoupe
   class << self
@@ -45,7 +45,7 @@ module CovLoupe
       full_argv = extract_env_opts + argv
 
       # Parse config to determine mode
-      require_relative 'cov_loupe/config_parser'
+      require_relative 'cov_loupe/config/config_parser'
       begin
         config = ConfigParser.parse(full_argv.dup)
       rescue OptionParser::ParseError, ConfigurationError => e
@@ -56,11 +56,11 @@ module CovLoupe
 
       if config.mode == :cli
         # CLI mode: load CLI components only
-        require_relative 'cov_loupe/all_cli'
+        require_relative 'cov_loupe/loaders/all_cli'
         CoverageCLI.new.run(full_argv)
       else
         # MCP server mode: load MCP server components only
-        require_relative 'cov_loupe/all_mcp'
+        require_relative 'cov_loupe/loaders/all_mcp'
 
         if config.log_file == 'stdout'
           raise ConfigurationError,

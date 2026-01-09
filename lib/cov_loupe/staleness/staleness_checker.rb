@@ -3,8 +3,8 @@
 require 'time'
 require 'pathname'
 require 'set' # rubocop:disable Lint/RedundantRequireStatement -- Ruby >= 3.4 requires explicit require for set; RuboCop targets 3.2
-require_relative 'errors'
-require_relative 'resolvers/resolver_helpers'
+require_relative '../errors/errors'
+require_relative '../resolvers/resolver_helpers'
 
 module CovLoupe
   # Lightweight service object to check staleness of coverage vs. sources

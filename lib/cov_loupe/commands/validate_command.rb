@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'base_command'
-require_relative '../predicate_evaluator'
+require_relative '../config/predicate_evaluator'
 
 module CovLoupe
   module Commands

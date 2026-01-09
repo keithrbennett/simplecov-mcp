@@ -219,8 +219,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
   end
 
   describe 'MCP Server Protocol Integration', :slow do
-    # spec/ is one level deep, so ../.. goes up to repo root
-    let(:repo_root) { File.expand_path('..', __dir__) }
+    # __dir__ is spec/cov_loupe, so ../.. goes up to repo root
+    let(:repo_root) { File.expand_path('../..', __dir__) }
     let(:exe_path) { File.join(repo_root, 'exe', 'cov-loupe') }
     let(:lib_path) { File.join(repo_root, 'lib') }
 

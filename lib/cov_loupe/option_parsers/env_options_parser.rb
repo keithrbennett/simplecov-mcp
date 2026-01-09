@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'shellwords'
-require_relative '../option_normalizers'
+require_relative '../config/option_normalizers'
 
 module CovLoupe
   module OptionParsers

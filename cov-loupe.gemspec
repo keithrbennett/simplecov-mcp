@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'lib/cov_loupe/version'
+require_relative 'lib/cov_loupe/config/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'cov-loupe'

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../base_tool'
-require_relative '../model'
+require_relative '../model/model'
 require_relative '../presenters/coverage_payload_presenter'
 
 module CovLoupe

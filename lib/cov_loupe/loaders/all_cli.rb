@@ -3,8 +3,8 @@
 # Load CLI-specific components.
 # Used when CovLoupe.run detects CLI mode.
 
-require_relative '../cov_loupe' # Core library components
+require_relative '../../cov_loupe' # Core library components (lib/cov_loupe.rb)
 
 # CLI dependencies
 require 'optparse'
-require_relative 'cli'
+require_relative '../cli'

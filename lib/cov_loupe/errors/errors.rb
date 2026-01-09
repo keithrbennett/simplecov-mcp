@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'staleness_message_formatter'
+require_relative '../staleness/staleness_message_formatter'
 
 module CovLoupe
   # Base error class for all SimpleCov MCP errors

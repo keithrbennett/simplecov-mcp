@@ -2,9 +2,9 @@
 
 require 'json'
 require_relative '../resolvers/resolver_helpers'
-require_relative '../resultset_loader'
-require_relative '../errors'
-require_relative '../path_utils'
+require_relative '../loaders/resultset_loader'
+require_relative '../errors/errors'
+require_relative '../paths/path_utils'
 
 module CovLoupe
   module Repositories

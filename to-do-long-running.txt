@@ -1,0 +1,7 @@
+
+Try w/Z-AI:
+Examine the code base for opportunities to provide better information to the user by adding log messages.
+Examine the docs as per documentation_review_report.md.
+Examine PathUtils for opp's to simplify.
+
+

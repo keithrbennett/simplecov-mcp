@@ -2,7 +2,7 @@
 
 require 'digest'
 require_relative 'model_data'
-require_relative 'repositories/coverage_repository'
+require_relative '../repositories/coverage_repository'
 
 module CovLoupe
   # Thread-safe singleton cache for ModelData instances.

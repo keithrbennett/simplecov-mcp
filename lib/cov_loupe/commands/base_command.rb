@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative '../formatters'
+require_relative '../formatters/formatters'
 require_relative '../formatters/source_formatter'
-require_relative '../model'
-require_relative '../errors'
+require_relative '../model/model'
+require_relative '../errors/errors'
 
 module CovLoupe
   module Commands

@@ -31,9 +31,10 @@ require 'rspec'
 require 'pathname'
 require 'json'
 
-# Load all components for testing (CLI, MCP server, tools)
+# Load core cov_loupe module first, then load all components for testing (CLI, MCP server, tools)
 # Library users should use 'require "cov_loupe"' to load only core components
-require 'cov_loupe/all'
+require 'cov_loupe'
+require 'cov_loupe/loaders/all'
 
 FIXTURES_DIR = Pathname.new(File.expand_path('fixtures', __dir__))
 FIXTURE_PROJECT1_RESULTSET_PATH = (FIXTURES_DIR / 'project1' / 'coverage' / '.resultset.json').to_s

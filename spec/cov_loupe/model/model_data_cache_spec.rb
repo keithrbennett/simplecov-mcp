@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/model_data_cache'
-require 'cov_loupe/model_data'
+require 'cov_loupe/model/model_data_cache'
+require 'cov_loupe/model/model_data'
 
 RSpec.describe CovLoupe::ModelDataCache do
   let(:cache) { described_class.instance }

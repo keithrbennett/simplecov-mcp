@@ -2,9 +2,9 @@
 
 require 'mcp'
 require 'json'
-require_relative 'errors'
-require_relative 'error_handler'
-require_relative 'model'
+require_relative 'errors/errors'
+require_relative 'errors/error_handler'
+require_relative 'model/model'
 require_relative 'presenters/coverage_payload_presenter'
 
 module CovLoupe

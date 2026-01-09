@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../base_tool'
-require_relative '../model'
-require_relative '../predicate_evaluator'
+require_relative '../model/model'
+require_relative '../config/predicate_evaluator'
 
 module CovLoupe
   module Tools

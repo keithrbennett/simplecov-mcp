@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'json'
-require_relative 'app_config'
-require_relative 'option_parser_builder'
+require_relative 'config/app_config'
+require_relative 'config/option_parser_builder'
 require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
-require_relative 'constants'
+require_relative 'config/constants'
 require_relative 'presenters/project_coverage_presenter'
 
 module CovLoupe
@@ -93,7 +93,7 @@ module CovLoupe
         )
         show_exclusions_summary(presenter, output)
       else
-        require_relative 'formatters'
+        require_relative 'formatters/formatters'
         output.puts Formatters.format(presenter.relativized_payload, config.format)
       end
 

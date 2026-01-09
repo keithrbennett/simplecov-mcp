@@ -2,8 +2,8 @@
 
 require 'pathname'
 
-require_relative '../errors'
-require_relative '../path_utils'
+require_relative '../errors/errors'
+require_relative '../paths/path_utils'
 
 module CovLoupe
   module Resolvers

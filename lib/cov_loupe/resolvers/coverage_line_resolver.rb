@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../path_utils'
+require_relative '../paths/path_utils'
 
 module CovLoupe
   module Resolvers
