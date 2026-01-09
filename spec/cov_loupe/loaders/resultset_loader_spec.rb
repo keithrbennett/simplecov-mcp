@@ -108,7 +108,9 @@ RSpec.describe CovLoupe::ResultsetLoader do
 
   describe 'SimpleCov loading and logging' do
     let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: nil) }
-    let(:loader) { described_class.new(resultset_path: '/tmp/resultset.json', logger: mock_logger) }
+    let(:loader) do
+      described_class.new(resultset_path: File.join(Dir.tmpdir, 'resultset.json'), logger: mock_logger)
+    end
 
     it 'raises CoverageDataError when SimpleCov cannot be required' do
       # We need to mock require on the instance or Kernel, but require is private.

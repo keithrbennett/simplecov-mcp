@@ -336,7 +336,7 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'multiple suites in resultset' do
-    let(:resultset_path) { '/tmp/multi_suite_resultset.json' }
+    let(:resultset_path) { File.join(Dir.tmpdir, 'multi_suite_resultset.json') }
     let(:shared_file) { File.join(root, 'lib', 'foo.rb') }
     let(:suite_a_cov) { { shared_file => { 'lines' => [1, 0, nil, 0] } } }
     let(:suite_b_cov) { { shared_file => { 'lines' => [0, 3, nil, 1] } } }
@@ -484,8 +484,8 @@ RSpec.describe CovLoupe::CoverageModel do
       }
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
-        .and_return('/tmp/test_resultset.json')
-      allow(File).to receive(:read).with('/tmp/test_resultset.json')
+        .and_return(File.join(Dir.tmpdir, 'test_resultset.json'))
+      allow(File).to receive(:read).with(File.join(Dir.tmpdir, 'test_resultset.json'))
         .and_return(JSON.generate(resultset))
 
       test_model = described_class.new(root: root)
@@ -514,7 +514,7 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'long-lived model instance behavior' do
-    let(:temp_resultset) { '/tmp/test_resultset.json' }
+    let(:temp_resultset) { File.join(Dir.tmpdir, 'test_resultset.json') }
     let(:first_file_path) { File.join(root, 'lib', 'first.rb') }
     let(:second_file_path) { File.join(root, 'lib', 'second.rb') }
     let(:initial_resultset) do

@@ -48,11 +48,12 @@ RSpec.describe CovLoupe do
   describe '.active_log_file=' do
     it 'creates context from default when no current context exists' do
       Thread.current[:cov_loupe_context] = nil
+      log_file = File.join(Dir.tmpdir, 'test.log')
 
-      described_class.active_log_file = '/tmp/test.log'
+      described_class.active_log_file = log_file
 
       expect(described_class.context).not_to be_nil
-      expect(described_class.active_log_file).to eq('/tmp/test.log')
+      expect(described_class.active_log_file).to eq(log_file)
     ensure
       described_class.active_log_file = File::NULL
     end

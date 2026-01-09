@@ -382,7 +382,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'malformed coverage line array validation' do
-    let(:temp_resultset) { '/tmp/malformed_resultset.json' }
+    let(:temp_resultset) { File.join(Dir.tmpdir, 'malformed_resultset.json') }
     let(:foo_path) { File.join(root, 'lib', 'foo.rb') }
     let(:bar_path) { File.join(root, 'lib', 'bar.rb') }
 

@@ -80,7 +80,7 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       # Short-form options
       ['short -f after list', %w[list -f json], '-f'],
       ['short -r after totals', %w[totals -r .resultset.json], '-r'],
-      ['short -R after list', %w[list -R /tmp], '-R'],
+      ['short -R after list', ['list', '-R', Dir.tmpdir], '-R'],
       ['short -o after list', %w[list -o a], '-o'],
       ['short -s after list', %w[list -s full], '-s'],
       ['short -S after list', %w[list -S error], '-S'],
@@ -90,14 +90,14 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       ['--source after list', %w[list --source full], '--source'],
       ['--raise-on-stale after totals', %w[totals --raise-on-stale], '--raise-on-stale'],
       ['--color after list', %w[list --color], '--color'],
-      ['--log-file after list', %w[list --log-file /tmp/test.log], '--log-file'],
+      ['--log-file after list', ['list', '--log-file', File.join(Dir.tmpdir, 'test.log')], '--log-file'],
 
       # Different subcommands
       ['option after version', %w[version --format json], '--format'],
       ['option after summary', %w[summary lib/foo.rb --format json], '--format'],
       ['option after raw', %w[raw lib/foo.rb -f json], '-f'],
       ['option after detailed', %w[detailed lib/foo.rb -f json], '-f'],
-      ['option after uncovered', %w[uncovered lib/foo.rb --root /tmp], '--root']
+      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', Dir.tmpdir], '--root']
     ].each do |desc, args, option|
       it "detects #{desc}" do
         _out, err, status = run_cli_with_status(*args)
