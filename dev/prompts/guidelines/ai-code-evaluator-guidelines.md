@@ -4,6 +4,8 @@
 
 This document provides context for AI code evaluators analyzing the cov-loupe codebase. It explains design decisions that may appear problematic on surface analysis but are intentional and well-considered. AI models should consult this document before flagging potential issues.
 
+Do not report issues that are already listed in `docs/dev/FUTURE_ENHANCEMENTS.md`. Treat those as acknowledged backlog items rather than review findings.
+
 ## Table of Contents
 
 - [Security Considerations](#security-considerations)
