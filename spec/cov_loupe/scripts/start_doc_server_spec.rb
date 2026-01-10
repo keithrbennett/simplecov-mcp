@@ -31,7 +31,8 @@ RSpec.describe CovLoupe::Scripts::StartDocServer do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('.venv/bin/mkdocs').and_return(false)
         # Mock global existence check
-        allow(script).to receive(:system).with('which', 'mkdocs', out: File::NULL, err: File::NULL).and_return(true)
+        checker = Gem.win_platform? ? 'where' : 'which'
+        allow(script).to receive(:system).with(checker, 'mkdocs', out: File::NULL, err: File::NULL).and_return(true)
       end
 
       it 'executes the global mkdocs' do
@@ -44,7 +45,8 @@ RSpec.describe CovLoupe::Scripts::StartDocServer do
       before do
         allow(File).to receive(:exist?).and_call_original
         allow(File).to receive(:exist?).with('.venv/bin/mkdocs').and_return(false)
-        allow(script).to receive(:system).with('which', 'mkdocs', out: File::NULL, err: File::NULL).and_return(false)
+        checker = Gem.win_platform? ? 'where' : 'which'
+        allow(script).to receive(:system).with(checker, 'mkdocs', out: File::NULL, err: File::NULL).and_return(false)
         allow(script).to receive(:warn)
       end
 
