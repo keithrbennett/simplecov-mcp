@@ -498,7 +498,7 @@ RSpec.describe CovLoupe::CoverageModel do
   end
 
   describe 'sort with nil percentage' do
-    it 'treats nil percentage as 100.0 (high coverage)' do
+    it 'sorts nil percentages after real values' do
       resultset = {
         'RSpec' => {
           'timestamp' => 100,
@@ -509,7 +509,7 @@ RSpec.describe CovLoupe::CoverageModel do
           }
         }
       }
-      # empty.rb -> nil (treated as 100.0)
+      # empty.rb -> nil (no executable lines)
       # full.rb -> 100.0
       # none.rb -> 0.0
 
@@ -520,17 +520,15 @@ RSpec.describe CovLoupe::CoverageModel do
 
       test_model = described_class.new(root: root)
 
-      # Descending: 100 first. empty (nil->100) and full (100) are tied.
-      # Tiebreaker is filename: empty.rb < full.rb.
-      # So empty.rb, full.rb, none.rb?
-      # Wait, comparator:
-      # percent_comparator.(a, b)
-      # If equal, a['file'] <=> b['file'] (ascending filename)
+      files_desc = test_model.list(sort_order: :descending)['files']
+      basenames_desc = files_desc.map { |f| File.basename(f['file']) }
 
-      files = test_model.list(sort_order: :descending)['files']
-      basenames = files.map { |f| File.basename(f['file']) }
+      expect(basenames_desc).to eq(['full.rb', 'none.rb', 'empty.rb'])
 
-      expect(basenames).to eq(['empty.rb', 'full.rb', 'none.rb'])
+      files_asc = test_model.list(sort_order: :ascending)['files']
+      basenames_asc = files_asc.map { |f| File.basename(f['file']) }
+
+      expect(basenames_asc).to eq(['none.rb', 'full.rb', 'empty.rb'])
     end
   end
 

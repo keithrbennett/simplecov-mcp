@@ -314,12 +314,25 @@ module CovLoupe
 
     private def sort_rows(rows, sort_order: :descending)
       percent_comparator = sort_order == :descending \
-        ? ->(a, b) { (b['percentage'] || 100.0) <=> (a['percentage'] || 100.0) }
-        : ->(a, b) { (a['percentage'] || 100.0) <=> (b['percentage'] || 100.0) }
+        ? ->(left, right) { right <=> left }
+        : ->(left, right) { left <=> right }
+
+      nil_comparator = lambda do |left, right|
+        left_nil = left['percentage'].nil?
+        right_nil = right['percentage'].nil?
+        return 0 if left_nil == right_nil
+
+        left_nil ? 1 : -1
+      end
 
       comparator = ->(a, b) do
-        percent_comp_result = percent_comparator.(a, b)
-        return percent_comp_result if percent_comp_result != 0
+        nil_comparison = nil_comparator.call(a, b)
+        return nil_comparison unless nil_comparison.zero?
+
+        if !a['percentage'].nil? && !b['percentage'].nil?
+          percent_comp_result = percent_comparator.(a['percentage'], b['percentage'])
+          return percent_comp_result if percent_comp_result != 0
+        end
 
         a['file'] <=> b['file']
       end
