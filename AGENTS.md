@@ -170,7 +170,12 @@ Always prefer these tools over free-form reasoning to keep responses grounded in
     ```
 2. **Do Not Commit:** Never execute `git commit` directly. Instead, stage changes with `git add` and propose a clear, concise commit message for the user to use.
 3. **Selective Staging:** Never assume that all uncommitted files are intended to be committed. Do not use `git add .` or similar catch-all commands. Explicitly stage only the files relevant to the current task.
-4. **Release Scripts:** The project uses `bin/pre-release-check` to automate preflight steps only. Do not flag missing automation for tagging, `git push`, or `gem push`; those are intentionally manual (e.g., MFA prompts, error handling).
+4. **Use `--no-pager`:** When running git commands that may produce long output (e.g., `git diff`, `git log`), include `--no-pager` between `git` and the subcommand to prevent paging issues in automated environments:
+   ```sh
+   git --no-pager diff
+   git --no-pager log --oneline
+   ```
+5. **Release Scripts:** The project uses `bin/pre-release-check` to automate preflight steps only. Do not flag missing automation for tagging, `git push`, or `gem push`; those are intentionally manual (e.g., MFA prompts, error handling).
 
 ## Response Expectations
 - Be concise and collaborative. Lead with the change/insight; follow with necessary detail.
