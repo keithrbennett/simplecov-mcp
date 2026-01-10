@@ -200,4 +200,92 @@ RSpec.describe CovLoupe::CoverageCLI do
       )
     end
   end
+
+  describe 'timestamp warning' do
+    def stub_presenter_with_timestamp_status(status, include_model: false)
+      presenter_double = instance_double(
+        CovLoupe::Presenters::ProjectCoveragePresenter,
+        relative_newer_files: [],
+        relative_length_mismatch_files: [],
+        relative_unreadable_files: [],
+        relative_missing_tracked_files: [],
+        relative_deleted_files: [],
+        relative_skipped_files: [],
+        relative_files: [],
+        timestamp_status: status,
+        relativized_payload: { 'files' => [], 'counts' => {} }
+      )
+      allow(CovLoupe::Presenters::ProjectCoveragePresenter)
+        .to receive(:new).and_return(presenter_double)
+
+      return unless include_model
+
+      model_double = instance_double(
+        CovLoupe::CoverageModel,
+        format_table: "Coverage Table\n",
+        list: { 'files' => [], 'timestamp_status' => status },
+        skipped_rows: []
+      )
+      allow(CovLoupe::CoverageModel).to receive(:new).and_return(model_double)
+    end
+
+    it 'outputs warning to stdout when timestamps are missing in table format' do
+      stub_presenter_with_timestamp_status('missing', include_model: true)
+
+      stdout, _stderr, _status = run_fixture_cli_with_status
+
+      expect(stdout).to include(
+        'WARNING: Coverage timestamps are missing.',
+        'Time-based staleness checks were skipped.',
+        'Files may appear "ok" even if source code is newer than the coverage data.',
+        'Check your coverage tool configuration to ensure timestamps are recorded.'
+      )
+    end
+
+    it 'outputs warning to stderr when timestamps are missing in non-table format' do
+      stub_presenter_with_timestamp_status('missing', include_model: true)
+
+      _stdout, stderr, _status = run_fixture_cli_with_status('--format', 'json')
+
+      expect(stderr).to include(
+        'WARNING: Coverage timestamps are missing.',
+        'Time-based staleness checks were skipped.',
+        'Files may appear "ok" even if source code is newer than the coverage data.',
+        'Check your coverage tool configuration to ensure timestamps are recorded.'
+      )
+    end
+
+    it 'does not output warning when timestamps are present' do
+      stub_presenter_with_timestamp_status('ok')
+
+      stdout, stderr, _status = run_fixture_cli_with_status
+
+      expect(stdout).not_to include('WARNING: Coverage timestamps are missing.')
+      expect(stderr).not_to include('WARNING: Coverage timestamps are missing.')
+    end
+
+    # Integration tests with real fixture data
+    [
+      { format: 'table', stream: :stdout, desc: 'table format' },
+      { format: 'json', stream: :stderr, desc: 'JSON format' }
+    ].each do |tc|
+      it "warns about missing timestamps with real fixture data in #{tc[:desc]}" do
+        no_timestamp_fixture = File.expand_path('../fixtures/project_no_timestamp', __dir__)
+        no_timestamp_resultset = File.join(no_timestamp_fixture, 'coverage', '.resultset.json')
+
+        args = ['--root', no_timestamp_fixture, '--resultset', no_timestamp_resultset]
+        args += ['--format', tc[:format]] if tc[:format] != 'table'
+
+        stdout, stderr, _status = run_cli_with_status(*args)
+        output = tc[:stream] == :stdout ? stdout : stderr
+
+        expect(output).to include(
+          'WARNING: Coverage timestamps are missing.',
+          'Time-based staleness checks were skipped.',
+          'Files may appear "ok" even if source code is newer than the coverage data.',
+          'Check your coverage tool configuration to ensure timestamps are recorded.'
+        )
+      end
+    end
+  end
 end

@@ -1,0 +1,17 @@
+{
+  "RSpec": {
+    "coverage": {
+      "lib/sample.rb": {
+        "lines": [
+          null,
+          null,
+          1,
+          0,
+          null,
+          2
+        ]
+      }
+    }
+  },
+  "_comment": "Test fixture without timestamp field to test missing timestamp warning"
+}
