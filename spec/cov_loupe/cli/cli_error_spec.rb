@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'json'
 
 RSpec.describe CovLoupe::CoverageCLI do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
@@ -110,59 +111,102 @@ RSpec.describe CovLoupe::CoverageCLI do
     expect(out).to show_source_table_or_fallback
   end
 
-  it 'raises error when querying deleted file with coverage data' do
-    # Deleted files should raise FileNotFoundError, not return stale coverage
-    foo_path = File.join(root, 'lib', 'foo.rb')
-    temp_path = "#{foo_path}.hidden"
+  describe 'deleted file handling' do
+    let(:foo_path) { File.join(root, 'lib', 'foo.rb') }
+    let(:temp_path) { "#{foo_path}.hidden" }
+    let(:file_based_subcommands) { %w[summary raw uncovered detailed] }
 
-    begin
+    before do
       File.rename(foo_path, temp_path) if File.exist?(foo_path)
+    end
 
-      _out, err, status = run_fixture_cli_with_status(
-        '--source', 'full', '--color=false', 'summary', 'lib/foo.rb'
-      )
-
-      expect(status).to eq(1)
-      expect(err).to include('File not found')
-      expect(err).to include('lib/foo.rb')
-    ensure
-      # Restore the file
+    after do
       File.rename(temp_path, foo_path) if File.exist?(temp_path)
+    end
+
+    it 'returns coverage data for deleted file with raise_on_stale=false (default)' do
+      # Test all file-based subcommands return coverage data for deleted files
+      file_based_subcommands.each do |subcommand|
+        # Build args dynamically based on subcommand
+        args = if subcommand == 'raw'
+          # Raw command shows array format without --source full
+          ['--format', 'json', subcommand, 'lib/foo.rb']
+        else
+          # Other commands use --source full for table format
+          ['--source', 'full', '--color=false', subcommand, 'lib/foo.rb']
+        end
+
+        out, err, status = run_fixture_cli_with_status(*args)
+
+        expect(status).to eq(0), "Subcommand #{subcommand} should exit with status 0"
+        expect(err).to eq('')
+        expect(out).to include('lib/foo.rb')
+
+        # Subcommand-specific expectations
+        case subcommand
+        when 'summary'
+          expect(out).to include('66.67%')
+        when 'raw'
+          # Raw command with JSON format shows the lines array
+          data = JSON.parse(out)
+          expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2])
+        when 'uncovered'
+          expect(out).to include('2')
+        when 'detailed'
+          # Detailed shows table with Line, Hits, Covered columns
+          expect(out).to include('│', 'Line', 'Hits', 'Covered', '[source not available]')
+        end
+      end
+    end
+
+    it 'raises error when querying deleted file with raise_on_stale=true' do
+      # Test all file-based subcommands raise error for deleted files in strict mode
+      file_based_subcommands.each do |subcommand|
+        _out, err, status = run_fixture_cli_with_status(
+          '--raise-on-stale=yes',
+          '--source', 'full', '--color=false', subcommand, 'lib/foo.rb'
+        )
+
+        expect(status).to eq(1), "Subcommand #{subcommand} should exit with status 1"
+        expect(err).to include('File not found')
+        expect(err).to include('lib/foo.rb')
+      end
     end
   end
 
   describe 'invalid option handling' do
-    it 'suggests subcommand for --subcommand-like option' do
-      _out, err, status = run_cli_with_status('--summary')
-      expect(status).to eq(1)
-      expect(err).to include(
-        "Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?"
-      )
-      expect(err).to include('Try: cov-loupe summary [args]')
-    end
+    invalid_option_cases = {
+      '--subcommand-like suggestion' => {
+        args: ['--summary'],
+        expected_messages: [
+          "Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?",
+          'Try: cov-loupe summary [args]'
+        ]
+      },
+      '--error-mode=bogus (enum with =)' => {
+        args: ['--error-mode=bogus', 'list'],
+        expected_messages: ['invalid argument: --error-mode=bogus']
+      },
+      '--error-mode bogus (enum space)' => {
+        args: ['--error-mode', 'bogus', 'list'],
+        expected_messages: ['invalid argument: bogus']
+      },
+      '--no-such-option' => {
+        args: ['--no-such-option'],
+        expected_messages: ['Error: invalid option: --no-such-option']
+      },
+      '--context-lines negative' => {
+        args: ['--context-lines', '-1', 'summary', 'lib/foo.rb'],
+        expected_messages: ['Context lines cannot be negative']
+      }
+    }
 
-    it 'reports invalid enum value for --opt=value' do
-      _out, err, status = run_cli_with_status('--error-mode=bogus', 'list')
-      expect(status).to eq(1)
-      expect(err).to include('invalid argument: --error-mode=bogus')
-    end
-
-    it 'reports invalid enum value for --opt value' do
-      _out, err, status = run_cli_with_status('--error-mode', 'bogus', 'list')
-      expect(status).to eq(1)
-      expect(err).to include('invalid argument: bogus')
-    end
-
-    it 'handles generic invalid options' do
-      _out, err, status = run_cli_with_status('--no-such-option')
-      expect(status).to eq(1)
-      expect(err).to include('Error: invalid option: --no-such-option')
-    end
-
-    it 'rejects negative context-lines with friendly error' do
-      _out, err, status = run_cli_with_status('--context-lines', '-1', 'summary', 'lib/foo.rb')
-      expect(status).to eq(1)
-      expect(err).to include('Context lines cannot be negative')
+    invalid_option_cases.each do |description, test_case|
+      it description do
+        _out, err, status = run_cli_with_status(*test_case[:args])
+        expect(status).to eq(1)
+        test_case[:expected_messages].each { |msg| expect(err).to include(msg) }
+      end
     end
   end
 

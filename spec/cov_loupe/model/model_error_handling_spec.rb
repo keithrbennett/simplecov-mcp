@@ -363,8 +363,47 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
 
   describe 'deleted file detection' do
     [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
-      [true, false].each do |raise_on_stale|
-        it "#{method} raises FileNotFoundError for deleted files (raise_on_stale: #{raise_on_stale})" do
+      describe 'with raise_on_stale: false (default)' do
+        it "#{method} returns coverage payload for deleted files" do
+          model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
+
+          # Mock lookup_lines to return coverage data
+          allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
+            .and_return([1, 0, 1, nil])
+
+          # Mock File.file? to prevent FileNotFoundError
+          allow(File).to receive(:file?).and_return(false)
+
+          result = model.send(method, 'lib/deleted_file.rb', raise_on_stale: false)
+
+          # Should return coverage data instead of raising
+          expect(result).to be_a(Hash)
+          expect(result['file']).to end_with('deleted_file.rb')
+
+          # Verify coverage-specific fields
+          case method
+          when :summary_for
+            expect(result['summary']).to include('covered', 'total', 'percentage')
+          when :raw_for
+            expect(result['lines']).to eq([1, 0, 1, nil])
+          when :uncovered_for
+            expect(result['uncovered']).to be_an(Array)
+            # summary counts non-nil elements only: [1, 0, 1, nil] => total: 3
+            expect(result['summary']).to include('total' => 3)
+          when :detailed_for
+            expect(result['lines']).to be_an(Array)
+            # summary counts non-nil elements only: [1, 0, 1, nil] => total: 3
+            expect(result['summary']).to include('total' => 3)
+          end
+
+          # Verify staleness_for returns 'missing' for the file
+          staleness = model.staleness_for('lib/deleted_file.rb')
+          expect(staleness).to eq('missing')
+        end
+      end
+
+      describe 'with raise_on_stale: true (strict mode)' do
+        it "#{method} raises FileNotFoundError for deleted files" do
           model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
 
           allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:lookup_lines)
@@ -372,7 +411,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
           allow(File).to receive(:file?).and_return(false)
 
           expect do
-            model.send(method, 'lib/deleted_file.rb', raise_on_stale: raise_on_stale)
+            model.send(method, 'lib/deleted_file.rb', raise_on_stale: true)
           end.to raise_error(CovLoupe::FileNotFoundError) do |error|
             expect(error.message).to include('File not found')
           end

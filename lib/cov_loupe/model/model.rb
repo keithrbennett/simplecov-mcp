@@ -363,7 +363,7 @@ module CovLoupe
     # @param path [String] relative or absolute file path
     # @return [Array(String, Array)] tuple of [absolute_path, coverage_lines]
     # @raise [FileError] if no coverage data exists for the file
-    # @raise [FileNotFoundError] if the file does not exist
+    # @raise [FileNotFoundError] if the file does not exist and raise_on_stale is true
     # @raise [CoverageDataStaleError] if staleness checking is enabled and data is stale
     private def coverage_data_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs = File.expand_path(path, @root)
@@ -374,10 +374,9 @@ module CovLoupe
         raise FileError, "No coverage data found for file: #{path}"
       end
 
-      # Check file existence before staleness check
-      # Missing files are fundamentally different from stale files and should be
-      # reported as such regardless of raise_on_stale setting
-      unless File.file?(file_abs)
+      # When raise_on_stale is false, allow missing files to return coverage data
+      # The staleness status will be added by the presenter via staleness_for
+      if raise_on_stale && !File.file?(file_abs)
         raise FileNotFoundError, "File not found: #{path}"
       end
 
@@ -386,7 +385,9 @@ module CovLoupe
 
       [file_abs, coverage_lines]
     rescue Errno::ENOENT
-      raise FileNotFoundError, "File not found: #{path}"
+      raise FileNotFoundError, "File not found: #{path}" if raise_on_stale
+
+      [file_abs, coverage_lines]
     end
 
     private def line_totals_from_rows(rows)

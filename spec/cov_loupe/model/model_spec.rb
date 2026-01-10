@@ -646,7 +646,7 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(model_with_logger.send(:extract_lines_from_entry, bad_entry)).to be_nil
     end
 
-    it 'returns the array for valid entries' do
+    it 'returns array for valid entries' do
       good_entry = { 'lines' => [1, 0, nil, 2] }
       expect(model_with_logger.send(:extract_lines_from_entry, good_entry)).to eq([1, 0, nil, 2])
     end
@@ -657,6 +657,178 @@ RSpec.describe CovLoupe::CoverageModel do
       expect(mock_logger).to receive(:safe_log)
         .with(/Invalid coverage lines encountered \(not an array\)/)
       expect(model_with_logger.send(:extract_lines_from_entry, bad_entry)).to be_nil
+    end
+  end
+
+  describe 'missing file handling with raise_on_stale' do
+    let(:temp_resultset) { File.join(Dir.tmpdir, 'test_missing_file_resultset.json') }
+    let(:missing_file_path) { File.join(root, 'lib', 'deleted.rb') }
+    let(:resultset_with_deleted_file) do
+      {
+        'RSpec' => {
+          'timestamp' => 100,
+          'coverage' => {
+            missing_file_path => { 'lines' => [1, 0, 1] }
+          }
+        }
+      }
+    end
+
+    before do
+      # Ensure the file doesn't exist but is in the resultset
+      FileUtils.rm_f(missing_file_path)
+      File.write(temp_resultset, JSON.generate(resultset_with_deleted_file))
+    end
+
+    after do
+      FileUtils.rm_f(temp_resultset)
+      FileUtils.rm_f(missing_file_path)
+    end
+
+    describe 'with raise_on_stale: false (default)' do
+      it 'returns coverage payload for missing file' do
+        model_with_deleted = described_class.new(root: root, resultset: temp_resultset)
+
+        # All single-file methods should return coverage data
+        aggregate_failures do
+          # summary_for
+          summary = model_with_deleted.summary_for('lib/deleted.rb')
+          expect(summary).to include(
+            'file' => missing_file_path,
+            'summary' => include('total' => 3, 'covered' => 2)
+          )
+
+          # detailed_for
+          detailed = model_with_deleted.detailed_for('lib/deleted.rb')
+          expect(detailed).to include(
+            'file' => missing_file_path,
+            'lines' => be_an(Array),
+            'summary' => include('total' => 3)
+          )
+
+          # raw_for
+          raw = model_with_deleted.raw_for('lib/deleted.rb')
+          expect(raw).to include(
+            'file' => missing_file_path,
+            'lines' => [1, 0, 1]
+          )
+
+          # uncovered_for
+          uncovered = model_with_deleted.uncovered_for('lib/deleted.rb')
+          expect(uncovered).to include(
+            'file' => missing_file_path,
+            'uncovered' => [2],
+            'summary' => include('total' => 3)
+          )
+        end
+      end
+
+      it 'reports staleness status for missing file via staleness_for' do
+        model_with_deleted = described_class.new(root: root, resultset: temp_resultset)
+
+        staleness = model_with_deleted.staleness_for('lib/deleted.rb')
+        expect(staleness).to eq('missing')
+      end
+    end
+
+    describe 'with raise_on_stale: true (strict mode)' do
+      it 'raises FileNotFoundError for missing file' do
+        strict_model = described_class.new(
+          root: root,
+          resultset: temp_resultset,
+          raise_on_stale: true
+        )
+
+        # All single-file methods should raise
+        aggregate_failures do
+          expect do
+            strict_model.summary_for('lib/deleted.rb')
+          end.to raise_error(CovLoupe::FileNotFoundError, /File not found/)
+
+          expect do
+            strict_model.detailed_for('lib/deleted.rb')
+          end.to raise_error(CovLoupe::FileNotFoundError, /File not found/)
+
+          expect do
+            strict_model.raw_for('lib/deleted.rb')
+          end.to raise_error(CovLoupe::FileNotFoundError, /File not found/)
+
+          expect do
+            strict_model.uncovered_for('lib/deleted.rb')
+          end.to raise_error(CovLoupe::FileNotFoundError, /File not found/)
+        end
+      end
+
+      it 'returns staleness status without raising via staleness_for' do
+        strict_model = described_class.new(
+          root: root,
+          resultset: temp_resultset,
+          raise_on_stale: true
+        )
+
+        # staleness_for uses raise_on_stale: false internally
+        staleness = strict_model.staleness_for('lib/deleted.rb')
+        expect(staleness).to eq('missing')
+      end
+    end
+
+    describe 'existing file behavior unchanged' do
+      let(:existing_file_path) { File.join(root, 'lib', 'existing.rb') }
+      let(:resultset_timestamp) { Time.now.to_i }
+      let(:resultset_with_existing_file) do
+        {
+          'RSpec' => {
+            'timestamp' => resultset_timestamp,
+            'coverage' => {
+              existing_file_path => { 'lines' => [1, 1, 0] }
+            }
+          }
+        }
+      end
+
+      before do
+        FileUtils.mkdir_p(File.dirname(existing_file_path))
+        # Create file with 3 lines to match resultset coverage
+        File.write(existing_file_path, <<~RUBY)
+          def existing
+            'line 2'
+            'line 3'
+          end
+        RUBY
+        # Set file mtime to be older than resultset timestamp to avoid staleness
+        File.utime(resultset_timestamp - 10, resultset_timestamp - 10, existing_file_path)
+        # Sleep to ensure resultset timestamp is after file mtime
+        sleep(0.01)
+        File.write(temp_resultset, JSON.generate(resultset_with_existing_file))
+      end
+
+      after do
+        FileUtils.rm_f(temp_resultset)
+        FileUtils.rm_f(existing_file_path)
+      end
+
+      it 'works normally for existing files regardless of raise_on_stale' do
+        # Mock staleness checker to return OK status
+        stub_checker = instance_double(CovLoupe::StalenessChecker, off?: true)
+        allow(CovLoupe::StalenessChecker).to receive(:new).and_return(stub_checker)
+        allow(stub_checker).to receive(:check_file!).and_return(nil)
+
+        aggregate_failures do
+          # Default (raise_on_stale: false)
+          normal_model = described_class.new(root: root, resultset: temp_resultset)
+          summary = normal_model.summary_for('lib/existing.rb')
+          expect(summary).to include('summary' => include('total' => 3, 'covered' => 2))
+
+          # Strict (raise_on_stale: true)
+          strict_model = described_class.new(
+            root: root,
+            resultset: temp_resultset,
+            raise_on_stale: true
+          )
+          summary_strict = strict_model.summary_for('lib/existing.rb')
+          expect(summary_strict).to include('summary' => include('total' => 3, 'covered' => 2))
+        end
+      end
     end
   end
 end
