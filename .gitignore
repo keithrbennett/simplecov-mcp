@@ -64,3 +64,10 @@
 
 /retired/
 /.aider*
+
+# Temporary Files
+
+/2*md
+/todo*
+/to-do*
+
