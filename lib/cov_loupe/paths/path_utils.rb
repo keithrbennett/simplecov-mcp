@@ -6,6 +6,9 @@ module CovLoupe
   # Centralized path handling utilities providing consistent normalization,
   # relativization, and absolutization across all components.
   module PathUtils
+    # Mutex for thread-safe cache access
+    VOLUME_CASE_SENSITIVITY_CACHE_MUTEX = Mutex.new
+
     # Platform detection - delegates to main CovLoupe module for testability
     def self.windows?
       CovLoupe.windows?
@@ -182,10 +185,12 @@ module CovLoupe
       test_path = path ? File.absolute_path(path) : Dir.pwd
       abs_path = File.absolute_path(test_path)
 
-      # Check cache first
-      @volume_case_sensitivity_cache ||= {}
-      if @volume_case_sensitivity_cache.key?(abs_path)
-        return @volume_case_sensitivity_cache[abs_path]
+      # Check cache first (thread-safe read)
+      VOLUME_CASE_SENSITIVITY_CACHE_MUTEX.synchronize do
+        @volume_case_sensitivity_cache ||= {}
+        if @volume_case_sensitivity_cache.key?(abs_path)
+          return @volume_case_sensitivity_cache[abs_path]
+        end
       end
 
       # Return false if directory doesn't exist
@@ -229,7 +234,10 @@ module CovLoupe
         end
       end
 
-      @volume_case_sensitivity_cache[abs_path] = result
+      # Store result in cache (thread-safe write)
+      VOLUME_CASE_SENSITIVITY_CACHE_MUTEX.synchronize do
+        @volume_case_sensitivity_cache[abs_path] = result
+      end
     rescue SystemCallError, IOError
       # Can't detect from filesystem, assume case-insensitive to be conservative
       false

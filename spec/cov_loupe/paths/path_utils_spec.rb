@@ -802,6 +802,47 @@ RSpec.describe CovLoupe::PathUtils do
         FileUtils.rm_rf(dir_with_numbers)
       end
     end
+
+    context 'with concurrent access' do
+      it 'handles concurrent cache reads and writes deterministically' do
+        described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
+
+        test_dir = Dir.mktmpdir("cov_loupe_concurrent_#{SecureRandom.hex(8)}")
+        FileUtils.touch(File.join(test_dir, 'SampleFile.txt'))
+
+        begin
+          num_threads = 12
+          # Barrier queues:
+          # - ready: each thread pushes once it is waiting at the barrier.
+          # - start: main thread releases threads by pushing N tokens; each thread
+          #   blocks on start.pop so they all proceed together.
+          ready = Queue.new
+          start = Queue.new
+
+          threads = Array.new(num_threads) do
+            Thread.new do
+              ready << true
+              start.pop
+              described_class.volume_case_sensitive?(test_dir)
+            end
+          end
+
+          # Wait for all threads to be ready, then release them together.
+          num_threads.times { ready.pop }
+          num_threads.times { start << true }
+
+          results = threads.map(&:value)
+          expect(results).to all(satisfy { |result| [true, false].include?(result) })
+
+          # Cache should contain a single entry for the test directory.
+          cache = described_class.instance_variable_get(:@volume_case_sensitivity_cache)
+          expect(cache).not_to be_nil
+          expect(cache).to have_key(File.absolute_path(test_dir))
+        ensure
+          FileUtils.rm_rf(test_dir)
+        end
+      end
+    end
   end
 
   describe '.root_prefix' do
