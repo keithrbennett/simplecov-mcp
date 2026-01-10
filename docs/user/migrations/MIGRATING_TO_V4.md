@@ -94,7 +94,7 @@ The staleness checking logic has been unified into a single flag that raises an 
 
 These changes improve consistency between short and long flag forms and eliminate ambiguous behavior where long-form bare flags would fail but short-form bare flags would succeed.
 
-### ⚠️ `--tracked-globs` Default Changed to Empty Array
+### ⚠️ --tracked-globs Default Changed to Empty Array {#tracked-globs-default-changed-to-empty-array}
 
 **BREAKING**: The `--tracked-globs` CLI option now defaults to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. The Ruby API (`CoverageModel`) now also defaults `tracked_globs:` to `[]` (previously `nil`, which behaved the same).
 

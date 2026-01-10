@@ -106,6 +106,7 @@ nav:
       - Architecture: dev/ARCHITECTURE.md
       - Development: dev/DEVELOPMENT.md
       - Releasing: dev/RELEASING.md
+      - Future Enhancements: dev/FUTURE_ENHANCEMENTS.md
       - Architecture Decisions:
           - Overview: dev/arch-decisions/README.md
           - Application Architecture: dev/arch-decisions/application-architecture.md

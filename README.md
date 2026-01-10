@@ -153,6 +153,7 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 - [Architecture](docs/dev/ARCHITECTURE.md) - Design and internals
 - [Development Guide](docs/dev/DEVELOPMENT.md) - Local dev workflow
 - [Releasing](docs/dev/RELEASING.md) - Release checklist
+- [Future Enhancements](docs/dev/FUTURE_ENHANCEMENTS.md) - Planned improvements
 - [Architecture Decision Records](docs/dev/arch-decisions/README.md) - Design history
 
 **Project Docs & Examples:**
