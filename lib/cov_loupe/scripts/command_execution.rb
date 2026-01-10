@@ -25,8 +25,10 @@ module CovLoupe
       # @param cmd [String, Array<String>] The shell command to run.
       # @return [Array<String, Boolean>] The stdout and success boolean.
       def run_command_with_status(cmd)
-        stdout, status = capture_command(cmd)
+        stdout, _stderr, status = capture_command(cmd)
         [stdout.strip, status.success?]
+      rescue Errno::ENOENT
+        ["Command not found: #{command_display(cmd)}", false]
       end
 
       # Print an error message and exit with status 1.
@@ -48,12 +50,17 @@ module CovLoupe
         output = +''
         status = nil
 
-        popen_command(cmd) do |_stdin, stdout_err, wait_thr|
-          stdout_err.each do |line|
-            print line
-            output << line
+        begin
+          popen_command(cmd) do |_stdin, stdout_err, wait_thr|
+            stdout_err.each do |line|
+              print line
+              output << line
+            end
+            status = wait_thr.value
           end
-          status = wait_thr.value
+        rescue Errno::ENOENT
+          abort_with("Command not found: #{command_display(cmd)}") if fail_on_error
+          return ''
         end
 
         if fail_on_error && !status&.success?
@@ -64,10 +71,16 @@ module CovLoupe
       end
 
       private def run_captured(cmd, fail_on_error:)
-        stdout, status = capture_command(cmd)
+        begin
+          stdout, stderr, status = capture_command(cmd)
+        rescue Errno::ENOENT
+          abort_with("Command not found: #{command_display(cmd)}") if fail_on_error
+          return ''
+        end
 
         if fail_on_error && !status.success?
           warn "Error running: #{command_display(cmd)}"
+          warn stderr unless stderr.strip.empty?
           exit 1
         end
 
@@ -84,9 +97,9 @@ module CovLoupe
 
       private def capture_command(cmd)
         if cmd.is_a?(Array)
-          Open3.capture2(*cmd)
+          Open3.capture3(*cmd)
         else
-          Open3.capture2(cmd)
+          Open3.capture3(cmd)
         end
       end
 

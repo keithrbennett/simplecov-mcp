@@ -28,14 +28,14 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
 
     before do
       # Mock git branch detection
-      allow(Open3).to receive(:capture2)
+      allow(Open3).to receive(:capture3)
         .with(*%w[git rev-parse --abbrev-ref HEAD])
-        .and_return([branch, instance_double(Process::Status, success?: true)])
+        .and_return([branch, '', instance_double(Process::Status, success?: true)])
 
       # Mock gh run list
-      allow(Open3).to receive(:capture2)
+      allow(Open3).to receive(:capture3)
         .with(*run_list_args)
-        .and_return([run_json, instance_double(Process::Status, success?: true)])
+        .and_return([run_json, '', instance_double(Process::Status, success?: true)])
     end
 
     it 'fetches and displays the latest CI run details' do
@@ -60,9 +60,9 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
 
     context 'when the fetch command fails' do
       before do
-        allow(Open3).to receive(:capture2)
+        allow(Open3).to receive(:capture3)
           .with(*run_list_args)
-          .and_return(['', instance_double(Process::Status, success?: false)])
+          .and_return(['', 'error', instance_double(Process::Status, success?: false)])
       end
 
       it 'warns and exits with error code 1' do

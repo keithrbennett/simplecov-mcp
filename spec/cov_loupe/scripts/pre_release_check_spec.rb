@@ -54,11 +54,11 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         allow(Open3).to receive(:popen2e).with(cmd).and_yield(nil, [output], thread_double)
       end
 
-      # Mock capture2 for captured commands
+      # Mock capture3 for captured commands
       if cmd.is_a?(Array)
-        allow(Open3).to receive(:capture2).with(*cmd).and_return([output, status_double])
+        allow(Open3).to receive(:capture3).with(*cmd).and_return([output, '', status_double])
       else
-        allow(Open3).to receive(:capture2).with(cmd).and_return([output, status_double])
+        allow(Open3).to receive(:capture3).with(cmd).and_return([output, '', status_double])
       end
     end
 

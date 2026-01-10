@@ -31,7 +31,8 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
     context 'when fail_on_error is true and captured command fails' do
       it 'warns and exits with status 1' do
         status_double = instance_double(Process::Status, success?: false)
-        allow(Open3).to receive(:capture2).and_return(['', status_double])
+        # Using capture3: [stdout, stderr, status]
+        allow(Open3).to receive(:capture3).and_return(['', 'error details', status_double])
 
         silence_output do
           expect { executor.run_command('false', print_output: false) }
@@ -39,6 +40,7 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
               expect(error.status).to eq(1)
             end
           expect($stderr.string).to include('Error running: false')
+          expect($stderr.string).to include('error details')
         end
       end
     end
@@ -58,12 +60,84 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
       it 'does not raise an error for captured commands' do
         status_double = instance_double(Process::Status, success?: false)
-        allow(Open3).to receive(:capture2).and_return(['output', status_double])
+        # Using capture3: [stdout, stderr, status]
+        allow(Open3).to receive(:capture3).and_return(['output', '', status_double])
 
         silence_output do
           expect(executor.run_command('false', print_output: false, fail_on_error: false))
             .to eq('output')
         end
+      end
+    end
+
+    context 'when command is missing (Errno::ENOENT)' do
+      before do
+        allow(Open3).to receive(:popen2e).and_raise(Errno::ENOENT)
+        allow(Open3).to receive(:capture3).and_raise(Errno::ENOENT)
+      end
+
+      context 'with fail_on_error: true' do
+        it 'aborts when streamed' do
+          silence_output do
+            expect { executor.run_command('missing', print_output: true) }
+              .to raise_error(SystemExit)
+            expect($stderr.string).to include('Command not found: missing')
+          end
+        end
+
+        it 'aborts when captured' do
+          silence_output do
+            expect { executor.run_command('missing', print_output: false) }
+              .to raise_error(SystemExit)
+            expect($stderr.string).to include('Command not found: missing')
+          end
+        end
+      end
+
+      context 'with fail_on_error: false' do
+        it 'returns empty string when streamed' do
+          silence_output do
+            expect(executor.run_command('missing', print_output: true, fail_on_error: false))
+              .to eq('')
+          end
+        end
+
+        it 'returns empty string when captured' do
+          silence_output do
+            expect(executor.run_command('missing', print_output: false, fail_on_error: false))
+              .to eq('')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#run_command_with_status' do
+    context 'when command runs successfully' do
+      it 'returns stdout and true' do
+        status_double = instance_double(Process::Status, success?: true)
+        allow(Open3).to receive(:capture3).and_return(['output', '', status_double])
+
+        expect(executor.run_command_with_status('echo hello')).to eq(['output', true])
+      end
+    end
+
+    context 'when command fails' do
+      it 'returns stdout and false' do
+        status_double = instance_double(Process::Status, success?: false)
+        allow(Open3).to receive(:capture3).and_return(['', 'error', status_double])
+
+        expect(executor.run_command_with_status('false')).to eq(['', false])
+      end
+    end
+
+    context 'when command is missing' do
+      it 'returns error message and false' do
+        allow(Open3).to receive(:capture3).and_raise(Errno::ENOENT)
+
+        stdout, success = executor.run_command_with_status('missing')
+        expect(stdout).to include('Command not found: missing')
+        expect(success).to be false
       end
     end
   end
