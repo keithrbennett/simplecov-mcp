@@ -317,12 +317,16 @@ module CovLoupe
         ? ->(left, right) { right <=> left }
         : ->(left, right) { left <=> right }
 
-      nil_comparator = lambda do |left, right|
+      nil_comparator = ->(left, right) do
         left_nil = left['percentage'].nil?
         right_nil = right['percentage'].nil?
         return 0 if left_nil == right_nil
 
-        left_nil ? 1 : -1
+        if sort_order == :descending
+          left_nil ? -1 : 1
+        else
+          left_nil ? 1 : -1
+        end
       end
 
       comparator = ->(a, b) do

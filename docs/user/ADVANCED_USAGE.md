@@ -75,6 +75,14 @@ echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"uncovered_
 
 ---
 
+## Sorting Coverage Lists with n/a Entries
+
+When a file has no executable lines, its coverage percentage is reported as `n/a`. In list outputs, `n/a` entries are grouped separately from numeric percentages. The default descending sort order places `n/a` entries above `100%` coverage so they appear earlier in the list, while still keeping low numeric percentages toward the bottom for attention.
+
+If you need to treat `n/a` differently, post-process the JSON output from `list` or `list_tool` and apply your own sort or filtering rules.
+
+---
+
 ## Staleness Detection & Validation
 
 ### Understanding Staleness Checks

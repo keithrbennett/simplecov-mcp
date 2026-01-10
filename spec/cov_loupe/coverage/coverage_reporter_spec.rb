@@ -11,6 +11,8 @@ RSpec.describe CovLoupe::CoverageReporter do
         'stale' => 'missing' },
       { 'file' => '/project/lib/low.rb',    'percentage' => 25.0, 'covered' =>  5, 'total' => 20,
         'stale' => 'ok' },
+      { 'file' => '/project/lib/empty.rb',  'percentage' => nil,  'covered' =>  0, 'total' =>  0,
+        'stale' => 'ok' },
       { 'file' => '/project/lib/medium.rb', 'percentage' => 60.0, 'covered' => 12, 'total' => 20,
         'stale' => 'ok' },
       { 'file' => '/project/lib/high.rb',   'percentage' => 95.0, 'covered' => 19, 'total' => 20,
@@ -44,6 +46,7 @@ RSpec.describe CovLoupe::CoverageReporter do
       result = described_class.report(threshold: 80, count: 5, model: model)
 
       expect(result).to include('lib/zero.rb', 'lib/low.rb', 'lib/medium.rb')
+      expect(result).not_to include('lib/empty.rb')
       expect(result).not_to include('lib/high.rb')
     end
 

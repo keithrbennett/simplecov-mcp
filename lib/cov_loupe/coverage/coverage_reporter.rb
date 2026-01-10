@@ -18,7 +18,7 @@ module CovLoupe
       model ||= CoverageModel.new
       list_result = model.list(sort_order: :ascending)
       file_list = list_result['files']
-        .select { |f| f['percentage'] < threshold }
+        .select { |f| f['percentage'] && f['percentage'] < threshold }
         .first(count)
       file_list = model.relativize(file_list)
 

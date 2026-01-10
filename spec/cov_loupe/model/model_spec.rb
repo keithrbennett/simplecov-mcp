@@ -523,7 +523,7 @@ RSpec.describe CovLoupe::CoverageModel do
       files_desc = test_model.list(sort_order: :descending)['files']
       basenames_desc = files_desc.map { |f| File.basename(f['file']) }
 
-      expect(basenames_desc).to eq(['full.rb', 'none.rb', 'empty.rb'])
+      expect(basenames_desc).to eq(['empty.rb', 'full.rb', 'none.rb'])
 
       files_asc = test_model.list(sort_order: :ascending)['files']
       basenames_asc = files_asc.map { |f| File.basename(f['file']) }
