@@ -60,7 +60,7 @@ Before you begin the report:
 
 ### For Each Issue Found
 
-Delimit each issue with horizontal lines and headlines.
+Delimit each issue with horizontal lines and headlines. Number each issue.
 
 **Required sections:**
 
