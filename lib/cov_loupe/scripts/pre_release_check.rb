@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'json'
 require 'pathname'
+require 'time'
 require_relative 'command_execution'
 
 module CovLoupe
@@ -78,19 +80,55 @@ module CovLoupe
       end
 
       private def verify_ci_passed!
+        # Capture current HEAD SHA and timestamp before triggering
+        head_sha = run_command(%w[git rev-parse HEAD], print_output: false).strip
+        trigger_time = Time.now
+
+        # Trigger the workflow
         run_command(%w[gh workflow run test.yml --ref main], print_output: true)
         puts 'Waiting for workflow to initialize...'
-        sleep 5
 
-        run_id = run_command(
-          %w[gh run list --workflow test.yml --branch main --limit 1] \
-            + %w[--json databaseId --jq .[0].databaseId],
-          print_output: false
-        ).strip
+        # Poll for the specific workflow run matching HEAD SHA and created after trigger time
+        run_id = find_triggered_run_id(head_sha, trigger_time)
         abort_with('Failed to retrieve the CI run ID.') if run_id.empty?
 
         puts "Monitoring CI build (Run ID: #{run_id})..."
         run_command(['gh', 'run', 'watch', run_id, '--exit-status'], print_output: true)
+      end
+
+      private def find_triggered_run_id(head_sha, trigger_time)
+        max_attempts = 30
+        poll_interval = 2
+        attempts = 0
+
+        while attempts < max_attempts
+          sleep poll_interval
+          attempts += 1
+
+          # Get runs with databaseId, headSha, and createdAt fields
+          runs_json = run_command(
+            %w[gh run list --workflow test.yml --branch main --limit 10] \
+              + %w[--json databaseId,headSha,createdAt],
+            print_output: false
+          ).strip
+
+          next if runs_json.empty?
+
+          begin
+            runs = JSON.parse(runs_json)
+            # Find the newest run matching our HEAD SHA and created after trigger time
+            matching_run = runs.find do |run|
+              run['headSha'] == head_sha &&
+                Time.parse(run['createdAt']) >= trigger_time
+            end
+
+            return matching_run['databaseId'].to_s if matching_run
+          rescue JSON::ParserError => e
+            abort_with("Failed to parse GitHub API response: #{e.message}")
+          end
+        end
+
+        abort_with("Timed out waiting for workflow run to appear for HEAD SHA #{head_sha}")
       end
 
       private def fetch_version

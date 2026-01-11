@@ -3,7 +3,6 @@
 require 'spec_helper'
 require 'cov_loupe/scripts/pre_release_check'
 
-# rubocop:disable RSpec/SubjectStub
 RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
   subject(:script) { described_class.new }
 
@@ -13,11 +12,11 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
     let(:release_notes) { root.join('RELEASE_NOTES.md') }
 
     before do
+      # Speed up tests by not actually sleeping
+      allow(Kernel).to receive(:sleep).with(any_args).and_return(nil)
+
       # Mock the ROOT constant logic or Dir.chdir
       allow(Dir).to receive(:chdir).and_yield
-
-      # Mock simple commands
-      allow(script).to receive(:run_command).and_call_original
 
       status_double = instance_double(Process::Status, success?: true)
       thread_double = instance_double(Thread, value: status_double)
@@ -84,11 +83,16 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       commands
     end
 
-    def ci_commands(run_id: '999')
+    def ci_commands(head_sha:, run_id: '999', created_at: nil)
+      created_at ||= (Time.now + 10).iso8601
+      runs_json = JSON.generate([
+        { 'databaseId' => run_id, 'headSha' => head_sha, 'createdAt' => created_at }
+      ])
+
       [
         [%w[gh workflow run test.yml --ref main], ''],
-        [%w[gh run list --workflow test.yml --branch main --limit 1] \
-           + %w[--json databaseId --jq .[0].databaseId], run_id],
+        [%w[gh run list --workflow test.yml --branch main --limit 10] \
+           + %w[--json databaseId,headSha,createdAt], runs_json],
         [['gh', 'run', 'watch', run_id, '--exit-status'], '']
       ]
     end
@@ -102,10 +106,9 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         git_clean_commands +
         branch_commands('main') +
         sync_commands(local: 'sha1', remote: 'sha1') +
-        ci_commands +
+        ci_commands(head_sha: 'sha1') +
         tag_check_commands
       )
-      allow(script).to receive(:sleep) # Don't sleep in tests
       # 6. Gem build
       mock_command(%w[gem build cov-loupe.gemspec], '')
 
@@ -179,10 +182,9 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         git_clean_commands +
         branch_commands('main') +
         sync_commands(local: 'sha1', remote: 'sha1') +
-        ci_commands +
+        ci_commands(head_sha: 'sha1') +
         tag_check_commands
       )
-      allow(script).to receive(:sleep)
 
       # Override release notes to not include the expected header
       allow(release_notes).to receive(:read).and_return("## v1.0.0\n\n- Old changes")
@@ -192,6 +194,121 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         expect($stderr.string).to include("Add a '## v1.2.3' section to RELEASE_NOTES.md before releasing.")
       end
     end
+
+    context 'when verifying CI' do
+      let(:head_sha) { 'abc123def456' }
+
+      it 'finds the correct workflow run by matching HEAD SHA' do
+        mock_commands(
+          git_clean_commands +
+          branch_commands('main') +
+          sync_commands(local: head_sha, remote: head_sha) +
+          ci_commands(head_sha: head_sha, run_id: '12345') +
+          tag_check_commands
+        )
+        mock_command(%w[gem build cov-loupe.gemspec], '')
+
+        silence_output do
+          expect { script.call }.not_to raise_error
+        end
+      end
+
+      it 'ignores runs for different HEAD SHAs' do
+        # Mock two runs: one for a different SHA, one for our SHA
+        runs_json = JSON.generate([
+          { 'databaseId' => '11111', 'headSha' => 'wrongsha123', 'createdAt' => (Time.now + 10).iso8601 },
+          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => (Time.now + 10).iso8601 }
+        ])
+
+        mock_commands(
+          git_clean_commands +
+          branch_commands('main') +
+          sync_commands(local: head_sha, remote: head_sha) +
+          [
+            [%w[gh workflow run test.yml --ref main], ''],
+            [%w[gh run list --workflow test.yml --branch main --limit 10] \
+               + %w[--json databaseId,headSha,createdAt], runs_json],
+            [['gh', 'run', 'watch', '12345', '--exit-status'], '']
+          ] +
+          tag_check_commands
+        )
+        mock_command(%w[gem build cov-loupe.gemspec], '')
+
+        silence_output do
+          expect { script.call }.not_to raise_error
+        end
+      end
+
+      it 'ignores runs created before the trigger time' do
+        # Mock an old run (before trigger) and a new run (after trigger)
+        trigger_time = Time.now
+        old_run_time = (trigger_time - 60).iso8601
+        new_run_time = (trigger_time + 10).iso8601
+
+        runs_json = JSON.generate([
+          { 'databaseId' => '11111', 'headSha' => head_sha, 'createdAt' => old_run_time },
+          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => new_run_time }
+        ])
+
+        mock_commands(
+          git_clean_commands +
+          branch_commands('main') +
+          sync_commands(local: head_sha, remote: head_sha) +
+          [
+            [%w[gh workflow run test.yml --ref main], ''],
+            [%w[gh run list --workflow test.yml --branch main --limit 10] \
+               + %w[--json databaseId,headSha,createdAt], runs_json],
+            [['gh', 'run', 'watch', '12345', '--exit-status'], '']
+          ] +
+          tag_check_commands
+        )
+        mock_command(%w[gem build cov-loupe.gemspec], '')
+
+        silence_output do
+          expect { script.call }.not_to raise_error
+        end
+      end
+
+      it 'times out if no matching run is found' do
+        # Mock runs that never match our criteria
+        runs_json = JSON.generate([
+          { 'databaseId' => '11111', 'headSha' => 'wrongsha', 'createdAt' => (Time.now + 10).iso8601 }
+        ])
+
+        mock_commands(
+          git_clean_commands +
+          branch_commands('main') +
+          sync_commands(local: head_sha, remote: head_sha) +
+          [
+            [%w[gh workflow run test.yml --ref main], ''],
+            [%w[gh run list --workflow test.yml --branch main --limit 10] \
+               + %w[--json databaseId,headSha,createdAt], runs_json]
+          ]
+        )
+
+        silence_output do
+          expect { script.call }.to raise_error(SystemExit)
+          expect($stderr.string).to include("Timed out waiting for workflow run to appear for HEAD SHA #{head_sha}")
+        end
+      end
+
+      it 'handles JSON parsing errors gracefully' do
+        mock_commands(
+          git_clean_commands +
+          branch_commands('main') +
+          sync_commands(local: head_sha, remote: head_sha) +
+          [
+            [%w[gh workflow run test.yml --ref main], ''],
+            [%w[gh run list --workflow test.yml --branch main --limit 10] \
+               + %w[--json databaseId,headSha,createdAt], 'invalid json{']
+          ]
+        )
+
+        silence_output do
+          expect { script.call }.to raise_error(SystemExit)
+          expect($stderr.string).to include('Failed to parse GitHub API response')
+        end
+      end
+    end
   end
 end
-# rubocop:enable RSpec/SubjectStub
