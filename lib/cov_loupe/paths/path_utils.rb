@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'pathname'
+require_relative 'volume_case_sensitivity'
 
 module CovLoupe
   # Centralized path handling utilities providing consistent normalization,
   # relativization, and absolutization across all components.
   module PathUtils
-    # Mutex for thread-safe cache access
-    VOLUME_CASE_SENSITIVITY_CACHE_MUTEX = Mutex.new
-
     # Platform detection - delegates to main CovLoupe module for testability
     def self.windows?
       CovLoupe.windows?
@@ -40,7 +38,11 @@ module CovLoupe
       # If root is provided, derive case-sensitivity from root's volume
       root = options[:root]
       begin
-        default_normalize_case = root ? !volume_case_sensitive?(root) : !volume_case_sensitive?
+        default_normalize_case = if root
+          !VolumeCaseSensitivity.volume_case_sensitive?(root)
+        else
+          !VolumeCaseSensitivity.volume_case_sensitive?
+        end
       rescue SystemCallError, IOError
         # If we can't detect case sensitivity, assume case-insensitive to be conservative
         default_normalize_case = true
@@ -94,11 +96,11 @@ module CovLoupe
       # the relative path even when the input paths have different casings or separators.
       # On case-insensitive volumes, normalize case as well so Pathname recognizes them as the same path.
       # Derive case-sensitivity from root's volume
-      begin
-        case_sensitive = volume_case_sensitive?(abs_root)
+      case_sensitive = begin
+        VolumeCaseSensitivity.volume_case_sensitive?(abs_root)
       rescue SystemCallError, IOError
         # If we can't detect case sensitivity, assume case-insensitive to be conservative
-        case_sensitive = false
+        false
       end
       normalized_path = normalize(abs_path, normalize_case: !case_sensitive, root: abs_root)
       normalized_root = normalize(abs_root, normalize_case: !case_sensitive, root: abs_root)
@@ -173,74 +175,19 @@ module CovLoupe
     end
 
     # Detects whether the volume at the given path is case-sensitive.
-    # Prefer using an existing file (via File.identical?) to avoid writing;
-    # fall back to a temporary file if no suitable file exists.
+    # Delegates to VolumeCaseSensitivity module for implementation.
     #
     # @param path [String, nil] directory path to test (defaults to current directory)
     # @return [Boolean] true if case-sensitive, false if case-insensitive or on error
     def self.volume_case_sensitive?(path = nil)
-      require 'securerandom'
-      require 'fileutils'
+      VolumeCaseSensitivity.volume_case_sensitive?(path)
+    end
 
-      test_path = path ? File.absolute_path(path) : Dir.pwd
-      abs_path = File.absolute_path(test_path)
-
-      # Check cache first (thread-safe read)
-      VOLUME_CASE_SENSITIVITY_CACHE_MUTEX.synchronize do
-        @volume_case_sensitivity_cache ||= {}
-        if @volume_case_sensitivity_cache.key?(abs_path)
-          return @volume_case_sensitivity_cache[abs_path]
-        end
-      end
-
-      # Return false if directory doesn't exist
-      return false unless File.directory?(abs_path)
-
-      # Try to use an existing file to avoid filesystem writes
-      existing_file = Dir.children(abs_path).find do |name|
-        name.match?(/[A-Za-z]/) && File.file?(File.join(abs_path, name))
-      end
-
-      result = if existing_file
-        original = File.join(abs_path, existing_file)
-        alternate_name = existing_file.tr('A-Za-z', 'a-zA-Z')
-        alternate = File.join(abs_path, alternate_name)
-
-        if File.exist?(alternate)
-          # Same file -> case-insensitive, different files -> case-sensitive
-          !File.identical?(original, alternate)
-        else
-          true
-        end
-      else
-        # No suitable existing file; create a temporary test file
-        test_file = nil
-        while test_file.nil?
-          candidate = File.join(abs_path, "CovLoupe_CaseSensitivity_Test_#{SecureRandom.hex(16)}.tmp")
-          variants = [candidate, candidate.upcase, candidate.downcase]
-          test_file = candidate if variants.none? { |v| File.exist?(v) }
-        end
-
-        begin
-          FileUtils.touch(test_file)
-          variants = [test_file, test_file.upcase, test_file.downcase]
-          # Test if exactly one variant exists (case-sensitive) vs all exist (case-insensitive)
-          variants.one? { |variant| File.exist?(variant) }
-        ensure
-          # Clean up all potential variants
-          [test_file, test_file.upcase, test_file.downcase].each do |variant|
-            FileUtils.rm_f(variant)
-          end
-        end
-      end
-
-      # Store result in cache (thread-safe write)
-      VOLUME_CASE_SENSITIVITY_CACHE_MUTEX.synchronize do
-        @volume_case_sensitivity_cache[abs_path] = result
-      end
-    rescue SystemCallError, IOError
-      # Can't detect from filesystem, assume case-insensitive to be conservative
-      false
+    # Clears the volume case sensitivity cache (useful for testing)
+    #
+    # @return [void]
+    def self.clear_volume_case_sensitivity_cache
+      VolumeCaseSensitivity.clear_cache
     end
 
     # Returns root path with trailing separator for prefix matching
@@ -289,11 +236,15 @@ module CovLoupe
 
       # Normalize both paths for comparison (case + separators)
       # If root is provided, derive case-sensitivity from root's volume
-      begin
-        case_sensitive = root ? volume_case_sensitive?(root) : volume_case_sensitive?
+      case_sensitive = begin
+        if root
+          VolumeCaseSensitivity.volume_case_sensitive?(root)
+        else
+          VolumeCaseSensitivity.volume_case_sensitive?
+        end
       rescue SystemCallError, IOError
         # If we can't detect case sensitivity, assume case-insensitive to be conservative
-        case_sensitive = false
+        false
       end
       normalized_path = normalize(path, normalize_case: !case_sensitive, root: root)
       normalized_prefix = normalize(prefix, normalize_case: !case_sensitive, root: root)

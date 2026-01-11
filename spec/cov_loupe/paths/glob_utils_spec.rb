@@ -6,7 +6,7 @@ require 'cov_loupe/paths/glob_utils'
 RSpec.describe CovLoupe::GlobUtils do
   before do
     described_class.instance_variable_set(:@fn_normalize_path_separators, nil)
-    CovLoupe::PathUtils.instance_variable_set(:@volume_case_sensitivity_cache, nil)
+    CovLoupe::VolumeCaseSensitivity.clear_cache
   end
 
   describe '.normalize_patterns' do

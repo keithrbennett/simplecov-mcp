@@ -121,7 +121,7 @@ RSpec.describe CovLoupe::PathUtils do
     context 'with edge cases for root_prefix matching' do
       before do
         # Ensure case-sensitive matching for these tests
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
       end
 
       it 'handles root with trailing separator' do
@@ -133,7 +133,7 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with case-insensitive volumes' do
       before do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(false)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
         # Stub expand to return paths as-is (simulating absolute path behavior)
         # This allows normalized_start_with? to work correctly in tests
         allow(described_class).to receive(:expand).and_wrap_original do |method, path, base = nil|
@@ -184,7 +184,9 @@ RSpec.describe CovLoupe::PathUtils do
     context 'with cross-volume scenarios' do
       before do
         # Stub volume_case_sensitive? to return different values for different paths
-        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |_m, path|
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(
+          :volume_case_sensitive?
+        ).and_wrap_original do |_m, path|
           # Simulate: C:/ paths are case-insensitive, D:/ paths are case-sensitive
           case path
           when %r{^C:/}i
@@ -244,7 +246,9 @@ RSpec.describe CovLoupe::PathUtils do
 
         # Set up the error to be raised on the second call (from relativize method)
         # The first call is from normalized_start_with?, which has its own error handling
-        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |m, *args|
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(
+          :volume_case_sensitive?
+        ).and_wrap_original do |m, *args|
           call_count += 1
           if call_count > 1
             # Second call is from relativize method at line 115
@@ -270,7 +274,9 @@ RSpec.describe CovLoupe::PathUtils do
 
         # Set up the error to be raised on the second call (from relativize method)
         # The first call is from normalized_start_with?, which has its own error handling
-        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |m, *args|
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(
+          :volume_case_sensitive?
+        ).and_wrap_original do |m, *args|
           call_count += 1
           if call_count > 1
             # Second call is from relativize method at line 115
@@ -291,7 +297,8 @@ RSpec.describe CovLoupe::PathUtils do
       let(:windows_root) { 'C:/Users/user/project' }
 
       before do
-        allow(described_class).to receive_messages(windows?: true, volume_case_sensitive?: false)
+        allow(described_class).to receive(:windows?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
         # Stub expand to return Windows paths as-is (simulating absolute path behavior)
         allow(described_class).to receive(:expand).and_wrap_original do |method, path, base = nil|
           # For absolute paths (Windows drive letters or Unix /), return as-is
@@ -384,7 +391,8 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with slash normalization' do
       it 'normalizes backslashes to forward slashes on Windows' do
-        allow(described_class).to receive_messages(windows?: true, volume_case_sensitive?: true)
+        allow(described_class).to receive(:windows?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
         result = described_class.normalize('C:\\Users\\file.rb')
         expect(result).to eq('C:/Users/file.rb')
       end
@@ -392,31 +400,31 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with case normalization' do
       it 'normalizes case on case-insensitive volumes' do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(false)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
         result = described_class.normalize('/PATH/TO/FILE')
         expect(result).to eq('/path/to/file')
       end
 
       it 'preserves case on case-sensitive volumes' do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
         result = described_class.normalize('/PATH/TO/FILE')
         expect(result).to eq('/PATH/TO/FILE')
       end
 
       it 'respects explicit normalize_case option' do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
         result = described_class.normalize('/PATH/TO/FILE', normalize_case: true)
         expect(result).to eq('/path/to/file')
       end
 
       it 'handles IOError when detecting case sensitivity and defaults to case-insensitive' do
-        allow(described_class).to receive(:volume_case_sensitive?).and_raise(IOError)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_raise(IOError)
         result = described_class.normalize('/PATH/TO/FILE')
         expect(result).to eq('/path/to/file') # Should normalize case when error occurs
       end
 
       it 'handles SystemCallError when detecting case sensitivity and defaults to case-insensitive' do
-        allow(described_class).to receive(:volume_case_sensitive?).and_raise(Errno::ENOENT)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_raise(Errno::ENOENT)
         result = described_class.normalize('/PATH/TO/FILE')
         expect(result).to eq('/path/to/file') # Should normalize case when error occurs
       end
@@ -557,7 +565,7 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with case-insensitive volumes' do
       before do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(false)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
       end
 
       it 'returns true for path with different casing' do
@@ -580,7 +588,8 @@ RSpec.describe CovLoupe::PathUtils do
       let(:windows_root) { 'C:/Users/user/project' }
 
       before do
-        allow(described_class).to receive_messages(windows?: true, volume_case_sensitive?: false)
+        allow(described_class).to receive(:windows?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
       end
 
       it 'returns true for path with backslashes and root with forward slashes' do
@@ -621,7 +630,7 @@ RSpec.describe CovLoupe::PathUtils do
     end
 
     it 'applies normalization before extracting basename' do
-      allow(described_class).to receive(:volume_case_sensitive?).and_return(false)
+      allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
       result = described_class.basename('/PATH/TO/FILE.rb')
       expect(result).to eq('file.rb')
     end
@@ -641,207 +650,6 @@ RSpec.describe CovLoupe::PathUtils do
     it 'handles empty components' do
       result = described_class.join('path', '', 'file.rb')
       expect(result).to eq(File.join('path', '', 'file.rb'))
-    end
-  end
-
-  describe '.volume_case_sensitive?' do
-    let(:test_dir) { Dir.mktmpdir("cov_loupe_volume_test_#{SecureRandom.hex(8)}") }
-
-    before do
-      # Clear the cache before each test to ensure isolation
-      described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
-    end
-
-    after do
-      FileUtils.rm_rf(test_dir)
-    end
-
-    it 'returns a boolean value' do
-      result = described_class.volume_case_sensitive?(test_dir)
-      expect([true, false].include?(result)).to be(true)
-    end
-
-    it 'uses current directory when no path provided' do
-      result = described_class.volume_case_sensitive?
-      expect([true, false].include?(result)).to be(true)
-    end
-
-    it 'caches result per path' do
-      # Call twice to ensure caching works for same path
-      result1 = described_class.volume_case_sensitive?(test_dir)
-      result2 = described_class.volume_case_sensitive?(test_dir)
-      expect(result1).to eq(result2)
-    end
-
-    it 'returns consistent results when called multiple times' do
-      # Write 2 files whose names differ only in case
-      %w[SampleFile.txt sAMPLEfILE.TXT]
-        .map { |filename| File.join(test_dir, filename) }
-        .each { |filespec| FileUtils.touch(filespec) }
-
-      test_count = 3
-      results = Array.new(test_count) { described_class.volume_case_sensitive?(test_dir) }
-      expect(results.size).to eq(test_count)
-      expect(results.uniq.size).to eq(1) # All results should be identical
-    end
-
-    it 'reports case sensitivity based on actual case-variant files' do
-      filename = 'SampleFile.txt'
-      original = File.join(test_dir, filename)
-      FileUtils.touch(original)
-      alternate = File.join(test_dir, filename.tr('A-Za-z', 'a-zA-Z'))
-
-      if File.exist?(alternate) && File.identical?(original, alternate)
-        expect(described_class.volume_case_sensitive?(test_dir)).to be(false)
-      else
-        FileUtils.touch(alternate) unless File.exist?(alternate)
-        expect(described_class.volume_case_sensitive?(test_dir)).to be(true)
-      end
-    end
-
-    it 'returns false on SystemCallError' do
-      allow(File).to receive(:absolute_path).and_raise(Errno::EACCES)
-      expect(described_class.volume_case_sensitive?(test_dir)).to be false
-    end
-
-    it 'returns false on IOError' do
-      allow(File).to receive(:absolute_path).and_raise(IOError)
-      expect(described_class.volume_case_sensitive?(test_dir)).to be false
-    end
-
-    it 'returns false on SystemCallError from File.directory?' do
-      allow(File).to receive(:directory?).and_raise(Errno::ENOENT)
-      expect(described_class.volume_case_sensitive?(test_dir)).to be false
-    end
-
-    it 'returns false on IOError from File.directory?' do
-      allow(File).to receive(:directory?).and_raise(IOError)
-      expect(described_class.volume_case_sensitive?(test_dir)).to be false
-    end
-
-    it 'executes file comparison check when alternate case exists' do
-      # This test forces execution of line 188 by ensuring both case variants exist
-      filename = 'CheckLine188.txt'
-      original = File.join(test_dir, filename)
-      FileUtils.touch(original)
-      alternate = File.join(test_dir, filename.tr('A-Za-z', 'a-zA-Z'))
-      FileUtils.touch(alternate) # Ensure both exist
-
-      # Mock Dir.children to ensure we pick our file
-      allow(Dir).to receive(:children).and_wrap_original do |m, path|
-        if File.expand_path(path) == File.expand_path(test_dir)
-          [filename]
-        else
-          m.call(path)
-        end
-      end
-
-      # Verify line 188 execution
-      expect(File).to receive(:identical?).with(original, alternate).and_call_original
-
-      # Just run the method to trigger the code path
-      described_class.volume_case_sensitive?(test_dir)
-    end
-
-    it 'handles empty directory by creating and cleaning up temporary test file' do
-      # This test covers the edge case (line 288) where no suitable existing file
-      # is found, requiring creation of a temporary test file
-      empty_dir = Dir.mktmpdir("cov_loupe_empty_#{SecureRandom.hex(8)}")
-
-      begin
-        # Verify directory is empty
-        expect(Dir.children(empty_dir)).to be_empty
-
-        # Get initial state
-        files_before = Dir.children(empty_dir)
-
-        # Call the method - this should trigger the temporary file creation path
-        result = described_class.volume_case_sensitive?(empty_dir)
-
-        # Verify result is a boolean
-        expect([true, false].include?(result)).to be(true)
-
-        # Verify no temporary files are left behind
-        files_after = Dir.children(empty_dir)
-        expect(files_after).to eq(files_before)
-        expect(files_after).to be_empty
-      ensure
-        # Clean up the empty directory
-        FileUtils.rm_rf(empty_dir)
-      end
-    end
-
-    it 'handles directory with only non-alphabetic filenames' do
-      # This tests the edge case where directory exists but has no files with
-      # alphabetic characters, forcing temporary file creation
-      dir_with_numbers = Dir.mktmpdir("cov_loupe_numbers_#{SecureRandom.hex(8)}")
-
-      begin
-        # Create files with only numbers (no alphabetic characters)
-        FileUtils.touch(File.join(dir_with_numbers, '12345'))
-        FileUtils.touch(File.join(dir_with_numbers, '67890'))
-
-        # Verify no alphabetic files exist
-        files = Dir.children(dir_with_numbers)
-        expect(files.any? { |f| f.match?(/[A-Za-z]/) }).to be false
-
-        # Clear cache to ensure fresh detection
-        described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
-
-        # Call the method
-        result = described_class.volume_case_sensitive?(dir_with_numbers)
-
-        # Verify result is a boolean
-        expect([true, false].include?(result)).to be(true)
-
-        # Verify no extra files were created
-        files_after = Dir.children(dir_with_numbers)
-        expect(files_after.size).to eq(files.size)
-        expect(files_after.sort).to eq(files.sort)
-      ensure
-        FileUtils.rm_rf(dir_with_numbers)
-      end
-    end
-
-    context 'with concurrent access' do
-      it 'handles concurrent cache reads and writes deterministically' do
-        described_class.instance_variable_set(:@volume_case_sensitivity_cache, nil)
-
-        test_dir = Dir.mktmpdir("cov_loupe_concurrent_#{SecureRandom.hex(8)}")
-        FileUtils.touch(File.join(test_dir, 'SampleFile.txt'))
-
-        begin
-          num_threads = 12
-          # Barrier queues:
-          # - ready: each thread pushes once it is waiting at the barrier.
-          # - start: main thread releases threads by pushing N tokens; each thread
-          #   blocks on start.pop so they all proceed together.
-          ready = Queue.new
-          start = Queue.new
-
-          threads = Array.new(num_threads) do
-            Thread.new do
-              ready << true
-              start.pop
-              described_class.volume_case_sensitive?(test_dir)
-            end
-          end
-
-          # Wait for all threads to be ready, then release them together.
-          num_threads.times { ready.pop }
-          num_threads.times { start << true }
-
-          results = threads.map(&:value)
-          expect(results).to all(satisfy { |result| [true, false].include?(result) })
-
-          # Cache should contain a single entry for the test directory.
-          cache = described_class.instance_variable_get(:@volume_case_sensitivity_cache)
-          expect(cache).not_to be_nil
-          expect(cache).to have_key(File.absolute_path(test_dir))
-        ensure
-          FileUtils.rm_rf(test_dir)
-        end
-      end
     end
   end
 
@@ -882,6 +690,28 @@ RSpec.describe CovLoupe::PathUtils do
     end
   end
 
+  describe '.volume_case_sensitive?' do
+    it 'delegates to VolumeCaseSensitivity' do
+      allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
+      result = described_class.volume_case_sensitive?
+      expect(result).to be true
+    end
+
+    it 'passes path parameter through' do
+      test_path = '/test/path'
+      allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
+      result = described_class.volume_case_sensitive?(test_path)
+      expect(result).to be false
+    end
+  end
+
+  describe '.clear_volume_case_sensitivity_cache' do
+    it 'delegates to VolumeCaseSensitivity.clear_cache' do
+      expect(CovLoupe::VolumeCaseSensitivity).to receive(:clear_cache)
+      described_class.clear_volume_case_sensitivity_cache
+    end
+  end
+
   describe '.normalized_start_with?' do
     context 'with basic functionality' do
       it 'returns false for nil path' do
@@ -917,7 +747,9 @@ RSpec.describe CovLoupe::PathUtils do
     context 'with root parameter for cross-volume scenarios' do
       before do
         # Stub volume_case_sensitive? to return different values for different volumes
-        allow(described_class).to receive(:volume_case_sensitive?).and_wrap_original do |m, path|
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(
+          :volume_case_sensitive?
+        ).and_wrap_original do |m, path|
           # Simulate: C:/ is case-insensitive, D:/ is case-sensitive
           if path&.start_with?('C:/')
             false
@@ -980,7 +812,7 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with case-insensitive matching' do
       before do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(false)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
       end
 
       it 'matches paths with different casing' do
@@ -1010,7 +842,8 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with mixed separators on Windows' do
       before do
-        allow(described_class).to receive_messages(windows?: true, volume_case_sensitive?: false)
+        allow(described_class).to receive(:windows?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(false)
       end
 
       [
@@ -1038,7 +871,7 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'with case-sensitive matching' do
       before do
-        allow(described_class).to receive(:volume_case_sensitive?).and_return(true)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_return(true)
       end
 
       it 'does not match paths with different casing' do
@@ -1060,7 +893,7 @@ RSpec.describe CovLoupe::PathUtils do
 
     context 'when error occurs during case sensitivity detection' do
       before do
-        allow(described_class).to receive(:volume_case_sensitive?).and_raise(IOError)
+        allow(CovLoupe::VolumeCaseSensitivity).to receive(:volume_case_sensitive?).and_raise(IOError)
       end
 
       it 'defaults to case-insensitive matching and returns true for case-mismatch' do
