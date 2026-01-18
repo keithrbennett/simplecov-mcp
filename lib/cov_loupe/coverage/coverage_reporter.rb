@@ -13,9 +13,34 @@ module CovLoupe
   #     puts report if report
   #   end
   #
+  # @example With custom resultset path
+  #   CovLoupe::CoverageReporter.report(
+  #     threshold: 80,
+  #     count: 5,
+  #     resultset: 'custom/coverage/.resultset.json'
+  #   )
+  #
+  # @example With custom project root
+  #   CovLoupe::CoverageReporter.report(
+  #     threshold: 80,
+  #     count: 5,
+  #     root: '/path/to/project'
+  #   )
+  #
   module CoverageReporter
-    module_function def report(threshold: 80, count: 5, model: nil)
-      model ||= CoverageModel.new
+    module_function def report(threshold: 80, count: 5, model: nil, root: nil, resultset: nil)
+      # Determine default root from SimpleCov if available
+      default_root = defined?(SimpleCov) ? SimpleCov.root : '.'
+
+      # Determine default resultset from SimpleCov if available
+      default_resultset = if defined?(SimpleCov)
+        File.join(SimpleCov.root, SimpleCov.coverage_dir, '.resultset.json')
+      end
+
+      model ||= CoverageModel.new(
+        root: root || default_root,
+        resultset: resultset || default_resultset
+      )
       list_result = model.list(sort_order: :ascending)
       file_list = list_result['files']
         .select { |f| f['percentage'] && f['percentage'] < threshold }

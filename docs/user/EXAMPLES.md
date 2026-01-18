@@ -341,8 +341,45 @@ Lowest coverage files (< 80%):
 **Parameters:**
 - `threshold:` - Coverage percentage below which files are included (default: 80)
 - `count:` - Maximum number of files to show (default: 5)
+- `root:` - Project root directory (defaults to `SimpleCov.root` when SimpleCov is loaded, otherwise `'.'`)
+- `resultset:` - Path or directory to `.resultset.json` (defaults to `SimpleCov.coverage_dir/.resultset.json` when SimpleCov is loaded)
+- `model:` - Pre-configured `CoverageModel` instance (optional, overrides `root:`/`resultset:`)
 
 **Returns:** Formatted string, or `nil` if no files are below the threshold.
+
+**SimpleCov Integration:** When SimpleCov is loaded, `CoverageReporter.report` automatically uses SimpleCov's configured root and coverage directory. You can override these by passing explicit `root:` or `resultset:` parameters, or provide a custom `model:` instance.
+
+### Custom Coverage Directory
+
+If your project uses a custom coverage directory:
+
+```ruby
+require 'simplecov'
+SimpleCov.start do
+  add_filter %r{^/spec/}
+  coverage_dir 'reports/coverage'  # Custom coverage directory
+  track_files 'lib/**/*.rb'
+end
+
+SimpleCov.at_exit do
+  SimpleCov.result.format!
+  require 'cov_loupe'
+  
+  # CoverageReporter will automatically find the coverage in reports/coverage
+  report = CovLoupe::CoverageReporter.report(threshold: 80, count: 5)
+  puts report if report
+end
+```
+
+Or specify the resultset path explicitly:
+
+```ruby
+report = CovLoupe::CoverageReporter.report(
+  threshold: 80,
+  count: 5,
+  resultset: 'reports/coverage/.resultset.json'
+)
+```
 
 ## CI/CD Integration
 
