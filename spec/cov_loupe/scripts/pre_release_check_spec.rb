@@ -14,6 +14,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
     before do
       # Speed up tests by not actually sleeping
       allow(Kernel).to receive(:sleep).with(any_args).and_return(nil)
+      allow(script).to receive(:sleep) # rubocop:disable RSpec/SubjectStub
 
       # Mock the ROOT constant logic or Dir.chdir
       allow(Dir).to receive(:chdir).and_yield
