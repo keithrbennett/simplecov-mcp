@@ -410,7 +410,7 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
       expect(output).not_to include('Run again with --raise-on-stale to exit when rows are skipped.')
     end
 
-    it 'matches CLI --table output structure' do
+    it 'matches CLI --format table output structure' do
       # Run the tool with tracked_globs to trigger exclusions
       output = described_class.call(
         root: root,

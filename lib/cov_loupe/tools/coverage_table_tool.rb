@@ -9,7 +9,7 @@ module CovLoupe
   module Tools
     class CoverageTableTool < BaseTool
       description <<~DESC
-        Use this when a user wants the plain text coverage table exactly like `cov-loupe --table` would print (no ANSI colors).
+        Use this when a user wants the plain text coverage table exactly like `cov-loupe --format table` would print (no ANSI colors).
         Do not use this for machine-readable data; coverage.list returns structured JSON.
         Inputs: optional project root/resultset path/sort order/raise_on_stale flag matching the CLI flags.
         Output: text block containing the formatted coverage table with headers and percentages, plus
