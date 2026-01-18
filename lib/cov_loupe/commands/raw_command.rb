@@ -30,7 +30,8 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:right, :right]
+            alignments: [:right, :right],
+            output_chars: config.output_chars
           )
         end
       end

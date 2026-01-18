@@ -57,7 +57,8 @@ module CovLoupe
         puts TableFormatter.format(
           headers: headers,
           rows: rows,
-          alignments: [:left, :right, :right, :right, :right]
+          alignments: [:left, :right, :right, :right, :right],
+          output_chars: config.output_chars
         )
         with_coverage_line = format_with_coverage_line(with_coverage)
         stale_line = format_stale_breakdown(with_coverage['stale']['by_type'])

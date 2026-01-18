@@ -34,7 +34,8 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:left, :right, :right, :right, :center]
+            alignments: [:left, :right, :right, :right, :center],
+            output_chars: config.output_chars
           )
           puts
           print_source_for(model, path) if config.source_mode

@@ -4,6 +4,7 @@
 require_relative '../base_tool'
 require_relative '../presenters/project_coverage_presenter'
 require_relative '../config/option_normalizers'
+require_relative '../output_chars'
 
 module CovLoupe
   module Tools
@@ -25,7 +26,8 @@ module CovLoupe
       class << self
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', output_chars: nil, server_context:)
-          with_error_handling('CoverageTableTool', error_mode: error_mode) do
+          output_chars_sym = resolve_output_chars(output_chars, server_context)
+          with_error_handling('CoverageTableTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,
@@ -38,9 +40,6 @@ module CovLoupe
             sort_order_sym = OptionNormalizers.normalize_sort_order(
               sort_order || BaseTool::DEFAULT_SORT_ORDER, strict: true
             )
-
-            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
-            output_chars_sym = resolve_output_chars(output_chars, server_context)
 
             # Create presenter to access file summaries and exclusion data
             presenter = Presenters::ProjectCoveragePresenter.new(
@@ -61,7 +60,7 @@ module CovLoupe
             )
 
             # Append exclusions summary (matching CLI behavior)
-            exclusions = format_exclusions_summary(presenter)
+            exclusions = format_exclusions_summary(presenter, output_chars_sym)
             table += exclusions unless exclusions.empty?
 
             # Append timestamp warning (matching CLI behavior)
@@ -69,7 +68,7 @@ module CovLoupe
             table += timestamp_warning unless timestamp_warning.empty?
 
             # Append skipped rows warning (matching CLI behavior)
-            skipped_warning = format_skipped_rows_warning(model)
+            skipped_warning = format_skipped_rows_warning(model, output_chars_sym)
             table += skipped_warning unless skipped_warning.empty?
 
             # Return text response
@@ -77,7 +76,7 @@ module CovLoupe
           end
         end
 
-        private def format_exclusions_summary(presenter)
+        private def format_exclusions_summary(presenter, output_chars)
           missing = presenter.relative_missing_tracked_files
           newer = presenter.relative_newer_files
           deleted = presenter.relative_deleted_files
@@ -89,37 +88,42 @@ module CovLoupe
           return '' if missing.empty? && newer.empty? && deleted.empty? &&
                        length_mismatch.empty? && unreadable.empty? && skipped.empty?
 
+          # Helper to convert paths to ASCII if needed
+          convert_path = ->(path) { OutputChars.convert(path, output_chars) }
+
           output = ["\nFiles excluded from coverage:"]
 
           unless missing.empty?
             output << "\nMissing tracked files (#{missing.length}):"
-            missing.each { |file| output << "  - #{file}" }
+            missing.each { |file| output << "  - #{convert_path.call(file)}" }
           end
 
           unless newer.empty?
             output << "\nFiles newer than coverage (#{newer.length}):"
-            newer.each { |file| output << "  - #{file}" }
+            newer.each { |file| output << "  - #{convert_path.call(file)}" }
           end
 
           unless deleted.empty?
             output << "\nDeleted files with coverage (#{deleted.length}):"
-            deleted.each { |file| output << "  - #{file}" }
+            deleted.each { |file| output << "  - #{convert_path.call(file)}" }
           end
 
           unless length_mismatch.empty?
             output << "\nLine count mismatches (#{length_mismatch.length}):"
-            length_mismatch.each { |file| output << "  - #{file}" }
+            length_mismatch.each { |file| output << "  - #{convert_path.call(file)}" }
           end
 
           unless unreadable.empty?
             output << "\nUnreadable files (#{unreadable.length}):"
-            unreadable.each { |file| output << "  - #{file}" }
+            unreadable.each { |file| output << "  - #{convert_path.call(file)}" }
           end
 
           unless skipped.empty?
             output << "\nFiles skipped due to errors (#{skipped.length}):"
             skipped.each do |row|
-              output << "  - #{row['file']}: #{row['error']}"
+              file_path = OutputChars.convert(row['file'], output_chars)
+              error_msg = OutputChars.convert(row['error'], output_chars)
+              output << "  - #{file_path}: #{error_msg}"
             end
           end
 
@@ -140,7 +144,7 @@ module CovLoupe
         end
 
         # Formats the skipped rows warning matching CLI warn_skipped_rows behavior
-        private def format_skipped_rows_warning(model)
+        private def format_skipped_rows_warning(model, output_chars)
           skipped = model.skipped_rows
           return '' if skipped.nil? || skipped.empty?
 
@@ -151,7 +155,9 @@ module CovLoupe
           ]
           skipped.each do |row|
             relative_path = model.relativizer.relativize_path(row['file'])
-            output << "  - #{relative_path}: #{row['error']}"
+            relative_path = OutputChars.convert(relative_path, output_chars)
+            error_msg = OutputChars.convert(row['error'], output_chars)
+            output << "  - #{relative_path}: #{error_msg}"
           end
           output << 'Run again with --raise-on-stale to exit when rows are skipped.'
           output.join("\n")

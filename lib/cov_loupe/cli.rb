@@ -7,6 +7,7 @@ require_relative 'commands/command_factory'
 require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
 require_relative 'presenters/project_coverage_presenter'
+require_relative 'output_chars'
 
 module CovLoupe
   class CoverageCLI
@@ -209,7 +210,10 @@ module CovLoupe
       warn "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:"
       skipped.each do |row|
         relative_path = model.relativizer.relativize_path(row['file'])
-        warn "  - #{relative_path}: #{row['error']}"
+        # Convert path and error message to ASCII if in ascii mode
+        relative_path = OutputChars.convert(relative_path, config.output_chars)
+        error_msg = OutputChars.convert(row['error'], config.output_chars)
+        warn "  - #{relative_path}: #{error_msg}"
       end
       warn 'Run again with --raise-on-stale to exit when rows are skipped.'
     end
@@ -239,35 +243,40 @@ module CovLoupe
 
       output.puts "\nFiles excluded from coverage:"
 
+      # Helper to convert paths to ASCII if needed
+      convert_path = ->(path) { OutputChars.convert(path, config.output_chars) }
+
       unless missing.empty?
         output.puts "\nMissing tracked files (#{missing.length}):"
-        missing.each { |file| output.puts "  - #{file}" }
+        missing.each { |file| output.puts "  - #{convert_path.call(file)}" }
       end
 
       unless newer.empty?
         output.puts "\nFiles newer than coverage (#{newer.length}):"
-        newer.each { |file| output.puts "  - #{file}" }
+        newer.each { |file| output.puts "  - #{convert_path.call(file)}" }
       end
 
       unless deleted.empty?
         output.puts "\nDeleted files with coverage (#{deleted.length}):"
-        deleted.each { |file| output.puts "  - #{file}" }
+        deleted.each { |file| output.puts "  - #{convert_path.call(file)}" }
       end
 
       unless length_mismatch.empty?
         output.puts "\nLine count mismatches (#{length_mismatch.length}):"
-        length_mismatch.each { |file| output.puts "  - #{file}" }
+        length_mismatch.each { |file| output.puts "  - #{convert_path.call(file)}" }
       end
 
       unless unreadable.empty?
         output.puts "\nUnreadable files (#{unreadable.length}):"
-        unreadable.each { |file| output.puts "  - #{file}" }
+        unreadable.each { |file| output.puts "  - #{convert_path.call(file)}" }
       end
 
       unless skipped.empty?
         output.puts "\nFiles skipped due to errors (#{skipped.length}):"
         skipped.each do |row|
-          output.puts "  - #{row['file']}: #{row['error']}"
+          file_path = OutputChars.convert(row['file'], config.output_chars)
+          error_msg = OutputChars.convert(row['error'], config.output_chars)
+          output.puts "  - #{file_path}: #{error_msg}"
         end
       end
 

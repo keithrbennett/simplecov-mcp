@@ -36,16 +36,15 @@ module CovLoupe
       class << self
         def call(code: nil, file: nil, root: nil, resultset: nil, raise_on_stale: nil,
           error_mode: 'log', output_chars: nil, server_context:)
-          with_error_handling('ValidateTool', error_mode: error_mode) do
+          # Normalize output_chars before error handling so errors also get converted
+          output_chars_sym = resolve_output_chars(output_chars, server_context)
+          with_error_handling('ValidateTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,
               resultset: resultset,
               raise_on_stale: raise_on_stale
             )
-
-            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
-            output_chars_sym = resolve_output_chars(output_chars, server_context)
 
             result = if code
               PredicateEvaluator.evaluate_code(code, model)

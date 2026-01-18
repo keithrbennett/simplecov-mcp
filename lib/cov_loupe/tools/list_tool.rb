@@ -24,7 +24,8 @@ module CovLoupe
       class << self
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', output_chars: nil, server_context:)
-          with_error_handling('ListTool', error_mode: error_mode) do
+          output_chars_sym = resolve_output_chars(output_chars, server_context)
+          with_error_handling('ListTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,
@@ -37,9 +38,6 @@ module CovLoupe
             sort_order_sym = OptionNormalizers.normalize_sort_order(
               sort_order || BaseTool::DEFAULT_SORT_ORDER, strict: true
             )
-
-            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
-            output_chars_sym = resolve_output_chars(output_chars, server_context)
 
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,

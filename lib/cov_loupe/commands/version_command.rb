@@ -17,9 +17,10 @@ module CovLoupe
             'Gem Root' => @gem_root,
             'Documentation' => 'README.md and docs/user/**/*.md in gem root'
           }
-          puts TableFormatter.format_vertical(data)
+          puts TableFormatter.format_vertical(data, output_chars: config.output_chars)
         else
-          puts CovLoupe::Formatters.format(version_info, config.format)
+          puts CovLoupe::Formatters.format(version_info, config.format,
+            output_chars: config.output_chars)
         end
       end
 
