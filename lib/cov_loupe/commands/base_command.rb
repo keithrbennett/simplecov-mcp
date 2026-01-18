@@ -45,7 +45,8 @@ module CovLoupe
       protected def maybe_output_structured_format?(obj, model)
         return false if config.format == :table
 
-        puts CovLoupe::Formatters.format(model.relativize(obj), config.format)
+        puts CovLoupe::Formatters.format(model.relativize(obj), config.format,
+          output_chars: config.output_chars)
         true
       end
 
@@ -55,9 +56,11 @@ module CovLoupe
         relativized = model.relativize(data)
         if config.source_mode
           payload = relativized.merge('source' => build_source_payload(model, path))
-          puts CovLoupe::Formatters.format(payload, config.format)
+          puts CovLoupe::Formatters.format(payload, config.format,
+            output_chars: config.output_chars)
         else
-          puts CovLoupe::Formatters.format(relativized, config.format)
+          puts CovLoupe::Formatters.format(relativized, config.format,
+            output_chars: config.output_chars)
         end
         true
       end

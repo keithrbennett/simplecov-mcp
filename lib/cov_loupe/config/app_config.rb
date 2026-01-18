@@ -56,7 +56,8 @@ module CovLoupe
     # Convenience method for SourceFormatter initialization
     def formatter_options
       {
-        color_enabled: color
+        color_enabled: color,
+        output_chars: output_chars
       }
     end
   end
