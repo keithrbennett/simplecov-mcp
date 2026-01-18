@@ -1,25 +1,31 @@
 # frozen_string_literal: true
 
 require_relative '../staleness/stale_status'
+require_relative '../output_chars'
 
 module CovLoupe
   # Formats coverage data as a table with box-drawing characters
   # Extracted from CoverageModel to separate presentation from domain logic
   class CoverageTableFormatter
-    # Format coverage rows as a table with box-drawing characters
+    # Format coverage rows as a table with box-drawing or ASCII characters.
     #
     # @param rows [Array<Hash>] Coverage rows with keys: 'file', 'percentage', 'covered', 'total', 'stale'
+    # @param output_chars [Symbol] Output character mode (:default, :fancy, or :ascii)
     # @return [String] Formatted table with borders and summary
-    def self.format(rows)
+    def self.format(rows, output_chars: :default)
       return 'No coverage data found' if rows.empty?
+
+      # Resolve mode and get appropriate charset
+      resolved_mode = OutputChars.resolve_mode(output_chars)
+      charset = OutputChars.charset_for(resolved_mode)
 
       widths = compute_table_widths(rows)
       lines = []
-      lines << border_line(widths, '┌', '┬', '┐')
-      lines << header_row(widths)
-      lines << border_line(widths, '├', '┼', '┤')
-      rows.each { |file_data| lines << data_row(file_data, widths) }
-      lines << border_line(widths, '└', '┴', '┘')
+      lines << border_line(widths, charset[:top_left], charset[:top_tee], charset[:top_right], charset)
+      lines << header_row(widths, charset)
+      lines << border_line(widths, charset[:left_tee], charset[:cross], charset[:right_tee], charset)
+      rows.each { |file_data| lines << data_row(file_data, widths, charset) }
+      lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right], charset)
       lines << summary_counts(rows)
       if rows.any? { |f| StaleStatus.stale?(f['stale']) }
         lines <<
@@ -57,9 +63,11 @@ module CovLoupe
     # @param left [String] Left edge character
     # @param middle [String] Column separator character
     # @param right [String] Right edge character
+    # @param charset [Hash] Character set for borders
     # @return [String] Border line
-    private_class_method def self.border_line(widths, left, middle, right)
-      h_line = ->(col_width) { '─' * (col_width + 2) }
+    private_class_method def self.border_line(widths, left, middle, right, charset)
+      h = charset[:horizontal]
+      h_line = ->(col_width) { h * (col_width + 2) }
       left +
         h_line.call(widths[:file]) +
         middle + h_line.call(widths[:pct]) +
@@ -72,10 +80,13 @@ module CovLoupe
     # Generate the header row
     #
     # @param widths [Hash] Column widths
+    # @param charset [Hash] Character set for borders
     # @return [String] Header row
-    private_class_method def self.header_row(widths)
+    private_class_method def self.header_row(widths, charset)
+      v = charset[:vertical]
       Kernel.format(
-        "│ %-#{widths[:file]}s │ %#{widths[:pct]}s │ %#{widths[:covered]}s │ %#{widths[:total]}s │ %#{widths[:stale]}s │",
+        "#{v} %-#{widths[:file]}s #{v} %#{widths[:pct]}s #{v} %#{widths[:covered]}s " \
+        "#{v} %#{widths[:total]}s #{v} %#{widths[:stale]}s #{v}",
         'File', ' %', 'Covered', 'Total', 'Stale'.center(widths[:stale])
       )
     end
@@ -84,10 +95,12 @@ module CovLoupe
     #
     # @param file_data [Hash] Coverage data for one file
     # @param widths [Hash] Column widths
+    # @param charset [Hash] Character set for borders
     # @return [String] Data row
-    private_class_method def self.data_row(file_data, widths)
+    private_class_method def self.data_row(file_data, widths, charset)
       fd = file_data
       ws = widths
+      v = charset[:vertical]
       is_stale = StaleStatus.stale?(fd['stale'])
       stale_str = is_stale ? fd['stale'].to_s.center(ws[:stale]) : ''
       pct_str = if fd['percentage']
@@ -96,7 +109,7 @@ module CovLoupe
         'n/a'.rjust(ws[:pct])
       end
 
-      format_str = "│ %-#{ws[:file]}s │ %s │ %#{ws[:covered]}d │ %#{ws[:total]}d │ %#{ws[:stale]}s │"
+      format_str = "#{v} %-#{ws[:file]}s #{v} %s #{v} %#{ws[:covered]}d #{v} %#{ws[:total]}d #{v} %#{ws[:stale]}s #{v}"
       Kernel.format(format_str, fd['file'], pct_str, fd['covered'], fd['total'], stale_str)
     end
 

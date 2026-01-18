@@ -13,7 +13,8 @@ module CovLoupe
         type: 'object',
         additionalProperties: false,
         properties: {
-          error_mode: ERROR_MODE_PROPERTY
+          error_mode: ERROR_MODE_PROPERTY,
+          output_chars: COMMON_PROPERTIES[:output_chars]
         }
       )
 
@@ -84,12 +85,15 @@ module CovLoupe
       ].freeze
 
       class << self
-        def call(error_mode: 'log', server_context:, **_unused)
+        def call(error_mode: 'log', output_chars: nil, server_context:, **_unused)
           with_error_handling('HelpTool', error_mode: error_mode) do
             entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
 
+            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
+            output_chars_sym = resolve_output_chars(output_chars, server_context)
+
             data = { tools: entries }
-            respond_json(data, name: 'tools_help.json')
+            respond_json(data, name: 'tools_help.json', output_chars: output_chars_sym)
           end
         end
 

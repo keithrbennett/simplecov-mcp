@@ -87,13 +87,15 @@ module CovLoupe
           file_summaries,
           sort_order: sort_order,
           raise_on_stale: config.raise_on_stale,
-          tracked_globs: nil
+          tracked_globs: nil,
+          output_chars: config.output_chars
         )
         show_exclusions_summary(presenter, output)
         warn_missing_timestamps(presenter, output)
       else
         require_relative 'formatters/formatters'
-        output.puts Formatters.format(presenter.relativized_payload, config.format)
+        output.puts Formatters.format(presenter.relativized_payload, config.format,
+          output_chars: config.output_chars)
       end
 
       warn_skipped_rows(model)
@@ -174,7 +176,8 @@ module CovLoupe
       # Global options that users commonly place after subcommands by mistake
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
                           -c --context-lines -S --raise-on-stale -g --tracked-globs
-                          -l --log-file --error-mode --color -m --mode -v --version]
+                          -l --log-file --error-mode --color -m --mode -v --version
+                          -O --output-chars]
 
       misplaced = args.select do |arg|
         # Extract base option (e.g., --format from --format=json)

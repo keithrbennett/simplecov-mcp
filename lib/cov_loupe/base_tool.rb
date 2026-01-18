@@ -6,6 +6,8 @@ require_relative 'errors/errors'
 require_relative 'errors/error_handler'
 require_relative 'model/model'
 require_relative 'presenters/coverage_payload_presenter'
+require_relative 'output_chars'
+require_relative 'config/option_normalizers'
 
 module CovLoupe
   class BaseTool < ::MCP::Tool
@@ -32,6 +34,14 @@ module CovLoupe
                      "'debug' (verbose with backtraces).",
         enum: %w[off log debug],
         default: 'log'
+      },
+      output_chars: {
+        type: 'string',
+        description: "Output character mode: 'default' (UTF-8 encoding uses fancy, else ascii), " \
+                     "'fancy' (Unicode box-drawing and symbols), 'ascii' (ASCII-only 0x00-0x7F). " \
+                     'Accepts: d[efault], f[ancy], a[scii].',
+        enum: %w[default fancy ascii d f a],
+        default: 'default'
       }
     }.freeze
 
@@ -112,10 +122,40 @@ module CovLoupe
 
     # Respond with JSON as a resource to avoid clients mutating content types.
     # The resource embeds the JSON string with a clear MIME type.
-    def self.respond_json(payload, name: 'data.json', pretty: false)
-      json = pretty ? JSON.pretty_generate(payload) : JSON.generate(payload)
+    #
+    # @param payload [Object] The data to serialize as JSON
+    # @param name [String] Logical name for the JSON resource (informational)
+    # @param pretty [Boolean] Use pretty formatting with indentation
+    # @param output_chars [Symbol, String, nil] Output character mode (:default, :fancy, :ascii)
+    # @return [MCP::Tool::Response] Response containing the JSON string
+    def self.respond_json(payload, name: 'data.json', pretty: false, output_chars: :default)
+      ascii_only = resolve_ascii_mode(output_chars)
+      json = if pretty
+        ascii_only ? JSON.pretty_generate(payload, ascii_only: true) : JSON.pretty_generate(payload)
+      else
+        ascii_only ? JSON.generate(payload, ascii_only: true) : JSON.generate(payload)
+      end
       ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => json }])
     end
+
+    # Resolves output_chars to determine if ASCII mode is needed.
+    # Handles both symbol and string inputs, normalizing through OptionNormalizers.
+    #
+    # @param output_chars [Symbol, String, nil] The output_chars setting
+    # @return [Boolean] true if ASCII-only output is required
+    def self.resolve_ascii_mode(output_chars)
+      return false if output_chars.nil?
+
+      # Normalize string inputs to symbols
+      mode = case output_chars
+             when Symbol then output_chars
+             when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false, default: :default)
+             else :default
+      end
+
+      OutputChars.ascii_mode?(mode)
+    end
+    private_class_method :resolve_ascii_mode
 
     def self.log_mcp_error(error, tool_name, error_handler)
       # Use the provided error handler for logging
@@ -168,13 +208,34 @@ module CovLoupe
       { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: [] }
     end
 
+    # Resolves output_chars from tool parameter or server context.
+    # Tool parameter takes precedence over server context config.
+    #
+    # @param output_chars [String, Symbol, nil] Tool parameter value
+    # @param server_context [AppContext] Server context with app_config
+    # @return [Symbol] Normalized output_chars mode (:default, :fancy, or :ascii)
+    def self.resolve_output_chars(output_chars, server_context)
+      # Use explicit parameter if provided
+      if output_chars
+        return case output_chars
+               when Symbol then output_chars
+               when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false, default: :default)
+               else :default
+        end
+      end
+
+      # Fall back to server context config
+      server_context.app_config&.output_chars || :default
+    end
+
     # Runs a file-based tool request by deriving payload method and JSON name from the tool class.
     # @param path [String] File path to analyze
     # @param error_mode [String] Error handling mode
+    # @param output_chars [String, Symbol, nil] Output character mode
     # @param server_context [AppContext] Server context
     # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [MCP::Tool::Response] JSON response
-    def self.call_with_file_payload(path:, error_mode:, server_context:,
+    def self.call_with_file_payload(path:, error_mode:, output_chars: nil, server_context:,
       **model_option_overrides)
       tool_name = name.split('::').last
 
@@ -187,7 +248,9 @@ module CovLoupe
           payload_method: payload_method_for(tool_name),
           raise_on_stale: config[:raise_on_stale]
         )
-        respond_json(presenter.relativized_payload, name: json_name_for(tool_name), pretty: true)
+        output_chars_sym = resolve_output_chars(output_chars, server_context)
+        respond_json(presenter.relativized_payload, name: json_name_for(tool_name), pretty: true,
+          output_chars: output_chars_sym)
       end
     end
 

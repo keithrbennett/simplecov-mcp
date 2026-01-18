@@ -15,11 +15,14 @@ module CovLoupe
         type: 'object',
         additionalProperties: false,
         properties: {
-          error_mode: ERROR_MODE_PROPERTY
+          error_mode: ERROR_MODE_PROPERTY,
+          output_chars: COMMON_PROPERTIES[:output_chars]
         }
       )
       class << self
-        def call(error_mode: 'log', server_context: nil, **_args)
+        # Note: output_chars is accepted for consistency but not used here since
+        # the version string is already ASCII-only.
+        def call(error_mode: 'log', output_chars: nil, server_context: nil, **_args)
           with_error_handling('VersionTool', error_mode: error_mode) do
             ::MCP::Tool::Response.new([
               { 'type' => 'text', 'text' => "CovLoupe version: #{CovLoupe::VERSION}" }

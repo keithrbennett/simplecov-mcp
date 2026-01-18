@@ -35,7 +35,7 @@ module CovLoupe
       ))
       class << self
         def call(code: nil, file: nil, root: nil, resultset: nil, raise_on_stale: nil,
-          error_mode: 'log', server_context:)
+          error_mode: 'log', output_chars: nil, server_context:)
           with_error_handling('ValidateTool', error_mode: error_mode) do
             model, config = create_configured_model(
               server_context: server_context,
@@ -43,6 +43,9 @@ module CovLoupe
               resultset: resultset,
               raise_on_stale: raise_on_stale
             )
+
+            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
+            output_chars_sym = resolve_output_chars(output_chars, server_context)
 
             result = if code
               PredicateEvaluator.evaluate_code(code, model)
@@ -54,7 +57,8 @@ module CovLoupe
               raise UsageError, "Either 'code' or 'file' must be provided"
             end
 
-            respond_json({ result: result }, name: 'validate_result.json', pretty: true)
+            respond_json({ result: result }, name: 'validate_result.json', pretty: true,
+              output_chars: output_chars_sym)
           end
         end
       end

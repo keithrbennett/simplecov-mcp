@@ -23,7 +23,7 @@ module CovLoupe
       ))
       class << self
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
-          tracked_globs: nil, error_mode: 'log', server_context:)
+          tracked_globs: nil, error_mode: 'log', output_chars: nil, server_context:)
           with_error_handling('ListTool', error_mode: error_mode) do
             model, config = create_configured_model(
               server_context: server_context,
@@ -37,6 +37,9 @@ module CovLoupe
             sort_order_sym = OptionNormalizers.normalize_sort_order(
               sort_order || BaseTool::DEFAULT_SORT_ORDER, strict: true
             )
+
+            # Normalize output_chars (supports 'd'/'f'/'a' abbreviations)
+            output_chars_sym = resolve_output_chars(output_chars, server_context)
 
             presenter = Presenters::ProjectCoveragePresenter.new(
               model: model,
@@ -55,7 +58,7 @@ module CovLoupe
               ]
             end
 
-            respond_json(payload, name: 'list_coverage.json')
+            respond_json(payload, name: 'list_coverage.json', output_chars: output_chars_sym)
           end
         end
       end

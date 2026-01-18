@@ -17,10 +17,11 @@ module CovLoupe
       input_schema(**input_schema_def)
       class << self
         def call(path:, root: nil, resultset: nil, raise_on_stale: nil, error_mode: 'log',
-          server_context:)
+          output_chars: nil, server_context:)
           call_with_file_payload(
             path: path,
             error_mode: error_mode,
+            output_chars: output_chars,
             server_context: server_context,
             root: root,
             resultset: resultset,

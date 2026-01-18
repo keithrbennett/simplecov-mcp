@@ -17,6 +17,7 @@ module CovLoupe
     :log_file,
     :show_version,
     :mode,
+    :output_chars,
     keyword_init: true
   ) do
     # Set sensible defaults - ALL SYMBOLS FOR ENUMS
@@ -33,7 +34,8 @@ module CovLoupe
       tracked_globs: nil,
       log_file: nil,
       show_version: false,
-      mode: :cli
+      mode: :cli,
+      output_chars: :default
     )
       # Default to empty array (show all files in resultset and don't look for files lacking coverage data)
       # Users should set COV_LOUPE_OPTS to match SimpleCov track_files patterns

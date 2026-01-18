@@ -298,5 +298,67 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
         expect(border_widths.size).to eq(1), 'All border lines should have the same width'
       end
     end
+
+    context 'with output_chars option' do
+      let(:rows) do
+        [
+          {
+            'file' => 'lib/foo.rb',
+            'percentage' => 100.0,
+            'covered' => 10,
+            'total' => 10,
+            'stale' => 'ok'
+          }
+        ]
+      end
+
+      context 'with output_chars: :fancy' do
+        it 'uses Unicode box-drawing characters' do
+          output = described_class.format(rows, output_chars: :fancy)
+
+          aggregate_failures do
+            expect(output).to include('┌')
+            expect(output).to include('─')
+            expect(output).to include('│')
+            expect(output).to include('┘')
+          end
+        end
+      end
+
+      context 'with output_chars: :ascii' do
+        it 'uses ASCII characters for borders' do
+          output = described_class.format(rows, output_chars: :ascii)
+
+          aggregate_failures do
+            # ASCII borders should use +, -, |
+            expect(output).to include('+')
+            expect(output).to include('-')
+            expect(output).to include('|')
+            # Should not include Unicode box-drawing
+            expect(output).not_to include('┌')
+            expect(output).not_to include('─')
+            expect(output).not_to include('│')
+          end
+        end
+
+        it 'still includes correct data' do
+          output = described_class.format(rows, output_chars: :ascii)
+
+          expect(output).to include('lib/foo.rb')
+          expect(output).to include('100.00%')
+          expect(output).to include('File')
+        end
+      end
+
+      context 'with output_chars: :default' do
+        it 'uses Unicode box-drawing when stdout encoding is UTF-8' do
+          allow($stdout).to receive(:external_encoding).and_return(Encoding::UTF_8)
+
+          output = described_class.format(rows, output_chars: :default)
+
+          expect(output).to include('┌')
+        end
+      end
+    end
   end
 end
