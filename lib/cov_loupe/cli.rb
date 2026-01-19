@@ -170,7 +170,7 @@ module CovLoupe
 
     private def handle_option_parser_error(error, argv: [])
       @error_helper ||= OptionParsers::ErrorHelper.new(SUBCOMMANDS)
-      @error_helper.handle_option_parser_error(error, argv: argv)
+      @error_helper.handle_option_parser_error(error, argv: argv, output_chars: config.output_chars)
     end
 
     private def check_for_misplaced_global_options(cmd, args)

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative '../output_chars'
 
 module CovLoupe
   module OptionParsers
@@ -8,13 +9,14 @@ module CovLoupe
         @subcommands = subcommands
       end
 
-      def handle_option_parser_error(error, argv: [], usage_hint: "Run '#{program_name} --help' for usage information.")
-        message = error.message.to_s
+      def handle_option_parser_error(error, argv: [], output_chars: :default,
+        usage_hint: "Run '#{program_name} --help' for usage information.")
+        message = convert_text(error.message.to_s, output_chars)
         # Suggest a subcommand when an invalid option matches a known subcommand
         option = extract_invalid_option(message)
 
         if option&.start_with?('--') && @subcommands.include?(option[2..])
-          suggest_subcommand(option)
+          suggest_subcommand(option, output_chars)
         else
           # Generic message from OptionParser
           warn "Error: #{message}"
@@ -33,10 +35,16 @@ module CovLoupe
         nil
       end
 
-      private def suggest_subcommand(option)
+      private def suggest_subcommand(option, output_chars)
         subcommand = option[2..]
-        warn "Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?"
-        warn "Try: #{program_name} #{subcommand} [args]"
+        msg1 = convert_text("Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?", output_chars)
+        msg2 = convert_text("Try: #{program_name} #{subcommand} [args]", output_chars)
+        warn msg1
+        warn msg2
+      end
+
+      private def convert_text(text, output_chars)
+        OutputChars.convert(text, output_chars)
       end
 
       private def build_enum_value_hint(argv)
