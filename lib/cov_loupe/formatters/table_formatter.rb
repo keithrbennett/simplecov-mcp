@@ -23,7 +23,9 @@ module CovLoupe
       convert = ->(text) { OutputChars.convert(text.to_s, resolved_mode) }
 
       alignments ||= [:left] * headers.size
-      all_rows = [headers.map(&convert)] + rows.map { |row| row.map(&convert) }
+      converted_headers = headers.map(&convert)
+      converted_rows = rows.map { |row| row.map(&convert) }
+      all_rows = [converted_headers] + converted_rows
 
       # Calculate column widths
       widths = headers.size.times.map do |col|
@@ -32,9 +34,9 @@ module CovLoupe
 
       lines = []
       lines << border_line(widths, charset[:top_left], charset[:top_tee], charset[:top_right], charset)
-      lines << data_row(headers, widths, alignments, charset)
+      lines << data_row(converted_headers, widths, alignments, charset)
       lines << border_line(widths, charset[:left_tee], charset[:cross], charset[:right_tee], charset)
-      rows.each { |row| lines << data_row(row, widths, alignments, charset) }
+      converted_rows.each { |row| lines << data_row(row, widths, alignments, charset) }
       lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right], charset)
 
       lines.join("\n")
