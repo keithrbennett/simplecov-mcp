@@ -146,6 +146,35 @@ RSpec.describe CovLoupe::BaseTool do
     end
   end
 
+  describe '.respond_json' do
+    it 'produces ASCII-only JSON when output_chars is :ascii' do
+      payload = { 'name' => 'café', 'arrow' => '→' }
+      response = described_class.respond_json(payload, output_chars: :ascii)
+
+      json_text = response.payload.first['text']
+      expect(json_text).not_to include('é')
+      expect(json_text).not_to include('→')
+      expect(json_text).to include('\\u') # Unicode escape sequences
+    end
+
+    it 'preserves Unicode in JSON when output_chars is :fancy' do
+      payload = { 'name' => 'café' }
+      response = described_class.respond_json(payload, output_chars: :fancy)
+
+      json_text = response.payload.first['text']
+      expect(json_text).to include('café')
+    end
+
+    it 'uses pretty formatting when requested with ASCII mode' do
+      payload = { 'key' => 'valüe' }
+      response = described_class.respond_json(payload, pretty: true, output_chars: :ascii)
+
+      json_text = response.payload.first['text']
+      expect(json_text).to include("\n") # Pretty formatted
+      expect(json_text).not_to include('ü')
+    end
+  end
+
   describe '.create_configured_model' do
     let(:context) { mcp_server_context }
 
