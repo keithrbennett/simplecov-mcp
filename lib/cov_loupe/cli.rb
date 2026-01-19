@@ -196,7 +196,9 @@ module CovLoupe
 
     private def handle_user_facing_error(error)
       error_handler.handle_error(error, context: 'CLI', reraise: false)
-      warn error.user_friendly_message
+      # Convert error message to ASCII if in ascii mode
+      message = OutputChars.convert(error.user_friendly_message, config.output_chars)
+      warn message
       warn error.backtrace.first(5).join("\n") if config.error_mode == :debug && error.backtrace
       exit 1
     end

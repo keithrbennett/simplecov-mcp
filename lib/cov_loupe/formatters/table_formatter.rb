@@ -19,8 +19,11 @@ module CovLoupe
       resolved_mode = OutputChars.resolve_mode(output_chars)
       charset = OutputChars.charset_for(resolved_mode)
 
+      # Convert cell contents to ASCII if needed
+      convert = ->(text) { OutputChars.convert(text.to_s, resolved_mode) }
+
       alignments ||= [:left] * headers.size
-      all_rows = [headers] + rows.map { |row| row.map(&:to_s) }
+      all_rows = [headers.map(&convert)] + rows.map { |row| row.map(&convert) }
 
       # Calculate column widths
       widths = headers.size.times.map do |col|

@@ -19,15 +19,20 @@ module CovLoupe
       resolved_mode = OutputChars.resolve_mode(output_chars)
       charset = OutputChars.charset_for(resolved_mode)
 
-      widths = compute_table_widths(rows)
+      # Convert file paths and other string content to ASCII if needed
+      converted_rows = rows.map do |row|
+        row.merge('file' => OutputChars.convert(row['file'], resolved_mode))
+      end
+
+      widths = compute_table_widths(converted_rows)
       lines = []
       lines << border_line(widths, charset[:top_left], charset[:top_tee], charset[:top_right], charset)
       lines << header_row(widths, charset)
       lines << border_line(widths, charset[:left_tee], charset[:cross], charset[:right_tee], charset)
-      rows.each { |file_data| lines << data_row(file_data, widths, charset) }
+      converted_rows.each { |file_data| lines << data_row(file_data, widths, charset) }
       lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right], charset)
-      lines << summary_counts(rows)
-      if rows.any? { |f| StaleStatus.stale?(f['stale']) }
+      lines << summary_counts(converted_rows)
+      if converted_rows.any? { |f| StaleStatus.stale?(f['stale']) }
         lines <<
           'Staleness: error, missing, newer, length_mismatch'
       end

@@ -15,7 +15,7 @@ module CovLoupe
           data = presenter.absolute_payload
           break if emit_structured_format_with_optional_source?(data, model, path)
 
-          relative_path = presenter.relative_path
+          relative_path = convert_text(presenter.relative_path)
           summary = data['summary']
 
           # Table format with box-drawing

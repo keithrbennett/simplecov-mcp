@@ -14,7 +14,7 @@ module CovLoupe
           data = presenter.absolute_payload
           break if maybe_output_structured_format?(data, model)
 
-          relative_path = presenter.relative_path
+          relative_path = convert_text(presenter.relative_path)
           puts "File: #{relative_path}"
           puts
 
