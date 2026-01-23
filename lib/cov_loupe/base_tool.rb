@@ -143,7 +143,7 @@ module CovLoupe
     # @param output_chars [Symbol, String, nil] Output character mode (:default, :fancy, :ascii)
     # @return [MCP::Tool::Response] Response containing the JSON string
     def self.respond_json(payload, name: 'data.json', pretty: false, output_chars: :default)
-      ascii_only = resolve_ascii_mode(output_chars)
+      ascii_only = ascii_only?(output_chars)
       json = if pretty
         ascii_only ? JSON.pretty_generate(payload, ascii_only: true) : JSON.pretty_generate(payload)
       else
@@ -152,24 +152,24 @@ module CovLoupe
       ::MCP::Tool::Response.new([{ 'type' => 'text', 'text' => json }])
     end
 
-    # Resolves output_chars to determine if ASCII mode is needed.
-    # Handles both symbol and string inputs, normalizing through OptionNormalizers.
+    # Determines if ASCII-only output is required based on the character mode setting.
+    # Normalizes string inputs to symbols (MCP JSON provides strings, internal code uses symbols).
     #
-    # @param output_chars [Symbol, String, nil] The output_chars setting
+    # @param char_mode [Symbol, String, nil] The character mode (:default, :fancy, :ascii)
     # @return [Boolean] true if ASCII-only output is required
-    def self.resolve_ascii_mode(output_chars)
-      return false if output_chars.nil?
+    def self.ascii_only?(char_mode)
+      return false if char_mode.nil?
 
-      # Normalize string inputs to symbols
-      mode = case output_chars
-             when Symbol then output_chars
-             when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false, default: :default)
-             else :default
+      normalized_mode_name = case char_mode
+         when Symbol then char_mode
+         when String then OptionNormalizers.normalize_output_chars(char_mode, strict: false,
+           default: :default)
+         else :default
       end
 
-      OutputChars.ascii_mode?(mode)
+      OutputChars.ascii_mode?(normalized_mode_name)
     end
-    private_class_method :resolve_ascii_mode
+    private_class_method :ascii_only?
 
     def self.log_mcp_error(error, tool_name, error_handler)
       # Use the provided error handler for logging
@@ -233,7 +233,8 @@ module CovLoupe
       if output_chars
         return case output_chars
                when Symbol then output_chars
-               when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false, default: :default)
+               when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false,
+                 default: :default)
                else :default
         end
       end
@@ -249,7 +250,7 @@ module CovLoupe
     # @param server_context [AppContext] Server context
     # @param model_option_overrides [Hash] Tool call parameters that override model defaults
     # @return [MCP::Tool::Response] JSON response
-    def self.call_with_file_payload(path:, error_mode:, output_chars: nil, server_context:,
+    def self.call_with_file_payload(path:, error_mode:, server_context:, output_chars: nil,
       **model_option_overrides)
       tool_name = name.split('::').last
       output_chars_sym = resolve_output_chars(output_chars, server_context)

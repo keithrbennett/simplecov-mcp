@@ -43,7 +43,9 @@ RSpec.describe CovLoupe::OutputChars do
 
     context 'with invalid mode' do
       it 'raises ArgumentError' do
-        expect { described_class.resolve_mode(:invalid) }.to raise_error(ArgumentError, /Invalid output_chars mode/)
+        expect do
+          described_class.resolve_mode(:invalid)
+        end.to raise_error(ArgumentError, /Invalid output_chars mode/)
       end
     end
   end
@@ -76,7 +78,7 @@ RSpec.describe CovLoupe::OutputChars do
   describe '.convert' do
     context 'with :fancy mode' do
       it 'returns text unchanged' do
-        text = "Hello café ☕"
+        text = 'Hello café ☕'
         expect(described_class.convert(text, :fancy)).to eq(text)
       end
     end

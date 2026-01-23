@@ -37,7 +37,8 @@ module CovLoupe
       lines << data_row(converted_headers, widths, alignments, charset)
       lines << border_line(widths, charset[:left_tee], charset[:cross], charset[:right_tee], charset)
       converted_rows.each { |row| lines << data_row(row, widths, alignments, charset) }
-      lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right], charset)
+      lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right],
+        charset)
 
       lines.join("\n")
     end

@@ -20,7 +20,7 @@ module CovLoupe
         }
       )
       class << self
-        # Note: output_chars is accepted for consistency and used in error handling,
+        # NOTE: output_chars is accepted for consistency and used in error handling,
         # though the version string itself is already ASCII-only.
         def call(error_mode: 'log', output_chars: nil, server_context: nil, **_args)
           # Normalize output_chars before error handling so errors also get converted

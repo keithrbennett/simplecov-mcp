@@ -41,6 +41,7 @@ ADRs are organized by topic area rather than chronologically:
 
 - [Application Architecture](application-architecture.md) - Dual-mode operation (CLI/MCP) and context-aware error handling
 - [Coverage Data Quality](coverage-data-quality.md) - Staleness detection system
+- [Output Character Mode](output-character-mode.md) - Global ASCII vs Unicode output control
 - [Path Resolution](path-resolution.md) - Path matching strategy and cross-OS coverage support
 - [Policy Validation](policy-validation.md) - Success predicates using Ruby `instance_eval`
 - [SimpleCov Integration](simplecov-integration.md) - Dependency strategy and data loading (replaced)

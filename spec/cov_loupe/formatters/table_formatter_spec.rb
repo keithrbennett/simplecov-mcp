@@ -34,7 +34,7 @@ RSpec.describe CovLoupe::TableFormatter do
 
   describe '.format_vertical' do
     it 'renders key/value pairs as a two-column table' do
-      result = described_class.format_vertical('foo' => 1, 'bar' => 2)
+      result = described_class.format_vertical({ 'foo' => 1, 'bar' => 2 })
       expect(result).to include('Key', 'Value', 'foo', 'bar', '1', '2')
     end
   end

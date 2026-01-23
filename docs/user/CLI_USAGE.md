@@ -596,6 +596,49 @@ clp -e debug summary lib/api/client.rb  # -e = --error-mode
 clp -edebug summary lib/api/client.rb   # attached short option form
 ```
 
+### `-O, --output-chars MODE`
+
+Control output character encoding for ASCII-only environments.
+
+**Modes:**
+
+| Short | Long        | Description                                       |
+|-------|-------------|---------------------------------------------------|
+| `d`   | `default`   | Auto-detect terminal UTF-8 support (default)      |
+| `f`   | `fancy`     | Force Unicode output with box-drawing characters  |
+| `a`   | `ascii`     | Force ASCII-only output with transliteration      |
+
+```sh
+# Default mode (auto-detect)
+clp list
+
+# Force ASCII mode (for legacy terminals or CI)
+clp -O ascii list
+clp -O a list  # a = ascii
+
+# Force fancy mode (Unicode characters)
+clp -O fancy list
+clp -O f list  # f = fancy
+```
+
+**What gets converted in ASCII mode:**
+- Table borders (│ ─ ┌ ┐ └ ┘ ├ ┤ ┬ ┴ ┼ → | - + + + + + + + + +)
+- Source code markers (✓ · → + -)
+- Error messages and file paths
+- All formatted output (tables, source, JSON, YAML)
+
+**What does NOT get converted:**
+- Log files (preserved in original encoding for debugging fidelity)
+- Gem post-install message
+
+**Use cases:**
+- **CI/CD systems** with ASCII-only terminals: `clp -O ascii list`
+- **Windows** with legacy encoding: `clp -O ascii summary lib/api/client.rb`
+- **Piped output** to files: `clp -O ascii list > coverage.txt`
+- **Force Unicode** even if terminal detection fails: `clp -O fancy list`
+
+**Note:** The default mode auto-detects whether your terminal supports UTF-8. If Unicode characters appear garbled or as question marks, try `clp -O ascii`.
+
 ### `-m, --mode MODE`
 
 Specify execution mode: `cli` or `mcp` (default: `cli`). Use `--mode mcp` to run as an MCP server.

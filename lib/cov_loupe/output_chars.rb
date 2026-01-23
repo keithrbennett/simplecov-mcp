@@ -102,13 +102,7 @@ module CovLoupe
         resolved == :ascii
       end
 
-      private
-
-      # Determines the default mode based on output encoding.
-      #
-      # @param io [IO] The output stream to check
-      # @return [Symbol] :fancy if UTF-8 encoding, :ascii otherwise
-      def default_mode_for(io)
+      private def default_mode_for(io)
         encoding = io.respond_to?(:external_encoding) ? io.external_encoding : nil
         encoding ||= Encoding.default_external
 
@@ -119,7 +113,7 @@ module CovLoupe
       #
       # @param encoding [Encoding, nil] The encoding to check
       # @return [Boolean] true if UTF-8 compatible
-      def utf8_compatible?(encoding)
+      private def utf8_compatible?(encoding)
         return false if encoding.nil?
 
         encoding_name = encoding.name.upcase
@@ -134,7 +128,7 @@ module CovLoupe
       #
       # @param text [String] The text to convert
       # @return [String] ASCII-only text
-      def to_ascii(text)
+      private def to_ascii(text)
         text.each_char.map do |char|
           if char.ord < 128
             char
@@ -148,8 +142,7 @@ module CovLoupe
       #
       # @param char [String] Single character to transliterate
       # @return [String] ASCII replacement (may be multiple characters)
-      # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
-      def transliterate(char)
+      private def transliterate(char)
         # Common transliterations for readability
         TRANSLITERATIONS[char] || '?'
       end

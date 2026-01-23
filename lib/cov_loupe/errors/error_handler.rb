@@ -114,6 +114,14 @@ module CovLoupe
       active_logger.error(message)
     end
 
+    # Build log message for error logging.
+    # NOTE: Log messages are NOT converted to ASCII in ASCII output mode.
+    # This is intentional because:
+    # - Log files are system/debugging artifacts, not user-facing output
+    # - The output_chars feature targets terminal errors/warnings, not log files
+    # - Converting would lose debugging information (exact file paths, error details)
+    # - Creates inconsistency between logged paths and actual filesystem paths
+    # - No user value since logs are developer artifacts
     private def build_log_message(error, context)
       context_suffix = context ? " in #{context}" : ''
       parts = ["Error#{context_suffix}: #{error.class}: #{error.message}"]

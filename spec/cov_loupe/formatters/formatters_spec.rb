@@ -3,17 +3,6 @@
 require 'spec_helper'
 
 RSpec.describe CovLoupe::Formatters do
-  describe '.formatter_for' do
-    it 'returns a lambda for known format' do
-      expect(described_class.formatter_for(:json)).to respond_to(:call)
-    end
-
-    it 'raises ArgumentError for unknown format' do
-      expect { described_class.formatter_for(:unknown) }
-        .to raise_error(ArgumentError, /Unknown format: unknown/)
-    end
-  end
-
   describe '.ensure_requirements_for' do
     it 'requires the library if needed' do
       # We rely on the fact that 'yaml' is in FORMAT_REQUIRES
@@ -29,6 +18,11 @@ RSpec.describe CovLoupe::Formatters do
 
   describe '.format' do
     let(:obj) { { 'foo' => 'bar' } }
+
+    it 'raises ArgumentError for unknown format' do
+      expect { described_class.format(obj, :unknown) }
+        .to raise_error(ArgumentError, /Unknown format: unknown/)
+    end
 
     [
       [:json, '{"foo":"bar"}', :eq],

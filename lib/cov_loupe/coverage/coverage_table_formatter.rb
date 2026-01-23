@@ -30,7 +30,8 @@ module CovLoupe
       lines << header_row(widths, charset)
       lines << border_line(widths, charset[:left_tee], charset[:cross], charset[:right_tee], charset)
       converted_rows.each { |file_data| lines << data_row(file_data, widths, charset) }
-      lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right], charset)
+      lines << border_line(widths, charset[:bottom_left], charset[:bottom_tee], charset[:bottom_right],
+        charset)
       lines << summary_counts(converted_rows)
       if converted_rows.any? { |f| StaleStatus.stale?(f['stale']) }
         lines <<
