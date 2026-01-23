@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
+require_relative '../output_chars'
+
 module CovLoupe
   # Formatter for stale coverage error messages
   class StalenessMessageFormatter
-    def initialize(cov_timestamp:, resultset_path: nil)
+    def initialize(cov_timestamp:, resultset_path: nil, output_chars: :default)
       @cov_timestamp = cov_timestamp
       @resultset_path = resultset_path
+      @output_chars = output_chars
     end
 
     def format_project_details(newer_files:, missing_files:, deleted_files:,
@@ -17,7 +20,7 @@ module CovLoupe
         *format_file_list(deleted_files, 'Coverage-only files', 'deleted or moved in project'),
         *format_file_list(length_mismatch_files, 'Line count mismatches'),
         *format_file_list(unreadable_files, 'Unreadable files', 'permission denied or read errors'),
-        (@resultset_path ? "\nResultset - #{@resultset_path}" : nil)
+        (@resultset_path ? "\nResultset - #{convert_path(@resultset_path)}" : nil)
       ].compact.join
     end
 
@@ -33,8 +36,12 @@ module CovLoupe
         DETAILS
 
       details += "\nDelta    - file is #{delta_str} newer than coverage" if delta_str
-      details += "\nResultset - #{@resultset_path}" if @resultset_path
+      details += "\nResultset - #{convert_path(@resultset_path)}" if @resultset_path
       details.chomp
+    end
+
+    private def convert_path(path)
+      OutputChars.convert(path, @output_chars)
     end
 
     private def format_coverage_time
@@ -48,7 +55,7 @@ module CovLoupe
       desc = description ? " (#{description}, #{files.size}):" : " (#{files.size}):"
       [
         "\n#{label}#{desc}",
-        *files.first(10).map { |f| "  - #{f}" },
+        *files.first(10).map { |f| "  - #{convert_path(f)}" },
         *(files.size > 10 ? ['  ...'] : [])
       ]
     end

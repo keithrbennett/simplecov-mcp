@@ -15,7 +15,7 @@ module CovLoupe
           data = presenter.absolute_payload
           break if emit_structured_format_with_optional_source?(data, model, path)
 
-          relative_path = presenter.relative_path
+          relative_path = convert_text(presenter.relative_path)
           summary = data['summary']
           puts "File: #{relative_path}"
           puts "Coverage: #{summary['covered']}/#{summary['total']} lines (#{format('%.2f%%', summary['percentage'])})"
@@ -31,7 +31,8 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:right, :right, :center]
+            alignments: [:right, :right, :center],
+            output_chars: config.output_chars
           )
 
           print_source_for(model, path) if config.source_mode

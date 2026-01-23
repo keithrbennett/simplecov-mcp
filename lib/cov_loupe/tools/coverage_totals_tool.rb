@@ -25,8 +25,9 @@ module CovLoupe
 
       class << self
         def call(root: nil, resultset: nil, raise_on_stale: nil, tracked_globs: nil,
-          error_mode: 'log', server_context:)
-          with_error_handling('CoverageTotalsTool', error_mode: error_mode) do
+          error_mode: 'log', output_chars: nil, server_context:)
+          output_chars_sym = resolve_output_chars(output_chars, server_context)
+          with_error_handling('CoverageTotalsTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,
@@ -51,7 +52,8 @@ module CovLoupe
               ]
             end
 
-            respond_json(payload, name: 'coverage_totals.json', pretty: true)
+            respond_json(payload, name: 'coverage_totals.json', pretty: true,
+              output_chars: output_chars_sym)
           end
         end
       end

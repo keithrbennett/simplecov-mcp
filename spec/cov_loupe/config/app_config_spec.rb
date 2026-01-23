@@ -87,13 +87,13 @@ RSpec.describe CovLoupe::AppConfig do
     it 'returns hash suitable for SourceFormatter.new' do
       config = described_class.new(color: true)
       options = config.formatter_options
-      expect(options).to eq({ color_enabled: true })
+      expect(options).to eq({ color_enabled: true, output_chars: :default })
     end
 
     it 'handles false color setting' do
       config = described_class.new(color: false)
       options = config.formatter_options
-      expect(options).to eq({ color_enabled: false })
+      expect(options).to eq({ color_enabled: false, output_chars: :default })
     end
   end
 

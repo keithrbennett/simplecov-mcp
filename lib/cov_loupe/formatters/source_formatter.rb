@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require_relative '../output_chars'
+
 module CovLoupe
   module Formatters
     class SourceFormatter
-      def initialize(color_enabled: true)
+      def initialize(color_enabled: true, output_chars: :default)
         @color_enabled = color_enabled
+        @output_chars = output_chars
       end
 
       def format_source_for(model, path, mode: nil, context: 2)
@@ -59,10 +62,14 @@ module CovLoupe
       end
 
       def format_source_rows(rows)
+        # Use ASCII-safe markers when output_chars is :ascii
+        check_mark = OutputChars.ascii_mode?(@output_chars) ? '+' : "\u2713" # ✓
+        miss_mark = OutputChars.ascii_mode?(@output_chars) ? '-' : "\u00B7"  # ·
+
         marker = ->(covered, _hits) do
           case covered
-          when true then colorize('✓', :green)
-          when false then colorize('·', :red)
+          when true then colorize(check_mark, :green)
+          when false then colorize(miss_mark, :red)
           else colorize(' ', :dim)
           end
         end
@@ -73,7 +80,9 @@ module CovLoupe
 
         rows.each do |r|
           m = marker.call(r['covered'], r['hits'])
-          lines << format('%6d  %2s | %s', r['line'], m, r['code'])
+          # Convert source code to ASCII when in ASCII mode
+          code = OutputChars.convert(r['code'], @output_chars)
+          lines << format('%6d  %2s | %s', r['line'], m, code)
         end
         lines.join("\n")
       end
@@ -89,7 +98,7 @@ module CovLoupe
         out.join("\n")
       end
 
-      attr_reader :color_enabled
+      attr_reader :color_enabled, :output_chars
 
       private def fetch_raw(model, path)
         @raw_cache ||= {}

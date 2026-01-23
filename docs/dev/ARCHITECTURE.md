@@ -56,11 +56,54 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 - `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library, each of which installs its handler inside a fresh `AppContext` before executing user work.
 - Diagnostics are written via `CovUtil.log` to `cov_loupe.log` in the current directory by default; override with CLI `--log-file`, set `CovLoupe.default_log_file` for future contexts, or temporarily tweak `CovLoupe.active_log_file` when a caller needs a different destination mid-run.
 
+## Output Character Mode
+
+cov-loupe provides a global output character mode that controls ASCII vs Unicode output across both CLI and MCP interfaces. This feature ensures compatibility with terminals and systems that cannot display Unicode characters while providing rich Unicode output (box-drawing characters, fancy tables) for environments that support it.
+
+### Configuration
+
+- **CLI flag** – `-O/--output-chars MODE` accepts `default`, `fancy`, or `ascii` (case-insensitive, with short forms `d`, `f`, `a`)
+- **MCP parameter** – Optional `output_chars` parameter in tool requests overrides server default
+- **Mode resolution** – `:default` resolves at runtime: UTF-8 terminal capability check for fancy, otherwise ASCII
+
+### Implementation
+
+- **Core conversion** – `OutputChars.convert` uses an internal transliteration map with `?` fallback for characters without ASCII equivalents
+- **Charsets** – Separate charset definitions for fancy (Unicode box-drawing) and ASCII modes
+- **Formatters** – All formatters (JSON, YAML, AmazingPrint, tables, source) respect the output_chars parameter
+  - JSON uses `JSON.generate(..., ascii_only: true)` for ASCII mode
+  - YAML and AmazingPrint post-process output through `OutputChars.convert`
+  - Tables use appropriate charset and convert cell contents
+  - Source output uses ASCII-safe markers (`+/-` instead of Unicode `✓/·`)
+
+### Scope of Conversion
+
+**Converted in ASCII mode:**
+- CLI error messages and option parser errors
+- Staleness error messages and file paths
+- Command literal strings (via `convert_text` helper in BaseCommand)
+- MCP tool JSON responses (via `respond_json` with `ascii_only: true`)
+- All formatted output (tables, source, JSON, YAML)
+
+**Not converted in ASCII mode:**
+- **Log files** – Preserved in original encoding for debugging fidelity. Log files are system/debugging artifacts, not user-facing output. Converting would lose exact file paths and error details needed for troubleshooting, create inconsistency between logged paths and actual filesystem paths, and provides no user value since logs are developer artifacts.
+- **Gem post-install message** – Intentionally left unchanged per requirements
+
+### Testing
+
+Comprehensive test coverage exists:
+- Mode resolution and normalization tests
+- Formatter tests for ASCII mode (JSON, YAML, AmazingPrint, tables, source)
+- CLI option parsing tests for `--output-chars` flag
+- MCP tool output mode tests
+- Staleness error message tests with Unicode file paths
+
 ## Configuration Surface
 
 - **Environment defaults** – `COV_LOUPE_OPTS` applies baseline CLI flags before parsing the actual command line.
 - **Resultset overrides** – The location of the `.resultset.json` file can be specified via CLI options or in the MCP configuration. See [Configuring the Resultset](../index.md#configuring-the-resultset) for details.
 - **Tracked globs** – Glob patterns (e.g., `lib/**/*.rb`) that specify which files should have coverage. When provided, cov-loupe alerts you if any matching files are missing from the coverage data, helping catch untested files that were added to the project but never executed during test runs.
+- **Output character mode** – Global control of ASCII vs Unicode output via `-O/--output-chars` (CLI) or `output_chars` parameter (MCP). Default mode auto-detects terminal UTF-8 capability.
 - **Colorized source** – CLI-only flags (`--source`, `--context-lines`, `--color`) enhance human-readable reports when working locally.
 
 ## Repository Layout Highlights

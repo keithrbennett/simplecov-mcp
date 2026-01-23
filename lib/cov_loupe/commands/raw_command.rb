@@ -14,7 +14,7 @@ module CovLoupe
           data = presenter.absolute_payload
           break if maybe_output_structured_format?(data, model)
 
-          relative_path = presenter.relative_path
+          relative_path = convert_text(presenter.relative_path)
           puts "File: #{relative_path}"
           puts
 
@@ -30,7 +30,8 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:right, :right]
+            alignments: [:right, :right],
+            output_chars: config.output_chars
           )
         end
       end

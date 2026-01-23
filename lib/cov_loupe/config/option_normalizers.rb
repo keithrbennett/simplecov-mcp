@@ -50,6 +50,15 @@ module CovLoupe
       'm' => :mcp
     }.freeze
 
+    OUTPUT_CHARS_MAP = {
+      'd' => :default,
+      'default' => :default,
+      'f' => :fancy,
+      'fancy' => :fancy,
+      'a' => :ascii,
+      'ascii' => :ascii
+    }.freeze
+
     module_function def normalize_sort_order(value, strict: true)
       normalized = SORT_ORDER_MAP[value.to_s.downcase]
       return normalized if normalized
@@ -109,6 +118,22 @@ module CovLoupe
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     module_function def normalize_mode(value, strict: true, default: :cli)
       normalized = MODE_MAP[value.to_s.downcase]
+      return normalized if normalized
+
+      raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
+      default
+    end
+
+    # Normalize output_chars value.
+    # Controls ASCII vs Unicode (fancy) output for tables and text.
+    # @param value [String, Symbol] The value to normalize
+    # @param strict [Boolean] If true, raises on invalid value; if false, returns default
+    # @param default [Symbol] The default value to return if invalid and not strict
+    # @return [Symbol] The normalized symbol (:default, :fancy, or :ascii)
+    # @raise [OptionParser::InvalidArgument] If strict and value is invalid
+    module_function def normalize_output_chars(value, strict: true, default: :default)
+      normalized = OUTPUT_CHARS_MAP[value.to_s.downcase]
       return normalized if normalized
 
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict

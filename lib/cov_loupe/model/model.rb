@@ -192,12 +192,20 @@ module CovLoupe
 
     # Returns formatted table string for all files coverage data
     # Delegates to CoverageTableFormatter for presentation logic
+    #
+    # @param rows [Array<Hash>, nil] Pre-computed rows, or nil to compute from coverage data
+    # @param sort_order [Symbol] Sort order (:ascending or :descending)
+    # @param raise_on_stale [Boolean] Whether to raise on stale coverage data
+    # @param tracked_globs [Array<String>, nil] Glob patterns for tracked files
+    # @param output_chars [Symbol] Output character mode (:default, :fancy, :ascii)
+    # @return [String] Formatted table
     def format_table(rows = nil, sort_order: DEFAULT_SORT_ORDER,
       raise_on_stale: @default_raise_on_stale,
-      tracked_globs: @default_tracked_globs)
+      tracked_globs: @default_tracked_globs,
+      output_chars: :default)
       rows = prepare_rows(rows, sort_order: sort_order, raise_on_stale: raise_on_stale,
         tracked_globs: tracked_globs)
-      CoverageTableFormatter.format(rows)
+      CoverageTableFormatter.format(rows, output_chars: output_chars)
     end
 
     # Lazily resolves the resultset path on first access

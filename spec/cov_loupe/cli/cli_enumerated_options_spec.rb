@@ -44,7 +44,17 @@ RSpec.describe 'CLI enumerated option parsing' do
 
       # -e short flag for --error-mode
       { argv: %w[-e off list], accessor: :error_mode, expected: :off },
-      { argv: %w[-e d list], accessor: :error_mode, expected: :debug }
+      { argv: %w[-e d list], accessor: :error_mode, expected: :debug },
+
+      # --output-chars with long and short forms
+      { argv: %w[--output-chars default list], accessor: :output_chars, expected: :default },
+      { argv: %w[--output-chars d list], accessor: :output_chars, expected: :default },
+      { argv: %w[--output-chars fancy list], accessor: :output_chars, expected: :fancy },
+      { argv: %w[--output-chars f list], accessor: :output_chars, expected: :fancy },
+      { argv: %w[--output-chars ascii list], accessor: :output_chars, expected: :ascii },
+      { argv: %w[--output-chars a list], accessor: :output_chars, expected: :ascii },
+      { argv: %w[-O ascii list], accessor: :output_chars, expected: :ascii },
+      { argv: %w[-O f list], accessor: :output_chars, expected: :fancy }
     ]
   end
 
@@ -99,7 +109,10 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[--source x summary lib/foo.rb] },
       { argv: %w[--error-mode bad list] },
       { argv: %w[--error-mode on list] },
-      { argv: %w[--error-mode trace list] }
+      { argv: %w[--error-mode trace list] },
+      { argv: %w[--output-chars invalid list] },
+      { argv: %w[--output-chars unicode list] },
+      { argv: %w[-O utf8 list] }
     ]
   end
 

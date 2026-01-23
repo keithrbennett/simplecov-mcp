@@ -137,6 +137,54 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     end
   end
 
+  describe 'output_chars parameter' do
+    def run_with_output_chars(output_chars)
+      described_class.call(root: root, output_chars: output_chars,
+        server_context: server_context).payload.first['text']
+    end
+
+    it 'uses Unicode box-drawing by default' do
+      output = run_tool
+
+      expect(output).to include('┌', '─', '│', '┘')
+    end
+
+    it 'uses ASCII characters with output_chars: "ascii"' do
+      output = run_with_output_chars('ascii')
+
+      expect(output).to include('+', '-', '|')
+      expect(output).not_to include('┌', '─', '│')
+    end
+
+    it 'uses ASCII characters with short form "a"' do
+      output = run_with_output_chars('a')
+
+      expect(output).to include('+', '-', '|')
+      expect(output).not_to include('┌')
+    end
+
+    it 'uses Unicode with output_chars: "fancy"' do
+      output = run_with_output_chars('fancy')
+
+      expect(output).to include('┌', '─', '│')
+    end
+
+    it 'uses Unicode with short form "f"' do
+      output = run_with_output_chars('f')
+
+      expect(output).to include('┌')
+    end
+
+    it 'accepts "default" which resolves based on encoding' do
+      # Since we're in a test environment with UTF-8, default should produce Unicode
+      allow($stdout).to receive(:external_encoding).and_return(Encoding::UTF_8)
+
+      output = run_with_output_chars('default')
+
+      expect(output).to include('┌')
+    end
+  end
+
   describe 'CLI context parity' do
     describe 'exclusion scenarios' do
       let(:model) { instance_double(CovLoupe::CoverageModel) }

@@ -128,7 +128,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
 
   describe 'constant maps' do
     [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :ERROR_MODE_MAP,
-     :FORMAT_MAP, :MODE_MAP].each do |const|
+     :FORMAT_MAP, :MODE_MAP, :OUTPUT_CHARS_MAP].each do |const|
       it "has frozen #{const}" do
         expect(described_class.const_get(const)).to be_frozen
       end
@@ -154,6 +154,40 @@ RSpec.describe CovLoupe::OptionNormalizers do
 
     it 'returns default when not strict and invalid' do
       expect(described_class.normalize_mode('bad', strict: false, default: :cli)).to eq(:cli)
+    end
+  end
+
+  describe '.normalize_output_chars' do
+    it_behaves_like 'a normalizer', :normalize_output_chars,
+      [
+        ['d', :default],
+        ['default', :default],
+        ['f', :fancy],
+        ['fancy', :fancy],
+        ['a', :ascii],
+        ['ascii', :ascii],
+        ['DEFAULT', :default],
+        ['FANCY', :fancy],
+        ['ASCII', :ascii],
+        ['Ascii', :ascii]
+      ],
+      %w[invalid unicode utf8],
+      invalid_return: :default
+
+    context 'with strict: false and default: :default' do
+      [['invalid', :default], [nil, :default], ['', :default]].each do |input, expected|
+        it "returns default #{expected} for #{input.inspect}" do
+          expect(described_class.normalize_output_chars(input, strict: false,
+            default: :default)).to eq(expected)
+        end
+      end
+    end
+
+    context 'with custom default' do
+      it 'returns custom default for invalid values when not strict' do
+        expect(described_class.normalize_output_chars('invalid', strict: false,
+          default: :ascii)).to eq(:ascii)
+      end
     end
   end
 end

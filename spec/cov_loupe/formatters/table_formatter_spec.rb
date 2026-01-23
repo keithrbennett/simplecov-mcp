@@ -34,7 +34,7 @@ RSpec.describe CovLoupe::TableFormatter do
 
   describe '.format_vertical' do
     it 'renders key/value pairs as a two-column table' do
-      result = described_class.format_vertical('foo' => 1, 'bar' => 2)
+      result = described_class.format_vertical({ 'foo' => 1, 'bar' => 2 })
       expect(result).to include('Key', 'Value', 'foo', 'bar', '1', '2')
     end
   end
@@ -50,6 +50,56 @@ RSpec.describe CovLoupe::TableFormatter do
 
     it 'left-aligns by default' do
       expect(described_class.send(:align_cell, 'abc', 5, :unknown)).to eq('abc  ')
+    end
+  end
+
+  describe 'output_chars modes' do
+    let(:headers) { %w[Name Value] }
+    let(:rows) { [['café', '→']] }
+
+    describe 'output_chars: :ascii' do
+      it 'uses ASCII border characters' do
+        result = described_class.format(headers: headers, rows: rows, output_chars: :ascii)
+
+        aggregate_failures do
+          expect(result).to include('+')
+          expect(result).to include('-')
+          expect(result).to include('|')
+          expect(result).not_to include("\u250C") # top-left corner
+          expect(result).not_to include("\u2500") # horizontal
+          expect(result).not_to include("\u2502") # vertical
+        end
+      end
+
+      it 'converts cell contents to ASCII' do
+        result = described_class.format(headers: headers, rows: rows, output_chars: :ascii)
+
+        aggregate_failures do
+          expect(result).not_to include('é')
+          expect(result).not_to include('→')
+          expect(result).to include('cafe') # é transliterated
+          expect(result).to include('->') # → transliterated
+        end
+      end
+    end
+
+    describe 'output_chars: :fancy' do
+      it 'uses Unicode box-drawing characters' do
+        result = described_class.format(headers: headers, rows: rows, output_chars: :fancy)
+
+        aggregate_failures do
+          expect(result).to include("\u250C") # top-left corner
+          expect(result).to include("\u2500") # horizontal
+          expect(result).to include("\u2502") # vertical
+        end
+      end
+
+      it 'preserves Unicode in cell contents' do
+        result = described_class.format(headers: headers, rows: rows, output_chars: :fancy)
+
+        expect(result).to include('café')
+        expect(result).to include('→')
+      end
     end
   end
 end

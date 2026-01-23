@@ -54,8 +54,13 @@ module CovLoupe
       end
 
       private def handle_predicate_error(error)
-        warn "Predicate error: #{error.message}"
-        warn error.backtrace.first(5).join("\n") if config.error_mode == :debug
+        # Convert error message to ASCII if in ascii mode
+        message = convert_text(error.message)
+        warn "Predicate error: #{message}"
+        if config.error_mode == :debug
+          backtrace = error.backtrace.first(5).map { |line| convert_text(line) }
+          warn backtrace.join("\n")
+        end
         exit 2
       end
     end
