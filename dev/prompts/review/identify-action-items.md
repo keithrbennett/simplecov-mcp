@@ -36,7 +36,10 @@ Before you begin the report:
 
 ### Consult Guidelines First
 
-**CRITICAL:** Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
+**CRITICAL:** 
+
+- Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
+- For architectural issues, consult `docs/dev/arch-decisions` to see if the issue has already been considered.
 
 **Repeating for emphasis:** Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
 
