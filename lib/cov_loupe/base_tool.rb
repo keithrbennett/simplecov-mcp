@@ -154,19 +154,15 @@ module CovLoupe
 
     # Determines if ASCII-only output is required based on the character mode setting.
     # Normalizes string inputs to symbols (MCP JSON provides strings, internal code uses symbols).
+    # Uses strict validation to raise errors for invalid values.
     #
     # @param char_mode [Symbol, String, nil] The character mode (:default, :fancy, :ascii)
     # @return [Boolean] true if ASCII-only output is required
+    # @raise [CovLoupe::UsageError] if char_mode is invalid
     def self.ascii_only?(char_mode)
       return false if char_mode.nil?
 
-      normalized_mode_name = case char_mode
-         when Symbol then char_mode
-         when String then OptionNormalizers.normalize_output_chars(char_mode, strict: false,
-           default: :default)
-         else :default
-      end
-
+      normalized_mode_name = normalize_output_chars_strict(char_mode)
       OutputChars.ascii_mode?(normalized_mode_name)
     end
     private_class_method :ascii_only?
@@ -224,24 +220,42 @@ module CovLoupe
 
     # Resolves output_chars from tool parameter or server context.
     # Tool parameter takes precedence over server context config.
+    # Uses strict validation for tool parameters to catch invalid values.
     #
     # @param output_chars [String, Symbol, nil] Tool parameter value
     # @param server_context [AppContext] Server context with app_config
     # @return [Symbol] Normalized output_chars mode (:default, :fancy, or :ascii)
+    # @raise [CovLoupe::UsageError] if output_chars parameter is invalid
     def self.resolve_output_chars(output_chars, server_context)
       # Use explicit parameter if provided
-      if output_chars
-        return case output_chars
-               when Symbol then output_chars
-               when String then OptionNormalizers.normalize_output_chars(output_chars, strict: false,
-                 default: :default)
-               else :default
-        end
-      end
+      return normalize_output_chars_strict(output_chars) if output_chars
 
       # Fall back to server context config
       server_context.app_config&.output_chars || :default
     end
+
+    # Normalizes output_chars value with strict validation.
+    # Converts string inputs to symbols and validates against allowed values.
+    #
+    # @param value [String, Symbol, nil] The output_chars value to normalize
+    # @return [Symbol] Normalized output_chars mode (:default, :fancy, or :ascii)
+    # @raise [CovLoupe::UsageError] if value is invalid
+    def self.normalize_output_chars_strict(value)
+      case value
+      when Symbol then value
+      when String
+        begin
+          OptionNormalizers.normalize_output_chars(value, strict: true)
+        rescue OptionParser::InvalidArgument
+          raise CovLoupe::UsageError, "Invalid output_chars value: #{value.inspect}. " \
+            'Must be one of: default, fancy, ascii (or abbreviations: d, f, a)'
+        end
+      else
+        raise CovLoupe::UsageError, "Invalid output_chars type: #{value.class.name}. " \
+          'Must be a string (one of: default, fancy, ascii, or abbreviations: d, f, a)'
+      end
+    end
+    private_class_method :normalize_output_chars_strict
 
     # Runs a file-based tool request by deriving payload method and JSON name from the tool class.
     # @param path [String] File path to analyze

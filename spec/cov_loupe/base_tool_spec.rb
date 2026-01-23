@@ -212,4 +212,160 @@ RSpec.describe CovLoupe::BaseTool do
       end
     end
   end
+
+  describe '.resolve_output_chars' do
+    let(:context) { mcp_server_context }
+
+    context 'with valid string values' do
+      it 'accepts full names and abbreviations' do
+        [
+          ['default', :default],
+          ['fancy', :fancy],
+          ['ascii', :ascii],
+          ['d', :default],
+          ['f', :fancy],
+          ['a', :ascii]
+        ].each do |input, expected|
+          expect(described_class.resolve_output_chars(input, context)).to eq(expected)
+        end
+      end
+    end
+
+    context 'with invalid values' do
+      it 'raises UsageError for invalid string values' do
+        [
+          ['invalid', 'Invalid output_chars value.*invalid.*Must be one of'],
+          ['xyz123', 'Invalid output_chars value.*xyz123.*Must be one of'],
+          ['def', 'Invalid output_chars value.*def.*Must be one of']
+        ].each do |value, pattern|
+          expect do
+            described_class.resolve_output_chars(value, context)
+          end.to raise_error(CovLoupe::UsageError, /#{pattern}/)
+        end
+      end
+
+      it 'raises UsageError for non-string types' do
+        [
+          [123, 'Invalid output_chars type.*Integer.*Must be a string'],
+          [{ key: 'value' }, 'Invalid output_chars type.*Hash.*Must be a string'],
+          [['default'], 'Invalid output_chars type.*Array.*Must be a string']
+        ].each do |value, pattern|
+          expect do
+            described_class.resolve_output_chars(value, context)
+          end.to raise_error(CovLoupe::UsageError, /#{pattern}/)
+        end
+      end
+
+      it 'does not raise error for nil values (treated as not provided)' do
+        # When nil is explicitly passed, it falls through to the if output_chars check
+        # and returns default. This distinguishes between "not provided" vs "explicitly provided as nil"
+        expect do
+          described_class.resolve_output_chars(nil, context)
+        end.not_to raise_error
+      end
+    end
+
+    context 'with symbol values' do
+      it 'accepts valid symbols' do
+        [:default, :fancy, :ascii].each do |symbol|
+          expect(described_class.resolve_output_chars(symbol, context)).to eq(symbol)
+        end
+      end
+
+      it 'accepts invalid symbols without validation' do
+        # Symbols are returned as-is (internal use, not from MCP)
+        expect(described_class.resolve_output_chars(:invalid_symbol, context)).to eq(:invalid_symbol)
+      end
+    end
+
+    context 'with server context fallback' do
+      let(:app_config) do
+        instance_double('AppConfig', output_chars: :fancy)
+      end
+      let(:context_with_config) do
+        instance_double('AppContext', app_config: app_config)
+      end
+
+      it 'uses explicit parameter over server context' do
+        expect(described_class.resolve_output_chars('ascii', context_with_config)).to eq(:ascii)
+      end
+
+      it 'falls back to server context when parameter is nil' do
+        expect(described_class.resolve_output_chars(nil, context_with_config)).to eq(:fancy)
+      end
+
+      it 'falls back to default when no parameter or context config' do
+        context_no_config = instance_double('AppContext', app_config: nil)
+        expect(described_class.resolve_output_chars(nil, context_no_config)).to eq(:default)
+      end
+    end
+  end
+
+  describe '.ascii_only?' do
+    context 'with valid values' do
+      it 'returns false for nil' do
+        expect(described_class.send(:ascii_only?, nil)).to be(false)
+      end
+
+      it 'returns expected values for symbols' do
+        [
+          [:default, false],
+          [:fancy, false],
+          [:ascii, true]
+        ].each do |symbol, expected|
+          expect(described_class.send(:ascii_only?, symbol)).to be(expected)
+        end
+      end
+
+      it 'accepts valid string values and abbreviations' do
+        [
+          ['default', false],
+          ['fancy', false],
+          ['ascii', true],
+          ['d', false],
+          ['f', false],
+          ['a', true]
+        ].each do |input, expected|
+          expect(described_class.send(:ascii_only?, input)).to be(expected)
+        end
+      end
+    end
+
+    context 'with invalid values' do
+      it 'raises UsageError for invalid string values' do
+        expect do
+          described_class.send(:ascii_only?, 'invalid')
+        end.to raise_error(CovLoupe::UsageError, /Invalid output_chars value.*invalid.*Must be one of/)
+      end
+
+      it 'raises UsageError for non-string, non-symbol types' do
+        expect do
+          described_class.send(:ascii_only?, 123)
+        end.to raise_error(CovLoupe::UsageError, /Invalid output_chars type.*Integer.*Must be a string/)
+      end
+
+      it 'raises UsageError for hash values' do
+        expect do
+          described_class.send(:ascii_only?, { key: 'value' })
+        end.to raise_error(CovLoupe::UsageError, /Invalid output_chars type.*Hash.*Must be a string/)
+      end
+    end
+
+    context 'with symbol values' do
+      it 'accepts valid symbols' do
+        [
+          [:default, false],
+          [:fancy, false],
+          [:ascii, true]
+        ].each do |symbol, expected|
+          expect(described_class.send(:ascii_only?, symbol)).to be(expected)
+        end
+      end
+
+      it 'accepts invalid symbols without validation' do
+        # Symbols are returned as-is (internal use)
+        expect(described_class.send(:ascii_only?, :invalid_symbol)).to be(false)
+      end
+    end
+  end
 end
