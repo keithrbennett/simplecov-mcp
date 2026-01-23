@@ -28,6 +28,9 @@ AllCops:
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
+Layout/CaseIndentation:
+  Enabled: false
+
 Layout/ClosingHeredocIndentation:
   Enabled: false  # Don't enforce heredoc closing delimiter indentation
 
@@ -288,7 +291,7 @@ Style/StringLiteralsInInterpolation:
   EnforcedStyle: single_quotes
 
 Style/SymbolArray:
-  EnforcedStyle: brackets
+  Enabled: false
 
 Style/TernaryParentheses:
   Enabled: false
