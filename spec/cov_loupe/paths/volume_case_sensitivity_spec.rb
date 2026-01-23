@@ -269,6 +269,75 @@ RSpec.describe CovLoupe::VolumeCaseSensitivity do
     end
   end
 
+  describe '.detect_case_sensitive_using_existing_file?' do
+    # This method detects filesystem case sensitivity by checking if an alternate-case
+    # version of a filename exists. If it does, File.identical? is used to determine
+    # if they're the same file (case-insensitive) or different files (case-sensitive).
+
+    let(:test_dir) { Dir.mktmpdir }
+    let(:filename) { 'TestFile.txt' }
+    let(:alternate) { filename.tr('A-Za-z', 'a-zA-Z') } # 'TestFile.txt' -> 'tESTfILE.TXT'
+    let(:alternate_path) { File.join(test_dir, alternate) }
+    let(:original_path) { File.join(test_dir, filename) }
+
+    after do
+      FileUtils.rm_rf(test_dir)
+    end
+
+    before do
+      allow(File).to receive(:exist?).and_call_original
+    end
+
+    # Shared test for the branch that uses File.identical? when an alternate-case file exists
+    # - files_are_identical=true: files are the same, so filesystem is case-insensitive -> return false
+    # - files_are_identical=false: files are different, so filesystem is case-sensitive -> return true
+    shared_examples 'case detection with alternate file' do |files_are_identical|
+      it "returns #{!files_are_identical} when File.identical? returns #{files_are_identical}" do
+        allow(File).to receive(:exist?).with(alternate_path).and_return(true)
+        allow(File).to receive(:identical?).with(original_path,
+          alternate_path).and_return(files_are_identical)
+
+        result = described_class.detect_case_sensitive_using_existing_file?(test_dir, filename)
+        expect(result).to be(!files_are_identical)
+      end
+    end
+
+    context 'when alternate-case file exists' do
+      # Tests the File.identical? branch (line 127 in implementation)
+      it_behaves_like 'case detection with alternate file', true
+      it_behaves_like 'case detection with alternate file', false
+    end
+
+    context 'when alternate-case file does not exist' do
+      # Tests the else branch - assumes case-sensitive as a safe default
+      it 'returns true (assumes case-sensitive)' do
+        allow(File).to receive(:exist?).with(alternate_path).and_return(false)
+        allow(File).to receive(:identical?).and_raise('File.identical? should not be called')
+
+        result = described_class.detect_case_sensitive_using_existing_file?(test_dir, filename)
+        expect(result).to be(true)
+      end
+    end
+
+    context 'with different case variations' do
+      # Verify that case transformation (tr('A-Za-z', 'a-zA-Z')) works correctly
+      # for various input filename case patterns
+      %w[uppercase lowercase mixed].each do |variation|
+        it "correctly handles #{variation} filename" do
+          variant_filename = { 'uppercase' => 'TESTFILE.TXT',
+                               'lowercase' => 'testfile.txt',
+                               'mixed' => 'TestFile.Txt' }[variation]
+
+          variant_alternate = variant_filename.tr('A-Za-z', 'a-zA-Z')
+          allow(File).to receive(:exist?).with(File.join(test_dir, variant_alternate)).and_return(false)
+
+          result = described_class.detect_case_sensitive_using_existing_file?(test_dir, variant_filename)
+          expect(result).to be(true)
+        end
+      end
+    end
+  end
+
   describe 'thread safety' do
     let(:test_dir) { Dir.mktmpdir }
     let(:test_file) { File.join(test_dir, 'TestFile.txt') }
