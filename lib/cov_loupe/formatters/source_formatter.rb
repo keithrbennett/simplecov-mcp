@@ -24,8 +24,9 @@ module CovLoupe
           format_source_rows(rows)
         rescue ArgumentError
           raise
-        rescue
+        rescue => e
           # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
+          CovLoupe.logger.safe_log("SourceFormatter#format_source_for error for path '#{abs}': #{e.class} - #{e.message}")
           '[source not available]'
         end
       end
@@ -106,7 +107,8 @@ module CovLoupe
 
         raw = model.raw_for(path)
         @raw_cache[path] = raw
-      rescue
+      rescue => e
+        CovLoupe.logger.safe_log("SourceFormatter#fetch_raw error for path '#{path}': #{e.class} - #{e.message}")
         nil
       end
 

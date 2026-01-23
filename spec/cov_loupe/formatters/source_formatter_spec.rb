@@ -258,10 +258,112 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
   end
 
   describe 'private #fetch_raw error handling' do
+    let(:mock_logger) { instance_double(CovLoupe::Logger) }
+
+    before do
+      allow(CovLoupe).to receive(:logger).and_return(mock_logger)
+      allow(mock_logger).to receive(:safe_log)
+    end
+
     it 'returns nil if model raises error' do
       # fetch_raw should swallow model errors and return nil instead of propagating.
-      allow(model).to receive(:raw_for).and_raise(StandardError)
+      allow(model).to receive(:raw_for).and_raise(StandardError, 'Model error')
       expect(formatter.send(:fetch_raw, model, path)).to be_nil
+    end
+
+    it 'logs the exception when model raises error' do
+      # fetch_raw should log the error with context.
+      allow(model).to receive(:raw_for).and_raise(StandardError, 'Model error')
+
+      formatter.send(:fetch_raw, model, path)
+
+      expect(mock_logger).to have_received(:safe_log)
+        .with(/SourceFormatter#fetch_raw error for path '#{path}': StandardError - Model error/)
+    end
+
+    it 'includes error class and message in log' do
+      # Log message should contain both the exception class and message.
+      allow(model).to receive(:raw_for).and_raise(RuntimeError, 'Coverage data corrupted')
+
+      formatter.send(:fetch_raw, model, 'some/path.rb')
+
+      expect(mock_logger).to have_received(:safe_log)
+        .with(/RuntimeError - Coverage data corrupted/)
+    end
+  end
+
+  describe '#format_source_for error logging' do
+    let(:mock_logger) { instance_double(CovLoupe::Logger) }
+    let(:abs_path) { File.expand_path(path) }
+
+    before do
+      allow(CovLoupe).to receive(:logger).and_return(mock_logger)
+      allow(mock_logger).to receive(:safe_log)
+      allow(model).to receive(:raw_for).with(path).and_return(
+        'file' => abs_path,
+        'lines' => coverage_lines
+      )
+      allow(File).to receive(:file?).with(abs_path).and_return(true)
+      allow(File).to receive(:readlines).with(abs_path, chomp: true)
+        .and_return(source_content.lines(chomp: true))
+    end
+
+    it 'logs the exception when formatting fails' do
+      # Create a pathological coverage array with an object that raises on to_i
+      bad_object = Object.new
+      def bad_object.to_i = raise(StandardError, 'Bad data')
+      def bad_object.nil? = false
+
+      bad_coverage = [1, 1, bad_object, nil, nil]
+
+      allow(model).to receive(:raw_for).with(path)
+        .and_return('file' => abs_path, 'lines' => bad_coverage)
+
+      formatter.format_source_for(model, path, mode: :full)
+
+      expect(mock_logger).to have_received(:safe_log)
+        .with(/SourceFormatter#format_source_for error for path '#{abs_path}':/)
+    end
+
+    it 'includes error class and message in log' do
+      bad_object = Object.new
+      def bad_object.to_i = raise(NoMethodError, 'undefined method')
+      def bad_object.nil? = false
+
+      bad_coverage = [1, 1, bad_object, nil, nil]
+
+      allow(model).to receive(:raw_for).with(path)
+        .and_return('file' => abs_path, 'lines' => bad_coverage)
+
+      formatter.format_source_for(model, path, mode: :full)
+
+      expect(mock_logger).to have_received(:safe_log)
+        .with(/NoMethodError - undefined method/)
+    end
+
+    it 'returns fallback message after logging' do
+      bad_object = Object.new
+      def bad_object.to_i = raise(StandardError, 'Formatting error')
+      def bad_object.nil? = false
+
+      bad_coverage = [1, 1, bad_object, nil, nil]
+
+      allow(model).to receive(:raw_for).with(path)
+        .and_return('file' => abs_path, 'lines' => bad_coverage)
+
+      result = formatter.format_source_for(model, path, mode: :full)
+
+      expect(result).to eq('[source not available]')
+      expect(mock_logger).to have_received(:safe_log)
+    end
+
+    it 'still propagates ArgumentError without logging' do
+      # ArgumentError should propagate as before, not be logged
+      expect do
+        formatter.format_source_for(model, path, mode: :full, context: -1)
+      end.to raise_error(ArgumentError, 'Context lines cannot be negative')
+
+      expect(mock_logger).not_to have_received(:safe_log)
     end
   end
 end
