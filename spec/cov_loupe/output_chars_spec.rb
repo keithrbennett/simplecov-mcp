@@ -73,6 +73,14 @@ RSpec.describe CovLoupe::OutputChars do
       charset = described_class.charset_for(:default)
       expect(charset).to eq(described_class::UNICODE_CHARSET)
     end
+
+    context 'with invalid mode' do
+      it 'raises ArgumentError' do
+        expect do
+          described_class.charset_for(:invalid)
+        end.to raise_error(ArgumentError, /Invalid output_chars mode/)
+      end
+    end
   end
 
   describe '.convert' do
