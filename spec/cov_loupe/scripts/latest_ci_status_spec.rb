@@ -191,6 +191,28 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
         end
       end
     end
+
+    context 'when the run is completed but conclusion is nil' do
+      let(:run_json) do
+        [
+          {
+            'databaseId' => 777_666,
+            'status' => 'completed',
+            'conclusion' => nil,
+            'url' => 'url',
+            'displayTitle' => 'Nil Conclusion',
+            'createdAt' => 'time'
+          }
+        ].to_json
+      end
+
+      it 'displays UNKNOWN status without crashing' do
+        silence_output do
+          script.call
+          expect($stdout.string).to match(/Status:.*UNKNOWN/)
+        end
+      end
+    end
   end
 end
 # rubocop:enable RSpec/SubjectStub

@@ -50,7 +50,7 @@ module CovLoupe
         created_at = run['createdAt']
 
         color = status_color(status, conclusion)
-        display_status = status == 'completed' ? conclusion.upcase : status.upcase
+        display_status = status == 'completed' ? (conclusion || 'unknown').upcase : status.upcase
 
         puts "\nLatest Run Details:"
         puts '-------------------'
