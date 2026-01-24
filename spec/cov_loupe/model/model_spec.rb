@@ -634,6 +634,67 @@ RSpec.describe CovLoupe::CoverageModel do
     end
   end
 
+  describe 'Errno::ENOENT handling in coverage_data_for' do
+    let(:existing_file) { 'lib/foo.rb' }
+    let(:existing_file_abs) { File.expand_path(existing_file, root) }
+    let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: true) }
+
+    it 'returns [file_abs, coverage_lines] when staleness checker raises ' \
+      'Errno::ENOENT with raise_on_stale: false' do
+      # Create a model with a custom logger to allow stubbing
+      model_with_logger = described_class.new(root: root, logger: mock_logger)
+
+      # Stub build_staleness_checker to return a checker that raises Errno::ENOENT
+      fake_checker = instance_double(CovLoupe::StalenessChecker, off?: false)
+      allow(fake_checker).to receive(:check_file!).with(existing_file_abs, anything)
+        .and_raise(Errno::ENOENT, 'No such file or directory')
+
+      allow(model_with_logger).to receive(:build_staleness_checker).and_return(fake_checker)
+
+      # The coverage_data_for method should return the tuple without raising
+      file_abs, coverage_lines = model_with_logger.send(:coverage_data_for, existing_file,
+        raise_on_stale: false)
+
+      expect(file_abs).to eq(existing_file_abs)
+      expect(coverage_lines).to be_an(Array)
+    end
+
+    it 'raises FileNotFoundError when staleness checker raises Errno::ENOENT with raise_on_stale: true' do
+      model_with_logger = described_class.new(root: root, logger: mock_logger, raise_on_stale: true)
+
+      # Stub build_staleness_checker to return a checker that raises Errno::ENOENT
+      fake_checker = instance_double(CovLoupe::StalenessChecker, off?: false)
+      allow(fake_checker).to receive(:check_file!).with(existing_file_abs, anything)
+        .and_raise(Errno::ENOENT, 'No such file or directory')
+
+      allow(model_with_logger).to receive(:build_staleness_checker).and_return(fake_checker)
+
+      expect do
+        model_with_logger.send(:coverage_data_for, existing_file, raise_on_stale: true)
+      end.to raise_error(CovLoupe::FileNotFoundError, /File not found/)
+    end
+
+    it 'returns coverage payload via summary_for when staleness checker ' \
+      'raises Errno::ENOENT with raise_on_stale: false' do
+      model_with_logger = described_class.new(root: root, logger: mock_logger)
+
+      # Stub build_staleness_checker to return a checker that raises Errno::ENOENT
+      fake_checker = instance_double(CovLoupe::StalenessChecker, off?: false)
+      allow(fake_checker).to receive(:check_file!).with(existing_file_abs, anything)
+        .and_raise(Errno::ENOENT, 'No such file or directory')
+
+      allow(model_with_logger).to receive(:build_staleness_checker).and_return(fake_checker)
+
+      # summary_for should return coverage data without raising
+      result = model_with_logger.summary_for(existing_file, raise_on_stale: false)
+
+      expect(result).to include(
+        'file' => existing_file_abs,
+        'summary' => be_a(Hash)
+      )
+    end
+  end
+
   describe '#extract_lines_from_entry' do
     let(:mock_logger) { instance_double(CovLoupe::Logger, safe_log: true) }
     let(:model_with_logger) { described_class.new(root: root, logger: mock_logger) }
