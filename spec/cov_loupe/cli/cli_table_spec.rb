@@ -15,28 +15,29 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'list command exclusions display' do
-    it 'shows missing tracked files after the table' do
-      output = run_cli('--tracked-globs', 'lib/**/*.rb', 'list')
+    it 'shows missing tracked files on stderr after the table' do
+      stdout, stderr = run_fixture_cli_with_status('--tracked-globs', 'lib/**/*.rb', 'list').first(2)
 
       aggregate_failures do
         # Table should still be present with files that have coverage
-        expect(output).to include('File', 'lib/foo.rb', 'lib/bar.rb')
+        expect(stdout).to include('File', 'lib/foo.rb', 'lib/bar.rb')
 
         # Should show exclusions summary for files matching glob but without coverage
-        expect(output).to include('Files excluded from coverage:')
-        expect(output).to include('Missing tracked files')
-        expect(output).to include('lib/uncovered_file.rb')
+        expect(stderr).to include(
+          'Files excluded from coverage:',
+          'Missing tracked files',
+          'lib/uncovered_file.rb'
+        )
       end
     end
 
     it 'does not show exclusions when there are none' do
       # Using a very specific glob that only matches files with coverage
-      output = run_cli('--tracked-globs', 'lib/foo.rb', 'list')
+      stdout, stderr = run_fixture_cli_with_status('--tracked-globs', 'lib/foo.rb', 'list').first(2)
 
       aggregate_failures do
-        expect(output).to include('File')
-        expect(output).not_to include('Files excluded from coverage:')
-        expect(output).not_to include('Missing tracked files')
+        expect(stdout).to include('File')
+        expect(stderr).not_to include('Files excluded from coverage:', 'Missing tracked files')
       end
     end
   end

@@ -91,8 +91,8 @@ module CovLoupe
           tracked_globs: nil,
           output_chars: config.output_chars
         )
-        show_exclusions_summary(presenter, output)
-        warn_missing_timestamps(presenter, output)
+        show_exclusions_summary(presenter, $stderr)
+        warn_missing_timestamps(presenter, $stderr)
       else
         require_relative 'formatters/formatters'
         output.puts Formatters.format(presenter.relativized_payload, config.format,
@@ -100,7 +100,7 @@ module CovLoupe
       end
 
       warn_skipped_rows(presenter)
-      warn_missing_timestamps(presenter) unless config.format == :table
+      warn_missing_timestamps(presenter)
     end
 
     private def parse_options!(argv)

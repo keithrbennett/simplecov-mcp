@@ -176,7 +176,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'exclusions summary' do
-    it 'displays all types of exclusions' do
+    it 'displays all types of exclusions on stderr' do
       presenter_double = instance_double(
         CovLoupe::Presenters::ProjectCoveragePresenter,
         relative_newer_files: ['newer.rb'],
@@ -191,12 +191,15 @@ RSpec.describe CovLoupe::CoverageCLI do
       allow(CovLoupe::Presenters::ProjectCoveragePresenter)
         .to receive(:new).and_return(presenter_double)
 
-      output = run_cli('list')
+      _stdout, stderr, _status = run_fixture_cli_with_status('list')
 
-      expect(output).to include(
-        'Files newer than coverage', 'newer.rb',
-        'Line count mismatches', 'mismatch.rb',
-        'Unreadable files', 'unreadable.rb'
+      expect(stderr).to include(
+        'Files newer than coverage',
+        'newer.rb',
+        'Line count mismatches',
+        'mismatch.rb',
+        'Unreadable files',
+        'unreadable.rb'
       )
     end
   end
@@ -229,12 +232,12 @@ RSpec.describe CovLoupe::CoverageCLI do
       allow(CovLoupe::CoverageModel).to receive(:new).and_return(model_double)
     end
 
-    it 'outputs warning to stdout when timestamps are missing in table format' do
+    it 'outputs warning to stderr when timestamps are missing in table format' do
       stub_presenter_with_timestamp_status('missing', include_model: true)
 
-      stdout, _stderr, _status = run_fixture_cli_with_status
+      _stdout, stderr, _status = run_fixture_cli_with_status
 
-      expect(stdout).to include(
+      expect(stderr).to include(
         'WARNING: Coverage timestamps are missing.',
         'Time-based staleness checks were skipped.',
         'Files may appear "ok" even if source code is newer than the coverage data.',
@@ -266,7 +269,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
     # Integration tests with real fixture data
     [
-      { format: 'table', stream: :stdout, desc: 'table format' },
+      { format: 'table', stream: :stderr, desc: 'table format' },
       { format: 'json', stream: :stderr, desc: 'JSON format' }
     ].each do |tc|
       it "warns about missing timestamps with real fixture data in #{tc[:desc]}" do

@@ -121,11 +121,11 @@ RSpec.describe CovLoupe::CoverageCLI do
         end
       end
 
-      it 'prints the deleted files section in the exclusions summary' do
+      it 'prints the deleted files section in the exclusions summary on stderr' do
         output = nil
         silence_output do
           cli.show_default_report(sort_order: :ascending, output: $stdout)
-          output = $stdout.string
+          output = $stderr.string
         end
 
         expect(output).to include(
