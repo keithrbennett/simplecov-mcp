@@ -68,7 +68,7 @@ module CovLoupe
             table += timestamp_warning unless timestamp_warning.empty?
 
             # Append skipped rows warning (matching CLI behavior)
-            skipped_warning = format_skipped_rows_warning(model, output_chars_sym)
+            skipped_warning = format_skipped_rows_warning(presenter, output_chars_sym)
             table += skipped_warning unless skipped_warning.empty?
 
             # Return text response
@@ -144,8 +144,8 @@ module CovLoupe
         end
 
         # Formats the skipped rows warning matching CLI warn_skipped_rows behavior
-        private def format_skipped_rows_warning(model, output_chars)
-          skipped = model.skipped_rows
+        private def format_skipped_rows_warning(presenter, output_chars)
+          skipped = presenter.relative_skipped_files
           return '' if skipped.nil? || skipped.empty?
 
           count = skipped.length
@@ -154,10 +154,10 @@ module CovLoupe
             "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:"
           ]
           skipped.each do |row|
-            relative_path = model.relativizer.relativize_path(row['file'])
-            relative_path = OutputChars.convert(relative_path, output_chars)
+            # Paths are already relativized by presenter
+            file_path = OutputChars.convert(row['file'], output_chars)
             error_msg = OutputChars.convert(row['error'], output_chars)
-            output << "  - #{relative_path}: #{error_msg}"
+            output << "  - #{file_path}: #{error_msg}"
           end
           output << 'Run again with --raise-on-stale to exit when rows are skipped.'
           output.join("\n")

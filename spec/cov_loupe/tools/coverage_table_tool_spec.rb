@@ -417,21 +417,17 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
     end
 
     it 'includes skipped rows warning when rows are skipped' do
-      # Create a model with skipped rows
+      # Create a model
       model = instance_double(CovLoupe::CoverageModel)
-      relativizer = instance_double(CovLoupe::PathRelativizer)
-      allow(relativizer).to receive(:relativize_path).with('/some/path/file.rb').and_return('file.rb')
-      allow(model).to receive_messages(relativizer: relativizer, skipped_rows: [
-        { 'file' => '/some/path/file.rb', 'error' => 'Test error' }
-      ], format_table: 'Mock table')
+      allow(model).to receive(:format_table).and_return('Mock table')
 
-      # Create a presenter that returns data
+      # Create a presenter with relative_skipped_files (warning now uses presenter, not model)
       presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
       allow(presenter).to receive_messages(
         relative_files: [], relative_missing_tracked_files: [],
         relative_newer_files: [], relative_deleted_files: [],
         relative_length_mismatch_files: [], relative_unreadable_files: [],
-        relative_skipped_files: [],
+        relative_skipped_files: [{ 'file' => 'file.rb', 'error' => 'Test error' }],
         timestamp_status: 'ok'
       )
 
@@ -444,18 +440,56 @@ RSpec.describe CovLoupe::Tools::CoverageTableTool do
       ).payload.first['text']
 
       # Should include skipped rows warning
-      expect(output).to include('WARNING: 1 coverage row skipped due to errors:')
-      expect(output).to include('file.rb: Test error')
-      expect(output).to include('Run again with --raise-on-stale to exit when rows are skipped.')
+      expect(output).to include(
+        'WARNING: 1 coverage row skipped due to errors:',
+        'file.rb: Test error',
+        'Run again with --raise-on-stale to exit when rows are skipped.'
+      )
+    end
+
+    it 'filters skipped rows warning by tracked_globs' do
+      # Create a model
+      model = instance_double(CovLoupe::CoverageModel)
+      allow(model).to receive(:format_table).and_return('Mock table')
+
+      # Create a presenter with filtered skipped files (only in-scope file)
+      # The presenter filters using tracked_globs, so out-of-scope files are excluded
+      presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
+      allow(presenter).to receive_messages(
+        relative_files: [],
+        relative_missing_tracked_files: [],
+        relative_newer_files: [],
+        relative_deleted_files: [],
+        relative_length_mismatch_files: [],
+        relative_unreadable_files: [],
+        # Only lib/in_scope.rb matches tracked_globs, test/out_of_scope.rb is filtered out
+        relative_skipped_files: [{ 'file' => 'lib/in_scope.rb', 'error' => 'In-scope error' }],
+        timestamp_status: 'ok'
+      )
+
+      allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
+      allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
+
+      output = described_class.call(
+        root: root,
+        tracked_globs: ['lib/**/*.rb'],
+        server_context: server_context
+      ).payload.first['text']
+
+      # Should only include in-scope skipped file in warning
+      expect(output).to include(
+        'WARNING: 1 coverage row skipped due to errors:',
+        'lib/in_scope.rb: In-scope error'
+      )
+      # Out-of-scope file should NOT appear in warning
+      expect(output).not_to include('out_of_scope')
     end
 
     it 'does not include skipped rows warning when no rows are skipped' do
       output = run_tool
 
       # Should not include skipped rows warning when no rows are skipped
-      expect(output).not_to include('WARNING:')
-      expect(output).not_to include('coverage row')
-      expect(output).not_to include('Run again with --raise-on-stale to exit when rows are skipped.')
+      expect(output).not_to include('WARNING:', 'coverage row', 'Run again with --raise-on-stale')
     end
 
     it 'matches CLI --format table output structure' do

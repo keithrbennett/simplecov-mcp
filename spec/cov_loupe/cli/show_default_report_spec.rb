@@ -80,6 +80,20 @@ RSpec.describe CovLoupe::CoverageCLI do
           end
         end.to raise_error(CovLoupe::CoverageDataError, /corrupt data/)
       end
+
+      it 'filters skipped rows warning by tracked_globs' do
+        # Use tracked_globs that excludes the skipped file (lib/foo.rb)
+        cli.config.tracked_globs = ['lib/bar.rb']
+
+        warnings = nil
+        silence_output do
+          cli.show_default_report(sort_order: :ascending, output: $stdout)
+          warnings = $stderr.string
+        end
+
+        # The skipped file (lib/foo.rb) is outside tracked_globs, so no warning should appear
+        expect(warnings).not_to include('WARNING', 'coverage row', 'lib/foo.rb')
+      end
     end
 
     context 'when exclusions include deleted files' do

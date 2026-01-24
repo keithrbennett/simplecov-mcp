@@ -99,7 +99,7 @@ module CovLoupe
           output_chars: config.output_chars)
       end
 
-      warn_skipped_rows(model)
+      warn_skipped_rows(presenter)
       warn_missing_timestamps(presenter) unless config.format == :table
     end
 
@@ -203,19 +203,18 @@ module CovLoupe
       exit 1
     end
 
-    private def warn_skipped_rows(model)
-      skipped = model.skipped_rows
+    private def warn_skipped_rows(presenter)
+      skipped = presenter.relative_skipped_files
       return if skipped.nil? || skipped.empty?
 
       count = skipped.length
       warn ''
       warn "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:"
       skipped.each do |row|
-        relative_path = model.relativizer.relativize_path(row['file'])
-        # Convert path and error message to ASCII if in ascii mode
-        relative_path = OutputChars.convert(relative_path, config.output_chars)
+        # Paths are already relativized by presenter
+        file_path = OutputChars.convert(row['file'], config.output_chars)
         error_msg = OutputChars.convert(row['error'], config.output_chars)
-        warn "  - #{relative_path}: #{error_msg}"
+        warn "  - #{file_path}: #{error_msg}"
       end
       warn 'Run again with --raise-on-stale to exit when rows are skipped.'
     end
