@@ -72,12 +72,13 @@ module CovLoupe
     }.freeze
 
     def self.coverage_schema(additional_properties: {}, required: [])
-      {
+      schema = {
         type: 'object',
         additionalProperties: false,
-        properties: COMMON_PROPERTIES.merge(additional_properties),
-        required: required
-      }.freeze
+        properties: COMMON_PROPERTIES.merge(additional_properties)
+      }
+      schema[:required] = required unless required.empty?
+      schema.freeze
     end
 
     FILE_INPUT_SCHEMA = coverage_schema(
