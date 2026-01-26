@@ -61,6 +61,21 @@ RSpec.describe CovLoupe::BaseTool do
     it_behaves_like 'friendly response and logged'
   end
 
+  describe '.coverage_schema' do
+    it 'omits "required" key when required array is empty' do
+      schema = described_class.coverage_schema
+      expect(schema).to be_a(Hash)
+      expect(schema).not_to have_key(:required)
+    end
+
+    it 'includes "required" key when required array is provided' do
+      required_fields = ['field1']
+      schema = described_class.coverage_schema(required: required_fields)
+      expect(schema).to have_key(:required)
+      expect(schema[:required]).to eq(required_fields)
+    end
+  end
+
   describe '.model_config_for' do
     let(:defaults) do
       { root: '.', resultset: nil, raise_on_stale: false, tracked_globs: [] }
