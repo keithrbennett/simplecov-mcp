@@ -2,13 +2,8 @@
 
 [Back to main README](docs/index.md)
 
-## Next
 
-- **Totals exclude stale coverage**: Project totals now omit stale files (`M`, `T`, `L`, `E`) and report new `length_mismatch`/`unreadable` exclusion counts. The list output and CLI exclusions section now surface line-mismatch and unreadable-file metadata as well.
-- **Path relativization cross-platform improvements**: Fixed case-insensitive and mixed-separator path handling in `PathUtils.relativize`. On case-insensitive volumes (Windows, macOS), paths with different casing now correctly match and relativize. Mixed path separators (forward slashes vs backslashes) are also normalized properly before comparison. This resolves inconsistent CLI/MCP output across platforms, particularly for Windows users.
-- **`--error-mode` pre-scan improvements**: Early option parsing now prefers the last `--error-mode`/`-e` flag (so CLI overrides `COV_LOUPE_OPTS`) and recognizes attached short forms like `-edebug`. Malformed values still fall back to `:log` until the full parser exits with an error.
-
-## v4.0.0 (Breaking)
+## v4.0.0, v4.0.0.pre (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.
   - Removed `docs/dev/BRANCH_ONLY_COVERAGE.md`.

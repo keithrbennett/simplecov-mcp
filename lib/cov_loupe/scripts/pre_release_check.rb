@@ -141,9 +141,9 @@ module CovLoupe
 
       private def verify_release_notes!
         release_notes = ROOT.join('RELEASE_NOTES.md').read
-        header = "## #{@tag_name}"
-        unless release_notes.include?(header)
-          abort_with("Add a '#{header}' section to RELEASE_NOTES.md before releasing.")
+        version_pattern = /^## .*\b#{Regexp.escape(@tag_name)}\b/
+        unless release_notes.match?(version_pattern)
+          abort_with("Add a '## #{@tag_name}' section to RELEASE_NOTES.md before releasing.")
         end
       end
 
