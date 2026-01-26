@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe CovLoupe::VolumeCaseSensitivity do
+  before do
+    described_class.clear_cache
+  end
+
   describe '.volume_case_sensitive?' do
     let(:test_dir) { Dir.mktmpdir }
     let(:test_file) { File.join(test_dir, 'TestFile.txt') }
