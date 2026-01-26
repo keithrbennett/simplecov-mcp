@@ -91,6 +91,7 @@ nav:
       - Error Handling: user/ERROR_HANDLING.md
       - Troubleshooting: user/TROUBLESHOOTING.md
       - CLI Fallback for LLMs: user/CLI_FALLBACK_FOR_LLMS.md
+      - Installing a Prerelease: user/installing-a-prelease-version-of-covloupe.md
   - Migrations:
       - Overview: user/migrations/README.md
       - Migrating to v4: user/migrations/MIGRATING_TO_V4.md
@@ -114,6 +115,7 @@ nav:
           - Path Resolution: dev/arch-decisions/path-resolution.md
           - Policy Validation: dev/arch-decisions/policy-validation.md
           - SimpleCov Integration: dev/arch-decisions/simplecov-integration.md
+          - Output Character Mode: dev/arch-decisions/output-character-mode.md
       - Presentations: dev/presentations/cov-loupe-presentation.md
   - Contributing: contributing.md
   - Code of Conduct: code_of_conduct.md

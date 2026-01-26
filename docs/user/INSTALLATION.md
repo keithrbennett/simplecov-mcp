@@ -29,6 +29,10 @@ Then run:
 bundle install
 ```
 
+### Prerelease Versions
+
+See [Installing a Prerelease](installing-a-prelease-version-of-covloupe.md) for instructions on installing prerelease versions.
+
 ### From Source
 
 ```sh
