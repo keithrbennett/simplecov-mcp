@@ -19,6 +19,7 @@
 - [Advanced Filtering & Glob Patterns](#advanced-filtering-glob-patterns)
 - [Performance Optimization](#performance-optimization)
 - [Custom Output Processing](#custom-output-processing)
+- [Multi-Suite Coverage Merging](#multi-suite-coverage-merging)
 
 ---
 
@@ -841,6 +842,22 @@ Net::HTTP.post(uri, coveralls_data.to_json, {
   'Content-Type' => 'application/json'
 })
 ```
+
+---
+
+## Multi-Suite Coverage Merging
+
+### How It Works
+
+When a `.resultset.json` file contains multiple test suites (e.g., RSpec + Cucumber), `cov-loupe` automatically merges them using SimpleCov's combine logic. All covered files from every suite become available to the CLI, library, and MCP tools.
+
+**Performance:** Single-suite projects avoid loading SimpleCov at runtime. Multi-suite resultsets trigger a lazy SimpleCov load only when needed, keeping the tool fast for the simpler coverage configurations.
+
+### Current Limitations
+
+**Staleness checks:** When suites are merged, we keep a single "latest suite" timestamp. This matches prior behavior but may under-report stale files if only some suites were re-run after a change. Use `--raise-on-stale` (or `-S`) on the CLI, `raise_on_stale: true` via the Ruby API, or the MCP tool parameter to turn these warnings into hard failures. A per-file timestamp refinement is planned; until then, treat multi-suite staleness flags as advisory rather than definitive.
+
+**Multiple resultset files:** Only suites stored inside a *single* `.resultset.json` are merged automatically. If your project produces separate resultset files (e.g., different CI jobs writing `coverage/job1/.resultset.json`, `coverage/job2/.resultset.json`), you must merge them yourself before pointing `cov-loupe` at the combined file.
 
 ---
 
