@@ -98,8 +98,8 @@ Show covered/total/percentage for a specific file.
 
 ```sh
 clp summary app/models/order.rb
-clp summary app/models/order.rb -fJ
-clp summary app/models/order.rb -s full  # -s = --source
+clp -fJ summary app/models/order.rb
+clp -s full summary app/models/order.rb  # -s = --source
 ```
 
 **Arguments:**
@@ -143,8 +143,8 @@ Show uncovered line numbers for a specific file.
 
 ```sh
 clp uncovered app/controllers/orders_controller.rb
-clp uncovered app/controllers/orders_controller.rb -s uncovered  # -s = --source
-clp uncovered app/controllers/orders_controller.rb -s uncovered -c 3  # -c = --context-lines
+clp -s uncovered uncovered app/controllers/orders_controller.rb  # -s = --source
+clp -s uncovered -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source, -c = --context-lines
 ```
 
 **Arguments:**
@@ -197,8 +197,8 @@ Show per-line coverage with hit counts.
 
 ```sh
 clp detailed app/models/order.rb
-clp detailed app/models/order.rb -fJ
-clp detailed app/models/order.rb -s full  # -s = --source
+clp -fJ detailed app/models/order.rb
+clp -s full detailed app/models/order.rb  # -s = --source
 ```
 
 **Arguments:**
@@ -260,7 +260,7 @@ Show the raw SimpleCov lines array.
 
 ```sh
 clp raw app/models/order.rb
-clp raw app/models/order.rb -fJ
+clp -fJ raw app/models/order.rb
 ```
 
 **Arguments:**
@@ -403,7 +403,7 @@ clp -R /path/to/project  # -R = --root
 Output as pretty-printed JSON instead of human-readable format.
 
 ```sh
-clp summary lib/api/client.rb -fJ
+clp -fJ summary lib/api/client.rb
 ```
 
 Useful for:
@@ -478,8 +478,8 @@ clp --raise-on-stale yes    # enforce stale coverage failures
 Enable or disable ANSI color codes in source output. Requires an explicit boolean value.
 
 ```sh
-clp uncovered lib/api/client.rb -s uncovered --color true
-clp uncovered lib/api/client.rb -s uncovered -C false
+clp -s uncovered --color true uncovered lib/api/client.rb
+clp -s uncovered -C false uncovered lib/api/client.rb
 ```
 
 **Default:** Colors enabled if output is a TTY
@@ -764,7 +764,7 @@ clp summary lib/api/client.rb  # Automatically uses options above
 # Environment sets -fJ; explicit CLI options still take precedence
 export COV_LOUPE_OPTS="-fJ"
 clp summary lib/api/client.rb  # Uses JSON (from env)
-clp summary lib/api/client.rb -f table  # Explicit override to table format
+clp -f table summary lib/api/client.rb  # Explicit override to table format
 ```
 
 **Examples:**
@@ -806,7 +806,7 @@ clp summary lib/payments/refund_service.rb
 clp uncovered lib/payments/refund_service.rb
 
 # View uncovered code in context
-clp uncovered lib/payments/refund_service.rb -s uncovered -c 3
+clp -s uncovered -c 3 uncovered lib/payments/refund_service.rb
 
 # Get detailed hit counts
 clp detailed lib/payments/refund_service.rb
@@ -875,16 +875,16 @@ clp list  # Stale column shows missing/newer/length_mismatch/error markers
 
 ```sh
 # Show full source with coverage markers
-clp summary lib/api/client.rb -s full
+clp -s full summary lib/api/client.rb
 
 # Show only uncovered lines with context
-clp uncovered lib/api/client.rb -s uncovered
+clp -s uncovered uncovered lib/api/client.rb
 
 # More context around uncovered code
-clp uncovered lib/api/client.rb -s uncovered -c 5
+clp -s uncovered -c 5 uncovered lib/api/client.rb
 
 # Without colors (for logging)
-clp uncovered lib/api/client.rb -s full --color false
+clp -s full --color false uncovered lib/api/client.rb
 ```
 
 ### CI/CD Integration
