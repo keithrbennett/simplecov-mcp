@@ -196,7 +196,7 @@ RSpec.describe CovLoupe::StalenessChecker do
         file = File.join(tmpdir, 'test.rb')
         File.write(file, "line1\nline2\n")
 
-        allow(File).to receive(:foreach).with(file).and_raise(tc[:error])
+        allow(File).to receive(:read).with(file).and_raise(tc[:error])
 
         expect(checker.send(:safe_count_lines, file)).to eq(:read_error)
       end
@@ -205,21 +205,42 @@ RSpec.describe CovLoupe::StalenessChecker do
     it 'counts lines correctly for file with final newline' do
       file = File.join(tmpdir, 'with_newline.rb')
       File.write(file, "line1\nline2\nline3\n")
-      # File.foreach counts 3 iterations (by line separator)
+      # Count newlines to match SimpleCov (3 newlines = length 3)
       expect(checker.send(:safe_count_lines, file)).to eq(3)
     end
 
     it 'counts lines correctly for file without final newline' do
       file = File.join(tmpdir, 'no_newline.rb')
       File.write(file, "line1\nline2\nline3")
-      # File.foreach counts 3 iterations
-      expect(checker.send(:safe_count_lines, file)).to eq(3)
+      # Count newlines to match SimpleCov (2 newlines = length 2, not 3)
+      # This matches SimpleCov behavior where files without trailing newlines
+      # have coverage array length equal to the number of \n characters
+      expect(checker.send(:safe_count_lines, file)).to eq(2)
     end
 
     it 'returns 0 for empty file' do
       file = File.join(tmpdir, 'empty.rb')
       File.write(file, '')
       expect(checker.send(:safe_count_lines, file)).to eq(0)
+    end
+
+    it 'matches SimpleCov coverage array length for file without trailing newline' do
+      file = File.join(tmpdir, 'no_trailing_newline.rb')
+      # Write a file without trailing newline (2 newlines total)
+      File.write(file, "line1\nline2\nline3")
+
+      # SimpleCov would record an array of length 2 for this file
+      # because SimpleCov counts newline characters, not logical lines
+      coverage_lines = [1, 0]  # SimpleCov array with 2 elements
+
+      # safe_count_lines should return 2 to match SimpleCov
+      expect(checker.send(:safe_count_lines, file)).to eq(2)
+
+      # And this should NOT be flagged as a length mismatch
+      details = checker.send(:compute_file_staleness_details, file, coverage_lines)
+      expect(details[:len_mismatch]).to be(false)
+      expect(details[:src_len]).to eq(2)
+      expect(details[:cov_len]).to eq(2)
     end
   end
 
@@ -388,7 +409,7 @@ RSpec.describe CovLoupe::StalenessChecker do
       create_test_file(test_file, "line1\nline2\n")
       coverage_map = { test_file => [1, 1] }
 
-      allow(File).to receive(:foreach).with(test_file)
+      allow(File).to receive(:read).with(test_file)
         .and_raise(Errno::EACCES.new('Permission denied'))
 
       details = checker.check_project_with_lines!(coverage_map, coverage_files: [test_file])
@@ -402,7 +423,7 @@ RSpec.describe CovLoupe::StalenessChecker do
       error_checker = described_class.new(root: tmpdir, resultset: nil, mode: :error,
         timestamp: Time.now.to_i)
 
-      allow(File).to receive(:foreach).with(test_file)
+      allow(File).to receive(:read).with(test_file)
         .and_raise(Errno::EACCES.new('Permission denied'))
 
       expect do

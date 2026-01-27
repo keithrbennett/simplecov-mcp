@@ -18,9 +18,7 @@ begin
     SimpleCov.result.format!
     require 'cov_loupe'
     report = CovLoupe::CoverageReporter.report(threshold: 80, count: 5)
-    # rubocop:disable RSpec/Output
     puts report if report
-    # rubocop:enable RSpec/Output
   end
 rescue LoadError
   warn 'SimpleCov not available; skipping coverage'

@@ -225,7 +225,8 @@ module CovLoupe
     private def safe_count_lines(path)
       return 0 unless File.file?(path)
 
-      File.foreach(path).count
+      # Count newlines to match SimpleCov's line counting (not File.foreach which counts iterations)
+      File.read(path).count("\n")
     rescue SystemCallError, IOError
       :read_error
     end
