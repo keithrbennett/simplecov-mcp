@@ -96,8 +96,8 @@ Use `bundle exec rspec spec/path_spec.rb` to target specific specs when needed.
   ```
 - Exercise the MCP server manually by piping JSON-RPC:
   ```sh
-  echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | bundle exec exe/cov-loupe
-  echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/cov-loupe
+  echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | bundle exec exe/cov-loupe -m mcp
+  echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/cov-loupe -m mcp
   ```
 
 ### Building

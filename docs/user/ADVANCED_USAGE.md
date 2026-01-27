@@ -3,9 +3,9 @@
 [Back to main README](../index.md)
 
 > Examples use `clp`, an alias pointed at the demo fixture with partial coverage:
-> 
-> `alias clp='cov-loupe -R docs/fixtures/demo_project' # (-R = --root_dir)`
-> 
+>
+> `alias clp='cov-loupe -R docs/fixtures/demo_project'`  # -R = --root
+>
 > Replace `clp` with `cov-loupe` if you want to target your own project/resultset.
 
 ## Table of Contents

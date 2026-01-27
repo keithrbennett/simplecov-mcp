@@ -100,7 +100,7 @@ when merging resultsets.
 
 2. **Test MCP server mode manually:**
    ```bash
-   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe
+   echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
    ```
    Should return JSON-RPC response.
 
@@ -183,7 +183,7 @@ ls -la coverage/.resultset.json
 head -20 coverage/.resultset.json
 
 # Test MCP mode
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe 2>&1
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp 2>&1
 ```
 
 ## Getting More Help

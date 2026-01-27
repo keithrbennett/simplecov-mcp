@@ -374,7 +374,7 @@ cov-loupe version   # Test basic functionality
 
 **JSON-RPC Parse Errors**
 - Ensure JSON is on a single line (no newlines)
-- Test manually: `echo '{"jsonrpc":"2.0",...}' | cov-loupe`
+- Test manually: `echo '{"jsonrpc":"2.0",...}' | cov-loupe -m mcp`
 
 ## Advanced Configuration
 
