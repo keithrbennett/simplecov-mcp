@@ -21,6 +21,7 @@ module CovLoupe
         configure_banner(parser)
         define_subcommands_help(parser)
         define_options(parser)
+        define_environment_help(parser)
         define_examples(parser)
       end
     end
@@ -131,9 +132,18 @@ module CovLoupe
       end
     end
 
+    private def define_environment_help(parser)
+      parser.separator <<~ENVIRONMENT
+
+        Environment:
+          COV_LOUPE_OPTS can be used to set default options. Command-line arguments override these defaults.
+          Example: export COV_LOUPE_OPTS="--format json --sort-order ascending"
+
+        ENVIRONMENT
+    end
+
     private def define_examples(parser)
       parser.separator <<~EXAMPLES
-
         Examples:
           cov-loupe --resultset coverage list
           cov-loupe --format json --resultset coverage summary lib/foo.rb
