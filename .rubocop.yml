@@ -163,6 +163,10 @@ RSpec/MultipleMemoizedHelpers:
 RSpec/NestedGroups:
   Enabled: false
 
+RSpec/Output:
+    Exclude:
+      - spec/spec_helper.rb
+
 RSpec/SpecFilePathFormat:
   Enabled: false  # Gem uses CovLoupe but paths use cov_loupe per gem naming convention
 
