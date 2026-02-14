@@ -27,6 +27,9 @@
 # MkDocs
 /site/
 
+# Ruby Management Tools
+mise.toml
+
 # Python virtual environments
 /.venv/
 /.venv-*/
