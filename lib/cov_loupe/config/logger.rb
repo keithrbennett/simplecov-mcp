@@ -15,12 +15,7 @@ module CovLoupe
       @target = target
       @init_error = nil
       @stderr_warning_emitted = false
-
-      begin
-        @logger = build_logger(target)
-      rescue => e
-        @init_error = e
-      end
+      @logger_initialized = false
     end
 
     def info(msg)
@@ -42,7 +37,17 @@ module CovLoupe
       # Silently ignore all logging failures
     end
 
+    private def ensure_logger_initialized
+      return if @logger_initialized
+
+      @logger_initialized = true
+      @logger = build_logger(@target)
+    rescue => e
+      @init_error = e
+    end
+
     private def log_with_level(level, msg)
+      ensure_logger_initialized
       if @init_error
         handle_logging_error(@init_error, msg)
       else
