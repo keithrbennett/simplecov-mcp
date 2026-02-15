@@ -19,7 +19,7 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       it 'prints aggregated totals for the project' do
         output = capture_command_output(command, [])
 
-        expect(output).to include('Tracked globs:', 'Totals', '│', 'Lines', '50.00%')
+        expect(output).to include('Tracked globs:', 'Lines', '50.00%')
       end
 
       it 'omits without coverage breakdown when tracking is disabled' do

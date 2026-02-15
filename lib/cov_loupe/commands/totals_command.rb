@@ -2,7 +2,6 @@
 
 require_relative 'base_command'
 require_relative '../presenters/project_totals_presenter'
-require_relative '../formatters/table_formatter'
 
 module CovLoupe
   module Commands
@@ -32,34 +31,10 @@ module CovLoupe
         end
         puts
 
-        puts 'Totals'
-        headers = ['Metric', 'Total', 'Covered', 'Uncovered', '%']
-        file_ok = with_coverage['ok']
-        file_uncovered = files['total'] - file_ok
         percent_display = lines['percent_covered'].nil? ? 'n/a' : format('%.2f%%', lines['percent_covered'])
-        rows = [
-          [
-            "Lines (#{lines['included_files']} ok files)",
-            lines['total'].to_s,
-            lines['covered'].to_s,
-            lines['uncovered'].to_s,
-            percent_display
-          ],
-          [
-            'Files',
-            files['total'].to_s,
-            file_ok.to_s,
-            file_uncovered.to_s,
-            ''
-          ]
-        ]
-
-        puts TableFormatter.format(
-          headers: headers,
-          rows: rows,
-          alignments: [:left, :right, :right, :right, :right],
-          output_chars: config.output_chars
-        )
+        puts "Lines (#{lines['included_files']} ok files): " \
+          "#{lines['total']} total, #{lines['covered']} covered, " \
+          "#{lines['uncovered']} uncovered (#{percent_display})"
         with_coverage_line = format_with_coverage_line(with_coverage)
         stale_line = format_stale_breakdown(with_coverage['stale']['by_type'])
         without_coverage_line, without_breakdown_line =
