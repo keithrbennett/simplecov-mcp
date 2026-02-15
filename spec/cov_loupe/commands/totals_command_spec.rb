@@ -19,7 +19,7 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       it 'prints aggregated totals for the project' do
         output = capture_command_output(command, [])
 
-        expect(output).to include('Tracked globs:', 'Totals', '│', 'Lines', '50.00%')
+        expect(output).to include('Tracked globs:', 'Lines', '50.00%')
       end
 
       it 'omits without coverage breakdown when tracking is disabled' do
@@ -40,7 +40,9 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
               'total' => 6,
               'covered' => 3,
               'uncovered' => 3,
-              'percent_covered' => 50.0
+              'percent_covered' => 50.0,
+              'included_files' => 2,
+              'excluded_files' => 1
             },
             'tracking' => {
               'enabled' => true,
@@ -91,7 +93,8 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
         presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
         allow(presenter_double).to receive_messages(
           absolute_payload: {
-            'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => nil },
+            'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => nil,
+                         'included_files' => 0, 'excluded_files' => 0 },
             'tracking' => { 'enabled' => false, 'globs' => [] },
             'files' => { 'total' => 0,
                          'with_coverage' => { 'total' => 0, 'ok' => 0,
@@ -118,7 +121,8 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
     shared_examples 'timestamp warning display' do |timestamp_status, should_warn|
       let(:base_payload) do
         {
-          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => 0 },
+          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => 0,
+                       'included_files' => 0, 'excluded_files' => 0 },
           'tracking' => { 'enabled' => false, 'globs' => [] },
           'files' => {
             'total' => 0,

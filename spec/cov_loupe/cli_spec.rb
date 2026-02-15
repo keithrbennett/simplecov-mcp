@@ -113,8 +113,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'totals subcommand prints a readable summary by default' do
     output = run_cli('totals')
-    expect(output).to include('│', 'Lines') # Table format
-    # expect(output).to include('Average coverage:')  # Not in table version
+    expect(output).to include('Lines')
   end
 
   it 'can include source in JSON payload (nil if file missing)' do

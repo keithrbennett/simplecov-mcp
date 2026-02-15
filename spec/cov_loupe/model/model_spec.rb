@@ -200,7 +200,9 @@ RSpec.describe CovLoupe::CoverageModel do
           'total' => 6,
           'covered' => 3,
           'uncovered' => 3,
-          'percent_covered' => be_within(0.01).of(50.0)
+          'percent_covered' => be_within(0.01).of(50.0),
+          'included_files' => 2,
+          'excluded_files' => 0
         )
         expect(totals['tracking']).to include('enabled' => false, 'globs' => [])
         expect(totals['files']).to include('total' => 2)
@@ -226,7 +228,9 @@ RSpec.describe CovLoupe::CoverageModel do
           'total' => 3,
           'covered' => 2,
           'uncovered' => 1,
-          'percent_covered' => be_within(0.01).of(66.67)
+          'percent_covered' => be_within(0.01).of(66.67),
+          'included_files' => 1,
+          'excluded_files' => 1
         )
         expect(totals['files']).to include('total' => 2)
         expect(totals['files']['with_coverage']).to include('total' => 2, 'ok' => 1)
@@ -255,7 +259,9 @@ RSpec.describe CovLoupe::CoverageModel do
           'total' => 0,
           'covered' => 0,
           'uncovered' => 0,
-          'percent_covered' => nil
+          'percent_covered' => nil,
+          'included_files' => 0,
+          'excluded_files' => 2
         )
         expect(totals['files']).to include('total' => 2)
         expect(totals['files']['with_coverage']['stale']).to include('total' => 2)
