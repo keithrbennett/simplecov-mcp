@@ -164,7 +164,10 @@ module CovLoupe
       rows = list_result['files']
 
       included_rows = rows.reject { |row| StaleStatus.stale?(row['stale']) }
-      line_totals = line_totals_from_rows(included_rows)
+      line_totals = line_totals_from_rows(included_rows).merge(
+        'included_files' => included_rows.length,
+        'excluded_files' => rows.length - included_rows.length
+      )
 
       tracking = tracking_payload(tracked_globs)
       with_coverage = with_coverage_payload(rows)

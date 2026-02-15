@@ -39,7 +39,7 @@ module CovLoupe
         percent_display = lines['percent_covered'].nil? ? 'n/a' : format('%.2f%%', lines['percent_covered'])
         rows = [
           [
-            'Lines',
+            "Lines (#{lines['included_files']} ok files)",
             lines['total'].to_s,
             lines['covered'].to_s,
             lines['uncovered'].to_s,

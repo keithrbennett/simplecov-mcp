@@ -19,7 +19,9 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
         'total' => 42,
         'covered' => 40,
         'uncovered' => 2,
-        'percent_covered' => 95.24
+        'percent_covered' => 95.24,
+        'included_files' => 4,
+        'excluded_files' => 0
       },
       'tracking' => {
         'enabled' => true,
@@ -66,7 +68,9 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
       'total' => 42,
       'covered' => 40,
       'uncovered' => 2,
-      'percent_covered' => 95.24
+      'percent_covered' => 95.24,
+      'included_files' => 4,
+      'excluded_files' => 0
     )
     expect(data['files']).to include('total' => 4)
     expect(data['tracking']).to include('enabled' => true)
@@ -89,7 +93,8 @@ RSpec.describe CovLoupe::Tools::CoverageTotalsTool do
         allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
         test_payload = {
-          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => 0 },
+          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percent_covered' => 0,
+                       'included_files' => 0, 'excluded_files' => 0 },
           'tracking' => { 'enabled' => false, 'globs' => [] },
           'files' => {
             'total' => 0,
