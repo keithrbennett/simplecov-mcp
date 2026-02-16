@@ -71,6 +71,7 @@ Include the security and missing-test-types bullets regardless of project type.
 
 ## 7. Common Testing Anti-Patterns Detected
 Report only those actually observed:
+- Unnecessary verbosity — identical or near-identical code fragments that should be deduplicated using input arrays, extracted methods, shared examples, etc.
 - Over-reliance on controller tests vs request specs (Rails)
 - Over-mocking leading to brittle tests
 - Missing edge case coverage in core domain / model logic
@@ -82,7 +83,6 @@ Report only those actually observed:
 - Untested concurrency or threading logic (if applicable)
 - Insufficient testing of data transformation pipelines
 - Missing tests for CLI argument parsing and validation (if applicable)
-- Unnecessary verbosity — identical or near-identical code fragments that should be deduplicated using input arrays, extracted methods, shared examples, etc.
 
 ## 8. Actionable Testing Roadmap
 Prioritized list of specific issues to resolve, organized by effort level:
