@@ -82,6 +82,7 @@ Report only those actually observed:
 - Untested concurrency or threading logic (if applicable)
 - Insufficient testing of data transformation pipelines
 - Missing tests for CLI argument parsing and validation (if applicable)
+- Unnecessary verbosity — identical or near-identical code fragments that should be deduplicated using input arrays, extracted methods, shared examples, etc.
 
 ## 8. Actionable Testing Roadmap
 Prioritized list of specific issues to resolve, organized by effort level:
