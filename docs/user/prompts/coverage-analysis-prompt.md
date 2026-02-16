@@ -91,6 +91,8 @@ Prioritized list of specific issues to resolve, organized by effort level:
 - **Sprint 2** (1-2 days): Complex but critical coverage gaps
 - **Long-term** (> 2 days): Large refactoring or architectural test improvements
 
+Also flag testing infrastructure issues — inadequate fixtures, missing helpers, or code patterns that make tests brittle — and place them in the Long-term bucket.
+
 Include specific file paths, method names, and recommended testing approaches for each item.
 
 ## 9. Metrics Dashboard
