@@ -1,0 +1,3 @@
+> **Replace `build/coverage/.resultset.json` and `src/app.rb`** with your actual paths before using this prompt.
+
+Read coverage from build/coverage/.resultset.json for src/app.rb. Compare its coverage level to typical standards for application entry points. If coverage is incomplete, explain what failure modes or edge cases might be untested and why that matters for a main application file.

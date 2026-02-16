@@ -174,3 +174,15 @@ Suggest prompts to a coding AI tool that would be helpful in addressing the majo
 - Report the final **Overall Weighted Score** with justification.
 
 ### Summarize suggested changes
+
+Provide a short, plain-prose recap of the most important changes—distinct from the Prioritized
+Issue List (which is a table) and the High-Level Recommendations (which are strategic). Group
+them by horizon:
+
+- **Immediate (blocking or high-risk):** Changes that should happen before the next release or
+  before onboarding new contributors.
+- **Near-term (1–2 sprints):** Improvements with clear ROI and moderate cost-to-fix.
+- **Longer-term (backlog):** Worthwhile but lower urgency; note any dependencies between items.
+
+Keep this section to 10–15 lines. Its purpose is a quick decision-making aid, not a full
+re-statement of everything above.
