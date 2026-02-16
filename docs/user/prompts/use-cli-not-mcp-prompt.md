@@ -1,4 +1,4 @@
-# Use the 'cov-loupe' application as a command line utility as a fallback to MCP server mode.
+# Use 'cov-loupe' as a CLI fallback when cov-loupe MCP server is unavailable
 
 [Back to main README](../../index.md)
 
