@@ -153,7 +153,6 @@ Full documentation is available at **[https://keithrbennett.github.io/cov-loupe/
 - [Release Notes](docs/release_notes.md)
 - [License](docs/license.md)
 - [MCP Input Examples](docs/examples/mcp-inputs.md)
-- [Prompt Examples](docs/examples/prompts.md)
 - [Predicate Examples](docs/examples/success_predicates.md)
 
 ## Requirements

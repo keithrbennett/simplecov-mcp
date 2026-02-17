@@ -80,7 +80,6 @@ nav:
       - Quick Start: QUICKSTART.md
       - Examples: user/EXAMPLES.md
       - MCP Input Examples: examples/mcp-inputs.md
-      - Prompt Examples: examples/prompts.md
       - Success Predicate Examples: examples/success_predicates.md
   - User Guide:
       - Overview: user/README.md
