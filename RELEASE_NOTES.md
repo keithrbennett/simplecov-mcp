@@ -59,6 +59,8 @@
 
 ### ✨ Enhancements
 
+- **New `-f p` shortcut for pretty-json format**: Added `-f p` as a shortcut for `--format pretty-json`. This follows the pattern of other format shortcuts (`-f j` for json, `-f y` for yaml, etc.). The previous `-f J` shortcut no longer works (use `-f p` instead).
+
 - **Project totals now include coverage breakdowns**: The `totals` subcommand and `coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
 
   **Example output:**

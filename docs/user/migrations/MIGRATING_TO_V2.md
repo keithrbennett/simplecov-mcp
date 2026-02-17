@@ -111,7 +111,7 @@ simplecov-mcp --source uncovered summary lib/foo.rb
 
 ### --json Replaced with --format
 
-**Change:** The `--json` flag (and related `-j`, `-J`, `--pretty-json` flags) have been removed. Use `-f/--format` instead.
+**Change:** The `--json` flag (and related `-j`, `--pretty-json` flags) have been removed. Use `-f/--format` instead.
 
 **Rationale:** Supports multiple output formats beyond JSON (YAML, awesome_print, etc.) with a consistent interface.
 

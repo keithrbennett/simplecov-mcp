@@ -39,7 +39,7 @@ clp raw app/models/order.rb
 
 # Get project totals
 clp totals
-clp -fJ totals
+clp -fp totals
 
 # Show version
 clp version
@@ -57,7 +57,7 @@ Show coverage summary for all files (default subcommand).
 ```sh
 clp list
 clp -o d list  # -o = --sort-order, d = descending
-clp -fJ list           
+clp -fp list           
 ```
 
 Default sort order is descending (highest coverage first) so the lowest-coverage files stay visible at the bottom of the scrollback.
@@ -69,7 +69,7 @@ Default sort order is descending (highest coverage first) so the lowest-coverage
 | `-o`    | `--sort-order`           | Sort by coverage percentage (ascending or descending) |
 | `-g`    | `--tracked-globs`        | Filter to specific file patterns                      |
 | `-S`    | `--raise-on-stale`       | Raise error if coverage is stale (default false)      |
-| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                         |
+| `-fp`   | `--format pretty-json`   | Output as pretty-printed JSON                         |
 | `-fj`   | `--format json`          | Output as single-line JSON                            |
 | `-f y`  | `--format yaml`          | Output as YAML                                        |
 | `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |                             |
@@ -98,7 +98,7 @@ Show covered/total/percentage for a specific file.
 
 ```sh
 clp summary app/models/order.rb
-clp -fJ summary app/models/order.rb
+clp -fp summary app/models/order.rb
 clp -s full summary app/models/order.rb  # -s = --source
 ```
 
@@ -109,7 +109,7 @@ clp -s full summary app/models/order.rb  # -s = --source
 
 | Short | Long             | Description                                |
 |-------|------------------|--------------------------------------------|
-| `-fJ` | `--format pretty-json` | Output as pretty-printed JSON         |
+| `-fp`   | `--format pretty-json` | Output as pretty-printed JSON         |
 | `-fj` | `--format json`        | Output as single-line JSON            |
 | `-f y` | `--format yaml`        | Output as YAML                        |
 | `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |         |
@@ -157,7 +157,7 @@ clp -s uncovered -c 3 uncovered app/controllers/orders_controller.rb  # -s = --s
 | `-s`    | `--source uncovered`     | Show uncovered lines with context                    |
 | `-c`    | `--context-lines N`      | Lines of context around uncovered lines (default: 2) |
 | `-C`    | `--color BOOLEAN`        | Enable (`true`)/disable (`false`) syntax coloring    |
-| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
+| `-fp`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
 | `-fj`   | `--format json`          | Output as single-line JSON                           |
 | `-f y`  | `--format yaml`          | Output as YAML                                       |
 | `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |                            |
@@ -197,7 +197,7 @@ Show per-line coverage with hit counts.
 
 ```sh
 clp detailed app/models/order.rb
-clp -fJ detailed app/models/order.rb
+clp -fp detailed app/models/order.rb
 clp -s full detailed app/models/order.rb  # -s = --source
 ```
 
@@ -208,7 +208,7 @@ clp -s full detailed app/models/order.rb  # -s = --source
 
 | Short   | Long                     | Description                   |
 |---------|--------------------------|-------------------------------|
-| `-fJ`   | `--format pretty-json`   | Output as pretty-printed JSON |
+| `-fp`   | `--format pretty-json`   | Output as pretty-printed JSON |
 | `-fj`   | `--format json`          | Output as single-line JSON    |
 | `-f y`  | `--format yaml`          | Output as YAML                |
 | `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |     |
@@ -260,7 +260,7 @@ Show the raw SimpleCov lines array.
 
 ```sh
 clp raw app/models/order.rb
-clp -fJ raw app/models/order.rb
+clp -fp raw app/models/order.rb
 ```
 
 **Arguments:**
@@ -292,7 +292,7 @@ Show aggregated totals for all tracked files.
 
 ```sh
 clp totals
-clp -fJ totals
+clp -fp totals
 clp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
 ```
 
@@ -372,7 +372,7 @@ Show version information.
 
 ```sh
 clp version
-clp -fJ version
+clp -fp version
 ```
 
 **Output:**
@@ -398,12 +398,12 @@ Project root directory (default: current directory).
 clp -R /path/to/project  # -R = --root
 ```
 
-### `-fJ`
+### `-fp`
 
 Output as pretty-printed JSON instead of human-readable format.
 
 ```sh
-clp -fJ summary lib/api/client.rb
+clp -fp summary lib/api/client.rb
 ```
 
 Useful for:
@@ -549,7 +549,7 @@ clp -g "lib/api/**/*.rb" list
 clp -g "lib/**/*.rb,app/models/**/*.rb" list
 
 # Export for CI (with globs to match SimpleCov)
-clp -g "lib/**/*.rb,app/**/*.rb" -fJ list > coverage.json
+clp -g "lib/**/*.rb,app/**/*.rb" -fp list > coverage.json
 ```
 
 **Use cases:**
@@ -754,15 +754,15 @@ Default command-line options applied to all invocations.
 **Format:** Shell-style string containing any valid CLI options
 
 ```sh
-export COV_LOUPE_OPTS="--resultset coverage -fJ"
+export COV_LOUPE_OPTS="--resultset coverage -fp"
 clp summary lib/api/client.rb  # Automatically uses options above
 ```
 
 **Precedence:** Command-line arguments override environment options
 
 ```sh
-# Environment sets -fJ; explicit CLI options still take precedence
-export COV_LOUPE_OPTS="-fJ"
+# Environment sets -fp; explicit CLI options still take precedence
+export COV_LOUPE_OPTS="-fp"
 clp summary lib/api/client.rb  # Uses JSON (from env)
 clp -f table summary lib/api/client.rb  # Explicit override to table format
 ```
@@ -779,7 +779,7 @@ export COV_LOUPE_OPTS="--error-mode debug"
 export COV_LOUPE_OPTS='-r "/path with spaces/coverage"'
 
 # Multiple options
-export COV_LOUPE_OPTS="-r coverage -S -fJ"
+export COV_LOUPE_OPTS="-r coverage -S -fp"
 ```
 
 
@@ -816,31 +816,31 @@ clp detailed lib/payments/refund_service.rb
 
 ```sh
 # Get JSON for parsing
-clp -fJ list > coverage.json
+clp -fp list > coverage.json
 
 # Extract files below threshold
-clp -fJ list | jq '.files[] | select(.percentage < 80)'
+clp -fp list | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-clp -fJ list | ruby -r json -e '
+clp -fp list | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-clp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+clp -fp list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Count files below 80% coverage
-clp -fJ list | jq '[.files[] | select(.percentage < 80)] | length'
+clp -fp list | jq '[.files[] | select(.percentage < 80)] | length'
 
 # Ruby alternative:
-clp -fJ list | ruby -r json -e '
+clp -fp list | ruby -r json -e '
   puts JSON.parse($stdin.read)["files"].count { |f| f["percentage"] < 80 }
 '
 
 # Rexe alternative:
-clp -fJ list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
+clp -fp list | rexe -ij -mb -op 'self["files"].count { |f| f["percentage"] < 80 }'
 ```
 
 ### Filtering and Sorting
@@ -894,7 +894,7 @@ clp -s full --color false uncovered lib/api/client.rb
 clp -S true || exit 1
 
 # Generate JSON report for artifact
-clp -fJ list > artifacts/coverage-report.json
+clp -fp list > artifacts/coverage-report.json
 
 # Check specific directory in monorepo
 clp -R services/api -r services/api/coverage  # -R = --root, -r = --resultset

@@ -111,7 +111,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['table', :table],
         ['j', :json],
         ['json', :json],
-        ['J', :pretty_json],
+        ['p', :pretty_json],
         ['pretty_json', :pretty_json],
         ['pretty-json', :pretty_json],
         ['y', :yaml],

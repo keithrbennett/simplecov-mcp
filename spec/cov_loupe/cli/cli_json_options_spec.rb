@@ -8,40 +8,24 @@ RSpec.describe CovLoupe::CoverageCLI, 'json format options' do
   end
 
   describe 'JSON format options' do
-    it 'produces compact JSON with -f j' do
-      output = run_cli_output('-f', 'j', 'list')
+    [
+      { flag: 'j',   expect_compact: true },
+      { flag: 'p',   expect_compact: false },
+      { flag: 'pretty-json',   expect_compact: false },
+      { flag: 'pretty_json',   expect_compact: false },
+      { flag: 'json', expect_compact: true }
+    ].each do |test_case|
+      it "produces #{test_case[:expect_compact] ? 'compact' : 'pretty'} JSON with -f #{test_case[:flag]}" do
+        output = run_cli_output('-f', test_case[:flag], 'list')
 
-      expect(output.strip.lines.count).to eq(1)
-      data = JSON.parse(output)
-      expect(data['files']).to be_an(Array)
-    end
-
-    it 'produces pretty JSON with -f J (uppercase short flag)' do
-      output = run_cli_output('-f', 'J', 'list')
-      expect(output.strip.lines.count).to be > 1
-      data = JSON.parse(output)
-      expect(data['files']).to be_an(Array)
-    end
-
-    it 'produces pretty JSON with -f pretty-json' do
-      output = run_cli_output('-f', 'pretty-json', 'list')
-      expect(output.strip.lines.count).to be > 1
-      data = JSON.parse(output)
-      expect(data['files']).to be_an(Array)
-    end
-
-    it 'produces pretty JSON with -f pretty_json (underscore variant)' do
-      output = run_cli_output('-f', 'pretty_json', 'list')
-      expect(output.strip.lines.count).to be > 1
-      data = JSON.parse(output)
-      expect(data['files']).to be_an(Array)
-    end
-
-    it 'produces compact JSON with -f json' do
-      output = run_cli_output('-f', 'json', 'list')
-      expect(output.strip.lines.count).to eq(1)
-      data = JSON.parse(output)
-      expect(data['files']).to be_an(Array)
+        if test_case[:expect_compact]
+          expect(output.strip.lines.count).to eq(1)
+        else
+          expect(output.strip.lines.count).to be > 1
+        end
+        data = JSON.parse(output)
+        expect(data['files']).to be_an(Array)
+      end
     end
   end
 end

@@ -32,7 +32,7 @@ module CovLoupe
       'table' => :table,
       'j' => :json,
       'json' => :json,
-      'J' => :pretty_json,
+      'p' => :pretty_json,
       'pretty_json' => :pretty_json,
       'pretty-json' => :pretty_json,
       'y' => :yaml,
@@ -101,8 +101,18 @@ module CovLoupe
     # @return [Symbol, nil] The normalized symbol or nil if invalid and not strict
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     module_function def normalize_format(value, strict: true)
-      # Try exact match first (preserves case-sensitive 'J' for pretty_json)
-      normalized = FORMAT_MAP[value.to_s] || FORMAT_MAP[value.to_s.downcase]
+      normalized = FORMAT_MAP[value.to_s]
+      return normalized if normalized
+
+      # Only allow case-insensitive match for multi-character keys
+      # to avoid single-char shortcuts like 'J' falling through to 'j'
+      if value.to_s.length == 1
+        raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
+
+        return nil
+      end
+
+      normalized = FORMAT_MAP[value.to_s.downcase]
       return normalized if normalized
 
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
