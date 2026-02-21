@@ -98,8 +98,7 @@ nav:
       - Migrating to v2: user/migrations/MIGRATING_TO_V2.md
   - Prompt Library:
       - Overview: user/prompts/README.md
-      - Rails Coverage Analysis: user/prompts/rails-coverage-analysis-prompt.md
-      - Non-Web Coverage Analysis: user/prompts/non-web-coverage-analysis-prompt.md
+      - Coverage Analysis: user/prompts/coverage-analysis-prompt.md
       - Use CLI Not MCP: user/prompts/use-cli-not-mcp-prompt.md
   - Developer Guide:
       - Overview: dev/README.md
