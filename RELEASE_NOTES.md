@@ -3,7 +3,7 @@
 [Back to main README](docs/index.md)
 
 
-## v4.0.0, v4.0.0.pre, v4.0.0.pre.1 (Breaking)
+## v4.0.0 (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.
   - Removed `docs/dev/BRANCH_ONLY_COVERAGE.md`.
