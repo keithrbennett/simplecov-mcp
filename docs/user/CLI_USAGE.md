@@ -675,7 +675,7 @@ The predicate must be a callable (lambda, proc, or object with `#call` method) t
 clp validate examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
-bundle exec cov-loupe validate coverage_policy.rb
+cov-loupe validate coverage_policy.rb
 ```
 
 **String mode (inline code):**

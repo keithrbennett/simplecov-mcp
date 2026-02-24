@@ -11,8 +11,8 @@ Ideally it is configured as an MCP server so you can call its tools directly. If
 1. **Detect the failure** – if any MCP tool call fails or the server is unreachable, do not
    retry it or attempt to read `.resultset.json` manually. Switch to CLI mode immediately.
 
-2. **Run CLI commands** using `bundle exec exe/cov-loupe <subcommand>` (or `cov-loupe
-   <subcommand>` when the gem is installed globally). The subcommands mirror the MCP tools:
+2. **Run CLI commands** using `cov-loupe <subcommand>` (or `bundle exec exe/cov-loupe
+   <subcommand>` when running from a local gem checkout). The subcommands mirror the MCP tools:
 
    | MCP tool | CLI subcommand | Example |
    |---|---|---|
