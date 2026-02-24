@@ -37,9 +37,8 @@ module CovLoupe
       end
     end
 
-    def self.local_docs_path(dir_path)
-      gem_root = resolve_gem_root(dir_path)
-      File.join(gem_root, '**', '*.md')
+    def self.local_readme_path(dir_path)
+      File.join(resolve_gem_root(dir_path), 'README.md')
     end
   end
 end

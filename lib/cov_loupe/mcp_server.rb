@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
+require_relative 'resources'
+
 module CovLoupe
   class MCPServer
+    INSTRUCTIONS = <<~INSTRUCTIONS.chomp
+      cov-loupe provides SimpleCov coverage data via MCP tools.
+      Documentation is available at: %<readme_path>s
+      Call help_tool for tool usage guidance.
+    INSTRUCTIONS
+
     def initialize(context: CovLoupe.context)
       @context = context
     end
@@ -12,6 +20,7 @@ module CovLoupe
           name: 'cov-loupe',
           version: CovLoupe::VERSION,
           tools: toolset,
+          instructions: format(INSTRUCTIONS, readme_path: Resources.local_readme_path(__dir__)),
           server_context: context
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open

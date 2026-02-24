@@ -24,16 +24,13 @@ RSpec.describe CovLoupe::Tools::HelpTool do
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
 
-  it 'includes resources in the response' do
+  it 'includes resources with local readme path' do
     response = described_class.call(server_context: server_context)
     payload = response.payload.first
     data = JSON.parse(payload['text'])
 
     expect(data).to have_key('resources')
-    expect(data['resources']).to include(
-      'repository' => 'https://github.com/keithrbennett/cov-loupe',
-      'documentation_web' => 'https://keithrbennett.github.io/cov-loupe/'
-    )
-    expect(data['resources']['documentation_local']).to end_with('**/*.md')
+    expect(data['resources'].keys).to eq(['readme'])
+    expect(data['resources']['readme']).to end_with('README.md')
   end
 end

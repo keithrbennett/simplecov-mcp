@@ -68,29 +68,17 @@ RSpec.describe CovLoupe::Resources do
     end
   end
 
-  describe '.local_docs_path' do
-    it 'returns full markdown glob from cli directory' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe'
-      result = described_class.local_docs_path(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe/**/*.md')
-    end
-
-    it 'returns full markdown glob from config directory' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe/config'
-      result = described_class.local_docs_path(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe/**/*.md')
-    end
-
-    it 'returns full markdown glob from tools directory' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe/tools'
-      result = described_class.local_docs_path(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe/**/*.md')
-    end
-
-    it 'returns full markdown glob from installed gem' do
-      dir_path = '/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/lib/cov_loupe'
-      result = described_class.local_docs_path(dir_path)
-      expect(result).to eq('/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/**/*.md')
+  describe '.local_readme_path' do
+    [
+      ['/home/kbennett/code/cov-loupe/lib/cov_loupe',        '/home/kbennett/code/cov-loupe/README.md'],
+      ['/home/kbennett/code/cov-loupe/lib/cov_loupe/config', '/home/kbennett/code/cov-loupe/README.md'],
+      ['/home/kbennett/code/cov-loupe/lib/cov_loupe/tools',  '/home/kbennett/code/cov-loupe/README.md'],
+      ['/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/lib/cov_loupe',
+       '/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/README.md']
+    ].each do |dir_path, expected|
+      it "returns README.md path for #{dir_path}" do
+        expect(described_class.local_readme_path(dir_path)).to eq(expected)
+      end
     end
   end
 end
