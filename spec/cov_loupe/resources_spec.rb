@@ -27,8 +27,8 @@ RSpec.describe CovLoupe::Resources do
     end
   end
 
-  describe '.all' do
-    subject(:result) { described_class.all }
+  describe 'MCP_RESOURCE_MAP' do
+    subject(:result) { described_class::MCP_RESOURCE_MAP }
 
     it 'includes remote resource URLs' do
       expect(result).to include(
