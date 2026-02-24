@@ -21,9 +21,9 @@ module CovLoupe
 
     def self.all
       {
-        'repository' => REPOSITORY_URL,
-        'documentation_web' => DOCUMENTATION_WEB_URL,
-        'readme' => LOCAL_README_PATH
+        'public_repo' => REPOSITORY_URL,
+        'public_doc_server' => DOCUMENTATION_WEB_URL,
+        'local_readme' => LOCAL_README_PATH
       }
     end
 

@@ -32,14 +32,14 @@ RSpec.describe CovLoupe::Resources do
 
     it 'includes remote resource URLs' do
       expect(result).to include(
-        'repository' => 'https://github.com/keithrbennett/cov-loupe',
-        'documentation_web' => 'https://keithrbennett.github.io/cov-loupe/'
+        'public_repo' => 'https://github.com/keithrbennett/cov-loupe',
+        'public_doc_server' => 'https://keithrbennett.github.io/cov-loupe/'
       )
     end
 
-    it 'includes a readme key pointing to an existing file' do
-      expect(result['readme']).to end_with('README.md')
-      expect(File.exist?(result['readme'])).to be true
+    it 'includes a local_readme key pointing to an existing file' do
+      expect(result['local_readme']).to end_with('README.md')
+      expect(File.exist?(result['local_readme'])).to be true
     end
   end
 end

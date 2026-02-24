@@ -30,7 +30,7 @@ RSpec.describe CovLoupe::Tools::HelpTool do
     data = JSON.parse(payload['text'])
 
     expect(data).to have_key('resources')
-    expect(data['resources'].keys).to eq(['readme'])
-    expect(data['resources']['readme']).to end_with('README.md')
+    expect(data['resources'].keys).to match_array(%w[public_repo public_doc_server local_readme])
+    expect(data['resources']['local_readme']).to end_with('README.md')
   end
 end
