@@ -4,42 +4,27 @@ module CovLoupe
   module Resources
     REPOSITORY_URL = 'https://github.com/keithrbennett/cov-loupe'
     DOCUMENTATION_WEB_URL = 'https://keithrbennett.github.io/cov-loupe/'
+    LOCAL_README_PATH = File.expand_path('../../README.md', __dir__).freeze
 
-    RESOURCE_MAP = {
+    # Alias map for the CLI `open` command; multiple short names map to the same URL.
+    CLI_RESOURCE_MAP = {
       'repo' => REPOSITORY_URL,
       'repository' => REPOSITORY_URL,
       'docs' => DOCUMENTATION_WEB_URL,
       'docs-web' => DOCUMENTATION_WEB_URL,
-      'docs_local' => 'local documentation',
-      'docs-local' => 'local documentation'
+      'docs_local' => LOCAL_README_PATH,
+      'docs-local' => LOCAL_README_PATH
     }.freeze
 
-    def self.url_for(name)
-      RESOURCE_MAP[name] || (raise UsageError, "Unknown resource: '#{name}'. Valid resources: #{RESOURCE_MAP.keys.sort.join(', ')}")
-    end
+    # Canonical resource set surfaced to MCP clients (e.g. help_tool, server instructions).
+    MCP_RESOURCE_MAP = {
+      'public_repo' => REPOSITORY_URL,
+      'public_doc_server' => DOCUMENTATION_WEB_URL,
+      'local_readme' => LOCAL_README_PATH
+    }.freeze
 
-    def self.all
-      {
-        'repository' => REPOSITORY_URL,
-        'documentation_web' => DOCUMENTATION_WEB_URL
-      }
-    end
-
-    def self.resolve_gem_root(dir_path)
-      parts = dir_path.split('/')
-      lib_index = parts.rindex('lib')
-
-      if lib_index
-        up_count = (parts.length - lib_index)
-        File.expand_path('../' * up_count, dir_path)
-      else
-        File.expand_path(dir_path)
-      end
-    end
-
-    def self.local_docs_path(dir_path)
-      gem_root = resolve_gem_root(dir_path)
-      File.join(gem_root, '**', '*.md')
+    def self.cli_url_for(name)
+      CLI_RESOURCE_MAP[name] || (raise UsageError, "Unknown resource: '#{name}'. Valid resources: #{CLI_RESOURCE_MAP.keys.sort.join(', ')}")
     end
   end
 end

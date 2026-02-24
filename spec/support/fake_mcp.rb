@@ -9,8 +9,9 @@ module FakeMCP
     end
     attr_reader :params
 
-    def initialize(name:, version:, tools:, server_context: nil)
-      @params = { name: name, version: version, tools: tools, server_context: server_context }
+    def initialize(name:, version:, tools:, instructions: nil, server_context: nil)
+      @params = { name: name, version: version, tools: tools, instructions: instructions,
+                  server_context: server_context }
       self.class.last_instance = self
     end
   end

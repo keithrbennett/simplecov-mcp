@@ -28,13 +28,12 @@ module CovLoupe
     end
 
     private def configure_banner(parser)
-      local_docs = Resources.local_docs_path(__dir__)
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
         Repository:            https://github.com/keithrbennett/cov-loupe
         Documentation (Web):   https://keithrbennett.github.io/cov-loupe/
-        Documentation (Local): #{local_docs}
+        Documentation (Local): #{Resources::LOCAL_README_PATH}
         Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
 
@@ -133,13 +132,7 @@ module CovLoupe
       end
       parser.on('--resource NAME', String,
         'Print a resource URL and exit. Valid resources: repo, docs, docs-local') do |value|
-        url = Resources.url_for(value)
-        if url == 'local documentation'
-          gem_root = Resources.resolve_gem_root(__dir__)
-          puts File.join(gem_root, '**', '*.md')
-        else
-          puts url
-        end
+        puts Resources.cli_url_for(value)
         exit 0
       rescue UsageError => e
         warn e.user_friendly_message

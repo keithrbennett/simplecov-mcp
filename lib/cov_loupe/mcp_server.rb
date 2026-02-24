@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'resources'
+
 module CovLoupe
   class MCPServer
     def initialize(context: CovLoupe.context)
@@ -12,6 +14,7 @@ module CovLoupe
           name: 'cov-loupe',
           version: CovLoupe::VERSION,
           tools: toolset,
+          instructions: instructions,
           server_context: context
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
@@ -36,8 +39,17 @@ module CovLoupe
       TOOLSET
     end
 
-    private
-
     attr_reader :context
+
+    private def instructions
+      <<~MSG.chomp
+        cov-loupe provides SimpleCov coverage data via MCP tools.
+        Documentation resources: #{JSON.generate(Resources::MCP_RESOURCE_MAP)}
+        Call help_tool for tool usage guidance.
+        Tools accept optional `root` (project root directory) and `resultset`
+        (path or directory containing .resultset.json) arguments when the defaults
+        need overriding; these may point to different locations.
+      MSG
+    end
   end
 end
