@@ -25,6 +25,10 @@ module CovLoupe
       }
     end
 
+    def self.all_with_local(dir_path)
+      all.merge('readme' => local_readme_path(dir_path))
+    end
+
     def self.resolve_gem_root(dir_path)
       parts = dir_path.split('/')
       lib_index = parts.rindex('lib')

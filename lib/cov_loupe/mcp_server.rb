@@ -44,10 +44,10 @@ module CovLoupe
     attr_reader :context
 
     def instructions
-      readme = Resources.local_readme_path(__dir__)
+      resources = Resources.all_with_local(__dir__)
       <<~MSG.chomp
         cov-loupe provides SimpleCov coverage data via MCP tools.
-        Documentation is available at: #{readme}
+        Documentation resources: #{JSON.generate(resources)}
         Call help_tool for tool usage guidance.
         Tools accept optional `root` (project root directory) and `resultset`
         (path or directory containing .resultset.json) arguments when the defaults
