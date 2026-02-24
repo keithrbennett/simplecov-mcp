@@ -23,7 +23,7 @@ module CovLoupe
       'local_readme' => LOCAL_README_PATH
     }.freeze
 
-    def self.url_for(name)
+    def self.cli_url_for(name)
       CLI_RESOURCE_MAP[name] || (raise UsageError, "Unknown resource: '#{name}'. Valid resources: #{CLI_RESOURCE_MAP.keys.sort.join(', ')}")
     end
 
