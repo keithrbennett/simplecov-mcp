@@ -30,8 +30,5 @@ module CovLoupe
       all.merge('readme' => LOCAL_README_PATH)
     end
 
-    def self.local_readme_path
-      LOCAL_README_PATH
-    end
   end
 end

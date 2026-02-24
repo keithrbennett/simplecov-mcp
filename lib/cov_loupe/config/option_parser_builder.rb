@@ -28,13 +28,12 @@ module CovLoupe
     end
 
     private def configure_banner(parser)
-      local_readme = Resources.local_readme_path
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
         Repository:            https://github.com/keithrbennett/cov-loupe
         Documentation (Web):   https://keithrbennett.github.io/cov-loupe/
-        Documentation (Local): #{local_readme}
+        Documentation (Local): #{Resources::LOCAL_README_PATH}
         Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
 

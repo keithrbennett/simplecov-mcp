@@ -36,13 +36,13 @@ RSpec.describe CovLoupe::Resources do
     end
   end
 
-  describe '.local_readme_path' do
-    it 'returns a path ending in README.md' do
-      expect(described_class.local_readme_path).to end_with('README.md')
+  describe 'LOCAL_README_PATH' do
+    it 'ends with README.md' do
+      expect(described_class::LOCAL_README_PATH).to end_with('README.md')
     end
 
     it 'points to an existing file' do
-      expect(File.exist?(described_class.local_readme_path)).to be true
+      expect(File.exist?(described_class::LOCAL_README_PATH)).to be true
     end
   end
 
