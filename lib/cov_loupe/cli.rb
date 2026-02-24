@@ -8,6 +8,7 @@ require_relative 'option_parsers/error_helper'
 require_relative 'option_parsers/env_options_parser'
 require_relative 'presenters/project_coverage_presenter'
 require_relative 'output_chars'
+require_relative 'resources'
 
 module CovLoupe
   class CoverageCLI
@@ -105,7 +106,7 @@ module CovLoupe
 
     private def parse_options!(argv)
       require 'optparse'
-      parser = build_option_parser
+      parser = OptionParserBuilder.new(config).build_option_parser
 
       # order! parses global options (updating config) and removes them from argv.
       # It stops cleanly at the first subcommand (e.g., 'list', 'summary') or unknown option.
@@ -132,11 +133,6 @@ module CovLoupe
     private def pre_scan_error_mode(argv)
       env_parser = OptionParsers::EnvOptionsParser.new
       config.error_mode = env_parser.pre_scan_error_mode(argv) || :log
-    end
-
-    private def build_option_parser
-      builder = OptionParserBuilder.new(config)
-      builder.build_option_parser
     end
 
     # Converts the -v/--version flags into the version subcommand.

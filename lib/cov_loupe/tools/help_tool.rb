@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../base_tool'
+require_relative '../resources'
 
 module CovLoupe
   module Tools
@@ -91,7 +92,9 @@ module CovLoupe
           with_error_handling('HelpTool', error_mode: error_mode, output_chars: output_chars_sym) do
             entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
 
-            data = { tools: entries }
+            local_docs_path = Resources.local_docs_path(__dir__)
+            resources = Resources.all.merge('documentation_local' => local_docs_path)
+            data = { tools: entries, resources: resources }
             respond_json(data, name: 'tools_help.json', output_chars: output_chars_sym)
           end
         end

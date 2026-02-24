@@ -174,6 +174,36 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
   end
 
+  describe 'resource URL retrieval' do
+    [
+      { resource: 'repo', expected_url: 'https://github.com/keithrbennett/cov-loupe' },
+      { resource: 'repository', expected_url: 'https://github.com/keithrbennett/cov-loupe' },
+      { resource: 'docs', expected_url: 'https://keithrbennett.github.io/cov-loupe/' },
+      { resource: 'docs-web', expected_url: 'https://keithrbennett.github.io/cov-loupe/' }
+    ].each do |tc|
+      it "returns URL for #{tc[:resource]}" do
+        output = run_cli('--resource', tc[:resource])
+        expect(output.strip).to eq(tc[:expected_url])
+      end
+    end
+
+    it 'returns local docs path for docs-local' do
+      output = run_cli('--resource', 'docs-local')
+      expect(output).to include('**/*.md')
+    end
+
+    it 'exits with error for unknown resource' do
+      _out, err, status = run_cli_with_status('--resource', 'unknown')
+      expect(status).to eq(1)
+      expect(err).to include("Unknown resource: 'unknown'")
+    end
+
+    it 'exits early and ignores other options' do
+      output = run_cli('--resource', 'repo', '--format', 'json', 'list')
+      expect(output.strip).to eq('https://github.com/keithrbennett/cov-loupe')
+    end
+  end
+
   describe 'exclusions summary' do
     it 'displays all types of exclusions on stderr' do
       presenter_double = instance_double(

@@ -23,4 +23,17 @@ RSpec.describe CovLoupe::Tools::HelpTool do
       'list_tool', 'coverage_totals_tool', 'coverage_table_tool', 'version_tool')
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
+
+  it 'includes resources in the response' do
+    response = described_class.call(server_context: server_context)
+    payload = response.payload.first
+    data = JSON.parse(payload['text'])
+
+    expect(data).to have_key('resources')
+    expect(data['resources']).to include(
+      'repository' => 'https://github.com/keithrbennett/cov-loupe',
+      'documentation_web' => 'https://keithrbennett.github.io/cov-loupe/'
+    )
+    expect(data['resources']['documentation_local']).to end_with('**/*.md')
+  end
 end

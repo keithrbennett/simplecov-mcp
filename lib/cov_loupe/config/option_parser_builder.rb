@@ -2,6 +2,7 @@
 
 require_relative 'option_normalizers'
 require_relative '../version'
+require_relative '../resources'
 require_relative 'boolean_type'
 require_relative '../errors/errors'
 
@@ -27,13 +28,13 @@ module CovLoupe
     end
 
     private def configure_banner(parser)
-      gem_root = File.expand_path('../..', __dir__)
+      local_docs = Resources.local_docs_path(__dir__)
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
         Repository:            https://github.com/keithrbennett/cov-loupe
         Documentation (Web):   https://keithrbennett.github.io/cov-loupe/
-        Documentation (Local): #{gem_root}/**/*.md
+        Documentation (Local): #{local_docs}
         Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
 
@@ -129,6 +130,20 @@ module CovLoupe
       end
       parser.on('-v', '--version', 'Show version information and exit.') do
         config.show_version = true
+      end
+      parser.on('--resource NAME', String,
+        'Print a resource URL and exit. Valid resources: repo, docs, docs-local') do |value|
+        url = Resources.url_for(value)
+        if url == 'local documentation'
+          gem_root = Resources.resolve_gem_root(__dir__)
+          puts File.join(gem_root, '**', '*.md')
+        else
+          puts url
+        end
+        exit 0
+      rescue UsageError => e
+        warn e.user_friendly_message
+        exit 1
       end
     end
 
