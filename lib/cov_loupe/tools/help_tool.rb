@@ -92,7 +92,7 @@ module CovLoupe
           with_error_handling('HelpTool', error_mode: error_mode, output_chars: output_chars_sym) do
             entries = TOOL_GUIDE.map { |guide| format_entry(guide) }
 
-            resources = Resources.all_with_local(__dir__)
+            resources = Resources.all_with_local
             data = { tools: entries, resources: resources }
             respond_json(data, name: 'tools_help.json', output_chars: output_chars_sym)
           end

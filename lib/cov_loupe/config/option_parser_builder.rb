@@ -28,7 +28,7 @@ module CovLoupe
     end
 
     private def configure_banner(parser)
-      local_readme = Resources.local_readme_path(__dir__)
+      local_readme = Resources.local_readme_path
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
@@ -134,11 +134,7 @@ module CovLoupe
       parser.on('--resource NAME', String,
         'Print a resource URL and exit. Valid resources: repo, docs, docs-local') do |value|
         url = Resources.url_for(value)
-        if url == 'local documentation'
-          puts Resources.local_readme_path(__dir__)
-        else
-          puts url
-        end
+        puts url
         exit 0
       rescue UsageError => e
         warn e.user_friendly_message

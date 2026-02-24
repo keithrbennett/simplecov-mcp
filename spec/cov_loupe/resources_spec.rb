@@ -36,49 +36,26 @@ RSpec.describe CovLoupe::Resources do
     end
   end
 
-  describe '.resolve_gem_root' do
-    it 'calculates gem root from lib/cov_loupe/cli.rb' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe'
-      result = described_class.resolve_gem_root(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe')
+  describe '.local_readme_path' do
+    it 'returns a path ending in README.md' do
+      expect(described_class.local_readme_path).to end_with('README.md')
     end
 
-    it 'calculates gem root from lib/cov_loupe/config/option_parser_builder.rb' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe/config'
-      result = described_class.resolve_gem_root(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe')
-    end
-
-    it 'calculates gem root from lib/cov_loupe/tools/help_tool.rb' do
-      dir_path = '/home/kbennett/code/cov-loupe/lib/cov_loupe/tools'
-      result = described_class.resolve_gem_root(dir_path)
-      expect(result).to eq('/home/kbennett/code/cov-loupe')
-    end
-
-    it 'calculates gem root from installed gem path' do
-      dir_path = '/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/lib/cov_loupe'
-      result = described_class.resolve_gem_root(dir_path)
-      expect(result).to eq('/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0')
-    end
-
-    it 'returns from_dir unchanged when no lib directory found' do
-      dir_path = '/some/other/path'
-      result = described_class.resolve_gem_root(dir_path)
-      expect(result).to eq(dir_path)
+    it 'points to an existing file' do
+      expect(File.exist?(described_class.local_readme_path)).to be true
     end
   end
 
-  describe '.local_readme_path' do
-    [
-      ['/home/kbennett/code/cov-loupe/lib/cov_loupe',        '/home/kbennett/code/cov-loupe/README.md'],
-      ['/home/kbennett/code/cov-loupe/lib/cov_loupe/config', '/home/kbennett/code/cov-loupe/README.md'],
-      ['/home/kbennett/code/cov-loupe/lib/cov_loupe/tools',  '/home/kbennett/code/cov-loupe/README.md'],
-      ['/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/lib/cov_loupe',
-       '/home/user/.rvm/gems/ruby-3.4.8/gems/cov-loupe-4.0.0/README.md']
-    ].each do |dir_path, expected|
-      it "returns README.md path for #{dir_path}" do
-        expect(described_class.local_readme_path(dir_path)).to eq(expected)
-      end
+  describe '.all_with_local' do
+    subject(:result) { described_class.all_with_local }
+
+    it 'includes repository and documentation_web keys from .all' do
+      expect(result).to include(described_class.all)
+    end
+
+    it 'includes a readme key pointing to an existing file' do
+      expect(result['readme']).to end_with('README.md')
+      expect(File.exist?(result['readme'])).to be true
     end
   end
 end

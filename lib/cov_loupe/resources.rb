@@ -4,14 +4,15 @@ module CovLoupe
   module Resources
     REPOSITORY_URL = 'https://github.com/keithrbennett/cov-loupe'
     DOCUMENTATION_WEB_URL = 'https://keithrbennett.github.io/cov-loupe/'
+    LOCAL_README_PATH = File.expand_path('../../README.md', __dir__).freeze
 
     RESOURCE_MAP = {
       'repo' => REPOSITORY_URL,
       'repository' => REPOSITORY_URL,
       'docs' => DOCUMENTATION_WEB_URL,
       'docs-web' => DOCUMENTATION_WEB_URL,
-      'docs_local' => 'local documentation',
-      'docs-local' => 'local documentation'
+      'docs_local' => LOCAL_README_PATH,
+      'docs-local' => LOCAL_README_PATH
     }.freeze
 
     def self.url_for(name)
@@ -25,24 +26,12 @@ module CovLoupe
       }
     end
 
-    def self.all_with_local(dir_path)
-      all.merge('readme' => local_readme_path(dir_path))
+    def self.all_with_local
+      all.merge('readme' => LOCAL_README_PATH)
     end
 
-    def self.resolve_gem_root(dir_path)
-      parts = dir_path.split('/')
-      lib_index = parts.rindex('lib')
-
-      if lib_index
-        up_count = (parts.length - lib_index)
-        File.expand_path('../' * up_count, dir_path)
-      else
-        File.expand_path(dir_path)
-      end
-    end
-
-    def self.local_readme_path(dir_path)
-      File.join(resolve_gem_root(dir_path), 'README.md')
+    def self.local_readme_path
+      LOCAL_README_PATH
     end
   end
 end

@@ -44,7 +44,7 @@ module CovLoupe
     attr_reader :context
 
     def instructions
-      resources = Resources.all_with_local(__dir__)
+      resources = Resources.all_with_local
       <<~MSG.chomp
         cov-loupe provides SimpleCov coverage data via MCP tools.
         Documentation resources: #{JSON.generate(resources)}
