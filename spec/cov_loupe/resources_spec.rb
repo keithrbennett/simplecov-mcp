@@ -4,26 +4,19 @@ require 'spec_helper'
 
 RSpec.describe CovLoupe::Resources do
   describe '.cli_url_for' do
-    it 'returns repository URL for repository' do
-      expect(described_class.cli_url_for('repository')).to eq('https://github.com/keithrbennett/cov-loupe')
-    end
-
-    it 'returns repository URL for repo' do
-      expect(described_class.cli_url_for('repo')).to eq('https://github.com/keithrbennett/cov-loupe')
-    end
-
-    it 'returns documentation web URL for docs' do
-      expect(described_class.cli_url_for('docs')).to eq('https://keithrbennett.github.io/cov-loupe/')
-    end
-
-    it 'returns documentation web URL for docs-web' do
-      expect(described_class.cli_url_for('docs-web')).to eq('https://keithrbennett.github.io/cov-loupe/')
+    {
+      'repository' => 'https://github.com/keithrbennett/cov-loupe',
+      'repo'       => 'https://github.com/keithrbennett/cov-loupe',
+      'docs'       => 'https://keithrbennett.github.io/cov-loupe/',
+      'docs-web'   => 'https://keithrbennett.github.io/cov-loupe/'
+    }.each do |name, expected_url|
+      it "returns correct URL for '#{name}'" do
+        expect(described_class.cli_url_for(name)).to eq(expected_url)
+      end
     end
 
     it 'raises error for unknown resource' do
-      expect do
-        described_class.cli_url_for('unknown')
-      end.to raise_error(CovLoupe::UsageError, /Unknown resource/)
+      expect { described_class.cli_url_for('unknown') }.to raise_error(CovLoupe::UsageError, /Unknown resource/)
     end
   end
 
