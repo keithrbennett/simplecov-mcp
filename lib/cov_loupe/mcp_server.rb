@@ -4,15 +4,6 @@ require_relative 'resources'
 
 module CovLoupe
   class MCPServer
-    INSTRUCTIONS = <<~INSTRUCTIONS.chomp
-      cov-loupe provides SimpleCov coverage data via MCP tools.
-      Documentation is available at: %<readme_path>s
-      Call help_tool for tool usage guidance.
-      Tools accept optional `root` (project root directory) and `resultset`
-      (path or directory containing .resultset.json) arguments when the defaults
-      need overriding; these may point to different locations.
-    INSTRUCTIONS
-
     def initialize(context: CovLoupe.context)
       @context = context
     end
@@ -23,7 +14,7 @@ module CovLoupe
           name: 'cov-loupe',
           version: CovLoupe::VERSION,
           tools: toolset,
-          instructions: format(INSTRUCTIONS, readme_path: Resources.local_readme_path(__dir__)),
+          instructions: instructions,
           server_context: context
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
@@ -51,5 +42,17 @@ module CovLoupe
     private
 
     attr_reader :context
+
+    def instructions
+      readme = Resources.local_readme_path(__dir__)
+      <<~MSG.chomp
+        cov-loupe provides SimpleCov coverage data via MCP tools.
+        Documentation is available at: #{readme}
+        Call help_tool for tool usage guidance.
+        Tools accept optional `root` (project root directory) and `resultset`
+        (path or directory containing .resultset.json) arguments when the defaults
+        need overriding; these may point to different locations.
+      MSG
+    end
   end
 end
