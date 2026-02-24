@@ -8,6 +8,9 @@ module CovLoupe
       cov-loupe provides SimpleCov coverage data via MCP tools.
       Documentation is available at: %<readme_path>s
       Call help_tool for tool usage guidance.
+      Tools accept optional `root` (project root directory) and `resultset`
+      (path or directory containing .resultset.json) arguments when the defaults
+      need overriding; these may point to different locations.
     INSTRUCTIONS
 
     def initialize(context: CovLoupe.context)

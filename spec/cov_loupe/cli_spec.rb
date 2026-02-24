@@ -187,9 +187,9 @@ RSpec.describe CovLoupe::CoverageCLI do
       end
     end
 
-    it 'returns local docs path for docs-local' do
+    it 'returns local README path for docs-local' do
       output = run_cli('--resource', 'docs-local')
-      expect(output).to include('**/*.md')
+      expect(output.strip).to end_with('README.md')
     end
 
     it 'exits with error for unknown resource' do
