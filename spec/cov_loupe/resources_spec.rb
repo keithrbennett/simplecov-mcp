@@ -28,29 +28,13 @@ RSpec.describe CovLoupe::Resources do
   end
 
   describe '.all' do
-    it 'returns all resources' do
-      expect(described_class.all).to eq({
+    subject(:result) { described_class.all }
+
+    it 'includes remote resource URLs' do
+      expect(result).to include(
         'repository' => 'https://github.com/keithrbennett/cov-loupe',
         'documentation_web' => 'https://keithrbennett.github.io/cov-loupe/'
-      })
-    end
-  end
-
-  describe 'LOCAL_README_PATH' do
-    it 'ends with README.md' do
-      expect(described_class::LOCAL_README_PATH).to end_with('README.md')
-    end
-
-    it 'points to an existing file' do
-      expect(File.exist?(described_class::LOCAL_README_PATH)).to be true
-    end
-  end
-
-  describe '.all_with_local' do
-    subject(:result) { described_class.all_with_local }
-
-    it 'includes repository and documentation_web keys from .all' do
-      expect(result).to include(described_class.all)
+      )
     end
 
     it 'includes a readme key pointing to an existing file' do

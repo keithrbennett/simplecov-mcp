@@ -46,7 +46,7 @@ module CovLoupe
     def instructions
       <<~MSG.chomp
         cov-loupe provides SimpleCov coverage data via MCP tools.
-        Documentation resources: #{JSON.generate(Resources.all_with_local)}
+        Documentation resources: #{JSON.generate(Resources.all)}
         Call help_tool for tool usage guidance.
         Tools accept optional `root` (project root directory) and `resultset`
         (path or directory containing .resultset.json) arguments when the defaults

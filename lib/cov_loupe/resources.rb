@@ -22,12 +22,9 @@ module CovLoupe
     def self.all
       {
         'repository' => REPOSITORY_URL,
-        'documentation_web' => DOCUMENTATION_WEB_URL
+        'documentation_web' => DOCUMENTATION_WEB_URL,
+        'readme' => LOCAL_README_PATH
       }
-    end
-
-    def self.all_with_local
-      all.merge('readme' => LOCAL_README_PATH)
     end
 
   end
