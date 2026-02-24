@@ -132,8 +132,7 @@ module CovLoupe
       end
       parser.on('--resource NAME', String,
         'Print a resource URL and exit. Valid resources: repo, docs, docs-local') do |value|
-        url = Resources.url_for(value)
-        puts url
+        puts Resources.url_for(value)
         exit 0
       rescue UsageError => e
         warn e.user_friendly_message
