@@ -13,8 +13,6 @@
   - CLI help banner URLs
   - MCP `help_tool`
   - MCP server startup instructions
-- Clarify user documentation to describe `--resource` as a resource value lookup (`docs-local` is a local path, not a web URL).
-- Add/adjust tests for canonical resource behavior in CLI, shared resource map, and `help_tool`.
 
 ## v4.0.0 (Breaking)
 
