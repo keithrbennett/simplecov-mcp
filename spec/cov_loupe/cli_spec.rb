@@ -174,16 +174,14 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
   end
 
-  describe 'resource URL retrieval' do
-    [
-      { resource: 'repo', expected_url: 'https://github.com/keithrbennett/cov-loupe' },
-      { resource: 'repository', expected_url: 'https://github.com/keithrbennett/cov-loupe' },
-      { resource: 'docs', expected_url: 'https://keithrbennett.github.io/cov-loupe/' },
-      { resource: 'docs-web', expected_url: 'https://keithrbennett.github.io/cov-loupe/' }
-    ].each do |tc|
-      it "returns URL for #{tc[:resource]}" do
-        output = run_cli('--resource', tc[:resource])
-        expect(output.strip).to eq(tc[:expected_url])
+  describe 'resource value retrieval' do
+    {
+      'repo' => 'https://github.com/keithrbennett/cov-loupe',
+      'docs' => 'https://keithrbennett.github.io/cov-loupe/'
+    }.each do |resource, expected_value|
+      it "returns value for canonical resource '#{resource}'" do
+        output = run_cli('--resource', resource)
+        expect(output.strip).to eq(expected_value)
       end
     end
 

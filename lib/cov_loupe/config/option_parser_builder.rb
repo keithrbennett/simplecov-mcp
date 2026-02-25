@@ -131,7 +131,7 @@ module CovLoupe
         config.show_version = true
       end
       parser.on('--resource NAME', String,
-        'Print a resource URL and exit. Valid resources: repo, docs, docs-local') do |value|
+        'Print a resource value and exit. Valid resources: repo, docs, docs-local') do |value|
         puts Resources.cli_url_for(value)
         exit 0
       rescue UsageError => e

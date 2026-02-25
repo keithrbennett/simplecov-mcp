@@ -5,14 +5,16 @@ require 'spec_helper'
 RSpec.describe CovLoupe::Resources do
   describe '.cli_url_for' do
     {
-      'repository' => 'https://github.com/keithrbennett/cov-loupe',
       'repo' => 'https://github.com/keithrbennett/cov-loupe',
-      'docs' => 'https://keithrbennett.github.io/cov-loupe/',
-      'docs-web' => 'https://keithrbennett.github.io/cov-loupe/'
+      'docs' => 'https://keithrbennett.github.io/cov-loupe/'
     }.each do |name, expected_url|
-      it "returns correct URL for '#{name}'" do
+      it "returns correct value for '#{name}'" do
         expect(described_class.cli_url_for(name)).to eq(expected_url)
       end
+    end
+
+    it "returns local README path for 'docs-local'" do
+      expect(described_class.cli_url_for('docs-local')).to end_with('README.md')
     end
 
     it 'raises error for unknown resource' do
@@ -22,19 +24,24 @@ RSpec.describe CovLoupe::Resources do
     end
   end
 
-  describe 'MCP_RESOURCE_MAP' do
-    subject(:result) { described_class::MCP_RESOURCE_MAP }
+  describe 'RESOURCE_MAP' do
+    subject(:result) { described_class::RESOURCE_MAP }
 
-    it 'includes remote resource URLs' do
-      expect(result).to include(
-        'public_repo' => 'https://github.com/keithrbennett/cov-loupe',
-        'public_doc_server' => 'https://keithrbennett.github.io/cov-loupe/'
-      )
+    it 'has exactly the canonical keys' do
+      expect(result.keys).to match_array(%w[repo docs docs-local])
     end
 
-    it 'includes a local_readme key pointing to an existing file' do
-      expect(result['local_readme']).to end_with('README.md')
-      expect(File.exist?(result['local_readme'])).to be true
+    it 'maps repo to the GitHub URL' do
+      expect(result['repo']).to eq('https://github.com/keithrbennett/cov-loupe')
+    end
+
+    it 'maps docs to the documentation web URL' do
+      expect(result['docs']).to eq('https://keithrbennett.github.io/cov-loupe/')
+    end
+
+    it 'maps docs-local to an existing README file' do
+      expect(result['docs-local']).to end_with('README.md')
+      expect(File.exist?(result['docs-local'])).to be true
     end
   end
 end
