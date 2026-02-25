@@ -17,6 +17,17 @@ module CovLoupe
     # Valid CLI subcommands.
     SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
 
+    # Optional single-character abbreviations for subcommands.
+    SUBCOMMAND_ABBREVIATIONS = {
+      'd' => 'detailed',
+      'l' => 'list',
+      'r' => 'raw',
+      's' => 'summary',
+      't' => 'totals',
+      'u' => 'uncovered',
+      'v' => 'validate'
+    }.freeze
+
     attr_reader :config
 
     # Initialize CLI for pure CLI usage only.
@@ -115,6 +126,9 @@ module CovLoupe
 
       # The first remaining argument is the subcommand
       @cmd = argv.shift
+
+      # Resolve single-character abbreviations (e.g., 's' -> 'summary')
+      @cmd = SUBCOMMAND_ABBREVIATIONS[@cmd] || @cmd
 
       # Verify it's a valid subcommand if present
       if @cmd && !SUBCOMMANDS.include?(@cmd)

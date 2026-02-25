@@ -31,14 +31,17 @@ You'll see a table showing coverage for each file, sorted by highest coverage fi
 ## Common Commands
 
 ```sh
-# Check a specific file
+# Check a specific file ('summary' or 's')
 cov-loupe summary lib/my_file.rb
+cov-loupe s lib/my_file.rb
 
-# See uncovered lines
+# See uncovered lines ('uncovered' or 'u')
 cov-loupe uncovered lib/my_file.rb
+cov-loupe u lib/my_file.rb
 
-# Get overall project stats
+# Get overall project stats ('totals' or 't')
 cov-loupe totals
+cov-loupe t
 
 # View all commands
 cov-loupe --help

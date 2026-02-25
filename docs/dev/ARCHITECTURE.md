@@ -23,7 +23,8 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 ### CLI (`CovLoupe::CoverageCLI`)
 
 - Builds on Ruby’s `OptionParser`, with global options such as `--resultset`, `--raise-on-stale`, `-fJ`, and `--source` modes.
-- Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `version`) translate to calls on `CoverageModel`.
+- Subcommands (`list`, `summary`, `raw`, `uncovered`, `detailed`, `totals`, `validate`, `version`) translate to calls on `CoverageModel`.
+- **Subcommand Abbreviations** – Frequent CLI users can use single-character abbreviations for most subcommands: `l` (list), `s` (summary), `u` (uncovered), `d` (detailed), `r` (raw), `t` (totals), and `v` (validate). `version` has no abbreviation to avoid confusion with the common `-v` flag.
 - Uses `ErrorHandlerFactory.for_cli` to convert unexpected exceptions into friendly user messages while honoring `--error-mode`.
 - Formatting logic (tables, JSON) lives in the model to keep presentation consistent with MCP responses.
 

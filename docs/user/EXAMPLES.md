@@ -27,12 +27,15 @@ Practical examples for common tasks with cov-loupe. Examples are organized by sk
 ```bash
 # Default: show all files, best coverage first
 clp
+clp l
 
 # Show files with worst coverage first
 clp -o a list  # -o = --sort-order, a = ascending
+clp -o a l
 
 # Export to JSON for processing
 clp -fJ list > coverage-report.json
+clp -fJ l > coverage-report.json
 ```
 
 ### Check Specific File
@@ -40,12 +43,15 @@ clp -fJ list > coverage-report.json
 ```bash
 # Quick summary
 clp summary app/models/order.rb
+clp s app/models/order.rb
 
 # See which lines aren't covered
 clp uncovered app/controllers/orders_controller.rb
+clp u app/controllers/orders_controller.rb
 
 # View uncovered code with context
 clp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u = uncovered), -c = --context-lines
+clp -s u -c 3 u app/controllers/orders_controller.rb
 ```
 
 ### Find Coverage Gaps
@@ -53,22 +59,25 @@ clp -s u -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source (u
 ```bash
 # Files with worst coverage (account for header/footer)
 clp list | tail -12
+clp l | tail -12
 
 # Only show files below 80%
 clp -fJ list | jq '.files[] | select(.percentage < 80)'
+clp -fJ l | jq '.files[] | select(.percentage < 80)'
 
 # Ruby alternative:
-clp -fJ list | ruby -r json -e '
+clp -fJ l | ruby -r json -e '
   JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
     puts JSON.pretty_generate(f)
   end
 '
 
 # Rexe alternative:
-clp -fJ list | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+clp -fJ l | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
 
 # Check specific directory
 clp -g "lib/payments/**/*.rb" list  # -g = --tracked-globs
+clp -g "lib/payments/**/*.rb" l
 ```
 
 ## CLI Examples
@@ -79,12 +88,15 @@ clp -g "lib/payments/**/*.rb" list  # -g = --tracked-globs
 ```bash
 # See detailed hit counts
 clp detailed lib/api/client.rb
+clp d lib/api/client.rb
 
 # Show full source with coverage markers
 clp -s f summary lib/api/client.rb  # f = full
+clp -s f s lib/api/client.rb
 
 # Focus on uncovered areas only
 clp -s u -c 5 uncovered lib/payments/refund_service.rb  # u = uncovered
+clp -s u -c 5 u lib/payments/refund_service.rb
 ```
 
 ### Working with JSON Output

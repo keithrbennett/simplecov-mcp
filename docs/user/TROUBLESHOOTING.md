@@ -63,7 +63,7 @@ See [Timestamp Warnings](ADVANCED_USAGE.md#timestamp-warnings) for details.
 
 The model looks up files by absolute path, then by relative path (stripping the project root). If you still hit this error:
 
-1. Verify the file is listed in the coverage table (`cov-loupe list | grep model.rb`).
+1. Verify the file is listed in the coverage table (`cov-loupe list | grep model.rb` or `cov-loupe l | grep model.rb`).
 2. Use the exact project-relative path that SimpleCov recorded (no symlinks; case-sensitivity
 depends on your volume - see note below).
 3. If the file truly never executes under tests, add coverage or exclude it from your workflow.

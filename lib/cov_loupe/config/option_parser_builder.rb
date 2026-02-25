@@ -43,14 +43,14 @@ module CovLoupe
     private def define_subcommands_help(parser)
       parser.separator <<~SUBCOMMANDS
         Subcommands:
-          detailed <path>          Show per-line rows with hits/covered
-          list                     Show files coverage (default: table, or use --format)
-          raw <path>               Show the SimpleCov 'lines' array
-          summary <path>           Show covered/total/% for a file
-          totals                   Show aggregated line totals and average %
-          uncovered <path>         Show uncovered lines and a summary
-          validate <file>          Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
-          validate -i <code>       Evaluate coverage policy from code string
+          detailed, d <path>       Show per-line rows with hits/covered
+          list, l                  Show files coverage (default: table, or use --format)
+          raw, r <path>            Show the SimpleCov 'lines' array
+          summary, s <path>        Show covered/total/% for a file
+          totals, t                Show aggregated line totals and average %
+          uncovered, u <path>      Show uncovered lines and a summary
+          validate, v <file>       Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
+          validate, v -i <code>    Evaluate coverage policy from code string
           version                  Show version information
 
         SUBCOMMANDS

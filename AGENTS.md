@@ -110,14 +110,14 @@ gem install cov-loupe-*.gem
 
 Run `bundle exec exe/cov-loupe` for up-to-date usage information.
 
-The `cov-loupe` executable can be run directly (`bundle exec exe/cov-loupe ...` or `cov-loupe ...` when installed). Core subcommands:
-- `list` – show a table of all files and their coverage.
-- `summary <path>` – show covered/total/percentage for one file.
-- `raw <path>` – print the raw SimpleCov lines array.
-- `uncovered <path>` – list uncovered line numbers.
-- `detailed <path>` – show per-line hit counts and coverage status.
-- `totals` – show aggregated totals for the project.
-- `validate <file|-i code>` – run a Ruby predicate to enforce coverage policies.
+The `cov-loupe` executable can be run directly (`bundle exec exe/cov-loupe ...` or `cov-loupe ...` when installed). Core subcommands (with single-character abbreviations):
+- `list`, `l` – show a table of all files and their coverage.
+- `summary <path>`, `s` – show covered/total/percentage for one file.
+- `raw <path>`, `r` – print the raw SimpleCov lines array.
+- `uncovered <path>`, `u` – list uncovered line numbers.
+- `detailed <path>`, `d` – show per-line hit counts and coverage status.
+- `totals`, `t` – show aggregated totals for the project.
+- `validate <file|-i code>`, `v` – run a Ruby predicate to enforce coverage policies.
 - `version` – show version information.
 
 ## MCP Server Usage

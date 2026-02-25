@@ -92,25 +92,20 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_s
 ```bash
 # Show all files, best coverage first
 cov-loupe
+# or use the 'l' abbreviation for 'list'
+cov-loupe l
 
-# Focus on a specific file
+# Focus on a specific file ('summary' or 's')
 cov-loupe summary lib/cov_loupe/cli.rb
+cov-loupe s lib/cov_loupe/cli.rb
 
-# Find untested lines with source context
+# Find untested lines with source context ('uncovered' or 'u')
 cov-loupe uncovered lib/cov_loupe/cli.rb --source=uncovered --context-lines 3
+cov-loupe u lib/cov_loupe/cli.rb --source=uncovered --context-lines 3
 
 # JSON for scripts
 cov-loupe -fJ | jq '.files[] | select(.percentage < 80)'
-
-# Ruby alternative:
-cov-loupe -fJ | ruby -r json -e '
-  JSON.parse($stdin.read)["files"].select { |f| f["percentage"] < 80 }.each do |f|
-    puts JSON.pretty_generate(f)
-  end
-'
-
-# Rexe alternative:
-cov-loupe -fJ | rexe -ij -mb -oJ 'self["files"].select { |f| f["percentage"] < 80 }'
+cov-loupe -fJl | jq '.files[] | select(.percentage < 80)'
 ```
 
 ---

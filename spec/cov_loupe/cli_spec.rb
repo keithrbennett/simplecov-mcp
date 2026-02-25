@@ -69,6 +69,29 @@ RSpec.describe CovLoupe::CoverageCLI do
     end
   end
 
+  describe 'subcommand abbreviations' do
+    [
+      { abbrev: 'd', full: 'detailed',  args: ['lib/foo.rb'] },
+      { abbrev: 'l', full: 'list',      args: [] },
+      { abbrev: 'r', full: 'raw',       args: ['lib/foo.rb'] },
+      { abbrev: 's', full: 'summary',   args: ['lib/foo.rb'] },
+      { abbrev: 't', full: 'totals',    args: [] },
+      { abbrev: 'u', full: 'uncovered', args: ['lib/foo.rb'] },
+      { abbrev: 'v', full: 'validate',  args: ['-i', '->(m) { true }'] }
+    ].each do |tc|
+      it "resolves '#{tc[:abbrev]}' to '#{tc[:full]}'" do
+        _stdout, _stderr, status = run_fixture_cli_with_status(tc[:abbrev], *tc[:args])
+        expect(status).to eq(0)
+      end
+    end
+
+    it 'does not abbreviate version' do
+      _stdout, stderr, status = run_fixture_cli_with_status('ve')
+      expect(status).to eq(1)
+      expect(stderr).to include("Unknown subcommand: 've'")
+    end
+  end
+
   it 'prints raw lines as text' do
     output = run_cli('raw', 'lib/foo.rb')
     expect(output).to include('File: lib/foo.rb', '│') # Table format
@@ -323,12 +346,12 @@ RSpec.describe CovLoupe::CoverageCLI do
     it 'correctly passes -i to the validate subcommand' do
       # This confirms that global option parsing (in ConfigParser) does not
       # strip subcommand-specific options like -i.
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('validate', '-i', '->(m) { true }')
+      _stdout, _stderr, status = run_fixture_full_cli_with_status('validate', '-i', '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
       expect(status).to eq(0)
     end
 
     it 'correctly passes -i to the abbreviated v subcommand' do
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('v', '-i', '->(m) { true }')
+      _stdout, _stderr, status = run_fixture_full_cli_with_status('v', '-i', '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
       expect(status).to eq(0)
     end
   end

@@ -21,27 +21,38 @@ Complete reference for using cov-loupe from the command line.
 ## Quick Reference
 
 ```sh
-# Show coverage table for all files
+# Show coverage table for all files (default or 'l')
 clp
 clp list
+clp l
 
-# Check specific file
+# Check specific file ('summary' or 's')
 clp summary app/models/order.rb
+clp s app/models/order.rb
 
-# Find uncovered lines
+# Find uncovered lines ('uncovered' or 'u')
 clp uncovered app/models/order.rb
+clp u app/models/order.rb
 
-# Get detailed per-line coverage
+# Get detailed per-line coverage ('detailed' or 'd')
 clp detailed app/models/order.rb
+clp d app/models/order.rb
 
-# Get raw SimpleCov data
+# Get raw SimpleCov data ('raw' or 'r')
 clp raw app/models/order.rb
+clp r app/models/order.rb
 
-# Get project totals
+# Get project totals ('totals' or 't')
 clp totals
-clp -fp totals
+clp t
+clp -fp t
 
-# Show version
+# Evaluate coverage policy ('validate' or 'v')
+clp validate coverage_policy.rb
+clp v coverage_policy.rb
+clp v -i '->(m) { m.project_totals["lines"]["percent_covered"] >= 85 }'
+
+# Show version (no abbreviation)
 clp version
 
 # Get help
@@ -55,14 +66,15 @@ clp --resource docs-local
 
 ## Subcommands
 
-### `list`
+### `list`, `l`
 
 Show coverage summary for all files (default subcommand).
 
 ```sh
 clp list
-clp -o d list  # -o = --sort-order, d = descending
-clp -fp list           
+clp l
+clp -o d l  # -o = --sort-order, d = descending
+clp -fp l           
 ```
 
 Default sort order is descending (highest coverage first) so the lowest-coverage files stay visible at the bottom of the scrollback.
@@ -97,14 +109,15 @@ Files: total 7, ok 7, stale 0
 
 **Stale indicators:** missing (missing file), newer (timestamp mismatch), length_mismatch (line count mismatch), error (staleness check error)
 
-### `summary <path>`
+### `summary <path>`, `s <path>`
 
 Show covered/total/percentage for a specific file.
 
 ```sh
 clp summary app/models/order.rb
-clp -fp summary app/models/order.rb
-clp -s full summary app/models/order.rb  # -s = --source
+clp s app/models/order.rb
+clp -fp s app/models/order.rb
+clp -s full s app/models/order.rb  # -s = --source
 ```
 
 **Arguments:**
@@ -142,14 +155,15 @@ clp -s full summary app/models/order.rb  # -s = --source
 }
 ```
 
-### `uncovered <path>`
+### `uncovered <path>`, `u <path>`
 
 Show uncovered line numbers for a specific file.
 
 ```sh
 clp uncovered app/controllers/orders_controller.rb
-clp -s uncovered uncovered app/controllers/orders_controller.rb  # -s = --source
-clp -s uncovered -c 3 uncovered app/controllers/orders_controller.rb  # -s = --source, -c = --context-lines
+clp u app/controllers/orders_controller.rb
+clp -s uncovered u app/controllers/orders_controller.rb  # -s = --source
+clp -s uncovered -c 3 u app/controllers/orders_controller.rb  # -s = --source, -c = --context-lines
 ```
 
 **Arguments:**
@@ -196,14 +210,15 @@ Summary:         70.0%      7/10
 - `·` - Line is not covered
 - ` ` - Line is not executable (comments, blank lines)
 
-### `detailed <path>`
+### `detailed <path>`, `d <path>`
 
 Show per-line coverage with hit counts.
 
 ```sh
 clp detailed app/models/order.rb
-clp -fp detailed app/models/order.rb
-clp -s full detailed app/models/order.rb  # -s = --source
+clp d app/models/order.rb
+clp -fp d app/models/order.rb
+clp -s full d app/models/order.rb  # -s = --source
 ```
 
 **Arguments:**
@@ -259,13 +274,14 @@ Coverage: 6/7 lines (85.71%)
 }
 ```
 
-### `raw <path>`
+### `raw <path>`, `r <path>`
 
 Show the raw SimpleCov lines array.
 
 ```sh
 clp raw app/models/order.rb
-clp -fp raw app/models/order.rb
+clp r app/models/order.rb
+clp -fp r app/models/order.rb
 ```
 
 **Arguments:**
@@ -291,14 +307,15 @@ File: app/models/order.rb
 - `0` - Line is executable but was not executed
 - `null` - Line is not executable (comment, blank line)
 
-### `totals`
+### `totals`, `t`
 
 Show aggregated totals for all tracked files.
 
 ```sh
 clp totals
-clp -fp totals
-clp -g "lib/ops/jobs/*.rb" totals  # -g = --tracked-globs
+clp t
+clp -fp t
+clp -g "lib/ops/jobs/*.rb" t  # -g = --tracked-globs
 ```
 
 **Output (default format):**
@@ -676,7 +693,7 @@ clp --mode mcp           # MCP server mode (required for MCP), long option form
 clp -m cli list          # CLI mode (default), can use to override environment variable
 ```
 
-### `validate` Subcommand
+### `validate <file> | -i <code>`, `v <file> | -i <code>`
 
 Validate coverage against custom policies for CI/CD enforcement.
 
@@ -699,18 +716,22 @@ The predicate must be a callable (lambda, proc, or object with `#call` method) t
 ```sh
 # Use example predicate
 clp validate examples/success_predicates/all_files_above_threshold_predicate.rb
+clp v examples/success_predicates/all_files_above_threshold_predicate.rb
 
 # In CI/CD
 cov-loupe validate coverage_policy.rb
+cov-loupe v coverage_policy.rb
 ```
 
 **String mode (inline code):**
 ```sh
 # Simple inline validation
 clp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
+clp v -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
 
 # With global options
 clp -r coverage validate -i '->(m) { m.list.size > 0 }'
+clp -r coverage v -i '->(m) { m.list.size > 0 }'
 ```
 
 **Example predicate file:**

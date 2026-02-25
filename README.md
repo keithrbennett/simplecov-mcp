@@ -74,12 +74,16 @@ ls -l coverage/.resultset.json
 **CLI - View Coverage Table:**
 ```sh
 cov-loupe
+# or use the 'l' abbreviation for 'list'
+cov-loupe l
 ```
 
 **CLI - Check Specific File:**
 ```sh
 cov-loupe summary lib/cov_loupe/model.rb
-cov-loupe uncovered lib/cov_loupe/cli.rb
+# or use abbreviations: s (summary), u (uncovered)
+cov-loupe s lib/cov_loupe/model.rb
+cov-loupe u lib/cov_loupe/cli.rb
 ```
 
 **CLI - Find the Project Homepage Fast:**
@@ -362,7 +366,7 @@ cov-loupe --raise-on-stale yes # enforce stale coverage failures
 
 ## Commands and Tools
 
-**CLI Subcommands:** `list`, `summary`, `uncovered`, `detailed`, `raw`, `totals`, `validate`, `version`
+**CLI Subcommands:** `list (l)`, `summary (s)`, `uncovered (u)`, `detailed (d)`, `raw (r)`, `totals (t)`, `validate (v)`, `version`
 
 **MCP Tools:** `coverage_summary_tool`, `coverage_detailed_tool`, `coverage_raw_tool`, `uncovered_lines_tool`, `list_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, `version_tool`
 

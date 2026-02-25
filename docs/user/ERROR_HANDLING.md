@@ -11,12 +11,16 @@ Errors are displayed as user-friendly messages without stack traces:
 ```bash
 $ cov-loupe summary nonexistent.rb
 File error: No coverage data found for the specified file
+
+$ cov-loupe s nonexistent.rb
+File error: No coverage data found for the specified file
 ```
 
 For debugging, use the `--error-mode debug` flag to include stack traces in log output and display the first 5 lines of the backtrace in CLI output:
 
 ```bash
 $ cov-loupe --error-mode debug summary nonexistent.rb
+$ cov-loupe --error-mode debug s nonexistent.rb
 ```
 
 ## Library Mode
