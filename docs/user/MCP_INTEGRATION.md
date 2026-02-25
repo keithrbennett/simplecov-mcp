@@ -230,8 +230,26 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Utility Tools
 
-**`help_tool`** - Tool discovery
+**`help_tool`** - Tool discovery and canonical resource values
 **`version_tool`** - Version information
+
+`help_tool` returns:
+- `tools` - guidance for each MCP tool (`use_when`, `avoid_when`, `inputs`)
+- `resources` - canonical shared resource values:
+  - `repo` (public GitHub URL)
+  - `docs` (public docs URL)
+  - `docs-local` (absolute path to local README)
+
+Example `help_tool` payload excerpt:
+```json
+{
+  "resources": {
+    "repo": "https://github.com/keithrbennett/cov-loupe",
+    "docs": "https://keithrbennett.github.io/cov-loupe/",
+    "docs-local": "/abs/path/to/README.md"
+  }
+}
+```
 
 ## Example Prompts for AI Assistants
 

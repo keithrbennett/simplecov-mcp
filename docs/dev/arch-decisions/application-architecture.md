@@ -7,6 +7,7 @@ This document describes the core architectural decisions that shape how cov-loup
 ## Table of Contents
 
 - [Dual-Mode Operation (CLI and MCP Server)](#dual-mode-operation-cli-and-mcp-server)
+- [Shared Resource Identifier Contract (CLI and MCP)](#shared-resource-identifier-contract-cli-and-mcp)
 - [Context-Aware Error Handling](#context-aware-error-handling)
 
 ---
@@ -97,6 +98,57 @@ Prior to v4.0.0, cov-loupe used automatic mode detection based on TTY status and
 - CLI implementation: `lib/cov_loupe/cli.rb`
 - MCP server implementation: `lib/cov_loupe/mcp_server.rb`
 - Related section: [Context-Aware Error Handling](#context-aware-error-handling)
+
+---
+
+## Shared Resource Identifier Contract (CLI and MCP)
+
+### Status
+
+Accepted
+
+### Context
+
+cov-loupe exposes key project resources across two surfaces:
+
+1. CLI (`cov-loupe --resource NAME`)
+2. MCP (`help_tool` response)
+
+The project needs one consistent contract so humans and agents can request the same named values without translation logic.
+
+### Decision (v4.1.0+)
+
+Use one shared canonical map in `CovLoupe::Resources::RESOURCE_MAP` for both CLI and MCP.
+
+Canonical identifiers:
+- `repo` - public GitHub repository URL
+- `docs` - public documentation site URL
+- `docs-local` - absolute path to local `README.md`
+
+Both interfaces now consume this same map:
+- CLI uses `--resource NAME` and prints only the mapped value.
+- `help_tool` returns `resources` with the same canonical keys.
+- MCP server startup instructions serialize the same resource map for discoverability.
+
+### Consequences
+
+#### Positive
+
+1. One source of truth for resource values and names
+2. Consistent contract for humans (CLI) and agents (MCP)
+3. Lower maintenance cost and reduced documentation drift
+
+#### Negative
+
+1. Renaming or removing resource keys is a cross-surface API change
+2. `docs-local` is a path, not a URL, so wording must stay precise in docs/help text
+
+### References
+
+- Shared resource map: `lib/cov_loupe/resources.rb`
+- CLI option: `lib/cov_loupe/config/option_parser_builder.rb`
+- MCP help response: `lib/cov_loupe/tools/help_tool.rb`
+- MCP server instructions: `lib/cov_loupe/mcp_server.rb`
 
 ---
 

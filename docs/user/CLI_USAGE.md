@@ -46,6 +46,11 @@ clp version
 
 # Get help
 clp -h  # -h = --help
+
+# Print canonical resource values (stdout only)
+clp --resource repo
+clp --resource docs
+clp --resource docs-local
 ```
 
 ## Subcommands
@@ -396,6 +401,27 @@ Project root directory (default: current directory).
 
 ```sh
 clp -R /path/to/project  # -R = --root
+```
+
+### `--resource NAME`
+
+Print a canonical resource value to stdout and exit immediately.
+
+Supported names:
+- `repo` - public GitHub repository URL
+- `docs` - public documentation site URL
+- `docs-local` - absolute path to local `README.md`
+
+```sh
+clp --resource repo
+clp --resource docs
+clp --resource docs-local
+```
+
+This option is designed for shell composition and prints only the value:
+
+```sh
+open "$(clp --resource docs)"
 ```
 
 ### `-fp`

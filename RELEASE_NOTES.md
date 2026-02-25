@@ -3,6 +3,19 @@
 [Back to main README](docs/index.md)
 
 
+## v4.1.0
+
+- Add canonical resource retrieval via CLI: `cov-loupe --resource repo|docs|docs-local`.
+- Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
+- Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).
+- Share resource values from one source of truth (`CovLoupe::Resources::RESOURCE_MAP`) used by:
+  - CLI `--resource`
+  - CLI help banner URLs
+  - MCP `help_tool`
+  - MCP server startup instructions
+- Clarify user documentation to describe `--resource` as a resource value lookup (`docs-local` is a local path, not a web URL).
+- Add/adjust tests for canonical resource behavior in CLI, shared resource map, and `help_tool`.
+
 ## v4.0.0 (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.

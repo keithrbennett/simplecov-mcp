@@ -89,6 +89,14 @@ Usage:      cov-loupe [options] [subcommand] [args]
 Repository: https://github.com/keithrbennett/cov-loupe  # <--- Project URL ---
 ```
 
+**CLI - Fetch Canonical Resource Values:**
+```sh
+cov-loupe --resource repo
+cov-loupe --resource docs
+cov-loupe --resource docs-local
+open "$(cov-loupe --resource docs)"
+```
+
 **Ruby Library:**
 ```ruby
 require "cov_loupe"
