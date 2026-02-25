@@ -346,12 +346,14 @@ RSpec.describe CovLoupe::CoverageCLI do
     it 'correctly passes -i to the validate subcommand' do
       # This confirms that global option parsing (in ConfigParser) does not
       # strip subcommand-specific options like -i.
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('validate', '-i', '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
+      _stdout, _stderr, status = run_fixture_full_cli_with_status('validate', '-i',
+        '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
       expect(status).to eq(0)
     end
 
     it 'correctly passes -i to the abbreviated v subcommand' do
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('v', '-i', '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
+      _stdout, _stderr, status = run_fixture_full_cli_with_status('v', '-i',
+        '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
       expect(status).to eq(0)
     end
   end
