@@ -24,7 +24,11 @@ module CovLoupe
     def parse
       # Build and execute the option parser
       parser = OptionParserBuilder.new(config).build_option_parser
-      parser.parse!(argv)
+
+      # Use order! to stop at the first non-option argument (the subcommand).
+      # This ensures that subcommand-specific options (like 'validate -i') are not
+      # stripped by the global option parser.
+      parser.order!(argv)
 
       config
     end

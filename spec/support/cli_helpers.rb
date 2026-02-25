@@ -24,6 +24,27 @@ module CLITestHelpers
     run_cli_with_status(*fixture_cli_args(*argv))
   end
 
+  # Run the full CovLoupe.run entry point (including global ConfigParser)
+  def run_full_cli_with_status(*argv)
+    status = nil
+    out_str = err_str = nil
+    silence_output do
+      begin
+        CovLoupe.run(argv.flatten)
+        status = 0
+      rescue SystemExit => e
+        status = e.status
+      end
+      out_str = $stdout.string
+      err_str = $stderr.string
+    end
+    [out_str, err_str, status]
+  end
+
+  def run_fixture_full_cli_with_status(*argv)
+    run_full_cli_with_status(*fixture_cli_args(*argv))
+  end
+
   def run_fixture_cli_output(*argv)
     stdout, _stderr, _status = run_fixture_cli_with_status(*argv)
     stdout
