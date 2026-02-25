@@ -31,8 +31,8 @@ module CovLoupe
       parser.banner = <<~BANNER
         #{HORIZONTAL_RULE}
         Usage:                 cov-loupe [options] [subcommand] [args]  (default subcommand: list)
-        Repository:            https://github.com/keithrbennett/cov-loupe
-        Documentation (Web):   https://keithrbennett.github.io/cov-loupe/
+        Repository:            #{Resources::REPOSITORY_URL}
+        Documentation (Web):   #{Resources::DOCUMENTATION_WEB_URL}
         Documentation (Local): #{Resources::LOCAL_README_PATH}
         Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
