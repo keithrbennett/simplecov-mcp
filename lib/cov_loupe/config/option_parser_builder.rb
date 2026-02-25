@@ -116,15 +116,17 @@ module CovLoupe
         config.mode = normalize_mode(value)
       end
       parser.on('-e', '--error-mode MODE', String,
-        'Error handling mode: o[ff]|l[og]|d[ebug] (default log). ' \
-        'off (silent), log (log errors to file), debug (verbose with backtraces)') do |value|
+        'Error handling mode: o[ff]|l[og]|d[ebug] (default: log)',
+        '  off:   silent',
+        '  log:   log errors to file',
+        '  debug: verbose with backtraces') do |value|
         config.error_mode = normalize_error_mode(value)
       end
       parser.on('-O', '--output-chars MODE', String,
-        'Output character mode: d[efault]|f[ancy]|a[scii] (default: default). ' \
-        'default: UTF-8 encoding uses fancy (Unicode), else ascii. ' \
-        'fancy: use Unicode box-drawing and symbols. ' \
-        'ascii: use ASCII-only characters (0x00-0x7F).') do |value|
+        'Output character mode: d[efault]|f[ancy]|a[scii] (default: default)',
+        '  default: UTF-8 encoding uses fancy (Unicode), else ascii',
+        '  fancy:   use Unicode box-drawing and symbols',
+        '  ascii:   use ASCII-only characters (0x00-0x7F)') do |value|
         config.output_chars = normalize_output_chars(value)
       end
       parser.on('-v', '--version', 'Show version information and exit.') do
