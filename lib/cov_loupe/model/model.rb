@@ -421,17 +421,7 @@ module CovLoupe
     end
 
     private def line_totals_from_rows(rows)
-      covered = rows.sum { |row| row['covered'].to_i }
-      total = rows.sum { |row| row['total'].to_i }
-      uncovered = total - covered
-      percent_covered = total.zero? ? nil : ((covered.to_f * 100.0 / total) * 100).round / 100.0
-
-      {
-        'covered' => covered,
-        'uncovered' => uncovered,
-        'total' => total,
-        'percent_covered' => percent_covered
-      }
+      CoverageCalculator.aggregate(rows)
     end
 
     private def tracking_payload(tracked_globs)

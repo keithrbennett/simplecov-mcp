@@ -229,6 +229,15 @@ module CovLoupe
       warn 'Run again with --raise-on-stale to exit when rows are skipped.'
     end
 
+    private def output_file_list(output, files, header)
+      return if files.empty?
+
+      output.puts "\n#{header} (#{files.length}):"
+      files.each do |file|
+        output.puts('  - ' + OutputChars.convert(file, config.output_chars))
+      end
+    end
+
     private def warn_missing_timestamps(presenter, output = $stderr)
       return unless presenter.timestamp_status == 'missing'
 
@@ -254,33 +263,11 @@ module CovLoupe
 
       output.puts "\nFiles excluded from coverage:"
 
-      # Helper to convert paths to ASCII if needed
-      convert_path = ->(path) { OutputChars.convert(path, config.output_chars) }
-
-      unless missing.empty?
-        output.puts "\nMissing tracked files (#{missing.length}):"
-        missing.each { |file| output.puts "  - #{convert_path.call(file)}" }
-      end
-
-      unless newer.empty?
-        output.puts "\nFiles newer than coverage (#{newer.length}):"
-        newer.each { |file| output.puts "  - #{convert_path.call(file)}" }
-      end
-
-      unless deleted.empty?
-        output.puts "\nDeleted files with coverage (#{deleted.length}):"
-        deleted.each { |file| output.puts "  - #{convert_path.call(file)}" }
-      end
-
-      unless length_mismatch.empty?
-        output.puts "\nLine count mismatches (#{length_mismatch.length}):"
-        length_mismatch.each { |file| output.puts "  - #{convert_path.call(file)}" }
-      end
-
-      unless unreadable.empty?
-        output.puts "\nUnreadable files (#{unreadable.length}):"
-        unreadable.each { |file| output.puts "  - #{convert_path.call(file)}" }
-      end
+      output_file_list(output, missing, 'Missing tracked files')
+      output_file_list(output, newer, 'Files newer than coverage')
+      output_file_list(output, deleted, 'Deleted files with coverage')
+      output_file_list(output, length_mismatch, 'Line count mismatches')
+      output_file_list(output, unreadable, 'Unreadable files')
 
       unless skipped.empty?
         output.puts "\nFiles skipped due to errors (#{skipped.length}):"
