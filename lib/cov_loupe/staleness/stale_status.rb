@@ -4,6 +4,12 @@ module CovLoupe
   # Helpers for working with staleness status values.
   module StaleStatus
     VALID_STATUSES = %w[ok missing newer length_mismatch error].freeze
+    MISSING_FROM_DISK = 'missing_from_disk'
+    NEWER = 'newer'
+    LENGTH_MISMATCH = 'length_mismatch'
+    UNREADABLE = 'unreadable'
+    MISSING_FROM_COVERAGE = 'missing_from_coverage'
+    SKIPPED = 'skipped'
 
     module_function def stale?(value)
       normalize(value) != 'ok'

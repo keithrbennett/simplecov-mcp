@@ -445,9 +445,9 @@ module CovLoupe
       skipped = Array(list_result['skipped_files']).length
       unreadable = Array(list_result['unreadable_files']).length
       by_type = {
-        'missing_from_coverage' => missing_from_coverage,
-        'unreadable' => unreadable,
-        'skipped' => skipped
+        StaleStatus::MISSING_FROM_COVERAGE => missing_from_coverage,
+        StaleStatus::UNREADABLE => unreadable,
+        StaleStatus::SKIPPED => skipped
       }
       {
         'total' => by_type.values.sum,
@@ -469,10 +469,10 @@ module CovLoupe
 
     private def stale_breakdown(rows)
       stale_by_type = {
-        'missing_from_disk' => 0,
-        'newer' => 0,
-        'length_mismatch' => 0,
-        'unreadable' => 0
+        StaleStatus::MISSING_FROM_DISK => 0,
+        StaleStatus::NEWER => 0,
+        StaleStatus::LENGTH_MISMATCH => 0,
+        StaleStatus::UNREADABLE => 0
       }
       ok_files = 0
 
@@ -481,13 +481,13 @@ module CovLoupe
         when 'ok'
           ok_files += 1
         when 'missing'
-          stale_by_type['missing_from_disk'] += 1
+          stale_by_type[StaleStatus::MISSING_FROM_DISK] += 1
         when 'newer'
-          stale_by_type['newer'] += 1
+          stale_by_type[StaleStatus::NEWER] += 1
         when 'length_mismatch'
-          stale_by_type['length_mismatch'] += 1
+          stale_by_type[StaleStatus::LENGTH_MISMATCH] += 1
         when 'error'
-          stale_by_type['unreadable'] += 1
+          stale_by_type[StaleStatus::UNREADABLE] += 1
         end
       end
 

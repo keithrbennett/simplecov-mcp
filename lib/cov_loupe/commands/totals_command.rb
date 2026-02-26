@@ -59,10 +59,10 @@ module CovLoupe
 
       private def format_stale_breakdown(stale_by_type)
         '    Stale: missing on disk = ' \
-          "#{stale_by_type['missing_from_disk']}, " \
-          "newer than coverage = #{stale_by_type['newer']}, " \
-          "line mismatch = #{stale_by_type['length_mismatch']}, " \
-          "unreadable = #{stale_by_type['unreadable']}"
+          "#{stale_by_type[StaleStatus::MISSING_FROM_DISK]}, " \
+          "newer than coverage = #{stale_by_type[StaleStatus::NEWER]}, " \
+          "line mismatch = #{stale_by_type[StaleStatus::LENGTH_MISMATCH]}, " \
+          "unreadable = #{stale_by_type[StaleStatus::UNREADABLE]}"
       end
 
       private def format_without_coverage_lines(without_coverage)
@@ -71,9 +71,9 @@ module CovLoupe
         without_by_type = without_coverage['by_type']
         without_coverage_line = "  Without coverage: #{without_coverage['total']} total"
         without_breakdown_line = '    Missing from coverage = ' \
-          "#{without_by_type['missing_from_coverage']}, " \
-          "unreadable = #{without_by_type['unreadable']}, " \
-          "skipped (errors) = #{without_by_type['skipped']}"
+          "#{without_by_type[StaleStatus::MISSING_FROM_COVERAGE]}, " \
+          "unreadable = #{without_by_type[StaleStatus::UNREADABLE]}, " \
+          "skipped (errors) = #{without_by_type[StaleStatus::SKIPPED]}"
         [without_coverage_line, without_breakdown_line]
       end
 
