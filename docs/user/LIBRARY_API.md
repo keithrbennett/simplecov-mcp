@@ -214,6 +214,11 @@ relative_files = model.relativize(files)
 
 ## Return Types
 
+> **Note:** There is an inconsistency in key names for coverage percentages across the API:
+> - Methods returning per-file summaries (like `summary_for`, `uncovered_for`, `detailed_for`) use `'percentage'`
+> - Methods returning aggregated totals (like `project_totals`) use `'percent_covered'`
+> This inconsistency is historical and cannot be changed without breaking existing code.
+
 ### `list`
 
 Returns `Hash` with file data and staleness metadata:
@@ -226,7 +231,7 @@ Returns `Hash` with file data and staleness metadata:
       'covered' => Integer,   # Number of covered lines
       'total' => Integer,     # Total relevant lines
       'percentage' => Float,  # Coverage percentage (0.00-100.00)
-      'stale' => String  # Staleness indicator: "ok", "error", "missing", "newer", or "length_mismatch"
+      'stale' => String       # Staleness indicator: "ok", "error", "missing", "newer", or "length_mismatch"
     }
   ],
   'skipped_files' => Array<String>,        # Files skipped due to coverage errors
