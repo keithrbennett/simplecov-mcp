@@ -110,7 +110,26 @@ module CovLoupe
       }
     end
 
-    # Returns [ { 'file' =>, 'covered' =>, 'total' =>, 'percentage' =>, 'stale' => }, ... ]
+    # Returns a list of coverage data for all tracked files.
+    #
+    # @param sort_order [Symbol] :descending (default) or :ascending for sorting by percentage
+    # @param raise_on_stale [Boolean] When true, raises errors if sources are newer than coverage
+    # @param tracked_globs [Array<String>] Glob patterns to filter tracked files
+    # @return [Hash] Hash containing:
+    #   - 'files': Array of file coverage data sorted by percentage
+    #   - 'skipped_files': Files that could not be processed
+    #   - 'missing_tracked_files': Tracked files not in coverage data
+    #   - 'newer_files': Coverage data older than source files
+    #   - 'deleted_files': Source files removed since coverage run
+    #   - 'length_mismatch_files': Files with line count mismatches
+    #   - 'unreadable_files': Files that could not be read
+    #   - 'timestamp_status': Overall staleness status
+    #
+    # @note Complexity: O(n log n) where n is the number of tracked files due to sorting.
+    #   File I/O for staleness checks adds O(m) where m is the number of tracked source files.
+    # @note Thread-safety: Not thread-safe. This method relies on shared mutable state
+    #   (@skipped_rows, internal coverage_map) and should not be called concurrently
+    #   from multiple threads on the same CoverageModel instance.
     def list(sort_order: DEFAULT_SORT_ORDER,
       raise_on_stale: @default_raise_on_stale,
       tracked_globs: @default_tracked_globs)

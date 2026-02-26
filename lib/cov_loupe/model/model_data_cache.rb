@@ -39,6 +39,13 @@ module CovLoupe
     # @param root [String] Project root directory for path normalization
     # @param logger [Logger, nil] Logger instance for data loading operations
     # @return [ModelData] The cached or freshly loaded data
+    #
+    # @note Complexity: O(1) amortized for cache hits. For cache misses, O(n) where n
+    #   is the size of the resultset file, plus O(m) for parsing where m is total lines.
+    #   File stat and MD5 digest are O(1) relative to file size on most filesystems.
+    # @note Thread-safety: Thread-safe. This method uses a Mutex to synchronize access
+    #   to the internal cache entries hash. Concurrent calls from multiple threads
+    #   are guaranteed to return consistent results without data races.
     def get(resultset_path, root:, logger: nil)
       @mutex.synchronize do
         # Cache key must include both resultset_path and root because
