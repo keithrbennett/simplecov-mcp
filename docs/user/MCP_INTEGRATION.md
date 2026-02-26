@@ -8,17 +8,21 @@
 ## Table of Contents
 
 - [Setup by Client](#setup-by-client)
+  - [Claude Code](#claude-code)
+  - [Codex](#codex)
+  - [Gemini](#gemini)
+  - [Kilo](#kilo)
 - [Available MCP Tools](#available-mcp-tools-functions)
 - [Testing Your Setup](#testing-your-setup)
 - [Troubleshooting](#troubleshooting)
 
 ## Setup by Client
 
-For the `mcp add` commands, the executable path comes after the server name. You can optionally pass arguments to the executable after that (e.g., `-- --error-mode debug`).
-
-**Note:** If you change which Ruby version you use, you will need to `bundle install` or `gem install cov-loupe` again with the new version active. Additionally, if your MCP server configuration uses an absolute path, that configuration will need to be updated as well.
+> **Note:** MCP tools and their configuration methods evolve rapidly. The commands and approaches listed below may have changed by the time you read this. Check your client's documentation (e.g., `claude mcp --help`, `codex mcp --help`) for the most current instructions.
 
 ### Claude Code
+
+`mcp add` expects first the display name, then the executable (filename or path). The executable's filename is sufficient if it is in the PATH, but you may also specify the fully qualified path if necessary (e.g. `/a/b/cov-loupe`).
 
 ```sh
 # Add the MCP server; equivalent to ...--scope local...
@@ -43,6 +47,8 @@ claude mcp remove --scope project cov-loupe # Removes from project scope
 ```
 
 ### Codex
+
+`mcp add` expects first the display name, then the executable (filename or path). The executable's filename is sufficient if it is in the PATH, but you may also specify the fully qualified path if necessary (e.g. `/a/b/cov-loupe`).
 
 Using the Codex CLI:
 
@@ -76,6 +82,8 @@ To avoid this, consider editing `~/.codex/config.toml` directly instead of using
 
 ### Gemini
 
+`mcp add` expects first the display name, then the executable (filename or path). The executable's filename is sufficient if it is in the PATH, but you may also specify the fully qualified path if necessary (e.g. `/a/b/cov-loupe`).
+
 Using the Gemini CLI:
 
 ```sh
@@ -93,6 +101,25 @@ gemini mcp remove cov-loupe
 **Environment variables you can set:**
 
 - `COV_LOUPE_OPTS` - Default CLI options (though less useful for MCP mode)
+
+### Kilo
+
+For global configuration, create or edit `~/.config/kilo/opencode.json`. For project-local configuration, use `opencode.json` in the project root:
+
+```json
+{
+  "$schema": "https://kilo.ai/config.json",
+  "mcp": {
+    "cov-loupe": {
+      "type": "local",
+      "command": ["cov-loupe", "-m", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+**Note:** Ensure `cov-loupe` is in your PATH. If installed via Bundler, you may need to use the full path (e.g., `bundle exec cov-loupe`) or create a wrapper script.
 
 ## Available MCP Tools (Functions)
 
