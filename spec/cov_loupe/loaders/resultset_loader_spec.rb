@@ -104,6 +104,29 @@ RSpec.describe CovLoupe::ResultsetLoader do
         end.to raise_error(CovLoupe::CoverageDataError, /Invalid coverage data structure/)
       end
     end
+
+    it 'raises Errno::ENOENT when file does not exist' do
+      expect do
+        described_class.load(resultset_path: '/nonexistent/path/.resultset.json')
+      end.to raise_error(Errno::ENOENT)
+    end
+
+    [
+      { desc: 'malformed JSON', content: '{ "invalid": json }' },
+      { desc: 'empty file', content: '' },
+      { desc: 'whitespace-only file', content: "   \n\t  " }
+    ].each do |tc|
+      it "raises JSON::ParserError for #{tc[:desc]}" do
+        Dir.mktmpdir do |dir|
+          resultset_path = File.join(dir, '.resultset.json')
+          File.write(resultset_path, tc[:content])
+
+          expect do
+            described_class.load(resultset_path: resultset_path)
+          end.to raise_error(JSON::ParserError)
+        end
+      end
+    end
   end
 
   describe 'SimpleCov loading and logging' do
