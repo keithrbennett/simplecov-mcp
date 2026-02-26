@@ -109,4 +109,35 @@ RSpec.describe CovLoupe::CoverageCalculator do
       expect(described_class.detailed(arr)).to eq([])
     end
   end
+
+  describe '.aggregate' do
+    it 'aggregates multiple file summaries' do
+      summaries = [
+        { 'covered' => 10, 'total' => 20 },
+        { 'covered' => 30, 'total' => 40 }
+      ]
+      result = described_class.aggregate(summaries)
+      expect(result).to include(
+        'covered' => 40,
+        'uncovered' => 20,
+        'total' => 60,
+        'percent_covered' => 66.67
+      )
+    end
+
+    it 'handles empty array' do
+      expect(described_class.aggregate([])).to include(
+        'covered' => 0,
+        'uncovered' => 0,
+        'total' => 0,
+        'percent_covered' => nil
+      )
+    end
+
+    it 'handles zero total' do
+      summaries = [{ 'covered' => 0, 'total' => 0 }]
+      result = described_class.aggregate(summaries)
+      expect(result['percent_covered']).to be_nil
+    end
+  end
 end
