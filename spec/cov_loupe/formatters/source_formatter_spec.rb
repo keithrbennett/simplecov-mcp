@@ -42,7 +42,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
             '------  ---+-------------------------------------------------------------',
             '     1   ✓ | class Foo',
             '     2   ✓ |   def bar',
-            "     3   · |     puts 'bar'",
+            "     3   X |     puts 'bar'",
             '     4     |   end',
             '     5     | end'
           ]
@@ -52,17 +52,17 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       it 'marks covered lines with a checkmark' do
         # Two covered lines should each get a ✓ in the rendered output.
         result = formatter.format_source_for(model, path, mode: :full)
-        # covered: true -> '✓', false -> '·', nil -> ' '
+        # covered: true -> '✓', false -> 'X', nil -> ' '
         expect(result.count('✓')).to eq(2)
         expect(result.lines[2]).to match(/\b1\s+✓ \| class Foo/)
         expect(result.lines[3]).to match(/\b2\s+✓ \|   def bar/)
       end
 
-      it 'marks uncovered lines with a dot' do
-        # The single uncovered line should be marked with a dot.
+      it 'marks uncovered lines with an X' do
+        # The single uncovered line should be marked with an X.
         result = formatter.format_source_for(model, path, mode: :full)
-        expect(result.count('·')).to eq(1)
-        expect(result.lines[4]).to match(/\b3\s+· \|     puts 'bar'/)
+        expect(result.count('X')).to eq(1)
+        expect(result.lines[4]).to match(/\b3\s+X \|     puts 'bar'/)
       end
 
       it 'returns only header when mode is nil (default)' do
@@ -125,7 +125,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
         expect(result).to include("\e[32m", "\e[31m") # green for checkmark, red for dot
         expect(result.lines[2]).to include("\e[32m✓\e[0m") # line 1 checkmark is green
         expect(result.lines[3]).to include("\e[32m✓\e[0m") # line 2 checkmark is green
-        expect(result.lines[4]).to include("\e[31m·\e[0m") # line 3 dot is red
+        expect(result.lines[4]).to include("\e[31mX\e[0m") # line 3 X is red
       end
     end
   end

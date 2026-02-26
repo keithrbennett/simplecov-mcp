@@ -13,6 +13,7 @@
   - CLI help banner URLs
   - MCP `help_tool`
   - MCP server startup instructions
+  - Make pass/fail symbols in source code display more prominent, change circle to X
 
 ## v4.0.0 (Breaking)
 

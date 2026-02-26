@@ -64,8 +64,8 @@ module CovLoupe
 
       def format_source_rows(rows)
         # Use ASCII-safe markers when output_chars is :ascii
-        check_mark = OutputChars.ascii_mode?(@output_chars) ? '+' : "\u2713" # ✓
-        miss_mark = OutputChars.ascii_mode?(@output_chars) ? '-' : "\u00B7"  # ·
+        check_mark = OutputChars.ascii_mode?(@output_chars) ? '+' : "\u2713"  # ✓
+        miss_mark = 'X'
 
         marker = ->(covered, _hits) do
           case covered
