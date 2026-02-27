@@ -420,7 +420,7 @@ Project root directory (default: current directory).
 clp -R /path/to/project  # -R = --root
 ```
 
-### `--resource NAME`
+### `-R`, `--resource NAME`
 
 Print a canonical resource value to stdout and exit immediately.
 
@@ -430,15 +430,18 @@ Supported names:
 - `docs-local` - absolute path to local `README.md`
 
 ```sh
+clp -R repo
 clp --resource repo
+clp -R docs
 clp --resource docs
+clp -R docs-local
 clp --resource docs-local
 ```
 
 This option is designed for shell composition and prints only the value:
 
 ```sh
-open "$(clp --resource docs)"
+open "$(clp -R docs)"
 ```
 
 ### `-fp`

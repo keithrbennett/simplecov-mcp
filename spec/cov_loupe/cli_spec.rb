@@ -198,30 +198,32 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'resource value retrieval' do
-    {
-      'repo' => 'https://github.com/keithrbennett/cov-loupe',
-      'docs' => 'https://keithrbennett.github.io/cov-loupe/'
-    }.each do |resource, expected_value|
-      it "returns value for canonical resource '#{resource}'" do
-        output = run_cli('--resource', resource)
-        expect(output.strip).to eq(expected_value)
+    %w[-R --resource].each do |flag|
+      {
+        'repo' => 'https://github.com/keithrbennett/cov-loupe',
+        'docs' => 'https://keithrbennett.github.io/cov-loupe/'
+      }.each do |resource, expected_value|
+        it "returns value for canonical resource '#{resource}' with #{flag}" do
+          output = run_cli(flag, resource)
+          expect(output.strip).to eq(expected_value)
+        end
       end
-    end
 
-    it 'returns local README path for docs-local' do
-      output = run_cli('--resource', 'docs-local')
-      expect(output.strip).to end_with('README.md')
-    end
+      it "returns local README path for docs-local with #{flag}" do
+        output = run_cli(flag, 'docs-local')
+        expect(output.strip).to end_with('README.md')
+      end
 
-    it 'exits with error for unknown resource' do
-      _out, err, status = run_cli_with_status('--resource', 'unknown')
-      expect(status).to eq(1)
-      expect(err).to include("Unknown resource: 'unknown'")
-    end
+      it "exits with error for unknown resource with #{flag}" do
+        _out, err, status = run_cli_with_status(flag, 'unknown')
+        expect(status).to eq(1)
+        expect(err).to include("Unknown resource: 'unknown'")
+      end
 
-    it 'exits early and ignores other options' do
-      output = run_cli('--resource', 'repo', '--format', 'json', 'list')
-      expect(output.strip).to eq('https://github.com/keithrbennett/cov-loupe')
+      it "exits early and ignores other options with #{flag}" do
+        output = run_cli(flag, 'repo', '--format', 'json', 'list')
+        expect(output.strip).to eq('https://github.com/keithrbennett/cov-loupe')
+      end
     end
   end
 

@@ -132,7 +132,7 @@ module CovLoupe
       parser.on('-v', '--version', 'Show version information and exit.') do
         config.show_version = true
       end
-      parser.on('--resource NAME', String,
+      parser.on('-R', '--resource NAME', String,
         'Print a resource value and exit. Valid resources: repo, docs, docs-local') do |value|
         puts Resources.cli_url_for(value)
         exit 0
