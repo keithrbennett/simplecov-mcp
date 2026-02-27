@@ -75,9 +75,14 @@ module CovLoupe
           end
         end
 
-        lines = []
-        lines << format('%6s  %2s | %s', 'Line', ' ', 'Source')
-        lines << format('%6s  %2s-+-%s', '------', '--', '-' * 60)
+        hyphen_line = format('%6s-%2s-+-%s', '------', '--', '-' * 60)
+
+        lines = [
+          '',
+          hyphen_line,
+          format('%6s %2s | %s', 'Line', ' ', 'Source'),
+          hyphen_line
+        ]
 
         rows.each do |r|
           m = marker.call(r['covered'], r['hits'])

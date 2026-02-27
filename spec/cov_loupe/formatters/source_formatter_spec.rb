@@ -38,8 +38,10 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
 
         expect(result.lines(chomp: true)).to eq(
           [
-            '  Line     | Source',
-            '------  ---+-------------------------------------------------------------',
+            '',
+            '----------+-------------------------------------------------------------',
+            '  Line    | Source',
+            '----------+-------------------------------------------------------------',
             '     1   ✓ | class Foo',
             '     2   ✓ |   def bar',
             "     3   X |     puts 'bar'",
@@ -54,23 +56,23 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
         result = formatter.format_source_for(model, path, mode: :full)
         # covered: true -> '✓', false -> 'X', nil -> ' '
         expect(result.count('✓')).to eq(2)
-        expect(result.lines[2]).to match(/\b1\s+✓ \| class Foo/)
-        expect(result.lines[3]).to match(/\b2\s+✓ \|   def bar/)
+        expect(result.lines[4]).to match(/\b1\s+✓ \| class Foo/)
+        expect(result.lines[5]).to match(/\b2\s+✓ \|   def bar/)
       end
 
       it 'marks uncovered lines with an X' do
         # The single uncovered line should be marked with an X.
         result = formatter.format_source_for(model, path, mode: :full)
         expect(result.count('X')).to eq(1)
-        expect(result.lines[4]).to match(/\b3\s+X \|     puts 'bar'/)
+        expect(result.lines[6]).to match(/\b3\s+X \|     puts 'bar'/)
       end
 
       it 'returns only header when mode is nil (default)' do
         # Default mode skips body rows but still emits the header scaffold.
         result = formatter.format_source_for(model, path)
         # Example header-only output:
-        #   Line     | Source
-        # ------  ---+-------------------------------------------------------------
+        #   Line    | Source
+        # ----------+-------------------------------------------------------------
         expect(result).not_to include('class Foo')
         expect(result).to include('Line', 'Source')
       end
@@ -123,9 +125,9 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
         # Example colored line: "     1  \e[32m✓\e[0m | class Foo"
         result = formatter.format_source_for(model, path, mode: :full)
         expect(result).to include("\e[32m", "\e[31m") # green for checkmark, red for dot
-        expect(result.lines[2]).to include("\e[32m✓\e[0m") # line 1 checkmark is green
-        expect(result.lines[3]).to include("\e[32m✓\e[0m") # line 2 checkmark is green
-        expect(result.lines[4]).to include("\e[31mX\e[0m") # line 3 X is red
+        expect(result.lines[4]).to include("\e[32m✓\e[0m") # line 1 checkmark is green
+        expect(result.lines[5]).to include("\e[32m✓\e[0m") # line 2 checkmark is green
+        expect(result.lines[6]).to include("\e[31mX\e[0m") # line 3 X is red
       end
     end
   end
@@ -222,8 +224,8 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       #   { 'line' => 5, 'code' => 'end', 'hits' => nil, 'covered' => nil }
       # ]
       # And the formatted output (markers blank because coverage is missing) would be:
-      #   Line     | Source
-      # ------  ---+-------------------------------------------------------------
+      #   Line    | Source
+      # ----------+-------------------------------------------------------------
       #      1     | class Foo
       #      2     |   def bar
       #      3     |     puts 'bar'
