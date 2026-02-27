@@ -4,19 +4,15 @@ require 'spec_helper'
 
 RSpec.describe CovLoupe::OutputChars do
   describe '.resolve_mode' do
-    context 'with :fancy mode' do
-      it 'returns :fancy' do
-        expect(described_class.resolve_mode(:fancy)).to eq(:fancy)
+    %w[fancy ascii].each do |mode|
+      context "with #{mode} mode" do
+        it "returns :#{mode}" do
+          expect(described_class.resolve_mode(mode.to_sym)).to eq(mode.to_sym)
+        end
       end
     end
 
-    context 'with :ascii mode' do
-      it 'returns :ascii' do
-        expect(described_class.resolve_mode(:ascii)).to eq(:ascii)
-      end
-    end
-
-    context 'with :default mode' do
+    context 'with default mode' do
       it 'returns :fancy when output encoding is UTF-8' do
         utf8_io = instance_double(IO)
         allow(utf8_io).to receive(:external_encoding).and_return(Encoding::UTF_8)
@@ -34,7 +30,6 @@ RSpec.describe CovLoupe::OutputChars do
       it 'returns :ascii when output encoding is nil' do
         nil_encoding_io = instance_double(IO)
         allow(nil_encoding_io).to receive(:external_encoding).and_return(nil)
-        # Stub Encoding.default_external to return ASCII for this test
         allow(Encoding).to receive(:default_external).and_return(Encoding::US_ASCII)
 
         expect(described_class.resolve_mode(:default, io: nil_encoding_io)).to eq(:ascii)

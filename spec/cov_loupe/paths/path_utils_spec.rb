@@ -487,51 +487,24 @@ RSpec.describe CovLoupe::PathUtils do
     end
   end
 
-  describe '.absolute?' do
-    it 'returns false for nil' do
-      expect(described_class.absolute?(nil)).to be false
-    end
+  describe '.absolute? and .relative?' do
+    # Input                   absolute
+    [
+      [nil,                   false],
+      ['',                    false],
+      ['/absolute/path',      true],
+      ['relative/path',       false],
+      ['/Unix/absolute/path', true],
+      ['C:/Users/file',       true],
+      ['C:\\Users\\file',     true]
+    ].each do |input, abs_expected|
+      it "absolute? returns #{abs_expected} for #{input.inspect}" do
+        expect(described_class.absolute?(input)).to eq(abs_expected)
+      end
 
-    it 'returns false for empty string' do
-      expect(described_class.absolute?('')).to be false
-    end
-
-    it 'returns true for absolute paths' do
-      expect(described_class.absolute?('/absolute/path')).to be true
-    end
-
-    it 'returns false for relative paths' do
-      expect(described_class.absolute?('relative/path')).to be false
-    end
-
-    it 'returns true for Unix-style absolute paths' do
-      expect(described_class.absolute?('/Unix/absolute/path')).to be true
-    end
-
-    it 'returns true for Windows-style absolute paths' do
-      expect(described_class.absolute?('C:/Users/file')).to be true
-    end
-
-    it 'returns true for Windows-style absolute paths with backslashes' do
-      expect(described_class.absolute?('C:\\Users\\file')).to be true
-    end
-  end
-
-  describe '.relative?' do
-    it 'returns true for relative paths' do
-      expect(described_class.relative?('relative/path')).to be true
-    end
-
-    it 'returns false for absolute paths' do
-      expect(described_class.relative?('/absolute/path')).to be false
-    end
-
-    it 'returns true for nil' do
-      expect(described_class.relative?(nil)).to be true
-    end
-
-    it 'returns true for empty string' do
-      expect(described_class.relative?('')).to be true
+      it "relative? returns #{!abs_expected} for #{input.inspect}" do
+        expect(described_class.relative?(input)).to eq(!abs_expected)
+      end
     end
   end
 
