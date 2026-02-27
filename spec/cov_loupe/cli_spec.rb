@@ -198,7 +198,7 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'resource value retrieval' do
-    %w[-R --resource].each do |flag|
+    %w[-p --path-for].each do |flag|
       {
         'repo' => 'https://github.com/keithrbennett/cov-loupe',
         'docs' => 'https://keithrbennett.github.io/cov-loupe/'
