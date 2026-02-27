@@ -124,6 +124,21 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['Json', :json]
       ],
       ['invalid']
+
+    # Single characters not in FORMAT_MAP are rejected in strict mode but return nil in lenient mode.
+    # This tests the branch at lines 110-112 that handles unknown single-char shortcuts.
+    context 'with single-character not in map and strict: false' do
+      it 'returns nil for unknown single character in lenient mode' do
+        expect(described_class.normalize_format('X', strict: false)).to be_nil
+      end
+    end
+
+    context 'with single-character not in map and strict: true' do
+      it 'raises OptionParser::InvalidArgument for unknown single character' do
+        expect { described_class.normalize_format('X', strict: true) }
+          .to raise_error(OptionParser::InvalidArgument)
+      end
+    end
   end
 
   describe 'constant maps' do
