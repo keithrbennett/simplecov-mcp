@@ -5,11 +5,11 @@
 
 ## v4.1.0
 
-- Add canonical resource retrieval via CLI: `cov-loupe --resource repo|docs|docs-local`.
+- Add canonical resource retrieval via CLI: `cov-loupe --path-for[=NAME]` (`-p[NAME]`).
   - Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
   - Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).
   - Share resource values from one source of truth (`CovLoupe::Resources::RESOURCE_MAP`) used by:
-      - CLI `--resource`
+      - CLI `--path-for`
       - CLI help banner URLs
       - MCP `help_tool`
       - MCP server startup instructions

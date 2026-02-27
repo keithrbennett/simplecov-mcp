@@ -132,9 +132,14 @@ module CovLoupe
       parser.on('-v', '--version', 'Show version information and exit.') do
         config.show_version = true
       end
-      parser.on('-R', '--resource NAME', String,
-        'Print a resource value and exit. Valid resources: repo, docs, docs-local') do |value|
-        puts Resources.cli_url_for(value)
+      parser.on('-p', '--path-for [NAME]', String,
+        'Print resource path/URL and exit. NAME: repo, docs, docs-local.',
+        'Omit NAME to print all three.') do |value|
+        if value.nil?
+          puts Resources.cli_all_values
+        else
+          puts Resources.cli_url_for(value)
+        end
         exit 0
       rescue UsageError => e
         warn e.user_friendly_message

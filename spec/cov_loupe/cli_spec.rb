@@ -198,31 +198,42 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'resource value retrieval' do
-    %w[-R --resource].each do |flag|
+    # Short form uses -p<NAME> (no space); long form uses --path-for=NAME
+    {
+      '-p' => ->(name) { "-p#{name}" },
+      '--path-for' => ->(name) { "--path-for=#{name}" }
+    }.each do |flag_name, arg_builder|
       {
         'repo' => 'https://github.com/keithrbennett/cov-loupe',
         'docs' => 'https://keithrbennett.github.io/cov-loupe/'
       }.each do |resource, expected_value|
-        it "returns value for canonical resource '#{resource}' with #{flag}" do
-          output = run_cli(flag, resource)
+        it "returns value for canonical resource '#{resource}' with #{flag_name}" do
+          output = run_cli(arg_builder.call(resource))
           expect(output.strip).to eq(expected_value)
         end
       end
 
-      it "returns local README path for docs-local with #{flag}" do
-        output = run_cli(flag, 'docs-local')
+      it "returns local README path for docs-local with #{flag_name}" do
+        output = run_cli(arg_builder.call('docs-local'))
         expect(output.strip).to end_with('README.md')
       end
 
-      it "exits with error for unknown resource with #{flag}" do
-        _out, err, status = run_cli_with_status(flag, 'unknown')
+      it "exits with error for unknown resource with #{flag_name}" do
+        _out, err, status = run_cli_with_status(arg_builder.call('unknown'))
         expect(status).to eq(1)
         expect(err).to include("Unknown resource: 'unknown'")
       end
 
-      it "exits early and ignores other options with #{flag}" do
-        output = run_cli(flag, 'repo', '--format', 'json', 'list')
+      it "exits early and ignores other options with #{flag_name}" do
+        output = run_cli(arg_builder.call('repo'), '--format', 'json', 'list')
         expect(output.strip).to eq('https://github.com/keithrbennett/cov-loupe')
+      end
+
+      it "prints all three resource values when given no name with #{flag_name}" do
+        output = run_cli(flag_name)
+        expect(output).to include('repo: https://github.com/keithrbennett/cov-loupe')
+        expect(output).to include('docs: https://keithrbennett.github.io/cov-loupe/')
+        expect(output).to include('docs-local:')
       end
     end
   end

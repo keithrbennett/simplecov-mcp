@@ -31,7 +31,7 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 
 **Migration:** Move all global options before the subcommand name. These options are:
 
-`-r`, `-R`, `-f`, `-o`, `-s`, `-c`, `-C`, `-S`, `-g`, `-l`, `-F`, and `-e`
+`-r`, `-R`, `-f`, `-o`, `-s`, `-c`, `-C`, `-S`, `-g`, `-l`, `-F`, `-e`, and `-p`
 
 **Exception:** The `validate` subcommand has its own subcommand-specific option `-i/--inline` that must appear *after* the subcommand:
 ```bash
