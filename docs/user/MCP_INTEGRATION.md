@@ -8,10 +8,10 @@
 ## Table of Contents
 
 - [Setup by Client](#setup-by-client)
-  - [Claude Code](#claude-code)
-  - [Codex](#codex)
-  - [Gemini](#gemini)
-  - [Kilo](#kilo)
+    - [Claude Code](#claude-code)
+    - [Codex](#codex)
+    - [Gemini](#gemini)
+    - [Kilo](#kilo)
 - [Available MCP Tools](#available-mcp-tools-functions)
 - [Testing Your Setup](#testing-your-setup)
 - [Troubleshooting](#troubleshooting)
@@ -252,8 +252,8 @@ These tools analyze individual files. All require `path` parameter.
 - Returns: `{"result": Boolean}` where `true` means policy passed, `false` means failed
 - Security Warning: Predicates execute as arbitrary Ruby code with full system privileges. Only use predicate files from trusted sources.
 - Examples:
-  - Check if all files have at least 80% coverage: `{"code": "->(m) { m.list.all? { |f| f['percentage'] >= 80 } }"}`
-  - Run coverage policy from file: `{"file": "coverage_policy.rb"}`
+    - Check if all files have at least 80% coverage: `{"code": "->(m) { m.list.all? { |f| f['percentage'] >= 80 } }"}`
+    - Run coverage policy from file: `{"file": "coverage_policy.rb"}`
 
 #### Utility Tools
 
@@ -263,9 +263,9 @@ These tools analyze individual files. All require `path` parameter.
 `help_tool` returns:
 - `tools` - guidance for each MCP tool (`use_when`, `avoid_when`, `inputs`)
 - `resources` - canonical shared resource values:
-  - `repo` (public GitHub URL)
-  - `docs` (public docs URL)
-  - `docs-local` (absolute path to local README)
+    - `repo` (public GitHub URL)
+    - `docs` (public docs URL)
+    - `docs-local` (absolute path to local README)
 
 Example `help_tool` payload excerpt:
 ```json

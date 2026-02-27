@@ -9,9 +9,9 @@ This document provides a checklist for releasing new versions of cov-loupe.
 ### 1. Documentation Review
 
 - [ ] **RELEASE_NOTES.md**: Update version header
-  - Update the version section header to final version (e.g., `## v#{version}`)
-  - For major releases: Ensure all breaking changes are documented with migration examples
-  - Verify new features and bug fixes are listed
+    - Update the version section header to final version (e.g., `## v#{version}`)
+    - For major releases: Ensure all breaking changes are documented with migration examples
+    - Verify new features and bug fixes are listed
 
 - [ ] **README.md**: Verify examples and feature list are current
 
@@ -20,27 +20,27 @@ This document provides a checklist for releasing new versions of cov-loupe.
 ### 2. Code Quality
 
 - [ ] **Tests**: All tests passing (`bundle exec rspec`)
-  - Verify via git hooks or run manually
-  - Check coverage is still excellent (>95%)
+    - Verify via git hooks or run manually
+    - Check coverage is still excellent (>95%)
 
 - [ ] **Linting**: No Rubocop violations (`bundle exec rubocop`)
-  - Verify via git hooks or run manually
+    - Verify via git hooks or run manually
 
 - [ ] **Version**: Update `lib/cov_loupe/version.rb` to release version
-  - Remove `.pre.X` suffix for stable releases
+    - Remove `.pre.X` suffix for stable releases
 
 ### 3. Cleanup
 
 - [ ] **Untracked files**: Review `git status` for files that should be:
-  - Added to `.gitignore` (temp files, local experiments, AI reports)
-  - Committed (valuable documentation or examples)
-  - Deleted (obsolete files)
+    - Added to `.gitignore` (temp files, local experiments, AI reports)
+    - Committed (valuable documentation or examples)
+    - Deleted (obsolete files)
 
 - [ ] **Temporary files**: Remove or ignore:
-  - `*.txt` files (r.txt, rubocop.txt, todo.txt, etc.)
-  - Experimental config files (`.rubocop.yml.new`, etc.)
-  - Local notes (CODING_AGENT_NOTES.md, architecture_insights.md, etc.)
-  - Work-in-progress directories (screencast/, untracked-ai-reports/, etc.)
+    - `*.txt` files (r.txt, rubocop.txt, todo.txt, etc.)
+    - Experimental config files (`.rubocop.yml.new`, etc.)
+    - Local notes (CODING_AGENT_NOTES.md, architecture_insights.md, etc.)
+    - Work-in-progress directories (screencast/, untracked-ai-reports/, etc.)
 
 ### 4. Build Verification
 
@@ -90,33 +90,33 @@ gem push cov-loupe-#{version}.gem
 ```
 
 - [ ] **Verify publication**: Check gem appears on RubyGems.org
-  - Visit https://rubygems.org/gems/cov-loupe
-  - Verify new version is listed
-  - Check that documentation links work
+    - Visit https://rubygems.org/gems/cov-loupe
+    - Verify new version is listed
+    - Check that documentation links work
 
 ### 7. GitHub Release
 
 - [ ] **Create GitHub release**: Go to https://github.com/keithrbennett/cov-loupe/releases/new
-  - Select the tag you just pushed
-  - Title: `Version #{version}`
-  - Description: Copy relevant sections from RELEASE_NOTES.md
-  - Attach the `.gem` file (optional)
+    - Select the tag you just pushed
+    - Title: `Version #{version}`
+    - Description: Copy relevant sections from RELEASE_NOTES.md
+    - Attach the `.gem` file (optional)
 
 ### 8. Post-Release
 
 - [ ] **Announcement**: Consider announcing on:
-  - Ruby Weekly
-  - Reddit (r/ruby)
-  - Slack/Discord communities
-  - Social media
+    - Ruby Weekly
+    - Reddit (r/ruby)
+    - Slack/Discord communities
+    - Social media
 
 - [ ] **Update dependencies**: For projects using this gem
-  - Update your own projects to use new version
-  - Test integration
+    - Update your own projects to use new version
+    - Test integration
 
 - [ ] **Prepare for next release**:
-  - Optionally create a new section in RELEASE_NOTES.md for next version
-  - Consider bumping to next pre-release version if starting new development cycle
+    - Optionally create a new section in RELEASE_NOTES.md for next version
+    - Consider bumping to next pre-release version if starting new development cycle
 
 ## Version Numbering
 

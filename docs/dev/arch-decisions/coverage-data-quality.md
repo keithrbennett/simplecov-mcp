@@ -119,9 +119,9 @@ This allows:
 **Project-level** (`check_project!`):
 - Checks all covered files plus optionally tracked files
 - Detects:
-  - Files newer than coverage timestamp
-  - Files deleted since coverage was collected
-  - Tracked files missing from coverage (newly added files)
+    - Files newer than coverage timestamp
+    - Files deleted since coverage was collected
+    - Tracked files missing from coverage (newly added files)
 - Raises `CoverageDataProjectStaleError` with lists of problematic files
 - Used by `list_tool` and `coverage_table_tool`
 
@@ -129,9 +129,9 @@ This allows:
 - `project_totals` excludes any stale files ("missing", "newer", "length_mismatch", "error") from aggregate counts.
 - Totals include explicit `with_coverage`/`without_coverage` breakdowns so callers can reconcile what was omitted.
 - The `without_coverage` payload includes counts for three categories:
-  - `missing_from_coverage`: Tracked files that have no coverage data in the resultset
-  - `unreadable`: Files that exist but could not be read (e.g., due to permission errors, I/O issues, or staleness check failures)
-  - `skipped`: Files that were skipped during list processing due to coverage data errors (e.g., malformed entries)
+    - `missing_from_coverage`: Tracked files that have no coverage data in the resultset
+    - `unreadable`: Files that exist but could not be read (e.g., due to permission errors, I/O issues, or staleness check failures)
+    - `skipped`: Files that were skipped during list processing due to coverage data errors (e.g., malformed entries)
 - The `unreadable` count is populated from `list_result['unreadable_files']`, which is collected during staleness checking when files exist but cannot be accessed or validated.
 
 #### Tracked Globs Feature

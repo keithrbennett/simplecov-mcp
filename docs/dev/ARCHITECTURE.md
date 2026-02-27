@@ -52,8 +52,8 @@ cov-loupe is organized around a single coverage data model that feeds three deli
 - `CovLoupe::ErrorHandler` encapsulates logging and severity decisions. Modes (`:off`, `:log`, `:debug`) control whether errors are recorded and whether stack traces are included.
 - Runtime configuration (error handlers, log destinations) flows through `CovLoupe::AppContext`. Entry points push a context with `CovLoupe.with_context`, which stores the active configuration in a thread-local slot (`CovLoupe.context`). Nested calls automatically restore the previous context when the block exits, ensuring isolation even when multiple callers share a process or thread.
 - Two helper accessors clarify intent:
-  - `CovLoupe.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
-  - `CovLoupe.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
+    - `CovLoupe.default_log_file` / `default_log_file=` adjust the baseline log sink that future contexts inherit.
+    - `CovLoupe.active_log_file` / `active_log_file=` mutate only the current context (or create one on demand) so the change applies immediately without touching the default.
 - `ErrorHandlerFactory` wires the appropriate handler per runtime: CLI, MCP server, or embedded library, each of which installs its handler inside a fresh `AppContext` before executing user work.
 - Diagnostics are written via `CovUtil.log` to `cov_loupe.log` in the current directory by default; override with CLI `--log-file`, set `CovLoupe.default_log_file` for future contexts, or temporarily tweak `CovLoupe.active_log_file` when a caller needs a different destination mid-run.
 
@@ -72,10 +72,10 @@ cov-loupe provides a global output character mode that controls ASCII vs Unicode
 - **Core conversion** – `OutputChars.convert` uses an internal transliteration map with `?` fallback for characters without ASCII equivalents
 - **Charsets** – Separate charset definitions for fancy (Unicode box-drawing) and ASCII modes
 - **Formatters** – All formatters (JSON, YAML, AmazingPrint, tables, source) respect the output_chars parameter
-  - JSON uses `JSON.generate(..., ascii_only: true)` for ASCII mode
-  - YAML and AmazingPrint post-process output through `OutputChars.convert`
-  - Tables use appropriate charset and convert cell contents
-  - Source output uses ASCII-safe markers (`+/-` instead of Unicode `✓/·`)
+    - JSON uses `JSON.generate(..., ascii_only: true)` for ASCII mode
+    - YAML and AmazingPrint post-process output through `OutputChars.convert`
+    - Tables use appropriate charset and convert cell contents
+    - Source output uses ASCII-safe markers (`+/-` instead of Unicode `✓/·`)
 
 ### Scope of Conversion
 

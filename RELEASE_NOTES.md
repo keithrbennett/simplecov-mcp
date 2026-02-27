@@ -6,68 +6,68 @@
 ## v4.1.0
 
 - Add canonical resource retrieval via CLI: `cov-loupe --resource repo|docs|docs-local`.
-- Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
-- Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).
-- Share resource values from one source of truth (`CovLoupe::Resources::RESOURCE_MAP`) used by:
-  - CLI `--resource`
-  - CLI help banner URLs
-  - MCP `help_tool`
-  - MCP server startup instructions
-  - Make pass/fail symbols in source code display more prominent, change circle to X
+  - Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
+  - Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).
+  - Share resource values from one source of truth (`CovLoupe::Resources::RESOURCE_MAP`) used by:
+      - CLI `--resource`
+      - CLI help banner URLs
+      - MCP `help_tool`
+      - MCP server startup instructions
+      - Make pass/fail symbols in source code display more prominent, change circle to X
 
 ## v4.0.0 (Breaking)
 
 - **Removed Branch Coverage Support**: Removed logic that synthesized line coverage from branch-only coverage data. This feature was complex and rarely used. Users should use standard line coverage configuration in SimpleCov.
-  - Removed `docs/dev/BRANCH_ONLY_COVERAGE.md`.
+    - Removed `docs/dev/BRANCH_ONLY_COVERAGE.md`.
 - **⚠️ MCP mode now requires `-m/--mode mcp` flag**: Automatic mode detection has been removed. MCP users **must** update their MCP server configuration to include `-m mcp` or `--mode mcp` or the server will run in CLI mode and hang. See migration guide for setup commands.
-  - **Old**: Mode was auto-detected based on TTY/stdin status, with optional `--force-mode cli|mcp|auto` override
-  - **New**: Mode defaults to `cli`. Use `-m mcp` or `--mode mcp` to run as MCP server. No auto-detection.
-  - **Rationale**: Auto-detection caused issues with piped input, CI environments, and CLI-only flags (e.g., `cov-loupe --format json` would hang in MCP mode)
+    - **Old**: Mode was auto-detected based on TTY/stdin status, with optional `--force-mode cli|mcp|auto` override
+    - **New**: Mode defaults to `cli`. Use `-m mcp` or `--mode mcp` to run as MCP server. No auto-detection.
+    - **Rationale**: Auto-detection caused issues with piped input, CI environments, and CLI-only flags (e.g., `cov-loupe --format json` would hang in MCP mode)
 - **Unified stale coverage enforcement**: New `--raise-on-stale` / `raise_on_stale` boolean replaces the old `--staleness`/`check_stale` combo across CLI, Ruby, and MCP interfaces. When true, `cov-loupe` raises if any file or the project totals are stale; when false, staleness is reported but execution continues.
 - **Ruby API method renamed**: `CoverageModel#all_files_coverage` renamed to `CoverageModel#list` for consistency with CLI subcommand naming.
 - **Ruby API return type changed**: `CoverageModel#list` now returns a **hash** with comprehensive staleness information instead of just an array of files. The hash includes keys: `files` (array), `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files`. Update code to use `model.list['files']` when you need just the file array.
 - **Ruby API signature change**: `CovLoupe::Resolvers::CoverageLineResolver` now requires `root:` (no default), and `ResolverHelpers.lookup_lines` / `create_coverage_resolver` require `root:` as well.
 - **Dependency update**: Replaced unmaintained `awesome_print` with `amazing_print` (`~> 2.0`).
-  - CLI: `--format amazing_print` is now the preferred way to specify the pretty-print formatter. `-f ap` and `--format awesome_print` are still supported.
-  - Library: `require 'awesome_print'` is replaced by `require 'amazing_print'`.
-  - Library: Internal format symbol changed from `:awesome_print` to `:amazing_print`.
-    - `CovLoupe::AppConfig#format` now returns `:amazing_print` when configured for that output.
-    - `CovLoupe::Formatters.format(obj, :amazing_print)` is the new API method.
+    - CLI: `--format amazing_print` is now the preferred way to specify the pretty-print formatter. `-f ap` and `--format awesome_print` are still supported.
+    - Library: `require 'awesome_print'` is replaced by `require 'amazing_print'`.
+    - Library: Internal format symbol changed from `:awesome_print` to `:amazing_print`.
+        - `CovLoupe::AppConfig#format` now returns `:amazing_print` when configured for that output.
+        - `CovLoupe::Formatters.format(obj, :amazing_print)` is the new API method.
 - **Internal Logger API changed**: `CovLoupe::Logger.new` now requires `mode:` (symbol) instead of `mcp_mode:` (boolean).
     - Use `CovLoupe::Logger.new(target: t, mode: :cli|:mcp|:library)` instead of `mcp_mode: true/false`.
 - **Deleted files now raise `FileNotFoundError`**: Previously, querying a file that was deleted after coverage was generated would incorrectly return stale coverage data. This was misleading for metrics and violated the documented API contract. Now properly raises `FileNotFoundError` for missing files, regardless of whether coverage data exists in the resultset.
-  - **Old**: `model.summary_for('deleted_file.rb')` would return coverage data with exit 0
-  - **New**: `model.summary_for('deleted_file.rb')` raises `CovLoupe::FileNotFoundError`
-  - **Rationale**: Deleted files represent stale data that pollutes metrics. The API documentation already promised `FileNotFoundError` for missing files; the implementation now matches the contract.
+    - **Old**: `model.summary_for('deleted_file.rb')` would return coverage data with exit 0
+    - **New**: `model.summary_for('deleted_file.rb')` raises `CovLoupe::FileNotFoundError`
+    - **Rationale**: Deleted files represent stale data that pollutes metrics. The API documentation already promised `FileNotFoundError` for missing files; the implementation now matches the contract.
 - **Staleness check errors now return 'E' marker**: Previously, when staleness checking itself failed (e.g., file permission errors, resolver failures, unexpected exceptions), the `stale` field returned `false`, making errors indistinguishable from fresh files. Now returns `'E'` to explicitly indicate a failed staleness check.
-  - **Old**: `{ "file": "...", "stale": false }` (error silently treated as fresh)
-  - **New**: `{ "file": "...", "stale": "E" }` (error explicitly flagged)
-  - **Impact**: Code checking `stale == false` or using truthiness checks (`if payload['stale']`) will need updating. Error is still logged for debugging.
-  - **Frequency**: Rare - only affects error conditions during staleness checking (not normal staleness detection)
+    - **Old**: `{ "file": "...", "stale": false }` (error silently treated as fresh)
+    - **New**: `{ "file": "...", "stale": "E" }` (error explicitly flagged)
+    - **Impact**: Code checking `stale == false` or using truthiness checks (`if payload['stale']`) will need updating. Error is still logged for debugging.
+    - **Frequency**: Rare - only affects error conditions during staleness checking (not normal staleness detection)
 - **Path resolution now handles case-sensitivity and path separators correctly (NEW in v4.0.0)**: Path normalization now independently handles two concerns: (1) slash normalization for Windows backslashes, and (2) case-folding for case-insensitive volumes. Case-sensitivity is detected lazily on first use by testing the project root volume (prefers using existing files via `File.identical?` to avoid writes; falls back to temporary file creation if needed).
-  - **Windows**: Paths are now case-insensitive with backslash normalization (`C:\Foo\Bar.rb` matches `c:/foo/bar.rb`)
-  - **macOS**: Most macOS users have case-insensitive APFS volumes - path lookups like `lib/Foo.rb` will now correctly match `lib/foo.rb` in coverage data. This may surface previously-hidden case mismatches in test code.
-  - **Linux**: Typically case-sensitive (no change in behavior for most users)
-  - **Special cases**: Correctly handles case-sensitive APFS volumes (macOS formatted with `-s`) and external drives
-  - **Limitation**: All coverage files are assumed to be on the same volume as the project root. Mixed-volume coverage data (e.g., files from both case-sensitive and case-insensitive volumes) is not supported.
-  - **Why**: A filesystem type (APFS, ext4, NTFS) can have multiple volumes with different case-sensitivity settings. Platform assumptions are insufficient. Runtime detection is the only accurate approach.
+    - **Windows**: Paths are now case-insensitive with backslash normalization (`C:\Foo\Bar.rb` matches `c:/foo/bar.rb`)
+    - **macOS**: Most macOS users have case-insensitive APFS volumes - path lookups like `lib/Foo.rb` will now correctly match `lib/foo.rb` in coverage data. This may surface previously-hidden case mismatches in test code.
+    - **Linux**: Typically case-sensitive (no change in behavior for most users)
+    - **Special cases**: Correctly handles case-sensitive APFS volumes (macOS formatted with `-s`) and external drives
+    - **Limitation**: All coverage files are assumed to be on the same volume as the project root. Mixed-volume coverage data (e.g., files from both case-sensitive and case-insensitive volumes) is not supported.
+    - **Why**: A filesystem type (APFS, ext4, NTFS) can have multiple volumes with different case-sensitivity settings. Platform assumptions are insufficient. Runtime detection is the only accurate approach.
 - **Stricter staleness detection for line count mismatches**: Removed the trailing newline adjustment heuristic that could mask legitimate code additions (false negatives). Previously, if a file's line count was exactly one more than the coverage data and the file was missing a trailing newline, the staleness checker would adjust the count and report the file as fresh. This heuristic was risky because it couldn't distinguish between a harmless missing newline and a developer adding a line of code while simultaneously removing the trailing newline. All line count mismatches are now treated as significant staleness indicators.
-  - **Old**: File with 101 lines (no trailing newline) matching 100 coverage lines → reported as fresh (adjusted)
-  - **New**: File with 101 lines matching 100 coverage lines → reported as stale (length mismatch)
-  - **Impact**: More conservative staleness detection may flag some files that were previously considered fresh. This is intentional to prevent false negatives.
-  - **Rationale**: Prioritizes accuracy over convenience. Better to flag a file as stale and re-run tests than to miss actual code changes.
+    - **Old**: File with 101 lines (no trailing newline) matching 100 coverage lines → reported as fresh (adjusted)
+    - **New**: File with 101 lines matching 100 coverage lines → reported as stale (length mismatch)
+    - **Impact**: More conservative staleness detection may flag some files that were previously considered fresh. This is intentional to prevent false negatives.
+    - **Rationale**: Prioritizes accuracy over convenience. Better to flag a file as stale and re-run tests than to miss actual code changes.
 - **⚠️ `--tracked-globs` default changed to empty array**: The `--tracked-globs` CLI option now defaults to `[]` (empty) instead of `lib/**/*.rb,app/**/*.rb,src/**/*.rb`. The Ruby API also changed from `nil` to `[]` for consistency (both behave identically, so no functional change). This prevents silently excluding coverage results that don't match assumed project patterns and avoids false positives when detecting missing files.
-  - **Old**: CLI defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` - files outside these patterns were excluded from output
-  - **New**: CLI and Ruby API default to `[]` (empty) - shows all files in the resultset without filtering
-  - **Affects**: CLI (`cov-loupe list`) and Ruby API signature (`CoverageModel.new` - behavior unchanged, only default parameter value changed for consistency)
-  - **Impact**: CLI users who relied on automatic filtering or missing-file detection will need to explicitly set `--tracked-globs`
-  - **Migration (CLI)**: Set `COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"` in your shell config to match your SimpleCov `track_files` patterns
-  - **Migration (Ruby API)**: No action needed - behavior unchanged (nil and [] both normalize to empty array)
-  - **Rationale**:
-    - **Transparency**: Shows all coverage data without hiding files that don't match assumptions
-    - **No false positives**: Broad patterns flag migrations, bin scripts, etc. as "missing"
-    - **Project variety**: Different projects use different structures (lib/, app/, src/, config/, etc.)
-  - **Important**: Files lacking any coverage at all (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs`
+    - **Old**: CLI defaulted to `lib/**/*.rb,app/**/*.rb,src/**/*.rb` - files outside these patterns were excluded from output
+    - **New**: CLI and Ruby API default to `[]` (empty) - shows all files in the resultset without filtering
+    - **Affects**: CLI (`cov-loupe list`) and Ruby API signature (`CoverageModel.new` - behavior unchanged, only default parameter value changed for consistency)
+    - **Impact**: CLI users who relied on automatic filtering or missing-file detection will need to explicitly set `--tracked-globs`
+    - **Migration (CLI)**: Set `COV_LOUPE_OPTS="--tracked-globs lib/**/*.rb,app/**/*.rb"` in your shell config to match your SimpleCov `track_files` patterns
+    - **Migration (Ruby API)**: No action needed - behavior unchanged (nil and [] both normalize to empty array)
+    - **Rationale**:
+        - **Transparency**: Shows all coverage data without hiding files that don't match assumptions
+        - **No false positives**: Broad patterns flag migrations, bin scripts, etc. as "missing"
+        - **Project variety**: Different projects use different structures (lib/, app/, src/, config/, etc.)
+    - **Important**: Files lacking any coverage at all (not loaded during tests) will not appear in the resultset and therefore won't be visible with the default empty array. To detect such files, you must set `--tracked-globs`
 
 ### ✨ Enhancements
 
@@ -207,9 +207,9 @@ This release represents a complete maturation of simplecov-mcp from experimental
 
 #### Enhanced Staleness Detection
 - **Three staleness indicators**:
-  - `M` - File modified after coverage run (timestamp-based)
-  - `T` - File timestamp unavailable or coverage missing
-  - `L` - Line count mismatch between source and coverage
+    - `M` - File modified after coverage run (timestamp-based)
+    - `T` - File timestamp unavailable or coverage missing
+    - `L` - Line count mismatch between source and coverage
 - **Per-file reporting** in all outputs (CLI tables, JSON, MCP responses)
 - **Configurable modes**: `--stale off|error` for CI/CD integration
 - Improved edge case handling for files outside project root
@@ -219,10 +219,10 @@ This release represents a complete maturation of simplecov-mcp from experimental
 - **Ruby code evaluation** - Load lambdas or other callable objects to define coverage policies
 - **Flexible policy definitions** - Check minimum thresholds, file-based rules, directory-specific requirements, etc.
 - **Examples provided** in `examples/success_predicates/`:
-  - Project-wide minimum coverage
-  - Per-directory thresholds
-  - Class-based policies
-  - Maximum low-coverage file count
+    - Project-wide minimum coverage
+    - Per-directory thresholds
+    - Class-based policies
+    - Maximum low-coverage file count
 - See `docs/user/ADVANCED_USAGE.md#success-predicates` for usage and security considerations
 
 #### Comprehensive CLI Enhancements

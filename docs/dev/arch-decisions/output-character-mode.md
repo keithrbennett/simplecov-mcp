@@ -203,15 +203,15 @@ Comprehensive test coverage ensures correctness:
 - Core implementation: `lib/cov_loupe/output_chars.rb`
 - Configuration: `lib/cov_loupe/config/app_config.rb`, `lib/cov_loupe/config/option_normalizers.rb`
 - Formatters:
-  - `lib/cov_loupe/formatters/formatters.rb` (JSON, YAML, AmazingPrint)
-  - `lib/cov_loupe/formatters/table_formatter.rb` (tables)
-  - `lib/cov_loupe/formatters/source_formatter.rb` (source code)
+    - `lib/cov_loupe/formatters/formatters.rb` (JSON, YAML, AmazingPrint)
+    - `lib/cov_loupe/formatters/table_formatter.rb` (tables)
+    - `lib/cov_loupe/formatters/source_formatter.rb` (source code)
 - Error handling: `lib/cov_loupe/cli.rb`, `lib/cov_loupe/errors/error_handler.rb`
 - MCP integration: `lib/cov_loupe/base_tool.rb`, `lib/cov_loupe/tools/*.rb`
 - CLI option parsing: `lib/cov_loupe/config/option_parser_builder.rb`
 - Tests:
-  - `spec/cov_loupe/output_chars_spec.rb`
-  - `spec/cov_loupe/formatters/*_spec.rb`
-  - `spec/cov_loupe/cli/cli_output_chars_spec.rb`
-  - `spec/cov_loupe/tools/*_spec.rb`
+    - `spec/cov_loupe/output_chars_spec.rb`
+    - `spec/cov_loupe/formatters/*_spec.rb`
+    - `spec/cov_loupe/cli/cli_output_chars_spec.rb`
+    - `spec/cov_loupe/tools/*_spec.rb`
 - Review document: `docs/dev/output-chars-review.md`

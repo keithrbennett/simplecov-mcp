@@ -11,16 +11,16 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 ## Table of Contents
 
 - [Command Line Interface Changes](#command-line-interface-changes)
-  - [Error Mode Values Changed](#error-mode-values-changed)
-  - [Default Sort Order Changed](#default-sort-order-changed)
+    - [Error Mode Values Changed](#error-mode-values-changed)
+    - [Default Sort Order Changed](#default-sort-order-changed)
 - [MCP Tool Changes](#mcp-tool-changes)
-  - [stale Parameter Renamed to staleness](#stale-parameter-renamed-to-staleness)
-  - [MCP Tool Arguments Use Symbols](#mcp-tool-arguments-use-symbols)
+    - [stale Parameter Renamed to staleness](#stale-parameter-renamed-to-staleness)
+    - [MCP Tool Arguments Use Symbols](#mcp-tool-arguments-use-symbols)
 - [Ruby API Changes](#ruby-api-changes)
-  - [CLIConfig Renamed to AppConfig](#cliconfig-renamed-to-appconfig)
-  - [AppConfig Field Changes](#appconfig-field-changes)
+    - [CLIConfig Renamed to AppConfig](#cliconfig-renamed-to-appconfig)
+    - [AppConfig Field Changes](#appconfig-field-changes)
 - [Behavioral Changes](#behavioral-changes)
-  - [Context Lines Validation](#context-lines-validation)
+    - [Context Lines Validation](#context-lines-validation)
 - [Migration Guide](#migration-guide)
 
 ---
