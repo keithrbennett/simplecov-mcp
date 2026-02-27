@@ -284,30 +284,19 @@ RSpec.describe CovLoupe::CoverageCLI do
       allow(CovLoupe::CoverageModel).to receive(:new).and_return(model_double)
     end
 
-    it 'outputs warning to stderr when timestamps are missing in table format' do
+    it 'outputs warning to stderr when timestamps are missing' do
       stub_presenter_with_timestamp_status('missing', include_model: true)
 
-      _stdout, stderr, _status = run_fixture_cli_with_status
+      [[], %w[--format json]].each do |args|
+        _stdout, stderr, _status = run_fixture_cli_with_status(*args)
 
-      expect(stderr).to include(
-        'WARNING: Coverage timestamps are missing.',
-        'Time-based staleness checks were skipped.',
-        'Files may appear "ok" even if source code is newer than the coverage data.',
-        'Check your coverage tool configuration to ensure timestamps are recorded.'
-      )
-    end
-
-    it 'outputs warning to stderr when timestamps are missing in non-table format' do
-      stub_presenter_with_timestamp_status('missing', include_model: true)
-
-      _stdout, stderr, _status = run_fixture_cli_with_status('--format', 'json')
-
-      expect(stderr).to include(
-        'WARNING: Coverage timestamps are missing.',
-        'Time-based staleness checks were skipped.',
-        'Files may appear "ok" even if source code is newer than the coverage data.',
-        'Check your coverage tool configuration to ensure timestamps are recorded.'
-      )
+        expect(stderr).to include(
+          'WARNING: Coverage timestamps are missing.',
+          'Time-based staleness checks were skipped.',
+          'Files may appear "ok" even if source code is newer than the coverage data.',
+          'Check your coverage tool configuration to ensure timestamps are recorded.'
+        )
+      end
     end
 
     it 'does not output warning when timestamps are present' do
@@ -345,18 +334,14 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'validate -i option parsing' do
-    it 'correctly passes -i to the validate subcommand' do
-      # This confirms that global option parsing (in ConfigParser) does not
-      # strip subcommand-specific options like -i.
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('validate', '-i',
-        '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
-      expect(status).to eq(0)
-    end
-
-    it 'correctly passes -i to the abbreviated v subcommand' do
-      _stdout, _stderr, status = run_fixture_full_cli_with_status('v', '-i',
-        '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
-      expect(status).to eq(0)
+    %w[validate v].each do |subcommand|
+      it "correctly passes -i to the #{subcommand} subcommand" do
+        # This confirms that global option parsing (in ConfigParser) does not
+        # strip subcommand-specific options like -i.
+        _stdout, _stderr, status = run_fixture_full_cli_with_status(subcommand, '-i',
+          '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
+        expect(status).to eq(0)
+      end
     end
   end
 end
