@@ -59,10 +59,10 @@ clp version
 clp -h  # -h = --help
 
 # Print canonical resource paths/URLs (stdout only)
-clp -p                    # all three
-clp --path-for=repo
-clp --path-for=docs
-clp --path-for=docs-local
+clp -p repo
+clp --path-for repo
+clp --path-for docs
+clp --path-for docs-local
 ```
 
 ## Subcommands
@@ -421,10 +421,9 @@ Project root directory (default: current directory).
 clp -R /path/to/project  # -R = --root
 ```
 
-### `-p`, `--path-for [NAME]`
+### `-p`, `--path-for NAME`
 
-Print a canonical resource path or URL to stdout and exit immediately. If `NAME`
-is omitted, all three resources are printed, one per line, in `key: value` format.
+Print a canonical resource path or URL to stdout and exit immediately.
 
 Supported names:
 - `repo` - public GitHub repository URL
@@ -432,18 +431,16 @@ Supported names:
 - `docs-local` - absolute path to local `README.md`
 
 ```sh
-clp -p                    # print all three resources
-clp --path-for            # same as above
-clp -prepo
-clp --path-for=repo
-clp --path-for=docs
-clp --path-for=docs-local
+clp -p repo
+clp --path-for repo
+clp --path-for docs
+clp --path-for docs-local
 ```
 
 This option is designed for shell composition and prints only the value:
 
 ```sh
-open "$(clp --path-for=docs)"
+open "$(clp --path-for docs)"
 ```
 
 ### `-fp`

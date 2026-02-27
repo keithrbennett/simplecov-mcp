@@ -95,13 +95,11 @@ Repository: https://github.com/keithrbennett/cov-loupe  # <--- Project URL ---
 
 **CLI - Fetch Canonical Resource Values:**
 ```sh
-cov-loupe -p                  # print all three resource paths/URLs
-cov-loupe --path-for          # same as above
-cov-loupe -prepo              # print repo URL
-cov-loupe --path-for=repo     # same as above
-cov-loupe --path-for=docs
-cov-loupe --path-for=docs-local
-open "$(cov-loupe --path-for=docs)"
+cov-loupe -p repo
+cov-loupe --path-for repo
+cov-loupe --path-for docs
+cov-loupe --path-for docs-local
+open "$(cov-loupe --path-for docs)"
 ```
 
 **Ruby Library:**

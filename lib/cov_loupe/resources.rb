@@ -16,9 +16,5 @@ module CovLoupe
     def self.cli_url_for(name)
       RESOURCE_MAP[name] || (raise UsageError, "Unknown resource: '#{name}'. Valid resources: #{RESOURCE_MAP.keys.sort.join(', ')}")
     end
-
-    def self.cli_all_values
-      RESOURCE_MAP.map { |key, value| "#{key}: #{value}" }.join("\n")
-    end
   end
 end
