@@ -31,7 +31,7 @@ Works with any SimpleCov-generated `.resultset.json` file—no runtime dependenc
 ### Key Features
 
 - ✅ **Multiple interfaces** - MCP server, CLI, and Ruby API
-- **Annotated source code** - `-s full|uncovered` / `--source full|uncovered` with `-c N` / `--context-lines N` for context lines
+- **Annotated source code** - `-s full|uncovered|none` / `--source full|uncovered|none` with `-c N` / `--context-lines N` for context lines
 - ✅ **Staleness detection** - Identify outdated coverage (missing files, timestamp mismatches, line count changes)
 - ✅ **Multi-suite support** - Automatic merging of multiple test suites (RSpec + Cucumber, etc.)
 - ✅ **Flexible path resolution** - Works with absolute or relative paths
@@ -333,7 +333,7 @@ cov-loupe summary lib/cov_loupe/model.rb
 cov-loupe uncovered lib/cov_loupe/cli.rb
 
 # View in context
-cov-loupe -s u -c 3 uncovered lib/cov_loupe/cli.rb  # -s = --source (u = uncovered), -c = --context-lines
+cov-loupe -s u -c 3 uncovered lib/cov_loupe/cli.rb  # -s = --source (u = uncovered, n = none to disable), -c = --context-lines
 
 # Detailed hit counts
 cov-loupe detailed lib/cov_loupe/util.rb

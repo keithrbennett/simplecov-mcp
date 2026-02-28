@@ -132,7 +132,7 @@ clp -s full s app/models/order.rb  # -s = --source
 | `-fj` | `--format json`        | Output as single-line JSON            |
 | `-f y` | `--format yaml`        | Output as YAML                        |
 | `-f ap` | `--format amazing_print` | Output using AmazingPrint                             |         |
-| `-s`  | `--source MODE`  | Include source code (full or uncovered)    |
+| `-s`  | `--source MODE`  | Include source code (full, uncovered, or none)    |
 
 **Output (default format):**
 ```
@@ -174,7 +174,7 @@ clp -s uncovered -c 3 u app/controllers/orders_controller.rb  # -s = --source, -
 
 | Short   | Long                     | Description                                          |
 |---------|--------------------------|------------------------------------------------------|
-| `-s`    | `--source uncovered`     | Show uncovered lines with context                    |
+| `-s`    | `--source MODE`          | Show source (full, uncovered, none)                 |
 | `-c`    | `--context-lines N`      | Lines of context around uncovered lines (default: 2) |
 | `-C`    | `--color BOOLEAN`        | Enable (`true`)/disable (`false`) syntax coloring    |
 | `-fp`   | `--format pretty-json`   | Output as pretty-printed JSON                        |
@@ -479,6 +479,7 @@ Include source code in output.
 |-------|-------------|-----------------------------------------------------|
 | `f`   | `full`      | Show all source lines                               |
 | `u`   | `uncovered` | Show only uncovered lines with context              |
+| `n`   | `none`      | Disable source code display                         |
 
 ```sh
 # Show full source
@@ -487,6 +488,9 @@ clp -s f summary lib/api/client.rb         # f = full
 
 # Show only uncovered lines
 clp -s u uncovered lib/api/client.rb       # u = uncovered
+
+# Disable source display (override earlier --source setting)
+clp -s n summary lib/api/client.rb        # n = none
 ```
 
 ### `-c, --context-lines N`

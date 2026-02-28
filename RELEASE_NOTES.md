@@ -5,6 +5,7 @@
 
 ## v4.1.0
 
+- Add `-s none` / `--source none` option to disable source code display (previously enabled via `-s full` or `-s uncovered`).
 - Add canonical resource retrieval via CLI: `cov-loupe --path-for[=NAME]` (`-p[NAME]`).
   - Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
   - Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).

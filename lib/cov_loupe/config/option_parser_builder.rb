@@ -77,7 +77,7 @@ module CovLoupe
         config.sort_order = normalize_sort_order(value)
       end
       parser.on('-s', '--source MODE', String,
-        'Source display: f[ull]|u[ncovered]') do |value|
+        'Source display: f[ull]|u[ncovered]|n[one] (use none to disable)') do |value|
         config.source_mode = normalize_source_mode(value)
       end
       parser.on('-c', '--context-lines N', Integer,

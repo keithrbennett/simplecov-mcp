@@ -65,6 +65,10 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['full', :full],
         ['u', :uncovered],
         ['uncovered', :uncovered],
+        ['n', nil],
+        ['none', nil],
+        ['N', nil],
+        ['None', nil],
         ['FULL', :full],
         ['Uncovered', :uncovered]
       ],

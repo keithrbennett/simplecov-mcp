@@ -12,6 +12,8 @@ module CovLoupe
     }.freeze
 
     SOURCE_MODE_MAP = {
+      'n' => :none,
+      'none' => :none,
       'f' => :full,
       'full' => :full,
       'u' => :uncovered,
@@ -74,6 +76,7 @@ module CovLoupe
     # @raise [OptionParser::InvalidArgument] If strict and value is invalid
     module_function def normalize_source_mode(value, strict: true)
       normalized = SOURCE_MODE_MAP[value.to_s.downcase]
+      return nil if normalized == :none
       return normalized if normalized
       raise OptionParser::InvalidArgument, "invalid argument: #{value}" if strict
 
