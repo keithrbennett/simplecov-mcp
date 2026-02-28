@@ -6,17 +6,17 @@ OPTION_TESTS = {
   source: {
     long: '--source',
     short: '-s',
-    pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
+    text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
   },
   error_mode: {
     long: '--error-mode',
     short: nil,
-    pattern: /Valid values for --error-mode: o\[ff\]|l\[og\]|d\[ebug\]/
+    text: 'Valid values for --error-mode: o[ff]|l[og]|d[ebug]'
   },
   sort_order: {
     long: '--sort-order',
     short: '-o',
-    pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
+    text: 'Valid values for --sort-order: a[scending]|d[escending]'
   }
 }.freeze
 
@@ -42,12 +42,11 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
   end
 
   # Helper method to test error output matches expected pattern
-  def expect_error_output(error:, argv:, pattern:)
-    expect do
+  def expect_error_output(error:, argv:, text:)
+    stderr_output = capture_stderr do
       helper.handle_option_parser_error(error, argv: argv)
-    rescue SystemExit
-      # Ignore exit call
-    end.to output(pattern).to_stderr
+    end
+    expect(stderr_output).to include(text)
   end
 
   describe '#handle_option_parser_error' do
@@ -60,7 +59,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
             expect_error_output(
               error: error,
               argv: [config[:long], 'xyz'],
-              pattern: config[:pattern]
+              text: config[:text]
             )
           end
 
@@ -68,7 +67,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
             expect_error_output(
               error: error,
               argv: ["#{config[:long]}=xyz"],
-              pattern: config[:pattern]
+              text: config[:text]
             )
           end
 
@@ -77,7 +76,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
               expect_error_output(
                 error: error,
                 argv: [config[:short], 'xyz'],
-                pattern: config[:pattern]
+                text: config[:text]
               )
             end
           end
@@ -90,7 +89,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           expect_error_output(
             error: error,
             argv: %w[--source],
-            pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
+            text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
           )
         end
 
@@ -99,7 +98,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           expect_error_output(
             error: error,
             argv: %w[--source --other-option],
-            pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
+            text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
           )
         end
       end
@@ -124,7 +123,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         expect_error_output(
           error: error,
           argv: %w[--resultset coverage --source bad --format json],
-          pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
+          text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
         )
       end
 
@@ -133,7 +132,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         expect_error_output(
           error: error,
           argv: %w[--format json --sort-order=invalid --resultset coverage],
-          pattern: /Valid values for --sort-order: a\[scending\]|d\[escending\]/
+          text: 'Valid values for --sort-order: a[scending]|d[escending]'
         )
       end
     end
@@ -147,7 +146,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         end
 
         expect(stderr_output).to match(/Error:.*invalid option.*--unknown/)
-        expect(stderr_output).to match(/Run 'cov-loupe --help'/)
+        expect(stderr_output).to include("Run 'cov-loupe --help'")
         expect(stderr_output).not_to match(/Valid values/)
       end
     end
@@ -201,7 +200,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
       expect_error_output(
         error: error,
         argv: [],
-        pattern: /Error: invalid argument: some error/
+        text: 'Error: invalid argument: some error'
       )
     end
 
