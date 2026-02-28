@@ -34,6 +34,8 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[--source none summary lib/foo.rb], accessor: :source_mode, expected: nil },
       { argv: %w[-s n summary lib/foo.rb], accessor: :source_mode, expected: nil },
       { argv: %w[-s none summary lib/foo.rb], accessor: :source_mode, expected: nil },
+      { argv: %w[-sf -sn summary lib/foo.rb], accessor: :source_mode, expected: nil },
+      { argv: %w[-sn -sf summary lib/foo.rb], accessor: :source_mode, expected: :full },
 
       { argv: %w[-S yes list], accessor: :raise_on_stale, expected: true },
       { argv: %w[--raise-on-stale yes list], accessor: :raise_on_stale, expected: true },

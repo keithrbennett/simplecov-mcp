@@ -6,7 +6,7 @@ OPTION_TESTS = {
   source: {
     long: '--source',
     short: '-s',
-    pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
+    pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
   },
   error_mode: {
     long: '--error-mode',
@@ -90,7 +90,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           expect_error_output(
             error: error,
             argv: %w[--source],
-            pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
+            pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
           )
         end
 
@@ -99,7 +99,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           expect_error_output(
             error: error,
             argv: %w[--source --other-option],
-            pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
+            pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
           )
         end
       end
@@ -124,7 +124,7 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         expect_error_output(
           error: error,
           argv: %w[--resultset coverage --source bad --format json],
-          pattern: /Valid values for --source: f\[ull\]|u\[ncovered\]/
+          pattern: /Valid values for --source: f\[ull\]\|u\[ncovered\]\|n\[one\]/
         )
       end
 

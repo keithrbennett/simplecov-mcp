@@ -99,8 +99,8 @@ module CovLoupe
 
       private def enumerated_option_rules
         [
-          { switches: ['-s', '--source'], values: %w[full f uncovered u],
-            display: 'f[ull]|u[ncovered]' },
+          { switches: ['-s', '--source'], values: %w[full f uncovered u none n],
+            display: 'f[ull]|u[ncovered]|n[one]' },
           { switches: ['--error-mode'], values: %w[off o log l debug d],
             display: 'o[ff]|l[og]|d[ebug]' },
           { switches: ['-o', '--sort-order'], values: %w[a d ascending descending],

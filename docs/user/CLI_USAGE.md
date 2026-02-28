@@ -491,6 +491,7 @@ clp -s u uncovered lib/api/client.rb       # u = uncovered
 
 # Disable source display (override earlier --source setting)
 clp -s n summary lib/api/client.rb        # n = none
+clp -s f -s n summary lib/api/client.rb   # later -s n disables earlier -s f
 ```
 
 ### `-c, --context-lines N`
