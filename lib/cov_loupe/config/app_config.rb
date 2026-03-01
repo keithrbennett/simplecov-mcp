@@ -15,7 +15,6 @@ module CovLoupe
     :raise_on_stale,
     :tracked_globs,
     :log_file,
-    :show_version,
     :mode,
     :output_chars,
     keyword_init: true
@@ -33,7 +32,6 @@ module CovLoupe
       raise_on_stale: false,
       tracked_globs: nil,
       log_file: nil,
-      show_version: false,
       mode: :cli,
       output_chars: :default
     )

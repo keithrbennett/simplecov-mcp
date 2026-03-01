@@ -51,7 +51,6 @@ module CovLoupe
           uncovered, u <path>      Show uncovered lines and a summary
           validate, v <file>       Evaluate coverage policy from file (exit 0=pass, 1=fail, 2=error)
           validate, v -i <code>    Evaluate coverage policy from code string
-          version                  Show version information
 
         SUBCOMMANDS
     end
@@ -129,8 +128,9 @@ module CovLoupe
         '  ascii:   use ASCII-only characters (0x00-0x7F)') do |value|
         config.output_chars = normalize_output_chars(value)
       end
-      parser.on('-v', '--version', 'Show version information and exit.') do
-        config.show_version = true
+      parser.on('-v', '--version', 'Print version and exit.') do
+        puts CovLoupe::VERSION
+        exit 0
       end
       parser.on('-p', '--path-for NAME', String,
         'Print resource path/URL and exit. NAME: repo, docs, docs-local.') do |value|

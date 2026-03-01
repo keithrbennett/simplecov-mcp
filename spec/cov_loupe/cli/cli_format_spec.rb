@@ -66,12 +66,6 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       expect(data).to have_key('summary')
     end
 
-    it 'works with version subcommand' do
-      output = run_cli('--format', 'json', 'version')
-      data = JSON.parse(output)
-      expect(data).to have_key('version')
-      expect(data).to have_key('gem_root')
-    end
   end
 
   describe 'comprehensive misplaced option detection' do
