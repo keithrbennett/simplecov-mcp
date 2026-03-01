@@ -74,8 +74,8 @@ These work differently from the `$stderr = StringIO.new` approach and do not nee
 
 | Pattern | Files | Problem |
 |---|---|---|
-| `silence_output { ... }` (ignore all output) | `cov_loupe_opts_spec.rb`, `logging_fallback_spec.rb`, etc. | Fine as a suppressor, but the method name implies capture |
-| `silence_output do \|stdout, _stderr\| ... stdout.string ... end` | `show_default_report_spec.rb:21` | Accesses captured string from yielded IO — awkward API |
+| `silence_output { ... }` (ignore all output) | `cov_loupe_opts_spec.rb`, `logging_fallback_spec.rb`, etc. | Fine as-is |
+| `silence_output do \|stdout, _stderr\| ... stdout.string ... end` | `show_default_report_spec.rb:21` | Fine as-is; yields the IOs so callers can choose whether to inspect them |
 | `silence_output do ... $stderr.string ... end` | `show_default_report_spec.rb:64-66`, `logging_fallback_spec.rb`, `totals_command_spec.rb:159-161`, `command_execution_spec.rb`, `pre_release_check_spec.rb`, etc. | Requires caller to reach into global `$stderr` inside block |
 | `silence_output do ... $stdout.string + $stderr.string ... end` | `cov_loupe_opts_spec.rb:120-124`, `cov_loupe_opts_spec.rb:151-153` | Same problem, both streams |
 | `capture_command_output(command, args)` | `version_command_spec.rb`, `list_command_spec.rb`, `raw_command_spec.rb`, `detailed_command_spec.rb`, etc. | Command-specific wrapper; only returns stdout |
