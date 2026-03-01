@@ -16,8 +16,7 @@ module CovLoupe
     :tracked_globs,
     :log_file,
     :mode,
-    :output_chars,
-    keyword_init: true
+    :output_chars
   ) do
     # Set sensible defaults - ALL SYMBOLS FOR ENUMS
     def initialize(

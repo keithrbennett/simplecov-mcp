@@ -7,7 +7,7 @@ gemspec
 # Development dependencies
 gem 'rake'
 gem 'rspec', '~> 3.0'
-gem 'rubocop', '>= 1.84.2', '< 2'
+gem 'rubocop', '>= 1.85', '< 2'
 gem 'rubocop-rspec', '~> 3.9'
 gem 'simplecov-cobertura'
 

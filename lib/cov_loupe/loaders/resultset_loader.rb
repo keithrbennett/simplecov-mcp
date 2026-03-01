@@ -7,8 +7,8 @@ require_relative '../errors/errors'
 
 module CovLoupe
   class ResultsetLoader
-    Result = Struct.new(:coverage_map, :timestamp, :suite_names, keyword_init: true)
-    SuiteEntry = Struct.new(:name, :coverage, :timestamp, keyword_init: true)
+    Result = Struct.new(:coverage_map, :timestamp, :suite_names)
+    SuiteEntry = Struct.new(:name, :coverage, :timestamp)
 
     def self.load(resultset_path:, logger: nil)
       logger ||= CovLoupe.logger
@@ -59,7 +59,7 @@ module CovLoupe
         raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{@resultset_path}"
       end
 
-      needs_adaptation = coverage.values.any? { |value| value.is_a?(Array) }
+      needs_adaptation = coverage.values.any?(Array)
       return coverage unless needs_adaptation
 
       coverage.transform_values do |value|
