@@ -83,6 +83,7 @@ RSpec.describe CovLoupe::CoverageCLI do
         _stdout, _stderr, status = run_fixture_cli_with_status(tc[:abbrev], *tc[:args])
         expect(status).to eq(0)
       end
+    end
   end
 
   it 'prints raw lines as text' do
