@@ -36,9 +36,8 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do
+          _result, _out, stderr_output = capture_io do
             CovLoupe.logger.info('test message')
-            stderr_output = $stderr.string
           end
         end
 
@@ -59,7 +58,7 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do
+          capture_io do
             # First failure
             CovLoupe.logger.info('first failure')
             first_stderr = $stderr.string.dup
@@ -95,9 +94,8 @@ RSpec.describe 'Logging Fallback Behavior' do
 
         stderr_output = nil
         CovLoupe.with_context(context) do
-          silence_output do
+          _result, _out, stderr_output = capture_io do
             CovLoupe.logger.info('test message')
-            stderr_output = $stderr.string
           end
         end
 
@@ -120,9 +118,8 @@ RSpec.describe 'Logging Fallback Behavior' do
 
           stderr_output = nil
           CovLoupe.with_context(context) do
-            silence_output do
+            _result, _out, stderr_output = capture_io do
               CovLoupe.logger.info('test message')
-              stderr_output = $stderr.string
             end
           end
 
@@ -160,10 +157,8 @@ RSpec.describe 'Logging Fallback Behavior' do
       # Inject the mock logger
       logger.instance_variable_set(:@logger, mock_stdlib_logger)
 
-      stderr_output = nil
-      silence_output do
+      _result, _out, stderr_output = capture_io do
         logger.info('test message')
-        stderr_output = $stderr.string
       end
 
       expect(stderr_output).to include("Warning: Logging failed. See #{fallback_file} for details.")

@@ -18,7 +18,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       env_opts = CovLoupe.send(:extract_env_opts)
 
       swallow_system_exit do
-        silence_output do
+        suppress_io do
           cli.send(:run, env_opts + %w[summary lib/foo.rb])
         end
       end
@@ -35,7 +35,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       env_opts = CovLoupe.send(:extract_env_opts)
 
       exit_status = swallow_system_exit do
-        silence_output do
+        suppress_io do
           cli.send(:run, env_opts + %w[--help])
         end
       end
@@ -49,7 +49,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       env_opts = CovLoupe.send(:extract_env_opts)
 
       swallow_system_exit do
-        silence_output do
+        suppress_io do
           cli.send(:run, env_opts + %w[--help])
         end
       end
@@ -63,7 +63,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
       begin
         args = env_opts + %w[--error-mode debug summary lib/foo.rb]
-        silence_output { cli.send(:run, args) }
+        suppress_io { cli.send(:run, args) }
       rescue SystemExit, CovLoupe::Error
         # Expected to fail, but options should be parsed
       end
@@ -116,13 +116,12 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       ENV['COV_LOUPE_OPTS'] = '--mode cli'
 
       # Run with --help which should produce help output
-      output = nil
-      silence_output do
+      _result, out, err = capture_io do
         swallow_system_exit do
           CovLoupe.run(['--help'])
         end
-        output = $stdout.string + $stderr.string
       end
+      output = out + err
 
       # Verify CLI actually ran by checking for help text
       expect(output).to include('Usage:')
@@ -147,11 +146,8 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       allow($stdin).to receive(:gets).and_return(json_request, nil)
 
       # Capture output to verify MCP server response
-      output = nil
-      silence_output do
-        CovLoupe.run(%w[--mode mcp])
-        output = $stdout.string + $stderr.string
-      end
+      _result, out, err = capture_io { CovLoupe.run(%w[--mode mcp]) }
+      output = out + err
 
       # Verify MCP server ran by checking for JSON-RPC response
       expect(output).to include('"jsonrpc"')
@@ -166,7 +162,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       env_opts = CovLoupe.send(:extract_env_opts)
 
       swallow_system_exit do
-        silence_output { cli.send(:run, env_opts + ['--help']) }
+        suppress_io { cli.send(:run, env_opts + ['--help']) }
       end
 
       expect(cli.config.resultset).to eq(test_resultset)

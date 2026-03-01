@@ -155,11 +155,7 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
       end
 
       it "#{should_warn ? 'displays' : 'does not display'} a warning about missing timestamps" do
-        stderr_output = nil
-        silence_output do
-          command.execute([])
-          stderr_output = $stderr.string
-        end
+        _result, _out, stderr_output = capture_io { command.execute([]) }
 
         if should_warn
           expect(stderr_output).to include(

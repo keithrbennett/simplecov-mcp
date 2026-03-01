@@ -39,22 +39,18 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
     end
 
     it 'fetches and displays the latest CI run details' do
-      silence_output do
-        script.call
-        expect($stdout.string).to match(/Fetching latest CI run/)
-        expect($stdout.string).to match(/Title:\s+Test Run/)
-        expect($stdout.string).to match(/Status:.*SUCCESS/)
-      end
+      _result, out, _err = capture_io { script.call }
+      expect(out).to match(/Fetching latest CI run/)
+      expect(out).to match(/Title:\s+Test Run/)
+      expect(out).to match(/Status:.*SUCCESS/)
     end
 
     context 'when no runs are found' do
       let(:run_json) { '[]' }
 
       it 'notifies the user and exits gracefully' do
-        silence_output do
-          script.call
-          expect($stdout.string).to include("No workflow runs found for branch '#{branch}'.")
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to include("No workflow runs found for branch '#{branch}'.")
       end
     end
 
@@ -66,14 +62,14 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'warns and exits with error code 1' do
-        silence_output do
+        _result, _out, err = capture_io do
           expect { script.call }.to raise_error(SystemExit) do |e|
             expect(e.status).to eq(1)
           end
-          expect($stderr.string).to include(
-            "Failed to fetch runs. Ensure 'gh' is installed and you are authenticated."
-          )
         end
+        expect(err).to include(
+          "Failed to fetch runs. Ensure 'gh' is installed and you are authenticated."
+        )
       end
     end
 
@@ -96,9 +92,7 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'attempts to fetch failure logs' do
-        silence_output do
-          script.call
-        end
+        suppress_io { script.call }
         expect(script).to have_received(:system).with(*%w[gh run view 654321 --log-failed])
       end
     end
@@ -118,11 +112,9 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'shows in-progress message with watch command' do
-        silence_output do
-          script.call
-          expect($stdout.string).to match(/Build is currently running/)
-          expect($stdout.string).to match(/gh run watch 789012/)
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to match(/Build is currently running/)
+        expect(out).to match(/gh run watch 789012/)
       end
     end
 
@@ -141,10 +133,8 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'shows queued message' do
-        silence_output do
-          script.call
-          expect($stdout.string).to match(/Build is queued/)
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to match(/Build is queued/)
       end
     end
 
@@ -163,10 +153,8 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'displays cancelled status with yellow color' do
-        silence_output do
-          script.call
-          expect($stdout.string).to match(/Status:.*CANCELLED/)
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to match(/Status:.*CANCELLED/)
       end
     end
 
@@ -185,10 +173,8 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'displays the status with default white color' do
-        silence_output do
-          script.call
-          expect($stdout.string).to match(/Status:.*UNKNOWN_STATUS/)
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to match(/Status:.*UNKNOWN_STATUS/)
       end
     end
 
@@ -207,10 +193,8 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       end
 
       it 'displays UNKNOWN status without crashing' do
-        silence_output do
-          script.call
-          expect($stdout.string).to match(/Status:.*UNKNOWN/)
-        end
+        _result, out, _err = capture_io { script.call }
+        expect(out).to match(/Status:.*UNKNOWN/)
       end
     end
   end

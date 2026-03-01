@@ -113,28 +113,24 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       # 6. Gem build
       mock_command(%w[gem build cov-loupe.gemspec], '')
 
-      silence_output do
-        expect { script.call }.not_to raise_error
-        expect($stdout.string).to include('✓ Gem built successfully')
-      end
+      _result, out, _err = capture_io { script.call }
+      expect(out).to include('✓ Gem built successfully')
     end
 
     it 'aborts if git is not clean' do
       mock_commands(git_clean_commands(status: 'M lib/foo.rb'))
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include(
-          'Uncommitted changes present. Commit or stash before releasing.'
-        )
       end
+      expect(err).to include('Uncommitted changes present. Commit or stash before releasing.')
     end
 
     it 'aborts if not on main branch' do
       mock_commands(git_clean_commands + branch_commands('feature-branch'))
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include('Releases must be cut from the main branch.')
       end
+      expect(err).to include('Releases must be cut from the main branch.')
     end
 
     it 'aborts if local is behind remote' do
@@ -144,10 +140,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha1') # base == local (behind)
       )
 
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include('Local main is behind origin. Pull before releasing.')
       end
+      expect(err).to include('Local main is behind origin. Pull before releasing.')
     end
 
     it 'aborts if local is ahead of remote' do
@@ -157,10 +153,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha2') # base == remote (ahead)
       )
 
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include('Local main is ahead of origin. Push before releasing.')
       end
+      expect(err).to include('Local main is ahead of origin. Push before releasing.')
     end
 
     it 'aborts if local has diverged from remote' do
@@ -170,12 +166,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         sync_commands(local: 'sha1', remote: 'sha2', base: 'sha3') # base != local and != remote (diverged)
       )
 
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include(
-          'Local main has diverged from origin. Reconcile before releasing.'
-        )
       end
+      expect(err).to include('Local main has diverged from origin. Reconcile before releasing.')
     end
 
     it 'aborts if release notes are missing' do
@@ -190,10 +184,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       # Override release notes to not include the expected header
       allow(release_notes).to receive(:read).and_return("## v1.0.0\n\n- Old changes")
 
-      silence_output do
+      _result, _out, err = capture_io do
         expect { script.call }.to raise_error(SystemExit)
-        expect($stderr.string).to include("Add a '## v1.2.3' section to RELEASE_NOTES.md before releasing.")
       end
+      expect(err).to include("Add a '## v1.2.3' section to RELEASE_NOTES.md before releasing.")
     end
 
     context 'when verifying CI' do
@@ -209,9 +203,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        silence_output do
-          expect { script.call }.not_to raise_error
-        end
+        suppress_io { script.call }
       end
 
       it 'ignores runs for different HEAD SHAs' do
@@ -235,9 +227,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        silence_output do
-          expect { script.call }.not_to raise_error
-        end
+        suppress_io { script.call }
       end
 
       it 'ignores runs created before the trigger time' do
@@ -265,9 +255,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        silence_output do
-          expect { script.call }.not_to raise_error
-        end
+        suppress_io { script.call }
       end
 
       it 'times out if no matching run is found' do
@@ -287,10 +275,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
           ]
         )
 
-        silence_output do
+        _result, _out, err = capture_io do
           expect { script.call }.to raise_error(SystemExit)
-          expect($stderr.string).to include("Timed out waiting for workflow run to appear for HEAD SHA #{head_sha}")
         end
+        expect(err).to include("Timed out waiting for workflow run to appear for HEAD SHA #{head_sha}")
       end
 
       it 'handles JSON parsing errors gracefully' do
@@ -305,10 +293,10 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
           ]
         )
 
-        silence_output do
+        _result, _out, err = capture_io do
           expect { script.call }.to raise_error(SystemExit)
-          expect($stderr.string).to include('Failed to parse GitHub API response')
         end
+        expect(err).to include('Failed to parse GitHub API response')
       end
     end
   end

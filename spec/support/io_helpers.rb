@@ -1,29 +1,46 @@
 # frozen_string_literal: true
 
-# Shared test helpers for I/O operations (e.g., capturing stdout/stderr).
+# Shared test helpers for I/O operations (capturing or suppressing stdout/stderr).
 module TestIOHelpers
-  # Suppress stdout/stderr within the given block, yielding the StringIOs
-  def silence_output
-    original_stdout = $stdout
-    original_stderr = $stderr
+  # Redirect stdout and stderr for the duration of the block.
+  # Returns [block_return_value, stdout_string, stderr_string].
+  # If swallow_exit: true, SystemExit is rescued and returned as the block value.
+  def capture_io(swallow_exit: false)
+    old_out, old_err = $stdout, $stderr
     $stdout = StringIO.new
     $stderr = StringIO.new
-    yield $stdout, $stderr
+    result = begin
+      yield
+    rescue SystemExit => e
+      raise unless swallow_exit
+
+      e
+    end
+    [result, $stdout.string, $stderr.string]
   ensure
-    $stdout = original_stdout
-    $stderr = original_stderr
+    $stdout = old_out
+    $stderr = old_err
   end
 
-  # Capture the output of a command execution
+  # Redirect stdout and stderr for the duration of the block and discard them.
+  # Returns the block's return value.
+  def suppress_io
+    capture_io { yield }[0]
+  end
+
+  # Capture only stderr for the duration of the block; swallows SystemExit.
+  # Returns the captured stderr string.
+  def capture_stderr
+    _result, _out, err = capture_io(swallow_exit: true) { yield }
+    err
+  end
+
+  # Run a command and return its stdout string (stderr is discarded).
   # @param command [CovLoupe::Commands::BaseCommand] The command instance to execute
   # @param args [Array] The arguments to pass to execute
-  # @return [String] The captured output
+  # @return [String] The captured stdout string
   def capture_command_output(command, args)
-    output = nil
-    silence_output do
-      command.execute(args.dup)
-      output = $stdout.string
-    end
-    output
+    _result, out, _err = capture_io { command.execute(args.dup) }
+    out
   end
 end

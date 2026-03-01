@@ -20,11 +20,10 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
         allow(Open3).to receive(:popen2e).and_yield(nil, [], thread_double)
 
-        silence_output do
-          expect { executor.run_command('false', print_output: true) }
-            .to raise_error(SystemExit)
-          expect($stderr.string).to include('Command failed: false')
+        _result, _out, err = capture_io do
+          expect { executor.run_command('false', print_output: true) }.to raise_error(SystemExit)
         end
+        expect(err).to include('Command failed: false')
       end
     end
 
@@ -34,14 +33,14 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
         # Using capture3: [stdout, stderr, status]
         allow(Open3).to receive(:capture3).and_return(['', 'error details', status_double])
 
-        silence_output do
+        _result, _out, err = capture_io do
           expect { executor.run_command('false', print_output: false) }
             .to raise_error(SystemExit) do |error|
               expect(error.status).to eq(1)
             end
-          expect($stderr.string).to include('Error running: false')
-          expect($stderr.string).to include('error details')
         end
+        expect(err).to include('Error running: false')
+        expect(err).to include('error details')
       end
     end
 
@@ -52,7 +51,7 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
         allow(Open3).to receive(:popen2e).and_yield(nil, ['output'], thread_double)
 
-        silence_output do
+        suppress_io do
           expect(executor.run_command('false', print_output: true, fail_on_error: false))
             .to eq('output')
         end
@@ -63,7 +62,7 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
         # Using capture3: [stdout, stderr, status]
         allow(Open3).to receive(:capture3).and_return(['output', '', status_double])
 
-        silence_output do
+        suppress_io do
           expect(executor.run_command('false', print_output: false, fail_on_error: false))
             .to eq('output')
         end
@@ -78,32 +77,30 @@ RSpec.describe CovLoupe::Scripts::CommandExecution do
 
       context 'with fail_on_error: true' do
         it 'aborts when streamed' do
-          silence_output do
-            expect { executor.run_command('missing', print_output: true) }
-              .to raise_error(SystemExit)
-            expect($stderr.string).to include('Command not found: missing')
+          _result, _out, err = capture_io do
+            expect { executor.run_command('missing', print_output: true) }.to raise_error(SystemExit)
           end
+          expect(err).to include('Command not found: missing')
         end
 
         it 'aborts when captured' do
-          silence_output do
-            expect { executor.run_command('missing', print_output: false) }
-              .to raise_error(SystemExit)
-            expect($stderr.string).to include('Command not found: missing')
+          _result, _out, err = capture_io do
+            expect { executor.run_command('missing', print_output: false) }.to raise_error(SystemExit)
           end
+          expect(err).to include('Command not found: missing')
         end
       end
 
       context 'with fail_on_error: false' do
         it 'returns empty string when streamed' do
-          silence_output do
+          suppress_io do
             expect(executor.run_command('missing', print_output: true, fail_on_error: false))
               .to eq('')
           end
         end
 
         it 'returns empty string when captured' do
-          silence_output do
+          suppress_io do
             expect(executor.run_command('missing', print_output: false, fail_on_error: false))
               .to eq('')
           end

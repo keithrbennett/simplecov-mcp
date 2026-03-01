@@ -17,10 +17,8 @@ RSpec.describe CovLoupe::CoverageCLI do
     it 'prints JSON summary using relativized payload when json mode is enabled' do
       cli.config.format = :json
 
-      output = nil
-      silence_output do |stdout, _stderr|
-        cli.show_default_report(sort_order: :ascending, output: stdout)
-        output = stdout.string
+      _result, output, _err = capture_io do
+        cli.show_default_report(sort_order: :ascending, output: $stdout)
       end
 
       payload = JSON.parse(output)
@@ -60,10 +58,8 @@ RSpec.describe CovLoupe::CoverageCLI do
       end
 
       it 'prints a warning to stderr listing the skipped file' do
-        warnings = nil
-        silence_output do
+        _result, _out, warnings = capture_io do
           cli.show_default_report(sort_order: :ascending, output: $stdout)
-          warnings = $stderr.string
         end
 
         expect(warnings).to include('WARNING: 1 coverage row skipped due to errors')
@@ -75,7 +71,7 @@ RSpec.describe CovLoupe::CoverageCLI do
         cli.config.raise_on_stale = true
 
         expect do
-          silence_output do
+          suppress_io do
             cli.show_default_report(sort_order: :ascending, output: $stdout)
           end
         end.to raise_error(CovLoupe::CoverageDataError, /corrupt data/)
@@ -85,10 +81,8 @@ RSpec.describe CovLoupe::CoverageCLI do
         # Use tracked_globs that excludes the skipped file (lib/foo.rb)
         cli.config.tracked_globs = ['lib/bar.rb']
 
-        warnings = nil
-        silence_output do
+        _result, _out, warnings = capture_io do
           cli.show_default_report(sort_order: :ascending, output: $stdout)
-          warnings = $stderr.string
         end
 
         # The skipped file (lib/foo.rb) is outside tracked_globs, so no warning should appear
@@ -122,10 +116,8 @@ RSpec.describe CovLoupe::CoverageCLI do
       end
 
       it 'prints the deleted files section in the exclusions summary on stderr' do
-        output = nil
-        silence_output do
+        _result, _out, output = capture_io do
           cli.show_default_report(sort_order: :ascending, output: $stdout)
-          output = $stderr.string
         end
 
         expect(output).to include(

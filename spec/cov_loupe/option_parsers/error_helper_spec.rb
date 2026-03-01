@@ -25,22 +25,6 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
 
   let(:subcommands) { %w[list summary raw uncovered detailed totals validate version] }
 
-
-  # Helper method to capture stderr output
-  def capture_stderr
-    captured = StringIO.new
-    original = $stderr
-    $stderr = captured
-    begin
-      yield
-    rescue SystemExit
-      # Ignore exit calls
-    ensure
-      $stderr = original
-    end
-    captured.string
-  end
-
   # Helper method to test error output matches expected pattern
   def expect_error_output(error:, argv:, text:)
     stderr_output = capture_stderr do
