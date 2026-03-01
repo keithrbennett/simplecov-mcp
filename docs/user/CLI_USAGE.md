@@ -394,13 +394,14 @@ Tracked globs:
 Show version information.
 
 ```sh
-clp version
-clp -fp version
-```
-
-**Output:**
-```
-CovLoupe version 1.0.0
+$ cov-loupe version # same as `cov-loupe -v` or `cov-loupe --version
+┌───────────────┬─────────────────────────────────────────────┐
+│ Key           │ Value                                       │
+├───────────────┼─────────────────────────────────────────────┤
+│ Version       │ 4.1.0                                       │
+│ Gem Root      │ /home/kbennett/code/cov-loupe               │
+│ Documentation │ README.md and docs/user/**/*.md in gem root │
+└───────────────┴─────────────────────────────────────────────┘
 ```
 
 ## Global Options
