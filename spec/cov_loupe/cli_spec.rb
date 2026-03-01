@@ -84,12 +84,6 @@ RSpec.describe CovLoupe::CoverageCLI do
         expect(status).to eq(0)
       end
     end
-
-    it 'does not abbreviate version' do
-      _stdout, stderr, status = run_fixture_cli_with_status('ve')
-      expect(status).to eq(1)
-      expect(stderr).to include("Unknown subcommand: 've'")
-    end
   end
 
   it 'prints raw lines as text' do
@@ -176,24 +170,18 @@ RSpec.describe CovLoupe::CoverageCLI do
   end
 
   describe 'version reporting' do
-    [
-      { desc:  'version command (text)',           args: ['version'],                     match: /#{CovLoupe::VERSION}/ },
-      { desc:  'version option (text)',            args: ['-v'],                          match: /#{CovLoupe::VERSION}/ },
-      { desc:  'version command (JSON)',           args: ['--format', 'json', 'version'], json:  true },
-      { desc:  'version option (JSON)',            args: ['-v', '--format', 'json'],      json:  true },
-      { desc:  'version command with other flags', args: ['--color=false', 'version'],    match: /#{CovLoupe::VERSION}/ }
-    ].each do |tc|
-      it "handles #{tc[:desc]}" do
-        output = run_cli(*tc[:args])
-        if tc[:json]
-          data = JSON.parse(output)
-          expect(data['version']).to eq(CovLoupe::VERSION)
-        else
-          expect(output).to match(tc[:match])
-          expect(output).to include('│') # Table format
-          expect(output).not_to include('{', '}') unless tc[:args].include?('--format') # Basic check for text format
-        end
+    %w[-v --version].each do |flag|
+      it "#{flag} prints bare version string and exits" do
+        output = run_cli(flag)
+        expect(output.strip).to eq(CovLoupe::VERSION)
       end
+    end
+
+    # The version subcommand was removed in v5.0.0
+    it 'version subcommand is no longer recognized' do
+      _stdout, stderr, status = run_fixture_cli_with_status('version')
+      expect(status).to eq(1)
+      expect(stderr).to include("Unknown subcommand: 'version'")
     end
   end
 

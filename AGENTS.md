@@ -118,7 +118,7 @@ The `cov-loupe` executable can be run directly (`bundle exec exe/cov-loupe ...` 
 - `detailed <path>`, `d` – show per-line hit counts and coverage status.
 - `totals`, `t` – show aggregated totals for the project.
 - `validate <file|-i code>`, `v` – run a Ruby predicate to enforce coverage policies.
-- `version` – show version information.
+- Use `-v` / `--version` to print the version string and exit.
 
 ## MCP Server Usage
 Run `cov-loupe` in MCP mode with `-m mcp`/`--mode mcp`. You can issue JSON-RPC requests over stdio, for example:

@@ -9,7 +9,6 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
     context 'with valid command names' do
       [
         ['list', CovLoupe::Commands::ListCommand],
-        ['version', CovLoupe::Commands::VersionCommand],
         ['summary', CovLoupe::Commands::SummaryCommand],
         ['raw', CovLoupe::Commands::RawCommand],
         ['uncovered', CovLoupe::Commands::UncoveredCommand],
@@ -47,7 +46,7 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
     it 'returns an array of available command names' do
       commands = described_class.available_commands
       expect(commands).to be_an(Array)
-      expect(commands).to contain_exactly('list', 'version', 'summary', 'raw', 'uncovered',
+      expect(commands).to contain_exactly('list', 'summary', 'raw', 'uncovered',
         'detailed', 'totals', 'validate')
     end
 
@@ -63,7 +62,6 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
 
     it 'maps command names to command classes' do
       expect(described_class::COMMAND_MAP['list']).to eq(CovLoupe::Commands::ListCommand)
-      expect(described_class::COMMAND_MAP['version']).to eq(CovLoupe::Commands::VersionCommand)
       expect(described_class::COMMAND_MAP['summary']).to eq(CovLoupe::Commands::SummaryCommand)
       expect(described_class::COMMAND_MAP['raw']).to eq(CovLoupe::Commands::RawCommand)
       expect(described_class::COMMAND_MAP['uncovered']).to eq(CovLoupe::Commands::UncoveredCommand)
@@ -77,7 +75,7 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
       expect { described_class.create('total', cli_context) }.to raise_error(
         CovLoupe::UsageError,
         # rubocop:disable Layout/LineLength
-        /list \| summary <path> \| raw <path> \| uncovered <path> \| detailed <path> \| totals \| validate <file> \| validate -i <code> \| version/
+        /list \| summary <path> \| raw <path> \| uncovered <path> \| detailed <path> \| totals \| validate <file> \| validate -i <code>/
         # rubocop:enable Layout/LineLength
       )
     end
@@ -89,8 +87,9 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
     it 'lists all available commands' do
       commands = described_class.available_commands
       expect(commands).to include(
-        'list', 'summary', 'raw', 'uncovered', 'detailed', 'totals', 'validate', 'version'
+        'list', 'summary', 'raw', 'uncovered', 'detailed', 'totals', 'validate'
       )
+      expect(commands).not_to include('version') # removed in v5.0.0
       expect(commands).not_to include('total')
     end
   end

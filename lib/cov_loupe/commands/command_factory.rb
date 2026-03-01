@@ -2,7 +2,6 @@
 
 require_relative 'base_command'
 require_relative 'list_command'
-require_relative 'version_command'
 require_relative 'summary_command'
 require_relative 'raw_command'
 require_relative 'uncovered_command'
@@ -15,7 +14,6 @@ module CovLoupe
     class CommandFactory
       COMMAND_MAP = {
         'list' => ListCommand,
-        'version' => VersionCommand,
         'summary' => SummaryCommand,
         'raw' => RawCommand,
         'uncovered' => UncoveredCommand,
@@ -29,7 +27,7 @@ module CovLoupe
         unless command_class
           raise UsageError.for_subcommand(
             'list | summary <path> | raw <path> | uncovered <path> | detailed <path> ' \
-              '| totals | validate <file> | validate -i <code> | version'
+              '| totals | validate <file> | validate -i <code>'
           )
         end
 

@@ -63,13 +63,6 @@ RSpec.describe CovLoupe::CoverageCLI do
       expect(err).to include('extra')
     end
 
-    it 'rejects extra arguments to version command' do
-      _out, err, status = run_fixture_cli_with_status('version', 'extra', 'args')
-      expect(status).to eq(1)
-      expect(err).to include('Unexpected argument')
-      expect(err).to include('extra args')
-    end
-
     it 'rejects extra arguments after path in summary command' do
       _out, err, status = run_fixture_cli_with_status('summary', 'lib/foo.rb', 'extra')
       expect(status).to eq(1)

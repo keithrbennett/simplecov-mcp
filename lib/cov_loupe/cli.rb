@@ -15,7 +15,7 @@ module CovLoupe
     HORIZONTAL_RULE = '-' * 79
 
     # Valid CLI subcommands.
-    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate version].freeze
+    SUBCOMMANDS = %w[list summary raw uncovered detailed totals validate].freeze
 
     # Optional single-character abbreviations for subcommands.
     SUBCOMMAND_ABBREVIATIONS = {
@@ -46,7 +46,6 @@ module CovLoupe
       # Pre-scan for error-mode to ensure early errors are logged with correct verbosity
       pre_scan_error_mode(argv)
       parse_options!(argv)
-      enforce_version_subcommand_if_requested
 
       context = CovLoupe.create_context(
         error_handler: error_handler, # construct after options to respect --error-mode
@@ -147,15 +146,6 @@ module CovLoupe
     private def pre_scan_error_mode(argv)
       env_parser = OptionParsers::EnvOptionsParser.new
       config.error_mode = env_parser.pre_scan_error_mode(argv) || :log
-    end
-
-    # Converts the -v/--version flags into the version subcommand.
-    # When the user passes -v or --version, config.show_version is set to true during option parsing.
-    # This method intercepts that flag and redirects execution to the 'version' subcommand,
-    # ensuring consistent version display regardless of whether the user runs
-    # `cov-loupe -v`, `cov-loupe --version`, or `cov-loupe version`.
-    private def enforce_version_subcommand_if_requested
-      @cmd = 'version' if config.show_version
     end
 
     private def with_context_if_available(ctx, &block)
