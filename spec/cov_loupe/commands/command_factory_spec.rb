@@ -74,7 +74,9 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
     it 'does not recognize total as an alias for totals' do
       expect { described_class.create('total', cli_context) }.to raise_error(
         CovLoupe::UsageError,
+        # rubocop:disable Layout/LineLength
         /list \| summary <path> \| raw <path> \| uncovered <path> \| detailed <path> \| totals \| validate <file> \| validate -i <code>/
+        # rubocop:enable Layout/LineLength
       )
     end
 

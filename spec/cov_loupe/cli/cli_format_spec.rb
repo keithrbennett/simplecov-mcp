@@ -65,7 +65,6 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       expect(data).to have_key('file')
       expect(data).to have_key('summary')
     end
-
   end
 
   describe 'comprehensive misplaced option detection' do
