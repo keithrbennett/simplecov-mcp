@@ -1,6 +1,7 @@
 # AI Tools
 /.claude/
 /.gemini/
+/opencode.json
 
 # Directory for untracked AI reports, of which there may be many
 /untracked/
