@@ -8,6 +8,7 @@ This document describes the breaking changes introduced in version 5.0.0.
 
 - [Removed `version` Subcommand](#removed-version-subcommand)
 - [Simplified `--version` Output](#simplified---version-output)
+- [Single-Letter Subcommand Abbreviations](#single-letter-subcommand-abbreviations)
 
 ---
 
@@ -47,3 +48,27 @@ cov-loupe --version   # or: cov-loupe -v
 ```
 
 If you need the gem root path, use `cov-loupe --path-for docs-local` to locate the local documentation, or inspect the gem installation with `gem contents cov-loupe`.
+
+---
+
+## Single-Letter Subcommand Abbreviations
+
+All CLI subcommands can now be abbreviated to their first letter for convenience.
+
+**Before (v4.x):**
+```sh
+cov-loupe list
+cov-loupe summary lib/foo.rb
+cov-loupe uncovered lib/foo.rb
+cov-loupe validate -i "model.list.all?"
+```
+
+**After (v5.0):**
+```sh
+cov-loupe l
+cov-loupe s lib/foo.rb
+cov-loupe u lib/foo.rb
+cov-loupe v -i "model.list.all?"
+```
+
+Available abbreviations: `l` (list), `s` (summary), `r` (raw), `u` (uncovered), `d` (detailed), `t` (totals), `v` (validate).

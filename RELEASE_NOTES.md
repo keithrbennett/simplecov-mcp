@@ -16,7 +16,8 @@
       - CLI help banner URLs
       - MCP `help_tool`
       - MCP server startup instructions
-      - Make pass/fail symbols in source code display more prominent, change circle to X
+- **Single-letter abbreviations for CLI subcommands**: All CLI subcommands can now be abbreviated to their first letter. For example, `cov-loupe l` for `list`, `cov-loupe s` for `summary`, `cov-loupe r` for `raw`, `cov-loupe u` for `uncovered`, `cov-loupe d` for `detailed`, `cov-loupe t` for `totals`, `cov-loupe v` for `validate`.
+- Make pass/fail symbols in source code display more prominent, change circle to X
 
 ## v4.0.0 (Breaking)
 
