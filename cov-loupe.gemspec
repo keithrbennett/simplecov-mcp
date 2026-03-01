@@ -38,6 +38,15 @@ Gem::Specification.new do |spec|
 
   spec.post_install_message = <<~MESSAGE
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ V5.0.0 BREAKING CHANGES                                                   ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+    ┃                                                                           ┃
+    ┃  • `cov-loupe version` subcommand removed                                 ┃
+    ┃    Use -v / --version instead (prints bare version string and exits)      ┃
+    ┃                                                                           ┃
+    ┃  📖 Migration instructions: docs/user/migrations/MIGRATING_TO_V5.md       ┃
+    ┃                                                                           ┃
+    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃ V4.0.0 BREAKING CHANGES                                                   ┃
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
     ┃                                                                           ┃
