@@ -252,6 +252,9 @@ Style/MultilineTernaryOperator:
 Style/NumericPredicate:
   Enabled: false  # Allow both .zero? and == 0
 
+Style/ParallelAssignment:
+  Enabled: false  # Allow `old_out, old_err = $stdout, $stderr`
+
 Style/ParenthesesAroundCondition:
   AllowInMultilineConditions: true
 

@@ -7,12 +7,10 @@ module CLITestHelpers
     cli = CovLoupe::CoverageCLI.new
     status = nil
     _result, out_str, err_str = capture_io do
-      begin
-        cli.run(argv.flatten)
-        status = 0
-      rescue SystemExit => e
-        status = e.status
-      end
+      cli.run(argv.flatten)
+      status = 0
+    rescue SystemExit => e
+      status = e.status
     end
     [out_str, err_str, status]
   end
@@ -25,12 +23,10 @@ module CLITestHelpers
   def run_full_cli_with_status(*argv)
     status = nil
     _result, out_str, err_str = capture_io do
-      begin
-        CovLoupe.run(argv.flatten)
-        status = 0
-      rescue SystemExit => e
-        status = e.status
-      end
+      CovLoupe.run(argv.flatten)
+      status = 0
+    rescue SystemExit => e
+      status = e.status
     end
     [out_str, err_str, status]
   end

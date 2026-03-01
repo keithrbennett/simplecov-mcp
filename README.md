@@ -99,7 +99,7 @@ cov-loupe -p repo
 cov-loupe --path-for repo
 cov-loupe --path-for docs
 cov-loupe --path-for docs-local
-open "$(cov-loupe --path-for docs)"
+open `cov-loupe --path-for docs`
 ```
 
 **Ruby Library:**

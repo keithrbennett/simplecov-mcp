@@ -203,7 +203,8 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        suppress_io { script.call }
+        expect { suppress_io { script.call } }.not_to raise_error
+        expect(Open3).to have_received(:popen2e).with('gh', 'run', 'watch', '12345', '--exit-status')
       end
 
       it 'ignores runs for different HEAD SHAs' do
@@ -227,7 +228,9 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        suppress_io { script.call }
+        expect { suppress_io { script.call } }.not_to raise_error
+        expect(Open3).to have_received(:popen2e).with('gh', 'run', 'watch', '12345', '--exit-status')
+        expect(Open3).not_to have_received(:popen2e).with('gh', 'run', 'watch', '11111', '--exit-status')
       end
 
       it 'ignores runs created before the trigger time' do
@@ -255,7 +258,9 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         )
         mock_command(%w[gem build cov-loupe.gemspec], '')
 
-        suppress_io { script.call }
+        expect { suppress_io { script.call } }.not_to raise_error
+        expect(Open3).to have_received(:popen2e).with('gh', 'run', 'watch', '12345', '--exit-status')
+        expect(Open3).not_to have_received(:popen2e).with('gh', 'run', 'watch', '11111', '--exit-status')
       end
 
       it 'times out if no matching run is found' do

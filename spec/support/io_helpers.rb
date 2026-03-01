@@ -24,14 +24,14 @@ module TestIOHelpers
 
   # Redirect stdout and stderr for the duration of the block and discard them.
   # Returns the block's return value.
-  def suppress_io
-    capture_io { yield }[0]
+  def suppress_io(&)
+    capture_io(&)[0]
   end
 
   # Capture only stderr for the duration of the block; swallows SystemExit.
   # Returns the captured stderr string.
-  def capture_stderr
-    _result, _out, err = capture_io(swallow_exit: true) { yield }
+  def capture_stderr(&)
+    _result, _out, err = capture_io(swallow_exit: true, &)
     err
   end
 
