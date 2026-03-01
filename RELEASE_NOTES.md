@@ -7,9 +7,6 @@
 
 - **Removed `version` subcommand**: `cov-loupe version` no longer exists. Use `cov-loupe -v` or `cov-loupe --version` instead.
 - **Simplified `--version` output**: `-v`/`--version` now prints only the bare version string (e.g. `5.0.0`) and exits, instead of displaying a formatted table with `Gem Root` and `Documentation` fields. JSON format is no longer supported for version output.
-
-## v4.1.0
-
 - Add `-s none` / `--source none` option to disable source code display (previously enabled via `-s full` or `-s uncovered`).
 - Add canonical resource retrieval via CLI: `cov-loupe --path-for[=NAME]` (`-p[NAME]`).
   - Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
