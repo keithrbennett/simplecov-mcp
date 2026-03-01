@@ -18,6 +18,7 @@
       - MCP server startup instructions
 - **Single-letter abbreviations for CLI subcommands**: All CLI subcommands can now be abbreviated to their first letter. For example, `cov-loupe l` for `list`, `cov-loupe s` for `summary`, `cov-loupe r` for `raw`, `cov-loupe u` for `uncovered`, `cov-loupe d` for `detailed`, `cov-loupe t` for `totals`, `cov-loupe v` for `validate`.
 - Make pass/fail symbols in source code display more prominent, change circle to X
+- Fix `validate -i` parsing in the top-level argument parser so inline validate code is handled correctly.
 
 ## v4.0.0 (Breaking)
 

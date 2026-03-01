@@ -78,6 +78,7 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       ['short -s after list', %w[list -s full], '-s'],
       ['short -S after list', %w[list -S error], '-S'],
       ['short -v after list', %w[list -v], '-v'],
+      ['short -p after list', %w[list -p repo], '-p'],
       ['short -v after totals', %w[totals -v], '-v'],
       ['short -v after summary', %w[summary lib/foo.rb -v], '-v'],
 
@@ -90,6 +91,7 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       ['--version after list', %w[list --version], '--version'],
       ['--version after totals', %w[totals --version], '--version'],
       ['--version after summary', %w[summary lib/foo.rb --version], '--version'],
+      ['--path-for after list', %w[list --path-for repo], '--path-for'],
 
       # Different subcommands
       ['option after summary', %w[summary lib/foo.rb --format json], '--format'],

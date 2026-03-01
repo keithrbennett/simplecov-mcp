@@ -178,6 +178,7 @@ module CovLoupe
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
                           -c --context-lines -S --raise-on-stale -g --tracked-globs
                           -l --log-file --error-mode --color -m --mode -v --version
+                          -p --path-for
                           -O --output-chars]
 
       misplaced = args.select do |arg|
