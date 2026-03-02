@@ -6,7 +6,7 @@ require_relative '../presenters/project_totals_presenter'
 
 module CovLoupe
   module Tools
-    class CoverageTotalsTool < BaseTool
+    class ProjectCoverageTotalsTool < BaseTool
       description <<~DESC
         Use this when you want aggregated coverage counts for the entire project.
         It reports covered/total lines, uncovered line counts, and the overall average percentage.
@@ -27,7 +27,7 @@ module CovLoupe
         def call(root: nil, resultset: nil, raise_on_stale: nil, tracked_globs: nil,
           error_mode: 'log', output_chars: nil, server_context:)
           output_chars_sym = resolve_output_chars(output_chars, server_context)
-          with_error_handling('CoverageTotalsTool', error_mode: error_mode, output_chars: output_chars_sym) do
+          with_error_handling('ProjectCoverageTotalsTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,

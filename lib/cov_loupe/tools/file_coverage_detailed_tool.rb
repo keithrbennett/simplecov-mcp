@@ -6,13 +6,13 @@ require_relative '../presenters/coverage_payload_presenter'
 
 module CovLoupe
   module Tools
-    class UncoveredLinesTool < BaseTool
+    class FileCoverageDetailedTool < BaseTool
       description <<~DESC
-        Use this when the user wants to know which lines in a file still lack coverage.
-        Do not use this for overall percentages; coverage.summary is faster when counts are enough.
+        Use this when the user needs per-line coverage data for a single file.
+        Do not use this for high-level counts; coverage.summary is cheaper for aggregate numbers.
         Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
-        Output: JSON object with keys "file", "uncovered" (array of integers), "summary" {"covered","total","percentage"}, and "stale" status.
-        Example: "List uncovered lines for lib/cov_loupe/tools/coverage_summary_tool.rb".
+        Output: JSON object with "file", "lines" => [{"line": 12, "hits": 0, "covered": false}], plus "summary" with totals and "stale" status.
+        Example: "Show detailed coverage for lib/cov_loupe/model.rb".
       DESC
       input_schema(**input_schema_def)
       class << self

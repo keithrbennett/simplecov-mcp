@@ -22,14 +22,14 @@ module CovLoupe
     end
 
     TOOLSET = [
-      Tools::ListTool,
-      Tools::CoverageDetailedTool,
-      Tools::CoverageRawTool,
-      Tools::CoverageSummaryTool,
-      Tools::CoverageTotalsTool,
-      Tools::UncoveredLinesTool,
-      Tools::CoverageTableTool,
-      Tools::ValidateTool,
+      Tools::ProjectCoverageListTool,
+      Tools::FileCoverageDetailedTool,
+      Tools::FileCoverageRawTool,
+      Tools::FileCoverageSummaryTool,
+      Tools::ProjectCoverageTotalsTool,
+      Tools::FileUncoveredLinesTool,
+      Tools::ProjectCoverageTableTool,
+      Tools::ProjectValidateTool,
       Tools::HelpTool,
       Tools::VersionTool
     ].freeze
@@ -45,7 +45,7 @@ module CovLoupe
       <<~MSG.chomp
         cov-loupe provides SimpleCov coverage data via MCP tools.
         Documentation resources: #{JSON.generate(Resources::RESOURCE_MAP)}
-        Call help_tool for tool usage guidance.
+        Call help_tool for tool usage guidance. File-scope tools (file_coverage_*_tool, file_uncovered_lines_tool) require a path argument; project-scope tools (project_*) do not.
         Tools accept optional `root` (project root directory) and `resultset`
         (path or directory containing .resultset.json) arguments when the defaults
         need overriding; these may point to different locations.

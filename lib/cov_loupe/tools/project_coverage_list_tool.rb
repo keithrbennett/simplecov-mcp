@@ -7,7 +7,7 @@ require_relative '../config/option_normalizers'
 
 module CovLoupe
   module Tools
-    class ListTool < BaseTool
+    class ProjectCoverageListTool < BaseTool
       description <<~DESC
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.
@@ -25,7 +25,7 @@ module CovLoupe
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', output_chars: nil, server_context:)
           output_chars_sym = resolve_output_chars(output_chars, server_context)
-          with_error_handling('ListTool', error_mode: error_mode, output_chars: output_chars_sym) do
+          with_error_handling('ProjectCoverageListTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,

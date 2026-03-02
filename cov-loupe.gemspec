@@ -91,6 +91,10 @@ Gem::Specification.new do |spec|
     ┃  • `cov-loupe version` subcommand removed                                 ┃
     ┃    Use -v / --version instead (prints bare version string and exits)      ┃
     ┃                                                                           ┃
+    ┃  • MCP tool names renamed to encode scope:                                ┃
+    ┃    file_coverage_{summary,detailed,raw}_tool, file_uncovered_lines_tool   ┃
+    ┃    project_coverage_{list,totals,table}_tool, project_validate_tool       ┃
+    ┃                                                                           ┃
     ┃  📖 Migration instructions: docs/user/migrations/MIGRATING_TO_V5.md       ┃
     ┃                                                                           ┃
     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛

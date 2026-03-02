@@ -4,6 +4,7 @@
 
 
 ## v5.0.0 (Breaking)
+- **MCP tool names renamed** to encode scope: file-scope tools are prefixed with `file_` (`file_coverage_summary_tool`, `file_coverage_detailed_tool`, `file_coverage_raw_tool`, `file_uncovered_lines_tool`); project-scope tools are prefixed with `project_` (`project_coverage_list_tool`, `project_coverage_totals_tool`, `project_coverage_table_tool`, `project_validate_tool`). `help_tool` and `version_tool` are unchanged.
 
 - **Removed `version` subcommand**: `cov-loupe version` no longer exists. Use `cov-loupe -v` or `cov-loupe --version` instead.
 - **Simplified `--version` output**: `-v`/`--version` now prints only the bare version string (e.g. `5.0.0`) and exits, instead of displaying a formatted table with `Gem Root` and `Documentation` fields. JSON format is no longer supported for version output.
@@ -78,7 +79,7 @@
 
 - **New `-f p` shortcut for pretty-json format**: Added `-f p` as a shortcut for `--format pretty-json`. This follows the pattern of other format shortcuts (`-f j` for json, `-f y` for yaml, etc.). The previous `-f J` shortcut no longer works (use `-f p` instead).
 
-- **Project totals now include coverage breakdowns**: The `totals` subcommand and `coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
+- **Project totals now include coverage breakdowns**: The `totals` subcommand and `project_coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
 
   **Example output:**
   ```json
@@ -177,13 +178,13 @@ Version 2.0 introduces several breaking changes to improve consistency and align
 ### ✨ New Features
 
 - **validate subcommand**: File mode (`validate <file>`) and inline mode (`validate -i <code>`)
-- **MCP support**: New `validate_tool` with `code` and `file` parameters
+- **MCP support**: New `project_validate_tool` with `code` and `file` parameters
 
 ---
 
 ## v1.1.0
 
-- Add a `totals` CLI subcommand and matching `coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
+- Add a `totals` CLI subcommand and matching `project_coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
 - Refactor command line and environment argument handling
 
 ## v1.0.1 (2025-10-23)

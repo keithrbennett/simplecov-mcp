@@ -8,7 +8,7 @@ require_relative '../output_chars'
 
 module CovLoupe
   module Tools
-    class CoverageTableTool < BaseTool
+    class ProjectCoverageTableTool < BaseTool
       description <<~DESC
         Use this when a user wants the plain text coverage table exactly like `cov-loupe --format table` would print (no ANSI colors).
         Do not use this for machine-readable data; coverage.list returns structured JSON.
@@ -27,7 +27,7 @@ module CovLoupe
         def call(root: nil, resultset: nil, sort_order: nil, raise_on_stale: nil,
           tracked_globs: nil, error_mode: 'log', output_chars: nil, server_context:)
           output_chars_sym = resolve_output_chars(output_chars, server_context)
-          with_error_handling('CoverageTableTool', error_mode: error_mode, output_chars: output_chars_sym) do
+          with_error_handling('ProjectCoverageTableTool', error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
               root: root,

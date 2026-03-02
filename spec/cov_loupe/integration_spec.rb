@@ -117,19 +117,19 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures 'MCP tools' do
         [
           {
-            tool: CovLoupe::Tools::CoverageSummaryTool,
+            tool: CovLoupe::Tools::FileCoverageSummaryTool,
             args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             expected_keys: %w[file summary],
             check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
           },
           {
-            tool: CovLoupe::Tools::CoverageRawTool,
+            tool: CovLoupe::Tools::FileCoverageRawTool,
             args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             expected_keys: %w[file lines],
             check: ->(data) { expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2]) }
           },
           {
-            tool: CovLoupe::Tools::ListTool,
+            tool: CovLoupe::Tools::ProjectCoverageListTool,
             args: { root: project_root, resultset: coverage_dir },
             expected_keys: %w[files counts],
             check: ->(data) {
@@ -148,7 +148,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'provides consistent data across different tools' do
       aggregate_failures 'Tool consistency' do
         summary_data, = expect_mcp_text_json(
-          CovLoupe::Tools::CoverageSummaryTool.call(
+          CovLoupe::Tools::FileCoverageSummaryTool.call(
             path: 'lib/foo.rb',
             root: project_root,
             resultset: coverage_dir,
@@ -157,7 +157,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         )
 
         detailed_data, = expect_mcp_text_json(
-          CovLoupe::Tools::CoverageDetailedTool.call(
+          CovLoupe::Tools::FileCoverageDetailedTool.call(
             path: 'lib/foo.rb',
             root: project_root,
             resultset: coverage_dir,
@@ -253,8 +253,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         tools = response['result']['tools']
         expect(tools).to be_an(Array)
         expect(tools.map { |t| t['name'] }).to include(
-          'list_tool', 'coverage_summary_tool', 'coverage_raw_tool',
-          'uncovered_lines_tool', 'coverage_detailed_tool', 'help_tool'
+          'project_coverage_list_tool', 'file_coverage_summary_tool', 'file_coverage_raw_tool',
+          'file_uncovered_lines_tool', 'file_coverage_detailed_tool', 'help_tool'
         )
       end
     end
@@ -264,19 +264,19 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         [
           {
             id: 3,
-            name: 'coverage_summary_tool',
+            name: 'file_coverage_summary_tool',
             args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
           },
           {
             id: 4,
-            name: 'list_tool',
+            name: 'project_coverage_list_tool',
             args: { root: project_root, resultset: coverage_dir },
             check: ->(data) { expect(data['files'].length).to eq(2) }
           },
           {
             id: 5,
-            name: 'uncovered_lines_tool',
+            name: 'file_uncovered_lines_tool',
             args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             check: ->(data) { expect(data['uncovered']).to eq([4]) }
           }
@@ -297,7 +297,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
             name: 'help_tool',
             check: ->(data) {
               tools = data['tools'].map { |t| t['tool'] }
-              expect(tools).to include('coverage_summary_tool')
+              expect(tools).to include('file_coverage_summary_tool')
             }
           },
           {
@@ -321,7 +321,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'executes validate_tool via JSON-RPC' do
       resp = jsonrpc_tool_call(
         80,
-        'validate_tool',
+        'project_validate_tool',
         {
           code: '->(m) { true }',
           root: project_root,
@@ -337,14 +337,14 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         [
           {
             id: 8,
-            name: 'coverage_summary_tool',
+            name: 'file_coverage_summary_tool',
             arguments: {
               path: 'nonexistent.rb',
               root: project_root,
               resultset: coverage_dir
             }
           },
-          { id: 201, name: 'coverage_summary_tool', arguments: {} },
+          { id: 201, name: 'file_coverage_summary_tool', arguments: {} },
           { id: 200, name: 'nonexistent_tool', arguments: {} }
         ].each do |request|
           response = jsonrpc_tool_call(request[:id], request[:name], request[:arguments])

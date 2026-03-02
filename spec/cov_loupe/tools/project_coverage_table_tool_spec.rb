@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/tools/coverage_table_tool'
+require 'cov_loupe/tools/project_coverage_table_tool'
 
-RSpec.describe CovLoupe::Tools::CoverageTableTool do
+RSpec.describe CovLoupe::Tools::ProjectCoverageTableTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:server_context) { null_server_context }
 

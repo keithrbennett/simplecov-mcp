@@ -123,7 +123,7 @@ This allows:
     - Files deleted since coverage was collected
     - Tracked files missing from coverage (newly added files)
 - Raises `CoverageDataProjectStaleError` with lists of problematic files
-- Used by `list_tool` and `coverage_table_tool`
+- Used by `project_coverage_list_tool` and `project_coverage_table_tool`
 
 **Totals behavior**:
 - `project_totals` excludes any stale files ("missing", "newer", "length_mismatch", "error") from aggregate counts.
@@ -190,4 +190,4 @@ before merging resultsets.
 - Project-level checking: `StalenessChecker#check_project!`
 - Staleness detail computation: `StalenessChecker#compute_file_staleness_details`
 - Error types: `lib/cov_loupe/errors.rb` (`CoverageDataStaleError`, `CoverageDataProjectStaleError`)
-- Usage in tools: `lib/cov_loupe/tools/list_tool.rb`, `lib/cov_loupe/model.rb`
+- Usage in tools: `lib/cov_loupe/tools/project_coverage_list_tool.rb`, `lib/cov_loupe/model.rb`

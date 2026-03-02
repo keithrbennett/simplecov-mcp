@@ -12,9 +12,9 @@ The integration tests spawn the actual MCP server as a subprocess and communicat
 
 1. **starts MCP server without errors** - Verifies the server starts and responds to basic requests without NameError or other initialization issues
 2. **handles tools/list request** - Confirms all expected tools are properly registered
-3. **executes coverage_summary_tool via JSON-RPC** - Tests single-file coverage summary queries
-4. **executes list_tool via JSON-RPC** - Tests project-wide coverage listing
-5. **executes uncovered_lines_tool via JSON-RPC** - Tests uncovered line detection
+3. **executes file_coverage_summary_tool via JSON-RPC** - Tests single-file coverage summary queries
+4. **executes project_coverage_list_tool via JSON-RPC** - Tests project-wide coverage listing
+5. **executes file_uncovered_lines_tool via JSON-RPC** - Tests uncovered line detection
 6. **executes help_tool via JSON-RPC** - Tests help/documentation retrieval
 7. **executes version_tool via JSON-RPC** - Tests version information queries
 8. **handles error responses for invalid tool calls** - Verifies graceful error handling
@@ -64,7 +64,7 @@ Uses `spec/fixtures/project1/` with known coverage data:
 bundle exec rspec spec/integration_spec.rb --tag slow
 
 # Run specific integration test
-bundle exec rspec spec/integration_spec.rb --example "executes coverage_summary_tool via JSON-RPC"
+bundle exec rspec spec/integration_spec.rb --example "executes file_coverage_summary_tool via JSON-RPC"
 ```
 
 ## Performance

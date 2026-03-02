@@ -19,8 +19,8 @@ RSpec.describe CovLoupe::Tools::HelpTool do
     data = JSON.parse(payload['text'])
     tool_names = data['tools'].map { |entry| entry['tool'] }
 
-    expect(tool_names).to include('coverage_summary_tool', 'uncovered_lines_tool',
-      'list_tool', 'coverage_totals_tool', 'coverage_table_tool', 'version_tool')
+    expect(tool_names).to include('file_coverage_summary_tool', 'file_uncovered_lines_tool',
+      'project_coverage_list_tool', 'project_coverage_totals_tool', 'project_coverage_table_tool', 'version_tool')
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
 
