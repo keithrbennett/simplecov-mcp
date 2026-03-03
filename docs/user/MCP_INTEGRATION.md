@@ -405,7 +405,7 @@ See the **[CLI Fallback for LLMs Guide](CLI_FALLBACK_FOR_LLMS.md)** for:
 ```sh
 which cov-loupe     # Verify executable exists
 ruby -v             # Check Ruby >= 3.2
-cov-loupe version   # Test basic functionality
+cov-loupe --version   # Test basic functionality
 ```
 
 

@@ -23,7 +23,7 @@ Ideally it is configured as an MCP server so you can call its tools directly. If
    | `file_coverage_detailed` | `detailed <path>` | `cov-loupe detailed lib/foo.rb` |
    | `project_coverage_totals` | `totals` | `cov-loupe totals` |
    | `project_validate` | `validate <expr>` | `cov-loupe validate 'pct >= 90'` |
-   | `version` | `version` | `cov-loupe version` |
+   | `version` | `--version` (flag) | `cov-loupe --version` |
 
 3. **Use `--help`** at any point to get up-to-date flag and argument information:
    ```

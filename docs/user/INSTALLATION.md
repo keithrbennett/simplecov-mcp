@@ -59,7 +59,7 @@ The executable is `cov-loupe` (with hyphen).
 
 ```sh
 # Check version
-cov-loupe version
+cov-loupe --version
 
 # Show help
 cov-loupe --help

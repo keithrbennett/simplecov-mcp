@@ -95,7 +95,7 @@ when merging resultsets.
 1. **Verify executable exists and works:**
    ```bash
    which cov-loupe
-   cov-loupe version
+   cov-loupe --version
    ```
 
 2. **Test MCP server mode manually:**
@@ -172,7 +172,7 @@ bundle -v
 # cov-loupe info
 gem list cov-loupe
 which cov-loupe
-cov-loupe version
+cov-loupe --version
 
 # Test basic functionality
 cov-loupe --help

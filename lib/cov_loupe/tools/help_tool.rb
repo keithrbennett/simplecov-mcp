@@ -73,7 +73,7 @@ module CovLoupe
         },
         {
           tool: VersionTool,
-          label: 'cov-loupe version',
+          label: 'cov-loupe --version',
           use_when: 'User needs to confirm the running gem version.',
           avoid_when: 'User is asking for coverage information.',
           inputs: ['(no arguments)']

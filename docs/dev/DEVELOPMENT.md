@@ -11,7 +11,7 @@ git clone https://github.com/keithrbennett/cov-loupe.git
 cd cov-loupe
 bundle install
 gem build cov-loupe.gemspec && gem install cov-loupe-*.gem  # optional
-cov-loupe version  # verify it works
+cov-loupe --version  # verify it works
 ```
 
 ## Running Tests

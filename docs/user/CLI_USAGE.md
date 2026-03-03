@@ -52,8 +52,9 @@ clp validate coverage_policy.rb
 clp v coverage_policy.rb
 clp v -i '->(m) { m.project_totals["lines"]["percent_covered"] >= 85 }'
 
-# Show version (no abbreviation)
-clp version
+# Show version (no subcommand; use -v or --version)
+clp -v
+clp --version
 
 # Get help
 clp -h  # -h = --help
@@ -388,21 +389,6 @@ Tracked globs:
 - Respects `-g` / `--tracked-globs` when you only want to aggregate a subset of files.
 - Totals exclude stale files (`"missing"`, `"newer"`, `"length_mismatch"`, `"error"`) so the aggregate reflects only fresh coverage data.
 - Honors `-S` / `--raise-on-stale` to raise if coverage data is out of date.
-
-### `version`
-
-Show version information.
-
-```sh
-$ cov-loupe version # same as `cov-loupe -v` or `cov-loupe --version
-┌───────────────┬─────────────────────────────────────────────┐
-│ Key           │ Value                                       │
-├───────────────┼─────────────────────────────────────────────┤
-│ Version       │ 4.1.0                                       │
-│ Gem Root      │ /home/kbennett/code/cov-loupe               │
-│ Documentation │ README.md and docs/user/**/*.md in gem root │
-└───────────────┴─────────────────────────────────────────────┘
-```
 
 ## Global Options
 
