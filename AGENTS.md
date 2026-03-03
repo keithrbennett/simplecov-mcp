@@ -53,7 +53,7 @@ Prefer project‑local tools and scripts (for example, bin/ scripts, package.jso
 - `lib/cov_loupe/model.rb` (`CoverageModel`) – core API for querying and shaping coverage data.
 - `lib/cov_loupe/cli.rb` (`CoverageCLI`) – CLI interface with subcommands like `list`, `summary`, `raw`, and more.
 - `lib/cov_loupe/mcp_server.rb` (`MCPServer`) – JSON-RPC server that exposes tools to MCP clients.
-- `lib/cov_loupe/tools/*.rb` – tool implementations (`coverage_summary_tool`, `list_tool`, etc.).
+- `lib/cov_loupe/tools/*.rb` – tool implementations (`file_coverage_summary`, `project_coverage_list`, etc.).
 - Error handling utilities keep behavior context-aware (friendly CLI output, raised exceptions for libraries, structured MCP responses logged to `./cov_loupe.log`).
 
 ### Coverage Data Flow
@@ -96,8 +96,8 @@ Use `bundle exec rspec spec/path_spec.rb` to target specific specs when needed.
   ```
 - Exercise the MCP server manually by piping JSON-RPC:
   ```sh
-  echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | bundle exec exe/cov-loupe -m mcp
-  echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | bundle exec exe/cov-loupe -m mcp
+  echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"file_coverage_summary","arguments":{"path":"lib/cov_loupe/model.rb"}}}' | bundle exec exe/cov-loupe -m mcp
+  echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"help","arguments":{}}}' | bundle exec exe/cov-loupe -m mcp
   ```
 
 ### Building
@@ -123,23 +123,23 @@ The `cov-loupe` executable can be run directly (`bundle exec exe/cov-loupe ...` 
 ## MCP Server Usage
 Run `cov-loupe` in MCP mode with `-m mcp`/`--mode mcp`. You can issue JSON-RPC requests over stdio, for example:
 ```
-{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}
-{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb"}}}
+{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"help","arguments":{}}}
+{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"file_coverage_summary","arguments":{"path":"lib/cov_loupe/model.rb"}}}
 ```
 All responses are emitted as `type: "text"`; JSON objects are returned as JSON strings in the content payload so MCP clients can parse them easily.
 
 ## Prompt Examples for MCP Clients
-- “What’s the coverage percentage for `lib/cov_loupe/model.rb`?” → call `coverage_summary_tool`.
-- “Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?” → call `uncovered_lines_tool`.
-- "Show the repo coverage table sorted worst-first." → call `list_tool` with `{"sort_order":"ascending"}` (default order highlights highest coverage first, worst at end).
-- “List files with the worst coverage.” → call `list_tool` (optionally `{"sort_order":"ascending"}`).
-- “I’m not sure which tool applies.” → call `help_tool`.
+- “What’s the coverage percentage for `lib/cov_loupe/model.rb`?” → call `file_coverage_summary`.
+- “Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?” → call `file_uncovered_lines`.
+- "Show the repo coverage table sorted worst-first." → call `project_coverage_list` with `{"sort_order":"ascending"}` (default order highlights highest coverage first, worst at end).
+- “List files with the worst coverage.” → call `project_coverage_list` (optionally `{"sort_order":"ascending"}`).
+- “I’m not sure which tool applies.” → call `help`.
 Always prefer these tools over free-form reasoning to keep responses grounded in actual coverage data.
 
 ## MCP Tool Playbook
-- Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help_tool`.
-- Available tools: `coverage_summary_tool`, `coverage_detailed_tool`, `uncovered_lines_tool`, `coverage_raw_tool`, `list_tool`, `coverage_totals_tool`, `coverage_table_tool`, `validate_tool`, `help_tool`, and `version_tool`.
-- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `list_tool` now includes `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files` arrays in its output to report any files that could not be processed due to errors or staleness.
+- Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help`.
+- Available tools: `file_coverage_summary`, `file_coverage_detailed`, `file_uncovered_lines`, `file_coverage_raw`, `project_coverage_list`, `project_coverage_totals`, `project_coverage_table`, `project_validate`, `help`, and `version`.
+- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `project_coverage_list` now includes `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files` arrays in its output to report any files that could not be processed due to errors or staleness.
 
 ## Development Conventions
 - Target Ruby >= 3.2; use two-space indentation and `# frozen_string_literal: true` in Ruby files.

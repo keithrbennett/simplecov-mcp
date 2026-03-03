@@ -3,11 +3,11 @@
 require 'spec_helper'
 require 'cov_loupe/tools/help_tool'
 require 'cov_loupe/tools/version_tool'
-require 'cov_loupe/tools/coverage_summary_tool'
-require 'cov_loupe/tools/coverage_raw_tool'
-require 'cov_loupe/tools/uncovered_lines_tool'
-require 'cov_loupe/tools/coverage_detailed_tool'
-require 'cov_loupe/tools/coverage_totals_tool'
+require 'cov_loupe/tools/file_coverage_summary_tool'
+require 'cov_loupe/tools/file_coverage_raw_tool'
+require 'cov_loupe/tools/file_uncovered_lines_tool'
+require 'cov_loupe/tools/file_coverage_detailed_tool'
+require 'cov_loupe/tools/project_coverage_totals_tool'
 
 RSpec.describe CovLoupe::Tools do
   let(:server_context) { null_server_context }
@@ -56,26 +56,26 @@ RSpec.describe CovLoupe::Tools do
     end
   end
 
-  describe CovLoupe::Tools::CoverageSummaryTool do
+  describe CovLoupe::Tools::FileCoverageSummaryTool do
     it_behaves_like 'handles tool error', described_class, :new, 'Model error', path: 'lib/foo.rb'
   end
 
-  describe CovLoupe::Tools::CoverageRawTool do
+  describe CovLoupe::Tools::FileCoverageRawTool do
     it_behaves_like 'handles tool error', described_class, :raw_for, 'Raw data error',
       path: 'lib/foo.rb'
   end
 
-  describe CovLoupe::Tools::UncoveredLinesTool do
+  describe CovLoupe::Tools::FileUncoveredLinesTool do
     it_behaves_like 'handles tool error', described_class, :uncovered_for, 'Uncovered error',
       path: 'lib/foo.rb'
   end
 
-  describe CovLoupe::Tools::CoverageDetailedTool do
+  describe CovLoupe::Tools::FileCoverageDetailedTool do
     it_behaves_like 'handles tool error', described_class, :detailed_for, 'Detailed error',
       path: 'lib/foo.rb'
   end
 
-  describe CovLoupe::Tools::CoverageTotalsTool do
+  describe CovLoupe::Tools::ProjectCoverageTotalsTool do
     it_behaves_like 'handles tool error', described_class, :new, 'Model error'
   end
 end

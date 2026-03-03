@@ -3,9 +3,9 @@
 require 'spec_helper'
 require 'pathname'
 require 'tempfile'
-require 'cov_loupe/tools/validate_tool'
+require 'cov_loupe/tools/project_validate_tool'
 
-RSpec.describe CovLoupe::Tools::ValidateTool do
+RSpec.describe CovLoupe::Tools::ProjectValidateTool do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:resultset) { FIXTURE_PROJECT1_RESULTSET_PATH }
   let(:server_context) { null_server_context }

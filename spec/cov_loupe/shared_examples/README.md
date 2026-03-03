@@ -101,9 +101,9 @@ For these cases, create individual spec files as needed.
 
 ### Current Tools Using This Pattern
 
-- ✅ `CoverageSummaryTool` - File summary data
-- ✅ `CoverageRawTool` - Raw coverage arrays
-- ✅ `UncoveredLinesTool` - Uncovered line numbers
-- ✅ `CoverageDetailedTool` - Line-by-line coverage details
+- ✅ `FileCoverageSummaryTool` - File summary data
+- ✅ `FileCoverageRawTool` - Raw coverage arrays
+- ✅ `FileUncoveredLinesTool` - Uncovered line numbers
+- ✅ `FileCoverageDetailedTool` - Line-by-line coverage details
 
 All tested with 13 shared tests plus 6 tool-specific tests = 19 total tests for 4 tools.

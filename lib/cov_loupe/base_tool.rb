@@ -289,7 +289,9 @@ module CovLoupe
     # CoverageDetailedTool -> :detailed_for, UncoveredLinesTool -> :uncovered_for.
     def self.payload_method_for(tool_name)
       base = tool_name.sub(/Tool\z/, '')
-      underscored = underscore(base).sub(/\Acoverage_/, '').sub(/_lines\z/, '')
+      underscored = underscore(base)
+        .sub(/\A(file_)?(coverage_)?/, '')
+        .sub(/_lines\z/, '')
       :"#{underscored}_for"
     end
 

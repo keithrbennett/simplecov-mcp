@@ -112,7 +112,7 @@ Accepted
 cov-loupe exposes key project resources across two surfaces:
 
 1. CLI (`cov-loupe --path-for=NAME`)
-2. MCP (`help_tool` response)
+2. MCP (`help` response)
 
 The project needs one consistent contract so humans and agents can request the same named values without translation logic.
 
@@ -127,7 +127,7 @@ Canonical identifiers:
 
 Both interfaces now consume this same map:
 - CLI uses `--path-for=NAME` (or `-p` alone to print all three) and prints the mapped value.
-- `help_tool` returns `resources` with the same canonical keys.
+- `help` returns `resources` with the same canonical keys.
 - MCP server startup instructions serialize the same resource map for discoverability.
 
 ### Consequences

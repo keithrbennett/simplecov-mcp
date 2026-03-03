@@ -59,7 +59,7 @@ Gem::Specification.new do |spec|
     ┃  • Executable: simplecov-mcp → cov-loupe                                  ┃
     ┃  • Environment: SIMPLECOV_MCP_OPTS → COV_LOUPE_OPTS                       ┃
     ┃  • Log file: simplecov_mcp.log → cov_loupe.log                            ┃
-    ┃  • Alias: smcp → clp (in documentation)                                     ┃
+    ┃  • Alias: smcp → clp (in documentation)                                   ┃
     ┃                                                                           ┃
     ┃ Module name (CovLoupe) and require path (cov_loupe) unchanged.            ┃
     ┃                                                                           ┃

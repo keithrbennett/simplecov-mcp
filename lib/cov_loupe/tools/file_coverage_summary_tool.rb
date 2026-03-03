@@ -6,13 +6,14 @@ require_relative '../presenters/coverage_payload_presenter'
 
 module CovLoupe
   module Tools
-    class CoverageRawTool < BaseTool
+    class FileCoverageSummaryTool < BaseTool
+      tool_name 'file_coverage_summary'
       description <<~DESC
-        Use this when you need the raw SimpleCov `lines` array for a file exactly as stored on disk.
-        Do not use this for human-friendly explanations; choose coverage.detailed or coverage.summary instead.
+        Use this when the user asks for the covered/total line counts and percentage for a specific file.
+        Do not use this for multi-file reports; coverage.list or coverage.table handle those.
         Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
-        Output: JSON object with "file" and "lines" (array of integers/nulls) mirroring SimpleCov's native structure, plus "stale" status.
-        Example: "Fetch the raw coverage array for spec/support/foo_helper.rb".
+        Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "percentage": Float}, "stale": String|False}.
+        Examples: "What is the coverage for lib/cov_loupe/tools/project_coverage_list_tool.rb?".
       DESC
       input_schema(**input_schema_def)
       class << self

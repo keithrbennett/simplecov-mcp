@@ -61,7 +61,7 @@ end
 # Configuration data for each file-based MCP tool
 FILE_BASED_TOOL_CONFIGS = {
   summary: {
-    tool_class: CovLoupe::Tools::CoverageSummaryTool,
+    tool_class: CovLoupe::Tools::FileCoverageSummaryTool,
     model_method: :summary_for,
     expected_keys: %w[file summary stale],
     output_filename: 'coverage_summary.json',
@@ -92,7 +92,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   raw: {
-    tool_class: CovLoupe::Tools::CoverageRawTool,
+    tool_class: CovLoupe::Tools::FileCoverageRawTool,
     model_method: :raw_for,
     expected_keys: %w[file lines stale],
     output_filename: 'coverage_raw.json',
@@ -107,7 +107,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   uncovered: {
-    tool_class: CovLoupe::Tools::UncoveredLinesTool,
+    tool_class: CovLoupe::Tools::FileUncoveredLinesTool,
     model_method: :uncovered_for,
     expected_keys: %w[file uncovered summary stale],
     output_filename: 'uncovered_lines.json',
@@ -140,7 +140,7 @@ FILE_BASED_TOOL_CONFIGS = {
   },
 
   detailed: {
-    tool_class: CovLoupe::Tools::CoverageDetailedTool,
+    tool_class: CovLoupe::Tools::FileCoverageDetailedTool,
     model_method: :detailed_for,
     expected_keys: %w[file lines summary stale],
     output_filename: 'coverage_detailed.json',

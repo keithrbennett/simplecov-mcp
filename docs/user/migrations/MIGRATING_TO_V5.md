@@ -6,9 +6,34 @@ This document describes the breaking changes introduced in version 5.0.0.
 
 ## Table of Contents
 
+- [MCP Tool Names Renamed](#mcp-tool-names-renamed)
 - [Removed `version` Subcommand](#removed-version-subcommand)
 - [Simplified `--version` Output](#simplified---version-output)
 - [Single-Letter Subcommand Abbreviations](#single-letter-subcommand-abbreviations)
+
+---
+
+## MCP Tool Names Renamed
+
+All MCP tool names have the `_tool` suffix removed. File-scope tools gain a `file_` prefix and
+project-scope tools gain a `project_` prefix. The meta-tools (`help`, `version`) are simply
+shortened from `help_tool` and `version_tool`.
+
+| v4.x name                | v5.0 name                 |
+|--------------------------|---------------------------|
+| `coverage_summary_tool`  | `file_coverage_summary`   |
+| `coverage_detailed_tool` | `file_coverage_detailed`  |
+| `coverage_raw_tool`      | `file_coverage_raw`       |
+| `uncovered_lines_tool`   | `file_uncovered_lines`    |
+| `list_tool`              | `project_coverage_list`   |
+| `coverage_totals_tool`   | `project_coverage_totals` |
+| `coverage_table_tool`    | `project_coverage_table`  |
+| `validate_tool`          | `project_validate`        |
+| `help_tool`              | `help`                    |
+| `version_tool`           | `version`                 |
+
+Update any MCP client configurations, tool-call strings in prompts, or direct JSON-RPC requests
+that reference the old names.
 
 ---
 
