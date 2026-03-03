@@ -190,4 +190,4 @@ before merging resultsets.
 - Project-level checking: `StalenessChecker#check_project!`
 - Staleness detail computation: `StalenessChecker#compute_file_staleness_details`
 - Error types: `lib/cov_loupe/errors.rb` (`CoverageDataStaleError`, `CoverageDataProjectStaleError`)
-- Usage in tools: `lib/cov_loupe/tools/project_coverage_list.rb`, `lib/cov_loupe/model.rb`
+- Usage in tools: `lib/cov_loupe/tools/project_coverage_list_tool.rb`, `lib/cov_loupe/model.rb`

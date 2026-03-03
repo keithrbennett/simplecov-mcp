@@ -147,7 +147,7 @@ Both interfaces now consume this same map:
 
 - Shared resource map: `lib/cov_loupe/resources.rb`
 - CLI option: `lib/cov_loupe/config/option_parser_builder.rb`
-- MCP help response: `lib/cov_loupe/tools/help.rb`
+- MCP help response: `lib/cov_loupe/tools/help_tool.rb`
 - MCP server instructions: `lib/cov_loupe/mcp_server.rb`
 
 ---

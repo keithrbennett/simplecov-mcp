@@ -303,7 +303,7 @@ Using cov-loupe, show me the uncovered lines in lib/cov_loupe/base_tool.rb and e
 ```
 
 ```
-Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/file_coverage_detailed.rb.
+Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/file_coverage_detailed_tool.rb.
 ```
 
 ### Test Generation
