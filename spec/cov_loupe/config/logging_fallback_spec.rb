@@ -168,4 +168,81 @@ RSpec.describe 'Logging Fallback Behavior' do
       expect(content).to include('MODE:cli', 'ERROR:runtime error', 'MSG:test message')
     end
   end
+
+  describe ':off sentinel disables logging' do
+    let(:disabled_logger) { CovLoupe::Logger.new(target: ':off', mode: :cli) }
+
+    it 'does not raise when logging methods are called' do
+      expect { disabled_logger.info('test') }.not_to raise_error
+      expect { disabled_logger.warn('test') }.not_to raise_error
+      expect { disabled_logger.error('test') }.not_to raise_error
+      expect { disabled_logger.safe_log('test') }.not_to raise_error
+    end
+
+    it 'does not create a log file' do
+      disabled_logger.info('test message')
+      expect(File.exist?('cov_loupe.log')).to be false
+    end
+
+    it 'does not write to fallback file' do
+      disabled_logger.info('test message')
+      expect(File.exist?(fallback_file)).to be false
+    end
+
+    context 'with case-insensitive handling' do
+      it 'handles ":off" string with colon' do
+        logger = CovLoupe::Logger.new(target: ':off', mode: :cli)
+        expect { logger.info('test') }.not_to raise_error
+        expect(File.exist?(fallback_file)).to be false
+      end
+
+      it 'handles ":OFF" (uppercase string with colon)' do
+        logger = CovLoupe::Logger.new(target: ':OFF', mode: :cli)
+        expect { logger.info('test') }.not_to raise_error
+        expect(File.exist?(fallback_file)).to be false
+      end
+    end
+
+    context 'with whitespace trimming' do
+      it 'handles " :off " with surrounding whitespace' do
+        logger = CovLoupe::Logger.new(target: '  :off  ', mode: :cli)
+        expect { logger.info('test') }.not_to raise_error
+        expect(File.exist?(fallback_file)).to be false
+      end
+    end
+
+    context 'with non-sentinel values' do
+      it '"off" without colon writes to file "off"' do
+        Dir.mktmpdir do |dir|
+          Dir.chdir(dir) do
+            logger = CovLoupe::Logger.new(target: 'off', mode: :cli)
+            logger.info('test message')
+            expect(File.exist?('off')).to be true
+            expect(File.read('off')).to include('test message')
+          end
+        end
+      end
+
+      it '"OFF" without colon writes to file "OFF"' do
+        Dir.mktmpdir do |dir|
+          Dir.chdir(dir) do
+            logger = CovLoupe::Logger.new(target: 'OFF', mode: :cli)
+            logger.info('test message')
+            expect(File.exist?('OFF')).to be true
+            expect(File.read('OFF')).to include('test message')
+          end
+        end
+      end
+
+      it '" off " without colon writes to file " off "' do
+        Dir.mktmpdir do |dir|
+          Dir.chdir(dir) do
+            logger = CovLoupe::Logger.new(target: ' off ', mode: :cli)
+            logger.info('test message')
+            expect(File.exist?(' off ')).to be true
+          end
+        end
+      end
+    end
+  end
 end

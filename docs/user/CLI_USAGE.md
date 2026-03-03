@@ -618,11 +618,13 @@ Without globs, this array is empty (no expectations = no violations).
 ### `-l, --log-file PATH`
 
 Log file location. Use 'stdout' or 'stderr' to log to standard streams.
+Use ':off' to disable logging entirely (cross-platform alternative to /dev/null).
 
 ```sh
 clp -l /var/log/simplecov.log  # -l = --log-file
 clp -l stdout                   # Log to standard output
 clp -l stderr                   # Log to standard error
+clp -l :off                     # Disable logging entirely
 ```
 
 **Default:** `./cov_loupe.log`

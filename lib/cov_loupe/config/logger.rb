@@ -15,6 +15,9 @@ module CovLoupe
       @target = target
       @init_error = nil
       @stderr_warning_emitted = false
+      @disabled = logging_disabled?(target)
+
+      return if @disabled
 
       begin
         @logger = build_logger(target)
@@ -24,22 +27,36 @@ module CovLoupe
     end
 
     def info(msg)
+      return if @disabled
+
       log_with_level(:info, msg)
     end
 
     def warn(msg)
+      return if @disabled
+
       log_with_level(:warn, msg)
     end
 
     def error(msg)
+      return if @disabled
+
       log_with_level(:error, msg)
     end
 
     # Safe logging that never raises - use when logging should not interrupt execution.
     def safe_log(msg)
+      return if @disabled
+
       info(msg)
     rescue
       # Silently ignore all logging failures
+    end
+
+    private def logging_disabled?(target)
+      return false if target.nil?
+
+      target.to_s.strip.downcase == ':off'
     end
 
     private def log_with_level(level, msg)
