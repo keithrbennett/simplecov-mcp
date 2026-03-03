@@ -12,6 +12,19 @@ Use this gem programmatically to inspect coverage without running the CLI or MCP
 - [Error Handling](#error-handling)
 - [Advanced Recipes](#advanced-recipes)
 
+## API Boundary and Compatibility
+
+CovLoupe seeks to provide a stable programmatic interface for inspecting test coverage data.
+The following are the supported interfaces that users should depend on:
+
+- **`CovLoupe.run`** – Entry point for running the tool in CLI or MCP mode
+- **`CovLoupe::CoverageModel`** – Primary class for querying coverage data
+- **Methods documented in this guide** – `list`, `summary_for`, `uncovered_for`, `detailed_for`, `raw_for`, `format_table`, `project_totals`, and `relativize`
+
+All other constants, classes, modules, and internal methods not listed above are implementation details and may change between releases without notice.
+
+The project aims to keep documented interfaces as compatible as practical across minor and patch releases. When breaking changes become necessary, they will be communicated via migration guides and release notes.
+
 ## Quick Start
 
 ```ruby
