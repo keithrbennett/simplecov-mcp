@@ -318,7 +318,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       end
     end
 
-    it 'executes validate_tool via JSON-RPC' do
+    it 'executes project_validate via JSON-RPC' do
       resp = jsonrpc_tool_call(
         80,
         'project_validate',
