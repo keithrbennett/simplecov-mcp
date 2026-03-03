@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/tools/help'
+require 'cov_loupe/tools/help_tool'
 
 RSpec.describe CovLoupe::Tools::HelpTool do
   let(:server_context) { null_server_context }
