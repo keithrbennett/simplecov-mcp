@@ -129,18 +129,30 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
             check: ->(data) { expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2]) }
           },
           {
-            tool: CovLoupe::Tools::ProjectCoverageListTool,
+            tool: CovLoupe::Tools::ProjectCoverageTool,
             args: { root: project_root, resultset: coverage_dir },
             expected_keys: %w[files counts],
             check: ->(data) {
               expect(data['files'].length).to eq(2)
               expect(data['counts']['total']).to eq(2)
             }
+          },
+          {
+            tool: CovLoupe::Tools::ProjectCoverageTool,
+            args: { root: project_root, resultset: coverage_dir, format: 'table' },
+            expected_keys: [],
+            check: ->(text) { expect(text).to include('lib/foo.rb') },
+            is_text: true
           }
         ].each do |tc|
           response = tc[:tool].call(**tc[:args], server_context: server_context)
-          data, = expect_mcp_text_json(response, expected_keys: tc[:expected_keys])
-          tc[:check].call(data)
+          if tc[:is_text]
+            text = response.payload.first['text']
+            tc[:check].call(text)
+          else
+            data, = expect_mcp_text_json(response, expected_keys: tc[:expected_keys])
+            tc[:check].call(data)
+          end
         end
       end
     end
@@ -253,7 +265,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         tools = response['result']['tools']
         expect(tools).to be_an(Array)
         expect(tools.map { |t| t['name'] }).to include(
-          'project_coverage_list', 'file_coverage_summary', 'file_coverage_raw',
+          'project_coverage', 'file_coverage_summary', 'file_coverage_raw',
           'file_uncovered_lines', 'file_coverage_detailed', 'help'
         )
       end
@@ -270,7 +282,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
           },
           {
             id: 4,
-            name: 'project_coverage_list',
+            name: 'project_coverage',
             args: { root: project_root, resultset: coverage_dir },
             check: ->(data) { expect(data['files'].length).to eq(2) }
           },

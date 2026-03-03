@@ -13,7 +13,7 @@ module CovLoupe
         Do not use this for multi-file reports; coverage.list or coverage.table handle those.
         Inputs: file path (required) plus optional root/resultset/raise_on_stale flag inherited from BaseTool.
         Output: JSON object {"file": String, "summary": {"covered": Integer, "total": Integer, "percentage": Float}, "stale": String|False}.
-        Examples: "What is the coverage for lib/cov_loupe/tools/project_coverage_list_tool.rb?".
+        Examples: "What is the coverage for lib/cov_loupe/tools/project_coverage_tool.rb?".
       DESC
       input_schema(**input_schema_def)
       class << self

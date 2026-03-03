@@ -13,7 +13,7 @@ The integration tests spawn the actual MCP server as a subprocess and communicat
 1. **starts MCP server without errors** - Verifies the server starts and responds to basic requests without NameError or other initialization issues
 2. **handles tools/list request** - Confirms all expected tools are properly registered
 3. **executes file_coverage_summary via JSON-RPC** - Tests single-file coverage summary queries
-4. **executes project_coverage_list via JSON-RPC** - Tests project-wide coverage listing
+4. **executes project_coverage via JSON-RPC** - Tests project-wide coverage (list/table/format)
 5. **executes file_uncovered_lines via JSON-RPC** - Tests uncovered line detection
 6. **executes help via JSON-RPC** - Tests help/documentation retrieval
 7. **executes version via JSON-RPC** - Tests version information queries

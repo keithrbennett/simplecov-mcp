@@ -16,7 +16,7 @@ Ideally it is configured as an MCP server so you can call its tools directly. If
 
    | MCP tool | CLI subcommand | Example |
    |---|---|---|
-   | `project_coverage_list` | `list` | `cov-loupe list` |
+   | `project_coverage` | `list` | `cov-loupe list` |
    | `file_coverage_summary` | `summary <path>` | `cov-loupe summary lib/foo.rb` |
    | `file_coverage_raw` | `raw <path>` | `cov-loupe raw lib/foo.rb` |
    | `file_uncovered_lines` | `uncovered <path>` | `cov-loupe uncovered lib/foo.rb` |

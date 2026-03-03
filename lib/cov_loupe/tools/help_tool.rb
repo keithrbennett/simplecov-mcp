@@ -50,11 +50,12 @@ module CovLoupe
           inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
         },
         {
-          tool: ProjectCoverageListTool,
-          label: 'Repo-wide file coverage',
-          use_when: 'User wants coverage percentages for every tracked file.',
-          avoid_when: 'User asks about a single file.',
-          inputs: ['root/resultset (optional)', 'sort_order', 'raise_on_stale', 'tracked_globs']
+          tool: ProjectCoverageTool,
+          label: 'Project coverage (JSON, table, YAML, etc.)',
+          use_when: 'User wants coverage data for every tracked file in their preferred format.',
+          avoid_when: 'User asks about a single file or only wants totals.',
+          inputs: ['root/resultset (optional)', 'sort_order', 'raise_on_stale', 'tracked_globs',
+                   'format (json/pretty_json/yaml/amazing_print/table)']
         },
         {
           tool: ProjectCoverageTotalsTool,
@@ -62,13 +63,6 @@ module CovLoupe
           use_when: 'User wants total/covered/uncovered line counts or the average percent.',
           avoid_when: 'User needs per-file breakdowns.',
           inputs: ['root/resultset (optional)', 'raise_on_stale', 'tracked_globs']
-        },
-        {
-          tool: ProjectCoverageTableTool,
-          label: 'Formatted coverage table',
-          use_when: 'User wants the plain-text table produced by the CLI.',
-          avoid_when: 'User needs JSON data for automation.',
-          inputs: ['root/resultset (optional)', 'sort_order', 'raise_on_stale']
         },
         {
           tool: ProjectValidateTool,

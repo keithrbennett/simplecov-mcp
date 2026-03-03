@@ -25,12 +25,12 @@ shortened from `help_tool` and `version_tool`.
 | `coverage_detailed_tool` | `file_coverage_detailed`  |
 | `coverage_raw_tool`      | `file_coverage_raw`       |
 | `uncovered_lines_tool`   | `file_uncovered_lines`    |
-| `list_tool`              | `project_coverage_list`   |
+| `list_tool`              | `project_coverage`        |
 | `coverage_totals_tool`   | `project_coverage_totals` |
-| `coverage_table_tool`    | `project_coverage_table`  |
+| `coverage_table_tool`    | `project_coverage` (format: table) |
 | `validate_tool`          | `project_validate`        |
-| `help_tool`              | `help`                    |
-| `version_tool`           | `version`                 |
+| `help_tool`              | `help`                   |
+| `version_tool`           | `version`                |
 
 Update any MCP client configurations, tool-call strings in prompts, or direct JSON-RPC requests
 that reference the old names.
@@ -97,3 +97,4 @@ cov-loupe v -i "model.list.all?"
 ```
 
 Available abbreviations: `l` (list), `s` (summary), `r` (raw), `u` (uncovered), `d` (detailed), `t` (totals), `v` (validate).
+

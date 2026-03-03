@@ -369,7 +369,7 @@ cov-loupe --raise-on-stale yes # enforce stale coverage failures
 
 **CLI Subcommands:** `list (l)`, `summary (s)`, `uncovered (u)`, `detailed (d)`, `raw (r)`, `totals (t)`, `validate (v)`
 
-**MCP Tools:** `file_coverage_summary`, `file_coverage_detailed`, `file_coverage_raw`, `file_uncovered_lines`, `project_coverage_list`, `project_coverage_totals`, `project_coverage_table`, `project_validate`, `help`, `version`
+**MCP Tools:** `file_coverage_summary`, `file_coverage_detailed`, `file_coverage_raw`, `file_uncovered_lines`, `project_coverage`, `project_coverage_totals`, `project_validate`, `help`, `version`
 
 📖 **See also:**
 - [CLI Usage Guide](docs/user/CLI_USAGE.md) - Complete command-line reference

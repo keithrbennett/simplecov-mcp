@@ -125,7 +125,7 @@ For global configuration, create or edit `~/.config/kilo/opencode.json`. For pro
 
 ### Tool Catalog
 
-cov-loupe exposes 10 MCP tools:
+cov-loupe exposes 9 MCP tools:
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
@@ -133,9 +133,8 @@ cov-loupe exposes 10 MCP tools:
 | `file_coverage_detailed` | Per-line coverage | `path` |
 | `file_coverage_raw` | Raw SimpleCov array | `path` |
 | `file_uncovered_lines` | List uncovered lines | `path` |
-| `project_coverage_list` | Project-wide coverage | `sort_order`, `tracked_globs` |
+| `project_coverage` | Project-wide coverage (JSON, table, YAML, etc.) | `sort_order`, `tracked_globs`, `format` |
 | `project_coverage_totals` | Aggregated line totals | `tracked_globs` |
-| `project_coverage_table` | Formatted coverage table | `sort_order` |
 | `project_validate` | Validate coverage policies | `code` or `file` |
 | `help` | Tool discovery | (none) |
 | `version` | Version information | (none) |
@@ -232,18 +231,17 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Project-Wide Tools
 
-**`project_coverage_list`** - Coverage for all files
-- Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
-- Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...], "length_mismatch_files": [...], "unreadable_files": [...], "timestamp_status": "ok|missing"}`
+**`project_coverage`** - Coverage for all files in various formats
+- Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array), `format` (`json`|`pretty_json`|`yaml`|`amazing_print`|`table`)
+- Default format: `json`
+- Returns: JSON object (format dependent):
+  - JSON/pretty_json/yaml/amazing_print: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...], "length_mismatch_files": [...], "unreadable_files": [...], "timestamp_status": "ok|missing", "warnings": [...]}`
+  - Table: Plain text table with box-drawing characters
 
 **`project_coverage_totals`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`
 - Returns: `{"lines":{"total":N,"covered":N,"uncovered":N,"percent_covered":Float},"tracking":{"enabled":Boolean,"globs":[String]},"files":{"total":N,"with_coverage":{"total":N,"ok":N,"stale":{"total":N,"by_type":{"missing_from_disk":N,"newer":N,"length_mismatch":N,"unreadable":N}}},"without_coverage":{"total":N,"by_type":{"missing_from_coverage":N,"unreadable":N,"skipped":N}}}}`
 - `without_coverage` is only present when tracking is enabled (tracked globs provided).
-
-**`project_coverage_table`** - Formatted table with box-drawing characters
-- Parameters: `sort_order` (`ascending`|`descending`)
-- Returns: Plain text table
 
 #### Policy Validation Tools
 

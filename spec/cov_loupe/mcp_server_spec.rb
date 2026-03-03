@@ -40,13 +40,13 @@ RSpec.describe CovLoupe::MCPServer do
     # Ensure expected tools are registered
     tool_names = fake_server.params[:tools].map { |t| t.name.split('::').last }
     expect(tool_names).to include(
-      'ProjectCoverageListTool',
+      'ProjectCoverageTool',
       'FileCoverageDetailedTool',
       'FileCoverageRawTool',
       'FileCoverageSummaryTool',
       'ProjectCoverageTotalsTool',
       'FileUncoveredLinesTool',
-      'ProjectCoverageTableTool',
+      'ProjectValidateTool',
       'HelpTool',
       'VersionTool'
     )
@@ -84,7 +84,7 @@ RSpec.describe CovLoupe::MCPServer do
     end
 
     it 'registers the expected number of tools' do
-      expect(described_class::TOOLSET.length).to eq(10)
+      expect(described_class::TOOLSET.length).to eq(9)
     end
 
     it 'registers all tool classes defined in CovLoupe::Tools module' do

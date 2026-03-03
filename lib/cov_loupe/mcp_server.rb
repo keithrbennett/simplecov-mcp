@@ -22,13 +22,12 @@ module CovLoupe
     end
 
     TOOLSET = [
-      Tools::ProjectCoverageListTool,
+      Tools::ProjectCoverageTool,
       Tools::FileCoverageDetailedTool,
       Tools::FileCoverageRawTool,
       Tools::FileCoverageSummaryTool,
       Tools::ProjectCoverageTotalsTool,
       Tools::FileUncoveredLinesTool,
-      Tools::ProjectCoverageTableTool,
       Tools::ProjectValidateTool,
       Tools::HelpTool,
       Tools::VersionTool

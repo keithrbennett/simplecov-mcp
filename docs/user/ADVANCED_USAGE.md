@@ -66,7 +66,7 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version","
 echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"file_coverage_summary","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 
 # List all files with sorting (include root parameter)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"project_coverage_list","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"project_coverage","arguments":{"sort_order":"ascending","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 
 # Get uncovered lines (include root parameter)
 echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"file_uncovered_lines","arguments":{"path":"app/controllers/orders_controller.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
@@ -80,7 +80,7 @@ echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"file_uncov
 
 When a file has no executable lines, its coverage percentage is reported as `n/a`. In list outputs, `n/a` entries are grouped separately from numeric percentages. The default descending sort order places `n/a` entries above `100%` coverage so they appear earlier in the list, while still keeping low numeric percentages toward the bottom for attention.
 
-If you need to treat `n/a` differently, post-process the JSON output from `list` or `project_coverage_list` and apply your own sort or filtering rules.
+If you need to treat `n/a` differently, post-process the JSON output from `list` or `project_coverage` and apply your own sort or filtering rules.
 
 ---
 
@@ -184,8 +184,8 @@ Check your coverage tool configuration to ensure timestamps are recorded.
 **Where it appears:**
 - **CLI table format:** After the coverage table in `list` output
 - **CLI JSON format:** After JSON output, and in the `timestamp_status` field
-- **MCP mode:** In `project_coverage_table` output after the exclusions summary
-- **MCP JSON:** In the `timestamp_status` field of `project_coverage_list` responses
+- **MCP mode:** In `project_coverage` output with format=table after the exclusions summary
+- **MCP JSON:** In the `timestamp_status` field of `project_coverage` responses
 
 **How to fix:**
 

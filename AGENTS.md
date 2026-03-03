@@ -53,7 +53,7 @@ Prefer project‑local tools and scripts (for example, bin/ scripts, package.jso
 - `lib/cov_loupe/model.rb` (`CoverageModel`) – core API for querying and shaping coverage data.
 - `lib/cov_loupe/cli.rb` (`CoverageCLI`) – CLI interface with subcommands like `list`, `summary`, `raw`, and more.
 - `lib/cov_loupe/mcp_server.rb` (`MCPServer`) – JSON-RPC server that exposes tools to MCP clients.
-- `lib/cov_loupe/tools/*.rb` – tool implementations (`file_coverage_summary`, `project_coverage_list`, etc.).
+- `lib/cov_loupe/tools/*.rb` – tool implementations (`file_coverage_summary`, `project_coverage`, etc.).
 - Error handling utilities keep behavior context-aware (friendly CLI output, raised exceptions for libraries, structured MCP responses logged to `./cov_loupe.log`).
 
 ### Coverage Data Flow
@@ -131,15 +131,15 @@ All responses are emitted as `type: "text"`; JSON objects are returned as JSON s
 ## Prompt Examples for MCP Clients
 - “What’s the coverage percentage for `lib/cov_loupe/model.rb`?” → call `file_coverage_summary`.
 - “Which lines in `spec/fixtures/project1/lib/bar.rb` are uncovered?” → call `file_uncovered_lines`.
-- "Show the repo coverage table sorted worst-first." → call `project_coverage_list` with `{"sort_order":"ascending"}` (default order highlights highest coverage first, worst at end).
-- “List files with the worst coverage.” → call `project_coverage_list` (optionally `{"sort_order":"ascending"}`).
+- "Show the repo coverage table sorted worst-first." → call `project_coverage` with `{"sort_order":"ascending"}` (default order highlights highest coverage first, worst at end).
+- “List files with the worst coverage.” → call `project_coverage` (optionally `{"sort_order":"ascending"}`).
 - “I’m not sure which tool applies.” → call `help`.
 Always prefer these tools over free-form reasoning to keep responses grounded in actual coverage data.
 
 ## MCP Tool Playbook
 - Always select an MCP tool over ad-hoc reasoning for coverage data. Unsure which one fits? Call `help`.
-- Available tools: `file_coverage_summary`, `file_coverage_detailed`, `file_uncovered_lines`, `file_coverage_raw`, `project_coverage_list`, `project_coverage_totals`, `project_coverage_table`, `project_validate`, `help`, and `version`.
-- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `project_coverage_list` now includes `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files` arrays in its output to report any files that could not be processed due to errors or staleness.
+- Available tools: `file_coverage_summary`, `file_coverage_detailed`, `file_uncovered_lines`, `file_coverage_raw`, `project_coverage`, `project_coverage_totals`, `project_validate`, `help`, and `version`.
+- Responses return deterministic JSON/text; surface the tool output directly unless the user asks for interpretation. Note that `project_coverage` now includes `skipped_files`, `missing_tracked_files`, `newer_files`, and `deleted_files` arrays in its output to report any files that could not be processed due to errors or staleness.
 
 ## Development Conventions
 - Target Ruby >= 3.2; use two-space indentation and `# frozen_string_literal: true` in Ruby files.
