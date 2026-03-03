@@ -133,5 +133,11 @@ RSpec.describe CovLoupe::Tools::ProjectValidateTool do
 
       expect(response_text(response)).to include("Either 'code' or 'file' must be provided")
     end
+
+    it 'returns an error when both code and file are provided' do
+      response = call_tool(code: '->(_m) { true }', file: 'predicate.rb')
+
+      expect(response_text(response)).to include("Only one of 'code' or 'file' must be provided, not both")
+    end
   end
 end

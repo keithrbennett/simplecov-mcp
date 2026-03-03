@@ -48,7 +48,9 @@ module CovLoupe
               raise_on_stale: raise_on_stale
             )
 
-            result = if code
+            result = if code && file
+              raise UsageError, "Only one of 'code' or 'file' must be provided, not both"
+            elsif code
               PredicateEvaluator.evaluate_code(code, model)
             elsif file
               # Resolve file path relative to root if needed
