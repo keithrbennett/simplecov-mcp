@@ -35,7 +35,7 @@ This document describes all breaking changes introduced in version 2.0.0 of simp
 
 **Exception:** The `validate` subcommand has its own subcommand-specific option `-i/--inline` that must appear *after* the subcommand:
 ```bash
-cov-loupe validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
+cov-loupe validate -i '->(m) { m.list["files"].all? { |f| f["percentage"] >= 80 } }'
 ```
 
 
@@ -192,7 +192,7 @@ simplecov-mcp --success-predicate policy.rb
 simplecov-mcp validate policy.rb
 
 # Inline policy (new feature)
-simplecov-mcp validate -i '->(m) { m.list.all? { |f| f["percentage"] >= 80 } }'
+simplecov-mcp validate -i '->(m) { m.list["files"].all? { |f| f["percentage"] >= 80 } }'
 ```
 
 **Migration:** Replace `--success-predicate FILE` with `validate FILE`.

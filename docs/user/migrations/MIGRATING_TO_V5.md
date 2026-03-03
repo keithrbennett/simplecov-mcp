@@ -85,7 +85,7 @@ All CLI subcommands can now be abbreviated to their first letter for convenience
 cov-loupe list
 cov-loupe summary lib/foo.rb
 cov-loupe uncovered lib/foo.rb
-cov-loupe validate -i "model.list.all?"
+cov-loupe validate -i "model.list[\"files\"].all?"
 ```
 
 **After (v5.0):**
@@ -93,7 +93,7 @@ cov-loupe validate -i "model.list.all?"
 cov-loupe l
 cov-loupe s lib/foo.rb
 cov-loupe u lib/foo.rb
-cov-loupe v -i "model.list.all?"
+cov-loupe v -i "model.list[\"files\"].all?"
 ```
 
 Available abbreviations: `l` (list), `s` (summary), `r` (raw), `u` (uncovered), `d` (detailed), `t` (totals), `v` (validate).

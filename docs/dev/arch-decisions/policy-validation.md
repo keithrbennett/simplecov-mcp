@@ -127,7 +127,7 @@ Success predicates must be callable (lambda, proc, or object with `#call` method
 **Lambda example:**
 ```ruby
 ->(model) do
-  model.list.all? { |f| f['percentage'] >= 80 }
+  model.list["files"].all? { |f| f['percentage'] >= 80 }
 end
 ```
 
