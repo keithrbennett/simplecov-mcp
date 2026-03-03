@@ -15,20 +15,22 @@ This document describes the breaking changes introduced in version 5.0.0.
 
 ## MCP Tool Names Renamed
 
-All MCP tools that operate on a **single file** are now prefixed with `file_`, and tools that
-operate on the **whole project** are prefixed with `project_`. `help_tool` and `version_tool` are
-unchanged.
+All MCP tool names have the `_tool` suffix removed. File-scope tools gain a `file_` prefix and
+project-scope tools gain a `project_` prefix. The meta-tools (`help`, `version`) are simply
+shortened from `help_tool` and `version_tool`.
 
 | v4.x name | v5.0 name |
 |---|---|
-| `coverage_summary_tool` | `file_coverage_summary_tool` |
-| `coverage_detailed_tool` | `file_coverage_detailed_tool` |
-| `coverage_raw_tool` | `file_coverage_raw_tool` |
-| `uncovered_lines_tool` | `file_uncovered_lines_tool` |
-| `list_tool` | `project_coverage_list_tool` |
-| `coverage_totals_tool` | `project_coverage_totals_tool` |
-| `coverage_table_tool` | `project_coverage_table_tool` |
-| `validate_tool` | `project_validate_tool` |
+| `coverage_summary_tool` | `file_coverage_summary` |
+| `coverage_detailed_tool` | `file_coverage_detailed` |
+| `coverage_raw_tool` | `file_coverage_raw` |
+| `uncovered_lines_tool` | `file_uncovered_lines` |
+| `list_tool` | `project_coverage_list` |
+| `coverage_totals_tool` | `project_coverage_totals` |
+| `coverage_table_tool` | `project_coverage_table` |
+| `validate_tool` | `project_validate` |
+| `help_tool` | `help` |
+| `version_tool` | `version` |
 
 Update any MCP client configurations, tool-call strings in prompts, or direct JSON-RPC requests
 that reference the old names.

@@ -183,5 +183,5 @@ mkdocs serve
 
 **MCP server testing:**
 ```sh
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version","arguments":{}}}' | cov-loupe -m mcp
 ```

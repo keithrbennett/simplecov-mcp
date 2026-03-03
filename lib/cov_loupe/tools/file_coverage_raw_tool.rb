@@ -7,6 +7,7 @@ require_relative '../presenters/coverage_payload_presenter'
 module CovLoupe
   module Tools
     class FileCoverageRawTool < BaseTool
+      tool_name 'file_coverage_raw'
       description <<~DESC
         Use this when you need the raw SimpleCov `lines` array for a file exactly as stored on disk.
         Do not use this for human-friendly explanations; choose coverage.detailed or coverage.summary instead.

@@ -8,6 +8,7 @@ require_relative '../config/option_normalizers'
 module CovLoupe
   module Tools
     class ProjectCoverageListTool < BaseTool
+      tool_name 'project_coverage_list'
       description <<~DESC
         Use this when the user wants coverage percentages for every tracked file in the project.
         Do not use this for single-file stats; prefer coverage.summary or coverage.uncovered_lines for that.

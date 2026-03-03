@@ -129,16 +129,16 @@ cov-loupe exposes 10 MCP tools:
 
 | Tool | Purpose | Key Parameters |
 |------|---------|----------------|
-| `file_coverage_summary_tool` | File coverage summary | `path` |
-| `file_coverage_detailed_tool` | Per-line coverage | `path` |
-| `file_coverage_raw_tool` | Raw SimpleCov array | `path` |
-| `file_uncovered_lines_tool` | List uncovered lines | `path` |
-| `project_coverage_list_tool` | Project-wide coverage | `sort_order`, `tracked_globs` |
-| `project_coverage_totals_tool` | Aggregated line totals | `tracked_globs` |
-| `project_coverage_table_tool` | Formatted coverage table | `sort_order` |
-| `project_validate_tool` | Validate coverage policies | `code` or `file` |
-| `help_tool` | Tool discovery | (none) |
-| `version_tool` | Version information | (none) |
+| `file_coverage_summary` | File coverage summary | `path` |
+| `file_coverage_detailed` | Per-line coverage | `path` |
+| `file_coverage_raw` | Raw SimpleCov array | `path` |
+| `file_uncovered_lines` | List uncovered lines | `path` |
+| `project_coverage_list` | Project-wide coverage | `sort_order`, `tracked_globs` |
+| `project_coverage_totals` | Aggregated line totals | `tracked_globs` |
+| `project_coverage_table` | Formatted coverage table | `sort_order` |
+| `project_validate` | Validate coverage policies | `code` or `file` |
+| `help` | Tool discovery | (none) |
+| `version` | Version information | (none) |
 
 ### JSON Response Format
 
@@ -208,22 +208,22 @@ All file-specific tools accept these parameters in the JSON request:
 
 These tools analyze individual files. All require `path` parameter.
 
-**`file_coverage_summary_tool`** - Covered/total/percentage summary
+**`file_coverage_summary`** - Covered/total/percentage summary
 ```json
 {"file": "...", "summary": {"covered": 12, "total": 14, "percentage": 85.71}, "stale": "ok"}
 ```
 
-**`file_uncovered_lines_tool`** - List uncovered line numbers
+**`file_uncovered_lines`** - List uncovered line numbers
 ```json
 {"file": "...", "uncovered": [5, 9, 12], "summary": {...}, "stale": "ok"}
 ```
 
-**`file_coverage_detailed_tool`** - Per-line hit counts
+**`file_coverage_detailed`** - Per-line hit counts
 ```json
 {"file": "...", "lines": [{"line": 1, "hits": 1, "covered": true}, ...], "summary": {...}, "stale": "ok"}
 ```
 
-**`file_coverage_raw_tool`** - Raw SimpleCov lines array
+**`file_coverage_raw`** - Raw SimpleCov lines array
 ```json
 {"file": "...", "lines": [1, 0, null, 5, 2, null, 1], "stale": "ok"}
 ```
@@ -232,22 +232,22 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Project-Wide Tools
 
-**`project_coverage_list_tool`** - Coverage for all files
+**`project_coverage_list`** - Coverage for all files
 - Parameters: `sort_order` (`ascending`|`descending`), `tracked_globs` (array)
 - Returns: `{"files": [...], "counts": {"total": N, "ok": N, "stale": N}, "skipped_files": [...], "missing_tracked_files": [...], "newer_files": [...], "deleted_files": [...], "length_mismatch_files": [...], "unreadable_files": [...], "timestamp_status": "ok|missing"}`
 
-**`project_coverage_totals_tool`** - Aggregated line totals
+**`project_coverage_totals`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`
 - Returns: `{"lines":{"total":N,"covered":N,"uncovered":N,"percent_covered":Float},"tracking":{"enabled":Boolean,"globs":[String]},"files":{"total":N,"with_coverage":{"total":N,"ok":N,"stale":{"total":N,"by_type":{"missing_from_disk":N,"newer":N,"length_mismatch":N,"unreadable":N}}},"without_coverage":{"total":N,"by_type":{"missing_from_coverage":N,"unreadable":N,"skipped":N}}}}`
 - `without_coverage` is only present when tracking is enabled (tracked globs provided).
 
-**`project_coverage_table_tool`** - Formatted table with box-drawing characters
+**`project_coverage_table`** - Formatted table with box-drawing characters
 - Parameters: `sort_order` (`ascending`|`descending`)
 - Returns: Plain text table
 
 #### Policy Validation Tools
 
-**`project_validate_tool`** - Validate coverage against custom policies
+**`project_validate`** - Validate coverage against custom policies
 - Parameters: Either `code` (Ruby string) OR `file` (path to Ruby file), plus optional `root`, `resultset`, `raise_on_stale`, `error_mode`
 - Returns: `{"result": Boolean}` where `true` means policy passed, `false` means failed
 - Security Warning: Predicates execute as arbitrary Ruby code with full system privileges. Only use predicate files from trusted sources.
@@ -257,17 +257,17 @@ These tools analyze individual files. All require `path` parameter.
 
 #### Utility Tools
 
-**`help_tool`** - Tool discovery and canonical resource values
-**`version_tool`** - Version information
+**`help`** - Tool discovery and canonical resource values
+**`version`** - Version information
 
-`help_tool` returns:
+`help` returns:
 - `tools` - guidance for each MCP tool (`use_when`, `avoid_when`, `inputs`)
 - `resources` - canonical shared resource values:
     - `repo` (public GitHub URL)
     - `docs` (public docs URL)
     - `docs-local` (absolute path to local README)
 
-Example `help_tool` payload excerpt:
+Example `help` payload excerpt:
 ```json
 {
   "resources": {
@@ -303,7 +303,7 @@ Using cov-loupe, show me the uncovered lines in lib/cov_loupe/base_tool.rb and e
 ```
 
 ```
-Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/file_coverage_detailed_tool.rb.
+Using cov-loupe, find the most important uncovered code in lib/cov_loupe/tools/file_coverage_detailed.rb.
 ```
 
 ### Test Generation
@@ -333,16 +333,16 @@ Test the MCP server responds to JSON-RPC:
 
 ```sh
 # Test version tool (simplest, no parameters needed)
-echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version_tool","arguments":{}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"version","arguments":{}}}' | cov-loupe -m mcp
 
 # Test help tool (no parameters needed)
-echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help_tool","arguments":{}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"help","arguments":{}}}' | cov-loupe -m mcp
 
 # Test summary tool (use root param if needed)
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"file_coverage_summary_tool","arguments":{"path":"lib/cov_loupe/model.rb","root":"."}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"file_coverage_summary","arguments":{"path":"lib/cov_loupe/model.rb","root":"."}}}' | cov-loupe -m mcp
 
 # Test with a project-specific root
-echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"file_coverage_summary_tool","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
+echo '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"file_coverage_summary","arguments":{"path":"app/models/order.rb","root":"docs/fixtures/demo_project"}}}' | cov-loupe -m mcp
 ```
 
 **Important Notes:**

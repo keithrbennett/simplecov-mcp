@@ -5,6 +5,7 @@ require_relative '../base_tool'
 module CovLoupe
   module Tools
     class VersionTool < BaseTool
+      tool_name 'version'
       description <<~DESC
         Use this when the user or client needs to confirm which version of cov-loupe is running.
         This tool takes no arguments and only returns the version string; avoid it for coverage data.

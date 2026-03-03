@@ -7,6 +7,7 @@ require_relative '../config/predicate_evaluator'
 module CovLoupe
   module Tools
     class ProjectValidateTool < BaseTool
+      tool_name 'project_validate'
       description <<~DESC
         Validates coverage data against a predicate (Ruby code that evaluates to true/false).
         Use this to enforce coverage policies programmatically.

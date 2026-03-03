@@ -7,6 +7,7 @@ require_relative '../presenters/coverage_payload_presenter'
 module CovLoupe
   module Tools
     class FileUncoveredLinesTool < BaseTool
+      tool_name 'file_uncovered_lines'
       description <<~DESC
         Use this when the user wants to know which lines in a file still lack coverage.
         Do not use this for overall percentages; coverage.summary is faster when counts are enough.

@@ -4,18 +4,18 @@
 
 
 ## v5.0.0 (Breaking)
-- **MCP tool names renamed** to encode scope: file-scope tools are prefixed with `file_` (`file_coverage_summary_tool`, `file_coverage_detailed_tool`, `file_coverage_raw_tool`, `file_uncovered_lines_tool`); project-scope tools are prefixed with `project_` (`project_coverage_list_tool`, `project_coverage_totals_tool`, `project_coverage_table_tool`, `project_validate_tool`). `help_tool` and `version_tool` are unchanged.
+- **MCP tool names renamed** to encode scope: file-scope tools are prefixed with `file_` (`file_coverage_summary`, `file_coverage_detailed`, `file_coverage_raw`, `file_uncovered_lines`); project-scope tools are prefixed with `project_` (`project_coverage_list`, `project_coverage_totals`, `project_coverage_table`, `project_validate`). `help` and `version` are unchanged.
 
 - **Removed `version` subcommand**: `cov-loupe version` no longer exists. Use `cov-loupe -v` or `cov-loupe --version` instead.
 - **Simplified `--version` output**: `-v`/`--version` now prints only the bare version string (e.g. `5.0.0`) and exits, instead of displaying a formatted table with `Gem Root` and `Documentation` fields. JSON format is no longer supported for version output.
 - Add `-s none` / `--source none` option to disable source code display (previously enabled via `-s full` or `-s uncovered`).
 - Add canonical resource retrieval via CLI: `cov-loupe --path-for[=NAME]` (`-p[NAME]`).
   - Standardize canonical resource keys across CLI and MCP to `repo`, `docs`, and `docs-local`.
-  - Expose canonical resources in MCP `help_tool` under the `resources` key (alongside `tools`).
+  - Expose canonical resources in MCP `help` under the `resources` key (alongside `tools`).
   - Share resource values from one source of truth (`CovLoupe::Resources::RESOURCE_MAP`) used by:
       - CLI `--path-for`
       - CLI help banner URLs
-      - MCP `help_tool`
+      - MCP `help`
       - MCP server startup instructions
 - **Single-letter abbreviations for CLI subcommands**: All CLI subcommands can now be abbreviated to their first letter. For example, `cov-loupe l` for `list`, `cov-loupe s` for `summary`, `cov-loupe r` for `raw`, `cov-loupe u` for `uncovered`, `cov-loupe d` for `detailed`, `cov-loupe t` for `totals`, `cov-loupe v` for `validate`.
 - Make pass/fail symbols in source code display more prominent, change circle to X
@@ -79,7 +79,7 @@
 
 - **New `-f p` shortcut for pretty-json format**: Added `-f p` as a shortcut for `--format pretty-json`. This follows the pattern of other format shortcuts (`-f j` for json, `-f y` for yaml, etc.). The previous `-f J` shortcut no longer works (use `-f p` instead).
 
-- **Project totals now include coverage breakdowns**: The `totals` subcommand and `project_coverage_totals_tool` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
+- **Project totals now include coverage breakdowns**: The `totals` subcommand and `project_coverage_totals` now return explicit `with_coverage` and `without_coverage` breakdowns, plus tracking metadata, so totals clearly separate fresh coverage from missing coverage.
 
   **Example output:**
   ```json
@@ -178,13 +178,13 @@ Version 2.0 introduces several breaking changes to improve consistency and align
 ### ✨ New Features
 
 - **validate subcommand**: File mode (`validate <file>`) and inline mode (`validate -i <code>`)
-- **MCP support**: New `project_validate_tool` with `code` and `file` parameters
+- **MCP support**: New `project_validate` with `code` and `file` parameters
 
 ---
 
 ## v1.1.0
 
-- Add a `totals` CLI subcommand and matching `project_coverage_totals_tool` that report covered/total/uncovered line counts plus the average coverage percent.
+- Add a `totals` CLI subcommand and matching `project_coverage_totals` that report covered/total/uncovered line counts plus the average coverage percent.
 - Refactor command line and environment argument handling
 
 ## v1.0.1 (2025-10-23)

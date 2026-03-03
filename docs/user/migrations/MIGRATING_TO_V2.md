@@ -240,7 +240,7 @@ simplecov-mcp -o a list  # Short form
   "jsonrpc": "2.0",
   "method": "tools/call",
   "params": {
-    "name": "file_coverage_summary_tool",
+    "name": "file_coverage_summary",
     "arguments": {
       "path": "lib/foo.rb",
       "stale": "error"
@@ -255,7 +255,7 @@ simplecov-mcp -o a list  # Short form
   "jsonrpc": "2.0",
   "method": "tools/call",
   "params": {
-    "name": "file_coverage_summary_tool",
+    "name": "file_coverage_summary",
     "arguments": {
       "path": "lib/foo.rb",
       "staleness": "error"
@@ -264,7 +264,7 @@ simplecov-mcp -o a list  # Short form
 }
 ```
 
-**Affected tools:** All file-based tools (`file_coverage_summary_tool`, `file_coverage_detailed_tool`, `file_coverage_raw_tool`, `file_uncovered_lines_tool`) and aggregate tools (`project_coverage_list_tool`, `project_coverage_totals_tool`).
+**Affected tools:** All file-based tools (`file_coverage_summary`, `file_coverage_detailed`, `file_coverage_raw`, `file_uncovered_lines`) and aggregate tools (`project_coverage_list`, `project_coverage_totals`).
 
 **Migration:** Replace `"stale"` with `"staleness"` in all MCP tool calls.
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
-require 'cov_loupe/tools/help_tool'
+require 'cov_loupe/tools/help'
 
 RSpec.describe CovLoupe::Tools::HelpTool do
   let(:server_context) { null_server_context }
@@ -19,8 +19,8 @@ RSpec.describe CovLoupe::Tools::HelpTool do
     data = JSON.parse(payload['text'])
     tool_names = data['tools'].map { |entry| entry['tool'] }
 
-    expect(tool_names).to include('file_coverage_summary_tool', 'file_uncovered_lines_tool',
-      'project_coverage_list_tool', 'project_coverage_totals_tool', 'project_coverage_table_tool', 'version_tool')
+    expect(tool_names).to include('file_coverage_summary', 'file_uncovered_lines',
+      'project_coverage_list', 'project_coverage_totals', 'project_coverage_table', 'version')
     expect(data['tools']).to all(include('use_when', 'avoid_when', 'inputs'))
   end
 

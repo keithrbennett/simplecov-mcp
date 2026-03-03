@@ -7,6 +7,7 @@ require_relative '../presenters/project_totals_presenter'
 module CovLoupe
   module Tools
     class ProjectCoverageTotalsTool < BaseTool
+      tool_name 'project_coverage_totals'
       description <<~DESC
         Use this when you want aggregated coverage counts for the entire project.
         It reports covered/total lines, uncovered line counts, and the overall average percentage.

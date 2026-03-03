@@ -7,6 +7,7 @@ require_relative '../presenters/coverage_payload_presenter'
 module CovLoupe
   module Tools
     class FileCoverageDetailedTool < BaseTool
+      tool_name 'file_coverage_detailed'
       description <<~DESC
         Use this when the user needs per-line coverage data for a single file.
         Do not use this for high-level counts; coverage.summary is cheaper for aggregate numbers.

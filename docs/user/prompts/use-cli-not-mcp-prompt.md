@@ -16,14 +16,14 @@ Ideally it is configured as an MCP server so you can call its tools directly. If
 
    | MCP tool | CLI subcommand | Example |
    |---|---|---|
-   | `project_coverage_list_tool` | `list` | `cov-loupe list` |
-   | `file_coverage_summary_tool` | `summary <path>` | `cov-loupe summary lib/foo.rb` |
-   | `file_coverage_raw_tool` | `raw <path>` | `cov-loupe raw lib/foo.rb` |
-   | `file_uncovered_lines_tool` | `uncovered <path>` | `cov-loupe uncovered lib/foo.rb` |
-   | `file_coverage_detailed_tool` | `detailed <path>` | `cov-loupe detailed lib/foo.rb` |
-   | `project_coverage_totals_tool` | `totals` | `cov-loupe totals` |
-   | `project_validate_tool` | `validate <expr>` | `cov-loupe validate 'pct >= 90'` |
-   | `version_tool` | `version` | `cov-loupe version` |
+   | `project_coverage_list` | `list` | `cov-loupe list` |
+   | `file_coverage_summary` | `summary <path>` | `cov-loupe summary lib/foo.rb` |
+   | `file_coverage_raw` | `raw <path>` | `cov-loupe raw lib/foo.rb` |
+   | `file_uncovered_lines` | `uncovered <path>` | `cov-loupe uncovered lib/foo.rb` |
+   | `file_coverage_detailed` | `detailed <path>` | `cov-loupe detailed lib/foo.rb` |
+   | `project_coverage_totals` | `totals` | `cov-loupe totals` |
+   | `project_validate` | `validate <expr>` | `cov-loupe validate 'pct >= 90'` |
+   | `version` | `version` | `cov-loupe version` |
 
 3. **Use `--help`** at any point to get up-to-date flag and argument information:
    ```

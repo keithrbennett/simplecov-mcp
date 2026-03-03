@@ -9,6 +9,7 @@ require_relative '../output_chars'
 module CovLoupe
   module Tools
     class ProjectCoverageTableTool < BaseTool
+      tool_name 'project_coverage_table'
       description <<~DESC
         Use this when a user wants the plain text coverage table exactly like `cov-loupe --format table` would print (no ANSI colors).
         Do not use this for machine-readable data; coverage.list returns structured JSON.

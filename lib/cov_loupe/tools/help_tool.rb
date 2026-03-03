@@ -6,6 +6,7 @@ require_relative '../resources'
 module CovLoupe
   module Tools
     class HelpTool < BaseTool
+      tool_name 'help'
       description <<~DESC
         Returns help containing descriptions of all tools, including: use_when, avoid_when, inputs.
       DESC

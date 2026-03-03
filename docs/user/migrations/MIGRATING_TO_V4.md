@@ -390,7 +390,7 @@ This affects:
 - `model.uncovered_for(path)`
 - `model.detailed_for(path)`
 - CLI commands: `summary`, `raw`, `uncovered`, `detailed`
-- MCP tools: `file_coverage_summary_tool`, `file_coverage_raw_tool`, etc.
+- MCP tools: `file_coverage_summary`, `file_coverage_raw`, etc.
 
 ### Migration
 

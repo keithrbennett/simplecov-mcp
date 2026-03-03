@@ -7,6 +7,7 @@ require_relative '../presenters/coverage_payload_presenter'
 module CovLoupe
   module Tools
     class FileCoverageSummaryTool < BaseTool
+      tool_name 'file_coverage_summary'
       description <<~DESC
         Use this when the user asks for the covered/total line counts and percentage for a specific file.
         Do not use this for multi-file reports; coverage.list or coverage.table handle those.
