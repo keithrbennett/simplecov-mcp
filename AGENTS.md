@@ -223,6 +223,9 @@ This disables caching and adds approximately 5 seconds to execution time (3s →
 - `docs/user/` – user-facing guides, examples, and troubleshooting.
 - `docs/dev/` – deeper architecture notes, contributing details, and decisions.
 
+### Migration Docs
+Migration documentation must accurately reflect the state of the project at the version it describes. Do not retroactively update migration docs with changes (such as renamed methods or moved files) that did not exist in that version. Each version's migration guide should describe only the changes and APIs that were correct at the time of that release.
+
 ## Important Conventions
 - Require files via `cov_loupe` paths.
 - Ensure API paths work with both absolute and relative inputs.
