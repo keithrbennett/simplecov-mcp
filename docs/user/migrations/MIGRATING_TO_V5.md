@@ -8,7 +8,7 @@ This document describes the breaking changes introduced in version 5.0.0.
 
 - [MCP Tool Names Renamed](#mcp-tool-names-renamed)
 - [Removed `version` Subcommand](#removed-version-subcommand)
-- [Simplified `--version` Output](#simplified---version-output)
+- [Simplified `--version` Output](#simplified-version-output)
 - [Single-Letter Subcommand Abbreviations](#single-letter-subcommand-abbreviations)
 - [Totals Key Renamed: `percent_covered` → `percentage`](#totals-key-renamed-percent_covered--percentage)
 
@@ -55,9 +55,10 @@ cov-loupe --version   # or: cov-loupe -v
 
 ---
 
-## Simplified `--version` Output
+## Simplified `--version` Output {#simplified-version-output}
 
-`-v`/`--version` now prints only the bare version string and exits immediately. The former table output (with `Gem Root` and `Documentation` fields) and JSON format option are gone.
+`-v`/`--version` now prints only the bare version string and exits immediately.
+ The former table output (with `Gem Root` and `Documentation` fields) and JSON format option are gone.
 
 **Before (v4.x):**
 ```
