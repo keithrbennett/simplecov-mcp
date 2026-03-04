@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# Builds documentation using mkdocs, creating a virtual environment if needed.
+
+require "fileutils"
+
+SCRIPT_DIR = File.expand_path("..", __dir__)
+VENV_DIR = File.join(SCRIPT_DIR, ".docs-venv")
+
+def run(*cmd)
+  system(*cmd) || abort("Command failed: #{cmd.join(' ')}")
+end
+
+if system("which mkdocs > /dev/null 2>&1")
+  run("mkdocs", "build", "--strict")
+else
+  venv_bin = File.join(VENV_DIR, "bin")
+
+  unless File.directory?(venv_bin)
+    puts "Creating virtual environment..."
+    run("python3", "-m", "venv", VENV_DIR)
+    run(File.join(venv_bin, "pip"), "install", "-r", File.join(SCRIPT_DIR, "requirements-lock.txt"))
+  end
+
+  run(File.join(venv_bin, "mkdocs"), "build", "--strict")
+end

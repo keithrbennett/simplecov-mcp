@@ -84,6 +84,11 @@ desc 'Get latest CI status'
 task ci: 'ci:status'
 
 namespace :docs do
+  desc 'Build documentation with mkdocs'
+  task :build do
+    sh 'bin/build-docs'
+  end
+
   desc 'Set up python environment for docs'
   task :setup do
     CovLoupe::Scripts::SetupDocServer.new.call
@@ -94,3 +99,9 @@ namespace :docs do
     CovLoupe::Scripts::StartDocServer.new.call
   end
 end
+
+desc 'Build documentation with mkdocs; `rake docs` defaults to build'
+task docs: 'docs:build'
+
+desc 'Run full test suite (rubocop + rspec + docs build)'
+task test: %i[rubocop spec docs:build]
