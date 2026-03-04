@@ -10,7 +10,7 @@ This document describes the breaking changes introduced in version 5.0.0.
 - [Removed `version` Subcommand](#removed-version-subcommand)
 - [Simplified `--version` Output](#simplified-version-output)
 - [Single-Letter Subcommand Abbreviations](#single-letter-subcommand-abbreviations)
-- [Totals Key Renamed: `percent_covered` → `percentage`](#totals-key-renamed-percent_covered--percentage)
+- [Totals Key Renamed: `percent_covered` → `percentage`](#totals-key-renamed)
 
 ---
 
@@ -102,9 +102,10 @@ Available abbreviations: `l` (list), `s` (summary), `r` (raw), `u` (uncovered), 
 
 ---
 
-## Totals Key Renamed: `percent_covered` → `percentage`
+## Totals Key Renamed: `percent_covered` → `percentage` {#totals-key-renamed}
 
-The `lines` hash returned by `project_totals` (and all outputs that delegate to it: the `totals`
+The `lines` hash returned by `project_totals`
+ (and all outputs that delegate to it: the `totals`
 CLI subcommand in JSON/YAML/pretty-json format, and the `project_coverage_totals` MCP tool) now
 uses `"percentage"` instead of `"percent_covered"`. This makes aggregated totals consistent with
 the per-file summary API, which already used `"percentage"`.
