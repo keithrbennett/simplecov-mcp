@@ -70,4 +70,10 @@ RSpec.describe CovLoupe do
       expect(described_class.default_log_file).to eq(original_default)
     end
   end
+
+  describe '.version' do
+    it 'returns the VERSION constant' do
+      expect(described_class.version).to eq(CovLoupe::VERSION)
+    end
+  end
 end

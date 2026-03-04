@@ -145,6 +145,10 @@ module CovLoupe
       @windows = RUBY_PLATFORM.match?(/mingw|mswin|cygwin/)
     end
 
+    def version
+      VERSION
+    end
+
     private def mutex
       @mutex ||= Mutex.new
     end
