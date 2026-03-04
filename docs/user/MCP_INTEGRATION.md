@@ -147,7 +147,7 @@ For tools that return structured data, `cov-loupe` serializes the data as a JSON
 ```json
 {
   "type": "text",
-  "text": "{\"file\":\"lib/foo.rb\",\"summary\":{\"covered\":10,\"total\":20,\"percentage\":50.0},\"stale\":false}"
+  "text": "{\"file\":\"lib/foo.rb\",\"summary\":{\"covered\":10,\"total\":20,\"percentage\":50.0},\"stale\":\"ok\"}"
 }
 ```
 

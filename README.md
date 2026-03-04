@@ -296,8 +296,8 @@ Pretty JSON (`-fJ`) reports still emit valid JSON to `stdout`; the warning conti
 $ cov-loupe -fJ list
 {
   "files": [
-    { "file": "lib/foo.rb", "covered": 2, "total": 3, "percentage": 66.67, "stale": null },
-    { "file": "lib/bar.rb", "covered": 1, "total": 3, "percentage": 33.33, "stale": null }
+    { "file": "lib/foo.rb", "covered": 2, "total": 3, "percentage": 66.67, "stale": "ok" },
+    { "file": "lib/bar.rb", "covered": 1, "total": 3, "percentage": 33.33, "stale": "ok" }
   ],
   "counts": { "total": 2, "ok": 2, "stale": 0 }
 }
