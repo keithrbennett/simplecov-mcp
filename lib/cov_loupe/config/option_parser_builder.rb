@@ -34,6 +34,7 @@ module CovLoupe
         Repository:            #{Resources::REPOSITORY_URL}
         Documentation (Web):   #{Resources::DOCUMENTATION_WEB_URL}
         Documentation (Local): #{Resources::LOCAL_README_PATH}
+        Screencast:            #{Resources::SCREENCAST_URL}
         Version:               #{CovLoupe::VERSION}
         #{HORIZONTAL_RULE}
 

@@ -15,6 +15,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       %r{Repository:\s+https://github.com/keithrbennett/cov-loupe},
       %r{Documentation \(Web\):\s+https://keithrbennett.github.io/cov-loupe/},
       %r{Documentation \(Local\):\s+},
+      %r{Screencast:\s+https://www.bbs-software.com/screencasts/cov-loupe},
       %r{Version:\s+#{CovLoupe::VERSION}}
     ].each do |pattern|
       expect(out).to match(pattern)
