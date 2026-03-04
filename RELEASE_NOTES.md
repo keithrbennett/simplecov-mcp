@@ -18,6 +18,7 @@
       - MCP `help`
       - MCP server startup instructions
 - **Single-letter abbreviations for CLI subcommands**: All CLI subcommands can now be abbreviated to their first letter. For example, `cov-loupe l` for `list`, `cov-loupe s` for `summary`, `cov-loupe r` for `raw`, `cov-loupe u` for `uncovered`, `cov-loupe d` for `detailed`, `cov-loupe t` for `totals`, `cov-loupe v` for `validate`.
+- **Coverage key renamed**: The `percent_covered` key in coverage summary hashes (returned by `file_coverage_summary`, `project_coverage`, `project_coverage_totals`, and related CLI/MCP outputs) has been renamed to `percentage`. Update any code or scripts that read `percent_covered` to use `percentage` instead.
 - Make pass/fail symbols in source code display more prominent, change circle to X
 - Fix `validate -i` parsing in the top-level argument parser so inline validate code is handled correctly.
 

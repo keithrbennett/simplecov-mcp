@@ -121,7 +121,7 @@ RSpec.describe CovLoupe::CoverageCalculator do
         'covered' => 40,
         'uncovered' => 20,
         'total' => 60,
-        'percent_covered' => 66.67
+        'percentage' => 66.67
       )
     end
 
@@ -130,14 +130,14 @@ RSpec.describe CovLoupe::CoverageCalculator do
         'covered' => 0,
         'uncovered' => 0,
         'total' => 0,
-        'percent_covered' => nil
+        'percentage' => nil
       )
     end
 
     it 'handles zero total' do
       summaries = [{ 'covered' => 0, 'total' => 0 }]
       result = described_class.aggregate(summaries)
-      expect(result['percent_covered']).to be_nil
+      expect(result['percentage']).to be_nil
     end
   end
 end

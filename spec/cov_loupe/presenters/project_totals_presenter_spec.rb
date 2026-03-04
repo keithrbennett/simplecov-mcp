@@ -18,7 +18,7 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
         'total' => 100,
         'covered' => 80,
         'uncovered' => 20,
-        'percent_covered' => 80.0
+        'percentage' => 80.0
       },
       'tracking' => {
         'enabled' => true,
@@ -76,7 +76,7 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
         'total' => 100,
         'covered' => 80,
         'uncovered' => 20,
-        'percent_covered' => 80.0
+        'percentage' => 80.0
       )
       expect(result['tracking']).to include('enabled' => true)
       expect(result['files']).to include('total' => 12)
