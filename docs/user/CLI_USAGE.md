@@ -50,7 +50,7 @@ clp -fp t
 # Evaluate coverage policy ('validate' or 'v')
 clp validate coverage_policy.rb
 clp v coverage_policy.rb
-clp v -i '->(m) { m.project_totals["lines"]["percent_covered"] >= 85 }'
+clp v -i '->(m) { m.project_totals["lines"]["percentage"] >= 85 }'
 
 # Show version (no subcommand; use -v or --version)
 clp -v
@@ -352,7 +352,7 @@ Tracked globs:
 **Output (JSON format):**
 ```json
 {
-  "lines": { "total": 47, "covered": 38, "uncovered": 9, "percent_covered": 80.85 },
+  "lines": { "total": 47, "covered": 38, "uncovered": 9, "percentage": 80.85 },
   "tracking": { "enabled": true, "globs": ["lib/**/*.rb", "app/**/*.rb"] },
   "files": {
     "total": 7,

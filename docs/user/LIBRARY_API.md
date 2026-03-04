@@ -189,7 +189,7 @@ Returns aggregated coverage totals across all files.
 ```ruby
 totals = model.project_totals
 # => {
-#      'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23, 'percent_covered' => 81.3 },
+#      'lines' => { 'total' => 123, 'covered' => 100, 'uncovered' => 23, 'percentage' => 81.3 },
 #      'tracking' => { 'enabled' => true, 'globs' => ['lib/**/*.rb'] },
 #      'files' => { 'total' => 4, 'with_coverage' => { 'total' => 4, 'ok' => 4, 'stale' => { ... } } }
 #    }
@@ -226,11 +226,6 @@ relative_files = model.relativize(files)
 ```
 
 ## Return Types
-
-> **Note:** There is an inconsistency in key names for coverage percentages across the API:
-> - Methods returning per-file summaries (like `summary_for`, `uncovered_for`, `detailed_for`) use `'percentage'`
-> - Methods returning aggregated totals (like `project_totals`) use `'percent_covered'`
-> This inconsistency is historical and cannot be changed without breaking existing code.
 
 ### `list`
 
@@ -333,7 +328,7 @@ Returns `Hash`:
     'total' => Integer,            # Total relevant lines across all files
     'covered' => Integer,          # Total covered lines
     'uncovered' => Integer,        # Total uncovered lines
-    'percent_covered' => Float     # Overall percent covered
+    'percentage' => Float          # Overall percent covered
   },
   'tracking' => {
     'enabled' => Boolean,          # Whether tracked_globs are active
@@ -570,7 +565,7 @@ directory_stats = patterns.map do |pattern|
   {
     directory: pattern,
     files: totals['files']['total'],
-    coverage: totals['lines']['percent_covered'].round(2),
+    coverage: totals['lines']['percentage'].round(2),
     covered: totals['lines']['covered'],
     total: totals['lines']['total']
   }
@@ -677,7 +672,7 @@ class CoverageReporter
     totals = @model.project_totals
 
     # Overall stats
-    overall_percentage = totals['lines']['percent_covered']
+    overall_percentage = totals['lines']['percentage']
     total_lines = totals['lines']['total']
     covered_lines = totals['lines']['covered']
     total_files = totals['files']['total']

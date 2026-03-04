@@ -60,7 +60,7 @@ RSpec.describe CovLoupe::CoverageCLI do
           'total' => 6,
           'covered' => 3,
           'uncovered' => 3,
-          'percent_covered' => be_within(0.01).of(50.0)
+          'percentage' => be_within(0.01).of(50.0)
         )
         expect(data['tracking']).to include('enabled' => false)
         expect(data['files']).to include('total' => 2)
@@ -365,7 +365,7 @@ RSpec.describe CovLoupe::CoverageCLI do
         # This confirms that global option parsing (in ConfigParser) does not
         # strip subcommand-specific options like -i.
         _stdout, _stderr, status = run_fixture_full_cli_with_status(subcommand, '-i',
-          '->(m) { m.project_totals["lines"]["percent_covered"] >= 10 }')
+          '->(m) { m.project_totals["lines"]["percentage"] >= 10 }')
         expect(status).to eq(0)
       end
     end

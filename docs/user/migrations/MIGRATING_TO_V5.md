@@ -10,6 +10,7 @@ This document describes the breaking changes introduced in version 5.0.0.
 - [Removed `version` Subcommand](#removed-version-subcommand)
 - [Simplified `--version` Output](#simplified---version-output)
 - [Single-Letter Subcommand Abbreviations](#single-letter-subcommand-abbreviations)
+- [Totals Key Renamed: `percent_covered` → `percentage`](#totals-key-renamed-percent_covered--percentage)
 
 ---
 
@@ -98,3 +99,36 @@ cov-loupe v -i "model.list[\"files\"].all?"
 
 Available abbreviations: `l` (list), `s` (summary), `r` (raw), `u` (uncovered), `d` (detailed), `t` (totals), `v` (validate).
 
+---
+
+## Totals Key Renamed: `percent_covered` → `percentage`
+
+The `lines` hash returned by `project_totals` (and all outputs that delegate to it: the `totals`
+CLI subcommand in JSON/YAML/pretty-json format, and the `project_coverage_totals` MCP tool) now
+uses `"percentage"` instead of `"percent_covered"`. This makes aggregated totals consistent with
+the per-file summary API, which already used `"percentage"`.
+
+**Before (v4.x):**
+```ruby
+totals = model.project_totals
+totals['lines']['percent_covered']  # => 81.3
+```
+```json
+{ "lines": { "total": 123, "covered": 100, "uncovered": 23, "percent_covered": 81.3 } }
+```
+
+**After (v5.0):**
+```ruby
+totals = model.project_totals
+totals['lines']['percentage']  # => 81.3
+```
+```json
+{ "lines": { "total": 123, "covered": 100, "uncovered": 23, "percentage": 81.3 } }
+```
+
+**Migration:**
+- Replace `totals['lines']['percent_covered']` with `totals['lines']['percentage']`.
+- Update `jq` snippets: `.lines.percent_covered` → `.lines.percentage`.
+- Update inline predicates passed to `validate -i`: replace `"lines"]["percent_covered"]` with `"lines"]["percentage"]`.
+
+No alias key is provided. The value and rounding are unchanged; only the key name differs.

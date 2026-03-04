@@ -240,7 +240,7 @@ These tools analyze individual files. All require `path` parameter.
 
 **`project_coverage_totals`** - Aggregated line totals
 - Parameters: `tracked_globs` (array), `raise_on_stale`
-- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N,"percent_covered":Float},"tracking":{"enabled":Boolean,"globs":[String]},"files":{"total":N,"with_coverage":{"total":N,"ok":N,"stale":{"total":N,"by_type":{"missing_from_disk":N,"newer":N,"length_mismatch":N,"unreadable":N}}},"without_coverage":{"total":N,"by_type":{"missing_from_coverage":N,"unreadable":N,"skipped":N}}}}`
+- Returns: `{"lines":{"total":N,"covered":N,"uncovered":N,"percentage":Float},"tracking":{"enabled":Boolean,"globs":[String]},"files":{"total":N,"with_coverage":{"total":N,"ok":N,"stale":{"total":N,"by_type":{"missing_from_disk":N,"newer":N,"length_mismatch":N,"unreadable":N}}},"without_coverage":{"total":N,"by_type":{"missing_from_coverage":N,"unreadable":N,"skipped":N}}}}`
 - `without_coverage` is only present when tracking is enabled (tracked globs provided).
 
 #### Policy Validation Tools

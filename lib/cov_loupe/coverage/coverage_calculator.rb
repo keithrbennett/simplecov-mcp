@@ -53,18 +53,18 @@ module CovLoupe
     # Aggregates coverage summaries from multiple files.
     #
     # @param file_summaries [Array<Hash>] array of hashes with 'covered' and 'total' keys
-    # @return [Hash] aggregated summary with 'covered', 'uncovered', 'total', and 'percent_covered' keys
+    # @return [Hash] aggregated summary with 'covered', 'uncovered', 'total', and 'percentage' keys
     def self.aggregate(file_summaries)
       covered = file_summaries.sum { |row| row['covered'].to_i }
       total = file_summaries.sum { |row| row['total'].to_i }
       uncovered = total - covered
-      percent_covered = total.zero? ? nil : (covered.to_f / total * 100.0).round(2)
+      percentage = total.zero? ? nil : (covered.to_f / total * 100.0).round(2)
 
       {
         'covered' => covered,
         'uncovered' => uncovered,
         'total' => total,
-        'percent_covered' => percent_covered
+        'percentage' => percentage
       }
     end
   end
