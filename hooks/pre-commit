@@ -1,20 +1,2 @@
 #!/bin/bash
-
-set -euo pipefail
-
-# Pre-commit hook to run RuboCop and RSpec before allowing commit.
-
-run_rubocop() {
-  echo "Running RuboCop..."
-  bundle exec rubocop
-}
-
-run_rspec() {
-  echo "Running unit tests..."
-  bundle exec rspec
-}
-
-run_rubocop
-run_rspec
-
-echo "✅ All checks passed. Proceeding with commit."
+bundle exec rake test
