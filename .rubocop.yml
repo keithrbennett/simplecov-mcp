@@ -1,270 +1,78 @@
-inherit_from: .rubocop_todo.yml
-
-inherit_mode:
-  merge:
-    - Exclude
-
-# RuboCop configuration for cov-loupe
-# Generated to match existing code style
-
-plugins:
-  - rubocop-rspec
+inherit_from:
+  - .rubocop-shared.yml
+  - .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 3.2
-  NewCops: enable
-  SuggestExtensions: false
   Exclude:
     - 'vendor/**/*'
     - 'tmp/**/*'
     - 'coverage/**/*'
     - 'bin/**/*'
     - 'node_modules/**/*'
-    - 'screencast/**/*'  # Utility scripts for demos
-    - 'spec/fixtures/**/*'  # Test fixture files
-
-# ===== Layout & Formatting =====
-
-Layout/ArgumentAlignment:
-  EnforcedStyle: with_fixed_indentation
+    - 'screencast/**/*'
+    - 'spec/fixtures/**/*'
 
 Layout/CaseIndentation:
   Enabled: false
 
-Layout/ClosingHeredocIndentation:
-  Enabled: false  # Don't enforce heredoc closing delimiter indentation
-
-Layout/EmptyLines:
-  Enabled: false  # Allow multiple consecutive blank lines
-
-Layout/EmptyLinesAroundAccessModifier:
-  EnforcedStyle: around  # Require empty line before AND after private/protected/public
-
-Layout/EmptyLinesAroundBlockBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/EmptyLinesAroundClassBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/EmptyLinesAroundModuleBody:
-  EnforcedStyle: no_empty_lines
-
-Layout/EndAlignment:
-  EnforcedStyleAlignWith: start_of_line
-
 Layout/ExtraSpacing:
-  Enabled: false  # AllowForAlignment doesn't reliably detect intentional vertical alignment
-
-Layout/FirstArrayElementIndentation:
-  EnforcedStyle: consistent
-
-Layout/FirstHashElementIndentation:
-  EnforcedStyle: consistent
-
-Layout/HashAlignment:
-  EnforcedHashRocketStyle: key
-  EnforcedColonStyle: key
-
-Layout/IndentationConsistency:
-  EnforcedStyle: normal  # Use standard Ruby indentation (not Rails indented_internal_methods)
+  Enabled: false
 
 Layout/LineEndStringConcatenationIndentation:
-  Enabled: false  # Allow indented continuation style for backslash string concatenation
+  Enabled: false
 
 Layout/LineLength:
   Max: 110
-  AllowedPatterns:
-    - '\s*#'  # Allow long comment lines
-    - '^\s*\#.*http'  # Allow URLs in comments
-
-Layout/MultilineMethodCallBraceLayout:
-  Enabled: false  # Disabled due to bug: miscalculates indentation, places closing paren at column 1 instead of aligning with method call
-
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
-
-Layout/ParameterAlignment:
-  EnforcedStyle: with_fixed_indentation
-
-Layout/SpaceInsideBlockBraces:
-  EnforcedStyle: space
-
-Layout/SpaceInsideHashLiteralBraces:
-  EnforcedStyle: space
-
-Layout/TrailingWhitespace:
-  Enabled: true
-
-Lint/AmbiguousBlockAssociation:
-  Enabled: true
-  AllowedMethods:
-    - change
-    - not_change
-    - raise_error
-
-Lint/SuppressedException:
-  AllowComments: true
-
-Lint/UnusedBlockArgument:
-  AllowUnusedKeywordArguments: true
-
-Lint/UnusedMethodArgument:
-  AllowUnusedKeywordArguments: true
-
-# ===== Naming =====
-
-Naming/AccessorMethodName:
-  Enabled: true
-
-Naming/MemoizedInstanceVariableName:
-  EnforcedStyleForLeadingUnderscores: optional
-
-Naming/PredicatePrefix:
-  Enabled: true
-  AllowedMethods:
-    - is_a?
-
-Naming/VariableNumber:
-  EnforcedStyle: normalcase
-
-# ===== RSpec specific cops =====
-
-RSpec/ContextWording:
-  Enabled: true
-  Prefixes:
-    - when
-    - with
-    - without
-    - if
-    - unless
-    - for
 
 RSpec/DescribeClass:
   Enabled: false
 
 RSpec/DescribeMethod:
-  Enabled: false # Allow describing behavior/features in integration tests (e.g., "format option")
-
-RSpec/ExampleLength:
   Enabled: false
 
 RSpec/IndexedLet:
   Enabled: false
 
 RSpec/MessageSpies:
-  Enabled: false  # Allow both mock (receive) and spy (have_received) styles
-
-RSpec/MultipleExpectations:
-  Enabled: false
-
-RSpec/MultipleMemoizedHelpers:
-  Enabled: false
-
-RSpec/NestedGroups:
   Enabled: false
 
 RSpec/Output:
-    Exclude:
-      - spec/spec_helper.rb
+  Exclude:
+    - spec/spec_helper.rb
 
 RSpec/SpecFilePathFormat:
-  Enabled: false  # Gem uses CovLoupe but paths use cov_loupe per gem naming convention
+  Enabled: false
 
 RSpec/VerifiedDoubleReference:
-  Enabled: false  # Allow string references when class may not be loaded
-
-RSpec/VerifiedDoubles:
-  Enabled: false  # Allow both verified and unverified doubles
-
-# ===== Security =====
-
-Security/Eval:
-  Enabled: true
-
-Security/MarshalLoad:
-  Enabled: true
-
-Security/YAMLLoad:
-  Enabled: true
-
-# ===== Style =====
+  Enabled: false
 
 Style/AccessModifierDeclarations:
   Enabled: true
   EnforcedStyle: inline
 
-Style/BlockDelimiters:
-  EnforcedStyle: line_count_based
-
-Style/ClassAndModuleChildren:
-  Enabled: false  # Allow both nested and compact module/class definitions
-
-Style/Documentation:
-  Enabled: false
-
 Style/DoubleNegation:
   Enabled: false
-
-Style/EmptyMethod:
-  EnforcedStyle: expanded
 
 Style/EmptyStringInsideInterpolation:
   Enabled: false
 
-# Devs can use fetch when they deem it necessary, no need for this rule
 Style/FetchEnvVar:
   Enabled: false
 
 Style/FormatStringToken:
   Enabled: false
 
-Style/FrozenStringLiteralComment:
-  Enabled: true
-  EnforcedStyle: always
-
-Style/GuardClause:
-  Enabled: false  # Don't enforce guard clauses
-
-Style/IfUnlessModifier:
-  Enabled: false  # Allow both if/unless modifiers and multi-line forms
-
 Style/KeywordParametersOrder:
   Enabled: true
   Exclude:
-    - 'lib/cov_loupe/tools/**/*.rb'  # Tools keep kwarg order to match CLI/docs
+    - 'lib/cov_loupe/tools/**/*.rb'
     - 'spec/support/mcp_runner.rb'
-
-Style/Lambda:
-  EnforcedStyle: literal
-
-Style/LambdaCall:
-  Enabled: false
-
-Style/MethodDefParentheses:
-  Enabled: false  # Allow both def foo and def foo()
 
 Style/MultilineBlockChain:
   Enabled: false
 
-Style/MultilineTernaryOperator:
-  Enabled: false  # Allow multiline ternary operators
-
-Style/NumericPredicate:
-  Enabled: false  # Allow both .zero? and == 0
-
 Style/ParallelAssignment:
-  Enabled: false  # Allow `old_out, old_err = $stdout, $stderr`
-
-Style/ParenthesesAroundCondition:
-  AllowInMultilineConditions: true
-
-Style/PercentLiteralDelimiters:
-  PreferredDelimiters:
-    default: '()'
-    '%w': '[]'
-    '%W': '[]'
-    '%i': '[]'
-    '%I': '[]'
+  Enabled: false
 
 Style/RedundantConstantBase:
   Enabled: false
@@ -272,18 +80,8 @@ Style/RedundantConstantBase:
 Style/RedundantFormat:
   Enabled: false
 
-Style/RedundantReturn:
-  Enabled: true
-  AllowMultipleReturnValues: true
-
 Style/RegexpLiteral:
   Enabled: false
-
-Style/RescueStandardError:
-  EnforcedStyle: implicit
-
-Style/SingleLineMethods:
-  AllowIfMethodIsEmpty: false
 
 Style/StderrPuts:
   Enabled: false
@@ -291,55 +89,14 @@ Style/StderrPuts:
 Style/StringConcatenation:
   Enabled: false
 
-Style/StringLiterals:
-  EnforcedStyle: single_quotes
-
-Style/StringLiteralsInInterpolation:
-  EnforcedStyle: single_quotes
-
 Style/SymbolArray:
   Enabled: false
 
 Style/TernaryParentheses:
   Enabled: false
 
-Style/TrailingCommaInArguments:
-  EnforcedStyleForMultiline: no_comma
-
 Style/TrailingCommaInArrayLiteral:
   Enabled: false
 
-Style/TrailingCommaInHashLiteral:
-  EnforcedStyleForMultiline: no_comma
-
 Style/WordArray:
-  Enabled: false
-
-# ===== Metrics (All Disabled per request) =====
-
-Metrics/AbcSize:
-  Enabled: false
-
-Metrics/BlockLength:
-  Enabled: false
-
-Metrics/BlockNesting:
-  Enabled: false
-
-Metrics/ClassLength:
-  Enabled: false
-
-Metrics/CyclomaticComplexity:
-  Enabled: false
-
-Metrics/MethodLength:
-  Enabled: false
-
-Metrics/ModuleLength:
-  Enabled: false
-
-Metrics/ParameterLists:
-  Enabled: false
-
-Metrics/PerceivedComplexity:
   Enabled: false
