@@ -27,6 +27,24 @@ Prefer project‑local tools and scripts (for example, bin/ scripts, package.jso
 - Planning tool: skip for trivial chores; otherwise create a multi-step plan and keep it updated as you work (max one `in_progress` step).
 - When moving or renaming tracked files, use `git mv` (or `git mv -k`) instead of plain `mv` so history stays intact.
 
+## Ruby Guidelines
+- Use the project's Ruby version.
+- Prefer `bundle exec` for project tools.
+- Prefer binstubs when present:
+  - `bin/rake`
+  - `bin/rspec`
+  - `bin/rubocop`
+- Before editing, inspect:
+  - `Gemfile`
+  - `Gemfile.lock`
+  - `*.gemspec`
+  - `.rubocop.yml`
+  - `.rspec`
+- Run the smallest relevant test first.
+- Preserve existing Ruby idioms.
+- Do not add gems unless necessary.
+- If `ruby-lsp` is available, prefer symbol-aware analysis over broad file dumping when the tool supports that workflow.
+
 ## Repository Snapshot
 - Ruby gem exposing a SimpleCov coverage CLI (`exe/cov-loupe`) and MCP server; library lives under `lib/cov_loupe/`.
 - Key files: main entry point at `lib/cov_loupe.rb`, core modules in `lib/cov_loupe/` including `cli.rb`, `model.rb`, `mcp_server.rb`, and tool implementations in `lib/cov_loupe/tools/*.rb`.
