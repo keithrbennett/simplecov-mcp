@@ -18,9 +18,6 @@ Layout/CaseIndentation:
 Layout/LineEndStringConcatenationIndentation:
   Enabled: false
 
-Layout/LineLength:
-  Max: 110
-
 RSpec/DescribeMethod:
   Enabled: false
 

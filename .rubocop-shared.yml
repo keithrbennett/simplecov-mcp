@@ -48,9 +48,9 @@ Layout/IndentationConsistency:
   EnforcedStyle: normal
 
 Layout/LineLength:
+  Max: 110
   AllowedPatterns:
     - '\s*#'
-    - '^\s*\#.*http'
 
 Layout/MultilineMethodCallBraceLayout:
   Enabled: false
