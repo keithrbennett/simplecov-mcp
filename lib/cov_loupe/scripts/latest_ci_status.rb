@@ -64,7 +64,7 @@ module CovLoupe
       end
 
       private def handle_status_action(status, conclusion, id)
-        if status == 'completed' && ['failure', 'startup_failure', 'timed_out'].include?(conclusion)
+        if status == 'completed' && %w[failure startup_failure timed_out].include?(conclusion)
           puts "\n#{colorize('Fetching failure logs...', 31)}"
           puts '------------------------'
           system('gh', 'run', 'view', id.to_s, '--log-failed')

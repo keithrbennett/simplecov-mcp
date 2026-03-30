@@ -5,7 +5,7 @@ begin
   require 'simplecov'
   require 'simplecov-cobertura'
   SimpleCov.start do
-    add_filter(/^\/spec\//)
+    add_filter(%r{^/spec/})
     track_files 'lib/**/*.rb'
     formatter SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,

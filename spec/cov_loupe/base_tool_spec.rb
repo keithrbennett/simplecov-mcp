@@ -116,7 +116,7 @@ RSpec.describe CovLoupe::BaseTool do
       )
 
       expect(config[:root]).to eq('/cli/root') # inherited from CLI
-      expect(config[:raise_on_stale]).to be(false)   # overridden by explicit
+      expect(config[:raise_on_stale]).to be(false) # overridden by explicit
     end
 
     it 'uses explicit params over defaults when app_config is nil' do
@@ -282,7 +282,7 @@ RSpec.describe CovLoupe::BaseTool do
 
     context 'with symbol values' do
       it 'accepts valid symbols' do
-        [:default, :fancy, :ascii].each do |symbol|
+        %i[default fancy ascii].each do |symbol|
           expect(described_class.resolve_output_chars(symbol, context)).to eq(symbol)
         end
       end

@@ -128,7 +128,7 @@ module CovLoupe
       return false if path.nil? || path.empty?
 
       # Check for Windows drive paths (C:/, D:/, etc.)
-      return true if path.match?(/^[A-Za-z]:[\/\\]/)
+      return true if path.match?(%r{^[A-Za-z]:[/\\]})
 
       Pathname.new(path).absolute?
     end

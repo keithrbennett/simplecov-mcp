@@ -49,7 +49,7 @@ module CovLoupe
     # @return [String] Formatted table
     def self.format_vertical(data, output_chars: :default)
       rows = data.map { |k, v| [k.to_s, v.to_s] }
-      format(headers: ['Key', 'Value'], rows: rows, alignments: [:left, :left], output_chars: output_chars)
+      format(headers: %w[Key Value], rows: rows, alignments: %i[left left], output_chars: output_chars)
     end
 
     private_class_method def self.border_line(widths, left, mid, right, charset)

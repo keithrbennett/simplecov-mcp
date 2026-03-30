@@ -223,8 +223,8 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
         # Check table format
         table = model.format_table
-        expect(table).to match(/lib\/bar\.rb.*33\.33/)
-        expect(table).to match(/lib\/foo\.rb.*66\.67/)
+        expect(table).to match(%r{lib/bar\.rb.*33\.33})
+        expect(table).to match(%r{lib/foo\.rb.*66\.67})
         expect(table).to include('Files: total 2')
       end
     end

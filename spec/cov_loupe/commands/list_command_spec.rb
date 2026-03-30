@@ -25,7 +25,7 @@ RSpec.describe CovLoupe::Commands::ListCommand do
 
     it 'rejects extra arguments' do
       expect do
-        command.execute(['extra', 'args'])
+        command.execute(%w[extra args])
       end.to raise_error(CovLoupe::UsageError, /Unexpected argument.*extra args/)
     end
 

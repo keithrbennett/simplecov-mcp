@@ -37,7 +37,7 @@ RSpec.describe 'CovLoupe::VERSION' do
 
     it 'has numeric major/minor/patch components' do
       expect(semver_match).not_to be_nil
-      [:major, :minor, :patch].each do |part|
+      %i[major minor patch].each do |part|
         expect(semver_match[part].to_i).to be >= 0
       end
     end

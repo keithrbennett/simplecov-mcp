@@ -8,7 +8,7 @@ module CovLoupe
   class ErrorHandler
     attr_accessor :error_mode, :logger
 
-    VALID_ERROR_MODES = [:off, :log, :debug].freeze
+    VALID_ERROR_MODES = %i[off log debug].freeze
 
     def initialize(error_mode: :log, logger: nil)
       unless VALID_ERROR_MODES.include?(error_mode)

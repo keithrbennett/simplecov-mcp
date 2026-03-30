@@ -302,7 +302,7 @@ RSpec.describe CovLoupe::PathUtils do
         # Stub expand to return Windows paths as-is (simulating absolute path behavior)
         allow(described_class).to receive(:expand).and_wrap_original do |method, path, base = nil|
           # For absolute paths (Windows drive letters or Unix /), return as-is
-          if path&.match?(/^[A-Za-z]:[\/\\]/) || path&.start_with?('/')
+          if path&.match?(%r{^[A-Za-z]:[/\\]}) || path&.start_with?('/')
             path
           elsif base
             "#{base}/#{path}"

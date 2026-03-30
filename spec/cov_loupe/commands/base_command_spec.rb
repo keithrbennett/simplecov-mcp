@@ -42,7 +42,7 @@ RSpec.describe CovLoupe::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::ENOENT, 'No such file or directory'
           end
-        end.to raise_error(CovLoupe::FileNotFoundError, /some\/other\/path\.rb/)
+        end.to raise_error(CovLoupe::FileNotFoundError, %r{some/other/path\.rb})
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe CovLoupe::Commands::BaseCommand do
           test_command.public_handle_with_path(args, 'test') do |_path|
             raise Errno::EACCES, 'Permission denied'
           end
-        end.to raise_error(CovLoupe::FilePermissionError, /\/root\/protected\.rb/)
+        end.to raise_error(CovLoupe::FilePermissionError, %r{/root/protected\.rb})
       end
     end
 

@@ -82,7 +82,7 @@ RSpec.describe 'Error Mode System' do
       test_error = StandardError.new('Test MCP error')
 
       # Test different error modes
-      [:off, :log, :debug].each do |mode|
+      %i[off log debug].each do |mode|
         expect(CovLoupe::ErrorHandlerFactory)
           .to receive(:for_mcp_server).with(error_mode: mode).and_call_original
 
@@ -147,7 +147,7 @@ RSpec.describe 'Error Mode System' do
     end
 
     it 'accepts all valid error modes' do
-      [:off, :log, :debug].each do |mode|
+      %i[off log debug].each do |mode|
         expect { CovLoupe::ErrorHandler.new(error_mode: mode) }.not_to raise_error
       end
     end

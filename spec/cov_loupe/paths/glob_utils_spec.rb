@@ -53,12 +53,12 @@ RSpec.describe CovLoupe::GlobUtils do
 
     it 'returns absolute path for a relative pattern' do
       expect(described_class.absolutize_pattern('lib/*.rb', '/root'))
-        .to match(/#{pattern_start}\/root\/lib\/\*\.rb\z/)
+        .to match(%r{#{pattern_start}/root/lib/\*\.rb\z})
     end
 
     it 'returns the pattern itself if it is already absolute' do
       expect(described_class.absolutize_pattern('/tmp/*.rb', '/root'))
-        .to match(/#{pattern_start}\/tmp\/\*\.rb\z/)
+        .to match(%r{#{pattern_start}/tmp/\*\.rb\z})
     end
   end
 

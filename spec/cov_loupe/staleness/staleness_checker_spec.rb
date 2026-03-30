@@ -231,7 +231,7 @@ RSpec.describe CovLoupe::StalenessChecker do
 
       # SimpleCov would record an array of length 2 for this file
       # because SimpleCov counts newline characters, not logical lines
-      coverage_lines = [1, 0]  # SimpleCov array with 2 elements
+      coverage_lines = [1, 0] # SimpleCov array with 2 elements
 
       # safe_count_lines should return 2 to match SimpleCov
       expect(checker.send(:safe_count_lines, file)).to eq(2)

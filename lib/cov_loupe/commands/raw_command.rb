@@ -19,7 +19,7 @@ module CovLoupe
           puts
 
           # Table format for raw coverage data
-          headers = ['Line', 'Coverage']
+          headers = %w[Line Coverage]
           rows = data['lines'].each_with_index.map do |coverage, index|
             [
               (index + 1).to_s,
@@ -30,7 +30,7 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:right, :right],
+            alignments: %i[right right],
             output_chars: config.output_chars
           )
         end

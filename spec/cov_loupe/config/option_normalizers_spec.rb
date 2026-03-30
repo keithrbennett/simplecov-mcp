@@ -146,8 +146,14 @@ RSpec.describe CovLoupe::OptionNormalizers do
   end
 
   describe 'constant maps' do
-    [:SORT_ORDER_MAP, :SOURCE_MODE_MAP, :ERROR_MODE_MAP,
-     :FORMAT_MAP, :MODE_MAP, :OUTPUT_CHARS_MAP].each do |const|
+    %i[
+      SORT_ORDER_MAP
+      SOURCE_MODE_MAP
+      ERROR_MODE_MAP
+      FORMAT_MAP
+      MODE_MAP
+      OUTPUT_CHARS_MAP
+    ].each do |const|
       it "has frozen #{const}" do
         expect(described_class.const_get(const)).to be_frozen
       end

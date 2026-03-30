@@ -42,7 +42,7 @@ RSpec.describe CovLoupe::CoverageCLI do
           allow(model).to receive(:extract_lines_from_entry).and_wrap_original do |m, entry|
             # Only trigger resolver fallback for foo.rb by returning nil
             if entry.equal?(foo_entry)
-              nil  # Trigger resolver fallback for foo.rb
+              nil # Trigger resolver fallback for foo.rb
             else
               m.call(entry)
             end

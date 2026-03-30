@@ -9,7 +9,7 @@ require_relative '../resolvers/resolver_helpers'
 module CovLoupe
   # Lightweight service object to check staleness of coverage vs. sources
   class StalenessChecker
-    MODES = [:off, :error].freeze
+    MODES = %i[off error].freeze
 
     def initialize(root:, resultset:, mode: :off, tracked_globs: nil, timestamp: nil)
       @root = File.expand_path(root || '.')

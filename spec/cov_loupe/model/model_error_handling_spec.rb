@@ -362,7 +362,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   end
 
   describe 'deleted file detection' do
-    [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
+    %i[summary_for raw_for uncovered_for detailed_for].each do |method|
       describe 'with raise_on_stale: false (default)' do
         it "#{method} returns coverage payload for deleted files" do
           model = described_class.new(root: root, resultset: FIXTURE_PROJECT1_RESULTSET_PATH)
@@ -447,7 +447,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       FileUtils.rm_f(temp_resultset)
     end
 
-    [:summary_for, :raw_for, :uncovered_for, :detailed_for].each do |method|
+    %i[summary_for raw_for uncovered_for detailed_for].each do |method|
       it "#{method} raises CoverageDataError for malformed lines arrays with string elements" do
         malformed_resultset = create_malformed_resultset([1, 0, 'invalid', 2])
         File.write(temp_resultset, JSON.generate(malformed_resultset))

@@ -55,7 +55,7 @@ module CovLoupe
         array_keys: RELATIVIZER_ARRAY_KEYS
       )
       @default_raise_on_stale = raise_on_stale
-      @resolved_resultset_path = nil  # Resolved on first fetch
+      @resolved_resultset_path = nil # Resolved on first fetch
 
       # Eagerly validate resultset exists and load initial data
       # This matches original behavior and surfaces errors immediately
@@ -139,11 +139,11 @@ module CovLoupe
       # the first error. We'll re-raise any errors after staleness checking if needed.
       rows, coverage_lines_by_path = build_list_rows(
         tracked_globs: tracked_globs,
-        raise_on_stale: false  # Always use lenient mode for row building
+        raise_on_stale: false # Always use lenient mode for row building
       )
       project_staleness_details = project_staleness_report(
         tracked_globs: tracked_globs,
-        raise_on_stale: raise_on_stale,  # Honor raise_on_stale for staleness checks
+        raise_on_stale: raise_on_stale, # Honor raise_on_stale for staleness checks
         coverage_lines_by_path: coverage_lines_by_path
       )
 

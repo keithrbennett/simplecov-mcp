@@ -353,8 +353,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
     mock_resultset_with_timestamp(root, old_timestamp, coverage: {
       bar_path => { 'lines' => [nil, nil, 1, 0, 1] }, # 5 lines matching bar.rb - will be newer (T)
-      foo_path => { 'lines' => [1, 1] },    # 2 lines vs 6 actual - length mismatch (L)
-      missing_path => { 'lines' => [1, 1, 1] }    # doesn't exist - missing (M)
+      foo_path => { 'lines' => [1, 1] },              # 2 lines vs 6 actual - length mismatch (L)
+      missing_path => { 'lines' => [1, 1, 1] }        # doesn't exist - missing (M)
     })
 
     # Stub mtime to make it newer than coverage

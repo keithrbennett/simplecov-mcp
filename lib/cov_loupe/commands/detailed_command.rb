@@ -23,7 +23,7 @@ module CovLoupe
           puts
 
           # Table format with box-drawing
-          headers = ['Line', 'Hits', 'Covered']
+          headers = %w[Line Hits Covered]
           rows = data['lines'].map do |r|
             [r['line'].to_s, r['hits'].to_s, r['covered'] ? 'yes' : 'no']
           end
@@ -31,7 +31,7 @@ module CovLoupe
           puts TableFormatter.format(
             headers: headers,
             rows: rows,
-            alignments: [:right, :right, :center],
+            alignments: %i[right right center],
             output_chars: config.output_chars
           )
 

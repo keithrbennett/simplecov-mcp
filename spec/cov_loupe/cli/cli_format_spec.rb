@@ -17,8 +17,8 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
 
     it 'normalizes table format' do
       output = run_cli('--format', 't', 'list')
-      expect(output).to include('File', '%')  # Table output
-      expect(output).not_to include('"files"')  # Not JSON
+      expect(output).to include('File', '%') # Table output
+      expect(output).not_to include('"files"') # Not JSON
     end
 
     it 'supports yaml format' do

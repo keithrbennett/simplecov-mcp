@@ -87,7 +87,7 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'includes stale indicators' do
         output = described_class.format(rows)
 
-        expect(output).to include('missing', 'newer')  # Missing file, Timestamp mismatch
+        expect(output).to include('missing', 'newer') # Missing file, Timestamp mismatch
       end
 
       it 'includes summary counts footer' do

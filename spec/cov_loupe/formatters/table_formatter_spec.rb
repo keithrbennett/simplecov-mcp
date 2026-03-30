@@ -16,7 +16,7 @@ RSpec.describe CovLoupe::TableFormatter do
       output = described_class.format(
         headers: headers,
         rows: rows,
-        alignments: [:left, :right, :center]
+        alignments: %i[left right center]
       )
 
       body_line = output.lines[3] # first data row after borders/header
