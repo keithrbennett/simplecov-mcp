@@ -3,6 +3,11 @@
 [Back to main README](docs/index.md)
 
 
+## v5.0.1.pre
+- Extract shared RuboCop defaults into `.rubocop-shared.yml` and slim `.rubocop.yml` down to cov-loupe-specific overrides, making lint configuration easier to maintain across related projects.
+- Align the codebase and spec suite with the updated RuboCop rules, including removal of the project-specific line-length override and the corresponding style-only cleanup in Ruby sources and tests.
+- Expand `AGENTS.md` with Ruby-specific contributor guidance: inspect core project config files before editing, prefer `bundle exec` and binstubs, and run the smallest relevant test first.
+
 ## v5.0.0 (Breaking)
 - **MCP tool names renamed** to encode scope: file-scope tools are prefixed with `file_` (`file_coverage_summary`, `file_coverage_detailed`, `file_coverage_raw`, `file_uncovered_lines`); project-scope tools are prefixed with `project_` (`project_coverage_list`, `project_coverage_totals`, `project_coverage_table`, `project_validate`). `help_tool` and `version_tool` drop the `_tool` suffix and become `help` and `version`.
 
