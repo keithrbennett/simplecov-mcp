@@ -13,13 +13,13 @@ module CovLoupe
   module Commands
     class CommandFactory
       COMMAND_MAP = {
-        'list' => ListCommand,
-        'summary' => SummaryCommand,
-        'raw' => RawCommand,
+        'list'      => ListCommand,
+        'summary'   => SummaryCommand,
+        'raw'       => RawCommand,
         'uncovered' => UncoveredCommand,
-        'detailed' => DetailedCommand,
-        'totals' => TotalsCommand,
-        'validate' => ValidateCommand
+        'detailed'  => DetailedCommand,
+        'totals'    => TotalsCommand,
+        'validate'  => ValidateCommand,
       }.freeze
 
       def self.create(command_name, cli_context)

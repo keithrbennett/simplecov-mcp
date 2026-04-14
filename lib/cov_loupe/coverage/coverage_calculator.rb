@@ -61,10 +61,10 @@ module CovLoupe
       percentage = total.zero? ? nil : (covered.to_f / total * 100.0).round(2)
 
       {
-        'covered' => covered,
-        'uncovered' => uncovered,
-        'total' => total,
-        'percentage' => percentage
+        'covered'    => covered,
+        'uncovered'  => uncovered,
+        'total'      => total,
+        'percentage' => percentage,
       }
     end
   end

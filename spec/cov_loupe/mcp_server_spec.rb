@@ -16,7 +16,7 @@ RSpec.describe CovLoupe::MCPServer do
 
     server_context = CovLoupe.create_context(
       error_handler: CovLoupe::ErrorHandlerFactory.for_mcp_server,
-      log_target: 'stderr'
+      log_target:    'stderr'
     )
     server = described_class.new(context: server_context)
     baseline_context = CovLoupe.context

@@ -11,10 +11,10 @@ module CovLoupe
     def run
       CovLoupe.with_context(context) do
         server = ::MCP::Server.new(
-          name: 'cov-loupe',
-          version: CovLoupe::VERSION,
-          tools: toolset,
-          instructions: instructions,
+          name:           'cov-loupe',
+          version:        CovLoupe::VERSION,
+          tools:          toolset,
+          instructions:   instructions,
           server_context: context
         )
         ::MCP::Server::Transports::StdioTransport.new(server).open
@@ -30,7 +30,7 @@ module CovLoupe
       Tools::FileUncoveredLinesTool,
       Tools::ProjectValidateTool,
       Tools::HelpTool,
-      Tools::VersionTool
+      Tools::VersionTool,
     ].freeze
 
     # Expose the registered tools so embedders can introspect without booting the server.

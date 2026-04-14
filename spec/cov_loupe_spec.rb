@@ -9,7 +9,7 @@ RSpec.describe CovLoupe do
       { desc: 'runs in CLI mode by default (no --mode flag)', argv: [], mode: :cli },
       { desc: 'runs in CLI mode when --mode cli is specified', argv: %w[--mode cli], mode: :cli },
       { desc: 'runs in MCP mode when --mode mcp is specified', argv: %w[--mode mcp], mode: :mcp },
-      { desc: 'runs in MCP mode when -m mcp is specified', argv: %w[-m mcp], mode: :mcp }
+      { desc: 'runs in MCP mode when -m mcp is specified', argv: %w[-m mcp], mode: :mcp },
     ].each do |test_case|
       it test_case[:desc] do
         if test_case[:mode] == :cli

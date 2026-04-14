@@ -29,11 +29,11 @@ RSpec.describe CovLoupe::Commands::UncoveredCommand do
         mock_presenter(
           CovLoupe::Presenters::CoveragePayloadPresenter,
           absolute_payload: {
-            'file' => 'lib/perfect.rb',
+            'file'      => 'lib/perfect.rb',
             'uncovered' => [],
-            'summary' => { 'covered' => 10, 'total' => 10, 'percentage' => 100.0 }
+            'summary'   => { 'covered' => 10, 'total' => 10, 'percentage' => 100.0 },
           },
-          relative_path: 'lib/perfect.rb'
+          relative_path:    'lib/perfect.rb'
         )
       end
 

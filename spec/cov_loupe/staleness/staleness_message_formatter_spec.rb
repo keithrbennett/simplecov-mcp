@@ -12,17 +12,17 @@ RSpec.describe CovLoupe::StalenessMessageFormatter do
     describe '#format_project_details' do
       it 'converts file paths to ASCII' do
         formatter = described_class.new(
-          cov_timestamp: cov_timestamp,
+          cov_timestamp:  cov_timestamp,
           resultset_path: unicode_resultset,
-          output_chars: :ascii
+          output_chars:   :ascii
         )
 
         result = formatter.format_project_details(
-          newer_files: [unicode_path],
-          missing_files: [],
-          deleted_files: [],
+          newer_files:           [unicode_path],
+          missing_files:         [],
+          deleted_files:         [],
           length_mismatch_files: [],
-          unreadable_files: []
+          unreadable_files:      []
         )
 
         aggregate_failures do
@@ -34,17 +34,17 @@ RSpec.describe CovLoupe::StalenessMessageFormatter do
 
       it 'converts resultset path to ASCII' do
         formatter = described_class.new(
-          cov_timestamp: cov_timestamp,
+          cov_timestamp:  cov_timestamp,
           resultset_path: unicode_resultset,
-          output_chars: :ascii
+          output_chars:   :ascii
         )
 
         result = formatter.format_project_details(
-          newer_files: [],
-          missing_files: [],
-          deleted_files: [],
+          newer_files:           [],
+          missing_files:         [],
+          deleted_files:         [],
           length_mismatch_files: [],
-          unreadable_files: []
+          unreadable_files:      []
         )
 
         expect(result).not_to include('é')
@@ -55,16 +55,16 @@ RSpec.describe CovLoupe::StalenessMessageFormatter do
     describe '#format_single_file_details' do
       it 'converts resultset path to ASCII' do
         formatter = described_class.new(
-          cov_timestamp: cov_timestamp,
+          cov_timestamp:  cov_timestamp,
           resultset_path: unicode_resultset,
-          output_chars: :ascii
+          output_chars:   :ascii
         )
 
         result = formatter.format_single_file_details(
-          file_path: '/some/file.rb',
+          file_path:  '/some/file.rb',
           file_mtime: Time.now,
-          src_len: 100,
-          cov_len: 100
+          src_len:    100,
+          cov_len:    100
         )
 
         expect(result).not_to include('é')
@@ -78,17 +78,17 @@ RSpec.describe CovLoupe::StalenessMessageFormatter do
 
     it 'preserves Unicode in file paths' do
       formatter = described_class.new(
-        cov_timestamp: cov_timestamp,
+        cov_timestamp:  cov_timestamp,
         resultset_path: nil,
-        output_chars: :fancy
+        output_chars:   :fancy
       )
 
       result = formatter.format_project_details(
-        newer_files: [unicode_path],
-        missing_files: [],
-        deleted_files: [],
+        newer_files:           [unicode_path],
+        missing_files:         [],
+        deleted_files:         [],
         length_mismatch_files: [],
-        unreadable_files: []
+        unreadable_files:      []
       )
 
       expect(result).to include('café')
@@ -98,16 +98,16 @@ RSpec.describe CovLoupe::StalenessMessageFormatter do
   describe 'default mode (no output_chars specified)' do
     it 'preserves Unicode by default' do
       formatter = described_class.new(
-        cov_timestamp: cov_timestamp,
+        cov_timestamp:  cov_timestamp,
         resultset_path: '/path/café/.resultset.json'
       )
 
       result = formatter.format_project_details(
-        newer_files: ['/file/tëst.rb'],
-        missing_files: [],
-        deleted_files: [],
+        newer_files:           ['/file/tëst.rb'],
+        missing_files:         [],
+        deleted_files:         [],
         length_mismatch_files: [],
-        unreadable_files: []
+        unreadable_files:      []
       )
 
       # Default mode preserves Unicode (assumes UTF-8 terminal)

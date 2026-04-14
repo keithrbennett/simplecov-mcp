@@ -5,10 +5,10 @@ require 'spec_helper'
 RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   subject(:presenter) do
     described_class.new(
-      model: model,
-      sort_order: sort_order,
+      model:          model,
+      sort_order:     sort_order,
       raise_on_stale: raise_on_stale,
-      tracked_globs: tracked_globs
+      tracked_globs:  tracked_globs
     )
   end
 
@@ -19,19 +19,19 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   let(:files) do
     [
       {
-        'file' => '/abs/path/lib/foo.rb',
-        'covered' => 5,
-        'total' => 6,
+        'file'       => '/abs/path/lib/foo.rb',
+        'covered'    => 5,
+        'total'      => 6,
         'percentage' => 83.33,
-        'stale' => 'ok'
+        'stale'      => 'ok',
       },
       {
-        'file' => '/abs/path/lib/bar.rb',
-        'covered' => 1,
-        'total' => 6,
+        'file'       => '/abs/path/lib/bar.rb',
+        'covered'    => 1,
+        'total'      => 6,
         'percentage' => 16.67,
-        'stale' => 'length_mismatch'
-      }
+        'stale'      => 'length_mismatch',
+      },
     ]
   end
 
@@ -39,22 +39,22 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   before do
     allow(model).to receive(:list).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
       tracked_globs: tracked_globs).and_return({
-        'files' => files,
-        'skipped_files' => [
-          { 'file' => '/abs/path/lib/skipped.rb', 'error' => 'boom' }
+        'files'                 => files,
+        'skipped_files'         => [
+          { 'file' => '/abs/path/lib/skipped.rb', 'error' => 'boom' },
         ],
         'missing_tracked_files' => ['/abs/path/lib/missing.rb'],
-        'newer_files' => [],
-        'deleted_files' => ['/abs/path/lib/deleted.rb'],
+        'newer_files'           => [],
+        'deleted_files'         => ['/abs/path/lib/deleted.rb'],
         'length_mismatch_files' => ['/abs/path/lib/bad_length.rb'],
-        'unreadable_files' => ['/abs/path/lib/unreadable.rb'],
-        'timestamp_status' => 'ok'
+        'unreadable_files'      => ['/abs/path/lib/unreadable.rb'],
+        'timestamp_status'      => 'ok',
       })
     allow(model).to receive(:relativize) do |payload|
       relativizer = CovLoupe::PathRelativizer.new(
-        root: '/abs/path',
+        root:        '/abs/path',
         scalar_keys: %w[file file_path],
-        array_keys: %w[
+        array_keys:  %w[
           newer_files
           deleted_files
           missing_tracked_files
@@ -112,7 +112,7 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
   describe '#relative_skipped_files' do
     it 'returns the relativized skipped files' do
       expect(presenter.relative_skipped_files).to eq([
-        { 'file' => 'lib/skipped.rb', 'error' => 'boom' }
+        { 'file' => 'lib/skipped.rb', 'error' => 'boom' },
       ])
     end
   end
@@ -156,14 +156,14 @@ RSpec.describe CovLoupe::Presenters::ProjectCoveragePresenter do
       before do
         allow(model).to receive(:list).with(sort_order: sort_order, raise_on_stale: raise_on_stale,
           tracked_globs: tracked_globs).and_return({
-            'files' => files,
-            'skipped_files' => [],
+            'files'                 => files,
+            'skipped_files'         => [],
             'missing_tracked_files' => [],
-            'newer_files' => [],
-            'deleted_files' => [],
+            'newer_files'           => [],
+            'deleted_files'         => [],
             'length_mismatch_files' => [],
-            'unreadable_files' => [],
-            'timestamp_status' => 'missing'
+            'unreadable_files'      => [],
+            'timestamp_status'      => 'missing',
           })
       end
 

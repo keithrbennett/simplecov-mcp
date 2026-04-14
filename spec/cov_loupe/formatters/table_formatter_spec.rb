@@ -14,8 +14,8 @@ RSpec.describe CovLoupe::TableFormatter do
       rows = [%w[x 1 ok]]
 
       output = described_class.format(
-        headers: headers,
-        rows: rows,
+        headers:    headers,
+        rows:       rows,
         alignments: %i[left right center]
       )
 

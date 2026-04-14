@@ -11,7 +11,7 @@ module CovLoupe
       DEFAULT_CANDIDATES = [
         '.resultset.json',
         'coverage/.resultset.json',
-        'tmp/.resultset.json'
+        'tmp/.resultset.json',
       ].freeze
 
       def initialize(root: Dir.pwd, candidates: DEFAULT_CANDIDATES)
@@ -90,8 +90,9 @@ module CovLoupe
       end
 
       private def raise_ambiguous_resultset_error(expanded_pwd, expanded_root)
-        raise ConfigurationError, "Ambiguous resultset location specified. Both #{expanded_pwd} and #{expanded_root} exist. " \
-                                  'Use `./` or an absolute filespec to disambiguate.'
+        raise ConfigurationError,
+          "Ambiguous resultset location specified. Both #{expanded_pwd} and #{expanded_root} exist. " \
+          'Use `./` or an absolute filespec to disambiguate.'
       end
 
       private def raise_not_found_error

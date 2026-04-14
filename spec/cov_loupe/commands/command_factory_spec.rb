@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
         ['raw', CovLoupe::Commands::RawCommand],
         ['uncovered', CovLoupe::Commands::UncoveredCommand],
         ['detailed', CovLoupe::Commands::DetailedCommand],
-        ['totals', CovLoupe::Commands::TotalsCommand]
+        ['totals', CovLoupe::Commands::TotalsCommand],
       ].each do |command_name, command_class|
         it "creates a #{command_class.name.split('::').last} for \"#{command_name}\"" do
           command = described_class.create(command_name, cli_context)
@@ -27,11 +27,11 @@ RSpec.describe CovLoupe::Commands::CommandFactory do
         [
           'invalid_cmd',
           'invalid command',
-          /list \| summary <path> \| raw <path> \| uncovered <path>/
+          /list \| summary <path> \| raw <path> \| uncovered <path>/,
         ],
         [nil,           'nil command',            nil],
         ['',            'empty string command',   nil],
-        ['sumary',      'misspelled command',     nil]
+        ['sumary',      'misspelled command',     nil],
       ].each do |command_name, description, pattern|
         it "raises UsageError for #{description}" do
           expect do

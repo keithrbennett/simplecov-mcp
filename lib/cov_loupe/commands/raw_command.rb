@@ -23,14 +23,14 @@ module CovLoupe
           rows = data['lines'].each_with_index.map do |coverage, index|
             [
               (index + 1).to_s,
-              coverage.nil? ? 'nil' : coverage.to_s
+              coverage.nil? ? 'nil' : coverage.to_s,
             ]
           end
 
           puts TableFormatter.format(
-            headers: headers,
-            rows: rows,
-            alignments: %i[right right],
+            headers:      headers,
+            rows:         rows,
+            alignments:   %i[right right],
             output_chars: config.output_chars
           )
         end

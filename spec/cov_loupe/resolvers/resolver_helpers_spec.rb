@@ -8,7 +8,7 @@ RSpec.describe CovLoupe::Resolvers::ResolverHelpers do
     it 'uses provided candidates when present' do
       custom_candidates = ['alt/.resultset.json']
       resolver = described_class.create_resultset_resolver(
-        root: '/tmp/sample',
+        root:       '/tmp/sample',
         candidates: custom_candidates
       )
 

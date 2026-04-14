@@ -59,8 +59,8 @@ module CovLoupe
 
         # Return cached data if it matches
         if entry && signature && digest &&
-           entry[:signature] == signature &&
-           entry[:digest] == digest
+            entry[:signature] == signature &&
+            entry[:digest] == digest
           return entry[:data]
         end
 
@@ -70,9 +70,9 @@ module CovLoupe
         # Store with signature/digest if we computed them
         if signature && digest
           @entries[cache_key] = {
-            data: data,
+            data:      data,
             signature: signature,
-            digest: digest
+            digest:    digest,
           }
         end
 
@@ -87,14 +87,14 @@ module CovLoupe
 
     private def load_data(resultset_path, root, logger)
       repo = Repositories::CoverageRepository.new(
-        root: root,
+        root:           root,
         resultset_path: resultset_path,
-        logger: logger || CovLoupe.logger
+        logger:         logger || CovLoupe.logger
       )
 
       ModelData.new(
-        coverage_map: repo.coverage_map,
-        timestamp: repo.timestamp,
+        coverage_map:   repo.coverage_map,
+        timestamp:      repo.timestamp,
         resultset_path: resultset_path
       )
     end
@@ -102,10 +102,10 @@ module CovLoupe
     private def compute_signature(resultset_path)
       stat = File.stat(resultset_path)
       {
-        mtime: stat.mtime,
+        mtime:      stat.mtime,
         mtime_nsec: stat.respond_to?(:mtime_nsec) ? stat.mtime_nsec : stat.mtime.nsec,
-        size: stat.size,
-        inode: stat.respond_to?(:ino) ? stat.ino : nil
+        size:       stat.size,
+        inode:      stat.respond_to?(:ino) ? stat.ino : nil,
       }.compact
     rescue Errno::ENOENT, Errno::EACCES
       nil

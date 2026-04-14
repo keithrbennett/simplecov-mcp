@@ -91,11 +91,11 @@ RSpec.describe CovLoupe do
         error = described_class.new(
           'Test error',
           nil,
-          file_path: 'test.rb',
-          file_mtime: Time.at(1000),
+          file_path:     'test.rb',
+          file_mtime:    Time.at(1000),
           cov_timestamp: bad_timestamp,
-          src_len: 10,
-          cov_len: 8
+          src_len:       10,
+          cov_len:       8
         )
 
         message = error.user_friendly_message
@@ -112,11 +112,11 @@ RSpec.describe CovLoupe do
         error = described_class.new(
           'Test error',
           nil,
-          file_path: 'test.rb',
-          file_mtime: bad_time,
+          file_path:     'test.rb',
+          file_mtime:    bad_time,
           cov_timestamp: 1000,
-          src_len: 10,
-          cov_len: 8
+          src_len:       10,
+          cov_len:       8
         )
 
         message = error.user_friendly_message
@@ -139,11 +139,11 @@ RSpec.describe CovLoupe do
         error = described_class.new(
           'Test error',
           nil,
-          file_path: 'test.rb',
-          file_mtime: bad_time,
+          file_path:     'test.rb',
+          file_mtime:    bad_time,
           cov_timestamp: bad_timestamp,
-          src_len: 10,
-          cov_len: 8
+          src_len:       10,
+          cov_len:       8
         )
 
         message = error.user_friendly_message
@@ -158,8 +158,8 @@ RSpec.describe CovLoupe do
         error = described_class.new(
           nil, # No message provided - triggers default_message
           nil,
-          file_path: 'test.rb',
-          file_mtime: Time.at(2000),
+          file_path:     'test.rb',
+          file_mtime:    Time.at(2000),
           cov_timestamp: 1000
         )
 
@@ -175,8 +175,8 @@ RSpec.describe CovLoupe do
         error = described_class.new(
           nil, # No message - triggers default_message
           nil,
-          file_path: nil, # No file path - triggers 'file' fallback
-          file_mtime: Time.at(2000),
+          file_path:     nil, # No file path - triggers 'file' fallback
+          file_mtime:    Time.at(2000),
           cov_timestamp: 1000
         )
 
@@ -195,7 +195,7 @@ RSpec.describe CovLoupe do
           nil, # StandardError sets message to class name when nil
           nil,
           cov_timestamp: 1000,
-          newer_files: %w[file1.rb file2.rb]
+          newer_files:   %w[file1.rb file2.rb]
         )
 
         message = error.user_friendly_message
@@ -222,29 +222,29 @@ RSpec.describe CovLoupe do
     describe 'large file list truncation' do
       [
         {
-          type: :deleted,
-          key: :deleted_files,
-          desc: 'deleted or moved in project',
-          label: 'Coverage-only files'
+          type:  :deleted,
+          key:   :deleted_files,
+          desc:  'deleted or moved in project',
+          label: 'Coverage-only files',
         },
         {
-          type: :missing,
-          key: :missing_files,
-          desc: 'new in project, not in coverage',
-          label: 'Missing files'
+          type:  :missing,
+          key:   :missing_files,
+          desc:  'new in project, not in coverage',
+          label: 'Missing files',
         },
         {
-          type: :newer,
-          key: :newer_files,
-          desc: nil, # newer_files doesn't have a description in the header line
-          label: 'Newer files'
-        }
+          type:  :newer,
+          key:   :newer_files,
+          desc:  nil, # newer_files doesn't have a description in the header line
+          label: 'Newer files',
+        },
       ].each do |file_type|
         it "shows all files when there are 10 or fewer #{file_type[:type]} files" do
           files = (1..10).map { |i| "#{file_type[:type]}_file_#{i}.rb" }
           error_params = {
             cov_timestamp: 1000,
-            file_type[:key] => files
+            file_type[:key] => files,
           }
           error = described_class.new('Test error', nil, **error_params)
 
@@ -264,7 +264,7 @@ RSpec.describe CovLoupe do
           files = (1..count).map { |i| "#{file_type[:type]}_file_#{i}.rb" }
           error_params = {
             cov_timestamp: 1000,
-            file_type[:key] => files
+            file_type[:key] => files,
           }
           error = described_class.new('Test error', nil, **error_params)
 

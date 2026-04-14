@@ -18,13 +18,13 @@ RSpec.describe CovLoupe::CoverageModel do
 
     allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker)
     allow(checker).to receive(:check_project_with_lines!).and_return(
-      newer_files: newer_files,
-      missing_files: missing_files,
-      deleted_files: deleted_files,
+      newer_files:           newer_files,
+      missing_files:         missing_files,
+      deleted_files:         deleted_files,
       length_mismatch_files: length_mismatch_files,
-      unreadable_files: unreadable_files,
-      file_statuses: file_statuses,
-      timestamp_status: timestamp_status
+      unreadable_files:      unreadable_files,
+      file_statuses:         file_statuses,
+      timestamp_status:      timestamp_status
     )
   end
 
@@ -96,7 +96,7 @@ RSpec.describe CovLoupe::CoverageModel do
       files = model.list['files']
       aggregate_failures 'Descending sort' do
         expect(files.first).to include(
-          'file' => File.expand_path('lib/foo.rb', root),
+          'file'       => File.expand_path('lib/foo.rb', root),
           'percentage' => a_value_within(0.01).of(66.67)
         )
         expect(files.last).to include('file' => File.expand_path('lib/bar.rb', root))
@@ -105,7 +105,7 @@ RSpec.describe CovLoupe::CoverageModel do
       files_asc = model.list(sort_order: :ascending)['files']
       aggregate_failures 'Ascending sort' do
         expect(files_asc.first).to include(
-          'file' => File.expand_path('lib/bar.rb', root),
+          'file'       => File.expand_path('lib/bar.rb', root),
           'percentage' => a_value_within(0.01).of(33.33)
         )
         expect(files_asc.last).to include('file' => File.expand_path('lib/foo.rb', root))
@@ -163,8 +163,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
       expect(result['skipped_files']).to contain_exactly(
         hash_including(
-          'file' => abs_foo,
-          'error' => 'corrupt data',
+          'file'        => abs_foo,
+          'error'       => 'corrupt data',
           'error_class' => 'CovLoupe::CoverageDataError'
         )
       )
@@ -197,10 +197,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
       aggregate_failures do
         expect(totals['lines']).to include(
-          'total' => 6,
-          'covered' => 3,
-          'uncovered' => 3,
-          'percentage' => be_within(0.01).of(50.0),
+          'total'          => 6,
+          'covered'        => 3,
+          'uncovered'      => 3,
+          'percentage'     => be_within(0.01).of(50.0),
           'included_files' => 2,
           'excluded_files' => 0
         )
@@ -217,7 +217,7 @@ RSpec.describe CovLoupe::CoverageModel do
       stub_staleness_checker(
         file_statuses: {
           abs_foo => 'ok',
-          abs_bar => 'newer'
+          abs_bar => 'newer',
         }
       )
 
@@ -225,10 +225,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
       aggregate_failures do
         expect(totals['lines']).to include(
-          'total' => 3,
-          'covered' => 2,
-          'uncovered' => 1,
-          'percentage' => be_within(0.01).of(66.67),
+          'total'          => 3,
+          'covered'        => 2,
+          'uncovered'      => 1,
+          'percentage'     => be_within(0.01).of(66.67),
           'included_files' => 1,
           'excluded_files' => 1
         )
@@ -245,10 +245,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
       stub_staleness_checker(
         length_mismatch_files: [abs_bar],
-        unreadable_files: [abs_foo],
-        file_statuses: {
+        unreadable_files:      [abs_foo],
+        file_statuses:         {
           abs_bar => 'length_mismatch',
-          abs_foo => 'error'
+          abs_foo => 'error',
         }
       )
 
@@ -256,10 +256,10 @@ RSpec.describe CovLoupe::CoverageModel do
 
       aggregate_failures do
         expect(totals['lines']).to include(
-          'total' => 0,
-          'covered' => 0,
-          'uncovered' => 0,
-          'percentage' => nil,
+          'total'          => 0,
+          'covered'        => 0,
+          'uncovered'      => 0,
+          'percentage'     => nil,
           'included_files' => 0,
           'excluded_files' => 2
         )
@@ -267,7 +267,7 @@ RSpec.describe CovLoupe::CoverageModel do
         expect(totals['files']['with_coverage']['stale']).to include('total' => 2)
         expect(totals['files']['with_coverage']['stale']['by_type']).to include(
           'length_mismatch' => 1,
-          'unreadable' => 1
+          'unreadable'      => 1
         )
       end
     end
@@ -276,9 +276,9 @@ RSpec.describe CovLoupe::CoverageModel do
       totals = model.project_totals(tracked_globs: ['lib/foo.rb'])
 
       expect(totals['lines']).to include(
-        'total' => 3,
-        'covered' => 2,
-        'uncovered' => 1,
+        'total'      => 3,
+        'covered'    => 2,
+        'uncovered'  => 1,
         'percentage' => be_within(0.01).of(66.67)
       )
       expect(totals['tracking']).to include('enabled' => true, 'globs' => ['lib/foo.rb'])
@@ -318,7 +318,7 @@ RSpec.describe CovLoupe::CoverageModel do
       stub_staleness_checker(
         deleted_files: [abs_foo],
         file_statuses: {
-          abs_foo => 'missing'
+          abs_foo => 'missing',
         }
       )
 
@@ -333,7 +333,7 @@ RSpec.describe CovLoupe::CoverageModel do
   describe 'resultset directory handling' do
     it 'accepts a directory containing .resultset.json' do
       model = described_class.new(
-        root: root,
+        root:      root,
         resultset: File.dirname(FIXTURE_PROJECT1_RESULTSET_PATH)
       )
       data = model.summary_for('lib/foo.rb')
@@ -349,8 +349,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
     let(:resultset) do
       {
-        'RSpec' => { 'timestamp' => 100, 'coverage' => suite_a_cov },
-        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov }
+        'RSpec'    => { 'timestamp' => 100, 'coverage' => suite_a_cov },
+        'Cucumber' => { 'timestamp' => 200, 'coverage' => suite_b_cov },
       }
     end
 
@@ -423,13 +423,13 @@ RSpec.describe CovLoupe::CoverageModel do
       allow(model_with_globs).to receive(:filter_rows_by_globs).and_call_original
       stub_checker = instance_double(
         CovLoupe::StalenessChecker,
-        off?: true,
+        off?:                      true,
         check_project_with_lines!: {
-          newer_files: [],
-          missing_files: [],
-          deleted_files: [],
+          newer_files:           [],
+          missing_files:         [],
+          deleted_files:         [],
           length_mismatch_files: [],
-          file_statuses: {}
+          file_statuses:         {},
         }
       )
       allow(model_with_globs).to receive(:build_staleness_checker).and_return(stub_checker)
@@ -481,12 +481,12 @@ RSpec.describe CovLoupe::CoverageModel do
       resultset = {
         'RSpec' => {
           'timestamp' => 100,
-          'coverage' => {
-            File.join(root, 'lib/alpha.rb') => { 'lines' => [1, 0] },
-            File.join(root, 'lib/zebra.rb') => { 'lines' => [1, 0] },
-            File.join(root, 'lib/middle.rb') => { 'lines' => [1, 0] }
-          }
-        }
+          'coverage'  => {
+            File.join(root, 'lib/alpha.rb')  => { 'lines' => [1, 0] },
+            File.join(root, 'lib/zebra.rb')  => { 'lines' => [1, 0] },
+            File.join(root, 'lib/middle.rb') => { 'lines' => [1, 0] },
+          },
+        },
       }
 
       allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset)
@@ -508,12 +508,12 @@ RSpec.describe CovLoupe::CoverageModel do
       resultset = {
         'RSpec' => {
           'timestamp' => 100,
-          'coverage' => {
+          'coverage'  => {
             File.join(root, 'lib/empty.rb') => { 'lines' => [] },
-            File.join(root, 'lib/full.rb') => { 'lines' => [1] },
-            File.join(root, 'lib/none.rb') => { 'lines' => [0] }
-          }
-        }
+            File.join(root, 'lib/full.rb')  => { 'lines' => [1] },
+            File.join(root, 'lib/none.rb')  => { 'lines' => [0] },
+          },
+        },
       }
       # empty.rb -> nil (no executable lines)
       # full.rb -> 100.0
@@ -562,21 +562,21 @@ RSpec.describe CovLoupe::CoverageModel do
       {
         'RSpec' => {
           'timestamp' => 100,
-          'coverage' => {
-            first_file_path => { 'lines' => [1, 0, 1] }
-          }
-        }
+          'coverage'  => {
+            first_file_path => { 'lines' => [1, 0, 1] },
+          },
+        },
       }
     end
     let(:updated_resultset) do
       {
         'RSpec' => {
           'timestamp' => 200,
-          'coverage' => {
-            first_file_path => { 'lines' => [1, 1, 1] },
-            second_file_path => { 'lines' => [0, 0, 0] }
-          }
-        }
+          'coverage'  => {
+            first_file_path  => { 'lines' => [1, 1, 1] },
+            second_file_path => { 'lines' => [0, 0, 0] },
+          },
+        },
       }
     end
 
@@ -615,8 +615,10 @@ RSpec.describe CovLoupe::CoverageModel do
       # Same model instance should return updated data without refresh_data
       list2 = long_lived_model.list['files']
       expect(list2.map { |f| File.basename(f['file']) }).to eq(['first.rb', 'second.rb'])
-      expect(list2.find { |f| File.basename(f['file']) == 'first.rb' }['covered']).to eq(3) # [1, 1, 1] => 3 covered
-
+      expect( # [1, 1, 1] => 3 covered
+list2.find do |f|
+  File.basename(f['file']) == 'first.rb'
+end['covered']).to eq(3)
       # Verify summary_for also gets fresh data
       summary = long_lived_model.summary_for(first_file_path)
       expect(summary['summary']['covered']).to eq(3)
@@ -695,7 +697,7 @@ RSpec.describe CovLoupe::CoverageModel do
       result = model_with_logger.summary_for(existing_file, raise_on_stale: false)
 
       expect(result).to include(
-        'file' => existing_file_abs,
+        'file'    => existing_file_abs,
         'summary' => be_a(Hash)
       )
     end
@@ -734,10 +736,10 @@ RSpec.describe CovLoupe::CoverageModel do
       {
         'RSpec' => {
           'timestamp' => 100,
-          'coverage' => {
-            missing_file_path => { 'lines' => [1, 0, 1] }
-          }
-        }
+          'coverage'  => {
+            missing_file_path => { 'lines' => [1, 0, 1] },
+          },
+        },
       }
     end
 
@@ -761,31 +763,31 @@ RSpec.describe CovLoupe::CoverageModel do
           # summary_for
           summary = model_with_deleted.summary_for('lib/deleted.rb')
           expect(summary).to include(
-            'file' => missing_file_path,
+            'file'    => missing_file_path,
             'summary' => include('total' => 3, 'covered' => 2)
           )
 
           # detailed_for
           detailed = model_with_deleted.detailed_for('lib/deleted.rb')
           expect(detailed).to include(
-            'file' => missing_file_path,
-            'lines' => be_an(Array),
+            'file'    => missing_file_path,
+            'lines'   => be_an(Array),
             'summary' => include('total' => 3)
           )
 
           # raw_for
           raw = model_with_deleted.raw_for('lib/deleted.rb')
           expect(raw).to include(
-            'file' => missing_file_path,
+            'file'  => missing_file_path,
             'lines' => [1, 0, 1]
           )
 
           # uncovered_for
           uncovered = model_with_deleted.uncovered_for('lib/deleted.rb')
           expect(uncovered).to include(
-            'file' => missing_file_path,
+            'file'      => missing_file_path,
             'uncovered' => [2],
-            'summary' => include('total' => 3)
+            'summary'   => include('total' => 3)
           )
         end
       end
@@ -801,8 +803,8 @@ RSpec.describe CovLoupe::CoverageModel do
     describe 'with raise_on_stale: true (strict mode)' do
       it 'raises FileNotFoundError for missing file' do
         strict_model = described_class.new(
-          root: root,
-          resultset: temp_resultset,
+          root:           root,
+          resultset:      temp_resultset,
           raise_on_stale: true
         )
 
@@ -828,8 +830,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
       it 'returns staleness status without raising via staleness_for' do
         strict_model = described_class.new(
-          root: root,
-          resultset: temp_resultset,
+          root:           root,
+          resultset:      temp_resultset,
           raise_on_stale: true
         )
 
@@ -846,10 +848,10 @@ RSpec.describe CovLoupe::CoverageModel do
         {
           'RSpec' => {
             'timestamp' => resultset_timestamp,
-            'coverage' => {
-              existing_file_path => { 'lines' => [1, 1, 0] }
-            }
-          }
+            'coverage'  => {
+              existing_file_path => { 'lines' => [1, 1, 0] },
+            },
+          },
         }
       end
 
@@ -888,8 +890,8 @@ RSpec.describe CovLoupe::CoverageModel do
 
           # Strict (raise_on_stale: true)
           strict_model = described_class.new(
-            root: root,
-            resultset: temp_resultset,
+            root:           root,
+            resultset:      temp_resultset,
             raise_on_stale: true
           )
           summary_strict = strict_model.summary_for('lib/existing.rb')

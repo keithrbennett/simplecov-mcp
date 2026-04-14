@@ -65,9 +65,9 @@ RSpec.describe 'Error Mode System' do
   describe 'ErrorHandlerFactory' do
     it 'creates handlers with correct modes' do
       {
-        for_cli: :debug,
-        for_library: :off,
-        for_mcp_server: :log
+        for_cli:        :debug,
+        for_library:    :off,
+        for_mcp_server: :log,
       }.each do |factory_method, mode|
         handler = CovLoupe::ErrorHandlerFactory.public_send(factory_method, error_mode: mode)
         expect(handler.error_mode).to eq(mode)

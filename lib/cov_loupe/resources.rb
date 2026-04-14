@@ -9,13 +9,14 @@ module CovLoupe
 
     # Canonical resource map – single source of truth for both CLI and MCP.
     RESOURCE_MAP = {
-      'repo' => REPOSITORY_URL,
-      'docs' => DOCUMENTATION_WEB_URL,
-      'docs-local' => LOCAL_README_PATH
+      'repo'       => REPOSITORY_URL,
+      'docs'       => DOCUMENTATION_WEB_URL,
+      'docs-local' => LOCAL_README_PATH,
     }.freeze
 
     def self.cli_url_for(name)
-      RESOURCE_MAP[name] || (raise UsageError, "Unknown resource: '#{name}'. Valid resources: #{RESOURCE_MAP.keys.sort.join(', ')}")
+      RESOURCE_MAP[name] || (raise UsageError,
+        "Unknown resource: '#{name}'. Valid resources: #{RESOURCE_MAP.keys.sort.join(', ')}")
     end
   end
 end

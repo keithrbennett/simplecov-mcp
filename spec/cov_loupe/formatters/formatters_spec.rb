@@ -28,7 +28,7 @@ RSpec.describe CovLoupe::Formatters do
       [:json, '{"foo":"bar"}', :eq],
       [:pretty_json, "{\n  \"foo\": \"bar\"\n}", :include],
       [:table, { 'foo' => 'bar' }, :eq],
-      [:yaml, "---\nfoo: bar\n", :include]
+      [:yaml, "---\nfoo: bar\n", :include],
     ].each do |format, expected, matcher|
       it "formats as #{format}" do
         result = described_class.format(obj, format)

@@ -12,7 +12,8 @@ module CovLoupe
 
     def initialize(error_mode: :log, logger: nil)
       unless VALID_ERROR_MODES.include?(error_mode)
-        raise ArgumentError, "Invalid error_mode: #{error_mode.inspect}. Valid modes: #{VALID_ERROR_MODES.inspect}"
+        raise ArgumentError,
+          "Invalid error_mode: #{error_mode.inspect}. Valid modes: #{VALID_ERROR_MODES.inspect}"
       end
 
       @error_mode = error_mode

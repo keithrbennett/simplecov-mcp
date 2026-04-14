@@ -20,7 +20,7 @@ module CovLoupe
 
       input_schema(**coverage_schema(
         additional_properties: {
-          tracked_globs: TRACKED_GLOBS_PROPERTY
+          tracked_globs: TRACKED_GLOBS_PROPERTY,
         }
       ))
 
@@ -32,16 +32,16 @@ module CovLoupe
             error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
-              root: root,
-              resultset: resultset,
+              root:           root,
+              resultset:      resultset,
               raise_on_stale: raise_on_stale,
-              tracked_globs: tracked_globs
+              tracked_globs:  tracked_globs
             )
 
             presenter = Presenters::ProjectTotalsPresenter.new(
-              model: model,
+              model:          model,
               raise_on_stale: config[:raise_on_stale],
-              tracked_globs: config[:tracked_globs]
+              tracked_globs:  config[:tracked_globs]
             )
             payload = presenter.relativized_payload
 
@@ -50,7 +50,7 @@ module CovLoupe
               payload['warnings'] = [
                 'Coverage timestamps are missing. Time-based staleness checks were skipped.',
                 'Files may appear "ok" even if source code is newer than the coverage data.',
-                'Check your coverage tool configuration to ensure timestamps are recorded.'
+                'Check your coverage tool configuration to ensure timestamps are recorded.',
               ]
             end
 

@@ -45,7 +45,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       } },
       { cmd: 'detailed', args: ['lib/foo.rb'], key: 'lines', check: ->(d) {
         d['lines'].is_a?(Array)
-      } }
+      } },
     ].each do |tc|
       it "prints #{tc[:cmd]} as JSON" do
         with_json_output(tc[:cmd], *tc[:args]) do |data|
@@ -57,9 +57,9 @@ RSpec.describe CovLoupe::CoverageCLI do
     it 'prints totals as JSON' do
       with_json_output('totals') do |data|
         expect(data['lines']).to include(
-          'total' => 6,
-          'covered' => 3,
-          'uncovered' => 3,
+          'total'      => 6,
+          'covered'    => 3,
+          'uncovered'  => 3,
           'percentage' => be_within(0.01).of(50.0)
         )
         expect(data['tracking']).to include('enabled' => false)
@@ -77,7 +77,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       { abbrev: 's', full: 'summary',   args: ['lib/foo.rb'] },
       { abbrev: 't', full: 'totals',    args: [] },
       { abbrev: 'u', full: 'uncovered', args: ['lib/foo.rb'] },
-      { abbrev: 'v', full: 'validate',  args: ['-i', '->(m) { true }'] }
+      { abbrev: 'v', full: 'validate',  args: ['-i', '->(m) { true }'] },
     ].each do |tc|
       it "resolves '#{tc[:abbrev]}' to '#{tc[:full]}'" do
         _stdout, _stderr, status = run_fixture_cli_with_status(tc[:abbrev], *tc[:args])
@@ -227,7 +227,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     %w[-p --path-for].each do |flag|
       {
         'repo' => 'https://github.com/keithrbennett/cov-loupe',
-        'docs' => 'https://keithrbennett.github.io/cov-loupe/'
+        'docs' => 'https://keithrbennett.github.io/cov-loupe/',
       }.each do |resource, expected_value|
         it "returns value for canonical resource '#{resource}' with #{flag}" do
           output = run_cli(flag, resource)
@@ -257,14 +257,14 @@ RSpec.describe CovLoupe::CoverageCLI do
     it 'displays all types of exclusions on stderr' do
       presenter_double = instance_double(
         CovLoupe::Presenters::ProjectCoveragePresenter,
-        relative_newer_files: ['newer.rb'],
+        relative_newer_files:           ['newer.rb'],
         relative_length_mismatch_files: ['mismatch.rb'],
-        relative_unreadable_files: ['unreadable.rb'],
+        relative_unreadable_files:      ['unreadable.rb'],
         relative_missing_tracked_files: [],
-        relative_deleted_files: [],
-        relative_skipped_files: [],
-        relative_files: [],
-        timestamp_status: 'ok'
+        relative_deleted_files:         [],
+        relative_skipped_files:         [],
+        relative_files:                 [],
+        timestamp_status:               'ok'
       )
       allow(CovLoupe::Presenters::ProjectCoveragePresenter)
         .to receive(:new).and_return(presenter_double)
@@ -286,15 +286,15 @@ RSpec.describe CovLoupe::CoverageCLI do
     def stub_presenter_with_timestamp_status(status, include_model: false)
       presenter_double = instance_double(
         CovLoupe::Presenters::ProjectCoveragePresenter,
-        relative_newer_files: [],
+        relative_newer_files:           [],
         relative_length_mismatch_files: [],
-        relative_unreadable_files: [],
+        relative_unreadable_files:      [],
         relative_missing_tracked_files: [],
-        relative_deleted_files: [],
-        relative_skipped_files: [],
-        relative_files: [],
-        timestamp_status: status,
-        relativized_payload: { 'files' => [], 'counts' => {} }
+        relative_deleted_files:         [],
+        relative_skipped_files:         [],
+        relative_files:                 [],
+        timestamp_status:               status,
+        relativized_payload:            { 'files' => [], 'counts' => {} }
       )
       allow(CovLoupe::Presenters::ProjectCoveragePresenter)
         .to receive(:new).and_return(presenter_double)
@@ -304,7 +304,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       model_double = instance_double(
         CovLoupe::CoverageModel,
         format_table: "Coverage Table\n",
-        list: { 'files' => [], 'timestamp_status' => status },
+        list:         { 'files' => [], 'timestamp_status' => status },
         skipped_rows: []
       )
       allow(CovLoupe::CoverageModel).to receive(:new).and_return(model_double)
@@ -337,7 +337,7 @@ RSpec.describe CovLoupe::CoverageCLI do
     # Integration tests with real fixture data
     [
       { format: 'table', stream: :stderr, desc: 'table format' },
-      { format: 'json', stream: :stderr, desc: 'JSON format' }
+      { format: 'json', stream: :stderr, desc: 'JSON format' },
     ].each do |tc|
       it "warns about missing timestamps with real fixture data in #{tc[:desc]}" do
         no_timestamp_fixture = File.expand_path('../fixtures/project_no_timestamp', __dir__)

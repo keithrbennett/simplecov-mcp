@@ -9,13 +9,13 @@ RSpec.describe CovLoupe::ResultsetLoader do
       Dir.mktmpdir do |dir|
         resultset_path = File.join(dir, '.resultset.json')
         coverage = {
-          File.join(dir, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] }
+          File.join(dir, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] },
         }
         data = {
           'SuiteA' => {
             'timestamp' => 123,
-            'coverage' => coverage
-          }
+            'coverage'  => coverage,
+          },
         }
         File.write(resultset_path, JSON.generate(data))
 
@@ -34,19 +34,19 @@ RSpec.describe CovLoupe::ResultsetLoader do
         bar_path = File.join(dir, 'lib', 'bar.rb')
 
         data = {
-          'RSpec' => {
+          'RSpec'    => {
             'timestamp' => 100,
-            'coverage' => {
-              foo_path => { 'lines' => [1, 0, nil, 0] }
-            }
+            'coverage'  => {
+              foo_path => { 'lines' => [1, 0, nil, 0] },
+            },
           },
           'Cucumber' => {
             'timestamp' => 200,
-            'coverage' => {
+            'coverage'  => {
               foo_path => { 'lines' => [0, 3, nil, 1] },
-              bar_path => { 'lines' => [0, 1, 1] }
-            }
-          }
+              bar_path => { 'lines' => [0, 1, 1] },
+            },
+          },
         }
         File.write(resultset_path, JSON.generate(data))
 
@@ -65,10 +65,10 @@ RSpec.describe CovLoupe::ResultsetLoader do
         data = {
           'SuiteA' => {
             'timestamp' => 50,
-            'coverage' => {
-              foo_path => [1, 0, nil, 2]
-            }
-          }
+            'coverage'  => {
+              foo_path => [1, 0, nil, 2],
+            },
+          },
         }
         File.write(resultset_path, JSON.generate(data))
 
@@ -94,8 +94,8 @@ RSpec.describe CovLoupe::ResultsetLoader do
         data = {
           'SuiteA' => {
             'timestamp' => 10,
-            'coverage' => []
-          }
+            'coverage'  => [],
+          },
         }
         File.write(resultset_path, JSON.generate(data))
 
@@ -114,7 +114,7 @@ RSpec.describe CovLoupe::ResultsetLoader do
     [
       { desc: 'malformed JSON', content: '{ "invalid": json }' },
       { desc: 'empty file', content: '' },
-      { desc: 'whitespace-only file', content: "   \n\t  " }
+      { desc: 'whitespace-only file', content: "   \n\t  " },
     ].each do |tc|
       it "raises JSON::ParserError for #{tc[:desc]}" do
         Dir.mktmpdir do |dir|
@@ -155,7 +155,7 @@ RSpec.describe CovLoupe::ResultsetLoader do
       suites = [
         described_class::SuiteEntry.new(name: 'RSpec', coverage: {}, timestamp: 0),
         described_class::SuiteEntry.new(name: 'RSpec', coverage: {}, timestamp: 0),
-        described_class::SuiteEntry.new(name: 'Cucumber', coverage: {}, timestamp: 0)
+        described_class::SuiteEntry.new(name: 'Cucumber', coverage: {}, timestamp: 0),
       ]
 
       expect(mock_logger).to receive(:safe_log)
@@ -172,7 +172,7 @@ RSpec.describe CovLoupe::ResultsetLoader do
       { desc: 'float timestamps', input: 123.9, expected: 123 },
       { desc: 'Time objects', input: Time.at(456), expected: 456 },
       { desc: 'numeric string timestamps', input: '789.42', expected: 789 },
-      { desc: 'created_at fallback', input: nil, created_at: 321, expected: 321 }
+      { desc: 'created_at fallback', input: nil, created_at: 321, expected: 321 },
     ].each do |tc|
       it "handles #{tc[:desc]}" do
         value = loader.send(:normalize_coverage_timestamp, tc[:input], tc[:created_at])
@@ -182,25 +182,25 @@ RSpec.describe CovLoupe::ResultsetLoader do
 
     [
       {
-        desc: 'invalid timestamp strings',
+        desc:  'invalid timestamp strings',
         input: 'not-a-timestamp',
-        msgs: ['Coverage resultset timestamp could not be parsed', 'not-a-timestamp']
+        msgs:  ['Coverage resultset timestamp could not be parsed', 'not-a-timestamp'],
       },
       {
-        desc: 'unsupported types',
+        desc:  'unsupported types',
         input: [:invalid],
-        msgs: ['Coverage resultset timestamp could not be parsed', '[:invalid]']
+        msgs:  ['Coverage resultset timestamp could not be parsed', '[:invalid]'],
       },
       {
-        desc: 'blank string timestamps',
+        desc:  'blank string timestamps',
         input: '   ',
-        msgs: ['Coverage timestamp missing, defaulting to 0', '"   "']
+        msgs:  ['Coverage timestamp missing, defaulting to 0', '"   "'],
       },
       {
-        desc: 'zero timestamps',
+        desc:  'zero timestamps',
         input: 0,
-        msgs: ['Coverage timestamp missing, defaulting to 0', '0']
-      }
+        msgs:  ['Coverage timestamp missing, defaulting to 0', '0'],
+      },
     ].each do |tc|
       it "logs warning and returns zero for #{tc[:desc]}" do
         messages = []
@@ -253,10 +253,10 @@ RSpec.describe CovLoupe::ResultsetLoader do
         data = {
           'SuiteA' => {
             'timestamp' => 100,
-            'coverage' => {
-              foo_path => { 'lines' => [1, 0], 'json_class' => 'IgnoredString' }
-            }
-          }
+            'coverage'  => {
+              foo_path => { 'lines' => [1, 0], 'json_class' => 'IgnoredString' },
+            },
+          },
         }
         File.write(resultset_path, JSON.generate(data))
 

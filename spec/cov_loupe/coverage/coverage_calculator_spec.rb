@@ -53,7 +53,7 @@ RSpec.describe CovLoupe::CoverageCalculator do
       expect(described_class.detailed(arr)).to eq([
         { 'line' => 1, 'hits' => 1, 'covered' => true },
         { 'line' => 2, 'hits' => 0, 'covered' => false },
-        { 'line' => 4, 'hits' => 2, 'covered' => true }
+        { 'line' => 4, 'hits' => 2, 'covered' => true },
       ])
     end
 
@@ -61,7 +61,7 @@ RSpec.describe CovLoupe::CoverageCalculator do
       arr = [nil, 1, nil, nil, 0]
       expect(described_class.detailed(arr)).to eq([
         { 'line' => 2, 'hits' => 1, 'covered' => true },
-        { 'line' => 5, 'hits' => 0, 'covered' => false }
+        { 'line' => 5, 'hits' => 0, 'covered' => false },
       ])
     end
 
@@ -83,7 +83,7 @@ RSpec.describe CovLoupe::CoverageCalculator do
       expect(result).to eq([
         { 'line' => 1, 'hits' => 0, 'covered' => false },
         { 'line' => 2, 'hits' => 0, 'covered' => false },
-        { 'line' => 4, 'hits' => 0, 'covered' => false }
+        { 'line' => 4, 'hits' => 0, 'covered' => false },
       ])
     end
 
@@ -100,7 +100,7 @@ RSpec.describe CovLoupe::CoverageCalculator do
       expect(result).to eq([
         { 'line' => 1, 'hits' => 0, 'covered' => false },
         { 'line' => 2, 'hits' => 1, 'covered' => true },
-        { 'line' => 4, 'hits' => 0, 'covered' => false }
+        { 'line' => 4, 'hits' => 0, 'covered' => false },
       ])
     end
 
@@ -114,22 +114,22 @@ RSpec.describe CovLoupe::CoverageCalculator do
     it 'aggregates multiple file summaries' do
       summaries = [
         { 'covered' => 10, 'total' => 20 },
-        { 'covered' => 30, 'total' => 40 }
+        { 'covered' => 30, 'total' => 40 },
       ]
       result = described_class.aggregate(summaries)
       expect(result).to include(
-        'covered' => 40,
-        'uncovered' => 20,
-        'total' => 60,
+        'covered'    => 40,
+        'uncovered'  => 20,
+        'total'      => 60,
         'percentage' => 66.67
       )
     end
 
     it 'handles empty array' do
       expect(described_class.aggregate([])).to include(
-        'covered' => 0,
-        'uncovered' => 0,
-        'total' => 0,
+        'covered'    => 0,
+        'uncovered'  => 0,
+        'total'      => 0,
         'percentage' => nil
       )
     end

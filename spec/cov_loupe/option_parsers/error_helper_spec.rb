@@ -3,21 +3,21 @@
 require 'spec_helper'
 
 OPTION_TESTS = {
-  source: {
-    long: '--source',
+  source:     {
+    long:  '--source',
     short: '-s',
-    text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
+    text:  'Valid values for --source: f[ull]|u[ncovered]|n[one]',
   },
   error_mode: {
-    long: '--error-mode',
+    long:  '--error-mode',
     short: nil,
-    text: 'Valid values for --error-mode: o[ff]|l[og]|d[ebug]'
+    text:  'Valid values for --error-mode: o[ff]|l[og]|d[ebug]',
   },
   sort_order: {
-    long: '--sort-order',
+    long:  '--sort-order',
     short: '-o',
-    text: 'Valid values for --sort-order: a[scending]|d[escending]'
-  }
+    text:  'Valid values for --sort-order: a[scending]|d[escending]',
+  },
 }.freeze
 
 RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
@@ -42,16 +42,16 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           it 'suggests valid values for space-separated form with invalid value' do
             expect_error_output(
               error: error,
-              argv: [config[:long], 'xyz'],
-              text: config[:text]
+              argv:  [config[:long], 'xyz'],
+              text:  config[:text]
             )
           end
 
           it 'suggests valid values for equal form with invalid value' do
             expect_error_output(
               error: error,
-              argv: ["#{config[:long]}=xyz"],
-              text: config[:text]
+              argv:  ["#{config[:long]}=xyz"],
+              text:  config[:text]
             )
           end
 
@@ -59,8 +59,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
             it 'suggests valid values for short form with invalid value' do
               expect_error_output(
                 error: error,
-                argv: [config[:short], 'xyz'],
-                text: config[:text]
+                argv:  [config[:short], 'xyz'],
+                text:  config[:text]
               )
             end
           end
@@ -72,8 +72,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('missing argument: --source')
           expect_error_output(
             error: error,
-            argv: %w[--source],
-            text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
+            argv:  %w[--source],
+            text:  'Valid values for --source: f[ull]|u[ncovered]|n[one]'
           )
         end
 
@@ -81,8 +81,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
           error = OptionParser::InvalidArgument.new('invalid argument: --other')
           expect_error_output(
             error: error,
-            argv: %w[--source --other-option],
-            text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
+            argv:  %w[--source --other-option],
+            text:  'Valid values for --source: f[ull]|u[ncovered]|n[one]'
           )
         end
       end
@@ -106,8 +106,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: bad')
         expect_error_output(
           error: error,
-          argv: %w[--resultset coverage --source bad --format json],
-          text: 'Valid values for --source: f[ull]|u[ncovered]|n[one]'
+          argv:  %w[--resultset coverage --source bad --format json],
+          text:  'Valid values for --source: f[ull]|u[ncovered]|n[one]'
         )
       end
 
@@ -115,8 +115,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
         error = OptionParser::InvalidArgument.new('invalid argument: invalid')
         expect_error_output(
           error: error,
-          argv: %w[--format json --sort-order=invalid --resultset coverage],
-          text: 'Valid values for --sort-order: a[scending]|d[escending]'
+          argv:  %w[--format json --sort-order=invalid --resultset coverage],
+          text:  'Valid values for --sort-order: a[scending]|d[escending]'
         )
       end
     end
@@ -183,8 +183,8 @@ RSpec.describe CovLoupe::OptionParsers::ErrorHelper do
       error = OptionParser::InvalidArgument.new('some error')
       expect_error_output(
         error: error,
-        argv: [],
-        text: 'Error: invalid argument: some error'
+        argv:  [],
+        text:  'Error: invalid argument: some error'
       )
     end
 

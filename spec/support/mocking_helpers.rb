@@ -8,7 +8,7 @@ module MockingHelpers
     checker_double = instance_double(CovLoupe::StalenessChecker)
     allow(checker_double).to receive_messages(
       file_staleness_status: value,
-      off?: false
+      off?:                  false
     )
     allow(checker_double).to receive(:check_file!)
     allow(CovLoupe::StalenessChecker).to receive(:new).and_return(checker_double)
@@ -22,7 +22,7 @@ module MockingHelpers
     presenter_double = instance_double(presenter_class)
     allow(presenter_double).to receive_messages(
       absolute_payload: absolute_payload,
-      relative_path: relative_path
+      relative_path:    relative_path
     )
     allow(presenter_class).to receive(:new).and_return(presenter_double)
     presenter_double
@@ -33,9 +33,9 @@ module MockingHelpers
   # @return [CovLoupe::PathRelativizer] Configured relativizer
   def create_test_relativizer(root: '/abs/path')
     CovLoupe::PathRelativizer.new(
-      root: root,
+      root:        root,
       scalar_keys: %w[file file_path],
-      array_keys: %w[newer_files missing_files deleted_files]
+      array_keys:  %w[newer_files missing_files deleted_files]
     )
   end
 

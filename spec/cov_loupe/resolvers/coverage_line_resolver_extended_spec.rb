@@ -11,7 +11,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         abs_path = '/project/lib/foo.rb'
         # Data is stored under a different path but same filename
         cov_data = {
-          '/other/path/foo.rb' => { 'lines' => [1, 0, 1] }
+          '/other/path/foo.rb' => { 'lines' => [1, 0, 1] },
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
@@ -26,7 +26,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         abs_path = '/project/lib/foo.rb'
         cov_data = {
           '/project/lib/foo.rb' => { 'lines' => [1, 1, 1] },
-          '/other/path/foo.rb' => { 'lines' => [0, 0, 0] }
+          '/other/path/foo.rb'  => { 'lines' => [0, 0, 0] },
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
@@ -39,7 +39,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         abs_path = '/project/lib/common.rb'
         cov_data = {
           '/path/a/common.rb' => { 'lines' => [1] },
-          '/path/b/common.rb' => { 'lines' => [2] }
+          '/path/b/common.rb' => { 'lines' => [2] },
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)
@@ -56,7 +56,7 @@ RSpec.describe CovLoupe::Resolvers::CoverageLineResolver do
         abs_path = File.join(root, relative_path)
 
         cov_data = {
-          relative_path => { 'lines' => [1, 0] }
+          relative_path => { 'lines' => [1, 0] },
         }
 
         resolver = described_class.new(cov_data, root: root, volume_case_sensitive: true)

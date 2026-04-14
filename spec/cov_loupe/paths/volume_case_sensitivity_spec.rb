@@ -330,7 +330,7 @@ RSpec.describe CovLoupe::VolumeCaseSensitivity do
         it "correctly handles #{variation} filename" do
           variant_filename = { 'uppercase' => 'TESTFILE.TXT',
                                'lowercase' => 'testfile.txt',
-                               'mixed' => 'TestFile.Txt' }[variation]
+                               'mixed'     => 'TestFile.Txt' }[variation]
 
           variant_alternate = variant_filename.tr('A-Za-z', 'a-zA-Z')
           allow(File).to receive(:exist?).with(File.join(test_dir, variant_alternate)).and_return(false)

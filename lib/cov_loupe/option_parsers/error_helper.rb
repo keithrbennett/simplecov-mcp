@@ -37,7 +37,8 @@ module CovLoupe
 
       private def suggest_subcommand(option, output_chars)
         subcommand = option[2..]
-        msg1 = convert_text("Error: '#{option}' is not a valid option. Did you mean the '#{subcommand}' subcommand?", output_chars)
+        msg1 = convert_text("Error: '#{option}' is not a valid option. " \
+          "Did you mean the '#{subcommand}' subcommand?", output_chars)
         msg2 = convert_text("Try: #{program_name} #{subcommand} [args]", output_chars)
         warn msg1
         warn msg2
@@ -104,7 +105,7 @@ module CovLoupe
           { switches: ['--error-mode'], values: %w[off o log l debug d],
             display: 'o[ff]|l[og]|d[ebug]' },
           { switches: ['-o', '--sort-order'], values: %w[a d ascending descending],
-            display: 'a[scending]|d[escending]' }
+            display: 'a[scending]|d[escending]' },
         ]
       end
 

@@ -20,7 +20,7 @@ module CovLoupe
         *format_file_list(deleted_files, 'Coverage-only files', 'deleted or moved in project'),
         *format_file_list(length_mismatch_files, 'Line count mismatches'),
         *format_file_list(unreadable_files, 'Unreadable files', 'permission denied or read errors'),
-        (@resultset_path ? "\nResultset - #{convert_path(@resultset_path)}" : nil)
+        (@resultset_path ? "\nResultset - #{convert_path(@resultset_path)}" : nil),
       ].compact.join
     end
 
@@ -56,7 +56,7 @@ module CovLoupe
       [
         "\n#{label}#{desc}",
         *files.first(10).map { |f| "  - #{convert_path(f)}" },
-        *(files.size > 10 ? ['  ...'] : [])
+        *(files.size > 10 ? ['  ...'] : []),
       ]
     end
 

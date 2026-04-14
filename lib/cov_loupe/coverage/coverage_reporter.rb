@@ -38,7 +38,7 @@ module CovLoupe
       end
 
       model ||= CoverageModel.new(
-        root: root || default_root,
+        root:      root || default_root,
         resultset: resultset || default_resultset
       )
       list_result = model.list(sort_order: :ascending)

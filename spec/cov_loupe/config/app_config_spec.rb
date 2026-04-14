@@ -35,9 +35,9 @@ RSpec.describe CovLoupe::AppConfig do
 
     it 'allows overriding defaults via keyword arguments' do
       config = described_class.new(
-        root: '/custom',
-        format: :json,
-        sort_order: :descending,
+        root:           '/custom',
+        format:         :json,
+        sort_order:     :descending,
         raise_on_stale: true
       )
       expect(config.root).to eq('/custom')
@@ -58,18 +58,18 @@ RSpec.describe CovLoupe::AppConfig do
   describe '#model_options' do
     it 'returns hash suitable for CoverageModel.new' do
       config = described_class.new(
-        root: '/custom/root',
-        resultset: '/custom/.resultset.json',
+        root:           '/custom/root',
+        resultset:      '/custom/.resultset.json',
         raise_on_stale: true,
-        tracked_globs: ['lib/**/*.rb']
+        tracked_globs:  ['lib/**/*.rb']
       )
 
       options = config.model_options
       expect(options).to eq({
-        root: '/custom/root',
-        resultset: '/custom/.resultset.json',
+        root:           '/custom/root',
+        resultset:      '/custom/.resultset.json',
         raise_on_stale: true,
-        tracked_globs: ['lib/**/*.rb']
+        tracked_globs:  ['lib/**/*.rb'],
       })
     end
 

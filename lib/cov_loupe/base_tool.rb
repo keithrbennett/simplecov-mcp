@@ -12,70 +12,70 @@ require_relative 'config/option_normalizers'
 module CovLoupe
   class BaseTool < ::MCP::Tool
     COMMON_PROPERTIES = {
-      root: {
-        type: 'string',
+      root:           {
+        type:        'string',
         description: 'Project root used to resolve relative paths ' \
                      '(defaults to current workspace).',
-        default: '.'
+        default:     '.',
       },
-      resultset: {
-        type: 'string',
-        description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).'
+      resultset:      {
+        type:        'string',
+        description: 'Path to the SimpleCov .resultset.json file (absolute or relative to root).',
       },
       raise_on_stale: {
-        type: 'boolean',
+        type:        'boolean',
         description: 'If true, raise error if coverage data is stale (missing files, ' \
           'timestamp mismatch). Defaults to false.',
-        default: false
+        default:     false,
       },
-      error_mode: {
-        type: 'string',
+      error_mode:     {
+        type:        'string',
         description: "Error handling mode: 'off' (silent), 'log' (log errors), " \
                      "'debug' (verbose with backtraces).",
-        enum: %w[off log debug],
-        default: 'log'
+        enum:        %w[off log debug],
+        default:     'log',
       },
-      output_chars: {
-        type: 'string',
+      output_chars:   {
+        type:        'string',
         description: "Output character mode: 'default' (UTF-8 encoding uses fancy, else ascii), " \
                      "'fancy' (Unicode box-drawing and symbols), 'ascii' (ASCII-only 0x00-0x7F). " \
                      'Accepts: d[efault], f[ancy], a[scii].',
-        enum: %w[default fancy ascii d f a],
-        default: 'default'
-      }
+        enum:        %w[default fancy ascii d f a],
+        default:     'default',
+      },
     }.freeze
 
     ERROR_MODE_PROPERTY = COMMON_PROPERTIES[:error_mode].freeze
 
     TRACKED_GLOBS_PROPERTY = {
-      type: 'array',
+      type:        'array',
       description: 'Glob patterns for files that should exist in the coverage report' \
                    '(helps flag new files).',
-      items: { type: 'string' }
+      items:       { type: 'string' },
     }.freeze
 
     DEFAULT_SORT_ORDER = CoverageModel::DEFAULT_SORT_ORDER.to_s
 
     SORT_ORDER_PROPERTY = {
-      type: 'string',
+      type:        'string',
       description: 'Sort order for coverage percentages. ' \
                    "'#{DEFAULT_SORT_ORDER}' (default) lists highest coverage first. " \
                    'Accepts: a[scending], d[escending].',
-      default: DEFAULT_SORT_ORDER,
-      enum: %w[ascending descending a d]
+      default:     DEFAULT_SORT_ORDER,
+      enum:        %w[ascending descending a d],
     }.freeze
 
     PATH_PROPERTY = {
-      type: 'string',
+      type:        'string',
       description: 'Repo-relative or absolute path to the file whose coverage data you need.',
-      examples: ['lib/cov_loupe/model.rb']
+      examples:    ['lib/cov_loupe/model.rb'],
     }.freeze
 
     def self.coverage_schema(additional_properties: {}, required: [])
       schema = {
-        type: 'object',
+        type:                 'object',
         additionalProperties: false,
-        properties: COMMON_PROPERTIES.merge(additional_properties)
+        properties:           COMMON_PROPERTIES.merge(additional_properties),
       }
       schema[:required] = required unless required.empty?
       schema.freeze
@@ -83,7 +83,7 @@ module CovLoupe
 
     FILE_INPUT_SCHEMA = coverage_schema(
       additional_properties: { path: PATH_PROPERTY },
-      required: ['path']
+      required:              ['path']
     )
     def self.input_schema_def = FILE_INPUT_SCHEMA
 
@@ -274,8 +274,8 @@ module CovLoupe
         model, config = create_configured_model(server_context: server_context,
           **model_option_overrides)
         presenter = Presenters::CoveragePayloadPresenter.new(
-          model: model,
-          path: path,
+          model:          model,
+          path:           path,
           payload_method: payload_method_for(tool_name),
           raise_on_stale: config[:raise_on_stale]
         )

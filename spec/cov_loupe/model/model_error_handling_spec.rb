@@ -9,19 +9,19 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   describe 'initialization error handling' do
     let(:valid_resultset) do
       {
-        'RSpec' => {
+        'RSpec'     => {
           'coverage' => {
-            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] } # Path with NULL byte
-          }
+            "lib/foo\x00bar.rb" => { 'lines' => [1, 0, 1] }, # Path with NULL byte
+          },
         },
-        'timestamp' => 1000
+        'timestamp' => 1000,
       }
     end
     let(:malformed_resultset) do
       {
         'RSpec' => {
-          'coverage' => 'not_a_hash' # Should be a hash, not a string
-        }
+          'coverage' => 'not_a_hash', # Should be a hash, not a string
+        },
       }
     end
 
@@ -60,9 +60,9 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       malformed_resultset = {
         'RSpec' => {
           'coverage' => {
-            'file.rb' => nil # Should have 'lines' key, this will cause NoMethodError
-          }
-        }
+            'file.rb' => nil, # Should have 'lines' key, this will cause NoMethodError
+          },
+        },
       }
 
       allow(File).to receive(:open).and_call_original
@@ -152,8 +152,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       # Create a malformed resultset that will cause TypeError
       malformed_resultset = {
         'RSpec' => {
-          'coverage' => 'not_a_hash' # This will cause TypeError
-        }
+          'coverage' => 'not_a_hash', # This will cause TypeError
+        },
       }
       mock_resultset_data(malformed_resultset)
 
@@ -168,20 +168,20 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
   describe 'RuntimeError handling from find_resultset' do
     [
       {
-        desc: 'wraps RuntimeError as UnknownError',
+        desc:      'wraps RuntimeError as UnknownError',
         error_msg: 'Specified resultset not found: /nonexistent/path/.resultset.json',
-        resultset: '/nonexistent/path'
+        resultset: '/nonexistent/path',
       },
       {
-        desc: 'wraps RuntimeError with generic messages',
+        desc:      'wraps RuntimeError with generic messages',
         error_msg: 'Something went wrong during resultset lookup',
-        resultset: FIXTURE_PROJECT1_RESULTSET_PATH
+        resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
       },
       {
-        desc: 'wraps RuntimeError without "resultset" in message',
+        desc:      'wraps RuntimeError without "resultset" in message',
         error_msg: 'Some completely unrelated runtime error',
-        resultset: FIXTURE_PROJECT1_RESULTSET_PATH
-      }
+        resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+      },
     ].each do |tc|
       it tc[:desc] do
         allow(CovLoupe::Resolvers::ResolverHelpers).to receive(:find_resultset).and_raise(
@@ -242,8 +242,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         expect(file_names).not_to include('foo.rb')
         expect(list_result['skipped_files']).to contain_exactly(
           hash_including(
-            'file' => foo_path,
-            'error' => 'Missing file',
+            'file'        => foo_path,
+            'error'       => 'Missing file',
             'error_class' => 'CovLoupe::FileError'
           )
         )
@@ -263,8 +263,8 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
         expect(file_names).not_to include('foo.rb')
         expect(list_result['skipped_files']).to contain_exactly(
           hash_including(
-            'file' => foo_path,
-            'error' => 'Corrupted coverage entry',
+            'file'        => foo_path,
+            'error'       => 'Corrupted coverage entry',
             'error_class' => 'CovLoupe::CorruptCoverageDataError'
           )
         )
@@ -297,7 +297,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       let(:accurate_coverage) do
         {
           File.join(root, 'lib', 'foo.rb') => { 'lines' => [nil, nil, 1, 0, nil, 2] },
-          File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] }
+          File.join(root, 'lib', 'bar.rb') => { 'lines' => [nil, nil, 0, 0, 1] },
         }
       end
       let(:resultset_timestamp) { VERY_OLD_TIMESTAMP }
@@ -429,11 +429,11 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       {
         'RSpec' => {
           'timestamp' => Time.now.to_i,
-          'coverage' => {
+          'coverage'  => {
             foo_path => { 'lines' => malformed_lines_for_foo },
-            bar_path => { 'lines' => [nil, nil, 0, 0, 1] }
-          }
-        }
+            bar_path => { 'lines' => [nil, nil, 0, 0, 1] },
+          },
+        },
       }
     end
 
@@ -537,7 +537,7 @@ RSpec.describe CovLoupe::CoverageModel, 'error handling' do
       expect(file_names).not_to include('foo.rb')
       expect(list_result['skipped_files']).to contain_exactly(
         hash_including(
-          'file' => foo_path,
+          'file'        => foo_path,
           'error_class' => 'CovLoupe::CoverageDataError'
         )
       )

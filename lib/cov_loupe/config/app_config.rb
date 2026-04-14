@@ -43,10 +43,10 @@ module CovLoupe
     # Convenience method for CoverageModel initialization
     def model_options
       {
-        root: root,
-        resultset: resultset,
+        root:           root,
+        resultset:      resultset,
         raise_on_stale: raise_on_stale,
-        tracked_globs: tracked_globs
+        tracked_globs:  tracked_globs,
       }
     end
 
@@ -54,7 +54,7 @@ module CovLoupe
     def formatter_options
       {
         color_enabled: color,
-        output_chars: output_chars
+        output_chars:  output_chars,
       }
     end
   end

@@ -220,7 +220,7 @@ RSpec.describe CovLoupe::GlobUtils do
       [
         { 'file' => '/root/lib/foo.rb' },
         { 'file' => '/root/spec/foo_spec.rb' },
-        { 'file' => '/root/lib/bar.rb' }
+        { 'file' => '/root/lib/bar.rb' },
       ]
     end
 
@@ -244,7 +244,7 @@ RSpec.describe CovLoupe::GlobUtils do
     it 'allows specifying a custom key for file path' do
       custom_items = [
         { 'path' => '/root/lib/foo.rb' },
-        { 'path' => '/root/spec/foo_spec.rb' }
+        { 'path' => '/root/spec/foo_spec.rb' },
       ]
       patterns = ['/root/lib/*.rb']
       result = described_class.filter_by_pattern(custom_items, patterns, key: 'path')
@@ -259,7 +259,7 @@ RSpec.describe CovLoupe::GlobUtils do
         File.expand_path('/project/lib/foo.rb'),
         File.expand_path('/project/lib/bar.rb'),
         File.expand_path('/project/spec/foo_spec.rb'),
-        File.expand_path('/project/spec/bar_spec.rb')
+        File.expand_path('/project/spec/bar_spec.rb'),
       ]
     end
 
@@ -301,7 +301,7 @@ RSpec.describe CovLoupe::GlobUtils do
       nested_paths = [
         File.expand_path('/project/lib/utils/helper.rb'),
         File.expand_path('/project/lib/foo.rb'),
-        File.expand_path('/project/spec/foo_spec.rb')
+        File.expand_path('/project/spec/foo_spec.rb'),
       ]
       result = described_class.filter_paths(nested_paths, 'lib/**/*.rb', root: root)
       expect(result).to contain_exactly(

@@ -16,7 +16,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       %r{Documentation \(Web\):\s+https://keithrbennett.github.io/cov-loupe/},
       %r{Documentation \(Local\):\s+},
       %r{Screencast:\s+https://www.bbs-software.com/screencasts/cov-loupe},
-      %r{Version:\s+#{CovLoupe::VERSION}}
+      %r{Version:\s+#{CovLoupe::VERSION}},
     ].each do |pattern|
       expect(out).to match(pattern)
     end
@@ -61,7 +61,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'emits detailed stale coverage info and exits 1' do
     mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
-      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
+      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] },
     })
 
     _out, err, status = run_fixture_cli_with_status('--raise-on-stale=yes', 'summary', 'lib/foo.rb')
@@ -75,7 +75,7 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   it 'honors --raise-on-stale=false to disable checks' do
     mock_resultset_with_timestamp(root, VERY_OLD_TIMESTAMP, coverage: {
-      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] }
+      File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, 1] },
     })
 
     _out, err, status = run_fixture_cli_with_status('--raise-on-stale=false', 'summary',
@@ -177,29 +177,29 @@ RSpec.describe CovLoupe::CoverageCLI do
 
   describe 'invalid option handling' do
     invalid_option_cases = {
-      '--subcommand-like suggestion' => {
-        args: ['--summary'],
+      '--subcommand-like suggestion'     => {
+        args:              ['--summary'],
         expected_messages: [
           "Error: '--summary' is not a valid option. Did you mean the 'summary' subcommand?",
-          'Try: cov-loupe summary [args]'
-        ]
+          'Try: cov-loupe summary [args]',
+        ],
       },
       '--error-mode=bogus (enum with =)' => {
-        args: ['--error-mode=bogus', 'list'],
-        expected_messages: ['invalid argument: --error-mode=bogus']
+        args:              ['--error-mode=bogus', 'list'],
+        expected_messages: ['invalid argument: --error-mode=bogus'],
       },
-      '--error-mode bogus (enum space)' => {
-        args: ['--error-mode', 'bogus', 'list'],
-        expected_messages: ['invalid argument: bogus']
+      '--error-mode bogus (enum space)'  => {
+        args:              ['--error-mode', 'bogus', 'list'],
+        expected_messages: ['invalid argument: bogus'],
       },
-      '--no-such-option' => {
-        args: ['--no-such-option'],
-        expected_messages: ['Error: invalid option: --no-such-option']
+      '--no-such-option'                 => {
+        args:              ['--no-such-option'],
+        expected_messages: ['Error: invalid option: --no-such-option'],
       },
-      '--context-lines negative' => {
-        args: ['--context-lines', '-1', 'summary', 'lib/foo.rb'],
-        expected_messages: ['Context lines cannot be negative']
-      }
+      '--context-lines negative'         => {
+        args:              ['--context-lines', '-1', 'summary', 'lib/foo.rb'],
+        expected_messages: ['Context lines cannot be negative'],
+      },
     }
 
     invalid_option_cases.each do |description, test_case|

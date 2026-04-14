@@ -35,8 +35,8 @@ RSpec.describe CovLoupe::Tools::VersionTool do
       it 'ignores additional arguments gracefully' do
         response = described_class.call(
           server_context: server_context,
-          extra_arg: 'value',
-          another: { nested: 'data' }
+          extra_arg:      'value',
+          another:        { nested: 'data' }
         )
         item = response.payload.first
         expect(item['text']).to eq("CovLoupe version: #{CovLoupe::VERSION}")

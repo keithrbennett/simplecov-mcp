@@ -50,9 +50,9 @@ module CovLoupe
       @skipped_rows = []
       @logger = logger || CovLoupe.logger
       @relativizer = PathRelativizer.new(
-        root: @root,
+        root:        @root,
         scalar_keys: RELATIVIZER_SCALAR_KEYS,
-        array_keys: RELATIVIZER_ARRAY_KEYS
+        array_keys:  RELATIVIZER_ARRAY_KEYS
       )
       @default_raise_on_stale = raise_on_stale
       @resolved_resultset_path = nil # Resolved on first fetch
@@ -94,9 +94,9 @@ module CovLoupe
     def uncovered_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
-        'file' => file_abs,
+        'file'      => file_abs,
         'uncovered' => CoverageCalculator.uncovered(coverage_lines),
-        'summary' => CoverageCalculator.summary(coverage_lines)
+        'summary'   => CoverageCalculator.summary(coverage_lines),
       }
     end
 
@@ -104,9 +104,9 @@ module CovLoupe
     def detailed_for(path, raise_on_stale: @default_raise_on_stale)
       file_abs, coverage_lines = coverage_data_for(path, raise_on_stale: raise_on_stale)
       {
-        'file' => file_abs,
-        'lines' => CoverageCalculator.detailed(coverage_lines),
-        'summary' => CoverageCalculator.summary(coverage_lines)
+        'file'    => file_abs,
+        'lines'   => CoverageCalculator.detailed(coverage_lines),
+        'summary' => CoverageCalculator.summary(coverage_lines),
       }
     end
 
@@ -138,12 +138,12 @@ module CovLoupe
       # This ensures staleness checking can examine all files, not just the ones before
       # the first error. We'll re-raise any errors after staleness checking if needed.
       rows, coverage_lines_by_path = build_list_rows(
-        tracked_globs: tracked_globs,
+        tracked_globs:  tracked_globs,
         raise_on_stale: false # Always use lenient mode for row building
       )
       project_staleness_details = project_staleness_report(
-        tracked_globs: tracked_globs,
-        raise_on_stale: raise_on_stale, # Honor raise_on_stale for staleness checks
+        tracked_globs:          tracked_globs,
+        raise_on_stale:         raise_on_stale, # Honor raise_on_stale for staleness checks
         coverage_lines_by_path: coverage_lines_by_path
       )
 
@@ -163,14 +163,14 @@ module CovLoupe
       end
 
       {
-        'files' => sort_rows(rows, sort_order: sort_order),
-        'skipped_files' => filter_rows_by_globs(@skipped_rows, tracked_globs),
+        'files'                 => sort_rows(rows, sort_order: sort_order),
+        'skipped_files'         => filter_rows_by_globs(@skipped_rows, tracked_globs),
         'missing_tracked_files' => project_staleness_details[:missing_files],
-        'newer_files' => project_staleness_details[:newer_files],
-        'deleted_files' => project_staleness_details[:deleted_files],
+        'newer_files'           => project_staleness_details[:newer_files],
+        'deleted_files'         => project_staleness_details[:deleted_files],
         'length_mismatch_files' => length_mismatch_files,
-        'unreadable_files' => unreadable_files,
-        'timestamp_status' => project_staleness_details[:timestamp_status]
+        'unreadable_files'      => unreadable_files,
+        'timestamp_status'      => project_staleness_details[:timestamp_status],
       }
     end
 
@@ -194,10 +194,10 @@ module CovLoupe
       files = files_payload(with_coverage, without_coverage)
 
       {
-        'lines' => line_totals,
-        'tracking' => tracking,
-        'files' => files,
-        'timestamp_status' => list_result['timestamp_status']
+        'lines'            => line_totals,
+        'tracking'         => tracking,
+        'files'            => files,
+        'timestamp_status' => list_result['timestamp_status'],
       }
     end
 
@@ -265,11 +265,11 @@ module CovLoupe
 
     private def build_staleness_checker(raise_on_stale:, tracked_globs:)
       StalenessChecker.new(
-        root: @root,
-        resultset: resolved_resultset_path,
-        mode: raise_on_stale ? :error : :off,
+        root:          @root,
+        resultset:     resolved_resultset_path,
+        mode:          raise_on_stale ? :error : :off,
         tracked_globs: tracked_globs,
-        timestamp: coverage_timestamp
+        timestamp:     coverage_timestamp
       )
     end
 
@@ -283,14 +283,14 @@ module CovLoupe
         coverage_lines_by_path[abs_path] = coverage_lines
         summary = CoverageCalculator.summary(coverage_lines)
         {
-          'file' => abs_path,
-          'covered' => summary['covered'],
-          'total' => summary['total'],
+          'file'       => abs_path,
+          'covered'    => summary['covered'],
+          'total'      => summary['total'],
           'percentage' => summary['percentage'],
 
           # We set 'stale' => 'ok' as a placeholder, then in list we overwrite it
           # with the true status from the project report.
-          'stale' => 'ok'
+          'stale'      => 'ok',
         }
       end
 
@@ -313,9 +313,9 @@ module CovLoupe
 
       @logger.safe_log("Skipping coverage row for #{abs_path}: #{e.message}")
       @skipped_rows << {
-        'file' => abs_path,
-        'error' => e.message,
-        'error_class' => e.class.name
+        'file'        => abs_path,
+        'error'       => e.message,
+        'error_class' => e.class.name,
       }
       nil
     end
@@ -428,7 +428,7 @@ module CovLoupe
       patterns = GlobUtils.normalize_patterns(tracked_globs)
       {
         'enabled' => patterns.any?,
-        'globs' => patterns
+        'globs'   => patterns,
       }
     end
 
@@ -439,11 +439,11 @@ module CovLoupe
 
       {
         'total' => rows.length,
-        'ok' => breakdown[:ok],
+        'ok'    => breakdown[:ok],
         'stale' => {
-          'total' => stale_total,
-          'by_type' => stale_by_type
-        }
+          'total'   => stale_total,
+          'by_type' => stale_by_type,
+        },
       }
     end
 
@@ -455,12 +455,12 @@ module CovLoupe
       unreadable = Array(list_result['unreadable_files']).length
       by_type = {
         StaleStatus::MISSING_FROM_COVERAGE => missing_from_coverage,
-        StaleStatus::UNREADABLE => unreadable,
-        StaleStatus::SKIPPED => skipped
+        StaleStatus::UNREADABLE            => unreadable,
+        StaleStatus::SKIPPED               => skipped,
       }
       {
-        'total' => by_type.values.sum,
-        'by_type' => by_type
+        'total'   => by_type.values.sum,
+        'by_type' => by_type,
       }
     end
 
@@ -469,8 +469,8 @@ module CovLoupe
       total += without_coverage['total'] if without_coverage
 
       files = {
-        'total' => total,
-        'with_coverage' => with_coverage
+        'total'         => total,
+        'with_coverage' => with_coverage,
       }
       files['without_coverage'] = without_coverage if without_coverage
       files
@@ -479,9 +479,9 @@ module CovLoupe
     private def stale_breakdown(rows)
       stale_by_type = {
         StaleStatus::MISSING_FROM_DISK => 0,
-        StaleStatus::NEWER => 0,
-        StaleStatus::LENGTH_MISMATCH => 0,
-        StaleStatus::UNREADABLE => 0
+        StaleStatus::NEWER             => 0,
+        StaleStatus::LENGTH_MISMATCH   => 0,
+        StaleStatus::UNREADABLE        => 0,
       }
       ok_files = 0
 
@@ -501,8 +501,8 @@ module CovLoupe
       end
 
       {
-        ok: ok_files,
-        stale_by_type: stale_by_type
+        ok:            ok_files,
+        stale_by_type: stale_by_type,
       }
     end
 

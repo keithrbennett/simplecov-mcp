@@ -82,7 +82,7 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
 
     [
       { desc: 'returns empty array when COV_LOUPE_OPTS is not set', env_value: nil },
-      { desc: 'returns empty array when COV_LOUPE_OPTS is empty', env_value: '' }
+      { desc: 'returns empty array when COV_LOUPE_OPTS is empty', env_value: '' },
     ].each do |test_case|
       it test_case[:desc] do
         ENV['COV_LOUPE_OPTS'] = test_case[:env_value] if test_case[:env_value]
@@ -134,13 +134,13 @@ RSpec.describe 'COV_LOUPE_OPTS Environment Variable' do
       # Provide a minimal JSON-RPC request that the server can handle
       json_request = JSON.generate({
         jsonrpc: '2.0',
-        id: 1,
-        method: 'initialize',
-        params: {
+        id:      1,
+        method:  'initialize',
+        params:  {
           protocolVersion: '2024-11-05',
-          capabilities: {},
-          clientInfo: { name: 'test', version: '1.0' }
-        }
+          capabilities:    {},
+          clientInfo:      { name: 'test', version: '1.0' },
+        },
       })
 
       allow($stdin).to receive(:gets).and_return(json_request, nil)

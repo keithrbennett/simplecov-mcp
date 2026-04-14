@@ -36,42 +36,42 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
         presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
         allow(presenter_double).to receive_messages(
           absolute_payload: {
-            'lines' => {
-              'total' => 6,
-              'covered' => 3,
-              'uncovered' => 3,
-              'percentage' => 50.0,
+            'lines'    => {
+              'total'          => 6,
+              'covered'        => 3,
+              'uncovered'      => 3,
+              'percentage'     => 50.0,
               'included_files' => 2,
-              'excluded_files' => 1
+              'excluded_files' => 1,
             },
             'tracking' => {
               'enabled' => true,
-              'globs' => ['lib/**/*.rb']
+              'globs'   => ['lib/**/*.rb'],
             },
-            'files' => {
-              'total' => 4,
-              'with_coverage' => {
+            'files'    => {
+              'total'            => 4,
+              'with_coverage'    => {
                 'total' => 3,
-                'ok' => 2,
+                'ok'    => 2,
                 'stale' => {
-                  'total' => 1,
+                  'total'   => 1,
                   'by_type' => {
                     'missing_from_disk' => 0,
-                    'newer' => 1,
-                    'length_mismatch' => 0,
-                    'unreadable' => 0
-                  }
-                }
+                    'newer'             => 1,
+                    'length_mismatch'   => 0,
+                    'unreadable'        => 0,
+                  },
+                },
               },
               'without_coverage' => {
-                'total' => 1,
+                'total'   => 1,
                 'by_type' => {
                   'missing_from_coverage' => 1,
-                  'unreadable' => 0,
-                  'skipped' => 0
-                }
-              }
-            }
+                  'unreadable'            => 0,
+                  'skipped'               => 0,
+                },
+              },
+            },
           },
           timestamp_status: 'ok'
         )
@@ -93,12 +93,12 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
         presenter_double = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
         allow(presenter_double).to receive_messages(
           absolute_payload: {
-            'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => nil,
+            'lines'    => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => nil,
                          'included_files' => 0, 'excluded_files' => 0 },
             'tracking' => { 'enabled' => false, 'globs' => [] },
-            'files' => { 'total' => 0,
-                         'with_coverage' => { 'total' => 0, 'ok' => 0,
-                                              'stale' => { 'total' => 0, 'by_type' => {} } } }
+            'files'    => { 'total'         => 0,
+                            'with_coverage' => { 'total' => 0, 'ok' => 0,
+                                              'stale' => { 'total' => 0, 'by_type' => {} } } },
           },
           timestamp_status: 'ok'
         )
@@ -121,25 +121,25 @@ RSpec.describe CovLoupe::Commands::TotalsCommand do
     shared_examples 'timestamp warning display' do |timestamp_status, should_warn|
       let(:base_payload) do
         {
-          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => 0,
+          'lines'    => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => 0,
                        'included_files' => 0, 'excluded_files' => 0 },
           'tracking' => { 'enabled' => false, 'globs' => [] },
-          'files' => {
-            'total' => 0,
+          'files'    => {
+            'total'         => 0,
             'with_coverage' => {
               'total' => 0,
-              'ok' => 0,
+              'ok'    => 0,
               'stale' => {
-                'total' => 0,
+                'total'   => 0,
                 'by_type' => {
                   'missing_from_disk' => 0,
-                  'newer' => 0,
-                  'length_mismatch' => 0,
-                  'unreadable' => 0
-                }
-              }
-            }
-          }
+                  'newer'             => 0,
+                  'length_mismatch'   => 0,
+                  'unreadable'        => 0,
+                },
+              },
+            },
+          },
         }
       end
 

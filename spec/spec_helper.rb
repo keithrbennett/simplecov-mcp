@@ -9,7 +9,7 @@ begin
     track_files 'lib/**/*.rb'
     formatter SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::CoberturaFormatter
+      SimpleCov::Formatter::CoberturaFormatter,
     ])
   end
 
@@ -74,13 +74,13 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
   abs_root = File.absolute_path(root)
   default_coverage = {
     File.join(root, 'lib', 'foo.rb') => { 'lines' => [1, 0, nil, 2] },
-    File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0, 1] }
+    File.join(root, 'lib', 'bar.rb') => { 'lines' => [0, 0, 1] },
   }
 
   fake_resultset_hash = {
     'RSpec' => {
-      'coverage' => coverage || default_coverage
-    }.merge(metadata)
+      'coverage' => coverage || default_coverage,
+    }.merge(metadata),
   }
 
   allow(File).to receive(:read).and_call_original # Allow real File.read for other calls
@@ -91,7 +91,7 @@ def mock_resultset_with_metadata(root, metadata, coverage: nil)
     .and_wrap_original do |method, search_root, resultset: nil|
     mock_path = File.join(abs_root, 'coverage', '.resultset.json')
     is_mock_target = resultset.nil? || resultset.to_s.empty? ||
-                     File.absolute_path(resultset.to_s) == File.absolute_path(mock_path)
+      File.absolute_path(resultset.to_s) == File.absolute_path(mock_path)
 
     if File.absolute_path(search_root) == abs_root && is_mock_target
       mock_path

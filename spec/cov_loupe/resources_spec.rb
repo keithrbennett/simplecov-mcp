@@ -6,7 +6,7 @@ RSpec.describe CovLoupe::Resources do
   describe '.cli_url_for' do
     {
       'repo' => 'https://github.com/keithrbennett/cov-loupe',
-      'docs' => 'https://keithrbennett.github.io/cov-loupe/'
+      'docs' => 'https://keithrbennett.github.io/cov-loupe/',
     }.each do |name, expected_url|
       it "returns correct value for '#{name}'" do
         expect(described_class.cli_url_for(name)).to eq(expected_url)

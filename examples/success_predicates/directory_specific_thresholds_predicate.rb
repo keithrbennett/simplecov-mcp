@@ -21,7 +21,7 @@ class DirectorySpecificThresholds
     [
       ['lib/cov_loupe/**/*.rb',                 85], # global default minimum
       ['lib/cov_loupe/option_parsers/**/*.rb',  95],
-      ['lib/cov_loupe/tools/**/*.rb',          100]
+      ['lib/cov_loupe/tools/**/*.rb',          100],
     ].map { |(filemask, threshold_pct)| files_ok?(filemask, threshold_pct) }
       .all?
   end

@@ -8,8 +8,8 @@ module CovLoupe
     # Maps format symbols to their required libraries
     # Only loaded when the format is actually used
     FORMAT_REQUIRES = {
-      yaml: 'yaml',
-      amazing_print: 'amazing_print'
+      yaml:          'yaml',
+      amazing_print: 'amazing_print',
     }.freeze
 
     # Ensures required libraries are loaded for the given format

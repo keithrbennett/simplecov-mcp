@@ -45,9 +45,9 @@ RSpec.describe CovLoupe::AppContext do
     let(:context) do
       described_class.new(
         error_handler: error_handler,
-        log_target: initial_target,
-        mode: initial_mode,
-        app_config: app_config
+        log_target:    initial_target,
+        mode:          initial_mode,
+        app_config:    app_config
       )
     end
 

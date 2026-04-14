@@ -16,17 +16,17 @@ RSpec.describe CovLoupe::CoverageReporter do
       { 'file' => '/project/lib/medium.rb', 'percentage' => 60.0, 'covered' => 12, 'total' => 20,
         'stale' => 'ok' },
       { 'file' => '/project/lib/high.rb',   'percentage' => 95.0, 'covered' => 19, 'total' => 20,
-        'stale' => 'ok' }
+        'stale' => 'ok' },
     ]
   end
 
   before do
     allow(model).to receive(:list).with(sort_order: :ascending).and_return({
-      'files' => files_data,
-      'skipped_files' => [],
+      'files'                 => files_data,
+      'skipped_files'         => [],
       'missing_tracked_files' => [],
-      'newer_files' => [],
-      'deleted_files' => []
+      'newer_files'           => [],
+      'deleted_files'         => [],
     })
     allow(model).to receive(:relativize) do |files|
       files.map { |f| f.merge('file' => f['file'].sub('/project/', '')) }
@@ -127,8 +127,8 @@ RSpec.describe CovLoupe::CoverageReporter do
     it 'uses custom resultset path when provided' do
       result = described_class.report(
         threshold: 80,
-        count: 5,
-        root: custom_root,
+        count:     5,
+        root:      custom_root,
         resultset: custom_resultset
       )
 
@@ -143,7 +143,7 @@ RSpec.describe CovLoupe::CoverageReporter do
       Dir.chdir(custom_root) do
         result = described_class.report(
           threshold: 80,
-          count: 5,
+          count:     5,
           resultset: 'custom_coverage/.resultset.json'
         )
 

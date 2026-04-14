@@ -1,9 +1,9 @@
+plugins:
+  - rubocop-rspec
+
 inherit_mode:
   merge:
     - Exclude
-
-plugins:
-  - rubocop-rspec
 
 AllCops:
   TargetRubyVersion: 3.2
@@ -11,6 +11,9 @@ AllCops:
   SuggestExtensions: false
 
 Layout/ArgumentAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Layout/ArrayAlignment:
   EnforcedStyle: with_fixed_indentation
 
 Layout/ClosingHeredocIndentation:
@@ -41,16 +44,23 @@ Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Layout/HashAlignment:
-  EnforcedHashRocketStyle: key
-  EnforcedColonStyle: key
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  AllowMultipleStyles: true
 
 Layout/IndentationConsistency:
   EnforcedStyle: normal
 
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/LineEndStringConcatenationIndentation:
+  EnforcedStyle: indented
+
 Layout/LineLength:
   Max: 110
   AllowedPatterns:
-    - '\s*#'
+    - '^\s*#'
 
 Layout/MultilineMethodCallBraceLayout:
   Enabled: false
@@ -179,8 +189,20 @@ Style/ClassAndModuleChildren:
 Style/Documentation:
   Enabled: false
 
+Style/EmptyElse:
+  Enabled: false
+
 Style/EmptyMethod:
-  EnforcedStyle: expanded
+  Enabled: false
+
+Style/EndlessMethod:
+  EnforcedStyle: allow_always
+
+Style/SpecialGlobalVars:
+  EnforcedStyle: use_english_names
+
+Style/FetchEnvVar:
+  Enabled: false
 
 Style/FrozenStringLiteralComment:
   Enabled: true
@@ -231,6 +253,13 @@ Style/RescueStandardError:
 Style/SingleLineMethods:
   AllowIfMethodIsEmpty: false
 
+# Style/Lambda enforces `->` (proc literal) over `lambda`. Style/SymbolProc would
+# then suggest converting `->(x) { x.foo }` back to `lambda(&:foo)`, which
+# re-violates Style/Lambda. The two cops are irreconcilable for this pattern,
+# so SymbolProc is disabled in favour of the more readable `->` form.
+Style/SymbolProc:
+  Enabled: false
+
 Style/StringLiterals:
   EnforcedStyle: single_quotes
 
@@ -244,10 +273,10 @@ Style/WordArray:
   EnforcedStyle: percent
 
 Style/TrailingCommaInArrayLiteral:
-  EnforcedStyleForMultiline: no_comma
+  EnforcedStyleForMultiline: comma
 
 Style/TrailingCommaInArguments:
   EnforcedStyleForMultiline: no_comma
 
 Style/TrailingCommaInHashLiteral:
-  EnforcedStyleForMultiline: no_comma
+  EnforcedStyleForMultiline: comma

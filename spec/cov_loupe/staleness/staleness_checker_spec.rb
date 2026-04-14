@@ -60,85 +60,85 @@ RSpec.describe CovLoupe::StalenessChecker do
 
   context 'when computing file staleness details' do
     it_behaves_like 'a staleness check',
-      description: 'detects newer file vs coverage timestamp',
-      file_lines: %w[a b],
-      coverage_lines: [1, 1],
-      timestamp: Time.at(Time.now.to_i - 3600),
-      expected_details: {
-        exists: true,
-        cov_len: 2,
-        src_len: 2,
-        newer: true,
-        len_mismatch: false,
-        file_mtime: :any,
-        coverage_timestamp: :any
+      description:           'detects newer file vs coverage timestamp',
+      file_lines:            %w[a b],
+      coverage_lines:        [1, 1],
+      timestamp:             Time.at(Time.now.to_i - 3600),
+      expected_details:      {
+        exists:             true,
+        cov_len:            2,
+        src_len:            2,
+        newer:              true,
+        len_mismatch:       false,
+        file_mtime:         :any,
+        coverage_timestamp: :any,
       },
       expected_stale_status: 'newer',
-      expected_error: CovLoupe::CoverageDataStaleError
+      expected_error:        CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
-      description: 'detects length mismatch between source and coverage',
-      file_lines: %w[a b c d],
-      coverage_lines: [1, 1],
-      timestamp: Time.now,
-      expected_details: {
-        exists: true,
-        cov_len: 2,
-        src_len: 4,
-        newer: false,
-        len_mismatch: true,
-        file_mtime: :any,
-        coverage_timestamp: :any
+      description:           'detects length mismatch between source and coverage',
+      file_lines:            %w[a b c d],
+      coverage_lines:        [1, 1],
+      timestamp:             Time.now,
+      expected_details:      {
+        exists:             true,
+        cov_len:            2,
+        src_len:            4,
+        newer:              false,
+        len_mismatch:       true,
+        file_mtime:         :any,
+        coverage_timestamp: :any,
       },
       expected_stale_status: 'length_mismatch',
-      expected_error: CovLoupe::CoverageDataStaleError
+      expected_error:        CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
-      description: 'treats missing file as stale',
-      file_lines: nil,
-      coverage_lines: [1, 1, 1],
-      timestamp: Time.now,
-      expected_details: {
-        exists: false,
-        newer: false,
-        len_mismatch: true,
-        file_mtime: nil,
-        coverage_timestamp: :any
+      description:           'treats missing file as stale',
+      file_lines:            nil,
+      coverage_lines:        [1, 1, 1],
+      timestamp:             Time.now,
+      expected_details:      {
+        exists:             false,
+        newer:              false,
+        len_mismatch:       true,
+        file_mtime:         nil,
+        coverage_timestamp: :any,
       },
       expected_stale_status: 'missing',
-      expected_error: CovLoupe::CoverageDataStaleError
+      expected_error:        CovLoupe::CoverageDataStaleError
 
     it_behaves_like 'a staleness check',
-      description: 'is not stale when timestamps and lengths match',
-      file_lines: %w[a b c],
-      coverage_lines: [1, 0, nil],
-      timestamp: :past,
-      expected_details: {
-        exists: true,
-        newer: false,
-        len_mismatch: false,
-        file_mtime: :any,
-        coverage_timestamp: :any
+      description:           'is not stale when timestamps and lengths match',
+      file_lines:            %w[a b c],
+      coverage_lines:        [1, 0, nil],
+      timestamp:             :past,
+      expected_details:      {
+        exists:             true,
+        newer:              false,
+        len_mismatch:       false,
+        file_mtime:         :any,
+        coverage_timestamp: :any,
       },
       expected_stale_status: 'ok',
-      expected_error: nil
+      expected_error:        nil
 
     it_behaves_like 'a staleness check',
-      description: 'ignores timestamp check when coverage timestamp is 0 (missing/invalid)',
-      file_lines: %w[a b],
-      coverage_lines: [1, 1],
-      timestamp: 0,
-      expected_details: {
-        exists: true,
-        cov_len: 2,
-        src_len: 2,
-        newer: false,
-        len_mismatch: false,
-        file_mtime: :any,
-        coverage_timestamp: 0
+      description:           'ignores timestamp check when coverage timestamp is 0 (missing/invalid)',
+      file_lines:            %w[a b],
+      coverage_lines:        [1, 1],
+      timestamp:             0,
+      expected_details:      {
+        exists:             true,
+        cov_len:            2,
+        src_len:            2,
+        newer:              false,
+        len_mismatch:       false,
+        file_mtime:         :any,
+        coverage_timestamp: 0,
       },
       expected_stale_status: 'ok',
-      expected_error: nil
+      expected_error:        nil
   end
 
   context 'when file stat calls raise errors' do
@@ -149,15 +149,15 @@ RSpec.describe CovLoupe::StalenessChecker do
 
     [
       {
-        method: :file?,
+        method:      :file?,
         error_class: Errno::EACCES,
-        error_msg: 'Permission denied'
+        error_msg:   'Permission denied',
       },
       {
-        method: :mtime,
+        method:      :mtime,
         error_class: Errno::EACCES,
-        error_msg: 'Permission denied'
-      }
+        error_msg:   'Permission denied',
+      },
     ].each do |tc|
       it "returns 'error' and raises FileError when File.#{tc[:method]} fails" do
         file = File.join(tmpdir, 'lib', 'test.rb')
@@ -190,7 +190,7 @@ RSpec.describe CovLoupe::StalenessChecker do
     [
       { error: Errno::EACCES.new('Permission denied'), desc: 'permission denied (EACCES)' },
       { error: Errno::EPERM.new('Operation not permitted'), desc: 'permission denied (EPERM)' },
-      { error: IOError.new('IO error'), desc: 'IO errors' }
+      { error: IOError.new('IO error'), desc: 'IO errors' },
     ].each do |tc|
       it "returns :read_error on #{tc[:desc]}" do
         file = File.join(tmpdir, 'test.rb')
@@ -449,7 +449,7 @@ RSpec.describe CovLoupe::StalenessChecker do
       checker = described_class.new(root: tmpdir, resultset: nil,
         mode: :error, timestamp: Time.now.to_i)
       coverage_map = {
-        File.join(tmpdir, 'lib', 'does_not_exist_anymore.rb') => { 'lines' => [1] }
+        File.join(tmpdir, 'lib', 'does_not_exist_anymore.rb') => { 'lines' => [1] },
       }
       expect do
         checker.check_project!(coverage_map)

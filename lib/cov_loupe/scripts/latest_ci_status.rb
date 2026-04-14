@@ -29,7 +29,7 @@ module CovLoupe
       private def fetch_latest_run(branch)
         json_output, success = run_command_with_status(
           ['gh', 'run', 'list', '--branch', branch, '--limit', '1', '--json',
-           'databaseId,status,conclusion,url,displayTitle,createdAt']
+            'databaseId,status,conclusion,url,displayTitle,createdAt']
         )
 
         unless success

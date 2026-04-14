@@ -61,31 +61,31 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures 'CLI commands' do
         [
           {
-            desc: 'list command',
-            args: ['list'],
+            desc:         'list command',
+            args:         ['list'],
             expectations: ->(output) {
               expect(output).to include('lib/foo.rb', 'lib/bar.rb', '66.67', '33.33')
               data_lines = output.lines.select { |l| l.start_with?('│') && l.include?('lib/') }
               expect(data_lines.first).to include('lib/foo.rb')
               expect(data_lines.last).to include('lib/bar.rb')
-            }
+            },
           },
           {
-            desc: 'summary command',
-            args: ['summary', 'lib/foo.rb'],
+            desc:         'summary command',
+            args:         ['summary', 'lib/foo.rb'],
             expectations: ->(output) {
               expect(output).to include('│', '66.67%', '2', '3')
-            }
+            },
           },
           {
-            desc: 'JSON output',
-            args: ['--format', 'json', 'summary', 'lib/foo.rb'],
+            desc:         'JSON output',
+            args:         ['--format', 'json', 'summary', 'lib/foo.rb'],
             expectations: ->(output) {
               json_data = JSON.parse(output)
               expect(json_data).to include('file', 'summary')
               expect(json_data['summary']).to include('covered' => 2, 'total' => 3)
-            }
-          }
+            },
+          },
         ].each do |tc|
           output = run_cli_command(*tc[:args])
           tc[:expectations].call(output)
@@ -117,33 +117,33 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures 'MCP tools' do
         [
           {
-            tool: CovLoupe::Tools::FileCoverageSummaryTool,
-            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            tool:          CovLoupe::Tools::FileCoverageSummaryTool,
+            args:          { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             expected_keys: %w[file summary],
-            check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
+            check:         ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) },
           },
           {
-            tool: CovLoupe::Tools::FileCoverageRawTool,
-            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            tool:          CovLoupe::Tools::FileCoverageRawTool,
+            args:          { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
             expected_keys: %w[file lines],
-            check: ->(data) { expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2]) }
+            check:         ->(data) { expect(data['lines']).to eq([nil, nil, 1, 0, nil, 2]) },
           },
           {
-            tool: CovLoupe::Tools::ProjectCoverageTool,
-            args: { root: project_root, resultset: coverage_dir },
+            tool:          CovLoupe::Tools::ProjectCoverageTool,
+            args:          { root: project_root, resultset: coverage_dir },
             expected_keys: %w[files counts],
-            check: ->(data) {
+            check:         ->(data) {
               expect(data['files'].length).to eq(2)
               expect(data['counts']['total']).to eq(2)
-            }
+            },
           },
           {
-            tool: CovLoupe::Tools::ProjectCoverageTool,
-            args: { root: project_root, resultset: coverage_dir, format: 'table' },
+            tool:          CovLoupe::Tools::ProjectCoverageTool,
+            args:          { root: project_root, resultset: coverage_dir, format: 'table' },
             expected_keys: [],
-            check: ->(text) { expect(text).to include('lib/foo.rb') },
-            is_text: true
-          }
+            check:         ->(text) { expect(text).to include('lib/foo.rb') },
+            is_text:       true,
+          },
         ].each do |tc|
           response = tc[:tool].call(**tc[:args], server_context: server_context)
           if tc[:is_text]
@@ -161,18 +161,18 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures 'Tool consistency' do
         summary_data, = expect_mcp_text_json(
           CovLoupe::Tools::FileCoverageSummaryTool.call(
-            path: 'lib/foo.rb',
-            root: project_root,
-            resultset: coverage_dir,
+            path:           'lib/foo.rb',
+            root:           project_root,
+            resultset:      coverage_dir,
             server_context: server_context
           )
         )
 
         detailed_data, = expect_mcp_text_json(
           CovLoupe::Tools::FileCoverageDetailedTool.call(
-            path: 'lib/foo.rb',
-            root: project_root,
-            resultset: coverage_dir,
+            path:           'lib/foo.rb',
+            root:           project_root,
+            resultset:      coverage_dir,
             server_context: server_context
           )
         )
@@ -238,8 +238,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
 
     let(:default_env) do
       {
-        'RUBY_LIB' => lib_path,
-        'COV_LOUPE_OPTS' => "--mode mcp --root #{project_root} --resultset #{coverage_dir} --log-file /dev/null"
+        'RUBY_LIB'       => lib_path,
+        'COV_LOUPE_OPTS' => "--mode mcp --root #{project_root} --resultset #{coverage_dir} " \
+                            '--log-file /dev/null',
       }
     end
 
@@ -275,23 +276,23 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures do
         [
           {
-            id: 3,
-            name: 'file_coverage_summary',
-            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
-            check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) }
+            id:    3,
+            name:  'file_coverage_summary',
+            args:  { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['summary']).to include('covered' => 2, 'total' => 3) },
           },
           {
-            id: 4,
-            name: 'project_coverage',
-            args: { root: project_root, resultset: coverage_dir },
-            check: ->(data) { expect(data['files'].length).to eq(2) }
+            id:    4,
+            name:  'project_coverage',
+            args:  { root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['files'].length).to eq(2) },
           },
           {
-            id: 5,
-            name: 'file_uncovered_lines',
-            args: { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
-            check: ->(data) { expect(data['uncovered']).to eq([4]) }
-          }
+            id:    5,
+            name:  'file_uncovered_lines',
+            args:  { path: 'lib/foo.rb', root: project_root, resultset: coverage_dir },
+            check: ->(data) { expect(data['uncovered']).to eq([4]) },
+          },
         ].each do |tc|
           resp = jsonrpc_tool_call(tc[:id], tc[:name], tc[:args])
           content = expect_jsonrpc_result(resp, tc[:id])['content']
@@ -305,18 +306,18 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures do
         [
           {
-            id: 6,
-            name: 'help',
+            id:    6,
+            name:  'help',
             check: ->(data) {
               tools = data['tools'].map { |t| t['tool'] }
               expect(tools).to include('file_coverage_summary')
-            }
+            },
           },
           {
-            id: 7,
-            name: 'version',
-            check: ->(text) { expect(text).to match(/CovLoupe version: \d+\.\d+/) }
-          }
+            id:    7,
+            name:  'version',
+            check: ->(text) { expect(text).to match(/CovLoupe version: \d+\.\d+/) },
+          },
         ].each do |tc|
           resp = jsonrpc_tool_call(tc[:id], tc[:name])
           content = expect_jsonrpc_result(resp, tc[:id])['content']
@@ -335,9 +336,9 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
         80,
         'project_validate',
         {
-          code: '->(m) { true }',
-          root: project_root,
-          resultset: coverage_dir
+          code:      '->(m) { true }',
+          root:      project_root,
+          resultset: coverage_dir,
         }
       )
       content = expect_jsonrpc_result(resp, 80)['content']
@@ -348,16 +349,16 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
       aggregate_failures do
         [
           {
-            id: 8,
-            name: 'file_coverage_summary',
+            id:        8,
+            name:      'file_coverage_summary',
             arguments: {
-              path: 'nonexistent.rb',
-              root: project_root,
-              resultset: coverage_dir
-            }
+              path:      'nonexistent.rb',
+              root:      project_root,
+              resultset: coverage_dir,
+            },
           },
           { id: 201, name: 'file_coverage_summary', arguments: {} },
-          { id: 200, name: 'nonexistent_tool', arguments: {} }
+          { id: 200, name: 'nonexistent_tool', arguments: {} },
         ].each do |request|
           response = jsonrpc_tool_call(request[:id], request[:name], request[:arguments])
           expect_jsonrpc_error(response, request[:id])
@@ -410,7 +411,7 @@ RSpec.describe 'SimpleCov MCP Integration Tests' do
     it 'handles multiple sequential requests' do
       requests = [
         jsonrpc_request(100, 'tools/list'),
-        jsonrpc_request(101, 'tools/call', { name: 'version', arguments: {} })
+        jsonrpc_request(101, 'tools/call', { name: 'version', arguments: {} }),
       ]
 
       result = Spec::Support::McpRunner.call_json_stream(requests, **runner_args)

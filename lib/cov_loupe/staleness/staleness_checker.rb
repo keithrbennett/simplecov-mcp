@@ -41,11 +41,11 @@ module CovLoupe
         raise CoverageDataStaleError.new(
           nil,
           nil,
-          file_path: rel(file_abs),
-          file_mtime: d[:file_mtime],
-          cov_timestamp: d[:coverage_timestamp],
-          src_len: d[:src_len],
-          cov_len: d[:cov_len],
+          file_path:      rel(file_abs),
+          file_mtime:     d[:file_mtime],
+          cov_timestamp:  d[:coverage_timestamp],
+          src_len:        d[:src_len],
+          cov_len:        d[:cov_len],
           resultset_path: resultset_path
         )
       end
@@ -79,23 +79,23 @@ module CovLoupe
       missing = compute_missing_files(coverage_files)
 
       staleness_details = {
-        newer_files: newer,
-        missing_files: missing,
-        deleted_files: deleted,
+        newer_files:      newer,
+        missing_files:    missing,
+        deleted_files:    deleted,
         unreadable_files: unreadable,
-        timestamp_status: ts.to_i > 0 ? 'ok' : 'missing'
+        timestamp_status: ts.to_i > 0 ? 'ok' : 'missing',
       }
 
       if @mode == :error && (newer.any? || missing.any? || deleted.any? || unreadable.any?)
         raise CoverageDataProjectStaleError.new(
           nil,
           nil,
-          cov_timestamp: ts,
-          newer_files: newer,
-          missing_files: missing,
-          deleted_files: deleted,
+          cov_timestamp:    ts,
+          newer_files:      newer,
+          missing_files:    missing,
+          deleted_files:    deleted,
           unreadable_files: unreadable,
-          resultset_path: resultset_path
+          resultset_path:   resultset_path
         )
       end
 
@@ -139,26 +139,26 @@ module CovLoupe
       newer -= unreadable
 
       staleness_details = {
-        newer_files: newer,
-        missing_files: missing,
-        deleted_files: deleted,
+        newer_files:           newer,
+        missing_files:         missing,
+        deleted_files:         deleted,
         length_mismatch_files: length_mismatch,
-        unreadable_files: unreadable,
-        file_statuses: file_statuses,
-        timestamp_status: ts.to_i > 0 ? 'ok' : 'missing'
+        unreadable_files:      unreadable,
+        file_statuses:         file_statuses,
+        timestamp_status:      ts.to_i > 0 ? 'ok' : 'missing',
       }
 
       if @mode == :error && [newer, missing, deleted, length_mismatch, unreadable].any?(&:any?)
         raise CoverageDataProjectStaleError.new(
           nil,
           nil,
-          cov_timestamp: ts,
-          newer_files: newer,
-          missing_files: missing,
-          deleted_files: deleted,
+          cov_timestamp:         ts,
+          newer_files:           newer,
+          missing_files:         missing,
+          deleted_files:         deleted,
           length_mismatch_files: length_mismatch,
-          unreadable_files: unreadable,
-          resultset_path: resultset_path
+          unreadable_files:      unreadable,
+          resultset_path:        resultset_path
         )
       end
 
@@ -282,14 +282,14 @@ module CovLoupe
       newer = check_file_newer_than_coverage(file_mtime, coverage_ts, len_mismatch, read_error)
 
       {
-        exists: exists,
-        file_mtime: file_mtime,
+        exists:             exists,
+        file_mtime:         file_mtime,
         coverage_timestamp: coverage_ts,
-        cov_len: cov_len,
-        src_len: src_len,
-        newer: newer,
-        len_mismatch: len_mismatch,
-        read_error: read_error
+        cov_len:            cov_len,
+        src_len:            src_len,
+        newer:              newer,
+        len_mismatch:       len_mismatch,
+        read_error:         read_error,
       }
     end
 

@@ -30,8 +30,8 @@ RSpec.describe 'Logging Fallback Behavior' do
       it 'writes to fallback file but suppresses stderr' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_library,
-          log_target: '/invalid/path/that/does/not/exist.log',
-          mode: :library
+          log_target:    '/invalid/path/that/does/not/exist.log',
+          mode:          :library
         )
 
         stderr_output = nil
@@ -52,8 +52,8 @@ RSpec.describe 'Logging Fallback Behavior' do
       it 'writes to fallback file and prints warning to stderr exactly once' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_cli,
-          log_target: '/invalid/path/that/does/not/exist.log',
-          mode: :cli
+          log_target:    '/invalid/path/that/does/not/exist.log',
+          mode:          :cli
         )
 
         stderr_output = nil
@@ -88,8 +88,8 @@ RSpec.describe 'Logging Fallback Behavior' do
       it 'writes to fallback file but suppresses stderr' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_mcp_server,
-          log_target: '/invalid/path/that/does/not/exist.log',
-          mode: :mcp
+          log_target:    '/invalid/path/that/does/not/exist.log',
+          mode:          :mcp
         )
 
         stderr_output = nil
@@ -110,8 +110,8 @@ RSpec.describe 'Logging Fallback Behavior' do
       it 'does not write to stderr or fallback file' do
         context = CovLoupe.create_context(
           error_handler: CovLoupe::ErrorHandlerFactory.for_library,
-          log_target: 'stderr',
-          mode: :library
+          log_target:    'stderr',
+          mode:          :library
         )
         with_stringio_logger(mode: :library) do |logger, io|
           context = context.with(logger: logger)
@@ -136,7 +136,7 @@ RSpec.describe 'Logging Fallback Behavior' do
       { level: :info, severity: 'INFO', message: 'info message' },
       { level: :warn, severity: 'WARN', message: 'warning message' },
       { level: :error, severity: 'ERROR', message: 'error message' },
-      { level: :safe_log, severity: 'INFO', message: 'safe log message' }
+      { level: :safe_log, severity: 'INFO', message: 'safe log message' },
     ].each do |test_case|
       it "logs with #{test_case[:level]} level" do
         with_stringio_logger(mode: :library) do |logger, io|

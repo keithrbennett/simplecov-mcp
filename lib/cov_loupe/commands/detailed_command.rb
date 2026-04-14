@@ -18,7 +18,8 @@ module CovLoupe
           relative_path = convert_text(presenter.relative_path)
           summary = data['summary']
           puts "File: #{relative_path}"
-          puts "Coverage: #{summary['covered']}/#{summary['total']} lines (#{format('%.2f%%', summary['percentage'])})"
+          puts "Coverage: #{summary['covered']}/#{summary['total']} lines (#{format('%.2f%%',
+            summary['percentage'])})"
           puts "Stale: #{data['stale']}" if StaleStatus.stale?(data['stale'])
           puts
 
@@ -29,9 +30,9 @@ module CovLoupe
           end
 
           puts TableFormatter.format(
-            headers: headers,
-            rows: rows,
-            alignments: %i[right right center],
+            headers:      headers,
+            rows:         rows,
+            alignments:   %i[right right center],
             output_chars: config.output_chars
           )
 

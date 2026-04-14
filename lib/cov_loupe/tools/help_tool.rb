@@ -12,72 +12,72 @@ module CovLoupe
       DESC
 
       input_schema(
-        type: 'object',
+        type:                 'object',
         additionalProperties: false,
-        properties: {
-          error_mode: ERROR_MODE_PROPERTY,
-          output_chars: COMMON_PROPERTIES[:output_chars]
+        properties:           {
+          error_mode:   ERROR_MODE_PROPERTY,
+          output_chars: COMMON_PROPERTIES[:output_chars],
         }
       )
 
       TOOL_GUIDE = [
         {
-          tool: FileCoverageSummaryTool,
-          label: 'Single-file coverage summary',
-          use_when: 'User wants covered/total line counts or percentage for one file.',
+          tool:       FileCoverageSummaryTool,
+          label:      'Single-file coverage summary',
+          use_when:   'User wants covered/total line counts or percentage for one file.',
           avoid_when: 'User needs repo-wide stats or specific uncovered lines.',
-          inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
+          inputs:     ['path (required)', 'root/resultset/raise_on_stale (optional)'],
         },
         {
-          tool: FileUncoveredLinesTool,
-          label: 'Uncovered line numbers',
-          use_when: 'User asks which lines in a file still lack tests.',
+          tool:       FileUncoveredLinesTool,
+          label:      'Uncovered line numbers',
+          use_when:   'User asks which lines in a file still lack tests.',
           avoid_when: 'User only wants overall percentages or detailed per-line hit data.',
-          inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
+          inputs:     ['path (required)', 'root/resultset/raise_on_stale (optional)'],
         },
         {
-          tool: FileCoverageDetailedTool,
-          label: 'Per-line coverage details',
-          use_when: 'User needs per-line hit counts for a file.',
+          tool:       FileCoverageDetailedTool,
+          label:      'Per-line coverage details',
+          use_when:   'User needs per-line hit counts for a file.',
           avoid_when: 'User only wants totals or uncovered line numbers.',
-          inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
+          inputs:     ['path (required)', 'root/resultset/raise_on_stale (optional)'],
         },
         {
-          tool: FileCoverageRawTool,
-          label: 'Raw SimpleCov lines array',
-          use_when: 'User needs the raw SimpleCov `lines` array for a file.',
+          tool:       FileCoverageRawTool,
+          label:      'Raw SimpleCov lines array',
+          use_when:   'User needs the raw SimpleCov `lines` array for a file.',
           avoid_when: 'User expects human-friendly summaries or explanations.',
-          inputs: ['path (required)', 'root/resultset/raise_on_stale (optional)']
+          inputs:     ['path (required)', 'root/resultset/raise_on_stale (optional)'],
         },
         {
-          tool: ProjectCoverageTool,
-          label: 'Project coverage (JSON, table, YAML, etc.)',
-          use_when: 'User wants coverage data for every tracked file in their preferred format.',
+          tool:       ProjectCoverageTool,
+          label:      'Project coverage (JSON, table, YAML, etc.)',
+          use_when:   'User wants coverage data for every tracked file in their preferred format.',
           avoid_when: 'User asks about a single file or only wants totals.',
-          inputs: ['root/resultset (optional)', 'sort_order', 'raise_on_stale', 'tracked_globs',
-                   'format (json/pretty_json/yaml/amazing_print/table)']
+          inputs:     ['root/resultset (optional)', 'sort_order', 'raise_on_stale', 'tracked_globs',
+            'format (json/pretty_json/yaml/amazing_print/table)'],
         },
         {
-          tool: ProjectCoverageTotalsTool,
-          label: 'Project coverage totals',
-          use_when: 'User wants total/covered/uncovered line counts or the average percent.',
+          tool:       ProjectCoverageTotalsTool,
+          label:      'Project coverage totals',
+          use_when:   'User wants total/covered/uncovered line counts or the average percent.',
           avoid_when: 'User needs per-file breakdowns.',
-          inputs: ['root/resultset (optional)', 'raise_on_stale', 'tracked_globs']
+          inputs:     ['root/resultset (optional)', 'raise_on_stale', 'tracked_globs'],
         },
         {
-          tool: ProjectValidateTool,
-          label: 'Validate coverage policy',
-          use_when: 'User needs to enforce coverage rules (e.g., minimum percentage) in CI.',
+          tool:       ProjectValidateTool,
+          label:      'Validate coverage policy',
+          use_when:   'User needs to enforce coverage rules (e.g., minimum percentage) in CI.',
           avoid_when: 'User just wants to view coverage data.',
-          inputs: ['code OR file (one required)', 'root/resultset/raise_on_stale (optional)']
+          inputs:     ['code OR file (one required)', 'root/resultset/raise_on_stale (optional)'],
         },
         {
-          tool: VersionTool,
-          label: 'cov-loupe --version',
-          use_when: 'User needs to confirm the running gem version.',
+          tool:       VersionTool,
+          label:      'cov-loupe --version',
+          use_when:   'User needs to confirm the running gem version.',
           avoid_when: 'User is asking for coverage information.',
-          inputs: ['(no arguments)']
-        }
+          inputs:     ['(no arguments)'],
+        },
       ].freeze
 
       class << self
@@ -94,11 +94,11 @@ module CovLoupe
 
         private def format_entry(guide)
           {
-            'tool' => guide[:tool].tool_name,
-            'label' => guide[:label],
-            'use_when' => guide[:use_when],
+            'tool'       => guide[:tool].tool_name,
+            'label'      => guide[:label],
+            'use_when'   => guide[:use_when],
             'avoid_when' => guide[:avoid_when],
-            'inputs' => guide[:inputs]
+            'inputs'     => guide[:inputs],
           }
         end
       end

@@ -22,7 +22,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
 
   before do
     allow(model).to receive(:raw_for).with(path).and_return(
-      'file' => abs_path,
+      'file'  => abs_path,
       'lines' => coverage_lines
     )
     allow(File).to receive(:file?).with(abs_path).and_return(true)
@@ -46,7 +46,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
             '     2   ✓ |   def bar',
             "     3   X |     puts 'bar'",
             '     4     |   end',
-            '     5     | end'
+            '     5     | end',
           ]
         )
       end
@@ -161,7 +161,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
         formatter.build_source_rows(
           source_content.lines(chomp: true),
           coverage_lines,
-          mode: :uncovered,
+          mode:    :uncovered,
           context: -1
         )
       end.to raise_error(ArgumentError, 'Context lines cannot be negative')
@@ -172,7 +172,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       rows = formatter.build_source_rows(
         source_content.lines(chomp: true),
         coverage_lines,
-        mode: :uncovered,
+        mode:    :uncovered,
         context: 2
       )
       # Uncovered is line 3. Context 2 means lines 1..5 (indexes 0..4).
@@ -185,7 +185,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       rows = formatter.build_source_rows(
         source_content.lines(chomp: true),
         coverage_lines,
-        mode: :uncovered,
+        mode:    :uncovered,
         context: 'bad'
       )
       # "bad".to_i is 0 so context should be 0.
@@ -203,7 +203,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       rows = formatter.build_source_rows(
         source_content.lines(chomp: true),
         coverage_lines,
-        mode: :uncovered,
+        mode:    :uncovered,
         context: bad_context
       )
       # Should fall back to default context of 2
@@ -234,7 +234,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       rows = formatter.build_source_rows(
         source_content.lines(chomp: true),
         nil,
-        mode: :full,
+        mode:    :full,
         context: 2
       )
       expect(rows.size).to eq(5)
@@ -247,7 +247,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       # Detailed mode should align numeric columns and boolean covered flags.
       rows = [
         { 'line' => 1, 'hits' => 5, 'covered' => true },
-        { 'line' => 2, 'hits' => 0, 'covered' => false }
+        { 'line' => 2, 'hits' => 0, 'covered' => false },
       ]
       # Expected table:
       #   Line    Hits  Covered
@@ -302,7 +302,7 @@ RSpec.describe CovLoupe::Formatters::SourceFormatter do
       allow(CovLoupe).to receive(:logger).and_return(mock_logger)
       allow(mock_logger).to receive(:safe_log)
       allow(model).to receive(:raw_for).with(path).and_return(
-        'file' => abs_path,
+        'file'  => abs_path,
         'lines' => coverage_lines
       )
       allow(File).to receive(:file?).with(abs_path).and_return(true)

@@ -18,32 +18,32 @@ module CovLoupe
 
     # Unicode box-drawing characters (fancy mode)
     UNICODE_CHARSET = {
-      top_left: "\u250C",
-      top_right: "\u2510",
-      bottom_left: "\u2514",
+      top_left:     "\u250C",
+      top_right:    "\u2510",
+      bottom_left:  "\u2514",
       bottom_right: "\u2518",
-      horizontal: "\u2500",
-      vertical: "\u2502",
-      top_tee: "\u252C",
-      bottom_tee: "\u2534",
-      left_tee: "\u251C",
-      right_tee: "\u2524",
-      cross: "\u253C"
+      horizontal:   "\u2500",
+      vertical:     "\u2502",
+      top_tee:      "\u252C",
+      bottom_tee:   "\u2534",
+      left_tee:     "\u251C",
+      right_tee:    "\u2524",
+      cross:        "\u253C",
     }.freeze
 
     # ASCII characters for table borders (ascii mode)
     ASCII_CHARSET = {
-      top_left: '+',
-      top_right: '+',
-      bottom_left: '+',
+      top_left:     '+',
+      top_right:    '+',
+      bottom_left:  '+',
       bottom_right: '+',
-      horizontal: '-',
-      vertical: '|',
-      top_tee: '+',
-      bottom_tee: '+',
-      left_tee: '+',
-      right_tee: '+',
-      cross: '+'
+      horizontal:   '-',
+      vertical:     '|',
+      top_tee:      '+',
+      bottom_tee:   '+',
+      left_tee:     '+',
+      right_tee:    '+',
+      cross:        '+',
     }.freeze
 
     class << self

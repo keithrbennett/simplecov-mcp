@@ -13,7 +13,7 @@ RSpec.describe CovLoupe::CoverageCLI, 'json format options' do
       { flag: 'p',   expect_compact: false },
       { flag: 'pretty-json',   expect_compact: false },
       { flag: 'pretty_json',   expect_compact: false },
-      { flag: 'json', expect_compact: true }
+      { flag: 'json', expect_compact: true },
     ].each do |test_case|
       it "produces #{test_case[:expect_compact] ? 'compact' : 'pretty'} JSON with -f #{test_case[:flag]}" do
         output = run_cli_output('-f', test_case[:flag], 'list')

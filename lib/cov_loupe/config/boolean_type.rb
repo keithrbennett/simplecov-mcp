@@ -26,8 +26,8 @@ module CovLoupe
     # Values that map to false
     FALSE_VALUES = %w[no n false f off - 0].freeze
 
-    # All valid boolean string values
-    VALID_VALUES = TRUE_VALUES.zip(FALSE_VALUES).flatten.freeze # %w{yes no y n true false t f on off + - 1 0 }
+    # All valid boolean string values: %w{yes no y n true false t f on off + - 1 0 }
+    VALID_VALUES = TRUE_VALUES.zip(FALSE_VALUES).flatten.freeze
 
     # String representation for help messages ('yes/no/true/false/t/f/on/off/y/n/+/-/1/0')
     BOOLEAN_VALUES_DISPLAY_STRING = VALID_VALUES.join('/').freeze

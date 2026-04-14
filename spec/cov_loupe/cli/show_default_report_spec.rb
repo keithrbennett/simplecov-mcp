@@ -94,14 +94,14 @@ RSpec.describe CovLoupe::CoverageCLI do
       let(:presenter) do
         instance_double(
           CovLoupe::Presenters::ProjectCoveragePresenter,
-          relative_files: [],
+          relative_files:                 [],
           relative_missing_tracked_files: [],
-          relative_newer_files: [],
-          relative_deleted_files: ['lib/old.rb'],
+          relative_newer_files:           [],
+          relative_deleted_files:         ['lib/old.rb'],
           relative_length_mismatch_files: [],
-          relative_unreadable_files: [],
-          relative_skipped_files: [],
-          timestamp_status: 'ok'
+          relative_unreadable_files:      [],
+          relative_skipped_files:         [],
+          timestamp_status:               'ok'
         )
       end
 

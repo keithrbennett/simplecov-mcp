@@ -16,13 +16,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
     let(:run_json) do
       [
         {
-          'databaseId' => 123_456,
-          'status' => 'completed',
-          'conclusion' => 'success',
-          'url' => 'https://github.com/example/repo/actions/runs/123456',
+          'databaseId'   => 123_456,
+          'status'       => 'completed',
+          'conclusion'   => 'success',
+          'url'          => 'https://github.com/example/repo/actions/runs/123456',
           'displayTitle' => 'Test Run',
-          'createdAt' => '2023-10-27T10:00:00Z'
-        }
+          'createdAt'    => '2023-10-27T10:00:00Z',
+        },
       ].to_json
     end
 
@@ -77,13 +77,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 654_321,
-            'status' => 'completed',
-            'conclusion' => 'failure',
-            'url' => 'url',
+            'databaseId'   => 654_321,
+            'status'       => 'completed',
+            'conclusion'   => 'failure',
+            'url'          => 'url',
             'displayTitle' => 'Failed Run',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 
@@ -101,13 +101,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 789_012,
-            'status' => 'in_progress',
-            'conclusion' => nil,
-            'url' => 'url',
+            'databaseId'   => 789_012,
+            'status'       => 'in_progress',
+            'conclusion'   => nil,
+            'url'          => 'url',
             'displayTitle' => 'Running',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 
@@ -122,13 +122,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 345_678,
-            'status' => 'queued',
-            'conclusion' => nil,
-            'url' => 'url',
+            'databaseId'   => 345_678,
+            'status'       => 'queued',
+            'conclusion'   => nil,
+            'url'          => 'url',
             'displayTitle' => 'Queued',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 
@@ -142,13 +142,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 111_222,
-            'status' => 'completed',
-            'conclusion' => 'cancelled',
-            'url' => 'url',
+            'databaseId'   => 111_222,
+            'status'       => 'completed',
+            'conclusion'   => 'cancelled',
+            'url'          => 'url',
             'displayTitle' => 'Cancelled',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 
@@ -162,13 +162,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 999_888,
-            'status' => 'completed',
-            'conclusion' => 'unknown_status',
-            'url' => 'url',
+            'databaseId'   => 999_888,
+            'status'       => 'completed',
+            'conclusion'   => 'unknown_status',
+            'url'          => 'url',
             'displayTitle' => 'Unknown',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 
@@ -182,13 +182,13 @@ RSpec.describe CovLoupe::Scripts::LatestCiStatus do
       let(:run_json) do
         [
           {
-            'databaseId' => 777_666,
-            'status' => 'completed',
-            'conclusion' => nil,
-            'url' => 'url',
+            'databaseId'   => 777_666,
+            'status'       => 'completed',
+            'conclusion'   => nil,
+            'url'          => 'url',
             'displayTitle' => 'Nil Conclusion',
-            'createdAt' => 'time'
-          }
+            'createdAt'    => 'time',
+          },
         ].to_json
       end
 

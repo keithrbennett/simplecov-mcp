@@ -28,11 +28,11 @@ RSpec.describe CovLoupe::Commands::RawCommand do
         mock_presenter(
           CovLoupe::Presenters::CoveragePayloadPresenter,
           absolute_payload: {
-            'file' => 'lib/perfect.rb',
+            'file'  => 'lib/perfect.rb',
             'lines' => [1, 1, 1],
-            'stale' => 'ok'
+            'stale' => 'ok',
           },
-          relative_path: 'lib/perfect.rb'
+          relative_path:    'lib/perfect.rb'
         )
 
         output = capture_command_output(command, ['lib/perfect.rb'])

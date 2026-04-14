@@ -53,7 +53,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['d', :descending],
         ['descending', :descending],
         ['ASCENDING', :ascending],
-        ['Descending', :descending]
+        ['Descending', :descending],
       ],
       ['invalid']
   end
@@ -70,7 +70,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['N', nil],
         ['None', nil],
         ['FULL', :full],
-        ['Uncovered', :uncovered]
+        ['Uncovered', :uncovered],
       ],
       [nil, '', 'invalid']
   end
@@ -86,7 +86,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['d', :debug],
         ['OFF', :off],
         ['Log', :log],
-        ['DEBUG', :debug]
+        ['DEBUG', :debug],
       ],
       %w[invalid on trace],
       invalid_return: :log
@@ -125,7 +125,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['ap', :amazing_print],
         ['amazing_print', :amazing_print],
         ['TABLE', :table],
-        ['Json', :json]
+        ['Json', :json],
       ],
       ['invalid']
 
@@ -164,9 +164,9 @@ RSpec.describe CovLoupe::OptionNormalizers do
     it 'normalizes cli and mcp values (full and short)' do
       {
         'cli' => :cli,
-        'c' => :cli,
+        'c'   => :cli,
         'mcp' => :mcp,
-        'm' => :mcp
+        'm'   => :mcp,
       }.each do |input, expected|
         expect(described_class.normalize_mode(input)).to eq(expected)
       end
@@ -194,7 +194,7 @@ RSpec.describe CovLoupe::OptionNormalizers do
         ['DEFAULT', :default],
         ['FANCY', :fancy],
         ['ASCII', :ascii],
-        ['Ascii', :ascii]
+        ['Ascii', :ascii],
       ],
       %w[invalid unicode utf8],
       invalid_return: :default

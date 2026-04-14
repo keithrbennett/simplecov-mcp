@@ -10,7 +10,7 @@ module MCPToolTestHelpers
     instance_double(
       'ServerContext',
       app_config: app_config,
-      mcp_mode?: true
+      mcp_mode?:  true
     )
   end
 

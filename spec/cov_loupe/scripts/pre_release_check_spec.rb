@@ -78,7 +78,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       commands = [
         [%w[git fetch origin --tags], ''],
         [%w[git rev-parse HEAD], local],
-        [%w[git rev-parse origin/main], remote]
+        [%w[git rev-parse origin/main], remote],
       ]
       commands << [%w[git merge-base HEAD origin/main], base] if base
       commands
@@ -87,14 +87,14 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
     def ci_commands(head_sha:, run_id: '999', created_at: nil)
       created_at ||= (Time.now + 10).iso8601
       runs_json = JSON.generate([
-        { 'databaseId' => run_id, 'headSha' => head_sha, 'createdAt' => created_at }
+        { 'databaseId' => run_id, 'headSha' => head_sha, 'createdAt' => created_at },
       ])
 
       [
         [%w[gh workflow run test.yml --ref main], ''],
         [%w[gh run list --workflow test.yml --branch main --limit 10] \
            + %w[--json databaseId,headSha,createdAt], runs_json],
-        [['gh', 'run', 'watch', run_id, '--exit-status'], '']
+        [['gh', 'run', 'watch', run_id, '--exit-status'], ''],
       ]
     end
 
@@ -211,7 +211,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
         # Mock two runs: one for a different SHA, one for our SHA
         runs_json = JSON.generate([
           { 'databaseId' => '11111', 'headSha' => 'wrongsha123', 'createdAt' => (Time.now + 10).iso8601 },
-          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => (Time.now + 10).iso8601 }
+          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => (Time.now + 10).iso8601 },
         ])
 
         mock_commands(
@@ -222,7 +222,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
             [%w[gh workflow run test.yml --ref main], ''],
             [%w[gh run list --workflow test.yml --branch main --limit 10] \
                + %w[--json databaseId,headSha,createdAt], runs_json],
-            [['gh', 'run', 'watch', '12345', '--exit-status'], '']
+            [['gh', 'run', 'watch', '12345', '--exit-status'], ''],
           ] +
           tag_check_commands
         )
@@ -241,7 +241,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
 
         runs_json = JSON.generate([
           { 'databaseId' => '11111', 'headSha' => head_sha, 'createdAt' => old_run_time },
-          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => new_run_time }
+          { 'databaseId' => '12345', 'headSha' => head_sha, 'createdAt' => new_run_time },
         ])
 
         mock_commands(
@@ -252,7 +252,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
             [%w[gh workflow run test.yml --ref main], ''],
             [%w[gh run list --workflow test.yml --branch main --limit 10] \
                + %w[--json databaseId,headSha,createdAt], runs_json],
-            [['gh', 'run', 'watch', '12345', '--exit-status'], '']
+            [['gh', 'run', 'watch', '12345', '--exit-status'], ''],
           ] +
           tag_check_commands
         )
@@ -266,7 +266,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
       it 'times out if no matching run is found' do
         # Mock runs that never match our criteria
         runs_json = JSON.generate([
-          { 'databaseId' => '11111', 'headSha' => 'wrongsha', 'createdAt' => (Time.now + 10).iso8601 }
+          { 'databaseId' => '11111', 'headSha' => 'wrongsha', 'createdAt' => (Time.now + 10).iso8601 },
         ])
 
         mock_commands(
@@ -276,7 +276,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
           [
             [%w[gh workflow run test.yml --ref main], ''],
             [%w[gh run list --workflow test.yml --branch main --limit 10] \
-               + %w[--json databaseId,headSha,createdAt], runs_json]
+               + %w[--json databaseId,headSha,createdAt], runs_json],
           ]
         )
 
@@ -294,7 +294,7 @@ RSpec.describe CovLoupe::Scripts::PreReleaseCheck do
           [
             [%w[gh workflow run test.yml --ref main], ''],
             [%w[gh run list --workflow test.yml --branch main --limit 10] \
-               + %w[--json databaseId,headSha,createdAt], 'invalid json{']
+               + %w[--json databaseId,headSha,createdAt], 'invalid json{'],
           ]
         )
 

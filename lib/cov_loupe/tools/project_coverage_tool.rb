@@ -26,15 +26,15 @@ module CovLoupe
       DESC
       input_schema(**coverage_schema(
         additional_properties: {
-          sort_order: SORT_ORDER_PROPERTY,
+          sort_order:    SORT_ORDER_PROPERTY,
           tracked_globs: TRACKED_GLOBS_PROPERTY,
-          format: {
-            type: 'string',
+          format:        {
+            type:        'string',
             description: 'Output format: json (default), pretty_json, yaml, amazing_print, or table. ' \
                          'Accepts: j/json, p/pretty_json, y/yaml, a/amazing_print/ap/awesome_print, t/table.',
-            default: 'json',
-            enum: %w[j json p pretty_json pretty-json y yaml a amazing_print awesome_print ap t table]
-          }
+            default:     'json',
+            enum:        %w[j json p pretty_json pretty-json y yaml a amazing_print awesome_print ap t table],
+          },
         }
       ))
       class << self
@@ -45,10 +45,10 @@ module CovLoupe
             error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
-              root: root,
-              resultset: resultset,
+              root:           root,
+              resultset:      resultset,
               raise_on_stale: raise_on_stale,
-              tracked_globs: tracked_globs
+              tracked_globs:  tracked_globs
             )
 
             sort_order_sym = OptionNormalizers.normalize_sort_order(
@@ -58,10 +58,10 @@ module CovLoupe
             format_sym = OptionNormalizers.normalize_format(format || 'json', strict: true)
 
             presenter = Presenters::ProjectCoveragePresenter.new(
-              model: model,
-              sort_order: sort_order_sym,
+              model:          model,
+              sort_order:     sort_order_sym,
               raise_on_stale: config[:raise_on_stale],
-              tracked_globs: config[:tracked_globs]
+              tracked_globs:  config[:tracked_globs]
             )
 
             if format_sym == :table
@@ -76,10 +76,10 @@ module CovLoupe
           file_summaries = presenter.relative_files
           table = model.format_table(
             file_summaries,
-            sort_order: sort_order_sym,
+            sort_order:     sort_order_sym,
             raise_on_stale: config[:raise_on_stale],
-            tracked_globs: nil,
-            output_chars: output_chars_sym
+            tracked_globs:  nil,
+            output_chars:   output_chars_sym
           )
 
           exclusions = format_exclusions_summary(presenter, output_chars_sym)
@@ -101,7 +101,7 @@ module CovLoupe
             payload['warnings'] = [
               'Coverage timestamps are missing. Time-based staleness checks were skipped.',
               'Files may appear "ok" even if source code is newer than the coverage data.',
-              'Check your coverage tool configuration to ensure timestamps are recorded.'
+              'Check your coverage tool configuration to ensure timestamps are recorded.',
             ]
           end
 
@@ -118,7 +118,7 @@ module CovLoupe
           skipped = presenter.relative_skipped_files
 
           return '' if missing.empty? && newer.empty? && deleted.empty? &&
-                       length_mismatch.empty? && unreadable.empty? && skipped.empty?
+            length_mismatch.empty? && unreadable.empty? && skipped.empty?
 
           convert_path = ->(path) { OutputChars.convert(path, output_chars) }
 
@@ -180,7 +180,7 @@ module CovLoupe
           count = skipped.length
           output = [
             '',
-            "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:"
+            "WARNING: #{count} coverage row#{count == 1 ? '' : 's'} skipped due to errors:",
           ]
           skipped.each do |row|
             file_path = OutputChars.convert(row['file'], output_chars)

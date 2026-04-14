@@ -67,9 +67,9 @@ module CovLoupe
 
       private def compute_absolute_payload
         list_result = model.list(
-          sort_order: sort_order,
+          sort_order:     sort_order,
           raise_on_stale: raise_on_stale,
-          tracked_globs: tracked_globs
+          tracked_globs:  tracked_globs
         )
         files = list_result['files']
         skipped_files = list_result['skipped_files']
@@ -80,15 +80,15 @@ module CovLoupe
         unreadable_files = list_result['unreadable_files']
         timestamp_status = list_result['timestamp_status']
         {
-          'files' => files,
-          'skipped_files' => skipped_files,
+          'files'                 => files,
+          'skipped_files'         => skipped_files,
           'missing_tracked_files' => missing_tracked_files,
-          'newer_files' => newer_files,
-          'deleted_files' => deleted_files,
+          'newer_files'           => newer_files,
+          'deleted_files'         => deleted_files,
           'length_mismatch_files' => length_mismatch_files,
-          'unreadable_files' => unreadable_files,
-          'timestamp_status' => timestamp_status,
-          'counts' => build_counts(files)
+          'unreadable_files'      => unreadable_files,
+          'timestamp_status'      => timestamp_status,
+          'counts'                => build_counts(files),
         }
       end
 

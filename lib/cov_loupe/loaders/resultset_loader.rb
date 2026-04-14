@@ -25,14 +25,15 @@ module CovLoupe
 
       suites = extract_suite_entries(raw)
       if suites.empty?
-        raise CoverageDataError, "No test suite with coverage data found in resultset file: #{@resultset_path}"
+        raise CoverageDataError,
+          "No test suite with coverage data found in resultset file: #{@resultset_path}"
       end
 
       coverage_map = build_coverage_map(suites)
       Result.new(
         coverage_map: coverage_map,
-        timestamp: compute_combined_timestamp(suites),
-        suite_names: suites.map(&:name)
+        timestamp:    compute_combined_timestamp(suites),
+        suite_names:  suites.map(&:name)
       )
     end
 
@@ -41,8 +42,8 @@ module CovLoupe
         .select { |_, data| data.is_a?(Hash) && data.key?('coverage') && !data['coverage'].nil? }
         .map do |name, data|
           SuiteEntry.new(
-            name: name.to_s,
-            coverage: normalize_suite_coverage(data['coverage'], suite_name: name),
+            name:      name.to_s,
+            coverage:  normalize_suite_coverage(data['coverage'], suite_name: name),
             timestamp: normalize_coverage_timestamp(data['timestamp'], data['created_at'])
           )
         end
@@ -56,7 +57,8 @@ module CovLoupe
 
     private def normalize_suite_coverage(coverage, suite_name:)
       unless coverage.is_a?(Hash)
-        raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} in resultset file: #{@resultset_path}"
+        raise CoverageDataError, "Invalid coverage data structure for suite #{suite_name.inspect} " \
+          "in resultset file: #{@resultset_path}"
       end
 
       needs_adaptation = coverage.values.any?(Array)
@@ -82,7 +84,9 @@ module CovLoupe
     private def require_simplecov_for_merge!
       require 'simplecov'
     rescue LoadError
-      raise CoverageDataError, "Multiple coverage suites detected in #{@resultset_path}, but the simplecov gem could not be loaded. Install simplecov to enable suite merging."
+      raise CoverageDataError,
+        "Multiple coverage suites detected in #{@resultset_path}, but the simplecov gem could not " \
+        'be loaded. Install simplecov to enable suite merging.'
     end
 
     private def log_duplicate_suite_names(suites)

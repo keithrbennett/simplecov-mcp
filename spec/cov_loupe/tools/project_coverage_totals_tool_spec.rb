@@ -15,43 +15,43 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTotalsTool do
     allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
     payload = {
-      'lines' => {
-        'total' => 42,
-        'covered' => 40,
-        'uncovered' => 2,
-        'percentage' => 95.24,
+      'lines'            => {
+        'total'          => 42,
+        'covered'        => 40,
+        'uncovered'      => 2,
+        'percentage'     => 95.24,
         'included_files' => 4,
-        'excluded_files' => 0
+        'excluded_files' => 0,
       },
-      'tracking' => {
+      'tracking'         => {
         'enabled' => true,
-        'globs' => ['lib/**/*.rb']
+        'globs'   => ['lib/**/*.rb'],
       },
-      'files' => {
-        'total' => 4,
-        'with_coverage' => {
+      'files'            => {
+        'total'            => 4,
+        'with_coverage'    => {
           'total' => 4,
-          'ok' => 4,
+          'ok'    => 4,
           'stale' => {
-            'total' => 0,
+            'total'   => 0,
             'by_type' => {
               'missing_from_disk' => 0,
-              'newer' => 0,
-              'length_mismatch' => 0,
-              'unreadable' => 0
-            }
-          }
+              'newer'             => 0,
+              'length_mismatch'   => 0,
+              'unreadable'        => 0,
+            },
+          },
         },
         'without_coverage' => {
-          'total' => 0,
+          'total'   => 0,
           'by_type' => {
             'missing_from_coverage' => 0,
-            'unreadable' => 0,
-            'skipped' => 0
-          }
-        }
+            'unreadable'            => 0,
+            'skipped'               => 0,
+          },
+        },
       },
-      'timestamp_status' => 'ok'
+      'timestamp_status' => 'ok',
     }
 
     presenter = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)
@@ -65,10 +65,10 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTotalsTool do
     data, = expect_mcp_text_json(tool_response, expected_keys: %w[lines tracking files])
 
     expect(data['lines']).to include(
-      'total' => 42,
-      'covered' => 40,
-      'uncovered' => 2,
-      'percentage' => 95.24,
+      'total'          => 42,
+      'covered'        => 40,
+      'uncovered'      => 2,
+      'percentage'     => 95.24,
       'included_files' => 4,
       'excluded_files' => 0
     )
@@ -93,26 +93,26 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTotalsTool do
         allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
         test_payload = {
-          'lines' => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => 0,
+          'lines'            => { 'total' => 0, 'covered' => 0, 'uncovered' => 0, 'percentage' => 0,
                        'included_files' => 0, 'excluded_files' => 0 },
-          'tracking' => { 'enabled' => false, 'globs' => [] },
-          'files' => {
-            'total' => 0,
+          'tracking'         => { 'enabled' => false, 'globs' => [] },
+          'files'            => {
+            'total'         => 0,
             'with_coverage' => {
               'total' => 0,
-              'ok' => 0,
+              'ok'    => 0,
               'stale' => {
-                'total' => 0,
+                'total'   => 0,
                 'by_type' => {
                   'missing_from_disk' => 0,
-                  'newer' => 0,
-                  'length_mismatch' => 0,
-                  'unreadable' => 0
-                }
-              }
-            }
+                  'newer'             => 0,
+                  'length_mismatch'   => 0,
+                  'unreadable'        => 0,
+                },
+              },
+            },
           },
-          'timestamp_status' => status
+          'timestamp_status' => status,
         }
 
         presenter = instance_double(CovLoupe::Presenters::ProjectTotalsPresenter)

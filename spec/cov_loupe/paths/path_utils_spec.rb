@@ -150,29 +150,29 @@ RSpec.describe CovLoupe::PathUtils do
 
       [
         {
-          desc: 'relativizes paths with different casing in path',
-          path: '/Home/User/Project/lib/file.rb',
-          root: '/home/user/project',
-          expected: 'lib/file.rb'
+          desc:     'relativizes paths with different casing in path',
+          path:     '/Home/User/Project/lib/file.rb',
+          root:     '/home/user/project',
+          expected: 'lib/file.rb',
         },
         {
-          desc: 'relativizes paths with different casing in root',
-          path: '/home/user/project/lib/file.rb',
-          root: '/HOME/USER/PROJECT',
-          expected: 'lib/file.rb'
+          desc:     'relativizes paths with different casing in root',
+          path:     '/home/user/project/lib/file.rb',
+          root:     '/HOME/USER/PROJECT',
+          expected: 'lib/file.rb',
         },
         {
-          desc: 'relativizes paths with different casing in both',
-          path: '/Home/User/Project/Lib/File.rb',
-          root: '/home/user/project',
-          expected: 'Lib/File.rb' # Original casing preserved
+          desc:     'relativizes paths with different casing in both',
+          path:     '/Home/User/Project/Lib/File.rb',
+          root:     '/home/user/project',
+          expected: 'Lib/File.rb', # Original casing preserved
         },
         {
-          desc: 'still respects boundary checking with case differences',
-          path: '/Home/User/Project-Backup/lib/file.rb',
-          root: '/home/user/project',
-          expected: '/Home/User/Project-Backup/lib/file.rb' # No match
-        }
+          desc:     'still respects boundary checking with case differences',
+          path:     '/Home/User/Project-Backup/lib/file.rb',
+          root:     '/home/user/project',
+          expected: '/Home/User/Project-Backup/lib/file.rb', # No match
+        },
       ].each do |tc|
         it tc[:desc] do
           result = described_class.relativize(tc[:path], tc[:root])
@@ -316,24 +316,24 @@ RSpec.describe CovLoupe::PathUtils do
         {
           desc: 'relativizes path with backslashes against forward slash root',
           path: 'C:\\Users\\user\\project\\lib\\file.rb',
-          root: 'C:/Users/user/project'
+          root: 'C:/Users/user/project',
         },
         {
           desc: 'relativizes path with forward slashes against backslash root',
           path: 'C:/Users/user/project/lib/file.rb',
-          root: 'C:\\Users\\user\\project'
+          root: 'C:\\Users\\user\\project',
         },
         {
           desc: 'relativizes path with mixed separators',
           path: 'C:/Users\\user/project\\lib/file.rb',
-          root: 'C:/Users/user/project'
+          root: 'C:/Users/user/project',
         },
         {
-          desc: 'combines case-insensitive and mixed-separator handling',
-          path: 'C:\\Users\\User\\Project\\Lib\\File.rb',
-          root: 'C:/Users/user/project',
-          expected: 'Lib/File.rb'
-        }
+          desc:     'combines case-insensitive and mixed-separator handling',
+          path:     'C:\\Users\\User\\Project\\Lib\\File.rb',
+          root:     'C:/Users/user/project',
+          expected: 'Lib/File.rb',
+        },
       ].each do |tc|
         it tc[:desc] do
           result = described_class.relativize(tc[:path], tc[:root])
@@ -496,7 +496,7 @@ RSpec.describe CovLoupe::PathUtils do
       ['relative/path',       false],
       ['/Unix/absolute/path', true],
       ['C:/Users/file',       true],
-      ['C:\\Users\\file',     true]
+      ['C:\\Users\\file',     true],
     ].each do |input, abs_expected|
       it "absolute? returns #{abs_expected} for #{input.inspect}" do
         expect(described_class.absolute?(input)).to eq(abs_expected)
@@ -821,20 +821,20 @@ RSpec.describe CovLoupe::PathUtils do
 
       [
         {
-          desc: 'matches paths with backslashes against forward slash prefix',
-          path: 'C:\\Users\\Project\\lib\\file.rb',
-          prefix: 'C:/Users/Project'
+          desc:   'matches paths with backslashes against forward slash prefix',
+          path:   'C:\\Users\\Project\\lib\\file.rb',
+          prefix: 'C:/Users/Project',
         },
         {
-          desc: 'matches paths with forward slashes against backslash prefix',
-          path: 'C:/Users/Project/lib/file.rb',
-          prefix: 'C:\\Users\\Project'
+          desc:   'matches paths with forward slashes against backslash prefix',
+          path:   'C:/Users/Project/lib/file.rb',
+          prefix: 'C:\\Users\\Project',
         },
         {
-          desc: 'matches paths with mixed separators',
-          path: 'C:/Users\\Project/lib\\file.rb',
-          prefix: 'C:\\Users/Project'
-        }
+          desc:   'matches paths with mixed separators',
+          path:   'C:/Users\\Project/lib\\file.rb',
+          prefix: 'C:\\Users/Project',
+        },
       ].each do |tc|
         it tc[:desc] do
           expect(described_class.normalized_start_with?(tc[:path], tc[:prefix])).to be true

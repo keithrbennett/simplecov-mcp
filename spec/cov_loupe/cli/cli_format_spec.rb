@@ -97,7 +97,7 @@ RSpec.describe CovLoupe::CoverageCLI, 'format option' do
       ['option after summary', %w[summary lib/foo.rb --format json], '--format'],
       ['option after raw', %w[raw lib/foo.rb -f json], '-f'],
       ['option after detailed', %w[detailed lib/foo.rb -f json], '-f'],
-      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', Dir.tmpdir], '--root']
+      ['option after uncovered', ['uncovered', 'lib/foo.rb', '--root', Dir.tmpdir], '--root'],
     ].each do |desc, args, option|
       it "detects #{desc}" do
         _out, err, status = run_cli_with_status(*args)

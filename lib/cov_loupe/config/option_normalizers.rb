@@ -5,60 +5,60 @@ module CovLoupe
   # Provides both strict (raise on invalid) and lenient (default on invalid) modes.
   module OptionNormalizers
     SORT_ORDER_MAP = {
-      'a' => :ascending,
-      'ascending' => :ascending,
-      'd' => :descending,
-      'descending' => :descending
+      'a'          => :ascending,
+      'ascending'  => :ascending,
+      'd'          => :descending,
+      'descending' => :descending,
     }.freeze
 
     SOURCE_MODE_MAP = {
-      'n' => :none,
-      'none' => :none,
-      'f' => :full,
-      'full' => :full,
-      'u' => :uncovered,
-      'uncovered' => :uncovered
+      'n'         => :none,
+      'none'      => :none,
+      'f'         => :full,
+      'full'      => :full,
+      'u'         => :uncovered,
+      'uncovered' => :uncovered,
     }.freeze
 
     ERROR_MODE_MAP = {
-      'off' => :off,
-      'o' => :off,
-      'log' => :log,
-      'l' => :log,
+      'off'   => :off,
+      'o'     => :off,
+      'log'   => :log,
+      'l'     => :log,
       'debug' => :debug,
-      'd' => :debug
+      'd'     => :debug,
     }.freeze
 
     FORMAT_MAP = {
-      't' => :table,
-      'table' => :table,
-      'j' => :json,
-      'json' => :json,
-      'p' => :pretty_json,
-      'pretty_json' => :pretty_json,
-      'pretty-json' => :pretty_json,
-      'y' => :yaml,
-      'yaml' => :yaml,
-      'a' => :amazing_print,
+      't'             => :table,
+      'table'         => :table,
+      'j'             => :json,
+      'json'          => :json,
+      'p'             => :pretty_json,
+      'pretty_json'   => :pretty_json,
+      'pretty-json'   => :pretty_json,
+      'y'             => :yaml,
+      'yaml'          => :yaml,
+      'a'             => :amazing_print,
       'awesome_print' => :amazing_print,
-      'ap' => :amazing_print,
-      'amazing_print' => :amazing_print
+      'ap'            => :amazing_print,
+      'amazing_print' => :amazing_print,
     }.freeze
 
     MODE_MAP = {
       'cli' => :cli,
-      'c' => :cli,
+      'c'   => :cli,
       'mcp' => :mcp,
-      'm' => :mcp
+      'm'   => :mcp,
     }.freeze
 
     OUTPUT_CHARS_MAP = {
-      'd' => :default,
+      'd'       => :default,
       'default' => :default,
-      'f' => :fancy,
-      'fancy' => :fancy,
-      'a' => :ascii,
-      'ascii' => :ascii
+      'f'       => :fancy,
+      'fancy'   => :fancy,
+      'a'       => :ascii,
+      'ascii'   => :ascii,
     }.freeze
 
     module_function def normalize_sort_order(value, strict: true)

@@ -30,7 +30,7 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
         output = run_with_default_format
         data = JSON.parse(output)
         expected_keys = %w[files counts skipped_files missing_tracked_files newer_files
-                           deleted_files length_mismatch_files unreadable_files timestamp_status]
+          deleted_files length_mismatch_files unreadable_files timestamp_status]
         expected_keys.each do |key|
           expect(data).to have_key(key), "Expected key '#{key}' to be present"
         end
@@ -144,8 +144,8 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
     it 'accepts valid values: ascending, descending, a, d' do
       %w[ascending descending a d].each do |sort_order|
         response = described_class.call(
-          root: root,
-          sort_order: sort_order,
+          root:           root,
+          sort_order:     sort_order,
           server_context: server_context
         )
         expect(response).to be_a(MCP::Tool::Response)
@@ -155,8 +155,8 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
     it 'rejects invalid sort_order values' do
       response = described_class.call(
-        root: root,
-        sort_order: 'invalid',
+        root:           root,
+        sort_order:     'invalid',
         server_context: server_context
       )
       expect(response).to be_a(MCP::Tool::Response)
@@ -173,15 +173,15 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
         allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
         test_payload = {
-          'files' => [],
-          'counts' => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
-          'skipped_files' => [],
+          'files'                 => [],
+          'counts'                => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
+          'skipped_files'         => [],
           'missing_tracked_files' => [],
-          'newer_files' => [],
-          'deleted_files' => [],
+          'newer_files'           => [],
+          'deleted_files'         => [],
           'length_mismatch_files' => [],
-          'unreadable_files' => [],
-          'timestamp_status' => status
+          'unreadable_files'      => [],
+          'timestamp_status'      => status,
         }
 
         presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
@@ -221,40 +221,40 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
         relativizer = instance_double(CovLoupe::PathRelativizer)
         allow(model).to receive_messages(
-          relativizer: relativizer,
+          relativizer:  relativizer,
           skipped_rows: [],
           format_table: "Mock\nTable"
         )
 
         payload = {
-          'files' => [{ 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10, 'total' => 10,
-                        'stale' => 'ok' }],
-          'skipped_files' => [],
+          'files'                 => [{ 'file' => 'lib/foo.rb', 'percentage' => 100.0, 'covered' => 10,
+                                      'total' => 10, 'stale' => 'ok' }],
+          'skipped_files'         => [],
           'missing_tracked_files' => ['lib/missing.rb'],
-          'newer_files' => [],
-          'deleted_files' => [],
+          'newer_files'           => [],
+          'deleted_files'         => [],
           'length_mismatch_files' => [],
-          'unreadable_files' => []
+          'unreadable_files'      => [],
         }
         allow(model).to receive(:list).and_return(payload)
 
         presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
         allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
         allow(presenter).to receive_messages(
-          relative_files: payload['files'],
-          relative_skipped_files: [],
+          relative_files:                 payload['files'],
+          relative_skipped_files:         [],
           relative_missing_tracked_files: ['lib/missing.rb'],
-          relative_newer_files: [],
-          relative_deleted_files: [],
+          relative_newer_files:           [],
+          relative_deleted_files:         [],
           relative_length_mismatch_files: [],
-          relative_unreadable_files: [],
-          timestamp_status: 'ok'
+          relative_unreadable_files:      [],
+          timestamp_status:               'ok'
         )
 
         output = described_class.call(
-          root: root,
-          format: 'table',
-          tracked_globs: ['lib/**/*.rb'],
+          root:           root,
+          format:         'table',
+          tracked_globs:  ['lib/**/*.rb'],
           server_context: server_context
         ).payload.first['text']
 
@@ -272,38 +272,38 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
         relativizer = instance_double(CovLoupe::PathRelativizer)
         allow(model).to receive_messages(
-          relativizer: relativizer,
+          relativizer:  relativizer,
           skipped_rows: [],
           format_table: "Mock\nTable"
         )
 
         payload = {
-          'files' => [],
-          'skipped_files' => [],
+          'files'                 => [],
+          'skipped_files'         => [],
           'missing_tracked_files' => [],
-          'newer_files' => [],
-          'deleted_files' => [],
+          'newer_files'           => [],
+          'deleted_files'         => [],
           'length_mismatch_files' => [],
-          'unreadable_files' => []
+          'unreadable_files'      => [],
         }
         allow(model).to receive(:list).and_return(payload)
 
         presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
         allow(CovLoupe::Presenters::ProjectCoveragePresenter).to receive(:new).and_return(presenter)
         allow(presenter).to receive_messages(
-          relative_files: [],
-          relative_skipped_files: [],
+          relative_files:                 [],
+          relative_skipped_files:         [],
           relative_missing_tracked_files: [],
-          relative_newer_files: [],
-          relative_deleted_files: [],
+          relative_newer_files:           [],
+          relative_deleted_files:         [],
           relative_length_mismatch_files: [],
-          relative_unreadable_files: [],
-          timestamp_status: 'missing'
+          relative_unreadable_files:      [],
+          timestamp_status:               'missing'
         )
 
         output = described_class.call(
-          root: root,
-          format: 'table',
+          root:           root,
+          format:         'table',
           server_context: server_context
         ).payload.first['text']
 
@@ -316,15 +316,15 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
       allow(CovLoupe::CoverageModel).to receive(:new).and_return(model)
 
       test_payload = {
-        'files' => [],
-        'counts' => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
-        'skipped_files' => [],
+        'files'                 => [],
+        'counts'                => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
+        'skipped_files'         => [],
         'missing_tracked_files' => [],
-        'newer_files' => [],
-        'deleted_files' => [],
+        'newer_files'           => [],
+        'deleted_files'         => [],
         'length_mismatch_files' => [],
-        'unreadable_files' => [],
-        'timestamp_status' => 'ok'
+        'unreadable_files'      => [],
+        'timestamp_status'      => 'ok',
       }
 
       presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
@@ -341,8 +341,8 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
   describe 'output_chars parameter with table format' do
     it 'uses Unicode box-drawing by default' do
       output = described_class.call(
-        root: root,
-        format: 'table',
+        root:           root,
+        format:         'table',
         server_context: server_context
       ).payload.first['text']
 
@@ -351,9 +351,9 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
     it 'uses ASCII characters with output_chars: "ascii"' do
       output = described_class.call(
-        root: root,
-        format: 'table',
-        output_chars: 'ascii',
+        root:           root,
+        format:         'table',
+        output_chars:   'ascii',
         server_context: server_context
       ).payload.first['text']
 
@@ -363,9 +363,9 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
     it 'uses ASCII characters with short form "a"' do
       output = described_class.call(
-        root: root,
-        format: 'table',
-        output_chars: 'a',
+        root:           root,
+        format:         'table',
+        output_chars:   'a',
         server_context: server_context
       ).payload.first['text']
 
@@ -375,9 +375,9 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
 
     it 'uses Unicode with output_chars: "fancy"' do
       output = described_class.call(
-        root: root,
-        format: 'table',
-        output_chars: 'fancy',
+        root:           root,
+        format:         'table',
+        output_chars:   'fancy',
         server_context: server_context
       ).payload.first['text']
 
@@ -389,22 +389,22 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
     it 'passes raise_on_stale to model configuration' do
       model = instance_double(CovLoupe::CoverageModel)
       allow(CovLoupe::CoverageModel).to receive(:new).with(
-        root: root,
-        resultset: nil,
+        root:           root,
+        resultset:      nil,
         raise_on_stale: true,
-        tracked_globs: []
+        tracked_globs:  []
       ).and_return(model)
 
       test_payload = {
-        'files' => [],
-        'counts' => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
-        'skipped_files' => [],
+        'files'                 => [],
+        'counts'                => { 'total' => 0, 'ok' => 0, 'stale' => 0 },
+        'skipped_files'         => [],
         'missing_tracked_files' => [],
-        'newer_files' => [],
-        'deleted_files' => [],
+        'newer_files'           => [],
+        'deleted_files'         => [],
         'length_mismatch_files' => [],
-        'unreadable_files' => [],
-        'timestamp_status' => 'ok'
+        'unreadable_files'      => [],
+        'timestamp_status'      => 'ok',
       }
 
       presenter = instance_double(CovLoupe::Presenters::ProjectCoveragePresenter)
@@ -414,10 +414,10 @@ RSpec.describe CovLoupe::Tools::ProjectCoverageTool do
       described_class.call(root: root, raise_on_stale: true, server_context: server_context)
 
       expect(CovLoupe::CoverageModel).to have_received(:new).with(
-        root: root,
-        resultset: nil,
+        root:           root,
+        resultset:      nil,
         raise_on_stale: true,
-        tracked_globs: []
+        tracked_globs:  []
       )
     end
   end

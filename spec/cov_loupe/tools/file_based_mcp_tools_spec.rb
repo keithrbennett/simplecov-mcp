@@ -30,16 +30,16 @@ RSpec.describe 'File-based MCP Tools' do
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
         stub_coverage_model(
           model_method: config[:model_method],
-          mock_data: config[:mock_data],
-          file_path: 'lib/example.rb',
-          staleness: 'ok'
+          mock_data:    config[:mock_data],
+          file_path:    'lib/example.rb',
+          staleness:    'ok'
         )
 
         expect do
           config[:tool_class].call(
-            path: 'lib/example.rb',
-            root: '.',
-            resultset: FIXTURE_PROJECT1_RESULTSET_PATH,
+            path:           'lib/example.rb',
+            root:           '.',
+            resultset:      FIXTURE_PROJECT1_RESULTSET_PATH,
             server_context: server_context
           )
         end.not_to raise_error
@@ -50,8 +50,8 @@ RSpec.describe 'File-based MCP Tools' do
       FILE_BASED_TOOL_CONFIGS.each_value do |config|
         stub_coverage_model(
           model_method: config[:model_method],
-          mock_data: config[:mock_data],
-          staleness: 'ok'
+          mock_data:    config[:mock_data],
+          staleness:    'ok'
         )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)
@@ -83,8 +83,8 @@ RSpec.describe 'File-based MCP Tools' do
       summary_tools.each_value do |config|
         stub_coverage_model(
           model_method: config[:model_method],
-          mock_data: config[:mock_data],
-          staleness: 'ok'
+          mock_data:    config[:mock_data],
+          staleness:    'ok'
         )
 
         response = config[:tool_class].call(path: 'lib/foo.rb', server_context: server_context)

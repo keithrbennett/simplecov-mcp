@@ -60,7 +60,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[--output-chars ascii list], accessor: :output_chars, expected: :ascii },
       { argv: %w[--output-chars a list], accessor: :output_chars, expected: :ascii },
       { argv: %w[-O ascii list], accessor: :output_chars, expected: :ascii },
-      { argv: %w[-O f list], accessor: :output_chars, expected: :fancy }
+      { argv: %w[-O f list], accessor: :output_chars, expected: :fancy },
     ]
   end
 
@@ -94,7 +94,7 @@ RSpec.describe 'CLI enumerated option parsing' do
 
       # -C short flag for --color
       { argv: %w[-C no list], accessor: :color, expected: false },
-      { argv: %w[-C false list], accessor: :color, expected: false }
+      { argv: %w[-C false list], accessor: :color, expected: false },
     ]
   end
 
@@ -118,7 +118,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[--error-mode trace list] },
       { argv: %w[--output-chars invalid list] },
       { argv: %w[--output-chars unicode list] },
-      { argv: %w[-O utf8 list] }
+      { argv: %w[-O utf8 list] },
     ]
   end
 
@@ -129,7 +129,7 @@ RSpec.describe 'CLI enumerated option parsing' do
       { argv: %w[--raise-on-stale list], check_error_prefix: false },
       { argv: %w[-S list], check_error_prefix: false },
       { argv: %w[--color list], check_error_prefix: false },
-      { argv: %w[-C list], check_error_prefix: false }
+      { argv: %w[-C list], check_error_prefix: false },
     ]
   end
 end

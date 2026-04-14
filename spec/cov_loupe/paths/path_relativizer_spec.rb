@@ -6,9 +6,9 @@ RSpec.describe CovLoupe::PathRelativizer do
   let(:root) { (FIXTURES_DIR / 'project1').to_s }
   let(:relativizer) do
     described_class.new(
-      root: root,
+      root:        root,
       scalar_keys: %w[file file_path],
-      array_keys: %w[newer_files missing_files deleted_files]
+      array_keys:  %w[newer_files missing_files deleted_files]
     )
   end
 
@@ -23,7 +23,7 @@ RSpec.describe CovLoupe::PathRelativizer do
 
     it 'relativizes arrays for configured keys without mutating originals' do
       payload = {
-        'newer_files' => [File.join(root, 'lib/foo.rb'), File.join(root, 'lib/bar.rb')]
+        'newer_files' => [File.join(root, 'lib/foo.rb'), File.join(root, 'lib/bar.rb')],
       }
 
       result = relativizer.relativize(payload)
@@ -50,11 +50,11 @@ RSpec.describe CovLoupe::PathRelativizer do
 
     it 'relativizes nested arrays of hashes' do
       payload = {
-        'files' => [
+        'files'  => [
           { 'file' => File.join(root, 'lib/foo.rb') },
-          { 'file' => File.join(root, 'lib/bar.rb') }
+          { 'file' => File.join(root, 'lib/bar.rb') },
         ],
-        'counts' => { 'total' => 2 }
+        'counts' => { 'total' => 2 },
       }
 
       result = relativizer.relativize(payload)

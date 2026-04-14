@@ -10,9 +10,9 @@ module CovLoupe
         reject_extra_args(args, 'totals')
 
         presenter = Presenters::ProjectTotalsPresenter.new(
-          model: model,
+          model:          model,
           raise_on_stale: config.raise_on_stale,
-          tracked_globs: config.tracked_globs
+          tracked_globs:  config.tracked_globs
         )
         payload = presenter.absolute_payload
         return if maybe_output_structured_format?(payload, model)

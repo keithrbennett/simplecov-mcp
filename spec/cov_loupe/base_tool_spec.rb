@@ -124,7 +124,7 @@ RSpec.describe CovLoupe::BaseTool do
 
       config = described_class.model_config_for(
         server_context: context,
-        root: '/explicit/root'
+        root:           '/explicit/root'
       )
 
       expect(config[:root]).to eq('/explicit/root')
@@ -138,7 +138,7 @@ RSpec.describe CovLoupe::BaseTool do
       # explicit root is nil, should fallback to cli_config
       config = described_class.model_config_for(
         server_context: context,
-        root: nil
+        root:           nil
       )
 
       expect(config[:root]).to eq('/cli/root')
@@ -239,7 +239,7 @@ RSpec.describe CovLoupe::BaseTool do
           ['ascii', :ascii],
           ['d', :default],
           ['f', :fancy],
-          ['a', :ascii]
+          ['a', :ascii],
         ].each do |input, expected|
           expect(described_class.resolve_output_chars(input, context)).to eq(expected)
         end
@@ -251,7 +251,7 @@ RSpec.describe CovLoupe::BaseTool do
         [
           ['invalid', 'Invalid output_chars value.*invalid.*Must be one of'],
           ['xyz123', 'Invalid output_chars value.*xyz123.*Must be one of'],
-          ['def', 'Invalid output_chars value.*def.*Must be one of']
+          ['def', 'Invalid output_chars value.*def.*Must be one of'],
         ].each do |value, pattern|
           expect do
             described_class.resolve_output_chars(value, context)
@@ -263,7 +263,7 @@ RSpec.describe CovLoupe::BaseTool do
         [
           [123, 'Invalid output_chars type.*Integer.*Must be a string'],
           [{ key: 'value' }, 'Invalid output_chars type.*Hash.*Must be a string'],
-          [['default'], 'Invalid output_chars type.*Array.*Must be a string']
+          [['default'], 'Invalid output_chars type.*Array.*Must be a string'],
         ].each do |value, pattern|
           expect do
             described_class.resolve_output_chars(value, context)
@@ -326,7 +326,7 @@ RSpec.describe CovLoupe::BaseTool do
         [
           [:default, false],
           [:fancy, false],
-          [:ascii, true]
+          [:ascii, true],
         ].each do |symbol, expected|
           expect(described_class.send(:ascii_only?, symbol)).to be(expected)
         end
@@ -339,7 +339,7 @@ RSpec.describe CovLoupe::BaseTool do
           ['ascii', true],
           ['d', false],
           ['f', false],
-          ['a', true]
+          ['a', true],
         ].each do |input, expected|
           expect(described_class.send(:ascii_only?, input)).to be(expected)
         end
@@ -371,7 +371,7 @@ RSpec.describe CovLoupe::BaseTool do
         [
           [:default, false],
           [:fancy, false],
-          [:ascii, true]
+          [:ascii, true],
         ].each do |symbol, expected|
           expect(described_class.send(:ascii_only?, symbol)).to be(expected)
         end

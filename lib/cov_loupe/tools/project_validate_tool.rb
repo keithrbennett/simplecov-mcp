@@ -23,15 +23,15 @@ module CovLoupe
       input_schema(**coverage_schema(
         additional_properties: {
           code: {
-            type: 'string',
+            type:        'string',
             description: 'Ruby code string that returns a callable predicate. ' \
-                         'Must evaluate to a lambda, proc, or object with #call method.'
+                         'Must evaluate to a lambda, proc, or object with #call method.',
           },
           file: {
-            type: 'string',
+            type:        'string',
             description:
-              'Path to Ruby file containing predicate code (absolute or relative to root).'
-          }
+                         'Path to Ruby file containing predicate code (absolute or relative to root).',
+          },
         }
       ))
       class << self
@@ -43,8 +43,8 @@ module CovLoupe
             error_mode: error_mode, output_chars: output_chars_sym) do
             model, config = create_configured_model(
               server_context: server_context,
-              root: root,
-              resultset: resultset,
+              root:           root,
+              resultset:      resultset,
               raise_on_stale: raise_on_stale
             )
 

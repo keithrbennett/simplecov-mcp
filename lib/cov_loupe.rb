@@ -91,9 +91,9 @@ module CovLoupe
     def create_context(error_handler:, log_target: nil, mode: :library, app_config: nil)
       AppContext.new(
         error_handler: error_handler,
-        log_target: log_target.nil? ? default_context.log_target : log_target,
-        mode: mode,
-        app_config: app_config
+        log_target:    log_target.nil? ? default_context.log_target : log_target,
+        mode:          mode,
+        app_config:    app_config
       )
     end
 
@@ -160,7 +160,7 @@ module CovLoupe
     private def internal_default_context
       @internal_default_context ||= AppContext.new(
         error_handler: ErrorHandlerFactory.for_cli,
-        log_target: nil
+        log_target:    nil
       )
     end
 

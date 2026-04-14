@@ -80,7 +80,7 @@ module CovLoupe
   module StalenessFormatterMixin
     private def formatter
       @formatter ||= StalenessMessageFormatter.new(
-        cov_timestamp: @cov_timestamp,
+        cov_timestamp:  @cov_timestamp,
         resultset_path: @resultset_path
       )
     end
@@ -105,10 +105,10 @@ module CovLoupe
 
     def user_friendly_message
       "Coverage data stale: #{message}" + formatter.format_single_file_details(
-        file_path: @file_path,
+        file_path:  @file_path,
         file_mtime: @file_mtime,
-        src_len: @src_len,
-        cov_len: @cov_len
+        src_len:    @src_len,
+        cov_len:    @cov_len
       )
     end
 
@@ -142,11 +142,11 @@ module CovLoupe
     def user_friendly_message
       base = "Coverage data stale (project): #{message || default_message}"
       base + formatter.format_project_details(
-        newer_files: @newer_files,
-        missing_files: @missing_files,
-        deleted_files: @deleted_files,
+        newer_files:           @newer_files,
+        missing_files:         @missing_files,
+        deleted_files:         @deleted_files,
         length_mismatch_files: @length_mismatch_files,
-        unreadable_files: @unreadable_files
+        unreadable_files:      @unreadable_files
       )
     end
 

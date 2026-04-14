@@ -55,11 +55,11 @@ module CovLoupe
       max_stale_label = rows.map { |f| StaleStatus.stale?(f['stale']) ? f['stale'].to_s.length : 0 }.max.to_i
       stale_width = [max_stale_label, 'Stale'.length].max
       {
-        file: file_width,
-        pct: pct_width,
+        file:    file_width,
+        pct:     pct_width,
         covered: covered_width,
-        total: total_width,
-        stale: stale_width
+        total:   total_width,
+        stale:   stale_width,
       }
     end
 
@@ -115,7 +115,8 @@ module CovLoupe
         'n/a'.rjust(ws[:pct])
       end
 
-      format_str = "#{v} %-#{ws[:file]}s #{v} %s #{v} %#{ws[:covered]}d #{v} %#{ws[:total]}d #{v} %#{ws[:stale]}s #{v}"
+      format_str =
+        "#{v} %-#{ws[:file]}s #{v} %s #{v} %#{ws[:covered]}d #{v} %#{ws[:total]}d #{v} %#{ws[:stale]}s #{v}"
       Kernel.format(format_str, fd['file'], pct_str, fd['covered'], fd['total'], stale_str)
     end
 

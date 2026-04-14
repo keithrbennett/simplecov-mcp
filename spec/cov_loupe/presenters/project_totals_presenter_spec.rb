@@ -5,50 +5,50 @@ require 'spec_helper'
 RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   subject(:presenter) do
     described_class.new(
-      model: model,
+      model:          model,
       raise_on_stale: true,
-      tracked_globs: ['lib/**/*.rb']
+      tracked_globs:  ['lib/**/*.rb']
     )
   end
 
   let(:model) { instance_double(CovLoupe::CoverageModel) }
   let(:raw_totals) do
     {
-      'lines' => {
-        'total' => 100,
-        'covered' => 80,
-        'uncovered' => 20,
-        'percentage' => 80.0
+      'lines'            => {
+        'total'      => 100,
+        'covered'    => 80,
+        'uncovered'  => 20,
+        'percentage' => 80.0,
       },
-      'tracking' => {
+      'tracking'         => {
         'enabled' => true,
-        'globs' => ['lib/**/*.rb']
+        'globs'   => ['lib/**/*.rb'],
       },
-      'files' => {
-        'total' => 12,
-        'with_coverage' => {
+      'files'            => {
+        'total'            => 12,
+        'with_coverage'    => {
           'total' => 10,
-          'ok' => 9,
+          'ok'    => 9,
           'stale' => {
-            'total' => 1,
+            'total'   => 1,
             'by_type' => {
               'missing_from_disk' => 0,
-              'newer' => 1,
-              'length_mismatch' => 0,
-              'unreadable' => 0
-            }
-          }
+              'newer'             => 1,
+              'length_mismatch'   => 0,
+              'unreadable'        => 0,
+            },
+          },
         },
         'without_coverage' => {
-          'total' => 2,
+          'total'   => 2,
           'by_type' => {
             'missing_from_coverage' => 2,
-            'unreadable' => 0,
-            'skipped' => 0
-          }
-        }
+            'unreadable'            => 0,
+            'skipped'               => 0,
+          },
+        },
       },
-      'timestamp_status' => 'ok'
+      'timestamp_status' => 'ok',
     }
   end
 
@@ -73,9 +73,9 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
 
       expect(result).to include('lines', 'tracking', 'files')
       expect(result['lines']).to include(
-        'total' => 100,
-        'covered' => 80,
-        'uncovered' => 20,
+        'total'      => 100,
+        'covered'    => 80,
+        'uncovered'  => 20,
         'percentage' => 80.0
       )
       expect(result['tracking']).to include('enabled' => true)
@@ -121,9 +121,9 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   context 'with raise_on_stale: false' do
     subject(:presenter) do
       described_class.new(
-        model: model,
+        model:          model,
         raise_on_stale: false,
-        tracked_globs: nil
+        tracked_globs:  nil
       )
     end
 
@@ -144,9 +144,9 @@ RSpec.describe CovLoupe::Presenters::ProjectTotalsPresenter do
   context 'with empty tracked_globs' do
     subject(:presenter) do
       described_class.new(
-        model: model,
+        model:          model,
         raise_on_stale: true,
-        tracked_globs: []
+        tracked_globs:  []
       )
     end
 

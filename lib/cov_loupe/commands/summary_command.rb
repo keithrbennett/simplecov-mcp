@@ -28,13 +28,13 @@ module CovLoupe
             percent_display,
             summary['covered'].to_s,
             summary['total'].to_s,
-            stale_marker
+            stale_marker,
           ]]
 
           puts TableFormatter.format(
-            headers: headers,
-            rows: rows,
-            alignments: %i[left right right right center],
+            headers:      headers,
+            rows:         rows,
+            alignments:   %i[left right right right center],
             output_chars: config.output_chars
           )
           puts

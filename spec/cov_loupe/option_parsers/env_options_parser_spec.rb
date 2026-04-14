@@ -16,50 +16,50 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
     context 'with valid inputs' do
       [
         {
-          desc: 'environment variable is not set',
-          env: nil,
-          expected: []
+          desc:     'environment variable is not set',
+          env:      nil,
+          expected: [],
         },
         {
-          desc: 'environment variable is empty string',
-          env: '',
-          expected: []
+          desc:     'environment variable is empty string',
+          env:      '',
+          expected: [],
         },
         {
-          desc: 'environment variable contains only whitespace',
-          env: '   ',
-          expected: []
+          desc:     'environment variable contains only whitespace',
+          env:      '   ',
+          expected: [],
         },
         {
-          desc: 'simple options',
-          env: '--error-mode off --format json',
-          expected: %w[--error-mode off --format json]
+          desc:     'simple options',
+          env:      '--error-mode off --format json',
+          expected: %w[--error-mode off --format json],
         },
         {
-          desc: 'quoted strings with spaces',
-          env: '--resultset "/path/to/my file.json"',
-          expected: ['--resultset', '/path/to/my file.json']
+          desc:     'quoted strings with spaces',
+          env:      '--resultset "/path/to/my file.json"',
+          expected: ['--resultset', '/path/to/my file.json'],
         },
         {
-          desc: 'complex shell escaping scenarios',
-          env: '--resultset "/path/with spaces/file.json" --error-mode on',
-          expected: ['--resultset', '/path/with spaces/file.json', '--error-mode', 'on']
+          desc:     'complex shell escaping scenarios',
+          env:      '--resultset "/path/with spaces/file.json" --error-mode on',
+          expected: ['--resultset', '/path/with spaces/file.json', '--error-mode', 'on'],
         },
         {
-          desc: 'single quotes',
-          env: "--resultset '/path/with spaces/file.json'",
-          expected: ['--resultset', '/path/with spaces/file.json']
+          desc:     'single quotes',
+          env:      "--resultset '/path/with spaces/file.json'",
+          expected: ['--resultset', '/path/with spaces/file.json'],
         },
         {
-          desc: 'escaped characters',
-          env: '--resultset /path/with\\ spaces/file.json',
-          expected: ['--resultset', '/path/with spaces/file.json']
+          desc:     'escaped characters',
+          env:      '--resultset /path/with\\ spaces/file.json',
+          expected: ['--resultset', '/path/with spaces/file.json'],
         },
         {
-          desc: 'mixed quoting styles',
-          env: '--option1 "value with spaces" --option2 \'another value\'',
-          expected: ['--option1', 'value with spaces', '--option2', 'another value']
-        }
+          desc:     'mixed quoting styles',
+          env:      '--option1 "value with spaces" --option2 \'another value\'',
+          expected: ['--option1', 'value with spaces', '--option2', 'another value'],
+        },
       ].each do |tc|
         it "handles #{tc[:desc]}" do
           if tc[:env].nil?
@@ -76,7 +76,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
       [
         { desc: 'unmatched double quotes', env: '--resultset "unterminated string' },
         { desc: 'unmatched single quotes', env: "--resultset 'unterminated string" },
-        { desc: 'multiple quoting errors', env: '"first "second "third' }
+        { desc: 'multiple quoting errors', env: '"first "second "third' },
       ].each do |tc|
         it "raises ConfigurationError for #{tc[:desc]}" do
           ENV['COV_LOUPE_OPTS'] = tc[:env]
@@ -223,7 +223,7 @@ RSpec.describe CovLoupe::OptionParsers::EnvOptionsParser do
       { input: 'unknown', expected: :log },
       { input: 'invalid', expected: :log },
       { input: '', expected: :log },
-      { input: nil, expected: :log }
+      { input: nil, expected: :log },
     ].each do |tc|
       it "normalizes #{tc[:input].inspect} to #{tc[:expected].inspect}" do
         expect(parser.send(:normalize_error_mode, tc[:input])).to eq(tc[:expected])

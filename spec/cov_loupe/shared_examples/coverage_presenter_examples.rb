@@ -4,7 +4,7 @@ RSpec.shared_examples 'a coverage presenter' do |config|
   subject(:presenter) do
     described_class.new(
       model: model,
-      path: config.fetch(:path, 'lib/foo.rb'),
+      path:  config.fetch(:path, 'lib/foo.rb'),
       **config.fetch(:presenter_options, {})
     )
   end

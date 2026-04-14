@@ -25,7 +25,7 @@ module CovLoupe
       's' => 'summary',
       't' => 'totals',
       'u' => 'uncovered',
-      'v' => 'validate'
+      'v' => 'validate',
     }.freeze
 
     attr_reader :config
@@ -49,8 +49,8 @@ module CovLoupe
 
       context = CovLoupe.create_context(
         error_handler: error_handler, # construct after options to respect --error-mode
-        log_target: config.log_file.nil? ? CovLoupe.context.log_target : config.log_file,
-        mode: :cli
+        log_target:    config.log_file.nil? ? CovLoupe.context.log_target : config.log_file,
+        mode:          :cli
       )
 
       CovLoupe.with_context(context) do
@@ -87,20 +87,20 @@ module CovLoupe
     def show_default_report(sort_order: :descending, output: $stdout)
       model = CoverageModel.new(**config.model_options)
       presenter = Presenters::ProjectCoveragePresenter.new(
-        model: model,
-        sort_order: sort_order,
+        model:          model,
+        sort_order:     sort_order,
         raise_on_stale: config.raise_on_stale,
-        tracked_globs: config.tracked_globs
+        tracked_globs:  config.tracked_globs
       )
 
       if config.format == :table
         file_summaries = presenter.relative_files
         output.puts model.format_table(
           file_summaries,
-          sort_order: sort_order,
+          sort_order:     sort_order,
           raise_on_stale: config.raise_on_stale,
-          tracked_globs: nil,
-          output_chars: config.output_chars
+          tracked_globs:  nil,
+          output_chars:   config.output_chars
         )
         show_exclusions_summary(presenter, $stderr)
         warn_missing_timestamps(presenter, $stderr)
@@ -140,7 +140,7 @@ module CovLoupe
 
     private def error_handler
       @error_handler ||= @custom_error_handler ||
-                         ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
+        ErrorHandlerFactory.for_cli(error_mode: config.error_mode)
     end
 
     private def pre_scan_error_mode(argv)
@@ -176,10 +176,10 @@ module CovLoupe
     private def check_for_misplaced_global_options(cmd, args)
       # Global options that users commonly place after subcommands by mistake
       global_options = %w[-r --resultset -R --root -f --format -o --sort-order -s --source
-                          -c --context-lines -S --raise-on-stale -g --tracked-globs
-                          -l --log-file --error-mode --color -m --mode -v --version
-                          -p --path-for
-                          -O --output-chars]
+        -c --context-lines -S --raise-on-stale -g --tracked-globs
+        -l --log-file --error-mode --color -m --mode -v --version
+        -p --path-for
+        -O --output-chars]
 
       misplaced = args.select do |arg|
         # Extract base option (e.g., --format from --format=json)
@@ -250,7 +250,7 @@ module CovLoupe
 
       # Only show if there are any exclusions
       return if missing.empty? && newer.empty? && deleted.empty? &&
-                length_mismatch.empty? && unreadable.empty? && skipped.empty?
+        length_mismatch.empty? && unreadable.empty? && skipped.empty?
 
       output.puts "\nFiles excluded from coverage:"
 

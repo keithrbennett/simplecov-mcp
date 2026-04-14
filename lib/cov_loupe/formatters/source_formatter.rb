@@ -26,7 +26,8 @@ module CovLoupe
           raise
         rescue => e
           # If any unexpected formatting/indexing error occurs, avoid crashing the CLI
-          CovLoupe.logger.safe_log("SourceFormatter#format_source_for error for path '#{abs}': #{e.class} - #{e.message}")
+          CovLoupe.logger.safe_log(
+            "SourceFormatter#format_source_for error for path '#{abs}': #{e.class} - #{e.message}")
           '[source not available]'
         end
       end
@@ -81,7 +82,7 @@ module CovLoupe
           '',
           hyphen_line,
           format('%6s %2s | %s', 'Line', ' ', 'Source'),
-          hyphen_line
+          hyphen_line,
         ]
 
         rows.each do |r|
@@ -113,7 +114,8 @@ module CovLoupe
         raw = model.raw_for(path)
         @raw_cache[path] = raw
       rescue => e
-        CovLoupe.logger.safe_log("SourceFormatter#fetch_raw error for path '#{path}': #{e.class} - #{e.message}")
+        CovLoupe.logger.safe_log(
+          "SourceFormatter#fetch_raw error for path '#{path}': #{e.class} - #{e.message}")
         nil
       end
 

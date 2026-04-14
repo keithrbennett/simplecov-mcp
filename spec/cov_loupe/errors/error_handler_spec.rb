@@ -18,7 +18,7 @@ RSpec.describe CovLoupe::ErrorHandler do
     [
       { error: Errno::EISDIR.new('Is a directory'), expected: CovLoupe::NotAFileError },
       { error: Errno::ENOENT.new('No such file'), expected: CovLoupe::FileNotFoundError },
-      { error: Errno::EACCES.new('Permission denied'), expected: CovLoupe::FilePermissionError }
+      { error: Errno::EACCES.new('Permission denied'), expected: CovLoupe::FilePermissionError },
     ].each do |tc|
       e = handler.convert_standard_error(tc[:error])
       expect(e).to be_a(tc[:expected])
@@ -28,35 +28,35 @@ RSpec.describe CovLoupe::ErrorHandler do
   describe 'additional file and data error mappings' do
     [
       {
-        error: Errno::ENOSPC.new('No space left on device'),
+        error:    Errno::ENOSPC.new('No space left on device'),
         expected: CovLoupe::FileError,
-        msg: 'No space left on device'
+        msg:      'No space left on device',
       },
       {
-        error: Errno::EROFS.new('Read-only file system'),
+        error:    Errno::EROFS.new('Read-only file system'),
         expected: CovLoupe::FilePermissionError,
-        msg: 'Read-only file system'
+        msg:      'Read-only file system',
       },
       {
-        error: Errno::EMFILE.new('Too many open files'),
+        error:    Errno::EMFILE.new('Too many open files'),
         expected: CovLoupe::FileError,
-        msg: 'Too many open files'
+        msg:      'Too many open files',
       },
       {
-        error: IOError.new('Input/output error'),
+        error:    IOError.new('Input/output error'),
         expected: CovLoupe::FileError,
-        msg: 'Input/output error'
+        msg:      'Input/output error',
       },
       {
-        error: EncodingError.new('incompatible encoding'),
+        error:    EncodingError.new('incompatible encoding'),
         expected: CovLoupe::CoverageDataError,
-        msg: 'Invalid encoding in coverage data'
+        msg:      'Invalid encoding in coverage data',
       },
       {
-        error: RangeError.new('float domain error'),
+        error:    RangeError.new('float domain error'),
         expected: CovLoupe::CoverageDataError,
-        msg: 'Numeric overflow or range error'
-      }
+        msg:      'Numeric overflow or range error',
+      },
     ].each do |spec|
       it "maps #{spec[:error].class} to #{spec[:expected]}" do
         e = handler.convert_standard_error(spec[:error])
@@ -167,7 +167,7 @@ RSpec.describe CovLoupe::ErrorHandler do
         'method not found',
         'private method called',
         'undefined local variable or method',
-        ''
+        '',
       ]
 
       test_messages.each do |msg|
@@ -216,45 +216,45 @@ RSpec.describe CovLoupe::ErrorHandler do
   describe '#handle_error with context parameter' do
     [
       {
-        desc: 'converts Errno::ENOENT to ResultsetNotFoundError when context is :coverage_loading',
-        error: Errno::ENOENT.new('missing .resultset.json'),
-        context: :coverage_loading,
+        desc:     'converts Errno::ENOENT to ResultsetNotFoundError when context is :coverage_loading',
+        error:    Errno::ENOENT.new('missing .resultset.json'),
+        context:  :coverage_loading,
         expected: CovLoupe::ResultsetNotFoundError,
-        msg: 'Coverage data not found'
+        msg:      'Coverage data not found',
       },
       {
-        desc: 'converts Errno::ENOENT to FileNotFoundError when context is :general',
-        error: Errno::ENOENT.new('missing file'),
-        context: :general,
-        expected: CovLoupe::FileNotFoundError
+        desc:     'converts Errno::ENOENT to FileNotFoundError when context is :general',
+        error:    Errno::ENOENT.new('missing file'),
+        context:  :general,
+        expected: CovLoupe::FileNotFoundError,
       },
       {
-        desc: 'converts Errno::ENOENT to FileNotFoundError when context is nil',
-        error: Errno::ENOENT.new('missing file'),
-        context: nil,
-        expected: CovLoupe::FileNotFoundError
+        desc:     'converts Errno::ENOENT to FileNotFoundError when context is nil',
+        error:    Errno::ENOENT.new('missing file'),
+        context:  nil,
+        expected: CovLoupe::FileNotFoundError,
       },
       {
-        desc: 'converts Errno::EACCES with context message when context is :coverage_loading',
-        error: Errno::EACCES.new('permission denied'),
-        context: :coverage_loading,
+        desc:     'converts Errno::EACCES with context message when context is :coverage_loading',
+        error:    Errno::EACCES.new('permission denied'),
+        context:  :coverage_loading,
         expected: CovLoupe::FilePermissionError,
-        msg: /Permission denied reading coverage data/
+        msg:      /Permission denied reading coverage data/,
       },
       {
-        desc: 'converts ArgumentError with context message when context is :coverage_loading',
-        error: ArgumentError.new('invalid path'),
-        context: :coverage_loading,
+        desc:     'converts ArgumentError with context message when context is :coverage_loading',
+        error:    ArgumentError.new('invalid path'),
+        context:  :coverage_loading,
         expected: CovLoupe::CoverageDataError,
-        msg: /Invalid path in coverage data/
+        msg:      /Invalid path in coverage data/,
       },
       {
-        desc: 'converts NoMethodError with context message when context is :coverage_loading',
-        error: NoMethodError.new("undefined method `each'"),
-        context: :coverage_loading,
+        desc:     'converts NoMethodError with context message when context is :coverage_loading',
+        error:    NoMethodError.new("undefined method `each'"),
+        context:  :coverage_loading,
         expected: CovLoupe::CoverageDataError,
-        msg: /Invalid coverage data structure/
-      }
+        msg:      /Invalid coverage data structure/,
+      },
     ].each do |tc|
       it tc[:desc] do
         expect { handler.handle_error(tc[:error], context: tc[:context], reraise: true) }

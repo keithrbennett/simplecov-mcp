@@ -9,26 +9,26 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'lib/foo.rb',
+            'file'       => 'lib/foo.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
           },
           {
-            'file' => 'lib/bar.rb',
+            'file'       => 'lib/bar.rb',
             'percentage' => 50.0,
-            'covered' => 5,
-            'total' => 10,
-            'stale' => 'missing'
+            'covered'    => 5,
+            'total'      => 10,
+            'stale'      => 'missing',
           },
           {
-            'file' => 'lib/baz.rb',
+            'file'       => 'lib/baz.rb',
             'percentage' => 75.0,
-            'covered' => 15,
-            'total' => 20,
-            'stale' => 'newer'
-          }
+            'covered'    => 15,
+            'total'      => 20,
+            'stale'      => 'newer',
+          },
         ]
       end
 
@@ -78,7 +78,7 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
         [
           { pattern: /10.*10/, description: 'foo.rb: 10 covered, 10 total' },
           { pattern: /5.*10/, description: 'bar.rb: 5 covered, 10 total' },
-          { pattern: /15.*20/, description: 'baz.rb: 15 covered, 20 total' }
+          { pattern: /15.*20/, description: 'baz.rb: 15 covered, 20 total' },
         ].each do |test_case|
           expect(output).to match(test_case[:pattern]), test_case[:description]
         end
@@ -106,12 +106,12 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'does not include staleness legend when no stale files' do
         non_stale_rows = [
           {
-            'file' => 'lib/foo.rb',
+            'file'       => 'lib/foo.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
-          }
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
+          },
         ]
 
         output = described_class.format(non_stale_rows)
@@ -122,19 +122,19 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       it 'displays blank for \"ok\" staleness status (regression test for issue #4)' do
         ok_rows = [
           {
-            'file' => 'lib/foo.rb',
+            'file'       => 'lib/foo.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
           },
           {
-            'file' => 'lib/bar.rb',
+            'file'       => 'lib/bar.rb',
             'percentage' => 80.0,
-            'covered' => 8,
-            'total' => 10,
-            'stale' => 'ok'
-          }
+            'covered'    => 8,
+            'total'      => 10,
+            'stale'      => 'ok',
+          },
         ]
 
         output = described_class.format(ok_rows)
@@ -167,19 +167,19 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'short.rb',
+            'file'       => 'short.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
           },
           {
-            'file' => 'very/long/path/to/some/deeply/nested/file.rb',
+            'file'       => 'very/long/path/to/some/deeply/nested/file.rb',
             'percentage' => 50.0,
-            'covered' => 5,
-            'total' => 10,
-            'stale' => 'ok'
-          }
+            'covered'    => 5,
+            'total'      => 10,
+            'stale'      => 'ok',
+          },
         ]
       end
 
@@ -199,12 +199,12 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'empty.rb',
+            'file'       => 'empty.rb',
             'percentage' => nil,
-            'covered' => 0,
-            'total' => 0,
-            'stale' => 'ok'
-          }
+            'covered'    => 0,
+            'total'      => 0,
+            'stale'      => 'ok',
+          },
         ]
       end
 
@@ -220,19 +220,19 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'file1.rb',
+            'file'       => 'file1.rb',
             'percentage' => 99.99,
-            'covered' => 9999,
-            'total' => 10_000,
-            'stale' => 'ok'
+            'covered'    => 9999,
+            'total'      => 10_000,
+            'stale'      => 'ok',
           },
           {
-            'file' => 'file2.rb',
+            'file'       => 'file2.rb',
             'percentage' => 1.0,
-            'covered' => 1,
-            'total' => 100,
-            'stale' => 'ok'
-          }
+            'covered'    => 1,
+            'total'      => 100,
+            'stale'      => 'ok',
+          },
         ]
       end
 
@@ -247,26 +247,26 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'lib/foo.rb',
+            'file'       => 'lib/foo.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
           },
           {
-            'file' => 'lib/bar.rb',
+            'file'       => 'lib/bar.rb',
             'percentage' => 50.0,
-            'covered' => 5,
-            'total' => 10,
-            'stale' => 'missing'
+            'covered'    => 5,
+            'total'      => 10,
+            'stale'      => 'missing',
           },
           {
-            'file' => 'lib/baz.rb',
+            'file'       => 'lib/baz.rb',
             'percentage' => 75.0,
-            'covered' => 15,
-            'total' => 20,
-            'stale' => 'length_mismatch'
-          }
+            'covered'    => 15,
+            'total'      => 20,
+            'stale'      => 'length_mismatch',
+          },
         ]
       end
 
@@ -303,12 +303,12 @@ RSpec.describe CovLoupe::CoverageTableFormatter do
       let(:rows) do
         [
           {
-            'file' => 'lib/foo.rb',
+            'file'       => 'lib/foo.rb',
             'percentage' => 100.0,
-            'covered' => 10,
-            'total' => 10,
-            'stale' => 'ok'
-          }
+            'covered'    => 10,
+            'total'      => 10,
+            'stale'      => 'ok',
+          },
         ]
       end
 

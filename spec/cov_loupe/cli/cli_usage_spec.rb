@@ -44,7 +44,7 @@ RSpec.describe CovLoupe::CoverageCLI do
       { args: ['list', '--resultset=path/to/file'],       expected: '--resultset=' },
       { args: ['list', '--mode', 'mcp'],                  expected: '--mode' },
       { args: ['list', '-m', 'cli'],                      expected: '-m' },
-      { args: ['summary', 'lib/foo.rb', '--mode=mcp'],    expected: '--mode=mcp' }
+      { args: ['summary', 'lib/foo.rb', '--mode=mcp'],    expected: '--mode=mcp' },
     ].each do |test_case|
       it "detects misplaced #{test_case[:expected]} option after subcommand" do
         _out, err, status = run_fixture_cli_with_status(*test_case[:args])

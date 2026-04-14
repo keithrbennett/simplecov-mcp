@@ -97,7 +97,7 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
           # Note: the 'lines' arrays differ to show that data would be lost
           coverage_data = {
             rel_foo_path => { 'lines' => [1, 0, nil, 2] },
-            abs_foo_path => { 'lines' => [1, 1, nil, 2] }
+            abs_foo_path => { 'lines' => [1, 1, nil, 2] },
           }
           mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
         end
@@ -123,7 +123,7 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
             'lib/foo.rb' => { 'lines' => [1, 0] },
             abs_foo_path => { 'lines' => [1, 1] },
             'lib/bar.rb' => { 'lines' => [2, 0] },
-            abs_bar_path => { 'lines' => [2, 2] }
+            abs_bar_path => { 'lines' => [2, 2] },
           }
           mock_resultset_with_timestamp(root, FIXTURE_COVERAGE_TIMESTAMP, coverage: coverage_data)
         end
@@ -159,7 +159,7 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
         let(:coverage_data) do
           {
             foo_path_lower => { 'lines' => [1, 0, nil, 2] },
-            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
+            foo_path_upper => { 'lines' => [1, 1, nil, 2] },
           }
         end
 
@@ -185,7 +185,7 @@ RSpec.describe CovLoupe::Repositories::CoverageRepository do
         let(:coverage_data) do
           {
             foo_path_lower => { 'lines' => [1, 0, nil, 2] },
-            foo_path_upper => { 'lines' => [1, 1, nil, 2] }
+            foo_path_upper => { 'lines' => [1, 1, nil, 2] },
           }
         end
 

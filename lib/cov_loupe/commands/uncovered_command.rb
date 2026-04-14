@@ -31,9 +31,9 @@ module CovLoupe
             rows = uncovered_lines.map { |line| [line.to_s] }
 
             puts TableFormatter.format(
-              headers: headers,
-              rows: rows,
-              alignments: [:right],
+              headers:      headers,
+              rows:         rows,
+              alignments:   [:right],
               output_chars: config.output_chars
             )
           end

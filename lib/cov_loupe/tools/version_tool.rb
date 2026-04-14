@@ -13,11 +13,11 @@ module CovLoupe
         Example: "What version of cov-loupe is installed?".
       DESC
       input_schema(
-        type: 'object',
+        type:                 'object',
         additionalProperties: false,
-        properties: {
-          error_mode: ERROR_MODE_PROPERTY,
-          output_chars: COMMON_PROPERTIES[:output_chars]
+        properties:           {
+          error_mode:   ERROR_MODE_PROPERTY,
+          output_chars: COMMON_PROPERTIES[:output_chars],
         }
       )
       class << self
@@ -28,7 +28,7 @@ module CovLoupe
           output_chars_sym = resolve_output_chars(output_chars, server_context)
           with_error_handling('VersionTool', error_mode: error_mode, output_chars: output_chars_sym) do
             ::MCP::Tool::Response.new([
-              { 'type' => 'text', 'text' => "CovLoupe version: #{CovLoupe::VERSION}" }
+              { 'type' => 'text', 'text' => "CovLoupe version: #{CovLoupe::VERSION}" },
             ])
           end
         end

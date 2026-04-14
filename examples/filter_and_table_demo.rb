@@ -33,7 +33,7 @@ def output_examples
   # Initialize coverage model
   # Using the built-in coverage data from running specs
   model = CovLoupe::CoverageModel.new(
-    root: '.',
+    root:      '.',
     resultset: 'spec/fixtures/project1/coverage'
   )
 

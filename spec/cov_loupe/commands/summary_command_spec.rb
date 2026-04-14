@@ -44,11 +44,11 @@ RSpec.describe CovLoupe::Commands::SummaryCommand do
         presenter_double = instance_double(CovLoupe::Presenters::CoveragePayloadPresenter)
         allow(presenter_double).to receive_messages(
           absolute_payload: {
-            'file' => 'lib/empty.rb',
+            'file'    => 'lib/empty.rb',
             'summary' => { 'covered' => 0, 'total' => 0, 'percentage' => nil },
-            'stale' => 'ok'
+            'stale'   => 'ok',
           },
-          relative_path: 'lib/empty.rb'
+          relative_path:    'lib/empty.rb'
         )
         allow(CovLoupe::Presenters::CoveragePayloadPresenter).to receive(:new).and_return(presenter_double)
 

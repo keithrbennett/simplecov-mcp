@@ -24,7 +24,7 @@ module CovLoupe
 
       private def compute_absolute_payload
         model.project_totals(
-          tracked_globs: tracked_globs,
+          tracked_globs:  tracked_globs,
           raise_on_stale: raise_on_stale
         )
       end

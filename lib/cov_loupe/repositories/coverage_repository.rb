@@ -105,7 +105,7 @@ module CovLoupe
           normalized_key = PathUtils.normalize(
             expanded_key,
             normalize_case: !@volume_case_sensitive,
-            root: @root
+            root:           @root
           )
 
           provided_paths_by_normalized_path[normalized_key] << original_key
@@ -141,8 +141,8 @@ module CovLoupe
         end
         details = "{\n#{json_lines.join(",\n")}\n}"
 
-        raise CoverageDataError,
-          "Duplicate paths detected after normalization. The following keys normalize to the same path:\n#{details}"
+        raise CoverageDataError, 'Duplicate paths detected after normalization.' \
+          "The following keys normalize to the same path:\n#{details}"
       end
     end
   end
