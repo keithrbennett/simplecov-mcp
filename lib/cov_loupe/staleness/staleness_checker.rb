@@ -133,8 +133,9 @@ module CovLoupe
         length_mismatch << rel(abs_path) if details[:len_mismatch] && details[:exists]
       end
 
-      # Ensure files are not reported as both "newer" and "length mismatch" or "unreadable"
-      # Length mismatch and unreadable are the stronger signals for staleness
+      # A file can be both newer than the coverage timestamp and otherwise broken (for
+      # example unreadable or with a different line count). Keep the more actionable
+      # per-file diagnosis and suppress the broader "newer" label to avoid duplicates.
       newer -= length_mismatch
       newer -= unreadable
 

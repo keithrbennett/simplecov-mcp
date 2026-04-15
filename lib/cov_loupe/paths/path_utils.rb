@@ -109,7 +109,9 @@ module CovLoupe
         .relative_path_from(Pathname.new(normalized_root))
         .to_s
 
-      # Preserve original casing from abs_path by mapping normalized components back
+      # Pathname computes the relative path from the normalized strings, which may all be
+      # lowercase on case-insensitive volumes. Rebuild the result from abs_path so reports
+      # keep the casing the user actually sees on disk.
       if !case_sensitive && relative != '.'
         preserve_original_casing(relative, abs_path, abs_root)
       else
@@ -215,6 +217,8 @@ module CovLoupe
       # Skip root components to get to the relative part
       relative_start_index = root_components.length
 
+      # relative_path and the tail of source_path have the same component count because
+      # relative_path was derived from source_path relative to root_path just above.
       # Map each normalized component back to its original casing
       original_components = relative_components.map.with_index do |_component, index|
         source_index = relative_start_index + index

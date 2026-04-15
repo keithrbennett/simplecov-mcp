@@ -352,6 +352,9 @@ module CovLoupe
         right_nil = right['percentage'].nil?
         return 0 if left_nil == right_nil
 
+        # Keep rows without a computed percentage grouped at one end of the table.
+        # In descending mode nil-percentage files (for example, files with no coverable
+        # lines) sort first; in ascending mode they sort last.
         if sort_order == :descending
           left_nil ? -1 : 1
         else

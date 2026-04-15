@@ -62,6 +62,9 @@ module CovLoupe
       end
 
       needs_adaptation = coverage.values.any?(Array)
+      # Older SimpleCov resultsets can store raw line arrays directly under each file key,
+      # while newer ones wrap them in a hash with a "lines" entry. The rest of the codebase
+      # expects the newer shape, so adapt only the legacy entries here.
       return coverage unless needs_adaptation
 
       coverage.transform_values do |value|
@@ -113,8 +116,11 @@ module CovLoupe
                     raw.to_i
                   when String
                     str = raw.strip
+                    # Matches optional leading "-", digits, and an optional fractional part.
                     if str.match?(/\A-?\d+(\.\d+)?\z/)
-                      # Matches optional leading "-", digits, and an optional fractional part.
+                      # Some resultsets serialize the epoch as a numeric string instead of
+                      # a JSON number. Non-numeric, non-empty strings are handled by the
+                      # else branch below via Time.parse.
                       str.to_f.to_i
                     elsif str.empty?
                       0
