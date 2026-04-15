@@ -10,6 +10,24 @@ require_relative 'output_chars'
 require_relative 'config/option_normalizers'
 
 module CovLoupe
+  # Base class for all MCP tool implementations.
+  #
+  # Provides shared infrastructure for:
+  # - Schema definition (COMMON_PROPERTIES, coverage_schema, PATH_PROPERTY)
+  # - Model creation with config merging (server context config → tool params → defaults)
+  # - Error handling (with_error_handling wraps all tool calls)
+  # - JSON response formatting (respond_json with ASCII mode support)
+  # - Output character resolution (resolve_output_chars from tool param or server context)
+  #
+  # Tool dispatch pattern:
+  #   1. Tool class receives call() with JSON params from MCP client
+  #   2. Config is merged: server_context.app_config < explicit tool params
+  #   3. CoverageModel is created for the call and reuses shared cached data
+  #   4. Presenter computes payload (absolute paths, then relativized)
+  #   5. respond_json formats the output
+  #
+  # File-scope tools (summary, raw, detailed, uncovered) use call_with_file_payload
+  # which infers the model method and JSON name from the tool class name.
   class BaseTool < ::MCP::Tool
     COMMON_PROPERTIES = {
       root:           {

@@ -6,6 +6,15 @@ require_relative 'path_utils'
 module CovLoupe
   # Utility object that converts configured path-bearing keys to forms
   # relative to a project root while leaving the original payload untouched.
+  #
+  # Operates on a deep copy of the payload to avoid mutating the caller's data.
+  # Only keys listed in scalar_keys (single path) and array_keys (list of paths)
+  # are relativized; all other values pass through unchanged.
+  #
+  # Example usage:
+  #   relativizer = PathRelativizer.new(root: "/project", scalar_keys: ["file"], array_keys: ["files"])
+  #   relativizer.relativize({ "file" => "/project/lib/foo.rb", "files" => ["/project/lib/bar.rb"] })
+  #   # => { "file" => "lib/foo.rb", "files" => ["lib/bar.rb"] }
   class PathRelativizer
     def initialize(root:, scalar_keys:, array_keys: [])
       @root = Pathname.new(PathUtils.expand(root || '.'))

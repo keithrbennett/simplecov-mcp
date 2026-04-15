@@ -7,7 +7,23 @@ require_relative '../errors/errors'
 require_relative '../resolvers/resolver_helpers'
 
 module CovLoupe
-  # Lightweight service object to check staleness of coverage vs. sources
+  # Lightweight service object to check staleness of coverage vs. sources.
+  #
+  # Staleness detection operates at two levels:
+  #   - File level: checks if a single source file is newer than the coverage timestamp
+  #     or has a different line count than the coverage array
+  #   - Project level: scans all tracked files for newer/missing/deleted/mismatched files
+  #
+  # Modes:
+  #   - :off   → compute staleness but never raise (used for status reporting)
+  #   - :error → raise CoverageDataStaleError or CoverageDataProjectStaleError on issues
+  #
+  # Staleness categories (mutually exclusive per file):
+  #   - 'ok'             → file is fresh and line counts match
+  #   - 'missing'        → source file deleted since coverage was recorded
+  #   - 'newer'          → source mtime exceeds coverage timestamp (only when no length mismatch)
+  #   - 'length_mismatch'→ source line count differs from coverage array length
+  #   - 'error'          → file could not be read (permissions, I/O)
   class StalenessChecker
     MODES = %i[off error].freeze
 
@@ -107,6 +123,10 @@ module CovLoupe
     # Compute and return project staleness details including line-count mismatches.
     # If in error mode, raises CoverageDataProjectStaleError when issues are found.
     # Returns a hash with newer/missing/deleted/mismatched/unreadable files and per-file statuses.
+    #
+    # Deduplication: files that are both "newer" AND have a length mismatch are reported
+    # only as "length_mismatch" (the more specific diagnosis). This prevents a file from
+    # appearing in both the newer_files and length_mismatch_files lists.
     def check_project_with_lines!(coverage_lines_by_path, coverage_files:)
       coverage_lines_by_path ||= {}
       ts = coverage_timestamp

@@ -5,6 +5,15 @@ require_relative '../output_chars'
 
 module CovLoupe
   module Formatters
+    # Multi-format output dispatcher for coverage data.
+    #
+    # Supports JSON, pretty JSON, YAML, Amazing Print, and table formats.
+    # Optional format dependencies are loaded only when needed.
+    # ASCII-only output can be requested through output_chars.
+    #
+    # The :table format is handled separately by CoverageTableFormatter and is
+    # passed through here unchanged (table formatting happens at the command level).
+
     # Maps format symbols to their required libraries
     # Only loaded when the format is actually used
     FORMAT_REQUIRES = {

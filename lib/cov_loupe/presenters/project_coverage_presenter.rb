@@ -6,7 +6,11 @@ require_relative '../staleness/stale_status'
 
 module CovLoupe
   module Presenters
-    # Provides repository-wide coverage summaries shared by CLI and MCP surfaces.
+    # Presenter for project-wide coverage summaries (list/coverage table).
+    #
+    # Wraps CoverageModel#list and enriches the output with:
+    # - File counts (total, ok, stale) for quick overview
+    # - Relativized paths for all file lists (skipped, missing, newer, deleted, etc.)
     class ProjectCoveragePresenter
       include PayloadCaching
 

@@ -5,6 +5,9 @@ require_relative 'coverage_line_resolver'
 
 module CovLoupe
   module Resolvers
+    # Facade that provides a single entry point for creating and using resolvers.
+    # Delegates to ResultsetPathResolver (file discovery) and CoverageLineResolver
+    # (coverage lookup). This keeps resolver creation details out of client code.
     class ResolverHelpers
       def self.create_resultset_resolver(root: Dir.pwd, resultset: nil, candidates: nil)
         candidates ?

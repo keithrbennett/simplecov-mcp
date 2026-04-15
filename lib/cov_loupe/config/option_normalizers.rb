@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 module CovLoupe
-  # Shared normalization logic for CLI options.
-  # Provides both strict (raise on invalid) and lenient (default on invalid) modes.
+  # Shared normalization logic for CLI and MCP tool options.
+  #
+  # Provides two modes for each normalizer:
+  #   - strict: true  → raise OptionParser::InvalidArgument on invalid values
+  #   - strict: false → return a default value (nil or specified default) on invalid values
+  #
+  # All normalizers accept both full names and single-character abbreviations.
   module OptionNormalizers
     SORT_ORDER_MAP = {
       'a'          => :ascending,

@@ -3,7 +3,13 @@
 require_relative '../output_chars'
 
 module CovLoupe
-  # Formatter for stale coverage error messages
+  # Formats staleness error messages with human-readable timestamps and file lists.
+  #
+  # Used by CoverageDataStaleError and CoverageDataProjectStaleError to produce
+  # consistent, detailed diagnostics. Includes UTC and local times for both
+  # coverage generation and source file modification, plus the delta in seconds.
+  #
+  # File lists are capped at 10 entries to keep error messages readable.
   class StalenessMessageFormatter
     def initialize(cov_timestamp:, resultset_path: nil, output_chars: :default)
       @cov_timestamp = cov_timestamp

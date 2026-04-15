@@ -4,8 +4,12 @@ require_relative 'app_config'
 require_relative 'option_parser_builder'
 
 module CovLoupe
-  # Centralized configuration parser for both CLI and MCP modes
-  # Parses argv (which should already include environment options merged by caller)
+  # Parses command-line arguments into an AppConfig.
+  #
+  # Used in both CLI and MCP modes to extract mode, log file, and other global
+  # settings before dispatching to the appropriate runner. Uses order! so that
+  # subcommand-specific options (e.g., 'validate -i') are not consumed by the
+  # global parser.
   class ConfigParser
     attr_reader :config, :argv
 

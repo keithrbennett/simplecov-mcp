@@ -3,6 +3,12 @@
 module CovLoupe
   module Presenters
     # Shared memoization logic for coverage payloads.
+    #
+    # Two-stage caching:
+    #   1. absolute_payload — raw data with absolute file paths (cached per presenter instance)
+    #   2. relativized_payload — same data with paths converted relative to project root
+    #
+    # Consumers must implement #compute_absolute_payload to define what data to fetch.
     module PayloadCaching
       # Returns the absolute-path payload.
       # Consumers must implement #compute_absolute_payload.

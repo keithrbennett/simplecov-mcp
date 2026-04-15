@@ -4,7 +4,16 @@ require 'json'
 require_relative 'errors'
 
 module CovLoupe
-  # Handles error reporting and logging with configurable behavior
+  # Centralized error handling with configurable logging verbosity.
+  #
+  # Error modes:
+  #   - :off   → suppress all logging
+  #   - :log   → log error class, message, and context
+  #   - :debug → same as :log plus full backtraces
+  #
+  # convert_standard_error maps Ruby's built-in exceptions to the CovLoupe error hierarchy,
+  # using the `context` parameter to choose more specific messages (e.g., Errno::ENOENT
+  # becomes ResultsetNotFoundError in :coverage_loading context but FileNotFoundError otherwise).
   class ErrorHandler
     attr_accessor :error_mode, :logger
 

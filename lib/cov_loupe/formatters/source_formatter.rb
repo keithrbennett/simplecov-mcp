@@ -4,6 +4,15 @@ require_relative '../output_chars'
 
 module CovLoupe
   module Formatters
+    # Formats source code with inline coverage markers for CLI output.
+    #
+    # Supports two display modes:
+    #   - :full      → show all lines with coverage markers
+    #   - :uncovered → show only uncovered lines with N lines of context around each
+    #
+    # Covered and uncovered lines are marked in the output, with optional ANSI
+    # color coding. The context value controls how many surrounding lines are
+    # shown in :uncovered mode.
     class SourceFormatter
       def initialize(color_enabled: true, output_chars: :default)
         @color_enabled = color_enabled

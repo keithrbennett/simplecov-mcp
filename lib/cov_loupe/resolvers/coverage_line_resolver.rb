@@ -6,10 +6,15 @@ module CovLoupe
   module Resolvers
     # Finds a SimpleCov line coverage array for a given file path.
     #
-    # This is a string-based resolver: it does not touch the filesystem. It
-    # looks up keys in the coverage map using two strategies:
-    # 1) exact match on the provided path
-    # 2) match after stripping the configured root prefix
+    # Resolution strategy (in order):
+    # 1. Exact match on the normalized input path
+    # 2. Match after stripping the project root prefix (handles relative keys in resultsets)
+    #
+    # On case-insensitive volumes, all comparisons are case-normalized to avoid
+    # false negatives. If multiple coverage entries normalize to the same path,
+    # an ambiguity error is raised to prevent silent data corruption.
+    #
+    # This resolver is string-based only — it does not touch the filesystem.
     class CoverageLineResolver
       # @param cov_data [Hash] coverage data map keyed by file path
       # @param root [String, nil] project root used for path stripping

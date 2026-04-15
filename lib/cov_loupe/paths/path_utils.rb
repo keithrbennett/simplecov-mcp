@@ -6,6 +6,17 @@ require_relative 'volume_case_sensitivity'
 module CovLoupe
   # Centralized path handling utilities providing consistent normalization,
   # relativization, and absolutization across all components.
+  #
+  # All path operations in cov-loupe should go through this module to ensure
+  # consistent handling of:
+  # - Platform differences (Windows backslashes, drive letters)
+  # - Case sensitivity (detected per-volume at runtime)
+  # - Relative vs absolute path resolution
+  #
+  # Case sensitivity is derived from the volume containing the given path, not
+  # from a global setting. This is important for projects that span multiple
+  # volumes (e.g., project on macOS case-insensitive volume, resultset on a
+  # case-sensitive external drive).
   module PathUtils
     # Platform detection - delegates to main CovLoupe module for testability
     def self.windows?

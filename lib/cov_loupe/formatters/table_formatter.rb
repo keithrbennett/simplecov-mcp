@@ -3,8 +3,11 @@
 require_relative '../output_chars'
 
 module CovLoupe
-  # General-purpose table formatter with box-drawing or ASCII characters
-  # Used by commands to create consistent formatted output
+  # General-purpose table formatter with Unicode box-drawing or ASCII characters.
+  #
+  # Used by CLI subcommands (summary, raw, uncovered, detailed) to format
+  # per-file data as aligned tables. Column widths are computed from content.
+  # Supports horizontal alignment per column (left, right, center).
   class TableFormatter
     # Format data as a table with box-drawing or ASCII characters.
     # @param headers [Array<String>] Column headers

@@ -6,6 +6,16 @@ require 'time'
 require_relative '../errors/errors'
 
 module CovLoupe
+  # Reads and parses a SimpleCov .resultset.json file.
+  #
+  # Handles both single-suite and multi-suite resultsets. For multi-suite files,
+  # it delegates to SimpleCov's ResultsCombiner (requiring the simplecov gem).
+  # Legacy resultsets that store raw line arrays (instead of { "lines" => [...] } hashes)
+  # are normalized to the newer format.
+  #
+  # Timestamps are extracted from the "timestamp" or "created_at" fields and normalized
+  # to integer epoch seconds. Missing or unparseable timestamps default to 0, which
+  # disables time-based staleness checks.
   class ResultsetLoader
     Result = Struct.new(:coverage_map, :timestamp, :suite_names)
     SuiteEntry = Struct.new(:name, :coverage, :timestamp)
@@ -49,6 +59,9 @@ module CovLoupe
         end
     end
 
+    # Selects coverage strategy based on suite count:
+    # - Single suite: use its coverage map directly (no merging needed)
+    # - Multiple suites: merge via SimpleCov::Combine (requires simplecov gem)
     private def build_coverage_map(suites)
       return suites.first&.coverage if suites.length == 1
 

@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
 module CovLoupe
-  # Configuration container for application options (used by both CLI and MCP modes)
-  # Uses Struct for simplicity and built-in functionality
+  # Configuration container for application options.
+  #
+  # Populated by ConfigParser from CLI arguments or constructed directly for MCP mode.
+  # Provides convenience methods (model_options, formatter_options) that extract
+  # the relevant subset of config for initializing CoverageModel and SourceFormatter.
+  #
+  # Mutable by design: callers may adjust fields during setup before handing the
+  # config object off to CLI or MCP entry points.
+  #
+  # All enum values are stored as symbols (:table, :json, :descending, etc.)
+  # for consistent comparison throughout the codebase.
   AppConfig = Struct.new(
     :root,
     :resultset,

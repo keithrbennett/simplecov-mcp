@@ -18,6 +18,24 @@ require_relative '../model/model_data_cache'
 require_relative '../paths/path_utils'
 
 module CovLoupe
+  # Core domain model for querying SimpleCov coverage data.
+  #
+  # Provides file-level queries (raw_for, summary_for, uncovered_for, detailed_for),
+  # project-level queries (list, project_totals), and table formatting (format_table).
+  #
+  # Construction eagerly validates that the resultset exists and loads initial data
+  # via ModelDataCache. Subsequent data accesses check the cache on every call and
+  # auto-reload if the resultset file has changed (based on mtime + MD5 digest).
+  #
+  # The model delegates to:
+  # - CoverageCalculator for line counting and aggregation
+  # - StalenessChecker for time-based and line-count staleness detection
+  # - CoverageLineResolver for looking up files in the coverage map
+  # - PathRelativizer for converting absolute paths to project-relative form
+  #
+  # Thread safety: CoverageModel instances are NOT thread-safe. The shared
+  # ModelDataCache is thread-safe, but per-instance state like @skipped_rows
+  # is mutable and unsynchronized.
   class CoverageModel
     RELATIVIZER_SCALAR_KEYS = %w[file file_path].freeze
     RELATIVIZER_ARRAY_KEYS = %w[
@@ -174,6 +192,10 @@ module CovLoupe
       }
     end
 
+    # Aggregates per-file coverage into project-wide totals.
+    # Partitions files by staleness: stale files are excluded from line counts
+    # but still counted in the file breakdown. When tracked_globs are provided,
+    # also reports files without coverage data (missing from coverage, skipped, unreadable).
     def project_totals(
       tracked_globs: @default_tracked_globs, raise_on_stale: @default_raise_on_stale
     )
@@ -343,6 +365,10 @@ module CovLoupe
     end
 
     private def sort_rows(rows, sort_order: :descending)
+      # Two-level comparator: primary sort by coverage percentage, secondary by file path.
+      # Nil percentages (e.g., files with no coverable lines) are grouped at one end:
+      #   - Descending mode: nil files sort first (before 100%)
+      #   - Ascending mode: nil files sort last (after 100%)
       percent_comparator = sort_order == :descending \
         ? ->(left, right) { right <=> left }
         : ->(left, right) { left <=> right }

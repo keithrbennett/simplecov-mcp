@@ -2,7 +2,13 @@
 
 module CovLoupe
   # Provides coverage data transformations and calculations.
-  # Handles summary statistics, uncovered line identification, and detailed line-by-line analysis.
+  # All methods are pure functions that operate on SimpleCov line coverage arrays.
+  #
+  # SimpleCov line coverage array convention:
+  #   - Integer → coverable line with hit count (0 = uncovered, >0 = covered)
+  #   - nil     → non-code line (not counted in totals)
+  #
+  # Line numbers in output are 1-indexed (matching editor display).
   class CoverageCalculator
     # Calculates coverage summary statistics from a coverage array.
     #

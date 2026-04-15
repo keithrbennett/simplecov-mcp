@@ -11,6 +11,15 @@ require_relative 'output_chars'
 require_relative 'resources'
 
 module CovLoupe
+  # Command-line interface for cov-loupe.
+  #
+  # Parses global options (resultset path, format, sort order, etc.) and dispatches
+  # to subcommand classes via CommandFactory. When no subcommand is given, the default
+  # report (equivalent to `list`) is shown.
+  #
+  # Option parsing uses order! so that global options before the subcommand are consumed
+  # and the subcommand name + its arguments remain in argv. Global options placed after
+  # the subcommand trigger a helpful error message.
   class CoverageCLI
     HORIZONTAL_RULE = '-' * 79
 

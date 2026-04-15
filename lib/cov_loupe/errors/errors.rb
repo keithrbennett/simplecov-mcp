@@ -3,6 +3,26 @@
 require_relative '../staleness/staleness_message_formatter'
 
 module CovLoupe
+  # Error hierarchy for cov-loupe.
+  #
+  # All custom errors inherit from CovLoupe::Error and implement `user_friendly_message`
+  # for mode-appropriate display (CLI gets helpful tips, MCP gets structured text).
+  #
+  # Hierarchy:
+  #   Error
+  #     ├── ConfigurationError     — setup/config problems
+  #     ├── UnknownError           — unclassified exceptions
+  #     ├── FileError              — file/path problems
+  #     │     ├── FileNotFoundError
+  #     │     ├── FilePermissionError
+  #     │     ├── NotAFileError
+  #     │     └── ResultsetNotFoundError  — adds CLI-specific help tips
+  #     ├── UsageError             — command-line usage mistakes
+  #     └── CoverageDataError      — coverage data problems
+  #           ├── CorruptCoverageDataError
+  #           ├── CoverageDataStaleError      — single-file staleness
+  #           └── CoverageDataProjectStaleError — project-wide staleness
+  #
   # Base error class for all SimpleCov MCP errors
   class Error < StandardError
     attr_reader :original_error

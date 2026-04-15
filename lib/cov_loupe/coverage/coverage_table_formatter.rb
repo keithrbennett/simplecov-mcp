@@ -4,8 +4,17 @@ require_relative '../staleness/stale_status'
 require_relative '../output_chars'
 
 module CovLoupe
-  # Formats coverage data as a table with box-drawing characters
-  # Extracted from CoverageModel to separate presentation from domain logic
+  # Formats coverage data as a table with Unicode box-drawing or ASCII borders.
+  #
+  # Used by CoverageModel#format_table for the default `cov-loupe list` output.
+  # Column widths are computed dynamically from the data. The table includes:
+  #   - File path from each row
+  #   - Coverage percentage
+  #   - Covered lines
+  #   - Total lines
+  #   - Staleness indicator
+  #
+  # A footer row summarizes file counts (total, ok, stale).
   class CoverageTableFormatter
     # Format coverage rows as a table with box-drawing or ASCII characters.
     #

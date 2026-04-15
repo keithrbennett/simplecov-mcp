@@ -4,7 +4,10 @@ require_relative 'base_coverage_presenter'
 
 module CovLoupe
   module Presenters
-    # Provides shared single-file coverage payloads for CLI and MCP callers.
+    # Presenter for single-file coverage queries (summary, raw, detailed, uncovered).
+    #
+    # Delegates to a CoverageModel method (specified by payload_method) and adds
+    # staleness status. Used by both CLI commands and MCP tools.
     class CoveragePayloadPresenter < BaseCoveragePresenter
       def initialize(model:, path:, payload_method:, raise_on_stale: nil)
         super(model: model, path: path)

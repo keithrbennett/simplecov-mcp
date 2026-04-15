@@ -4,7 +4,11 @@ module CovLoupe
   require_relative '../staleness/stale_status'
 
   # Reports files with coverage below a specified threshold.
-  # Useful for displaying low coverage files after test runs.
+  # Intended for use in spec_helper.rb (via SimpleCov.at_exit hook) to display
+  # the worst-covered files after a test run.
+  #
+  # This is a convenience wrapper around CoverageModel — it does not add any
+  # data processing beyond what the model provides.
   #
   # @example Basic usage in spec_helper.rb
   #   SimpleCov.at_exit do

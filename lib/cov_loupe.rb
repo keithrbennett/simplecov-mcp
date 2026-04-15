@@ -16,6 +16,24 @@ require_relative 'cov_loupe/loaders/resultset_loader'
 require_relative 'cov_loupe/model/model'
 require_relative 'cov_loupe/coverage/coverage_reporter'
 
+# CovLoupe: A Ruby gem for inspecting SimpleCov test coverage data.
+#
+# Architecture overview:
+#   - Dual-mode entry point (CovLoupe.run): dispatches to CLI or MCP server based on --mode flag
+#   - CoverageModel: domain layer that queries coverage data, delegates staleness and path resolution
+#   - CoverageCLI / MCPServer: presentation layer (CLI commands vs JSON-RPC tool calls)
+#   - CoverageRepository: data access layer (reads .resultset.json, normalizes paths)
+#   - ModelDataCache: singleton cache that auto-invalidates when the resultset file changes
+#   - Presenters: memoized adapters that compute absolute payloads, then relativize paths for output
+#
+# Data flow for a typical request:
+#   1. ResultsetLoader reads and parses .resultset.json
+#   2. CoverageRepository normalizes keys to absolute paths
+#   3. ModelDataCache stores the resulting ModelData (coverage_map + timestamp)
+#   4. CoverageModel queries the cache and applies staleness/glob filters
+#   5. Presenters wrap the model output and relativize paths for display
+#   6. CLI commands or MCP tools format the presenter output for the user
+#
 module CovLoupe
   class << self
     # === Context Management and Thread Safety ===
@@ -41,6 +59,9 @@ module CovLoupe
     THREAD_CONTEXT_KEY = :cov_loupe_context
     private_constant :THREAD_CONTEXT_KEY
 
+    # Primary entry point. Parses argv to determine mode (CLI or MCP server),
+    # then dispatches accordingly. Environment options from COV_LOUPE_OPTS are
+    # prepended before parsing so CLI arguments always take precedence.
     def run(argv)
       # Parse config to determine mode
       require_relative 'cov_loupe/config/config_parser'
@@ -76,6 +97,9 @@ module CovLoupe
       end
     end
 
+    # Temporarily sets a thread-local context for the duration of the block,
+    # restoring the previous context afterward. Used to scope logging and
+    # error handling to a specific mode (CLI, MCP, library).
     def with_context(context)
       previous = Thread.current[THREAD_CONTEXT_KEY]
       Thread.current[THREAD_CONTEXT_KEY] = context

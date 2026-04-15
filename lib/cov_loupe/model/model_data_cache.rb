@@ -8,13 +8,19 @@ module CovLoupe
   # Thread-safe singleton cache for ModelData instances.
   # Entries are keyed by [resultset_path, root] and automatically invalidated when the file changes.
   #
-  # On every get() call, the cache checks the resultset file's signature (mtime/size/inode)
-  # and digest (MD5) to ensure the data is current. If the file has changed, fresh data
-  # is loaded automatically.
+  # Cache invalidation uses a two-layer check:
+  #   1. Signature: file mtime + size + inode (cheap, no file read)
+  #   2. Digest: MD5 hash of file contents (catches same-mtime edits on coarse-grained filesystems)
+  #
+  # Both must match for a cache hit. If either differs, fresh data is loaded.
   #
   # The cache key includes both resultset_path and root because path normalization and
   # case-sensitivity detection depend on the root directory. Two models with the same
   # resultset but different roots may have different normalized coverage maps.
+  #
+  # Why a singleton? CoverageModel instances are lightweight (created per request in MCP mode),
+  # but loading and normalizing the resultset is expensive. The singleton cache ensures that
+  # repeated requests for the same resultset reuse the parsed data until the file changes.
   class ModelDataCache
     # Mutex for thread-safe singleton initialization.
     # Using a constant ensures it cannot be reset, avoiding race conditions in JRuby.

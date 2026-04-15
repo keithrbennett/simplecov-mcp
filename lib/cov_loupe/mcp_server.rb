@@ -2,6 +2,15 @@
 
 require_relative 'resources'
 
+# JSON-RPC server exposing coverage data tools via the Model Context Protocol (MCP).
+#
+# Runs on stdio, making it suitable for editor/agent integrations (e.g., Claude, VS Code).
+# Each tool call builds its own CoverageModel and relies on ModelDataCache for shared
+# coverage data, so request-specific state does not leak across calls.
+#
+# The TOOLSET constant defines which tools are registered. Each tool class inherits from
+# BaseTool, which provides shared error handling, JSON response formatting, and model
+# configuration merging from the server context plus per-call arguments.
 module CovLoupe
   class MCPServer
     def initialize(context: CovLoupe.context)
@@ -21,6 +30,8 @@ module CovLoupe
       end
     end
 
+    # Tool classes registered with the MCP server. Order determines listing in help output.
+    # File-scope tools require a `path` argument; project-scope tools do not.
     TOOLSET = [
       Tools::ProjectCoverageTool,
       Tools::FileCoverageDetailedTool,

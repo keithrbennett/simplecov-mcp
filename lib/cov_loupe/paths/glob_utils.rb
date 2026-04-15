@@ -3,6 +3,11 @@
 require_relative 'path_utils'
 
 module CovLoupe
+  # File globbing utilities for filtering coverage data by path patterns.
+  #
+  # Uses File.fnmatch? for pure string matching (no filesystem access for glob evaluation).
+  # Case-insensitive matching is automatically applied on case-insensitive volumes,
+  # detected by testing the volume containing the path being matched.
   module GlobUtils
     GLOB_MATCH_FLAGS = File::FNM_PATHNAME | File::FNM_EXTGLOB
 

@@ -7,6 +7,15 @@ require_relative '../paths/path_utils'
 
 module CovLoupe
   module Resolvers
+    # Locates the .resultset.json file for a project.
+    #
+    # Resolution order:
+    # 1. If the user provides an explicit path, resolve it (supports files and directories)
+    # 2. If not found, search a list of default candidate locations relative to the project root
+    #
+    # When a relative path is given, it is expanded against both the current working directory
+    # and the project root. If both expansions point to valid locations, an ambiguity error
+    # is raised to prevent silently using the wrong file.
     class ResultsetPathResolver
       DEFAULT_CANDIDATES = [
         '.resultset.json',

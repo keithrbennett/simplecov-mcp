@@ -72,14 +72,12 @@ module CovLoupe
 
       # Normalizes all coverage map keys to absolute paths and detects collisions.
       #
-      # This method transforms relative and mixed-case paths to their canonical absolute
-      # form. If multiple original keys normalize to the same path (e.g., "lib/foo.rb" and
-      # "/full/path/lib/foo.rb"), this indicates corrupt or problematic coverage data that
-      # would otherwise silently overwrite earlier entries.
-      #
-      # On case-insensitive volumes, paths that differ only in case (e.g., "Foo.rb" and
-      # "foo.rb") are detected as collisions. The original case is preserved in stored keys
-      # for correct display in error messages and reports.
+      # Two-pass algorithm:
+      #   Pass 1: Expand each key to an absolute path, then normalize case (if volume
+      #           is case-insensitive) for collision detection. Store using the expanded
+      #           (case-preserved) key for correct display in reports.
+      #   Pass 2: Report any normalized key with multiple original keys as a collision,
+      #           since this would cause silent data loss (last-write-wins).
       #
       # @param map [Hash] Original coverage map with potentially relative/mixed keys
       # @return [Hash] Normalized coverage map with absolute path keys (preserving original case)

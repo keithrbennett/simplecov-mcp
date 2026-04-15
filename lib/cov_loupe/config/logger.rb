@@ -4,6 +4,17 @@ require 'logger'
 require 'time'
 
 module CovLoupe
+  # Custom logger that gracefully handles logging failures.
+  #
+  # Log targets:
+  #   - File path (default: ./cov_loupe.log)
+  #   - 'stdout' / 'stderr' for stream output
+  #   - ':off' to disable logging entirely
+  #   - nil for default file logging
+  #
+  # If the primary log target fails (e.g., permission denied), the logger falls back
+  # to writing to COV-LOUPE-LOG-ERROR.log and emits a one-time stderr warning in CLI mode.
+  # The safe_log method never raises, making it safe for use in rescue blocks.
   class Logger
     DEFAULT_LOG_FILESPEC = './cov_loupe.log'
     FALLBACK_LOG_FILE = 'COV-LOUPE-LOG-ERROR.log'
