@@ -55,8 +55,15 @@ module CovLoupe
           .find { |p| File.file?(p) }
       end
 
+      # Resolves a user-supplied resultset argument to an absolute path.
+      #
+      # A relative argument is ambiguous: it could be relative to the working directory
+      # or to the project root. The method expands against both and applies these rules:
+      #   1. If both expansions point to valid locations, raise an ambiguity error.
+      #   2. Return whichever single valid location exists (preferring pwd-expanded).
+      #   3. If neither exists, prefer the pwd-expanded path when it falls inside the root,
+      #      otherwise return the root-expanded path as the canonical form.
       private def normalize_resultset_path(resultset)
-        Pathname.new(resultset)
         expanded_resultset = PathUtils.expand(resultset, Dir.pwd)
         expanded_root = PathUtils.expand(resultset, @root)
 

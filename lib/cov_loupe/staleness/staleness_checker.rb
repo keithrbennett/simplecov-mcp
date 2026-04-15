@@ -71,6 +71,8 @@ module CovLoupe
     # Compute and return project staleness details (newer, missing, deleted files).
     # If in error mode, raises CoverageDataProjectStaleError when issues are found.
     # Returns a hash { newer_files: [], missing_files: [], deleted_files: [], unreadable_files: [] }
+    #
+    # Does not check line counts. Use check_project_with_lines! for full staleness detection.
     def check_project!(coverage_map)
       ts = coverage_timestamp
       coverage_files = coverage_map.keys
@@ -273,7 +275,9 @@ module CovLoupe
       cov_len = coverage_lines.respond_to?(:length) ? coverage_lines.length : 0
       src_len = (exists && !read_error) ? safe_count_lines(file_abs) : 0
 
-      # Check if safe_count_lines returned an error sentinel
+      # safe_count_lines returns the symbol :read_error on I/O failure rather than raising,
+      # so that compute_file_staleness_details can cleanly distinguish a read error from a
+      # zero-line file. Promote it to a boolean here and zero out src_len.
       read_error ||= src_len == :read_error
       src_len = 0 if read_error
 

@@ -88,7 +88,9 @@ module CovLoupe
 
         return if match_keys.empty?
 
-        # If exact path match exists and it's the only one, return it
+        # Fast path: the original path is a key and it's the only normalized match.
+        # Return it directly without going through match_keys.first so callers get
+        # back the exact key they supplied rather than a case-normalized variant.
         return path if cov_data.key?(path) && match_keys.length == 1
 
         # If multiple matches, raise ambiguity error

@@ -53,11 +53,13 @@ module CovLoupe
         cache_key = [resultset_path, root]
         entry = @entries[cache_key]
 
-        # Compute current signature and digest
+        # Signature (mtime/size/inode) is cheap — no file read required. Digest (MD5)
+        # is a fallback guard for filesystems with coarse mtime precision where two
+        # different writes can land with the same timestamp.
         signature = compute_signature(resultset_path)
         digest = compute_digest(resultset_path)
 
-        # Return cached data if it matches
+        # Both must match: signature catches most changes; digest catches same-mtime edits.
         if entry && signature && digest &&
             entry[:signature] == signature &&
             entry[:digest] == digest

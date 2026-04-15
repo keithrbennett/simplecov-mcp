@@ -371,7 +371,7 @@ module CovLoupe
           return percent_comp_result if percent_comp_result != 0
         end
 
-        a['file'] <=> b['file']
+        a['file'] <=> b['file'] # stable tiebreaker: alphabetical by path
       end
 
       rows.sort { |a, b| comparator.(a, b) }

@@ -91,11 +91,9 @@ module CovLoupe
       # Derive case-sensitivity from root's volume for accurate cross-volume handling
       return path unless normalized_start_with?(abs_path, abs_root, root: abs_root)
 
-      # Normalize paths before calling relative_path_from to handle case-insensitive
-      # volumes and mixed separators. This ensures Pathname can correctly compute
-      # the relative path even when the input paths have different casings or separators.
-      # On case-insensitive volumes, normalize case as well so Pathname recognizes them as the same path.
-      # Derive case-sensitivity from root's volume
+      # Normalize paths before relative_path_from so Pathname can compute the relative path
+      # regardless of mixed separators or case differences. Case-sensitivity is derived from
+      # root's volume.
       case_sensitive = begin
         VolumeCaseSensitivity.volume_case_sensitive?(abs_root)
       rescue SystemCallError, IOError
