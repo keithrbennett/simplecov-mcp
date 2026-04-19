@@ -120,6 +120,8 @@ For advanced use cases, multiple models can each have their own data source and 
 **MCP Server:**
 See [MCP Integration Guide](docs/user/MCP_INTEGRATION.md) for AI assistant setup.
 
+**Important for MCP users:** MCP servers must keep `stdout` clean until the protocol handshake begins. If you launch `cov-loupe -m mcp` through the RubyGems-installed `cov-loupe` stub from inside some other project directory, that stub may consult the current directory's `Gemfile` before `cov-loupe` starts. In projects with no lockfile or an incomplete bundle, RubyGems/Bundler can emit lines such as `Resolving dependencies...`, which corrupts MCP startup. The preferred fix is to settle that project's bundle with `bundle install` and then retry normal startup. See [MCP Integration](docs/user/MCP_INTEGRATION.md#stdout-must-stay-clean-during-mcp-startup) and [Troubleshooting](docs/user/TROUBLESHOOTING.md#rubygems-wrapper-prints-to-stdout-before-mcp-startup) for details and fallback options.
+
 ## Multi-Suite Coverage
 
 Projects with multiple test suites (RSpec + Cucumber, etc.) are automatically merged. See [Multi-Suite Coverage Merging](docs/user/ADVANCED_USAGE.md#multi-suite-coverage-merging) for details and current limitations.
