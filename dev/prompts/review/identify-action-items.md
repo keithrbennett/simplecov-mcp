@@ -36,7 +36,7 @@ Before you begin the report:
 
 ### Consult Guidelines First
 
-**CRITICAL:** 
+**CRITICAL:**
 
 - Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
 - For architectural issues, consult `docs/dev/arch-decisions` to see if the issue has already been considered.
@@ -73,11 +73,12 @@ Delimit each issue with horizontal lines and headlines. Number each issue.
    - **Effort to Fix:** High/Medium/Low
    - **Impact if Unaddressed:** What happens if we don't fix this?
 3. **Strategy:** High-level approach for addressing the issue.
-4. **Actionable Prompt:** Provide a specific, copy-paste-ready prompt that can be given to an AI coding agent to fix or improve this specific issue.
+4. **Actionable Prompt:** Provide a specific, copy-paste-ready prompt that can be given to an AI coding agent to fix or improve this specific issue. End the prompt with the following instruction:
+
+   > After completing the fix, propose a detailed commit message. Focus on *why* the approach was chosen and any non-obvious decisions or tradeoffs. Describe what the tests verify in terms of expected behavior — not the mechanics of how they were written. Omit restatements of what the diff already shows.
 
 **Example format:**
 
-```markdown
 ---
 
 ## Issue: Insecure Password Storage
@@ -100,7 +101,10 @@ Update the user authentication system to use bcrypt for password hashing. Specif
 2. Update User model to hash passwords before saving
 3. Update authentication logic to compare hashed passwords
 4. Add migration to hash existing plain text passwords
-```
+
+After completing the fix, propose a detailed commit message. Focus on why the approach was chosen 
+and any non-obvious decisions or tradeoffs. Describe what the tests verify in terms of expected behavior — 
+not the mechanics of how they were written. Omit restatements of what the diff already shows.
 ```
 
 ---
