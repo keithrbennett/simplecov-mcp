@@ -7,12 +7,25 @@ I need you to test that the intention of a code change was accomplished successf
 - concise
 - conforms to best practices
 - as simple as possible
-- is not more easily accomplished using tools available that might not have been considered, especially since coding tools do not generally search the web
+- is not more easily accomplished using tools available that might not have
+  been considered, especially since coding tools do not generally search the
+  web
 - is adequately tested (for Ruby Simplecov coverage, use the cov-loupe MCP server)
+
+## Preconditions
+
+Before you begin:
+
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+
+---
 
 ### Parameters (I Will Give You...)
 
-- Comparison Specification (an argument to `git diff`) - the point of reference from which you can do a git diff to see the changes. Examples:
+- Comparison Specification (an argument to `git diff`) - the point of reference
+  from which you can do a git diff to see the changes. Examples:
   - a commit (e.g. HEAD, HEAD~~, HEAD~4, 45076963221647d724b9b52faa3690a6d83ae8d1)
   - a branch name
   - a tag
@@ -49,6 +62,3 @@ Write your response as markdown text and save it to a file whose name is:
 - today's date in UTC `%Y-%m-%d-%H-%M` format +
 - your name (e.g. 'codex', 'claude', 'gemini', 'zai') +
 - "-code-review-#{change_intention_phrase}.md"
-
-
-

@@ -2,6 +2,13 @@
 
 This directory contains prompts for AI coding assistants to help with codebase maintenance and improvement.
 
+## General Precondition
+
+Unless a prompt explicitly says otherwise: if you are not in the project root,
+inform the user, state your current working directory, and wait for
+confirmation before proceeding so they can choose to start a new session in the
+project root.
+
 ## Quick Reference
 
 ### Review Code
@@ -55,14 +62,17 @@ This directory contains prompts for AI coding assistants to help with codebase m
 
 ## Guidelines
 
-See [guidelines/ai-code-evaluator-guidelines.md](guidelines/ai-code-evaluator-guidelines.md) for context on design decisions that AI reviewers should understand before flagging issues. This document explains:
+See [guidelines/ai-code-evaluator-guidelines.md](guidelines/ai-code-evaluator-guidelines.md)
+for context on design decisions that AI reviewers should understand before
+flagging issues. This document explains:
 
 - Security considerations (validate command, file system operations, rate limiting)
 - Performance trade-offs (memory-based coverage data)
 - Code quality decisions (RuboCop metrics cops, method length)
 - Documentation structure (MkDocs includes)
 
-AI analysis tools should consult this document before reporting issues to avoid false positives on intentional design decisions.
+AI analysis tools should consult this document before reporting issues to avoid
+false positives on intentional design decisions.
 
 ## Archive
 

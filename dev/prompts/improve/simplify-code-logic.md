@@ -1,6 +1,17 @@
 # Simplify and Document Code Logic
 
-**Purpose:** Identify and improve complex, unclear, or surprising code logic through simplification or documentation.
+**Purpose:** Identify and improve complex, unclear, or surprising code logic
+through simplification or documentation.
+
+## Preconditions
+
+Before you begin:
+
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+
+---
 
 ## When to Use This
 
@@ -62,7 +73,8 @@ For each instance of complex or unclear logic:
 
 ## Constraints
 
-- **Follow guidelines:** Respect decisions documented in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md`
+- **Follow guidelines:** Respect decisions documented in
+  `dev/prompts/guidelines/ai-code-evaluator-guidelines.md`
 - **Maintain behavior:** Do not change functionality
 - **Add tests:** Ensure adequate test coverage for any refactored code
 - **Rubocop compliance:** Run `rubocop` (or `rubocop --cache false` in sandboxed environments) when feasible
@@ -128,6 +140,8 @@ end
 
 ## Output
 
-Make changes directly to the code files. No separate report is needed unless you want to summarize the improvements made.
+Make changes directly to the code files. No separate report is needed unless
+you want to summarize the improvements made.
 
-Do not run `git commit`. If the user asks for a commit, suggest a concise message that explains what was simplified or documented and why.
+Do not run `git commit`. If the user asks for a commit, suggest a concise
+message that explains what was simplified or documented and why.

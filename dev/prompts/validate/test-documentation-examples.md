@@ -2,6 +2,16 @@
 
 **Purpose:** Verify that all command examples in documentation work correctly and produce expected outputs.
 
+## Preconditions
+
+Before you begin:
+
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+
+---
+
 ## When to Use This
 
 - After making documentation changes
@@ -168,7 +178,8 @@ cov-loupe list --output-format json
 
 - **Don't modify code:** This is a validation task, not a fix task. Document what needs changing.
 - **Test in clean environment:** If possible, test in a fresh environment to catch missing setup steps.
-- **Check both success and failure examples:** If documentation shows an error example, verify it produces that error.
+- **Check both success and failure examples:** If documentation shows an error
+  example, verify it produces that error.
 - **Version compatibility:** Note if examples only work with specific versions.
 
 ## Follow-Up Actions

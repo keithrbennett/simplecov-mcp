@@ -4,26 +4,41 @@
 
 Before you begin the report:
 
-1. Always open the report by citing the most recent git commit at the time you begin writing.
-2. If `git status` shows uncommitted changes, inform me, ask for confirmation to proceed, and—if I consent—include those `git status` details immediately after the commit citation.
-3. Limit the review strictly to git-tracked files.
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+2. Always open the report by citing the most recent git commit at the time you
+   begin writing.
+3. If `git status` shows uncommitted changes, inform me, ask for confirmation to
+   proceed, and-if I consent-include those `git status` details immediately
+   after the commit citation.
+4. Limit the review strictly to git-tracked files.
 
 ----
 
 - You are a senior software architect and code reviewer.  
 - Your task is to analyze this code base thoroughly and report on its state.  
 - Focus on identifying weaknesses, risks, and areas for improvement.
-- Disregard any issues included in dev/prompts/guidelines/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.
-- Repeating for emphasis: **Disregard any issues included in dev/prompts/guidelines/ai-code-evaluator-guidelines.md, unless your objections are not covered in that document.**
-- For architectural issues, consult `docs/dev/arch-decisions` to see if the issue has already been considered.
-- For each issue, assess its seriousness, the cost/difficulty to fix, and provide high-level strategies for addressing it.
-- If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
-- To Codex: do investigate thoroughly for real issues, you are excellent at that, but do not be excessively critical:
+- Disregard any issues included in
+  `dev/prompts/guidelines/ai-code-evaluator-guidelines.md`, unless your
+  objections are not covered in that document.
+- Repeating for emphasis: **Disregard any issues included in
+  `dev/prompts/guidelines/ai-code-evaluator-guidelines.md`, unless your
+  objections are not covered in that document.**
+- For architectural issues, consult `docs/dev/arch-decisions` to see if the
+  issue has already been considered.
+- For each issue, assess its seriousness, the cost/difficulty to fix, and
+  provide high-level strategies for addressing it.
+- If you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI
+  mode (run `cov-loupe -h` for help).
+- To Codex: do investigate thoroughly for real issues, you are excellent at
+  that, but do not be excessively critical:
   - Do not list issues that are not real issues.
   - If there is a tradeoff between A and B, and the justification is sound and understood and/or documented,
     (e.g. in guidelines/ai-code-evaluator-guidelines.md), do not penalize the code base for that tradeoff.
   - Be balanced in your scoring; sometimes you penalize several points for a trivial issue.
-  - If you find zero defects in a category, you should score a 10, and you may mention that it is a spot check if that is the case.
+  - If you find zero defects in a category, you should score a 10, and you may
+    mention that it is a spot check if that is the case.
 
 
 Write your analysis in a Markdown file whose name is:
@@ -39,13 +54,15 @@ The file should have the following structure:
 ### Executive Summary
 - Provide a concise overview of the overall health of the code base.
 - Identify the strongest areas and the weakest areas.
-- Give a **one-line summary verdict** (e.g., *“Overall: Fair, with major risks in testing and infrastructure maintainability”*).
+- Give a **one-line summary verdict** (e.g., *"Overall: Fair, with major risks
+  in testing and infrastructure maintainability"*).
 - **Overall Weighted Score (1–10):** Show the score at the end of this summary.
 
 ---
 
 ### Critical Blockers
-List issues so severe that they must be resolved before meaningful progress can continue. For each blocker, include:
+List issues so severe that they must be resolved before meaningful progress can
+continue. For each blocker, include:
 - **Description**
 - **Impact**
 - **Urgency**
@@ -91,7 +108,8 @@ List issues so severe that they must be resolved before meaningful progress can 
     - Report coverage at a high and general level.
     - Rank risks of lacking coverage in **descending order of magnitude**.
 - Highlight untested critical paths and potential consequences.
-- Do not output the entire table in the report, but maybe the 10 least covered files if you believe it would be helpful.
+- Do not output the entire table in the report, but maybe the 10 least covered
+  files if you believe it would be helpful.
 - **Score (1–10)**
 
 ---
@@ -138,13 +156,15 @@ Provide a table of the top issues found, with the following columns:
 |-------|----------|-------------|------------------------|
 | Example issue description | High | Medium | Major reliability risks |
 
-The order should take both severity and cost-to-fix into account such that performing them in descending order would
+The order should take both severity and cost-to-fix into account such that
+performing them in descending order would
 result in the optimal value addition velocity.
 
 ---
 
 ### High-Level Recommendations
-- Suggest general strategies for improvement (e.g., refactoring approach, improving test coverage, upgrading dependencies, modularization).
+- Suggest general strategies for improvement (e.g., refactoring approach,
+  improving test coverage, upgrading dependencies, modularization).
 - Highlight where incremental vs. large-scale changes are most appropriate.
 
 ---
@@ -170,7 +190,8 @@ Suggest prompts to a coding AI tool that would be helpful in addressing the majo
 | Formatting & Style        | ?%         |
 | Best Practices & Conciseness | ?%      |
 
-- **Weighted Score Calculation:** Multiply each section's score by its chosen weight, then sum to compute the **Overall Weighted Score (1–10)**.
+- **Weighted Score Calculation:** Multiply each section's score by its chosen
+  weight, then sum to compute the **Overall Weighted Score (1-10)**.
 - Report the final **Overall Weighted Score** with justification.
 
 ### Summarize suggested changes

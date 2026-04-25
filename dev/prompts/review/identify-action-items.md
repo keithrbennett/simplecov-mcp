@@ -1,6 +1,7 @@
 # Identify Action Items
 
-**Purpose:** Identify and prioritize issues that need fixing NOW. This is a problems-focused review (not a balanced assessment).
+**Purpose:** Identify and prioritize issues that need fixing NOW. This is a
+problems-focused review (not a balanced assessment).
 
 ## When to Use This
 
@@ -17,17 +18,26 @@ For a balanced assessment showing strengths AND weaknesses, use `comprehensive-c
 
 Before you begin the report:
 
-1. Always open the report by citing the most recent git commit at the time you begin writing.
-2. Limit the review strictly to git-tracked files.
-3. If `git status` shows uncommitted changes, inform me, ask for confirmation to proceed, and—if I consent—include those `git status` details immediately after the commit citation.
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+2. Always open the report by citing the most recent git commit at the time you
+   begin writing.
+3. Limit the review strictly to git-tracked files.
+4. If `git status` shows uncommitted changes, inform me, ask for confirmation to
+   proceed, and-if I consent-include those `git status` details immediately
+   after the commit citation.
 
 ---
 
 ## Your Role & Task
 
 - You are a senior software architect and code reviewer.
-- Your task is to analyze this code base thoroughly and identify issues needing immediate attention.
-- Focus on: bugs, defects, security vulnerabilities, performance bottlenecks, technical debt, weaknesses, risks, ambiguities, and other areas requiring improvement.
+- Your task is to analyze this code base thoroughly and identify issues needing
+  immediate attention.
+- Focus on: bugs, defects, security vulnerabilities, performance bottlenecks,
+  technical debt, weaknesses, risks, ambiguities, and other areas requiring
+  improvement.
 - **This is NOT a balanced review** - focus on problems, not strengths.
 
 ---
@@ -38,15 +48,21 @@ Before you begin the report:
 
 **CRITICAL:**
 
-- Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
+- Disregard any issues included in
+  `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your
+  objections are not covered in that document.
 - For architectural issues, consult `docs/dev/arch-decisions` to see if the issue has already been considered.
 
-**Repeating for emphasis:** Disregard any issues included in `dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections are not covered in that document.
+**Repeating for emphasis:** Disregard any issues included in
+`dev/prompts/guidelines/ai-code-evaluator-guidelines.md` unless your objections
+are not covered in that document.
 
 ### Be Balanced (Not Excessively Critical)
 
 - Do not list issues that are not real issues.
-- If there is a tradeoff between A and B, and the justification is sound and documented (e.g., in ai-code-evaluator-guidelines.md), do not penalize the code base for that tradeoff.
+- If there is a tradeoff between A and B, and the justification is sound and
+  documented (e.g., in ai-code-evaluator-guidelines.md), do not penalize the
+  code base for that tradeoff.
 - Be fair in your severity assessments; sometimes trivial issues are overweighted.
 - Investigate thoroughly for real issues, but maintain perspective on their actual impact.
 
@@ -54,8 +70,10 @@ Before you begin the report:
 
 ## Tooling
 
-- Use the `cov-loupe` MCP server *as an MCP server* (not a command line application with args) to find information about test coverage.
-- Only if you are unable to use the cov-loupe MCP server, use `cov-loupe` in CLI mode (run `cov-loupe -h` for help).
+- Use the `cov-loupe` MCP server *as an MCP server* (not a command line
+  application with args) to find information about test coverage.
+- Only if you are unable to use the cov-loupe MCP server, use `cov-loupe` in
+  CLI mode (run `cov-loupe -h` for help).
 
 ---
 
@@ -73,9 +91,15 @@ Delimit each issue with horizontal lines and headlines. Number each issue.
    - **Effort to Fix:** High/Medium/Low
    - **Impact if Unaddressed:** What happens if we don't fix this?
 3. **Strategy:** High-level approach for addressing the issue.
-4. **Actionable Prompt:** Provide a specific, copy-paste-ready prompt that can be given to an AI coding agent to fix or improve this specific issue. End the prompt with the following instruction:
+4. **Actionable Prompt:** Provide a specific, copy-paste-ready prompt that can
+   be given to an AI coding agent to fix or improve this specific issue. End
+   the prompt with the following instruction:
 
-   > After completing the fix, propose a detailed commit message. Focus on *why* the approach was chosen and any non-obvious decisions or tradeoffs. Describe what the tests verify in terms of expected behavior — not the mechanics of how they were written. Omit restatements of what the diff already shows.
+   > After completing the fix, propose a detailed commit message. Focus on why
+   > the approach was chosen and any non-obvious decisions or tradeoffs.
+   > Describe what the tests verify in terms of expected behavior, not the
+   > mechanics of how they were written. Omit restatements of what the diff
+   > already shows.
 
 **Example format:**
 
@@ -92,7 +116,8 @@ User passwords are stored in plain text in the database.
 - **Impact if Unaddressed:** Critical security vulnerability; user accounts easily compromised.
 
 ### Strategy
-Replace plain text storage with bcrypt hashing. Update authentication logic to hash passwords on registration and verify hashed passwords on login.
+Replace plain text storage with bcrypt hashing. Update authentication logic to
+hash passwords on registration and verify hashed passwords on login.
 
 ### Actionable Prompt
 ```
@@ -111,9 +136,11 @@ not the mechanics of how they were written. Omit restatements of what the diff a
 
 ### Summary Table
 
-At the end of the file, produce a markdown table that summarizes ALL issues, ordered by priority (considering severity, effort, and impact):
+At the end of the file, produce a markdown table that summarizes ALL issues,
+ordered by priority (considering severity, effort, and impact):
 
-| Brief Description (<= 50 chars) | Severity (H/M/L) | Effort (H/M/L) | Impact if Unaddressed | Link to Detail |
+| Brief Description (<= 50 chars) | Severity (H/M/L) | Effort (H/M/L) |
+| Impact if Unaddressed | Link to Detail |
 | :--- | :---: | :---: | :--- | :--- |
 | ... | ... | ... | ... | [See below](#issue-title) |
 

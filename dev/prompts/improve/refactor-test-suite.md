@@ -1,18 +1,33 @@
 # Thoroughly Review Test Suite
 
+## Preconditions
+
+Before you begin:
+
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+
+---
+
 Carefully examine the test suite. Report and fix:
 
 - duplicate tests testing the same thing
 - tests that test the test setup rather than the actual production code
 - verbose tests, e.g.:
-  - multiple calls to `to include` that should be compressed into a single call with a comma separated string list
-  - duplicate test code that can be made more concise by the use of arrays of test data with an `.each`, etc. block
+  - multiple calls to `to include` that should be compressed into a single call
+    with a comma separated string list
+  - duplicate test code that can be made more concise by the use of arrays of
+    test data with an `.each`, etc. block
 - complex tests that could be clarified with comments, intermediate variables, extracted methods, etc.
 
 Ensure that any code changes comply with rubocop linting:
 
-- run `rubocop` to see if there are any errors. If cache writes fail (e.g., in a sandboxed environment), use `bundle exec rubocop --cache false`.
-- run `rubocop -A` (or `bundle exec rubocop -A --cache false` if needed) to fix anything rubocop is capable of fixing
+- run `rubocop` to see if there are any errors. If cache writes fail
+  (e.g., in a sandboxed environment), use
+  `bundle exec rubocop --cache false`.
+- run `rubocop -A` (or `bundle exec rubocop -A --cache false` if needed) to
+  fix anything rubocop is capable of fixing
 - fix the other errors yourself
 
 Run the test suite as necessary to verify that all tests pass.

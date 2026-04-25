@@ -2,6 +2,16 @@
 
 **Purpose:** Keep the project's Markdown documentation accurate, clear, complete, and internally consistent.
 
+## Preconditions
+
+Before you begin:
+
+1. If you are not in the project root, inform the user, state your current
+   working directory, and wait for confirmation before proceeding so they can
+   choose to start a new session in the project root.
+
+---
+
 ## Scope
 
 Examine all Markdown files in:
@@ -60,21 +70,24 @@ Check internal links (relative Markdown paths) and anchor links (`#heading-id`):
 Some files under `docs/` are intentional single-line stubs that use the MkDocs
 `include-markdown` plugin to pull in content from the repository root. Do **not**
 flag these as incomplete. See
-[`dev/prompts/guidelines/ai-code-evaluator-guidelines.md` — MkDocs Include-Markdown Stubs](../guidelines/ai-code-evaluator-guidelines.md#mkdocs-include-markdown-stubs)
+[`dev/prompts/guidelines/ai-code-evaluator-guidelines.md` -
+MkDocs Include-Markdown Stubs](../guidelines/ai-code-evaluator-guidelines.md#mkdocs-include-markdown-stubs)
 for the full explanation.
 
 ## Actions to Take
 
-1. **Fix in place** — edit the doc file directly; no separate report is needed unless the scope
-   of changes warrants a summary.
-2. **Prefer linking over duplicating** — when the same information belongs in two places, keep
-   the authoritative copy and add a short cross-reference elsewhere.
+1. **Fix in place** — edit the doc file directly; no separate report is needed
+   unless the scope of changes warrants a summary.
+2. **Prefer linking over duplicating** — when the same information belongs in
+   two places, keep the authoritative copy and add a short cross-reference
+   elsewhere.
 3. **Match existing tone** — keep edits consistent with the surrounding prose style.
 4. **Do not rewrite for rewriting's sake** — only change what is inaccurate, unclear, or missing.
 
 ## Constraints
 
-- Do not alter code files unless a documented example is genuinely broken and a code fix is
-  clearly correct; prefer updating the docs to match current behaviour.
-- Do not run `git commit`. Stage only the documentation files you changed, and propose a concise
-  commit message describing what was corrected and why.
+- Do not alter code files unless a documented example is genuinely broken and a
+  code fix is clearly correct; prefer updating the docs to match current
+  behaviour.
+- Do not run `git commit`. Stage only the documentation files you changed, and
+  propose a concise commit message describing what was corrected and why.
