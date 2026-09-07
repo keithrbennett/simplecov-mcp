@@ -28,6 +28,16 @@ jobs:
     steps:
     - uses: actions/checkout@v7
 
+    # JRuby 10.x is built for Java 21; the runner's default JDK is older.
+    # setup-java fetches its own JDK, so this doesn't depend on which versions
+    # the runner image happens to preinstall.
+    - name: Set up Java 21 (JRuby only)
+      if: matrix.ruby-version == 'jruby'
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: '21'
+
     - name: Set up Ruby ${{ matrix.ruby-version }}
       uses: ruby/setup-ruby@v1
       with:
@@ -45,12 +55,12 @@ jobs:
         files: ./coverage/coverage.xml
         fail_ci_if_error: false
 
-  # The gemspec promises simplecov >= 0.21, < 2.0. The `test` job above only
-  # exercises whatever version is in the committed lock, so this job re-resolves
-  # against the ends of that range and runs the suite there. It exists because a
-  # simplecov point release (1.2.0) once broke the multi-suite merge path on
-  # main with no change on our side; this turns that class of break into a
-  # failure here instead.
+  # The gemspec promises simplecov >= 0.21, < 2.0. A normal `bundle install`
+  # only exercises whatever Bundler resolves today (usually the newest), so this
+  # job pins simplecov to each end of that range and runs the suite there. It
+  # exists because a simplecov point release (1.2.0) once broke the multi-suite
+  # merge path on main with no change on our side; this turns that class of
+  # break into a failure here instead.
   compat:
     name: Compat (simplecov ${{ matrix.simplecov }})
     runs-on: ubuntu-latest
@@ -79,14 +89,12 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '4.0'
-        # Re-resolve from scratch rather than restoring the committed lock, so
-        # the pins above actually take effect.
+        # No bundler cache: this job must resolve fresh each run so the pins
+        # above take effect and aren't masked by a restored bundle.
         bundler-cache: false
 
     - name: Install (simplecov ${{ matrix.simplecov }})
-      run: |
-        rm -f Gemfile.lock
-        bundle install --jobs 4
+      run: bundle install --jobs 4
 
     - name: Show resolved simplecov
       run: bundle list | grep simplecov

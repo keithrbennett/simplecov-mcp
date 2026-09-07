@@ -11,11 +11,10 @@ gem 'rubocop', '~> 1.88.0'
 gem 'rubocop-rspec', '~> 3.10.0'
 
 # simplecov is a runtime dependency, constrained by the gemspec (>= 0.21, < 2.0).
-# Normal `bundle install` leaves it unpinned here and Bundler resolves it via the
-# gemspec + lockfile. The "compat" job in .github/workflows/test.yml sets
-# SIMPLECOV_VERSION to run the suite against the oldest and newest versions the
-# gemspec allows, so an incompatible upstream release is caught in that job
-# instead of on main after a routine `bundle update`.
+# Normal `bundle install` leaves it unpinned here so Bundler resolves it within
+# that range. The "compat" job in .github/workflows/test.yml sets SIMPLECOV_VERSION
+# to run the suite against the oldest and newest versions the gemspec allows, so
+# an incompatible upstream release fails there rather than on main.
 simplecov_pin = ENV.fetch('SIMPLECOV_VERSION', '')
 gem 'simplecov', simplecov_pin unless simplecov_pin.empty?
 

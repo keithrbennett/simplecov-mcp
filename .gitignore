@@ -60,6 +60,9 @@ mise.toml
 /log/
 *.log
 
+# Lockfile (this is a library; CI resolves dependencies fresh)
+/Gemfile.lock
+
 # RSpec
 /.rspec_status
 
