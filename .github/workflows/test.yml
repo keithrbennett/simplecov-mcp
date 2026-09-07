@@ -45,7 +45,7 @@ jobs:
         files: ./coverage/coverage.xml
         fail_ci_if_error: false
 
-k  # The gemspec promises simplecov >= 0.21, < 2.0. The `test` job above only
+  # The gemspec promises simplecov >= 0.21, < 2.0. The `test` job above only
   # exercises whatever version is in the committed lock, so this job re-resolves
   # against the ends of that range and runs the suite there. It exists because a
   # simplecov point release (1.2.0) once broke the multi-suite merge path on
